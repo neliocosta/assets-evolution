@@ -190,6 +190,7 @@ aside nav a.on i{border-color:#fff;opacity:1}
 .drawer .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .deriv{font:500 11.5px 'DM Sans',sans-serif;color:#8d8d8d;margin-top:4px}
 .drawer .foot{display:flex;gap:10px;align-items:center;margin-top:20px;border-top:1px solid #f0efec;padding-top:16px}
+details.opc{margin-bottom:12px} details.opc summary{cursor:pointer;font:600 12px 'DM Sans',sans-serif;color:var(--nl-orange-600);margin-bottom:8px}
 .chipset{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .chipd{display:inline-flex;align-items:center;gap:4px;background:#EEF2F7;color:var(--nl-navy-900);border-radius:9999px;padding:4px 6px 4px 10px;font:600 12px 'DM Sans',sans-serif}
 .chipd button{border:0;background:transparent;color:#8a8a8a;cursor:pointer;font-size:14px;line-height:1;padding:0 3px}
@@ -252,6 +253,9 @@ tbody td.txt small{display:block;color:#9a9a9a;font-size:11px}
 .calc .spacer{margin-left:auto}
 .sub{border-top:1px dashed #eceae5;margin-top:13px;padding-top:13px}
 .sub h4{font:600 11px Sora,sans-serif;color:var(--nl-navy-900);margin-bottom:10px}
+details.opc2 summary{cursor:pointer;font:600 12px Sora,sans-serif;color:var(--nl-navy-900);list-style:revert}
+details.opc2 summary span{font:500 11.5px 'DM Sans',sans-serif;color:#9a9a9a;margin-left:6px}
+details.opc2[open] summary{margin-bottom:10px}
 .warn{background:#FDF3F3;border-radius:10px;padding:11px 14px;font-size:12.5px;color:#9b3a3a;line-height:1.5;margin-top:4px}
 .ok-note{background:#F1F8F3;border-radius:10px;padding:11px 14px;font-size:12.5px;color:#2b6e45;line-height:1.5;margin-top:4px}
 .muted{color:#9a9a9a;font-size:12.5px}
@@ -297,9 +301,10 @@ tbody td.txt small{display:block;color:#9a9a9a;font-size:11px}
       <div class="field"><label>Renda mensal desejada na aposentadoria <em>obrigatório</em></label><input id="f-desired" data-money type="text" inputmode="decimal" placeholder="R$ por mês, em valores de hoje"></div>
       <div class="field"><label>Idade para parar de trabalhar</label><input id="f-retire" type="number" min="30" max="90" placeholder="vazio: assim que o patrimônio permitir"></div>
       <div class="field"><label>Expectativa de vida (anos)</label><input id="f-lifeExp" type="number" min="70" max="110"></div>
+      <div class="field"><label>Idade do cônjuge (se houver)</label><input id="f-spouse" type="number" min="18" max="90" placeholder="usada no INSS do cônjuge"></div>
     </div>
     <div id="faltaCliente"></div>
-    <div class="note">Casal: use a idade de quem vai parar de trabalhar primeiro. A renda de cada um entra como uma linha própria no Fluxo de caixa, e o INSS de cada um como uma renda na página Liberdade financeira.</div>
+    <div class="note">Casal: em "Idade hoje" use a idade de quem vai parar de trabalhar primeiro e informe a do outro em "Idade do cônjuge". A renda de cada um entra como uma linha própria no Fluxo de caixa, e o INSS de cada um como uma renda na página Liberdade financeira.</div>
     <div class="pagenav"><button class="btn btn-tertiary" data-ir="patrimonio">Próximo: Patrimônio e premissas →</button></div>
   </section>
 
@@ -540,6 +545,7 @@ const ENGINE = (() => {
   function run(mode) {
     const weeks = new Array(NW), events = [];
     let cofre = 0, obj = OBJ.map(() => 0), done = OBJ.map(() => false), bens = 0, part = PART_VALUE;
+    const saldoNaData = OBJ.map(() => 0);   // quanto cada objetivo de fato juntou até a data alvo
     let offset = 99, streams = [], ff = null, prevActive = '', allocated = false, ks = [];
     const recurTotal = () => streams.reduce((a, st) => a + (st.left === 0 ? 0 : st.value), 0);
     // despesa com endObj (o aluguel, por exemplo) deixa de existir quando aquele objetivo é realizado
@@ -597,7 +603,7 @@ const ENGINE = (() => {
         OBJ.forEach((o, k) => {
           if (t >= 0 && !done[k] && mIdx >= o.months) {
             done[k] = true;
-            const bal = obj[k]; obj[k] = 0; cofre += bal; transfer(f, 'mov_obj_' + o.id, 'mov_cofre', bal); // saldo dedicado volta ao cofre
+            const bal = obj[k]; saldoNaData[k] = bal; obj[k] = 0; cofre += bal; transfer(f, 'mov_obj_' + o.id, 'mov_cofre', bal); // saldo dedicado volta ao cofre
             if (o.kind === 'bem') { bens += o.amount; cofre -= o.amount; transfer(f, 'mov_cofre', 'mov_bens', o.amount); } // conversão financeiro → bens
             else add(f, 'out_obj_' + o.id, o.amount); // consumo: é uma saída, paga pelo cofre
             if (o.recurring) streams.push({ id: o.id, value: o.recurring.value, left: o.recurring.months == null ? -1 : o.recurring.months, label: o.recurring.label, amort: o.recurring.amort });
@@ -640,7 +646,7 @@ const ENGINE = (() => {
           w = Math.min(w, Math.max(0, cofre - (f.out_rendas || 0)));
           // na aposentadoria o padrão de vida se ajusta à renda disponível
           const custoVida = livingAt(m.mIdx) || 1;
-          m.salary = 0; m.scale = Math.max(0, pas + passiveIncomeAt(m.mIdx) + w - recurTotal()) / custoVida; m.invest = 0; m.pas = pas;
+          m.salary = 0; m.scale = Math.max(0, pas + passiveIncomeAt(m.mIdx) + w - recurTotal()) / custoVida; m.invest = 0; m.pas = pas + passiveIncomeAt(m.mIdx);
         } else {
           m.scale = 1;                                // os valores já vêm da linha do tempo
           m.salary = incomeAt(m.mIdx);                // equivalente mensal, para dimensionar o aporte
@@ -672,6 +678,9 @@ const ENGINE = (() => {
     const yearB = bucketize(i => Math.floor(cmOf(i) / 12));
     const multiB = bucketize(i => Math.floor(cmOf(i) / 48));
     const decadeB = bucketize(i => Math.floor(cmOf(i) / 120));
+    // o status de cada objetivo vem da simulação (o que o orçamento de fato entrega), não da fórmula fechada;
+    // as duas telas leem este mesmo número
+    OBJ.forEach((o, k) => { o.real = saldoNaData[k]; o.ratio = o.amount > 0 ? o.real / o.amount : 1; o.status = o.ratio >= 0.98 ? 'ok' : o.ratio >= 0.7 ? 'adj' : 'risk'; });
     return { weeks, events, ff, buckets: { week: weekB, month: monthB, quarter: quarterB, year: yearB, multi: multiB, decade: decadeB } };
   }
   // Aplica um plano vindo da tela do consultor (JSON no hash da URL ou em localStorage)
@@ -745,7 +754,6 @@ const PLANO_PADRAO = Object.assign(
 );
 
 let plano = load();
-let paginasVistas = {};   // páginas por onde a consultora já passou neste cliente
 function load() {
   try { const raw = localStorage.getItem('nl-plano'); if (raw) return Object.assign(structuredClone(PLANO_PADRAO), JSON.parse(raw)); } catch (e) { }
   return structuredClone(PLANO_PADRAO);
@@ -778,9 +786,7 @@ function recompute() {
   plano.objectives.forEach((o, k) => {
     const ev = SIM.events.find(e => e.type === 'obj' && e.obj.id === o.id);
     const fim = ev ? ev.week : ENGINE.NW - 1;
-    o.real = ev ? SIM.weeks[Math.max(0, ev.week - 1)].obj[k] : 0;   // saldo acumulado na data alvo
-    o.realRatio = o.amount > 0 ? o.real / o.amount : 1;
-    o.status = o.realRatio >= 0.98 ? 'ok' : o.realRatio >= 0.7 ? 'adj' : 'risk';
+    o.realRatio = o.ratio;                                          // o.real, o.ratio e o.status vêm da simulação do motor
     let ap = 0;                                                     // aporte que o orçamento realmente entregou
     for (let i = ENGINE.W0; i < fim; i++) { const v = SIM.weeks[i].f['mov_obj_' + o.id]; if (v > 0) ap += v; }
     ap -= o.dedicated;                                              // fora a alocação inicial, que não é aporte mensal
@@ -807,6 +813,23 @@ const capacity = () => plano.capacityOverride != null && plano.capacityOverride 
   ? +plano.capacityOverride : Math.max(0, media12());
 const plannedTotal = () => plano.objectives.reduce((a, o) => a + (+o.planned || 0), 0);
 
+// Por que um objetivo não recebe o aporte definido: o primeiro mês em que o orçamento entrega menos e a
+// causa provável (renda que cai, despesa que começa ou sobe, financiamento de outro objetivo que começa).
+function diagnostico(o) {
+  if (!SIM || !o.truncado) return null;
+  let mes = null;
+  for (const b of SIM.buckets.month) {
+    if (b.w1 <= ENGINE.W0 || b.mi < 1 || b.mi >= o.months) continue;
+    if ((b.f['mov_obj_' + o.id] || 0) < o.planned * 0.95) { mes = b.mi; break; }
+  }
+  if (mes == null) return null;
+  const perto = st => st.from <= mes && st.from >= mes - 2, causas = [];
+  plano.incomes.forEach(it => it.steps.forEach((st, j) => { if (perto(st) && j > 0 && +st.value < +it.steps[j - 1].value) causas.push(`${esc(it.label)} cai de ${fmt(it.steps[j - 1].value)} para ${fmt(st.value)} em ${monthsLabel(st.from)}`); }));
+  plano.expenses.forEach(it => it.steps.forEach((st, j) => { if (perto(st) && +st.value > (j ? +it.steps[j - 1].value : 0) && st.from > 0) causas.push(`${esc(it.label)} ${j && +it.steps[j - 1].value ? 'sobe para' : 'começa, com'} ${fmt(st.value)} em ${monthsLabel(st.from)}`); }));
+  plano.objectives.forEach(x => { if (x.recurring && x.recurring.value > 0 && x.months <= mes && x.months >= mes - 2) causas.push(`${esc(x.recurring.label || x.name)} começa em ${monthsLabel(x.months)}`); });
+  const anteriores = plano.objectives.filter(x => x !== o && x.months < o.months && x.planned > 0);
+  return { mes, causas, anteriores };
+}
 // ===================== RENDERIZAÇÃO =====================
 function renderAll() {
   // o campo em edição volta com o foco e com o texto exatamente como estava sendo digitado
@@ -825,18 +848,28 @@ function renderTop() {
   document.getElementById('sbName').textContent = nome;
   document.getElementById('sbMeta').textContent = (plano.age ? plano.age + ' anos · ' : 'idade não informada · ') + plano.objectives.length + ' objetivo' + (plano.objectives.length === 1 ? '' : 's');
   const cap = capacity(), pl = plannedTotal(), livre = cap - pl, informada = plano.capacityOverride != null && plano.capacityOverride !== '';
-  const risco = plano.objectives.filter(o => o.status === 'risk').length;
+  const risco = plano.objectives.filter(o => o.status !== 'ok').length;
   const ff = SIM && SIM.ff;
   document.getElementById('chips').innerHTML =
     `<div class="chip" data-ir="fluxo" title="${informada ? 'Valor informado em Patrimônio e premissas' : 'Entradas menos saídas do Fluxo de caixa, média dos próximos 12 meses'}"><span>Capacidade de poupança</span><b>${temFluxo() || informada ? fmt(cap) : '—'}</b></div>` +
     `<div class="chip" data-ir="objetivos"><span>Aportes definidos</span><b class="${pl > cap && temFluxo() ? 'low' : ''}">${fmt(pl)}</b></div>` +
     `<div class="chip"><span>Folga mensal</span><b class="${livre < 0 ? 'low' : 'good'}">${temFluxo() || informada ? fmt(livre) : '—'}</b></div>` +
-    `<div class="chip" data-ir="objetivos"><span>Objetivos em risco</span><b class="${risco ? 'low' : 'good'}">${risco} de ${plano.objectives.length}</b></div>` +
+    `<div class="chip" data-ir="objetivos"><span>Objetivos fora do orçamento</span><b class="${risco && !aguardaOrcamento() ? 'low' : 'good'}">${aguardaOrcamento() || !plano.objectives.length ? '—' : risco + ' de ' + plano.objectives.length}</b></div>` +
     `<div class="chip" data-ir="liberdade" title="${ff && ff.forced ? 'Nessa idade o patrimônio não sustenta toda a renda desejada' : ''}"><span>Liberdade financeira</span><b class="${ff && !ff.forced ? 'good' : 'low'}">${ff && plano.desired > 0 ? Math.floor(ff.age) + ' anos · ' + ENGINE.weekDate(ff.week).getFullYear() + (ff.forced ? ' · renda parcial' : '') : '—'}</b></div>`;
   document.getElementById('f-cap').placeholder = temFluxo() ? 'vazio: ' + fmt(media12()) + ' (média de 12 meses do Fluxo de caixa)' : 'vazio: calculada pelo Fluxo de caixa';
   // passos concluídos na barra lateral
-  const feito = { cliente: !!(plano.name && plano.age && plano.desired > 0), patrimonio: !!(paginasVistas.patrimonio), objetivos: !!paginasVistas.objetivos, fluxo: temFluxo(), liberdade: !!paginasVistas.liberdade };
+  const vistas = plano.vistas || {};
+  const feito = { cliente: !!(plano.name && plano.age && plano.desired > 0),
+    patrimonio: !!(vistas.patrimonio || plano.initialWealth > 0 || plano.initialBens > 0 || plano.partValue > 0),
+    objetivos: !!(vistas.objetivos || (plano.objectives.length && plano.objectives.every(o => o.name && o.amount > 0))),
+    fluxo: temFluxo(), liberdade: !!vistas.liberdade };
   document.querySelectorAll('#nav a').forEach(a => a.classList.toggle('feito', !!feito[a.dataset.nav]));
+  // "Próximo" leva ao próximo passo que ainda falta; se todos foram feitos, à Liberdade financeira
+  document.querySelectorAll('.pagenav [data-ir]').forEach(b => {
+    const aqui = b.closest('.page').dataset.page, depois = PAGINAS.slice(PAGINAS.indexOf(aqui) + 1);
+    const alvo = depois.find(p => !feito[p]) || 'liberdade';
+    b.dataset.ir = alvo; b.textContent = 'Próximo: ' + NOMES_PAGINA[alvo] + ' →';
+  });
   const falta = [!plano.name && 'nome', !plano.age && 'idade', !(plano.desired > 0) && 'renda desejada'].filter(Boolean);
   document.getElementById('faltaCliente').innerHTML = falta.length ? `<div class="falta">Falta preencher: ${falta.join(', ')}. Depois siga para Patrimônio e premissas.</div>` : '';
   if (!plano.objectives.length) { document.getElementById('goalSum').innerHTML = ''; return; }
@@ -849,6 +882,7 @@ function renderTop() {
     `<tbody>${linhas}<tr class="total"><td colspan="3">Total dos aportes definidos</td><td class="num" style="text-align:right">${fmt(pl)}</td><td class="num" style="text-align:right">${temFluxo() || informada ? 'capacidade ' + fmt(cap) : ''}</td><td></td></tr></tbody></table>` +
     (!temFluxo() && !informada ? `<div class="note">O orçamento do cliente ainda não foi preenchido. Siga para o Fluxo de caixa; depois volte aqui para conferir se os aportes cabem. O status acima já considera o que o orçamento consegue entregar.</div>`
       : pl > cap ? `<div class="warn">Os aportes definidos somam ${fmt(pl)} e a capacidade de poupança é ${fmt(cap)}. A coluna <b>Efetivo</b> mostra o que o orçamento realmente entrega: os objetivos mais distantes ficam sem aporte e o status já considera isso.</div>`
+      : plano.objectives.some(o => o.truncado) ? `<div class="warn">Hoje os aportes cabem (${fmt(pl)} de ${fmt(cap)} por mês), mas mais adiante o orçamento não comporta todos: ${plano.objectives.filter(o => o.truncado).map(o => '<b>' + esc(o.name) + '</b>').join(', ')}. O aviso no cartão diz a partir de quando e por quê.</div>`
       : `<div class="ok-note">Os aportes definidos somam ${fmt(pl)}, dentro da capacidade de ${fmt(cap)}.</div>`);
 }
 
@@ -901,7 +935,7 @@ const anoMes = mi => { const cm = mi + 8; return { y: 2026 + Math.floor(cm / 12)
 function rotulo(nivel, b) {
   const { y, m } = anoMes(b.mi0), yy = String(y).slice(2);
   if (nivel === 'week') return faixaSemana(b.w0) + '<small>mês de ' + MESES[m] + '/' + yy + '</small>';
-  if (nivel === 'month') return MESES[m] + '/' + yy + '<small>' + d2(5) + '/' + d2(m + 1) + ' a ' + d2(4) + '/' + d2((m + 1) % 12 + 1) + '</small>';
+  if (nivel === 'month') { const a = ENGINE.weekDate(b.w0), z = new Date(ENGINE.weekDate(b.w1 - 1).getTime() + 6 * 864e5); return MESES[m] + '/' + yy + '<small>' + d2(a.getDate()) + '/' + d2(a.getMonth() + 1) + ' a ' + d2(z.getDate()) + '/' + d2(z.getMonth() + 1) + '</small>'; }
   if (nivel === 'quarter') return (Math.floor(m / 3) + 1) + 'º tri/' + yy;
   if (nivel === 'year') return String(y);
   const bloco = nivel === 'multi' ? 4 : 10, y0 = 2026 + Math.floor((b.mi0 + 8) / 12 / bloco) * bloco;
@@ -1090,7 +1124,7 @@ function renderFluxo() {
       return;
     }
     const sel = r.id === fx.fixa ? ' sel' : '';
-    lh += '<div class="fl ' + r.t + sel + '" style="padding-left:' + pad + 'px" data-lin="' + ri + '" title="' + esc(r.t === 'ghost' ? 'Clique para cadastrar uma linha nova' : r.label) + '"><span class="nm">' + esc(r.t === 'ghost' ? '+ nova linha' : r.label) + '</span>' + (r.tag ? '<span class="tag">' + esc(r.tag) + '</span>' : '') + '</div>';
+    lh += '<div class="fl ' + r.t + sel + '" style="padding-left:' + pad + 'px" data-lin="' + ri + '" title="' + esc(r.t === 'ghost' ? 'Clique para cadastrar uma linha nova' : r.label || 'sem nome') + '"><span class="nm">' + esc(r.t === 'ghost' ? '+ nova linha' : r.label || 'sem nome') + '</span>' + (r.tag ? '<span class="tag">' + esc(r.tag) + '</span>' : '') + '</div>';
   });
   Lb.innerHTML = lh;
 
@@ -1145,6 +1179,9 @@ function desenhaGrafico(cols, xOf, ppw, W) {
   g.globalAlpha = 1;
 }
 
+// blocos opcionais que a consultora abriu continuam abertos quando o cartão é redesenhado
+const blocosAbertos = new Set();
+document.addEventListener('toggle', e => { const d = e.target; if (d.dataset && d.dataset.abre) { if (d.open) blocosAbertos.add(d.dataset.abre); else blocosAbertos.delete(d.dataset.abre); } }, true);
 function renderGoals() {
   const wrap = document.getElementById('goals');
   const ordem = plano.objectives.map((o, i) => i).sort((a, b) => ((plano.objectives[a].criado || 0) - (plano.objectives[b].criado || 0)) || (plano.objectives[a].months - plano.objectives[b].months));
@@ -1165,6 +1202,38 @@ function renderGoals() {
         <div class="field"><label>Data alvo</label>${seletorMes('data-g="' + i + '" data-k="months"', o.months)}</div>
         <div class="field"><label>Custo pontual (R$)</label><input data-money type="text" inputmode="decimal" data-g="${i}" data-k="amount" value="${o.amount ? money(o.amount) : ''}" placeholder="R$ 0,00"></div>
         <div class="field"><label>Tipo</label><select data-g="${i}" data-k="kind"><option value="consumo"${o.kind === 'consumo' ? ' selected' : ''}>Consumo</option><option value="bem"${o.kind === 'bem' ? ' selected' : ''}>Vira bem</option></select></div>
+        <div class="field"><label>Patrimônio já reservado para ele (R$)</label><input data-money type="text" inputmode="decimal" data-g="${i}" data-k="dedicated" value="${o.dedicated ? money(o.dedicated) : ''}" placeholder="R$ 0,00"><div class="deriv">Sai do patrimônio financeiro de hoje (${fmt(plano.initialWealth)}); ainda livre para reservar: ${fmt(Math.max(0, (+plano.initialWealth || 0) - plano.objectives.reduce((t, x) => t + (+x.dedicated || 0), 0)))}. Reservar parte dele reduz o aporte necessário.</div></div>
+        <div class="field"><label>Perfil de investimento</label><select data-g="${i}" data-k="profile">${Object.keys(plano.profiles).map(k => `<option value="${k}"${o.profile === k ? ' selected' : ''}>${k[0].toUpperCase() + k.slice(1)} (${(plano.profiles[k] * 100).toFixed(2).replace('.', ',')}%)</option>`).join('')}</select></div>
+        <div class="field"><label>Aporte definido (R$/mês)</label><input data-money type="text" inputmode="decimal" data-g="${i}" data-k="planned" value="${o.planned ? money(o.planned) : ''}" placeholder="R$ 0,00">${o.amount > 0 && Math.abs(o.planned - o.required) >= 1 ? `<button class="usarnec" data-usar-nec="${i}">usar o necessário (${fmt(Math.ceil(o.required))})</button>` : ''}</div>
+        <div class="field"><label>Aporte necessário (R$/mês)</label><div class="calcv">${o.amount > 0 ? money(o.required) : '—'}</div><div class="deriv">calculado pela data, custo e patrimônio dedicado</div></div>
+      </div>
+
+      ${aguardaOrcamento() ? `<div class="note">Para chegar lá, o cliente precisa guardar <b>${fmt(o.required)} por mês</b>${o.dedicated ? ', além do patrimônio já reservado' : ''}. Não é preciso definir o aporte agora: preencha o Fluxo de caixa e volte aqui para ver quanto cabe no orçamento.</div>` : `
+      <div class="calc">
+        <div class="c"><span>Aporte que o orçamento entrega</span><b class="${o.truncado ? 'low' : ''}">${fmt(o.effective)}/mês</b></div>
+        <div class="c"><span>Projeção na data alvo</span><b class="${o.status === 'risk' ? 'low' : o.status === 'ok' ? 'good' : ''}">${fmt(o.real)}</b></div>
+        <div class="c"><span>Custo do objetivo</span><b>${fmt(o.amount)}</b></div>
+        <div class="c"><span>Cobertura</span><b class="${o.status === 'risk' ? 'low' : o.status === 'ok' ? 'good' : ''}">${Math.round(o.realRatio * 100)}%</b></div>
+        <div class="c spacer"><span>Para ficar alcançável</span><b>${o.status === 'ok' ? 'já está' : o.required > o.planned + 0.5 ? 'aporte de ' + fmt(Math.ceil(o.required)) + '/mês' : 'o orçamento precisa entregar o aporte'}</b></div>
+      </div>
+      ${(() => { const d = diagnostico(o); if (!d) return ''; const saidas = ['adiar a data do objetivo', d.anteriores.length ? 'reduzir o aporte de ' + d.anteriores.map(x => esc(x.name)).join(', ') + ' (data anterior, recebe primeiro)' : '', 'aumentar a capacidade de poupança no Fluxo de caixa'].filter(Boolean);
+        return `<div class="warn">A partir de <b>${monthsLabel(d.mes)}</b> o orçamento deixa de comportar os ${fmt(o.planned)} por mês definidos para este objetivo${d.causas.length ? ': ' + d.causas.join('; ') : ''}. Na média, ele recebe ${fmt(o.effective)} por mês. Para resolver: ${saidas.join(', ou ')}.</div>`; })()}`}
+
+      <details class="sub opc2" data-abre="${o.id}:custo"${rec || blocosAbertos.has(o.id + ':custo') ? ' open' : ''}>
+        <summary>Custo mensal depois de realizado <span>financiamento, condomínio, IPTU (opcional)</span></summary>
+        <div class="grid g4">
+          <div class="field"><label>Valor (R$/mês)</label><input data-money type="text" inputmode="decimal" data-g="${i}" data-k="recValue" value="${rec && rec.value ? money(rec.value) : ''}" placeholder="R$ 0,00"></div>
+          <div class="field"><label>Prazo (meses, vazio = indeterminado)</label><input type="number" step="12" data-g="${i}" data-k="recMonths" value="${rec && rec.months != null ? rec.months : ''}"></div>
+          <div class="field"><label>Descrição no fluxo de caixa</label><input data-g="${i}" data-k="recLabel" value="${esc(rec ? rec.label : '')}" placeholder="ex.: Financiamento da casa"></div>
+          <div class="field"><label>Quanto da parcela é amortização (%)</label><input type="number" step="5" min="0" max="100" data-g="${i}" data-k="recAmort" value="${rec && rec.amort ? Math.round(rec.amort * 100) : ''}" placeholder="0 se não for financiamento"><div class="deriv">Num financiamento, a amortização vira patrimônio em bens e só os juros são despesa. Condomínio e IPTU: 0.</div></div>
+        </div>
+      </details>
+
+      <details class="sub opc2" data-abre="${o.id}:apres"${o.strategy || o.photo || o.iconData || o.iconFA || blocosAbertos.has(o.id + ':apres') ? ' open' : ''}>
+        <summary>Apresentação ao cliente <span>estratégia, foto e ícone (opcional)</span></summary>
+        <label>Estratégia apresentada ao cliente</label>
+        <textarea data-g="${i}" data-k="strategy" placeholder="Como este objetivo será atingido, em linguagem de conversa com o cliente.">${esc(o.strategy)}</textarea>
+        <div class="grid g2" style="margin-top:12px">
         <div class="field wide"><label>Foto do objetivo (endereço da imagem, opcional)</label><input data-g="${i}" data-k="photo" value="${esc(o.photo || '')}" placeholder="https://… — sem foto, o card usa o ícone"></div>
         <div class="field"><label>Ícone do objetivo</label>
           <div class="iconpick">
@@ -1174,36 +1243,8 @@ function renderGoals() {
             ${o.iconData || o.iconFA ? `<button class="btn btn-icon" data-clear-icon="${i}" title="Voltar ao ícone padrão">×</button>` : ''}
           </div>
         </div>
-
-        <div class="field"><label>Patrimônio já reservado para ele (R$)</label><input data-money type="text" inputmode="decimal" data-g="${i}" data-k="dedicated" value="${o.dedicated ? money(o.dedicated) : ''}" placeholder="R$ 0,00"><div class="deriv">Sai do patrimônio financeiro de hoje (${fmt(plano.initialWealth)}); não é dinheiro a mais.</div></div>
-        <div class="field"><label>Perfil de investimento</label><select data-g="${i}" data-k="profile">${Object.keys(plano.profiles).map(k => `<option value="${k}"${o.profile === k ? ' selected' : ''}>${k[0].toUpperCase() + k.slice(1)} (${(plano.profiles[k] * 100).toFixed(2).replace('.', ',')}%)</option>`).join('')}</select></div>
-        <div class="field"><label>Aporte definido (R$/mês)</label><input data-money type="text" inputmode="decimal" data-g="${i}" data-k="planned" value="${o.planned ? money(o.planned) : ''}" placeholder="R$ 0,00">${o.amount > 0 && Math.abs(o.planned - o.required) >= 1 ? `<button class="usarnec" data-usar-nec="${i}">usar o necessário (${fmt(Math.ceil(o.required))})</button>` : ''}</div>
-        <div class="field"><label>Aporte necessário (R$/mês)</label><div class="calcv">${o.amount > 0 ? money(o.required) : '—'}</div><div class="deriv">calculado pela data, custo e patrimônio dedicado</div></div>
-      </div>
-
-      <div class="calc">
-        <div class="c"><span>Aporte efetivo no orçamento</span><b class="${o.truncado ? 'low' : ''}">${fmt(o.effective)}/mês</b></div>
-        <div class="c"><span>Projeção na data alvo</span><b class="${o.status === 'risk' ? 'low' : o.status === 'ok' ? 'good' : ''}">${fmt(o.real)}</b></div>
-        <div class="c"><span>Custo do objetivo</span><b>${fmt(o.amount)}</b></div>
-        <div class="c"><span>Cobertura</span><b class="${o.status === 'risk' ? 'low' : o.status === 'ok' ? 'good' : ''}">${Math.round(o.realRatio * 100)}%</b></div>
-        <div class="c spacer"><span>Diferença para o necessário</span><b>${o.required > o.planned ? 'faltam ' + fmt(o.required - o.planned) + '/mês' : 'aporte suficiente'}</b></div>
-      </div>
-      ${o.truncado ? `<div class="warn">O orçamento não comporta os ${fmt(o.planned)} definidos: este objetivo recebe ${fmt(o.effective)} por mês na simulação. Reduza os aportes dos objetivos anteriores, adie a data ou aumente a capacidade de poupança.</div>` : ''}
-
-      <div class="sub">
-        <h4>Custo mensal depois de realizado</h4>
-        <div class="grid g4">
-          <div class="field"><label>Valor (R$/mês)</label><input data-money type="text" inputmode="decimal" data-g="${i}" data-k="recValue" value="${rec && rec.value ? money(rec.value) : ''}" placeholder="R$ 0,00"></div>
-          <div class="field"><label>Prazo (meses, vazio = indeterminado)</label><input type="number" step="12" data-g="${i}" data-k="recMonths" value="${rec && rec.months != null ? rec.months : ''}"></div>
-          <div class="field"><label>Descrição no fluxo de caixa</label><input data-g="${i}" data-k="recLabel" value="${esc(rec ? rec.label : '')}" placeholder="ex.: Financiamento da casa"></div>
-          <div class="field"><label>Quanto da parcela é amortização (%)</label><input type="number" step="5" min="0" max="100" data-g="${i}" data-k="recAmort" value="${rec && rec.amort ? Math.round(rec.amort * 100) : ''}" placeholder="0 se não for financiamento"><div class="deriv">Num financiamento, a amortização vira patrimônio em bens e só os juros são despesa. Condomínio e IPTU: 0.</div></div>
         </div>
-      </div>
-
-      <div class="sub">
-        <h4>Estratégia apresentada ao cliente</h4>
-        <textarea data-g="${i}" data-k="strategy" placeholder="Como este objetivo será atingido, em linguagem de conversa com o cliente.">${esc(o.strategy)}</textarea>
-      </div>
+      </details>
     </div>`;
   }).join('');
 }
@@ -1220,7 +1261,7 @@ function renderLiberdade() {
   if (!plano.passive.length) tb.innerHTML = '<tr><td colspan="5" class="txt" style="color:#8d8d8d;font-weight:500;padding:16px 10px">Nenhuma renda de aposentadoria cadastrada. Se o cliente tem INSS ou vai contratar previdência, clique em <b>+ Adicionar renda</b>.</td></tr>';
   else tb.innerHTML = plano.passive.map((p, i) => `
     <tr class="clic" data-pas="${i}">
-      <td class="txt">${esc(p.name)}<small>${esc(p.origin || '')}</small></td>
+      <td class="txt">${esc(p.name || 'sem nome')}<small>${esc(p.origin || '')}</small></td>
       <td class="txt num">${fmt(p.net)}</td>
       <td class="txt">${quandoMes(inicioDaRenda(p))}<small>${p.startMi != null ? 'data fixa' : p.start ? p.start + ' meses depois da liberdade' : 'na liberdade financeira'}</small></td>
       <td class="txt">${p.dur == null ? 'Vitalícia' : quandoMes(inicioDaRenda(p) + p.dur - 1)}<small>${p.dur == null ? 'até o fim da vida' : p.dur + ' meses de duração'}</small></td>
@@ -1273,6 +1314,7 @@ document.addEventListener('input', e => {
   // parâmetros gerais
   const map = { 'f-name': 'name', 'f-lifeExp': 'lifeExp', 'f-desired': 'desired', 'f-part': 'partValue', 'f-wealth': 'initialWealth', 'f-bens': 'initialBens' };
   if (t.id === 'f-age') { plano.age = t.value === '' ? '' : Math.min(90, Math.max(18, +t.value || 0)); if (t.value === '' || +t.value >= 18) { fx.t0 = null; renderAll(); } else renderTop(); return; }
+  if (t.id === 'f-spouse') { plano.spouseAge = t.value === '' ? null : +t.value; save(); return; }
   if (t.id === 'f-retire') { plano.retireAge = t.value === '' ? null : +t.value; if (t.value === '' || +t.value >= 30) renderAll(); return; }
   if (t.id === 'f-cap') { plano.capacityOverride = vazio ? null : num; renderAll(); return; }
   if (map[t.id]) { plano[map[t.id]] = t.id === 'f-name' ? t.value : val(); renderAll(); return; }
@@ -1506,8 +1548,8 @@ document.getElementById('fxL').addEventListener('click', e => {
   if (add) {
     const alvo = add.dataset.add, mi = fx.cols.length ? Math.max(0, fx.cols[0].mi0) : 0;
     const it = alvo === 'inc'
-      ? { id: novoId('ent'), label: 'Nova entrada', kind: 'ativa', origin: ENGINE.ORIGENS[0], gross: 0, taxable: true, frequency: 'mensal', days: [5], description: '', steps: [{ from: mi, value: 0 }] }
-      : { id: novoId('cat'), label: 'Nova despesa', group: alvo, frequency: 'mensal', days: [10], description: '', steps: [{ from: mi, value: 0 }] };
+      ? { id: novoId('ent'), label: '', kind: 'ativa', origin: ENGINE.ORIGENS[0], gross: 0, taxable: true, frequency: 'mensal', days: [5], description: '', steps: [{ from: mi, value: 0 }] }
+      : { id: novoId('cat'), label: '', group: alvo, frequency: 'mensal', days: [10], description: '', steps: [{ from: mi, value: 0 }] };
     (alvo === 'inc' ? plano.incomes : plano.expenses).push(it);
     fx.aberto.add(alvo === 'inc' ? 'in' : 'out_' + alvo); if (alvo !== 'inc') fx.aberto.add('out');
     abrirGaveta(alvo === 'inc' ? 'inc' : 'exp', it.id, true);
@@ -1546,14 +1588,14 @@ function itemGaveta() {
 }
 function abrirGaveta(t, idOuI, novo) {
   if (gaveta && gaveta.novo && itemGaveta() && linhaVazia(itemGaveta())) removerDaGaveta();
-  gaveta = { t, novo: !!novo }; if (t === 'pas') gaveta.i = idOuI; else gaveta.id = idOuI;
+  gaveta = { t, novo: !!novo, diaPadrao: !!novo }; if (t === 'pas') gaveta.i = idOuI; else gaveta.id = idOuI;
   fecharPop(); renderGaveta(); renderAll();
 }
 function removerDaGaveta() {
   if (gaveta.t === 'pas') plano.passive.splice(gaveta.i, 1);
   else { const arr = gaveta.t === 'inc' ? plano.incomes : plano.expenses, it = itemGaveta(); arr.splice(arr.indexOf(it), 1); }
 }
-const linhaVazia = it => gaveta.t === 'pas' ? !(+it.net) && /^Nova renda/.test(it.name) : !(it.steps || []).some(s => +s.value) && !(it.exc && Object.keys(it.exc).length);
+const linhaVazia = it => gaveta.t === 'pas' ? !(+it.net) && !it.name : !(it.steps || []).some(s => +s.value) && !(it.exc && Object.keys(it.exc).length);
 function fecharGaveta(cancelar) {
   if (gaveta && gaveta.novo && itemGaveta() && (cancelar || linhaVazia(itemGaveta()))) removerDaGaveta();
   gaveta = null; renderGaveta(); renderAll();
@@ -1564,6 +1606,7 @@ function renderGaveta() {
   gavetaEl.hidden = false;
   fx.fixa = gaveta.t === 'pas' ? 'in_pas_' + gaveta.i : gaveta.t === 'inc' ? 'in_' + it.id : 'out_' + (it.group || 'adj') + '_' + it.id;
   gavetaEl.innerHTML = gaveta.t === 'pas' ? htmlRenda(it) : htmlLinha(it);
+  if (gaveta.aviso) avisoGaveta(gaveta.aviso);
 }
 // dias do mês de uma linha; renda no formato antigo tem um só `day`
 const diasDe = it => it.days && it.days.length ? it.days : (gaveta && gaveta.t === 'inc' && it.day ? [+it.day] : []);
@@ -1573,13 +1616,14 @@ const rodape = () => `<div class="foot"><button class="btn btn-secondary btn-sma
   (gaveta.novo ? '<button class="btn btn-secondary btn-small" data-gv-cancel>Cancelar</button>' : '') + '<button class="btn btn-tertiary btn-small" data-gv-fechar>Concluir</button></div>';
 function htmlLinha(it) {
   const inc = gaveta.t === 'inc', fq = it.frequency || 'mensal', pont = fq === 'pontual', fim = fimDe(it);
-  let h = `<div class="dh"><h3><span class="kind">${inc ? 'Entrada' : 'Saída ' + (it.group === 'fix' ? 'fixa' : 'ajustável')}${gaveta.novo ? ' · nova' : ''}</span>${esc(it.label)}</h3><button class="btn btn-icon" data-gv-fechar title="Fechar">×</button></div>`;
+  let h = `<div class="dh"><h3><span class="kind">${inc ? 'Entrada' : 'Saída ' + (it.group === 'fix' ? 'fixa' : 'ajustável')}${gaveta.novo ? ' · nova' : ''}</span>${esc(it.label || 'Nova linha')}</h3><button class="btn btn-icon" data-gv-fechar title="Fechar">×</button></div>`;
   h += `<div class="frase" id="gvFrase">${fraseItem(it)}</div><div id="gvAviso"></div>`;
   if (inc) h += `<div class="row2">${campo('Categoria', `<select data-gv="origin">${ENGINE.ORIGENS.map(o => opt(o, o, it.origin)).join('')}${gaveta.novo ? opt('__pas', 'Renda contratada na aposentadoria', '') : ''}</select>`)}${campo('Tipo', `<select data-gv="kind">${opt('ativa', 'Ativa (trabalho)', it.kind || 'ativa')}${opt('passiva', 'Passiva (patrimônio)', it.kind)}</select>`)}</div>`;
   if (inc) h += '<div class="deriv" style="margin:-6px 0 12px">Ativa depende do trabalho do cliente e para quando ele se aposenta (salário, pró-labore, lucros da empresa onde trabalha). Passiva vem do patrimônio e continua depois (aluguéis, dividendos).</div>';
-  else h += campo('Tipo', `<select data-gv="group">${opt('fix', 'Fixa', it.group)}${opt('adj', 'Ajustável', it.group || 'adj')}</select>`);
-  h += campo('Nome', `<input data-gv="label" value="${esc(it.label)}">`);
-  h += campo(pont ? 'Valor' : 'Valor de cada ocorrência', `<input data-gv="valor" data-money type="text" inputmode="decimal" value="${money(it.steps[0].value)}">`);
+  else h += campo('Tipo', `<select data-gv="group">${opt('fix', 'Fixa', it.group)}${opt('adj', 'Ajustável', it.group || 'adj')}</select>`) +
+    '<div class="deriv" style="margin:-6px 0 12px">Fixa: compromisso que não dá para cortar sem mudar de vida (aluguel, escola, plano de saúde, impostos). Ajustável: pode ser reduzida se faltar dinheiro (mercado, lazer, assinaturas).</div>';
+  h += campo('Nome', `<input data-gv="label" value="${esc(it.label)}" placeholder="${inc ? 'ex.: Salário da Camila' : 'ex.: Aluguel, Mercado, Escola'}">`);
+  h += campo(pont ? 'Valor' : 'Valor de cada ocorrência', `<input data-gv="valor" data-money type="text" inputmode="decimal" value="${+it.steps[0].value ? money(it.steps[0].value) : ''}" placeholder="R$ 0,00">`);
   h += campo('Periodicidade', `<div class="seg"><button data-gvp="pontual" class="${pont ? 'on' : ''}">Pontual</button><button data-gvp="recorrente" class="${pont ? '' : 'on'}">Recorrente</button></div>`);
   if (pont) {
     h += campo('Data', `${seletorData('data-gv="date"', it.date || dataDoMi(it.steps[0].from, (it.days && it.days[0]) || 5))}`);
@@ -1590,7 +1634,7 @@ function htmlLinha(it) {
       <input type="number" id="gvDia" min="1" max="31" value="5" style="width:62px"><select id="gvMes">${MESES.map((m, i) => opt(i, m, 0)).join('')}</select><button class="btn btn-secondary btn-small" data-gv-adddata>+ data</button></div>`);
     else {
       const dias = diasDe(it);
-      h += campo('Dias do mês', `<div class="chipset">${dias.map((d, j) => `<span class="chipd">dia ${d}<button data-gv-rmdia="${j}" title="Remover">×</button></span>`).join('')}
+      h += campo('Dias do mês' + (gaveta.diaPadrao ? ' <em>dia sugerido: o primeiro que você adicionar o substitui</em>' : ''), `<div class="chipset">${dias.map((d, j) => `<span class="chipd">dia ${d}<button data-gv-rmdia="${j}" title="Remover">×</button></span>`).join('')}
         <input type="number" id="gvDia" min="1" max="31" placeholder="dia" style="width:70px"><button class="btn btn-secondary btn-small" data-gv-adddia>+ dia</button></div>`);
       h += '<div class="deriv" style="margin:-4px 0 10px">Valores diferentes em dias diferentes, como adiantamento no dia 20 e saldo no dia 5? Cadastre uma linha para cada.</div>';
       if (!dias.length) h += `<div class="deriv">Sem dia definido: ${it.week === 0 ? 'o valor é diluído nas quatro semanas do mês' : 'cai na ' + (it.week || 1) + 'ª semana do mês'}.</div>`;
@@ -1608,29 +1652,37 @@ function htmlLinha(it) {
   }
   const exc = it.exc ? Object.keys(it.exc).sort((a, b) => parseFloat(a.replace(':', '.')) - parseFloat(b.replace(':', '.'))) : [];
   if (exc.length) h += `<div class="blk"><h4>Ajustes de uma só ocorrência</h4><div class="chipset">${exc.map(k => `<span class="chipd">${k.includes(':') ? 'semana de ' + semanaDaChave(parseInt(k, 10), +k.split(':')[1]) : monthsLabel(parseInt(k, 10))}: ${money(it.exc[k])}<button data-gvx-rm="${k}" title="Remover">×</button></span>`).join('')}</div></div>`;
-  if (inc) h += `<div class="blk"><div class="row2">${campo('Valor bruto (por recebimento)', `<input data-gv="gross" data-money type="text" inputmode="decimal" value="${money(it.gross || 0)}">`)}${campo('Renda tributável', `<select data-gv="taxable">${opt('1', 'Sim', it.taxable !== false ? '1' : '0')}${opt('0', 'Não', it.taxable !== false ? '1' : '0')}</select>`)}</div><div class="deriv">O fluxo de caixa usa sempre o valor líquido, que é o da planilha.</div></div>`;
+  if (inc) h += `<div class="blk"><div class="row2">${campo('Valor bruto por recebimento (opcional)', `<input data-gv="gross" data-money type="text" inputmode="decimal" value="${money(it.gross || 0)}">`)}${campo('Renda tributável (opcional)', `<select data-gv="taxable">${opt('1', 'Sim', it.taxable !== false ? '1' : '0')}${opt('0', 'Não', it.taxable !== false ? '1' : '0')}</select>`)}</div><div class="deriv">O fluxo de caixa usa sempre o valor líquido, que é o da planilha.</div></div>`;
   h += campo('Descrição', `<textarea data-gv="description" placeholder="Observações que ajudam a explicar esta linha ao cliente.">${esc(it.description || '')}</textarea>`);
   return h + rodape();
 }
+// idade de quem recebe a renda: o titular ou o cônjuge (casal)
+const idadeDe = pessoa => pessoa === 'conjuge' && +plano.spouseAge ? +plano.spouseAge : ENGINE.CURRENT_AGE;
+const quemTexto = pessoa => pessoa === 'conjuge' && +plano.spouseAge ? 'o cônjuge' : 'o titular';
+const ORIGENS_RENDA = ['INSS', 'Previdência privada', 'Fundo de pensão', 'Outra'];
 function htmlRenda(p) {
-  const f = ffInfo();
-  let h = `<div class="dh"><h3><span class="kind">Renda contratada na aposentadoria${gaveta.novo ? ' · nova' : ''}</span>${esc(p.name)}</h3><button class="btn btn-icon" data-gv-fechar title="Fechar">×</button></div>`;
+  const f = ffInfo(), fixa = p.startMi != null, pessoa = p.pessoa || 'titular';
+  let h = `<div class="dh"><h3><span class="kind">Renda na aposentadoria${gaveta.novo ? ' · nova' : ''}</span>${esc(p.name || 'Nova renda')}</h3><button class="btn btn-icon" data-gv-fechar title="Fechar">×</button></div>`;
   h += `<div class="frase" id="gvFrase">${fraseRenda(p)}</div><div id="gvAviso"></div>`;
-  h += campo('Nome', `<input data-gvr="name" value="${esc(p.name)}">`);
-  h += campo('Origem', `<input data-gvr="origin" value="${esc(p.origin || '')}" placeholder="ex.: Contribuições previdenciárias">`);
-  h += `<div class="grid g3" style="gap:10px">${campo('Bruto (R$/mês)', `<input data-gvr="gross" data-money type="text" inputmode="decimal" value="${money(p.gross)}">`)}${campo('Imposto', `<input data-gvr="tax" data-money type="text" inputmode="decimal" value="${money(p.tax)}">`)}${campo('Líquido', `<input data-gvr="net" data-money type="text" inputmode="decimal" value="${money(p.net)}" title="Editando o líquido, o imposto é recalculado">`)}</div>`;
-  const fixa = p.startMi != null;
-  h += campo('Começa', `<div class="radios"><label><input type="radio" name="gvini" value="fixa"${fixa ? ' checked' : ''}>Numa data fixa</label><label><input type="radio" name="gvini" value="ff"${fixa ? '' : ' checked'}>Na liberdade financeira</label></div>`);
-  h += `<div class="row2"><div class="field">` + (fixa
-      ? `<label>Data de início</label>${seletorMes('data-gvr="startMi"', p.startMi)}<div class="deriv" id="gvIni">o titular terá ${Math.floor(ENGINE.CURRENT_AGE + p.startMi / 12)} anos</div>`
-      : `<label>Meses depois da liberdade</label><input type="number" step="12" min="0" data-gvr="start" value="${+p.start || 0}"><div class="deriv" id="gvIni">${quandoMes(inicioDaRenda(p))}</div>`) + `</div>` +
-    `<div class="field"><label>Duração (meses, vazio = vitalícia)</label><input type="number" step="12" min="1" data-gvr="dur" value="${p.dur == null ? '' : p.dur}"><div class="deriv" id="gvFim">${fimDaRenda(p)}</div></div></div>`;
-  h += campo('Custo de contratação (R$)', `<input data-gvr="cost" data-money type="text" inputmode="decimal" value="${money(p.cost)}">`);
-  h += `<div class="deriv">${fixa ? 'Data fixa: não muda quando a liberdade financeira muda. Use para o INSS, que começa numa idade definida.' : f ? 'Acompanha a liberdade financeira da simulação atual: ' + monthsLabel(f.mi) + ', aos ' + Math.floor(f.ff.age) + ' anos. Se ela mudar, as datas mudam junto.' : ''}</div>`;
+  const origens = ORIGENS_RENDA.includes(p.origin) || !p.origin ? ORIGENS_RENDA : [p.origin].concat(ORIGENS_RENDA);
+  h += `<div class="row2">${campo('Nome', `<input data-gvr="name" value="${esc(p.name)}" placeholder="ex.: INSS da Camila">`)}${campo('Origem', `<select data-gvr="origin">${p.origin ? '' : opt('', 'escolha…', '')}${origens.map(o => opt(o, o, p.origin)).join('')}</select>`)}</div>`;
+  h += campo('Valor líquido por mês <em>preencha este</em>', `<input data-gvr="net" data-money type="text" inputmode="decimal" value="${p.net ? money(p.net) : ''}" placeholder="o que cai na conta do cliente">`);
+  h += `<details class="opc"${p.gross ? ' open' : ''}><summary>Bruto e imposto (opcional)</summary><div class="row2">${campo('Bruto (R$/mês)', `<input data-gvr="gross" data-money type="text" inputmode="decimal" value="${p.gross ? money(p.gross) : ''}">`)}${campo('Imposto (R$/mês)', `<input data-gvr="tax" data-money type="text" inputmode="decimal" value="${p.tax ? money(p.tax) : ''}">`)}</div><div class="deriv">Com o bruto e o imposto, o líquido é calculado.</div></details>`;
+  h += campo('Começa', `<div class="radios"><label><input type="radio" name="gvini" value="fixa"${fixa ? ' checked' : ''}>Numa idade ou data fixa (INSS)</label><label><input type="radio" name="gvini" value="ff"${fixa ? '' : ' checked'}>Na liberdade financeira (previdência contratada)</label></div>`);
+  if (fixa) {
+    h += `<div class="row2">${+plano.spouseAge ? campo('De quem é a renda', `<select data-gvr="pessoa">${opt('titular', 'Titular (' + ENGINE.CURRENT_AGE + ' anos hoje)', pessoa)}${opt('conjuge', 'Cônjuge (' + plano.spouseAge + ' anos hoje)', pessoa)}</select>`) : ''}` +
+      campo('Começa aos', `<input type="number" min="18" max="100" data-gvr="idadeIni" value="${Math.floor(idadeDe(pessoa) + p.startMi / 12)}" style="max-width:110px"> anos`) + `</div>` +
+      campo('ou na data', `${seletorMes('data-gvr="startMi"', p.startMi)}<div class="deriv" id="gvIni">${quemTexto(pessoa)} terá ${Math.floor(idadeDe(pessoa) + p.startMi / 12)} anos</div>`);
+  } else {
+    h += campo('Meses depois da liberdade', `<input type="number" step="12" min="0" data-gvr="start" value="${+p.start || 0}" style="max-width:140px"><div class="deriv" id="gvIni">${quandoMes(inicioDaRenda(p))}</div>`);
+  }
+  h += `<div class="row2">${campo('Duração (meses, vazio = vitalícia)', `<input type="number" step="12" min="1" data-gvr="dur" value="${p.dur == null ? '' : p.dur}"><div class="deriv" id="gvFim">${fimDaRenda(p)}</div>`)}` +
+    campo('Custo de contratação (R$)', `<input data-gvr="cost" data-money type="text" inputmode="decimal" value="${p.cost ? money(p.cost) : ''}" placeholder="0 para o INSS"><div class="deriv">Parte do patrimônio usada para contratar a renda na liberdade financeira.</div>`) + `</div>`;
+  h += `<div class="deriv">${fixa ? 'Idade ou data fixa: não muda quando a liberdade financeira muda.' : f ? 'Acompanha a liberdade financeira da simulação atual: ' + monthsLabel(f.mi) + ', aos ' + Math.floor(f.ff.age) + ' anos. Se ela mudar, as datas mudam junto.' : ''}</div>`;
   return h + rodape();
 }
-const fraseRenda = p => money(p.net) + ' líquidos por mês, a partir de ' + quandoMes(inicioDaRenda(p)) + (p.startMi != null ? ' (data fixa)' : '') + (p.dur == null ? ', até o fim da vida' : ', até ' + quandoMes(inicioDaRenda(p) + p.dur - 1)) + '. Custo de contratação: ' + money(p.cost) + '.';
-const avisoGaveta = txt => { const el = document.getElementById('gvAviso'); if (el) el.innerHTML = txt ? '<div class="warn" style="margin:0 0 12px">' + txt + '</div>' : ''; };
+const fraseRenda = p => money(p.net) + ' líquidos por mês, a partir de ' + (p.startMi != null ? monthsLabel(p.startMi) + ', quando ' + quemTexto(p.pessoa) + ' terá ' + Math.floor(idadeDe(p.pessoa) + p.startMi / 12) + ' anos' : quandoMes(inicioDaRenda(p))) + (p.dur == null ? ', até o fim da vida' : ', até ' + quandoMes(inicioDaRenda(p) + p.dur - 1)) + '. Custo de contratação: ' + money(p.cost) + '.';
+const avisoGaveta = txt => { if (gaveta) gaveta.aviso = txt; const el = document.getElementById('gvAviso'); if (el) el.innerHTML = txt ? '<div class="warn" style="margin:0 0 12px">' + txt + '</div>' : ''; };
 const atualizaFrase = () => { const it = itemGaveta(), el = document.getElementById('gvFrase'); if (it && el) el.innerHTML = gaveta.t === 'pas' ? fraseRenda(it) : fraseItem(it); };
 
 function campoGaveta(e) {
@@ -1640,17 +1692,20 @@ function campoGaveta(e) {
   const k = t.dataset.gv, kr = t.dataset.gvr, sm = t.dataset.gvsM, sv = t.dataset.gvsV;
   if (kr) {                                                   // renda contratada
     if (kr === 'name' || kr === 'origin') it[kr] = t.value;
+    else if (kr === 'pessoa') { const ini = it.startMi; it.pessoa = t.value; renderAll(); renderGaveta(); return; }
+    else if (kr === 'idadeIni') { const a = +t.value; if (!(a >= 18 && a <= 100)) return; it.startMi = Math.max(0, Math.round((a - idadeDe(it.pessoa)) * 12)); renderAll(); renderGaveta(); return; }
     else if (kr === 'dur') it.dur = t.value === '' ? null : Math.max(1, +t.value);
     else if (kr === 'start') it.start = Math.max(0, +t.value || 0);
     else if (kr === 'startMi') { if (!/^\d{4}-\d{2}$/.test(t.value) || t.value < '2026-09') { avisoGaveta('Use uma data de hoje em diante.'); return; } it.startMi = mesDoInput(t.value); avisoGaveta(''); }
     else it[kr] = unmoney(t.value);
-    if (kr === 'net') it.tax = Math.max(0, (+it.gross || 0) - (+it.net || 0));
-    else if (kr === 'gross' || kr === 'tax') it.net = Math.max(0, (+it.gross || 0) - (+it.tax || 0));
+    // o líquido é o principal; bruto e imposto só completam a conta quando existem
+    if (kr === 'net') { if (+it.gross > 0) it.tax = Math.max(0, it.gross - it.net); }
+    else if (kr === 'tax') { if (+it.gross > 0) it.net = Math.max(0, it.gross - it.tax); }
+    else if (kr === 'gross') { if (+it.net > 0) it.tax = Math.max(0, it.gross - it.net); else it.net = Math.max(0, it.gross - (+it.tax || 0)); }
     it.converted = (+it.cost || 0) > 0;
-    if (kr === 'gross' || kr === 'tax') { const n = gavetaEl.querySelector('[data-gvr=net]'); if (n) n.value = money(it.net); }
-    if (kr === 'net') { const n = gavetaEl.querySelector('[data-gvr=tax]'); if (n) n.value = money(it.tax); }
+    ['net', 'tax'].forEach(c => { if (c !== kr) { const n = gavetaEl.querySelector('[data-gvr=' + c + ']'); if (n && +it[c]) n.value = money(it[c]); } });
     renderAll();
-    document.getElementById('gvIni').textContent = it.startMi != null ? 'o titular terá ' + Math.floor(ENGINE.CURRENT_AGE + it.startMi / 12) + ' anos' : quandoMes(inicioDaRenda(it));
+    document.getElementById('gvIni').textContent = it.startMi != null ? quemTexto(it.pessoa) + ' terá ' + Math.floor(idadeDe(it.pessoa) + it.startMi / 12) + ' anos' : quandoMes(inicioDaRenda(it));
     document.getElementById('gvFim').textContent = fimDaRenda(it);
     atualizaFrase(); return;
   }
@@ -1660,13 +1715,16 @@ function campoGaveta(e) {
   if (k === 'label' || k === 'description') { it[k] = t.value; save(); if (k === 'label') { renderFluxo(); atualizaFrase(); } return; }
   if (k === 'origin' && t.value === '__pas') {               // virou renda contratada na aposentadoria
     const arr = plano.incomes; arr.splice(arr.indexOf(it), 1);
-    plano.passive.push({ name: it.label === 'Nova entrada' ? 'Nova renda' : it.label, origin: 'Contratada na aposentadoria', gross: it.steps[0].value, tax: 0, net: it.steps[0].value, start: 0, dur: null, cost: 0, converted: false });
+    plano.passive.push({ name: it.label, origin: 'Contratada na aposentadoria', gross: it.steps[0].value, tax: 0, net: it.steps[0].value, start: 0, dur: null, cost: 0, converted: false });
     abrirGaveta('pas', plano.passive.length - 1, true); return;
   }
   const mesLimite = Math.round((100 - ENGINE.CURRENT_AGE) * 12) - 1;
   if ((k === 'date' || k === 'inicio' || k === 'ate') && t.value) {
     const mi = k === 'date' ? (/^\d{4}-\d{2}-\d{2}$/.test(t.value) ? (t.value < '2026-09-19' ? -1 : miDaData(t.value)) : -1) : (/^\d{4}-\d{2}$/.test(t.value) ? (t.value < '2026-09' ? -1 : mesDoInput(t.value)) : -1);
-    if (mi < 0 || mi > mesLimite) { avisoGaveta(k === 'date' && t.value < '2026-09-19' ? 'Essa data já passou. Um valor já recebido faz parte do patrimônio de hoje (página Patrimônio e premissas).' : 'Data fora do plano: use uma data entre hoje e ' + monthsLabel(mesLimite) + ', quando o cliente faz 100 anos.'); return; }
+    if (mi < 0 || mi > mesLimite) {
+      avisoGaveta((k === 'date' && t.value < '2026-09-19' ? 'Essa data já passou e não foi gravada. Se o valor já foi recebido, ele faz parte do patrimônio de hoje: some-o em Patrimônio e premissas e remova esta linha.' : 'Essa data está fora do plano e não foi gravada: use uma data entre hoje e ' + monthsLabel(mesLimite) + ', quando o cliente faz 100 anos.') + ' Enquanto isso vale a data do resumo acima.');
+      return;
+    }
   }
   avisoGaveta('');
   if (k === 'valor') it.steps[0].value = unmoney(t.value);
@@ -1682,6 +1740,10 @@ function campoGaveta(e) {
   if (k === 'group' || k === 'inicio' || k === 'ate' || k === 'kind') renderGaveta();
 }
 gavetaEl.addEventListener('input', campoGaveta);
+gavetaEl.addEventListener('keydown', e => {
+  if (e.key !== 'Enter' || e.target.id !== 'gvDia') return;
+  e.preventDefault(); const b = gavetaEl.querySelector('[data-gv-adddia], [data-gv-adddata]'); if (b) b.click();
+});
 
 gavetaEl.addEventListener('change', e => {
   const t = e.target, it = itemGaveta(); if (!it) return;
@@ -1719,7 +1781,8 @@ gavetaEl.addEventListener('click', e => {
     if (ds.gvf === 'semanal' && it.weekday == null) it.weekday = 6;
   } else if (ds.gvAdddia != null) {
     const d = Math.min(31, Math.max(1, +gavetaEl.querySelector('#gvDia').value || 0)); if (!+gavetaEl.querySelector('#gvDia').value) return;
-    it.days = [...new Set([...diasDe(it), d])].sort((a, b) => a - b);
+    it.days = gaveta.diaPadrao ? [d] : [...new Set([...diasDe(it), d])].sort((a, b) => a - b);
+    gaveta.diaPadrao = false;
   } else if (ds.gvRmdia != null) { const ds2 = diasDe(it).slice(); if (ds2.length > 1) { ds2.splice(+ds.gvRmdia, 1); it.days = ds2; } else { avisoGaveta('Toda linha mensal precisa de um dia. Para trocar o dia, escreva o novo dia, clique em + dia e depois remova o antigo.'); return; } }
   else if (ds.gvAdddata != null) {
     const d = Math.min(31, Math.max(1, +gavetaEl.querySelector('#gvDia').value || 5)), m = +gavetaEl.querySelector('#gvMes').value;
@@ -1738,7 +1801,7 @@ gavetaEl.addEventListener('click', e => {
 // rendas da página Liberdade financeira
 document.getElementById('tbPas').addEventListener('click', e => { const tr = e.target.closest('[data-pas]'); if (tr) abrirGaveta('pas', +tr.dataset.pas); });
 document.getElementById('btnAddPas').onclick = () => {
-  plano.passive.push({ name: 'Nova renda', origin: 'Patrimônio financeiro (convertido)', gross: 0, tax: 0, net: 0, start: 0, dur: null, cost: 0, converted: false });
+  plano.passive.push({ name: '', origin: '', gross: 0, tax: 0, net: 0, start: 0, dur: null, cost: 0, converted: false });
   abrirGaveta('pas', plano.passive.length - 1, true);
 };
 
@@ -1760,13 +1823,14 @@ document.addEventListener('click', e => {
 
 // páginas do portal: cada assunto numa página, na ordem em que o plano é montado
 const PAGINAS = ['cliente', 'patrimonio', 'objetivos', 'fluxo', 'liberdade'];
+const NOMES_PAGINA = { cliente: 'Cliente', patrimonio: 'Patrimônio e premissas', objetivos: 'Objetivos', fluxo: 'Fluxo de caixa', liberdade: 'Liberdade financeira' };
 let paginaAtual = null;
 function irPara(p) {
   if (!PAGINAS.includes(p)) p = 'cliente';
   document.querySelectorAll('.page').forEach(s => { s.hidden = s.dataset.page !== p; });
   document.querySelectorAll('#nav a').forEach(a => a.classList.toggle('on', a.dataset.nav === p));
   document.querySelector('main').classList.toggle('wide', p === 'fluxo');
-  const antes = paginaAtual; paginaAtual = p; if (antes && antes !== p) paginasVistas[antes] = true;
+  const antes = paginaAtual; paginaAtual = p; if (antes && antes !== p) { plano.vistas = Object.assign({}, plano.vistas, { [antes]: true }); }
   if (gaveta) fecharGaveta(false);
   fecharPop(); window.scrollTo(0, 0);
   if (/^(https?|file):$/.test(location.protocol)) try { history.replaceState(null, '', '#' + p); } catch (e) { }   // guarda a página no endereço; em pré-visualizações, não mexe
@@ -1786,7 +1850,7 @@ const planoVazio = () => ({ name: '', age: '', lifeExp: 95, desired: 0, retireAg
   rate: PLANO_PADRAO.rate, profiles: Object.assign({}, PLANO_PADRAO.profiles), incomes: [], expenses: [], objectives: [], passive: [] });
 const temConteudo = () => !!(plano.name || plano.incomes.length || plano.expenses.length || plano.objectives.length);
 function trocarPlano(b, novo, rotulo) {
-  const aplicar = () => { if (gaveta) { gaveta = null; renderGaveta(); } plano = novo(); paginasVistas = {}; fx.t0 = null; save(); fillFields(); renderAll(); irPara('cliente'); document.getElementById('f-name').focus(); };
+  const aplicar = () => { if (gaveta) { gaveta = null; renderGaveta(); } plano = novo(); fx.t0 = null; save(); fillFields(); renderAll(); irPara('cliente'); document.getElementById('f-name').focus(); };
   if (!temConteudo() || b.dataset.armed) { delete b.dataset.armed; b.classList.remove('armed'); b.textContent = rotulo; aplicar(); return; }
   b.dataset.rotulo = rotulo; b.dataset.armed = '1'; b.classList.add('armed'); b.textContent = 'Apagar o plano atual? Clique de novo';
 }
@@ -1816,6 +1880,7 @@ function fillFields() {
   document.getElementById('f-name').value = plano.name;
   document.getElementById('f-age').value = plano.age;
   document.getElementById('f-retire').value = plano.retireAge == null ? '' : plano.retireAge;
+  document.getElementById('f-spouse').value = plano.spouseAge == null ? '' : plano.spouseAge;
   document.getElementById('f-bens').value = plano.initialBens ? money(plano.initialBens) : '';
   document.getElementById('f-lifeExp').value = plano.lifeExp;
   document.getElementById('f-desired').value = plano.desired ? money(plano.desired) : '';

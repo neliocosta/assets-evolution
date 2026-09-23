@@ -51,3 +51,26 @@ Corrigido para a rodada 3:
   quando a renda desejada não é atingida, também nos indicadores ("renda parcial").
 - Visão do cliente: idade real no marcador de hoje e no eixo; saudação ao casal ("Camila e Rafael").
 - Categoria "Honorários (autônomo)"; explicação de renda ativa e passiva; indicadores do topo levam à página.
+
+## Rodada 3 — REPROVADO
+
+11 dúvidas (eram 19), nenhum erro de script, e a ordem sugerida pela tela funcionou nos três clientes. A mais
+grave: na mesma tela, "dentro da capacidade" em verde, "aporte suficiente" e "0 em risco" junto com uma caixa
+vermelha dizendo que o orçamento não comporta o aporte e mandando reduzir "objetivos anteriores" que não existiam.
+A causa real (os plantões caem em 2028) não aparecia. A visão do cliente mostrava outro status que o portal.
+
+Corrigido para a rodada 4:
+- Um veredito por objetivo: o motor grava o saldo real de cada objetivo na data, e portal e visão do cliente usam
+  o mesmo número. Quando o orçamento deixa de entregar o aporte, o cartão diz o mês, a causa provável (renda que
+  cai, despesa que começa ou sobe, financiamento que começa) e as saídas; "objetivos anteriores" só quando existem.
+  O resumo e o indicador do topo ("fora do orçamento") concordam com os cartões.
+- Antes do Fluxo de caixa, o cartão mostra só quanto é preciso guardar e o próximo passo, sem vermelho.
+- "Próximo" leva ao próximo passo que falta; a barra lateral marca os passos pelos dados e não oscila.
+- Linha nova vem com nome e valor vazios (antes o texto digitado se misturava com "Nova entrada" e "R$ 0,00").
+- Dia do mês: Enter adiciona, e o primeiro dia adicionado substitui o sugerido. Data recusada não é gravada e o
+  aviso fica visível. Explicação de fixa e ajustável; bruto e tributável marcados como opcionais.
+- Renda da aposentadoria: líquido primeiro, bruto e imposto opcionais, origem em lista, e início pela idade do
+  titular ou do cônjuge (nova "Idade do cônjuge" na página Cliente).
+- Cartão de objetivo mais curto: custo mensal depois de realizado e apresentação ao cliente (estratégia, foto,
+  ícone) em blocos opcionais; "patrimônio já reservado" mostra quanto ainda está livre para reservar.
+- Mês da planilha mostra as datas reais das semanas que o formam.

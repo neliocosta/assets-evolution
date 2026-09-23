@@ -324,6 +324,7 @@ const ENGINE = (() => {
   function run(mode) {
     const weeks = new Array(NW), events = [];
     let cofre = 0, obj = OBJ.map(() => 0), done = OBJ.map(() => false), bens = 0, part = PART_VALUE;
+    const saldoNaData = OBJ.map(() => 0);   // quanto cada objetivo de fato juntou até a data alvo
     let offset = 99, streams = [], ff = null, prevActive = '', allocated = false, ks = [];
     const recurTotal = () => streams.reduce((a, st) => a + (st.left === 0 ? 0 : st.value), 0);
     // despesa com endObj (o aluguel, por exemplo) deixa de existir quando aquele objetivo é realizado
@@ -381,7 +382,7 @@ const ENGINE = (() => {
         OBJ.forEach((o, k) => {
           if (t >= 0 && !done[k] && mIdx >= o.months) {
             done[k] = true;
-            const bal = obj[k]; obj[k] = 0; cofre += bal; transfer(f, 'mov_obj_' + o.id, 'mov_cofre', bal); // saldo dedicado volta ao cofre
+            const bal = obj[k]; saldoNaData[k] = bal; obj[k] = 0; cofre += bal; transfer(f, 'mov_obj_' + o.id, 'mov_cofre', bal); // saldo dedicado volta ao cofre
             if (o.kind === 'bem') { bens += o.amount; cofre -= o.amount; transfer(f, 'mov_cofre', 'mov_bens', o.amount); } // conversão financeiro → bens
             else add(f, 'out_obj_' + o.id, o.amount); // consumo: é uma saída, paga pelo cofre
             if (o.recurring) streams.push({ id: o.id, value: o.recurring.value, left: o.recurring.months == null ? -1 : o.recurring.months, label: o.recurring.label, amort: o.recurring.amort });
@@ -424,7 +425,7 @@ const ENGINE = (() => {
           w = Math.min(w, Math.max(0, cofre - (f.out_rendas || 0)));
           // na aposentadoria o padrão de vida se ajusta à renda disponível
           const custoVida = livingAt(m.mIdx) || 1;
-          m.salary = 0; m.scale = Math.max(0, pas + passiveIncomeAt(m.mIdx) + w - recurTotal()) / custoVida; m.invest = 0; m.pas = pas;
+          m.salary = 0; m.scale = Math.max(0, pas + passiveIncomeAt(m.mIdx) + w - recurTotal()) / custoVida; m.invest = 0; m.pas = pas + passiveIncomeAt(m.mIdx);
         } else {
           m.scale = 1;                                // os valores já vêm da linha do tempo
           m.salary = incomeAt(m.mIdx);                // equivalente mensal, para dimensionar o aporte
@@ -456,6 +457,9 @@ const ENGINE = (() => {
     const yearB = bucketize(i => Math.floor(cmOf(i) / 12));
     const multiB = bucketize(i => Math.floor(cmOf(i) / 48));
     const decadeB = bucketize(i => Math.floor(cmOf(i) / 120));
+    // o status de cada objetivo vem da simulação (o que o orçamento de fato entrega), não da fórmula fechada;
+    // as duas telas leem este mesmo número
+    OBJ.forEach((o, k) => { o.real = saldoNaData[k]; o.ratio = o.amount > 0 ? o.real / o.amount : 1; o.status = o.ratio >= 0.98 ? 'ok' : o.ratio >= 0.7 ? 'adj' : 'risk'; });
     return { weeks, events, ff, buckets: { week: weekB, month: monthB, quarter: quarterB, year: yearB, multi: multiB, decade: decadeB } };
   }
   // Aplica um plano vindo da tela do consultor (JSON no hash da URL ou em localStorage)
@@ -1067,7 +1071,7 @@ function celebrate(mk, manual) {
     lines += F('Perfil de investimento', '<span class="chip">' + o.profile + '</span>', (o.rate * 100).toFixed(2).replace('.', ',') + '% ao mês');
     lines += F('Aporte necessário', o.required > 0 ? fmt(o.required) + '/mês' : dash);
     lines += F('Aporte definido', o.planned ? fmt(o.planned) + '/mês' : dash, o.planned ? 'pelo seu consultor' : '');
-    lines += F('Projeção na data alvo', fmt(o.projected), 'de ' + fmt(o.amount) + ' necessários');
+    lines += F('Projeção na data alvo', fmt(o.real != null ? o.real : o.projected), 'de ' + fmt(o.amount) + ' necessários');
     lines += `</div>`;
     lines += `<div class="statusrow"><span class="badge ${o.status}">${ENGINE.STATUS[o.status]}</span><span class="pct">${Math.round(o.ratio * 100)}% do necessário</span></div>`;
     lines += `<div class="strat"><h5>Estratégia</h5>${o.strategy}</div>`;
