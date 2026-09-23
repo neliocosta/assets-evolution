@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Portal do consultor — Nord Liberta</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&family=Montserrat:wght@400;500;600&display=swap');
+:root{
+  --nl-orange-500:#FA7A35; --nl-orange-600:#E06600; --nl-peach-100:#FFF3EB;
+  --nl-navy-900:#20344C; --nl-navy-950:#131F2E;
+  --nl-gray-700:#555555; --nl-gray-300:#DDDDDD; --nl-cream-50:#FDFCFA; --nl-white:#FFFFFF;
+  --nl-score-good:#2E9E5B; --nl-score-medium:#FA7A35; --nl-score-low:#D64545;
+  --shadow-card:0 1px 3px rgba(0,0,0,.06),0 4px 12px rgba(0,0,0,.04);
+  --shadow-card-module:0 4px 10px rgba(0,0,0,.08),0 12px 28px rgba(0,0,0,.10);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--nl-cream-50);color:var(--nl-gray-700);font-family:'Montserrat',system-ui,sans-serif;font-size:14px;display:flex;min-height:100vh}
+
+/* ---------- sidebar navy fixa ---------- */
+aside{width:236px;flex:0 0 236px;background:var(--nl-navy-900);color:#fff;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;padding:22px 0}
+aside .brand{font-family:Sora,sans-serif;font-weight:700;font-size:16px;display:flex;align-items:center;gap:10px;padding:0 22px 20px}
+aside .brand .dot{width:10px;height:10px;border-radius:50%;background:var(--nl-orange-500)}
+aside .who{padding:0 22px 18px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:14px}
+aside .who b{display:block;font-family:Sora,sans-serif;font-size:14px;color:#fff;font-weight:600}
+aside .who span{font-size:12px;color:rgba(255,255,255,.55)}
+aside nav{flex:1;display:flex;flex-direction:column;gap:2px;padding:0 12px}
+aside nav a{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:9px;color:rgba(255,255,255,.72);text-decoration:none;font:500 13px 'DM Sans',sans-serif;transition:background .15s,color .15s}
+aside nav a:hover{background:rgba(255,255,255,.07);color:#fff}
+aside nav a.on{background:var(--nl-orange-500);color:#fff}
+aside nav a svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+aside .foot{padding:14px 16px 0;border-top:1px solid rgba(255,255,255,.1);margin-top:10px}
+
+/* ---------- conteúdo ---------- */
+main{flex:1;min-width:0;padding:28px 34px 80px;max-width:1180px}
+.pagehead{display:flex;align-items:flex-end;gap:18px;flex-wrap:wrap;margin-bottom:22px}
+.chips{position:sticky;top:0;z-index:5;background:var(--nl-cream-50);padding:8px 0}
+.pagehead h1{font-family:Sora,sans-serif;font-size:28px;color:var(--nl-navy-900);font-weight:700;line-height:1.15}
+.pagehead p{font-size:13px;color:#8a8a8a;margin-top:4px}
+.chips{display:flex;gap:10px;margin-left:auto;flex-wrap:wrap}
+.chip{background:#fff;border-radius:12px;box-shadow:var(--shadow-card);padding:10px 14px;min-width:132px}
+.chip span{display:block;font:500 11px 'DM Sans',sans-serif;color:#8d8d8d}
+.chip b{font:600 17px Sora,sans-serif;color:var(--nl-navy-900)}
+.chip b.good{color:var(--nl-score-good)} .chip b.low{color:var(--nl-score-low)}
+
+section{background:#fff;border-radius:12px;box-shadow:var(--shadow-card);padding:22px 24px;margin-bottom:20px;scroll-margin-top:16px}
+section > h2{font-family:Sora,sans-serif;font-size:17px;color:var(--nl-navy-900);font-weight:600;margin-bottom:3px;display:flex;align-items:center;gap:9px}
+section > h2 svg{width:17px;height:17px;stroke:var(--nl-orange-500);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+section > .hint{font-size:12.5px;color:#8f8f8f;margin-bottom:18px;line-height:1.5}
+
+label{display:block;font:500 11.5px 'DM Sans',sans-serif;color:#8a8a8a;margin-bottom:4px}
+input,select,textarea{width:100%;border:1px solid var(--nl-gray-300);border-radius:8px;padding:9px 11px;font:500 13.5px 'DM Sans',sans-serif;color:var(--nl-navy-900);background:#fff;box-shadow:inset 0 1px 2px rgba(0,0,0,.04);transition:border-color .15s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--nl-orange-500)}
+textarea{resize:vertical;min-height:74px;font-family:Montserrat,sans-serif;font-size:13px;line-height:1.5;color:var(--nl-gray-700)}
+input[type=number]{-moz-appearance:textfield}
+.grid{display:grid;gap:14px 16px}
+.g2{grid-template-columns:repeat(2,1fr)} .g3{grid-template-columns:repeat(3,1fr)} .g4{grid-template-columns:repeat(4,1fr)}
+.field.wide{grid-column:1/-1}
+
+/* ---------- tabelas ---------- */
+.tablewrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:720px}
+thead th{background:var(--nl-navy-900);color:#fff;font:600 11.5px Sora,sans-serif;text-align:left;padding:9px 10px}
+thead th:first-child{border-radius:8px 0 0 8px} thead th:last-child{border-radius:0 8px 8px 0}
+thead th.num{text-align:right}
+tbody td{padding:5px 6px;border-bottom:1px solid #f0efec}
+tbody td input,tbody td select{padding:7px 8px;font-size:13px}
+tbody td.num input{text-align:right}
+tbody tr.total td{font:600 13px Sora,sans-serif;color:var(--nl-navy-900);border-bottom:0;padding-top:10px}
+tbody tr.total td.num{text-align:right}
+.group-tag{display:inline-block;padding:2px 8px;border-radius:9999px;font:600 10.5px 'DM Sans',sans-serif}
+.group-tag.fix{background:#EEF2F7;color:var(--nl-navy-900)} .group-tag.adj{background:var(--nl-peach-100);color:var(--nl-orange-600)}
+
+/* ---------- botões ---------- */
+.btn{border:0;cursor:pointer;font:600 13px 'DM Sans',sans-serif;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:filter .15s,transform .1s;white-space:nowrap}
+.btn:hover{filter:brightness(.94)} .btn:active{transform:scale(.97)}
+.btn-primary{background:var(--nl-orange-500);color:#fff;border-radius:9999px;padding:11px 20px;width:100%}
+.btn-secondary{background:#fff;color:var(--nl-navy-900);border:1px solid var(--nl-gray-300);border-radius:11px;padding:8px 14px}
+.btn-tertiary{background:var(--nl-peach-100);color:var(--nl-orange-600);border-radius:11px;padding:8px 14px}
+.btn-icon{background:transparent;color:#b9b9b9;padding:4px 6px;border-radius:7px;font-size:16px;line-height:1}
+.btn-icon:hover{color:var(--nl-score-low);background:#fdf0f0;filter:none}
+.btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.rowend{display:flex;gap:10px;margin-top:14px;align-items:center}
+.budbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.budlegend{display:flex;gap:12px;font:500 11px 'DM Sans',sans-serif;color:#9a9a9a}
+.budlegend i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;vertical-align:middle}
+.budlegend i.c-step{background:var(--nl-navy-900)} .budlegend i.c-inh{background:#cfcfcf}
+.bud{display:flex;border:1px solid #eceae5;border-radius:10px;overflow:hidden;background:#fff}
+.bud-labels{flex:0 0 232px;border-right:2px solid #e6e3dd;background:#fcfbf9}
+.bud-scroll{flex:1;min-width:0;overflow-x:auto;overflow-y:hidden}
+.bud-canvas{position:relative}
+.brow{height:26px;display:flex;align-items:center;white-space:nowrap;border-bottom:1px solid #f4f2ee;font:500 12px 'DM Sans',sans-serif}
+.bud-labels .brow{padding:0 10px;gap:6px;cursor:pointer}
+.bud-labels .brow:hover{background:#f6f4f0}
+.bud-labels .brow.grp,.bud-canvas .brow.grp{background:#f1efea;font:600 11px Sora,sans-serif;color:var(--nl-navy-900);cursor:default;text-transform:uppercase;letter-spacing:.04em}
+.bud-labels .brow.sel{background:var(--nl-peach-100)}
+.bud-labels .brow .nm{overflow:hidden;text-overflow:ellipsis;flex:1}
+.bud-labels .brow .tag{font:600 9.5px 'DM Sans',sans-serif;padding:1px 6px;border-radius:9999px;background:#eceae5;color:#7a7a7a}
+.bud-labels .brow.saldo,.bud-canvas .brow.saldo{background:#f8f7f4;font-weight:600;border-top:2px solid #e6e3dd}
+.bcell{flex:0 0 auto;text-align:right;padding:0 8px;font:500 11.5px 'DM Sans',sans-serif;color:#c2c0bb;border-right:1px solid #f4f2ee;overflow:hidden;cursor:cell}
+.bcell.head{font:600 10.5px 'DM Sans',sans-serif;color:#fff;background:var(--nl-navy-900);text-align:center;cursor:default;border-right:1px solid rgba(255,255,255,.12)}
+.bcell.head.hoje{background:var(--nl-orange-500)}
+.bcell.step{color:var(--nl-navy-900);font-weight:600;box-shadow:inset 2px 0 0 var(--nl-orange-500)}
+.bcell.zero{color:#e0ded9}
+.bcell.neg{color:var(--nl-score-low)}
+.bcell:hover{background:#fff6f0}
+.bcell input{width:100%;height:22px;padding:0 4px;text-align:right;font:600 11.5px 'DM Sans',sans-serif;border:1px solid var(--nl-orange-500);border-radius:4px;box-shadow:none}
+.bud-canvas .brow.saldo .bcell{color:var(--nl-navy-900);font-weight:600}
+.iconpick{display:flex;align-items:center;gap:8px}
+.iconpick .prev{width:38px;height:38px;flex:0 0 38px;border:1px solid var(--nl-gray-300);border-radius:9px;display:flex;align-items:center;justify-content:center;background:#fff}
+.iconpick .prev img{width:24px;height:24px;object-fit:contain}
+.iconpick .prev i{font-size:18px;color:var(--nl-navy-900)}
+.iconpick .prev svg{width:20px;height:20px;stroke:var(--nl-navy-900);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.iconpick input[data-k=iconFA]{flex:1;min-width:120px;font-size:12.5px}
+.detail{border:1px solid #efeeea;border-radius:12px;padding:16px 18px;margin-top:14px;background:#fcfbf9}
+.detail h4{font:600 13px Sora,sans-serif;color:var(--nl-navy-900);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.detail h4 .tag{font:600 10px 'DM Sans',sans-serif;padding:2px 8px;border-radius:9999px;background:var(--nl-peach-100);color:var(--nl-orange-600)}
+.item{border:1px solid #efeeea;border-radius:12px;padding:13px 16px;margin-bottom:11px;background:#fff}
+.itemhead{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.itemhead input[data-k=label]{border:0;box-shadow:none;padding:2px 0;font:600 14px Sora,sans-serif;color:var(--nl-navy-900);flex:1;min-width:80px}
+.itemhead input[data-k=label]:focus{border-bottom:1px solid var(--nl-orange-500);border-radius:0}
+.itemhead select{width:auto;min-width:104px;padding:5px 8px;font-size:12.5px}
+.steps{display:flex;flex-direction:column;gap:6px}
+.step{display:flex;align-items:center;gap:8px;font:500 12px 'DM Sans',sans-serif;color:#8a8a8a}
+.step input[type=month]{width:176px;padding:6px 9px}
+.step input[data-money]{width:150px;padding:6px 9px;text-align:right}
+.step.first .rm{visibility:hidden}
+.itemfoot{margin-top:9px;font:500 11.5px 'DM Sans',sans-serif;color:#8d8d8d;display:flex;gap:16px;flex-wrap:wrap}
+.itemfoot b{color:var(--nl-navy-900);font-weight:600}
+.btn-step{background:transparent;color:var(--nl-orange-600);padding:3px 0;font:600 12px 'DM Sans',sans-serif;align-self:flex-start}
+.btn-step:hover{filter:none;text-decoration:underline}
+.btn-icon.armed{color:#fff;background:var(--nl-score-low);width:auto;padding:4px 10px;font:600 11px 'DM Sans',sans-serif;border-radius:9999px}
+
+/* ---------- objetivos ---------- */
+.goal{border:1px solid #efeeea;border-radius:12px;padding:16px 18px;margin-bottom:14px;background:#fff}
+.goal.dim{opacity:.55}
+.goalhead{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.goalhead .ico{width:38px;height:38px;flex:0 0 38px;border-radius:50%;background:#fff;border:2.5px solid var(--nl-gray-300);display:flex;align-items:center;justify-content:center}
+.goalhead .ico svg{width:20px;height:20px;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.goalhead .nm{flex:1;min-width:0}
+.goalhead .nm input{border:0;box-shadow:none;padding:2px 0;font:600 16px Sora,sans-serif;color:var(--nl-navy-900)}
+.goalhead .nm input:focus{border-bottom:1px solid var(--nl-orange-500);border-radius:0}
+.goalhead .when{font:500 12px 'DM Sans',sans-serif;color:#9a9a9a}
+.badge{display:inline-block;padding:4px 12px;border-radius:9999px;font:600 11px Sora,sans-serif;color:#fff;white-space:nowrap}
+.badge.ok{background:var(--nl-score-good)} .badge.adj{background:var(--nl-score-medium)} .badge.risk{background:var(--nl-score-low)}
+.calc{display:flex;gap:22px;flex-wrap:wrap;align-items:center;background:var(--nl-cream-50);border-radius:10px;padding:11px 14px;margin-top:13px}
+.calc .c span{display:block;font:500 11px 'DM Sans',sans-serif;color:#8d8d8d}
+.calc .c b{font:600 14px Sora,sans-serif;color:var(--nl-navy-900)}
+.calc .c b.low{color:var(--nl-score-low)} .calc .c b.good{color:var(--nl-score-good)}
+.calc .spacer{margin-left:auto}
+.sub{border-top:1px dashed #eceae5;margin-top:13px;padding-top:13px}
+.sub h4{font:600 11px Sora,sans-serif;color:var(--nl-navy-900);margin-bottom:10px}
+.warn{background:#FDF3F3;border-radius:10px;padding:11px 14px;font-size:12.5px;color:#9b3a3a;line-height:1.5;margin-top:4px}
+.ok-note{background:#F1F8F3;border-radius:10px;padding:11px 14px;font-size:12.5px;color:#2b6e45;line-height:1.5;margin-top:4px}
+.muted{color:#9a9a9a;font-size:12.5px}
+@media (max-width:1080px){ .g4{grid-template-columns:repeat(2,1fr)} .g3{grid-template-columns:repeat(2,1fr)} }
+@media (max-width:760px){ body{display:block} aside{width:100%;flex:none;height:auto;position:static} main{padding:20px} .g2,.g3,.g4{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+
+<aside>
+  <div class="brand"><span class="dot"></span>Nord Liberta</div>
+  <div class="who"><b id="sbName">Ana Ribeiro</b><span id="sbMeta">35 anos · plano ativo</span></div>
+  <nav id="nav">
+    <a href="#s-cliente" class="on"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg>Cliente</a>
+    <a href="#s-orcamento"><svg viewBox="0 0 24 24"><path d="M3 5h18M3 12h18M3 19h18M8 3v18M16 3v18"/></svg>Orçamento</a>
+    <a href="#s-objetivos"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1"/></svg>Objetivos</a>
+    <a href="#s-liberdade"><svg viewBox="0 0 24 24"><path d="M18.2 8.5c2 0 3.8 1.6 3.8 3.5s-1.8 3.5-3.8 3.5c-3.8 0-8.6-7-12.4-7C3.8 8.5 2 10.1 2 12s1.8 3.5 3.8 3.5c3.8 0 8.6-7 12.4-7z"/></svg>Liberdade financeira</a>
+  </nav>
+  <div class="foot">
+    <button class="btn btn-primary" id="btnOpen"><svg viewBox="0 0 24 24"><path d="M15 3h6v6M10 14L21 3M18 13v8H3V6h8"/></svg>Abrir visão do cliente</button>
+    <button class="btn btn-secondary" id="btnExport" style="width:100%;margin-top:9px"><svg viewBox="0 0 24 24"><path d="M12 4v12M8 12l4 4 4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>Baixar plano (.json)</button>
+    <div class="muted" style="color:rgba(255,255,255,.45);font-size:11px;margin-top:9px;line-height:1.45">O botão laranja abre a Evolução Patrimonial já com este plano. Se o navegador bloquear, baixe o arquivo e carregue-o pelo botão “Plano” na tela do cliente.</div>
+  </div>
+</aside>
+
+<main>
+  <div class="pagehead">
+    <div>
+      <h1>Plano de <span id="hdName">Ana Ribeiro</span></h1>
+      <p>Configuração do plano. Tudo o que você define aqui alimenta a tela de Evolução Patrimonial do cliente.</p>
+    </div>
+    <div class="chips" id="chips"></div>
+  </div>
+
+  <section id="s-cliente">
+    <h2><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg>Cliente e parâmetros</h2>
+    <div class="hint">A idade de hoje é o ponto de partida da linha do tempo. A renda desejada e a expectativa de vida definem quando a Liberdade Financeira é atingida.</div>
+    <div class="grid g4">
+      <div class="field"><label>Nome do cliente</label><input id="f-name" type="text"></div>
+      <div class="field"><label>Idade hoje</label><input id="f-age" type="number" min="18" max="80" disabled title="Fixo nesta versão do protótipo"></div>
+      <div class="field"><label>Expectativa de vida (anos)</label><input id="f-lifeExp" type="number" min="70" max="110"></div>
+      <div class="field"><label>Renda familiar desejada (por mês)</label><input id="f-desired" data-money type="text" inputmode="decimal"></div>
+      <div class="field"><label>Patrimônio financeiro hoje</label><input id="f-wealth" data-money type="text" inputmode="decimal" title="Quanto o cliente tem investido hoje. É o ponto de partida do gráfico."></div>
+      <div class="field"><label>Capacidade de poupança informada</label><input id="f-cap" data-money-opt type="text" inputmode="decimal" placeholder="vazio: calculada" title="Se o cliente disser quanto consegue guardar, informe aqui. Vazio: calculada como entradas menos saídas."></div>
+      <div class="field"><label>Retorno real líquido da reserva (% ao mês)</label><input id="f-rate" type="number" step="0.05"></div>
+      <div class="field"><label>Perfil conservador (% ao mês)</label><input id="f-pc" type="number" step="0.05"></div>
+      <div class="field"><label>Perfil moderado (% ao mês)</label><input id="f-pm" type="number" step="0.05"></div>
+      <div class="field"><label>Perfil agressivo (% ao mês)</label><input id="f-pa" type="number" step="0.05"></div>
+      <div class="field"><label>Participações societárias</label><input id="f-part" data-money type="text" inputmode="decimal"></div>
+    </div>
+  </section>
+
+  <section id="s-orcamento">
+    <h2><svg viewBox="0 0 24 24"><path d="M3 5h18M3 12h18M3 19h18M8 3v18M16 3v18"/></svg>Orçamento</h2>
+    <div class="hint">Cada linha é uma renda ou uma despesa ao longo do tempo. O valor se repete indefinidamente até você clicar numa célula e digitar outro: a partir daquele mês vale o novo valor. Clique no nome da linha para abrir o cadastro completo.</div>
+    <div class="budbar">
+      <div class="seg" id="budZoom">
+        <button data-z="month">Mês</button><button data-z="quarter" class="on">Trimestre</button><button data-z="year">Ano</button><button data-z="multi">4 anos</button>
+      </div>
+      <button class="btn btn-secondary" id="budHoje">Voltar para hoje</button>
+      <div class="budlegend"><span><i class="c-step"></i>valor alterado aqui</span><span><i class="c-inh"></i>repetido do anterior</span></div>
+      <div style="margin-left:auto;display:flex;gap:8px">
+        <button class="btn btn-tertiary" id="btnAddInc">+ Renda</button>
+        <button class="btn btn-tertiary" id="btnAddExp">+ Despesa</button>
+      </div>
+    </div>
+    <div class="bud">
+      <div class="bud-labels" id="budLabels"></div>
+      <div class="bud-scroll" id="budScroll"><div class="bud-canvas" id="budCanvas"></div></div>
+    </div>
+    <div id="budDetail"></div>
+    <div class="rowend"><div class="muted" id="budResumo"></div><div style="margin-left:auto;display:flex;align-items:center;gap:10px"><label style="margin:0">Aluguel hoje</label><input id="f-rent" data-money type="text" inputmode="decimal" style="width:150px"></div></div>
+  </section>
+
+  <section id="s-objetivos">
+    <h2><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1"/></svg>Objetivos</h2>
+    <div class="hint">Todo objetivo tem a mesma estrutura. O aporte necessário e a projeção são calculados a partir da data alvo, do patrimônio já dedicado e do perfil de investimento. O status compara a projeção com o custo do objetivo.</div>
+    <div id="goals"></div>
+    <div class="rowend"><button class="btn btn-tertiary" id="btnAddGoal">+ Adicionar objetivo</button><div class="muted" id="goalSum" style="margin-left:auto"></div></div>
+  </section>
+
+  <section id="s-liberdade">
+    <h2><svg viewBox="0 0 24 24"><path d="M18.2 8.5c2 0 3.8 1.6 3.8 3.5s-1.8 3.5-3.8 3.5c-3.8 0-8.6-7-12.4-7C3.8 8.5 2 10.1 2 12s1.8 3.5 3.8 3.5c3.8 0 8.6-7 12.4-7z"/></svg>Liberdade financeira</h2>
+    <div class="hint">Rendas contratadas no momento da aposentadoria. O cliente vê a renda líquida. O custo é a parte do patrimônio financeiro convertida para contratar a renda — o INSS, por exemplo, não tem custo aqui porque já foi pago em contribuições.</div>
+    <div class="tablewrap"><table>
+      <thead><tr><th style="width:26%">Renda</th><th class="num">Bruto (R$/mês)</th><th class="num">Imposto</th><th class="num">Líquido</th><th class="num">Início (meses)</th><th class="num">Duração (meses)</th><th class="num">Custo (R$)</th><th style="width:36px"></th></tr></thead>
+      <tbody id="tbPas"></tbody>
+      <tbody id="tbPasTotals"></tbody>
+    </table></div>
+    <div class="rowend">
+      <button class="btn btn-tertiary" id="btnAddPas">+ Adicionar renda</button>
+      <div class="muted" style="margin-left:auto">Duração em branco significa vitalícia.</div>
+    </div>
+    <div id="ffNote" style="margin-top:14px"></div>
+  </section>
+</main>
+
+<script id="engine">
+// ===================== MOTOR DE SIMULAÇÃO (semanal, 0–100 anos) =====================
+const ENGINE = (() => {
+  const TODAY = new Date(2026, 8, 19), BIRTH = new Date(1991, 8, 19);
+  const WPY = 365.25 / 7, W0 = Math.round(35 * WPY), NW = Math.round(100 * WPY) + 1;
+  const weekDate = i => new Date(BIRTH.getTime() + i * 7 * 864e5);
+  const tOf = i => (i - W0) / WPY, ageOf = i => i / WPY;
+  // ---- Configuração: tudo o que a tela do consultor define. Os valores abaixo são o padrão do mock. ----
+  let R_M = 0.004, GW = Math.pow(1 + R_M, 7 / 30.4375);
+  let PART_VALUE = 150000; // participação societária: valor constante (sem remuneração modelada)
+  let LIFE_EXP = 95, DESIRED = 25000, SALARY = 15000, SAL_G = 0.045;
+  let INITIAL_WEALTH = 500000; // patrimônio financeiro do cliente hoje, informado pelo consultor
+  let CAP_OVERRIDE = null;     // capacidade de poupança informada pelo cliente, se ele disser um valor próprio
+  const CURRENT_AGE = 35;
+
+  // Perfis de investimento do dinheiro dedicado a cada objetivo (retorno real líquido ao mês)
+  const PROFILES = { conservador: 0.004, moderado: 0.005, agressivo: 0.006 };
+  // Objetivos configurados na tela do consultor (somente leitura aqui).
+  // Todos têm a mesma estrutura; campos sem valor ficam em 0 / null e o card mostra "—".
+  const OBJ = [
+    { id: 'fortaleza', name: 'Viagem a Fortaleza', icon: 'sun', kind: 'consumo', milestone: true, title: 'Viagem a Fortaleza realizada!',
+      months: 20, amount: 12000, recurring: null,
+      dedicated: 3000, profile: 'conservador', planned: 450,
+      strategy: 'Viagem de 7 dias para quatro pessoas em maio, fora da alta temporada, com passagens compradas com seis meses de antecedência. O valor fica em renda fixa de liquidez diária, porque o prazo é curto e a data é inegociável.' },
+
+    { id: 'casa', name: 'Casa própria', icon: 'home', kind: 'bem', milestone: true, title: 'Casa própria realizada!',
+      months: 46, amount: 180000, recurring: { value: 4000, months: 420, label: 'Financiamento da casa própria', amort: 0.45 },
+      dedicated: 45000, profile: 'moderado', planned: 1500,
+      strategy: 'Para a compra do apartamento de R$ 600 mil, será dada uma entrada de R$ 180 mil e financiado o restante, com parcela inicial de R$ 4.000 por mês em 420 meses. Para conseguir o crédito, a renda declarada da família precisa ser de cerca de R$ 13.300 por mês, o que está dentro da realidade. O aporte atual não fecha a entrada integral: a diferença sai da reserva ou a data é adiada em alguns meses.' },
+
+    { id: 'europa', name: 'Viagem à Europa em família', icon: 'plane', kind: 'consumo', milestone: true, title: 'Viagem à Europa realizada!',
+      months: 60, amount: 60000, recurring: null,
+      dedicated: 18000, profile: 'moderado', planned: 300,
+      strategy: 'Roteiro de 21 dias por Itália e França para a família, no verão europeu, com passagens e hospedagem parceladas no semestre anterior. Sem custo recorrente depois. O aporte definido não fecha o valor cheio: a diferença sai da reserva no ano da viagem ou o roteiro é encurtado.' },
+
+    { id: 'intercambio', name: 'Intercâmbio do filho', icon: 'grad', kind: 'consumo', milestone: true, title: 'Intercâmbio do filho realizado!',
+      months: 96, amount: 150000, recurring: null,
+      dedicated: 20000, profile: 'moderado', planned: 150,
+      strategy: 'Um ano de intercâmbio acadêmico no exterior, com moradia e seguro incluídos, quando o filho tiver 18 anos. Como a capacidade mensal de poupança está comprometida com a casa própria, este objetivo recebe um aporte simbólico até 2030 e precisa ser revisto quando a entrada do imóvel sair do caminho. Sem essa revisão, a maior parte virá da reserva.' },
+
+    { id: 'praia', name: 'Casa de praia', icon: 'palm', kind: 'bem', milestone: true, title: 'Casa de praia realizada!',
+      months: 132, amount: 300000, recurring: { value: 800, months: null, label: 'Condomínio e IPTU da casa de praia', amort: 0 },
+      dedicated: 25000, profile: 'agressivo', planned: 100,
+      strategy: 'Compra à vista de uma casa no litoral norte, sem financiamento, depois que o intercâmbio estiver pago. O valor migra de patrimônio financeiro para bens, sem perda de patrimônio total. A partir da compra entram condomínio e IPTU de R$ 800 por mês, por tempo indeterminado. O aporte atual é simbólico: o objetivo só fecha se receber a folga que aparece depois do intercâmbio, e por isso está marcado para revisão.' },
+  ];
+  // Campos derivados: aporte necessário, projeção na data alvo e status.
+  // Recalculado sempre que a data alvo muda (o cliente pode arrastar o marco na tela).
+  const derive = o => {
+    const r = PROFILES[o.profile], n = Math.max(1, o.months), g = Math.pow(1 + r, n), fac = (g - 1) / r;
+    o.rate = r;
+    o.required = Math.max(0, (o.amount - o.dedicated * g) / fac);   // aporte mensal necessário
+    o.projected = o.dedicated * g + o.planned * fac;                // projeção com o aporte definido
+    o.ratio = o.amount > 0 ? o.projected / o.amount : 1;
+    o.status = o.ratio >= 0.98 ? 'ok' : o.ratio >= 0.7 ? 'adj' : 'risk';
+  };
+  OBJ.forEach(derive);
+  const STATUS = { ok: 'Alcançável', adj: 'Alcançável com ajustes', risk: 'Requer revisão' };
+  // Rendas passivas contratadas na Liberdade Financeira
+  const PASSIVE = [
+    { name: 'Fundo de pensão vitalício', origin: 'Patrimônio financeiro (convertido)', gross: 6250, tax: 1250, net: 5000, start: 0, dur: null, cost: 750000, converted: true },
+    { name: 'Fundo de pensão por 5 anos', origin: 'Patrimônio financeiro (convertido)', gross: 8750, tax: 1750, net: 7000, start: 0, dur: 60, cost: 372000, converted: true },
+    { name: 'INSS', origin: 'Contribuições previdenciárias', gross: 5000, tax: 800, net: 4200, start: 60, dur: null, cost: 0, converted: false },
+  ];
+  const passiveAt = mm => PASSIVE.filter(p => mm >= p.start && (p.dur == null || mm < p.start + p.dur));
+  const gapAt = mm => Math.max(0, DESIRED - passiveAt(mm).reduce((s, p) => s + p.net, 0));
+  const annuityCost = () => PASSIVE.reduce((s, p) => s + p.cost, 0);
+
+  // Padrão semanal de despesas (base mensal R$ 12.500 = 9.500 de vida + 3.000 de moradia)
+  // Entradas e saídas são linhas do tempo em degraus: cada degrau vale a partir do mês indicado
+  // e o último vale indefinidamente. "week" diz em que semana do mês a despesa cai (0 = diluída nas quatro).
+  // Uma renda é ativa (trabalho) ou passiva (patrimônio). O fluxo usa sempre o valor líquido,
+  // que é o que está nos degraus; o bruto e o resto são cadastro.
+  const ORIGENS = ['Salário', 'Pró-labore', 'Distribuição de lucros', 'Bônus', 'Comissões', 'Rendimentos recorrentes', 'Outras receitas'];
+  const FREQ = { mensal: 1, trimestral: 3, semestral: 6, anual: 12, pontual: 0 };
+  let INCOMES = [
+    { id: 'salario', label: 'Salário da família', kind: 'ativa', origin: 'Salário', gross: 19500, frequency: 'mensal',
+      day: 5, description: 'Salário líquido somado do casal.', taxable: true,
+      steps: [{ from: 0, value: 15000 }, { from: 24, value: 18000 }, { from: 60, value: 23000 }, { from: 120, value: 28000 }] },
+    { id: 'bonus', label: 'Bônus anual', kind: 'ativa', origin: 'Bônus', gross: 18000, frequency: 'anual',
+      day: 20, description: 'Participação nos resultados, paga em março.', taxable: true,
+      steps: [{ from: 6, value: 12000 }] },
+  ];
+  let EXPENSES = [
+    { id: 'carro', label: 'Carro (2º veículo)', group: 'fix', week: 2, frequency: 'mensal', steps: [{ from: 0, value: 1000 }] },
+    { id: 'iptu', label: 'IPTU', group: 'fix', week: 1, frequency: 'anual', steps: [{ from: 4, value: 3200 }] },
+    { id: 'ingles', label: 'Curso de inglês', group: 'fix', week: 2, steps: [{ from: 0, value: 800 }, { from: 36, value: 0 }] },
+    { id: 'saude', label: 'Plano de saúde', group: 'fix', week: 4, steps: [{ from: 0, value: 1500 }, { from: 120, value: 2200 }] },
+    { id: 'faculdade', label: 'Faculdade do filho', group: 'fix', week: 1, steps: [{ from: 80, value: 2500 }, { from: 128, value: 0 }] },
+    { id: 'alimentacao', label: 'Alimentação', group: 'adj', week: 0, steps: [{ from: 0, value: 1900 }] },
+    { id: 'mercado', label: 'Mercado', group: 'adj', week: 0, steps: [{ from: 0, value: 2700 }] },
+    { id: 'lazer', label: 'Lazer', group: 'adj', week: 0, steps: [{ from: 0, value: 1600 }] },
+  ];
+  let RENT_BASE = 3000;
+  const sortSteps = it => { it.steps = (it.steps || []).slice().sort((a, b) => a.from - b.from); return it; };
+  // valor de um item no mês mm (0 = hoje); antes do primeiro degrau, zero
+  const stepAt = (it, mm) => { let v = 0; for (const st of it.steps) { if (mm >= st.from) v = +st.value || 0; else break; } return v; };
+  const inicio = it => (it.steps && it.steps.length) ? it.steps[0].from : 0;
+  // o item acontece neste mês? mensal todo mês; trimestral a cada 3 a partir do primeiro degrau; pontual uma única vez
+  const aconteceEm = (it, mm) => {
+    const per = FREQ[it.frequency || 'mensal'];
+    if (per === 0) return mm === inicio(it);
+    return mm >= inicio(it) && ((mm - inicio(it)) % per === 0);
+  };
+  const valorEm = (it, mm) => aconteceEm(it, mm) ? stepAt(it, mm) : 0;
+  // equivalente mensal, para orçamento: uma anual de 12 mil pesa 1 mil por mês
+  const mensalizado = (it, mm) => { const per = FREQ[it.frequency || 'mensal']; return per ? stepAt(it, mm) / per : 0; };
+  // semana do ciclo em que o item cai (1 = semana do pagamento); 0 mantém o sentido de "diluído"
+  const semanaDe = it => { if (+it.week === 0 && it.week !== undefined && !it.day) return 0; const d = +it.day || 5; return Math.min(4, Math.max(1, Math.ceil(d / 7.75))); };
+  const livingAt = mm => EXPENSES.reduce((a, c) => a + mensalizado(c, mm), 0);
+  const incomeAt = mm => INCOMES.reduce((a, c) => a + mensalizado(c, mm), 0);
+  const pmt = (pv, i, n) => pv * i / (1 - Math.pow(1 + i, -n));
+
+  function run(mode) {
+    const weeks = new Array(NW), events = [];
+    let cofre = 0, obj = OBJ.map(() => 0), done = OBJ.map(() => false), bens = 0, part = PART_VALUE;
+    let offset = 99, streams = [], houseOwned = false, ff = null, prevActive = '', allocated = false;
+    const recurTotal = () => streams.reduce((a, st) => a + (st.left === 0 ? 0 : st.value), 0);
+    let m = null; // contexto do mês corrente
+    const fin = () => cofre + obj.reduce((a, b) => a + b, 0);
+    const add = (f, k, v) => { f[k] = (f[k] || 0) + v; };
+    // Regra contábil: movimentação = entradas − saídas. Transferências internas (cofre↔objetivo, cofre→bens) somam zero.
+    const transfer = (f, fromKey, toKey, v) => { add(f, fromKey, -v); add(f, toKey, v); };
+
+    const doOffset = (k, i, f) => {
+      EXPENSES.forEach(c => {                       // cada categoria cai na semana configurada
+        const devido = valorEm(c, m.mIdx) * m.scale;
+        if (devido <= 0) return;
+        const w = +c.week || 0, val = w === 0 ? devido / 4 : (w === k ? devido : 0);
+        if (val > 0) add(f, 'out_' + c.group + '_' + c.id, val);
+      });
+      INCOMES.forEach(c => {                        // a renda cai na semana do seu dia de recebimento
+        if (semanaDe(c) !== k) return;
+        const v = valorEm(c, m.mIdx);
+        if (v > 0) add(f, 'in_' + c.id, v);
+      });
+      if (k === 1) {
+        streams.forEach(st => {
+          if (st.left === 0) return;
+          const amort = st.value * st.amort; // parte da parcela que vira patrimônio (bens); o resto é juros/despesa
+          add(f, 'out_fix_' + st.id, st.value - amort);
+          if (amort > 0) { bens += amort; cofre -= amort; transfer(f, 'mov_cofre', 'mov_bens', amort); }
+          if (st.left > 0) { st.left--; if (st.left === 0) events.push({ week: i, type: 'note', label: st.label + ' quitado' }); }
+        });
+        if (!houseOwned) add(f, 'out_fix_moradia', RENT_BASE * m.scale);
+      }
+      if (k === 4 && m.invest > 0) { // aportes dedicados: transferência do cofre para o saldo de cada objetivo
+        let rem = m.invest;
+        OBJ.forEach((o, k2) => { if (m.t >= 0 && !done[k2]) { const ap = Math.min(o.planned, rem); obj[k2] += ap; cofre -= ap; transfer(f, 'mov_cofre', 'mov_obj_' + o.id, ap); rem -= ap; } });
+      }
+    };
+
+    for (let i = 0; i < NW; i++) {
+      const d = weekDate(i), age = ageOf(i), t = tOf(i), f = {};
+      // Saldo de abertura: hoje o patrimônio financeiro é o que o consultor informou.
+      // Não gera lançamento no fluxo (é posição, não movimento) e o histórico anterior não é exibido.
+      if (i === W0 && INITIAL_WEALTH != null) cofre = Math.max(0, INITIAL_WEALTH - obj.reduce((a, b) => a + b, 0));
+      cofre *= GW; obj = obj.map((b, k) => b * Math.pow(1 + OBJ[k].rate, 7 / 30.4375));
+      let incomeWeek = false, incDate = null;   // o salário cai no dia 5; a semana que o contém abre o mês
+      for (let k = 0; k < 7; k++) { const dd = new Date(d.getTime() + k * 864e5); if (dd.getDate() === 5) { incomeWeek = true; incDate = dd; } }
+      const working = age >= 23;
+      if (working && incomeWeek) {
+        offset = 1;
+        if (!allocated && t >= 0) { allocated = true; OBJ.forEach((o, k) => { obj[k] += o.dedicated; cofre -= o.dedicated; transfer(f, 'mov_cofre', 'mov_obj_' + o.id, o.dedicated); }); }
+        const mIdx = (incDate.getFullYear() - 2026) * 12 + incDate.getMonth() - 8;  // índice do mês a partir de set/2026
+        // realização de objetivos
+        OBJ.forEach((o, k) => {
+          if (t >= 0 && !done[k] && mIdx >= o.months) {
+            done[k] = true;
+            const bal = obj[k]; obj[k] = 0; cofre += bal; transfer(f, 'mov_obj_' + o.id, 'mov_cofre', bal); // saldo dedicado volta ao cofre
+            if (o.kind === 'bem') { bens += o.amount; cofre -= o.amount; transfer(f, 'mov_cofre', 'mov_bens', o.amount); } // conversão financeiro → bens
+            else add(f, 'out_obj_' + o.id, o.amount); // consumo: é uma saída, paga pelo cofre
+            if (o.recurring) streams.push({ id: o.id, value: o.recurring.value, left: o.recurring.months == null ? -1 : o.recurring.months, label: o.recurring.label, amort: o.recurring.amort });
+            if (o.kind === 'bem' && o.id === 'casa') houseOwned = true;
+            events.push({ week: i, type: 'obj', obj: o, label: o.name, finBefore: fin() });
+          }
+        });
+        // gatilho da Liberdade Financeira
+        if (!ff && t > 0 && age >= 50) {
+          const horizon = Math.round((LIFE_EXP - age) * 12);
+          let maxGap = 0; for (let mm = 0; mm < horizon; mm++) maxGap = Math.max(maxGap, gapAt(mm));
+          const pending = OBJ.reduce((a, o, k) => a + (done[k] ? 0 : o.amount), 0); // compromissos ainda não realizados
+          const ANNUITY_COST = annuityCost(); const after = fin() - ANNUITY_COST - pending;
+          const sustenta = after * R_M >= maxGap;
+          if (sustenta || age >= 68) {
+            const inv = Math.max(0, fin() - ANNUITY_COST);
+            ff = { week: i, age, finBefore: fin(), cost: ANNUITY_COST, finAfter: inv, pmt: pmt(inv, R_M, horizon), maxGap, months: 0,
+                   forced: !sustenta, sustentavel: inv * R_M + (DESIRED - maxGap) };
+            add(f, 'out_rendas', ANNUITY_COST); // contratação das rendas: saída paga pelo cofre
+            events.push({ week: i, type: 'ff', label: 'Liberdade Financeira', ff });
+          }
+        }
+        // contexto do mês
+        m = { t, mIdx: Math.max(0, mIdx) };
+        const lancarSemana1 = () => doOffset(1, i, f);   // a semana do pagamento já é a semana 1 do ciclo
+        if (ff) {
+          const mm = ff.months++;
+          const act = passiveAt(mm); let pas = 0;
+          act.forEach(p => { add(f, 'in_pas_' + PASSIVE.indexOf(p), p.net); pas += p.net; });
+          const names = act.map(p => p.name), prev = prevActive ? prevActive.split('|') : [];
+          if (mm > 0) { // sub-eventos: qual renda terminou ou começou, e o efeito na retirada do patrimônio
+            const ended = prev.filter(n => !names.includes(n)), started = names.filter(n => !prev.includes(n));
+            const parts = ended.map(n => 'Fim: ' + n).concat(started.map(n => 'Início: ' + n));
+            if (parts.length) events.push({ week: i, type: 'passive', label: parts.join(' · '), detail: 'Renda passiva líquida passa a ' + pas.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }) + '/mês' });
+          }
+          prevActive = names.join('|');
+          // perpetuidade: retira exatamente o rendimento real (0,4%/mês) e o principal fica estável; consumo: PMT até a expectativa de vida
+          let w = mode === 'perp' ? fin() * R_M : (age < LIFE_EXP ? ff.pmt : 0);
+          w = Math.min(w, Math.max(0, cofre - (f.out_rendas || 0)));
+          // na aposentadoria o padrão de vida se ajusta à renda disponível
+          const custoVida = livingAt(m.mIdx) || 1;
+          m.salary = 0; m.scale = Math.max(0, pas + w - recurTotal()) / custoVida; m.invest = 0; m.pas = pas;
+        } else {
+          m.scale = 1;                                // os valores já vêm da linha do tempo
+          m.salary = incomeAt(m.mIdx);                // equivalente mensal, para dimensionar o aporte
+          const fixos = recurTotal() + (houseOwned ? 0 : RENT_BASE);
+          m.invest = Math.max(0, m.salary - livingAt(m.mIdx) - fixos);
+          if (CAP_OVERRIDE != null) m.invest = Math.min(m.invest, CAP_OVERRIDE); // o cliente pode declarar quanto consegue poupar
+        }
+        lancarSemana1();
+      } else if (working && m) {
+        offset++; if (offset <= 4) doOffset(offset, i, f);
+        // mês de 4 semanas: se a próxima semana já é a do salário, os itens da 5ª semana são antecipados para esta
+        if (offset === 3) { let nextIncome = false; for (let k = 7; k < 14; k++) if (new Date(d.getTime() + k * 864e5).getDate() === 5) nextIncome = true; if (nextIncome) { doOffset(4, i, f); offset = 4; } }
+      }
+      // fechamento da semana: o que entrou menos o que saiu vai para (ou sai do) cofre
+      let R = 0; for (const k in f) { if (k.startsWith('in_')) R += f[k]; else if (k.startsWith('out_')) R -= f[k]; }
+      cofre += R; if (R) add(f, 'mov_cofre', R);
+      if (cofre < 0) cofre = 0;
+      weeks[i] = { fin: fin(), cofre, obj: obj.slice(), bens, part, pas: m ? (m.pas || 0) : 0, mi: m ? m.mIdx : -1, f };
+    }
+    // agregações
+    const bucketize = keyFn => { const out = []; let cur = null; for (let i = 0; i < NW; i++) { const k = keyFn(i); if (!cur || cur.key !== k) { cur = { key: k, w0: i, w1: i + 1, mi: weeks[i].mi, f: {} }; out.push(cur); } cur.w1 = i + 1; const f = weeks[i].f; for (const key in f) cur.f[key] = (cur.f[key] || 0) + f[key]; } return out; };
+    // Todos os níveis usam o mês do motor (de salário a salário), para que trimestres e anos
+    // contenham sempre o mesmo número de meses. cm = meses desde jan/2026.
+    const cmOf = i => weeks[i].mi + 8;
+    const weekB = weeks.map((w, i) => ({ w0: i, w1: i + 1, f: w.f }));
+    const monthB = bucketize(i => weeks[i].mi);
+    const quarterB = bucketize(i => Math.floor(cmOf(i) / 3));
+    const yearB = bucketize(i => Math.floor(cmOf(i) / 12));
+    const multiB = bucketize(i => Math.floor(cmOf(i) / 48));
+    const decadeB = bucketize(i => Math.floor(cmOf(i) / 120));
+    return { weeks, events, ff, buckets: { week: weekB, month: monthB, quarter: quarterB, year: yearB, multi: multiB, decade: decadeB } };
+  }
+  // Aplica um plano vindo da tela do consultor (JSON no hash da URL ou em localStorage)
+  // aceita o formato antigo (weeks: [v,v,v,v]) convertendo para degraus
+  function migra(it) {
+    if (!it.steps) {
+      const w = it.weeks || [], tot = w.reduce((a, b) => a + (+b || 0), 0);
+      const naoZero = w.filter(v => +v > 0).length;
+      it = Object.assign({}, it, { week: naoZero === 1 ? w.findIndex(v => +v > 0) + 1 : 0, steps: [{ from: 0, value: tot }] });
+      delete it.weeks;
+    }
+    return sortSteps(it);
+  }
+  function configure(plan) {
+    if (!plan) return;
+    if (plan.desired != null) DESIRED = +plan.desired;
+    if (plan.lifeExp != null) LIFE_EXP = +plan.lifeExp;
+    if (plan.salary != null) SALARY = +plan.salary;
+    if (plan.salaryGrowth != null) SAL_G = +plan.salaryGrowth;
+    if (plan.rent != null) RENT_BASE = +plan.rent;
+    if (plan.partValue != null) PART_VALUE = +plan.partValue;
+    if (plan.initialWealth != null) INITIAL_WEALTH = +plan.initialWealth;
+    CAP_OVERRIDE = plan.capacityOverride == null || plan.capacityOverride === '' ? null : +plan.capacityOverride;
+    if (plan.rate != null) { R_M = +plan.rate; GW = Math.pow(1 + R_M, 7 / 30.4375); }
+    if (plan.profiles) Object.assign(PROFILES, plan.profiles);
+    if (Array.isArray(plan.incomes)) INCOMES = plan.incomes.map(migra);
+    else if (plan.salary != null) INCOMES = [{ id: 'salario', label: 'Salário da família', steps: [{ from: 0, value: +plan.salary }] }];
+    if (Array.isArray(plan.expenses)) EXPENSES = plan.expenses.map(migra);
+    if (plan.objectives && plan.objectives.length) { OBJ.length = 0; plan.objectives.forEach(o => OBJ.push(o)); OBJ.forEach(derive); }
+    if (plan.passive) { PASSIVE.length = 0; plan.passive.forEach(p => PASSIVE.push(p)); }
+  }
+  const ORIGENS_OUT = ORIGENS;
+  const config = () => ({ desired: DESIRED, lifeExp: LIFE_EXP, salary: SALARY, salaryGrowth: SAL_G, rent: RENT_BASE, partValue: PART_VALUE, initialWealth: INITIAL_WEALTH, capacityOverride: CAP_OVERRIDE, rate: R_M, profiles: PROFILES, incomes: INCOMES, expenses: EXPENSES, objectives: OBJ, passive: PASSIVE });
+  return { TODAY, BIRTH, WPY, W0, NW, weekDate, tOf, ageOf, OBJ, PASSIVE, PROFILES, STATUS, derive, run, configure, config, stepAt, valorEm, mensalizado, aconteceEm, ORIGENS: ORIGENS_OUT, FREQ, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, CURRENT_AGE, pmt };
+})();
+if (typeof module !== 'undefined') module.exports = ENGINE;
+</script>
+
+<script>
+// ===================== PLANO (mesma estrutura que a tela do cliente consome) =====================
+const HOJE = new Date(2026, 8, 19), MES0 = { y: 2026, m: 8 }; // mês 0 da linha do tempo = set/2026
+const ICONS = {
+  home: 'M3 11l9-8 9 8M5 10v10h14V10M10 20v-6h4v6',
+  plane: 'M2 16l20-7-6 13-3-6-11 0zM13 16l7-7',
+  grad: 'M2 9l10-5 10 5-10 5zM6 11v5c0 1.5 3 3 6 3s6-1.5 6-3v-5M22 9v6',
+  palm: 'M12 22V9M12 9c-1-4-5-5-8-3 3 0 6 1 8 3zM12 9c1-4 5-5 8-3-3 0-6 1-8 3zM12 9c-3-2-7-1-9 2 3-1 6-1 9-2zM12 9c3-2 7-1 9 2-3-1-6-1-9-2z',
+  sun: 'M12 17a5 5 0 100-10 5 5 0 000 10zM12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M5 19l1.5-1.5M17.5 6.5L19 5',
+  car: 'M5 17h14M4 17v-4l2-5h12l2 5v4M4 17v2h3v-2M17 17v2h3v-2M7.5 13h1M15.5 13h1',
+};
+const ICON_NAMES = { home: 'Casa', plane: 'Viagem', grad: 'Estudos', palm: 'Lazer', sun: 'Sol', car: 'Carro' };
+const STATUS = { ok: 'Alcançável', adj: 'Alcançável com ajustes', risk: 'Requer revisão' };
+
+// O plano padrão vem do próprio motor: uma só fonte de verdade para os dois lados.
+const PLANO_PADRAO = Object.assign(
+  { name: 'Ana Ribeiro', age: 35 },
+  JSON.parse(JSON.stringify(ENGINE.config()))
+);
+
+let plano = load();
+function load() {
+  try { const raw = localStorage.getItem('nl-plano'); if (raw) return Object.assign(structuredClone(PLANO_PADRAO), JSON.parse(raw)); } catch (e) { }
+  return structuredClone(PLANO_PADRAO);
+}
+function save() { try { localStorage.setItem('nl-plano', JSON.stringify(plano)); } catch (e) { } }
+
+// ---------- utilidades ----------
+const MESES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+const fmt = v => 'R$ ' + Math.round(v || 0).toLocaleString('pt-BR');
+const fmtC = v => { const a = Math.abs(v); if (a >= 1e6) return 'R$ ' + (v / 1e6).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + ' mi'; if (a >= 1e3) return 'R$ ' + Math.round(v / 1e3).toLocaleString('pt-BR') + ' mil'; return fmt(v); };
+// máscara R$ #.###.###,## — o campo guarda texto, o modelo guarda número
+const money = v => 'R$ ' + (Math.round((+v || 0) * 100) / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const unmoney = t => (parseInt(String(t).replace(/\D/g, '') || '0', 10)) / 100;
+const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+// mês da linha do tempo <-> input type=month
+const monthsToInput = n => { const d = new Date(MES0.y, MES0.m + n, 1); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'); };
+const inputToMonths = v => { const [y, m] = v.split('-').map(Number); return Math.max(1, (y - MES0.y) * 12 + (m - 1 - MES0.m)); };
+const monthsLabel = n => { const d = new Date(MES0.y, MES0.m + n, 1); return MESES[d.getMonth()] + '/' + d.getFullYear(); };
+
+// ---------- matemática: vem do mesmo motor que a tela do cliente usa ----------
+// derive() dá o aporte necessário e a projeção teórica; a simulação diz o que o orçamento
+// realmente entrega, que é o número honesto para conversar com o cliente.
+let SIM = null;
+function recompute() {
+  // ordenar ANTES de configurar: o motor aporta na ordem em que recebe os objetivos (o mais próximo primeiro)
+  // e os saldos da simulação são lidos por esse mesmo índice.
+  plano.objectives.sort((a, b) => a.months - b.months);
+  ENGINE.configure(plano);                       // deriva required/projected/status teóricos
+  SIM = ENGINE.run('perp');
+  plano.objectives.forEach((o, k) => {
+    const ev = SIM.events.find(e => e.type === 'obj' && e.obj.id === o.id);
+    const fim = ev ? ev.week : ENGINE.NW - 1;
+    o.real = ev ? SIM.weeks[Math.max(0, ev.week - 1)].obj[k] : 0;   // saldo acumulado na data alvo
+    o.realRatio = o.amount > 0 ? o.real / o.amount : 1;
+    o.status = o.realRatio >= 0.98 ? 'ok' : o.realRatio >= 0.7 ? 'adj' : 'risk';
+    let ap = 0;                                                     // aporte que o orçamento realmente entregou
+    for (let i = ENGINE.W0; i < fim; i++) { const v = SIM.weeks[i].f['mov_obj_' + o.id]; if (v > 0) ap += v; }
+    ap -= o.dedicated;                                              // fora a alocação inicial, que não é aporte mensal
+    o.effective = o.months > 0 ? Math.max(0, ap) / o.months : 0;
+    o.truncado = o.effective < o.planned - 1;
+  });
+}
+const derive = o => o;
+// valor de um item no mês mm (0 = hoje); antes do primeiro degrau, zero
+const stepAt = (it, mm) => { let v = 0; for (const st of (it.steps || [])) { if (mm >= st.from) v = +st.value || 0; else break; } return v; };
+const livingTotal = (mm) => plano.expenses.reduce((a, c) => a + stepAt(c, mm || 0), 0);
+const incomeTotal = (mm) => plano.incomes.reduce((a, c) => a + stepAt(c, mm || 0), 0);
+// capacidade de poupança hoje = salário − custo de vida − moradia
+const capacity = () => plano.capacityOverride != null && plano.capacityOverride !== ''
+  ? +plano.capacityOverride : Math.max(0, incomeTotal(0) - livingTotal(0) - plano.rent);
+const plannedTotal = () => plano.objectives.reduce((a, o) => a + (+o.planned || 0), 0);
+
+// ===================== RENDERIZAÇÃO =====================
+function renderAll() {
+  const foco = document.activeElement, fg = foco && foco.dataset ? foco.dataset.g : null, fk = foco && foco.dataset ? foco.dataset.k : null;
+  recompute(); renderTop(); renderBudget(); renderGoals(); renderPas(); save();
+  if (fg && fk) { const el = document.querySelector('[data-g="' + fg + '"][data-k="' + fk + '"]'); if (el) { el.focus(); if (el.setSelectionRange && el.type === 'text') try { el.setSelectionRange(el.value.length, el.value.length); } catch (e) { } } }
+}
+
+function renderTop() {
+  document.getElementById('hdName').textContent = plano.name;
+  document.getElementById('sbName').textContent = plano.name;
+  document.getElementById('sbMeta').textContent = plano.age + ' anos · ' + plano.objectives.length + ' objetivos';
+  const cap = capacity(), pl = plannedTotal(), livre = cap - pl;
+  const risco = plano.objectives.filter(o => o.status === 'risk').length;
+  const ff = SIM && SIM.ff;
+  document.getElementById('chips').innerHTML =
+    `<div class="chip"><span>Capacidade de poupança</span><b>${fmt(cap)}</b></div>` +
+    `<div class="chip"><span>Aportes definidos</span><b class="${pl > cap ? 'low' : ''}">${fmt(pl)}</b></div>` +
+    `<div class="chip"><span>Folga mensal</span><b class="${livre < 0 ? 'low' : 'good'}">${fmt(livre)}</b></div>` +
+    `<div class="chip"><span>Objetivos em risco</span><b class="${risco ? 'low' : 'good'}">${risco} de ${plano.objectives.length}</b></div>` +
+    `<div class="chip"><span>Liberdade financeira</span><b class="${ff && !ff.forced ? 'good' : 'low'}">${ff ? Math.floor(ff.age) + ' anos · ' + ENGINE.weekDate(ff.week).getFullYear() : '—'}</b></div>`;
+  const linhas = plano.objectives.map(o => `<tr><td>${esc(o.name)}</td><td>${monthsLabel(o.months)}</td>` +
+    `<td class="num" style="text-align:right">${fmt(o.required)}</td><td class="num" style="text-align:right">${fmt(o.planned)}</td>` +
+    `<td class="num" style="text-align:right;color:${o.truncado ? 'var(--nl-score-low)' : 'inherit'}">${fmt(o.effective)}</td>` +
+    `<td style="text-align:right"><span class="badge ${o.status}">${STATUS[o.status]}</span></td></tr>`).join('');
+  document.getElementById('goalSum').innerHTML =
+    `<table style="margin-top:6px"><thead><tr><th>Objetivo</th><th>Data alvo</th><th class="num">Necessário</th><th class="num">Definido</th><th class="num">Efetivo</th><th style="text-align:right">Status</th></tr></thead>` +
+    `<tbody>${linhas}<tr class="total"><td colspan="3">Total dos aportes definidos</td><td class="num" style="text-align:right">${fmt(pl)}</td><td class="num" style="text-align:right">capacidade ${fmt(cap)}</td><td></td></tr></tbody></table>` +
+    (pl > cap ? `<div class="warn">Os aportes definidos somam ${fmt(pl)} e a capacidade de poupança é ${fmt(cap)}. A coluna <b>Efetivo</b> mostra o que o orçamento realmente entrega: os objetivos mais distantes ficam sem aporte e o status já considera isso.</div>`
+              : `<div class="ok-note">Os aportes definidos somam ${fmt(pl)}, dentro da capacidade de ${fmt(cap)}.</div>`);
+}
+
+// ---------- Planilha de orçamento: meses na horizontal, valores editáveis ----------
+const HORIZONTE = 720;                       // 60 anos de colunas
+const ZOOM = { month: { span: 1, w: 82 }, quarter: { span: 3, w: 90 }, year: { span: 12, w: 96 }, multi: { span: 48, w: 110 } };
+let budZoom = 'quarter', budSel = null;
+const FREQS = ['mensal', 'trimestral', 'semestral', 'anual', 'pontual'];
+
+const stepEm = (it, m) => (it.steps || []).find(st => st.from === m);
+function setStep(it, m, v) {
+  const anterior = stepAt(it, m - 1);
+  const ex = stepEm(it, m);
+  if (m > 0 && Math.abs(v - anterior) < 0.005) { if (ex) it.steps.splice(it.steps.indexOf(ex), 1); }  // igual ao anterior: não vira degrau
+  else if (ex) ex.value = v;
+  else it.steps.push({ from: m, value: v });
+  if (!it.steps.length) it.steps.push({ from: 0, value: 0 });
+  it.steps.sort((a, b) => a.from - b.from);
+}
+// o item acontece neste mês? (mesma regra do motor)
+const PER = { mensal: 1, trimestral: 3, semestral: 6, anual: 12, pontual: 0 };
+const inicioDe = it => (it.steps && it.steps.length) ? it.steps[0].from : 0;
+function aconteceEm(it, m) {
+  const per = PER[it.frequency || 'mensal'];
+  if (per === 0) return m === inicioDe(it);
+  return m >= inicioDe(it) && ((m - inicioDe(it)) % per === 0);
+}
+// soma do que acontece no balde que começa em m0 e dura sp meses
+function budValor(it, m0, sp) { let t = 0; for (let m = m0; m < m0 + sp; m++) if (aconteceEm(it, m)) t += stepAt(it, m); return t; }
+function budLabel(m0, sp) {
+  const cm = m0 + 8, y = 2026 + Math.floor(cm / 12), mes = ((cm % 12) + 12) % 12;
+  if (sp === 1) return MESES[mes] + '/' + String(y).slice(2);
+  if (sp === 3) return (Math.floor(mes / 3) + 1) + 'T/' + String(y).slice(2);
+  if (sp === 12) return String(y);
+  return y + '-' + String(y + sp / 12 - 1).slice(2);
+}
+function budLinhas() {
+  const L = [{ t: 'grp', nome: 'Entradas' }];
+  plano.incomes.forEach((it, i) => L.push({ t: 'inc', i, it }));
+  L.push({ t: 'grp', nome: 'Saídas' });
+  plano.expenses.forEach((it, i) => L.push({ t: 'exp', i, it }));
+  L.push({ t: 'saldo', nome: 'Sobra do período' });
+  return L;
+}
+// saldo real vindo da simulação, por mês do motor
+function saldoDoBalde(m0, sp) {
+  if (!SIM) return 0;
+  let t = 0;
+  for (const b of SIM.buckets.month) {
+    if (b.mi < m0 || b.mi >= m0 + sp) continue;
+    for (const k in b.f) { if (k.startsWith('in_')) t += b.f[k]; else if (k.startsWith('out_')) t -= b.f[k]; }
+  }
+  return t;
+}
+function renderBudget() {
+  const z = ZOOM[budZoom], ncols = Math.ceil(HORIZONTE / z.span);
+  const canvas = document.getElementById('budCanvas'), scroll = document.getElementById('budScroll');
+  canvas.style.width = (ncols * z.w) + 'px';
+  const L = budLinhas();
+  document.getElementById('budLabels').innerHTML = L.map((r, k) => {
+    if (r.t === 'grp') return '<div class="brow grp">' + r.nome + '</div>';
+    if (r.t === 'saldo') return '<div class="brow saldo">' + r.nome + '</div>';
+    const tag = r.t === 'inc' ? (r.it.kind === 'passiva' ? 'passiva' : (r.it.origin || 'ativa')) : (r.it.group === 'fix' ? 'fixa' : 'ajustável');
+    const sel = budSel && budSel.t === r.t && budSel.i === r.i ? ' sel' : '';
+    return '<div class="brow' + sel + '" data-lab="' + r.t + ':' + r.i + '" title="' + esc(r.it.label) + '"><span class="nm">' + esc(r.it.label) + '</span><span class="tag">' + esc(tag) + '</span></div>';
+  }).join('');
+  const first = Math.max(0, Math.floor(scroll.scrollLeft / z.w) - 1);
+  const vis = Math.min(ncols - first, Math.ceil(scroll.clientWidth / z.w) + 3);
+  const cab = [];
+  for (let c = 0; c < vis; c++) { const m0 = (first + c) * z.span; cab.push('<div class="bcell head' + (m0 <= 0 && 0 < m0 + z.span ? ' hoje' : '') + '" style="width:' + z.w + 'px">' + budLabel(m0, z.span) + '</div>'); }
+  const linhas = L.map(r => {
+    if (r.t === 'grp') return '<div class="brow grp" style="width:' + (vis * z.w) + 'px"></div>';
+    const cs = [];
+    for (let c = 0; c < vis; c++) {
+      const m0 = (first + c) * z.span;
+      if (r.t === 'saldo') { const v = saldoDoBalde(m0, z.span); cs.push('<div class="bcell' + (v < 0 ? ' neg' : '') + '" style="width:' + z.w + 'px">' + (v ? fmtC(v) : '') + '</div>'); continue; }
+      const v = budValor(r.it, m0, z.span);
+      let cls = 'bcell';
+      for (let m = m0; m < m0 + z.span; m++) if (stepEm(r.it, m)) { cls += ' step'; break; }
+      if (!v) cls += ' zero';
+      cs.push('<div class="' + cls + '" style="width:' + z.w + 'px" data-cel="' + r.t + ':' + r.i + ':' + m0 + '">' + (v ? fmtC(v) : '–') + '</div>');
+    }
+    return '<div class="brow' + (r.t === 'saldo' ? ' saldo' : '') + '">' + cs.join('') + '</div>';
+  });
+  canvas.innerHTML = '<div style="padding-left:' + (first * z.w) + 'px">' +
+    '<div class="brow" style="height:26px">' + cab.join('') + '</div>' + linhas.join('') + '</div>';
+  renderDetalhe();
+  const totIn = plano.incomes.reduce((a, it) => a + (PER[it.frequency || 'mensal'] ? stepAt(it, 0) / PER[it.frequency || 'mensal'] : 0), 0);
+  const totOut = plano.expenses.reduce((a, it) => a + (PER[it.frequency || 'mensal'] ? stepAt(it, 0) / PER[it.frequency || 'mensal'] : 0), 0);
+  document.getElementById('budResumo').innerHTML = 'Hoje, em média por mês: entradas <b>' + money(totIn) + '</b>, saídas <b>' + money(totOut + (+plano.rent || 0)) + '</b> (com aluguel).';
+}
+// cadastro completo do item selecionado
+function renderDetalhe() {
+  const el = document.getElementById('budDetail');
+  if (!budSel) { el.innerHTML = ''; return; }
+  const arr = budSel.t === 'inc' ? plano.incomes : plano.expenses, it = arr[budSel.i];
+  if (!it) { budSel = null; el.innerHTML = ''; return; }
+  const campo = (lab, html) => '<div class="field"><label>' + lab + '</label>' + html + '</div>';
+  const sel = (k, opts, val) => '<select data-det="' + k + '">' + opts.map(o => '<option value="' + o + '"' + (val === o ? ' selected' : '') + '>' + o + '</option>').join('') + '</select>';
+  let campos = campo('Nome', '<input data-det="label" value="' + esc(it.label) + '">');
+  if (budSel.t === 'inc') {
+    campos += campo('Tipo', sel('kind', ['ativa', 'passiva'], it.kind || 'ativa'));
+    campos += campo('Origem', it.kind === 'passiva' ? '<input value="rendimento do patrimônio" disabled>' : sel('origin', ENGINE.ORIGENS, it.origin || ENGINE.ORIGENS[0]));
+    campos += campo('Valor bruto (por recebimento)', '<input data-det="gross" data-money type="text" inputmode="decimal" value="' + money(it.gross || 0) + '">');
+    campos += campo('Valor líquido hoje', '<input value="' + money(stepAt(it, 0)) + '" disabled title="É o valor da planilha: o fluxo de caixa usa sempre o líquido">');
+    campos += campo('Renda tributável', '<select data-det="taxable"><option value="1"' + (it.taxable !== false ? ' selected' : '') + '>Sim</option><option value="0"' + (it.taxable === false ? ' selected' : '') + '>Não</option></select>');
+  } else {
+    campos += campo('Tipo', sel('group', ['fix', 'adj'], it.group || 'adj').replace('>fix<', '>Fixa<').replace('>adj<', '>Ajustável<'));
+  }
+  campos += campo('Frequência', sel('frequency', FREQS, it.frequency || 'mensal'));
+  campos += campo('Dia do recebimento', '<input data-det="day" type="number" min="1" max="31" value="' + (+it.day || 5) + '">');
+  campos += '<div class="field wide">' + campo('Descrição', '<textarea data-det="description" placeholder="Observações que ajudam a explicar esta linha ao cliente.">' + esc(it.description || '') + '</textarea>') + '</div>';
+  el.innerHTML = '<div class="detail"><h4>' + esc(it.label) + '<span class="tag">' + (budSel.t === 'inc' ? 'renda' : 'despesa') + '</span>' +
+    '<button class="btn btn-icon" data-del-item style="margin-left:auto">×</button></h4><div class="grid g4">' + campos + '</div></div>';
+}
+
+function renderGoals() {
+  const wrap = document.getElementById('goals');
+  const ordem = plano.objectives.map((o, i) => i).sort((a, b) => plano.objectives[a].months - plano.objectives[b].months);
+  wrap.innerHTML = ordem.map(i => {
+    const o = plano.objectives[i], rec = o.recurring;
+    const col = o.status === 'ok' ? 'var(--nl-score-good)' : o.status === 'adj' ? 'var(--nl-score-medium)' : 'var(--nl-score-low)';
+    return `
+    <div class="goal">
+      <div class="goalhead">
+        <div class="ico" style="border-color:${col}">${o.iconData ? `<img src="${o.iconData}" alt="" style="width:20px;height:20px;object-fit:contain">` : o.iconFA ? `<i class="${esc(o.iconFA)}" style="font-size:17px;color:${col}"></i>` : `<svg viewBox="0 0 24 24" style="stroke:${col}"><path d="${ICONS[o.icon] || ICONS.sun}"/></svg>`}</div>
+        <div class="nm"><input data-g="${i}" data-k="name" value="${esc(o.name)}"><div class="when">${monthsLabel(o.months)} · daqui a ${o.months} meses · ${o.kind === 'bem' ? 'vira patrimônio (bem)' : 'consumo'}</div></div>
+        <span class="badge ${o.status}">${STATUS[o.status]}</span>
+        <button class="btn btn-icon" data-del-g="${i}" title="Remover objetivo">×</button>
+      </div>
+
+      <div class="grid g4">
+        <div class="field"><label>Data alvo</label><input type="month" data-g="${i}" data-k="months" value="${monthsToInput(o.months)}"></div>
+        <div class="field"><label>Custo pontual (R$)</label><input data-money type="text" inputmode="decimal" data-g="${i}" data-k="amount" value="${money(o.amount)}"></div>
+        <div class="field"><label>Tipo</label><select data-g="${i}" data-k="kind"><option value="consumo"${o.kind === 'consumo' ? ' selected' : ''}>Consumo</option><option value="bem"${o.kind === 'bem' ? ' selected' : ''}>Vira bem</option></select></div>
+        <div class="field wide"><label>Foto do objetivo (endereço da imagem, opcional)</label><input data-g="${i}" data-k="photo" value="${esc(o.photo || '')}" placeholder="https://… — sem foto, o card usa o ícone"></div>
+        <div class="field"><label>Ícone do objetivo</label>
+          <div class="iconpick">
+            <span class="prev">${o.iconData ? `<img src="${o.iconData}" alt="">` : o.iconFA ? `<i class="${esc(o.iconFA)}"></i>` : `<svg viewBox="0 0 24 24"><path d="${ICONS[o.icon] || ICONS.sun}"/></svg>`}</span>
+            <label class="btn btn-secondary" style="padding:6px 10px">Enviar SVG/PNG<input type="file" accept=".svg,.png,image/svg+xml,image/png" data-icon="${i}" hidden></label>
+            <input data-g="${i}" data-k="iconFA" value="${esc(o.iconFA || '')}" placeholder="ou classe Font Awesome: fa-solid fa-car" title="Cole a classe do ícone, por exemplo fa-solid fa-house">
+            ${o.iconData || o.iconFA ? `<button class="btn btn-icon" data-clear-icon="${i}" title="Voltar ao ícone padrão">×</button>` : ''}
+          </div>
+        </div>
+
+        <div class="field"><label>Patrimônio dedicado hoje (R$)</label><input data-money type="text" inputmode="decimal" data-g="${i}" data-k="dedicated" value="${money(o.dedicated)}"></div>
+        <div class="field"><label>Perfil de investimento</label><select data-g="${i}" data-k="profile">${Object.keys(plano.profiles).map(k => `<option value="${k}"${o.profile === k ? ' selected' : ''}>${k[0].toUpperCase() + k.slice(1)} (${(plano.profiles[k] * 100).toFixed(2).replace('.', ',')}%)</option>`).join('')}</select></div>
+        <div class="field"><label>Aporte definido (R$/mês)</label><input data-money type="text" inputmode="decimal" data-g="${i}" data-k="planned" value="${money(o.planned)}"></div>
+        <div class="field"><label>Aporte necessário (R$/mês)</label><input value="${money(o.required)}" disabled></div>
+      </div>
+
+      <div class="calc">
+        <div class="c"><span>Aporte efetivo no orçamento</span><b class="${o.truncado ? 'low' : ''}">${fmt(o.effective)}/mês</b></div>
+        <div class="c"><span>Projeção na data alvo</span><b class="${o.status === 'risk' ? 'low' : o.status === 'ok' ? 'good' : ''}">${fmt(o.real)}</b></div>
+        <div class="c"><span>Custo do objetivo</span><b>${fmt(o.amount)}</b></div>
+        <div class="c"><span>Cobertura</span><b class="${o.status === 'risk' ? 'low' : o.status === 'ok' ? 'good' : ''}">${Math.round(o.realRatio * 100)}%</b></div>
+        <div class="c spacer"><span>Diferença para o necessário</span><b>${o.required > o.planned ? 'faltam ' + fmt(o.required - o.planned) + '/mês' : 'aporte suficiente'}</b></div>
+      </div>
+      ${o.truncado ? `<div class="warn">O orçamento não comporta os ${fmt(o.planned)} definidos: este objetivo recebe ${fmt(o.effective)} por mês na simulação. Reduza os aportes dos objetivos anteriores, adie a data ou aumente a capacidade de poupança.</div>` : ''}
+
+      <div class="sub">
+        <h4>Custo mensal depois de realizado</h4>
+        <div class="grid g4">
+          <div class="field"><label>Valor (R$/mês)</label><input data-money type="text" inputmode="decimal" data-g="${i}" data-k="recValue" value="${money(rec ? rec.value : 0)}"></div>
+          <div class="field"><label>Prazo (meses, vazio = indeterminado)</label><input type="number" step="12" data-g="${i}" data-k="recMonths" value="${rec && rec.months != null ? rec.months : ''}"></div>
+          <div class="field"><label>Descrição no fluxo de caixa</label><input data-g="${i}" data-k="recLabel" value="${esc(rec ? rec.label : '')}" placeholder="ex.: Financiamento da casa"></div>
+          <div class="field"><label>Parcela que vira patrimônio (%)</label><input type="number" step="5" min="0" max="100" data-g="${i}" data-k="recAmort" value="${rec ? Math.round(rec.amort * 100) : 0}" title="Amortização do financiamento: a parte da parcela que constrói patrimônio em bens"></div>
+        </div>
+      </div>
+
+      <div class="sub">
+        <h4>Estratégia apresentada ao cliente</h4>
+        <textarea data-g="${i}" data-k="strategy" placeholder="Como este objetivo será atingido, em linguagem de conversa com o cliente.">${esc(o.strategy)}</textarea>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderPas() {
+  const tb = document.getElementById('tbPas');
+  tb.innerHTML = plano.passive.map((p, i) => `
+    <tr>
+      <td><input data-p="${i}" data-k="name" value="${esc(p.name)}"></td>
+      <td class="num"><input data-money type="text" inputmode="decimal" data-p="${i}" data-k="gross" value="${money(p.gross)}"></td>
+      <td class="num"><input data-money type="text" inputmode="decimal" data-p="${i}" data-k="tax" value="${money(p.tax)}"></td>
+      <td class="num"><input data-money type="text" inputmode="decimal" data-p="${i}" data-k="net" value="${money(p.net)}" title="Editando o líquido, o imposto é recalculado"></td>
+      <td class="num"><input type="number" step="12" data-p="${i}" data-k="start" value="${p.start}"></td>
+      <td class="num"><input type="number" step="12" data-p="${i}" data-k="dur" value="${p.dur == null ? '' : p.dur}"></td>
+      <td class="num"><input data-money type="text" inputmode="decimal" data-p="${i}" data-k="cost" value="${money(p.cost)}"></td>
+      <td><button class="btn btn-icon" data-del-p="${i}" title="Remover">×</button></td>
+    </tr>`).join('');
+  const custo = plano.passive.reduce((a, p) => a + (+p.cost || 0), 0);
+  const inicio = plano.passive.filter(p => p.start === 0).reduce((a, p) => a + (+p.net || 0), 0);
+  // pior mês: menor soma de rendas líquidas ativas ao longo de 40 anos
+  let pior = Infinity, piorMes = 0;
+  for (let m = 0; m < 480; m++) { const s = plano.passive.filter(p => m >= p.start && (p.dur == null || m < p.start + p.dur)).reduce((a, p) => a + (+p.net || 0), 0); if (s < pior) { pior = s; piorMes = m; } }
+  document.getElementById('tbPasTotals').innerHTML = `
+    <tr class="total"><td colspan="3">Renda líquida no início da fase</td><td class="num">${fmt(inicio)}</td><td colspan="2"></td><td class="num">${fmt(custo)}</td><td></td></tr>`;
+  const gap = Math.max(0, plano.desired - pior);
+  const preciso = gap / plano.rate;
+  document.getElementById('ffNote').innerHTML =
+    `<div class="${gap > 0 ? 'ok-note' : 'ok-note'}">Na pior fase, as rendas contratadas somam ${fmt(pior)} por mês (a partir do mês ${piorMes}). ` +
+    `Para completar os ${fmt(plano.desired)} desejados faltam ${fmt(gap)} por mês, o que exige um patrimônio investido de ${fmtC(preciso)} ` +
+    `a ${(plano.rate * 100).toFixed(2).replace('.', ',')}% ao mês. Somando a conversão das rendas, o cliente precisa chegar a ${fmtC(preciso + custo)} para atingir a Liberdade Financeira.</div>`;
+}
+
+// ===================== EDIÇÃO =====================
+document.addEventListener('input', e => {
+  const t = e.target, k = t.dataset.k;
+  // máscara de moeda: o campo mostra R$ #.###.###,## e o modelo recebe o número
+  const ehMoeda = t.hasAttribute && (t.hasAttribute('data-money') || t.hasAttribute('data-money-opt'));
+  let num = 0, vazio = false;
+  if (ehMoeda) {
+    vazio = t.hasAttribute('data-money-opt') && t.value.replace(/\D/g, '') === '';
+    num = unmoney(t.value);
+    if (!vazio) { t.value = money(num); try { t.setSelectionRange(t.value.length, t.value.length); } catch (err) { } }
+  }
+  const val = () => ehMoeda ? num : (+t.value || 0);
+
+  if (t.dataset.g != null) {                       // objetivos
+    const o = plano.objectives[+t.dataset.g];
+    if (k === 'months') o.months = inputToMonths(t.value);
+    else if (k === 'name') { o.name = t.value; o.title = t.value + ' realizado!'; }
+    else if (k === 'strategy' || k === 'icon' || k === 'kind' || k === 'profile' || k === 'photo' || k === 'iconFA') o[k] = t.value;
+    else if (k.startsWith('rec')) {
+      const rec = o.recurring || { value: 0, months: null, label: '', amort: 0 };
+      if (k === 'recValue') rec.value = val();
+      if (k === 'recMonths') rec.months = t.value === '' ? null : +t.value;
+      if (k === 'recLabel') rec.label = t.value;
+      if (k === 'recAmort') rec.amort = Math.min(1, Math.max(0, (+t.value || 0) / 100));
+      o.recurring = rec.value > 0 ? rec : null;
+      if (o.recurring && !o.recurring.label) o.recurring.label = o.name;
+    }
+    else o[k] = val();
+    derive(o); renderTop(); save();
+    if (k !== 'strategy' && k !== 'name' && k !== 'photo' && k !== 'iconFA') renderGoals();
+    return;
+  }
+  if (t.dataset.p != null) {                        // rendas passivas
+    const p = plano.passive[+t.dataset.p];
+    if (k === 'name') p.name = t.value;
+    else if (k === 'dur') p.dur = t.value === '' ? null : +t.value;
+    else p[k] = val();
+    if (k === 'net') { p.tax = Math.max(0, (+p.gross || 0) - (+p.net || 0)); }  // digitou o líquido: o imposto é a diferença
+    else p.net = Math.max(0, (+p.gross || 0) - (+p.tax || 0));
+    p.converted = (+p.cost || 0) > 0;
+    if (k !== 'name') renderPas();
+    save(); return;
+  }
+  // parâmetros gerais
+  const map = { 'f-name': 'name', 'f-lifeExp': 'lifeExp', 'f-desired': 'desired', 'f-part': 'partValue', 'f-rent': 'rent', 'f-wealth': 'initialWealth' };
+  if (t.id === 'f-cap') { plano.capacityOverride = vazio ? null : num; renderAll(); return; }
+  if (map[t.id]) { plano[map[t.id]] = t.id === 'f-name' ? t.value : val(); renderAll(); return; }
+  if (t.id === 'f-rate') { plano.rate = (+t.value || 0) / 100; renderAll(); return; }
+  if (t.id === 'f-pc' || t.id === 'f-pm' || t.id === 'f-pa') {
+    plano.profiles[{ 'f-pc': 'conservador', 'f-pm': 'moderado', 'f-pa': 'agressivo' }[t.id]] = (+t.value || 0) / 100;
+    renderAll(); return;
+  }
+});
+
+// Excluir pede confirmação no próprio botão: o primeiro clique arma, o segundo remove.
+function armar(b, acao) {
+  if (b.dataset.armed) { acao(); renderAll(); return; }
+  b.dataset.armed = '1'; b.textContent = 'Remover?'; b.classList.add('armed');
+  setTimeout(() => { if (b.isConnected) { delete b.dataset.armed; b.textContent = '×'; b.classList.remove('armed'); } }, 4000);
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.delG != null) { if (plano.objectives.length > 1) armar(b, () => plano.objectives.splice(+b.dataset.delG, 1)); return; }
+  if (b.dataset.delExp != null) { armar(b, () => plano.expenses.splice(+b.dataset.delExp, 1)); return; }
+  if (b.dataset.delInc != null) { armar(b, () => plano.incomes.splice(+b.dataset.delInc, 1)); return; }
+  if (b.dataset.delP != null) { armar(b, () => plano.passive.splice(+b.dataset.delP, 1)); return; }
+  if (b.hasAttribute('data-del-item') && budSel) {
+    const arr = budSel.t === 'inc' ? plano.incomes : plano.expenses;
+    armar(b, () => { arr.splice(budSel.i, 1); budSel = null; });
+    return;
+  }
+  if (b.dataset.delStep) {
+    const [tipo, i, j] = b.dataset.delStep.split(':');
+    const arr = tipo === 'inc' ? plano.incomes : plano.expenses, it = arr[+i];
+    if (it.steps.length > 1) armar(b, () => it.steps.splice(+j, 1));
+    return;
+  }
+  if (b.dataset.addStep) {
+    const [tipo, i] = b.dataset.addStep.split(':');
+    const arr = tipo === 'inc' ? plano.incomes : plano.expenses, it = arr[+i];
+    const ultimo = it.steps[it.steps.length - 1];
+    it.steps.push({ from: ultimo.from + 12, value: ultimo.value });
+    renderAll(); return;
+  }
+});
+
+document.getElementById('btnAddGoal').onclick = () => {
+  const id = 'obj' + Date.now().toString(36);
+  plano.objectives.push({ id, name: 'Novo objetivo', icon: 'sun', kind: 'consumo', milestone: true, title: 'Novo objetivo realizado!',
+    months: 36, amount: 50000, recurring: null, dedicated: 0, profile: 'moderado', planned: 500, strategy: '' });
+  renderAll();
+  const el = document.querySelector('[data-g][data-k="name"][value="Novo objetivo"]') || document.querySelectorAll('.goal')[plano.objectives.findIndex(o => o.id === id)];
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+};
+document.getElementById('btnAddExp').onclick = () => {
+  plano.expenses.push({ id: 'cat' + Date.now().toString(36), label: 'Nova despesa', group: 'adj', frequency: 'mensal', day: 10, description: '', steps: [{ from: 0, value: 0 }] });
+  budSel = { t: 'exp', i: plano.expenses.length - 1 }; renderAll();
+};
+document.getElementById('btnAddInc').onclick = () => {
+  plano.incomes.push({ id: 'ent' + Date.now().toString(36), label: 'Nova renda', kind: 'ativa', origin: ENGINE.ORIGENS[0], gross: 0, frequency: 'mensal', day: 5, description: '', taxable: true, steps: [{ from: 0, value: 0 }] });
+  budSel = { t: 'inc', i: plano.incomes.length - 1 }; renderAll();
+};
+
+// ---------- interação da planilha ----------
+let budRAF = null;
+document.getElementById('budScroll').addEventListener('scroll', () => {
+  if (budRAF) return;
+  budRAF = requestAnimationFrame(() => { budRAF = null; renderBudget(); });
+});
+document.querySelectorAll('#budZoom button').forEach(b => b.onclick = () => {
+  const sc = document.getElementById('budScroll');
+  const mesAtual = (sc.scrollLeft / ZOOM[budZoom].w) * ZOOM[budZoom].span;   // mantém o período à vista
+  document.querySelectorAll('#budZoom button').forEach(x => x.classList.remove('on'));
+  b.classList.add('on'); budZoom = b.dataset.z;
+  renderBudget();
+  sc.scrollLeft = (mesAtual / ZOOM[budZoom].span) * ZOOM[budZoom].w;
+  renderBudget();
+});
+document.getElementById('budHoje').onclick = () => { document.getElementById('budScroll').scrollLeft = 0; renderBudget(); };
+
+// clique numa célula: edita o valor daquele item a partir daquele mês
+document.addEventListener('click', e => {
+  const cel = e.target.closest('.bcell[data-cel]');
+  if (!cel || cel.querySelector('input')) return;
+  const [t, i, m0] = cel.dataset.cel.split(':');
+  const arr = t === 'inc' ? plano.incomes : plano.expenses, it = arr[+i];
+  const atual = stepAt(it, +m0);
+  const per = it.frequency && it.frequency !== 'mensal' ? ' Valor de cada recebimento (' + it.frequency + ').' : '';
+  cel.innerHTML = '<input type="text" inputmode="decimal" title="A partir de ' + budLabel(+m0, 1) + ' este valor passa a valer até o próximo degrau.' + per + '" value="' + (atual ? money(atual) : '') + '">';
+  const inp = cel.querySelector('input');
+  inp.focus(); inp.select();
+  let fechado = false;
+  const fechar = gravar => {
+    if (fechado) return; fechado = true;
+    if (gravar) {
+      const txt = inp.value.replace(/\D/g, '');
+      if (txt === '') { const st = stepEm(it, +m0); if (st && it.steps.length > 1) it.steps.splice(it.steps.indexOf(st), 1); }
+      else setStep(it, +m0, unmoney(inp.value));
+    }
+    renderAll();
+  };
+  inp.addEventListener('input', () => { inp.value = money(unmoney(inp.value)); });
+  inp.addEventListener('keydown', ev => { if (ev.key === 'Enter') fechar(true); else if (ev.key === 'Escape') fechar(false); });
+  inp.addEventListener('blur', () => fechar(true));
+});
+
+// clique no nome da linha abre o cadastro
+document.addEventListener('click', e => {
+  const lab = e.target.closest('[data-lab]'); if (!lab) return;
+  const [t, i] = lab.dataset.lab.split(':');
+  budSel = (budSel && budSel.t === t && budSel.i === +i) ? null : { t, i: +i };
+  renderBudget();
+});
+
+// campos do cadastro
+document.addEventListener('input', e => {
+  const t = e.target, k = t.dataset.det; if (!k || !budSel) return;
+  const arr = budSel.t === 'inc' ? plano.incomes : plano.expenses, it = arr[budSel.i];
+  if (k === 'gross') { it.gross = unmoney(t.value); t.value = money(it.gross); try { t.setSelectionRange(t.value.length, t.value.length); } catch (err) { } save(); return; }
+  if (k === 'taxable') it.taxable = t.value === '1';
+  else if (k === 'day') { it.day = Math.min(31, Math.max(1, +t.value || 1)); }
+  else it[k] = t.value;
+  if (k === 'label' || k === 'kind' || k === 'group') { renderAll(); return; }
+  if (k === 'frequency' || k === 'day') { renderAll(); return; }
+  save();
+});
+document.getElementById('btnAddPas').onclick = () => {
+  plano.passive.push({ name: 'Nova renda', origin: 'Patrimônio financeiro (convertido)', gross: 0, tax: 0, net: 0, start: 0, dur: null, cost: 0, converted: false });
+  renderAll();
+};
+
+// ícone do objetivo: arquivo enviado vira data URL dentro do plano
+document.addEventListener('change', e => {
+  const inp = e.target; if (inp.dataset.icon == null) return;
+  const f = inp.files[0]; if (!f) return;
+  if (f.size > 120 * 1024) { alert('Use um arquivo de até 120 KB: o ícone viaja dentro do plano.'); inp.value = ''; return; }
+  const rd = new FileReader();
+  rd.onload = () => { const o = plano.objectives[+inp.dataset.icon]; o.iconData = rd.result; o.iconFA = ''; renderAll(); };
+  rd.readAsDataURL(f);
+});
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-clear-icon]'); if (!b) return;
+  const o = plano.objectives[+b.dataset.clearIcon]; o.iconData = ''; o.iconFA = ''; renderAll();
+});
+// pré-visualização usa o Font Awesome quando o consultor cola uma classe
+(function () { const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css'; document.head.appendChild(l); })();
+
+// navegação da sidebar
+document.querySelectorAll('#nav a').forEach(a => a.addEventListener('click', () => {
+  document.querySelectorAll('#nav a').forEach(x => x.classList.remove('on')); a.classList.add('on');
+}));
+
+// abrir a visão do cliente com este plano no hash
+document.getElementById('btnOpen').onclick = () => {
+  const json = JSON.stringify(plano);
+  const b64 = btoa(String.fromCharCode(...new TextEncoder().encode(json))).replace(/\+/g, '-').replace(/\//g, '_');
+  save();
+  window.open('evolucao-patrimonial.html#plano=' + b64, '_blank');
+};
+
+document.getElementById('btnExport').onclick = () => {
+  save();
+  const blob = new Blob([JSON.stringify(plano, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'plano-' + plano.name.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '.json';
+  a.click(); URL.revokeObjectURL(a.href);
+};
+
+// preencher os campos fixos e desenhar
+function fillFields() {
+  document.getElementById('f-name').value = plano.name;
+  document.getElementById('f-age').value = plano.age;
+  document.getElementById('f-lifeExp').value = plano.lifeExp;
+  document.getElementById('f-desired').value = money(plano.desired);
+  document.getElementById('f-rate').value = (plano.rate * 100).toFixed(2);
+  document.getElementById('f-pc').value = (plano.profiles.conservador * 100).toFixed(2);
+  document.getElementById('f-pm').value = (plano.profiles.moderado * 100).toFixed(2);
+  document.getElementById('f-pa').value = (plano.profiles.agressivo * 100).toFixed(2);
+  document.getElementById('f-part').value = money(plano.partValue);
+  document.getElementById('f-rent').value = money(plano.rent);
+  document.getElementById('f-wealth').value = money(plano.initialWealth);
+  document.getElementById('f-cap').value = plano.capacityOverride == null ? '' : money(plano.capacityOverride);
+}
+fillFields(); renderAll();
+requestAnimationFrame(() => renderBudget());          // a largura real da planilha só existe depois do layout
+addEventListener('resize', () => renderBudget());
+</script>
+</body>
+</html>
