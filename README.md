@@ -5,7 +5,7 @@ além das fontes do Google, e abrem direto no navegador.
 
 | Arquivo | Para quem | O que faz |
 |---|---|---|
-| `tela-consultor.html` | Consultor | Configura o plano: cliente, entradas, saídas, objetivos e rendas passivas. |
+| `tela-consultor.html` | Consultor | Configura o plano em cinco páginas: Cliente, Patrimônio e premissas, Objetivos, Fluxo de caixa e Liberdade financeira. |
 | `evolucao-patrimonial.html` | Cliente | Mostra a trajetória do patrimônio ao longo da vida, apresentada ao vivo pelo consultor. |
 
 ## Por onde começar
@@ -36,7 +36,7 @@ O plano também fica salvo no `localStorage` do navegador, então a tela do cons
   "capacityOverride": null,    // capacidade de poupança informada pelo cliente; null = salário − despesas
   "desired": 25000,            // renda familiar desejada na aposentadoria (R$/mês)
   "rate": 0.004,               // retorno real líquido da reserva (ao mês)
-  "rent": 3000, "partValue": 150000,
+  "partValue": 150000,         // planos antigos traziam "rent": vira a linha de despesa "moradia"
   "profiles": { "conservador": 0.004, "moderado": 0.005, "agressivo": 0.006 },
 
   // Entradas e saídas são linhas do tempo em degraus. Cada degrau vale a partir do mês
@@ -47,17 +47,28 @@ O plano também fica salvo no `localStorage` do navegador, então a tela do cons
       "origin": "Salário",                  // Salário, Pró-labore, Distribuição de lucros, Bônus,
                                             // Comissões, Rendimentos recorrentes, Outras receitas
       "gross": 19500,                       // bruto; o fluxo de caixa usa sempre o líquido dos degraus
-      "frequency": "mensal",                // mensal, trimestral, semestral, anual, pontual
-      "day": 5,                             // dia do recebimento; define a semana no fluxo
+      "frequency": "mensal",                // pontual, semanal, mensal, anual (trimestral e semestral ainda são lidos)
+      "days": [5, 20],                      // mensal: dias do mês; o valor do degrau vale para cada dia
       "taxable": true, "description": "",
-      "steps": [ {"from": 0, "value": 15000}, {"from": 24, "value": 18000} ] }
+      "steps": [ {"from": 0, "value": 7500}, {"from": 13, "value": 9000} ],
+      "exc": { "10": 0, "14:3": 8000 } }    // ajustes de uma só ocorrência: "mês" ou "mês:semana"
   ],
   "expenses": [
+    { "id": "moradia", "label": "Moradia (aluguel)", "group": "fix", "week": 1,
+      "endObj": "casa",                     // deixa de existir quando este objetivo é realizado
+      "steps": [ {"from": 0, "value": 3000} ] },
+    { "id": "ipva", "label": "IPVA", "group": "fix", "frequency": "anual",
+      "dates": [ {"m": 0, "d": 5}, {"m": 1, "d": 5}, {"m": 2, "d": 5} ],   // 5/jan, 5/fev e 5/mar
+      "steps": [ {"from": 0, "value": 1400} ] },
+    { "id": "feira", "label": "Feira", "group": "adj", "frequency": "semanal", "weekday": 6,
+      "steps": [ {"from": 0, "value": 300} ] },
+    { "id": "guia", "label": "Guia de imposto", "group": "fix", "frequency": "pontual",
+      "date": "2027-05-20", "days": [20], "steps": [ {"from": 8, "value": 15000} ] },
     { "id": "mercado", "label": "Mercado", "group": "adj",
-      "week": 0,                            // 0 = diluída no mês; 1 a 4 = semana em que cai
+      "week": 0,                            // formato antigo, sem days: 0 = diluída no mês; 1 a 4 = semana
       "steps": [ {"from": 0, "value": 2700} ] },
     { "id": "faculdade", "label": "Faculdade do filho", "group": "fix", "week": 1,
-      "steps": [ {"from": 80, "value": 2500}, {"from": 128, "value": 0} ] }
+      "steps": [ {"from": 80, "value": 2500}, {"from": 128, "value": 0} ] }   // o degrau zero encerra a linha
   ],
   "objectives": [
     {
@@ -116,14 +127,31 @@ três caminhos para fechar a diferença.
 - **Perpetuidade**: retirada mensal = patrimônio × taxa. O principal fica estável.
 - **Consumo**: retirada mensal = PMT até a expectativa de vida. O patrimônio chega a zero na data.
 
-**Planilha de orçamento.** No portal, entradas e saídas aparecem como uma planilha com os meses na
-horizontal, navegável de hoje até o fim do plano, com zoom por mês, trimestre, ano ou quatro anos.
-Clicar numa célula e digitar outro valor cria um degrau: dali em diante vale o novo valor. As células com
-degrau ficam em destaque e as demais aparecem esmaecidas, como valores repetidos do mês anterior.
+**Fluxo de caixa.** No portal, entradas e saídas aparecem como uma planilha com o tempo na horizontal,
+na mesma estrutura da tela do cliente: Movimentações no patrimônio no topo, Entradas, e Saídas dividida
+em Fixas e Ajustáveis. A rodinha do mouse aproxima e afasta, de décadas até semanas, e arrastar anda no
+tempo. Os valores das células vêm da simulação, então a linha de Movimentações é sempre entradas menos
+saídas. Uma linha sem valor no período à vista fica escondida, e o grupo avisa quantas linhas têm valor
+antes ou depois da janela.
 
-**Frequência.** Cada linha tem uma frequência. Uma renda anual entra uma vez por ano, no mês do seu
-primeiro degrau, e o valor do degrau é o de cada recebimento. Para orçamento, o portal usa o equivalente
-mensal, então um bônus de 12 mil por ano pesa mil por mês.
+- Numa coluna de ano ou maior, clicar aproxima até o mês. Numa coluna de mês ou de semana, clicar abre a
+  edição: **a partir daqui** (cria um degrau), **só nesta ocorrência** (grava em `exc`) ou **encerrar aqui**
+  (degrau zero).
+- A linha em branco no fim de cada grupo cria uma linha nova já na data da célula clicada.
+- O botão **+** de cada grupo abre o cadastro completo: nome, valor, pontual ou recorrente, frequência
+  (semanal, mensal em um ou mais dias, anual em uma ou mais datas), início, até quando, mudanças de valor
+  e ajustes de uma ocorrência.
+- Aportes e custos dos objetivos e as rendas da aposentadoria aparecem como linhas só de leitura, com o
+  caminho para a página onde são editados.
+
+**Frequência.** O valor do degrau é o de cada ocorrência: o salário de 10 mil pago nos dias 5 e 20 é uma
+linha de 5 mil com `days: [5, 20]`. Um dia do mês cai na semana do ciclo contada a partir do salário do dia 5;
+os dias 1 a 4 fecham o ciclo anterior. Para orçamento, o portal usa o equivalente mensal, então um bônus de
+12 mil por ano pesa mil por mês e uma despesa semanal de 300 pesa 1.200.
+
+**Aposentadoria.** Na liberdade financeira, a renda ativa (trabalho) para. A renda passiva, como o aluguel
+de um imóvel, continua, e entra no cálculo de quanto o patrimônio precisa sustentar. As rendas contratadas
+continuam contadas em meses a partir da liberdade, e o portal mostra a data e a idade correspondentes.
 
 **Ícones dos objetivos.** O consultor envia um SVG ou PNG, que viaja embutido no plano, ou cola uma classe
 do Font Awesome. O ícone aparece no marco do gráfico e no card do cliente. O Font Awesome é carregado de
@@ -154,6 +182,7 @@ isso o salário entrando em uma única semana apareceria como um salto de patrim
 ## Fora de escopo
 
 Herança, versão mobile, múltiplos clientes no portal e persistência em servidor.
+A planilha do fluxo de caixa foi feita para mouse e trackpad; não há gesto de pinça em tela de toque.
 
 ## Arquivos
 
