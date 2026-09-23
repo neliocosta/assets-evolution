@@ -195,6 +195,19 @@ console.log('\n5. Periodicidades e regras do fluxo');
   const k7 = 'in_pas_' + E7.PASSIVE.findIndex(p => p.name === 'INSS');
   ok('renda de data fixa antes da liberdade já entra no fluxo', !m7[99][k7] && m7[100][k7] === 4200 && s7.ff.mi > 100);
 
+  // idade de hoje, idade-alvo de aposentadoria, bens de hoje e plano vazio
+  const E8 = carregar(srcCliente); E8.configure({ age: 48, retireAge: 60, initialBens: 900000, objectives: [] });
+  const s8 = E8.run('perp');
+  ok('cliente de 48 anos: hoje fica aos 48', E8.W0 === Math.round(48 * E8.WPY) && Math.abs(E8.ageOf(E8.W0) - 48) < 0.01);
+  ok('idade-alvo: a liberdade acontece aos 60', s8.ff && Math.floor(s8.ff.age) === 60, s8.ff ? 'aos ' + s8.ff.age.toFixed(2) + (s8.ff.forced ? ' (sem sustentar)' : '') : '');
+  ok('imóveis e bens de hoje entram no patrimônio', Math.abs(s8.weeks[E8.W0].bens - 900000) < 1);
+  ok('plano sem objetivos roda', E8.OBJ.length === 0 && isFinite(s8.weeks[E8.NW - 1].fin));
+  let hist = 0; for (let i = 0; i < E8.W0 - 6; i++) hist += Object.keys(s8.weeks[i].f).length;
+  ok('nada é lançado antes de hoje', hist === 0);
+  const E9 = carregar(srcCliente); E9.configure({ incomes: [], expenses: [], objectives: [], passive: [], desired: 0, initialWealth: 0 });
+  const s9 = E9.run('perp');
+  ok('plano totalmente vazio roda', isFinite(s9.weeks[E9.NW - 1].fin));
+
   // plano antigo, com o aluguel num campo solto
   const E5 = carregar(srcCliente); const antigo = { rent: 2000, expenses: [{ id: 'm', label: 'Mercado', group: 'adj', week: 0, steps: [{ from: 0, value: 1000 }] }] };
   E5.configure(antigo);

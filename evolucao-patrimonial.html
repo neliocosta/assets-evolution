@@ -152,8 +152,10 @@ const PHOTOS = {
 <script id="engine">
 // ===================== MOTOR DE SIMULAÇÃO (semanal, 0–100 anos) =====================
 const ENGINE = (() => {
-  const TODAY = new Date(2026, 8, 19), BIRTH = new Date(1991, 8, 19);
-  const WPY = 365.25 / 7, W0 = Math.round(35 * WPY), NW = Math.round(100 * WPY) + 1;
+  // A linha do tempo vai do nascimento aos 100 anos; a idade de hoje (plan.age) define onde está "hoje".
+  const TODAY = new Date(2026, 8, 19), WPY = 365.25 / 7, NW = Math.round(100 * WPY) + 1;
+  let CURRENT_AGE = 35, BIRTH = new Date(2026 - CURRENT_AGE, 8, 19), W0 = Math.round(CURRENT_AGE * WPY);
+  const defineIdade = a => { CURRENT_AGE = Math.min(90, Math.max(18, Math.round(+a) || 35)); BIRTH = new Date(2026 - CURRENT_AGE, 8, 19); W0 = Math.round(CURRENT_AGE * WPY); };
   const weekDate = i => new Date(BIRTH.getTime() + i * 7 * 864e5);
   const tOf = i => (i - W0) / WPY, ageOf = i => i / WPY;
   // ---- Configuração: tudo o que a tela do consultor define. Os valores abaixo são o padrão do mock. ----
@@ -162,7 +164,8 @@ const ENGINE = (() => {
   let LIFE_EXP = 95, DESIRED = 25000, SALARY = 15000, SAL_G = 0.045;
   let INITIAL_WEALTH = 500000; // patrimônio financeiro do cliente hoje, informado pelo consultor
   let CAP_OVERRIDE = null;     // capacidade de poupança informada pelo cliente, se ele disser um valor próprio
-  const CURRENT_AGE = 35;
+  let INITIAL_BENS = 0;        // imóveis e outros bens de hoje (não financeiros)
+  let RETIRE_AGE = null;       // idade em que o cliente quer parar; vazio = assim que o patrimônio sustentar a renda
 
   // Perfis de investimento do dinheiro dedicado a cada objetivo (retorno real líquido ao mês)
   const PROFILES = { conservador: 0.004, moderado: 0.005, agressivo: 0.006 };
@@ -223,7 +226,7 @@ const ENGINE = (() => {
   // e o último vale indefinidamente. "week" diz em que semana do mês a despesa cai (0 = diluída nas quatro).
   // Uma renda é ativa (trabalho) ou passiva (patrimônio). O fluxo usa sempre o valor líquido,
   // que é o que está nos degraus; o bruto e o resto são cadastro.
-  const ORIGENS = ['Salário', 'Pró-labore', 'Distribuição de lucros', 'Bônus', 'Comissões', 'Rendimentos recorrentes', 'Outras receitas'];
+  const ORIGENS = ['Salário', 'Pró-labore', 'Distribuição de lucros', 'Bônus', 'Comissões', 'Aluguéis', 'Rendimentos recorrentes', 'Outras receitas'];
   // meses entre ocorrências; semanal e anual com datas têm regra própria em ocorrencias()
   const FREQ = { semanal: 1, mensal: 1, trimestral: 3, semestral: 6, anual: 12, pontual: 0 };
   let INCOMES = [
@@ -365,10 +368,11 @@ const ENGINE = (() => {
       // Saldo de abertura: hoje o patrimônio financeiro é o que o consultor informou.
       // Não gera lançamento no fluxo (é posição, não movimento) e o histórico anterior não é exibido.
       if (i === W0 && INITIAL_WEALTH != null) cofre = Math.max(0, INITIAL_WEALTH - obj.reduce((a, b) => a + b, 0));
+      if (i === W0) bens = INITIAL_BENS;
       cofre *= GW; obj = obj.map((b, k) => b * Math.pow(1 + OBJ[k].rate, 7 / 30.4375));
       let incomeWeek = false, incDate = null;   // o salário cai no dia 5; a semana que o contém abre o mês
       for (let k = 0; k < 7; k++) { const dd = new Date(d.getTime() + k * 864e5); if (dd.getDate() === 5) { incomeWeek = true; incDate = dd; } }
-      const working = age >= 23;
+      const working = i >= W0 - 6;   // simula de hoje em diante: começa no ciclo do salário deste mês
       if (working && incomeWeek) {
         offset = 1;
         if (!allocated && t >= 0) { allocated = true; OBJ.forEach((o, k) => { obj[k] += o.dedicated; cofre -= o.dedicated; transfer(f, 'mov_cofre', 'mov_obj_' + o.id, o.dedicated); }); }
@@ -385,13 +389,15 @@ const ENGINE = (() => {
           }
         });
         // gatilho da Liberdade Financeira
-        if (!ff && t > 0 && age >= 50) {
+        // sem idade-alvo, a liberdade acontece assim que o patrimônio sustenta a renda (a partir dos 50, no máximo aos 68);
+        // com idade-alvo, acontece nela, sustentando ou não
+        if (!ff && t > 0 && age >= (RETIRE_AGE != null ? RETIRE_AGE : 50)) {
           const horizon = Math.round((LIFE_EXP - age) * 12);
           let maxGap = 0; for (let mm = 0; mm < horizon; mm++) maxGap = Math.max(maxGap, gapAt(mm, mIdx));
           const pending = OBJ.reduce((a, o, k) => a + (done[k] ? 0 : o.amount), 0); // compromissos ainda não realizados
           const ANNUITY_COST = annuityCost(); const after = fin() - ANNUITY_COST - pending;
           const sustenta = after * R_M >= maxGap;
-          if (sustenta || age >= 68) {
+          if (RETIRE_AGE != null || sustenta || age >= 68) {
             const inv = Math.max(0, fin() - ANNUITY_COST);
             ff = { week: i, mi: mIdx, age, finBefore: fin(), cost: ANNUITY_COST, finAfter: inv, pmt: pmt(inv, R_M, horizon), maxGap, months: 0,
                    forced: !sustenta, sustentavel: inv * R_M + (DESIRED - maxGap) };
@@ -483,18 +489,21 @@ const ENGINE = (() => {
     if (plan.salaryGrowth != null) SAL_G = +plan.salaryGrowth;
     if (plan.partValue != null) PART_VALUE = +plan.partValue;
     if (plan.initialWealth != null) INITIAL_WEALTH = +plan.initialWealth;
+    defineIdade(plan.age != null && plan.age !== '' ? plan.age : 35);   // sem idade, vale o padrão (não a do cliente anterior)
+    INITIAL_BENS = +plan.initialBens || 0;
+    RETIRE_AGE = plan.retireAge == null || plan.retireAge === '' ? null : Math.max(CURRENT_AGE, +plan.retireAge);
     CAP_OVERRIDE = plan.capacityOverride == null || plan.capacityOverride === '' ? null : +plan.capacityOverride;
     if (plan.rate != null) { R_M = +plan.rate; GW = Math.pow(1 + R_M, 7 / 30.4375); }
     if (plan.profiles) Object.assign(PROFILES, plan.profiles);
     if (Array.isArray(plan.incomes)) INCOMES = plan.incomes.map(migra);
     else if (plan.salary != null) INCOMES = [{ id: 'salario', label: 'Salário da família', steps: [{ from: 0, value: +plan.salary }] }];
     if (Array.isArray(plan.expenses)) EXPENSES = plan.expenses.map(migra);
-    if (plan.objectives && plan.objectives.length) { OBJ.length = 0; plan.objectives.forEach(o => OBJ.push(o)); OBJ.forEach(derive); }
-    if (plan.passive) { PASSIVE.length = 0; plan.passive.forEach(p => PASSIVE.push(p)); }
+    if (Array.isArray(plan.objectives)) { OBJ.length = 0; plan.objectives.forEach(o => OBJ.push(o)); OBJ.forEach(derive); }
+    if (Array.isArray(plan.passive)) { PASSIVE.length = 0; plan.passive.forEach(p => PASSIVE.push(p)); }
   }
   const ORIGENS_OUT = ORIGENS;
-  const config = () => ({ desired: DESIRED, lifeExp: LIFE_EXP, salary: SALARY, salaryGrowth: SAL_G, partValue: PART_VALUE, initialWealth: INITIAL_WEALTH, capacityOverride: CAP_OVERRIDE, rate: R_M, profiles: PROFILES, incomes: INCOMES, expenses: EXPENSES, objectives: OBJ, passive: PASSIVE });
-  return { TODAY, BIRTH, WPY, W0, NW, weekDate, tOf, ageOf, OBJ, PASSIVE, PROFILES, STATUS, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, ORIGENS: ORIGENS_OUT, FREQ, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, CURRENT_AGE, pmt };
+  const config = () => ({ age: CURRENT_AGE, retireAge: RETIRE_AGE, initialBens: INITIAL_BENS, desired: DESIRED, lifeExp: LIFE_EXP, salary: SALARY, salaryGrowth: SAL_G, partValue: PART_VALUE, initialWealth: INITIAL_WEALTH, capacityOverride: CAP_OVERRIDE, rate: R_M, profiles: PROFILES, incomes: INCOMES, expenses: EXPENSES, objectives: OBJ, passive: PASSIVE });
+  return { TODAY, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, PASSIVE, PROFILES, STATUS, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, ORIGENS: ORIGENS_OUT, FREQ, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
 })();
 if (typeof module !== 'undefined') module.exports = ENGINE;
 </script>
@@ -508,9 +517,10 @@ if (typeof module !== 'undefined') module.exports = ENGINE;
     let json = null;
     if (m) json = new TextDecoder().decode(Uint8Array.from(atob(decodeURIComponent(m[1]).replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0)));
     else { try { json = localStorage.getItem('nl-plano'); } catch (e) { /* file:// sem storage */ } }
-    if (json) ENGINE.configure(JSON.parse(json));
+    if (json) { const plan = JSON.parse(json); ENGINE.configure(plan); saudar(plan); }
   } catch (e) { console.warn('Plano não aplicado:', e.message); }
 })();
+function saudar(plan) { if (plan.name) document.querySelector('.hello').textContent = 'Olá, ' + plan.name.split(' ')[0] + ' 👋 · ' + ENGINE.CURRENT_AGE + ' anos'; }
 const { WPY, W0, NW, weekDate, tOf, ageOf, OBJ, PASSIVE } = ENGINE;
 const DESIRED = ENGINE.config().desired, LIFE_EXP = ENGINE.config().lifeExp;
 const targetDate = o => new Date(2026, 8 + o.months, 1); // mês 0 = set/2026
@@ -530,8 +540,8 @@ function rerun() { OBJ.sort((a, b) => a.months - b.months); SIM.perp = ENGINE.ru
 // Indicadores fixos do cabeçalho: as duas perguntas que o cliente mais faz
 function updateStats() {
   document.getElementById('lblLife').textContent = ENGINE.config().lifeExp;
-  const s = sim(), h = 2;
-  const hoje = smoothVal(s, 'fin', W0, h) + smoothVal(s, 'bens', W0, h) + smoothVal(s, 'part', W0, h);
+  const s = sim(), c = ENGINE.config();
+  const hoje = (+c.initialWealth || 0) + (+c.initialBens || 0) + (+c.partValue || 0);   // exatamente o que o consultor informou
   document.getElementById('stHoje').textContent = fmt(hoje);
   const ff = s.ff, el = document.getElementById('stFF');
   el.textContent = ff ? Math.floor(ff.age) + ' anos · ' + weekDate(ff.week).getFullYear() : 'não alcançada';
@@ -540,13 +550,17 @@ function updateStats() {
 }
 // Plano carregado de um arquivo .json exportado pela tela do consultor
 function applyPlan(plan) {
+  // outra idade muda onde está "hoje" na linha do tempo: recarrega a tela com o plano salvo
+  if (plan.age != null && +plan.age !== ENGINE.CURRENT_AGE) {
+    try { localStorage.setItem('nl-plano', JSON.stringify(plan)); history.replaceState(null, '', location.pathname); location.reload(); return; } catch (e) { }
+  }
   ENGINE.configure(plan);
   try { localStorage.setItem('nl-plano', JSON.stringify(plan)); } catch (e) { }
   rerun(); rebuildRows();
   state.expanded.clear(); state.rowScroll = 0; state.milestonesShown.clear();
   state.started = false; state.done = false; state.playing = false; state.cursor = W0; state.seg = null;
   state.view = DEFAULT_VIEW(); state.target = null; cv.classList.remove('locked'); setPlayLabel();
-  if (plan.name) document.querySelector('.hello').textContent = 'Olá, ' + plan.name.split(' ')[0] + ' 👋 · ' + (plan.age || 35) + ' anos';
+  saudar(plan);
 }
 const STATUS_COLOR = { ok: '#2E9E5B', adj: '#FA7A35', risk: '#D64545' };
 const smoothVal = (s, key, i, h) => { const a = Math.max(W0, i - h), b = Math.min(NW - 1, i + h); return (s.pre[key][b + 1] - s.pre[key][a]) / (b - a + 1); };
