@@ -226,7 +226,7 @@ const ENGINE = (() => {
   // e o último vale indefinidamente. "week" diz em que semana do mês a despesa cai (0 = diluída nas quatro).
   // Uma renda é ativa (trabalho) ou passiva (patrimônio). O fluxo usa sempre o valor líquido,
   // que é o que está nos degraus; o bruto e o resto são cadastro.
-  const ORIGENS = ['Salário', 'Pró-labore', 'Distribuição de lucros', 'Bônus', 'Comissões', 'Aluguéis', 'Rendimentos recorrentes', 'Outras receitas'];
+  const ORIGENS = ['Salário', 'Pró-labore', 'Distribuição de lucros', 'Bônus', 'Comissões', 'Honorários (autônomo)', 'Aluguéis', 'Rendimentos recorrentes', 'Outras receitas'];
   // meses entre ocorrências; semanal e anual com datas têm regra própria em ocorrencias()
   const FREQ = { semanal: 1, mensal: 1, trimestral: 3, semestral: 6, anual: 12, pontual: 0 };
   let INCOMES = [
@@ -285,8 +285,8 @@ const ENGINE = (() => {
     if (mm >= ini) {
       const v = stepAt(it, mm);
       if (fq === 'pontual') { if (mm === ini) out.push({ k: +it.week || k0, v }); }
-      else if (fq === 'semanal') for (let k = 1; k <= semanasNoCiclo(mm); k++) out.push({ k, v });
-      else if (fq === 'anual' && it.dates && it.dates.length) it.dates.forEach(dt => { if (cicloDaData(dt.m, dt.d) === mesDoCiclo(mm)) out.push({ k: semanaDoCiclo(mm, dt.d), v }); });
+      else if (fq === 'semanal') for (let k = 1; k <= semanasNoCiclo(mm); k++) out.push({ k, v });   // cada semana tem um de cada dia da semana
+      else if (fq === 'anual' && Array.isArray(it.dates)) it.dates.forEach(dt => { if (cicloDaData(dt.m, dt.d) === mesDoCiclo(mm)) out.push({ k: semanaDoCiclo(mm, dt.d), v }); });
       else if ((mm - ini) % (FREQ[fq] || 1) === 0) {
         if (dias) dias.forEach(d => out.push({ k: semanaDoCiclo(mm, d), v }));
         else { const k = semanaAntiga(it, saida); if (k === 0) { diluido = true; [1, 2, 3, 4].forEach(kk => out.push({ k: kk, v: v / 4 })); } else out.push({ k, v }); }
@@ -313,7 +313,7 @@ const ENGINE = (() => {
     const fq = it.frequency || 'mensal', v = stepAt(it, mm);
     if (fq === 'pontual') return 0;
     if (fq === 'semanal') return v * 365.25 / 7 / 12;
-    if (fq === 'anual' && it.dates && it.dates.length) return v * it.dates.length / 12;
+    if (fq === 'anual' && Array.isArray(it.dates)) return v * it.dates.length / 12;
     return v * (it.days && it.days.length ? it.days.length : 1) / (FREQ[fq] || 1);
   };
   const ativo = it => (it.kind || 'ativa') !== 'passiva';
@@ -358,7 +358,7 @@ const ENGINE = (() => {
       }
       if (k === 4 && m.invest > 0) { // aportes dedicados: transferência do cofre para o saldo de cada objetivo
         let rem = m.invest;
-        OBJ.forEach((o, k2) => { if (m.t >= 0 && !done[k2]) { const ap = Math.min(o.planned, rem); obj[k2] += ap; cofre -= ap; transfer(f, 'mov_cofre', 'mov_obj_' + o.id, ap); rem -= ap; } });
+        OBJ.forEach((o, k2) => { if (tOf(i) >= 0 && !done[k2]) { const ap = Math.min(o.planned, rem); obj[k2] += ap; cofre -= ap; transfer(f, 'mov_cofre', 'mov_obj_' + o.id, ap); rem -= ap; } });
       }
     };
 
@@ -368,7 +368,7 @@ const ENGINE = (() => {
       // Saldo de abertura: hoje o patrimônio financeiro é o que o consultor informou.
       // Não gera lançamento no fluxo (é posição, não movimento) e o histórico anterior não é exibido.
       if (i === W0 && INITIAL_WEALTH != null) cofre = Math.max(0, INITIAL_WEALTH - obj.reduce((a, b) => a + b, 0));
-      if (i === W0) bens = INITIAL_BENS;
+      if (i === W0) { bens = INITIAL_BENS; allocated = true; OBJ.forEach((o, k) => { obj[k] += o.dedicated; cofre -= o.dedicated; transfer(f, 'mov_cofre', 'mov_obj_' + o.id, o.dedicated); }); }
       cofre *= GW; obj = obj.map((b, k) => b * Math.pow(1 + OBJ[k].rate, 7 / 30.4375));
       let incomeWeek = false, incDate = null;   // o salário cai no dia 5; a semana que o contém abre o mês
       for (let k = 0; k < 7; k++) { const dd = new Date(d.getTime() + k * 864e5); if (dd.getDate() === 5) { incomeWeek = true; incDate = dd; } }
@@ -446,7 +446,7 @@ const ENGINE = (() => {
       weeks[i] = { fin: fin(), cofre, obj: obj.slice(), bens, part, pas: m ? (m.pas || 0) : 0, mi: m ? m.mIdx : -1, ks, f };
     }
     // agregações
-    const bucketize = keyFn => { const out = []; let cur = null; for (let i = 0; i < NW; i++) { const k = keyFn(i); if (!cur || cur.key !== k) { cur = { key: k, w0: i, w1: i + 1, mi: weeks[i].mi, f: {} }; out.push(cur); } cur.w1 = i + 1; const f = weeks[i].f; for (const key in f) cur.f[key] = (cur.f[key] || 0) + f[key]; } return out; };
+    const bucketize = keyFn => { const out = []; let cur = null; for (let i = 0; i < NW; i++) { const k = weeks[i].mi < 0 ? 'antes de hoje' : keyFn(i); if (!cur || cur.key !== k) { cur = { key: k, w0: i, w1: i + 1, mi: weeks[i].mi, f: {} }; out.push(cur); } cur.w1 = i + 1; const f = weeks[i].f; for (const key in f) cur.f[key] = (cur.f[key] || 0) + f[key]; } return out; };
     // Todos os níveis usam o mês do motor (de salário a salário), para que trimestres e anos
     // contenham sempre o mesmo número de meses. cm = meses desde jan/2026.
     const cmOf = i => weeks[i].mi + 8;
@@ -520,7 +520,8 @@ if (typeof module !== 'undefined') module.exports = ENGINE;
     if (json) { const plan = JSON.parse(json); ENGINE.configure(plan); saudar(plan); }
   } catch (e) { console.warn('Plano não aplicado:', e.message); }
 })();
-function saudar(plan) { if (plan.name) document.querySelector('.hello').textContent = 'Olá, ' + plan.name.split(' ')[0] + ' 👋 · ' + ENGINE.CURRENT_AGE + ' anos'; }
+// "Camila e Rafael Souza" vira "Camila e Rafael"; um nome só vira o primeiro nome
+function saudar(plan) { if (!plan.name) return; const nomes = plan.name.split(/\s+e\s+/i).map(n => n.trim().split(' ')[0]); document.querySelector('.hello').textContent = 'Olá, ' + nomes.join(' e ') + ' 👋 · ' + ENGINE.CURRENT_AGE + ' anos'; }
 const { WPY, W0, NW, weekDate, tOf, ageOf, OBJ, PASSIVE } = ENGINE;
 const DESIRED = ENGINE.config().desired, LIFE_EXP = ENGINE.config().lifeExp;
 const targetDate = o => new Date(2026, 8 + o.months, 1); // mês 0 = set/2026
@@ -544,7 +545,7 @@ function updateStats() {
   const hoje = (+c.initialWealth || 0) + (+c.initialBens || 0) + (+c.partValue || 0);   // exatamente o que o consultor informou
   document.getElementById('stHoje').textContent = fmt(hoje);
   const ff = s.ff, el = document.getElementById('stFF');
-  el.textContent = ff ? Math.floor(ff.age) + ' anos · ' + weekDate(ff.week).getFullYear() : 'não alcançada';
+  el.textContent = ff ? Math.floor(ff.age) + ' anos · ' + weekDate(ff.week).getFullYear() + (ff.forced ? ' · renda parcial' : '') : 'não alcançada';
   el.className = ff && !ff.forced ? 'ff' : '';
   el.title = ff && ff.forced ? 'Nessa idade o patrimônio ainda não sustenta a renda desejada' : '';
 }
@@ -806,7 +807,7 @@ function draw() {
 
   // linha de hoje + cursor
   const xT = xOfW(W0);
-  if (xT >= PL && xT <= W - PR) { ctx.strokeStyle = C.orange; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(xT, chartTop); ctx.lineTo(xT, H); ctx.stroke(); ctx.fillStyle = C.orange; ctx.font = '600 11px "Sora", sans-serif'; ctx.textAlign = 'left'; ctx.fillText('Hoje · 35 anos', xT + 6, chartTop + 2); }
+  if (xT >= PL && xT <= W - PR) { ctx.strokeStyle = C.orange; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(xT, chartTop); ctx.lineTo(xT, H); ctx.stroke(); ctx.fillStyle = C.orange; ctx.font = '600 11px "Sora", sans-serif'; ctx.textAlign = 'left'; ctx.fillText('Hoje · ' + ENGINE.CURRENT_AGE + ' anos', xT + 6, chartTop + 2); }
   if (state.started && !state.done) { const xc = xOfW(state.cursor); if (xc >= PL && xc <= W - PR) { ctx.strokeStyle = C.navy; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(xc, top); ctx.lineTo(xc, bot); ctx.stroke(); const ci = Math.floor(state.cursor); const v = state.viewKind === 'total' ? SV('fin', ci) + SV('bens', ci) + SV('part', ci) : SV('fin', ci); ctx.fillStyle = C.navy; ctx.font = '600 12px "Sora", sans-serif'; ctx.textAlign = xc > W - 160 ? 'right' : 'left'; ctx.fillText('R$ ' + fmtC(v) + ' · ' + Math.floor(ageOf(state.cursor)) + ' anos', xc + (xc > W - 160 ? -8 : 8), yOf(v, top, bot) - 12); } }
 
   // eixo temporal
@@ -832,7 +833,7 @@ function drawTimeAxis(bot) {
   ctx.textBaseline = 'middle';
   const yearT = yr => (new Date(yr, 0, 1) - ENGINE.TODAY) / 864e5 / 365.25;
   const y0 = Math.floor(2026 + tL) - 1, y1 = Math.ceil(2026 + tR) + 1;
-  [10, 5, 1].forEach(stepY => { for (let yr = Math.ceil(y0 / stepY) * stepY; yr <= y1; yr += stepY) { const t = yearT(yr); if (t < tL || t > tR) continue; put(xOfT(t), String(yr), (yr - 1991) + ' anos', t, stepY, stepY >= 5); } });
+  [10, 5, 1].forEach(stepY => { for (let yr = Math.ceil(y0 / stepY) * stepY; yr <= y1; yr += stepY) { const t = yearT(yr); if (t < tL || t > tR) continue; put(xOfT(t), String(yr), Math.floor((new Date(yr, 0, 1) - ENGINE.BIRTH) / 864e5 / 365.25) + ' anos', t, stepY, stepY >= 5); } });
   // meses
   if (localPx(Math.max(Math.abs(tL), Math.abs(tR)) < 200 ? 0 : tL, 1 / 12) > 20) {
     const d0 = new Date(2026, 8, 1); d0.setMonth(d0.getMonth() + Math.floor(tL * 12) - 1);

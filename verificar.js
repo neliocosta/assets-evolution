@@ -195,6 +195,20 @@ console.log('\n5. Periodicidades e regras do fluxo');
   const k7 = 'in_pas_' + E7.PASSIVE.findIndex(p => p.name === 'INSS');
   ok('renda de data fixa antes da liberdade já entra no fluxo', !m7[99][k7] && m7[100][k7] === 4200 && s7.ff.mi > 100);
 
+  // semanal: o mês do motor tem semanas inteiras, e cada semana tem exatamente um sábado
+  const feiraSab = { id: 'fs', frequency: 'semanal', weekday: 6, steps: [{ from: 0, value: 150 }] };
+  let sabOk = true, totalSab = 0;
+  for (let mm = 0; mm < 120; mm++) { const n = E3.ocorrencias(feiraSab, mm, true).length; totalSab += n; if (n !== E3.semanasNoCiclo(mm)) sabOk = false; }
+  ok('semanal: uma vez por semana, sem perder nem repetir semanas', sabOk && Math.abs(totalSab - 120 * 365.25 / 7 / 12) < 2, totalSab + ' sábados em 10 anos');
+  ok('anual sem datas escolhidas não lança nada', E3.valorEm({ id: 'a0', frequency: 'anual', dates: [], steps: [{ from: 0, value: 999 }] }, 0, true) === 0);
+
+  // aporte definido igual ao necessário: o objetivo fica alcançável na simulação
+  const E10 = carregar(srcCliente);
+  E10.configure({ objectives: [{ id: 'v', name: 'Viagem', icon: 'plane', kind: 'consumo', months: 24, amount: 20000, recurring: null, dedicated: 0, profile: 'moderado', planned: 0, strategy: '' }] });
+  const ov = E10.OBJ[0]; ov.planned = Math.ceil(ov.required); E10.derive(ov);
+  const s10 = E10.run('perp'), ev10 = s10.events.find(e => e.type === 'obj'), real10 = s10.weeks[ev10.week - 1].obj[0];
+  ok('aporte igual ao necessário deixa o objetivo alcançável', real10 / ov.amount >= 0.98, Math.round(real10) + ' de ' + ov.amount);
+
   // idade de hoje, idade-alvo de aposentadoria, bens de hoje e plano vazio
   const E8 = carregar(srcCliente); E8.configure({ age: 48, retireAge: 60, initialBens: 900000, objectives: [] });
   const s8 = E8.run('perp');
