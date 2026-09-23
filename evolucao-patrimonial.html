@@ -210,9 +210,12 @@ const ENGINE = (() => {
   const PASSIVE = [
     { name: 'Fundo de pensão vitalício', origin: 'Patrimônio financeiro (convertido)', gross: 6250, tax: 1250, net: 5000, start: 0, dur: null, cost: 750000, converted: true },
     { name: 'Fundo de pensão por 5 anos', origin: 'Patrimônio financeiro (convertido)', gross: 8750, tax: 1750, net: 7000, start: 0, dur: 60, cost: 372000, converted: true },
-    { name: 'INSS', origin: 'Contribuições previdenciárias', gross: 5000, tax: 800, net: 4200, start: 60, dur: null, cost: 0, converted: false },
+    { name: 'INSS', origin: 'Contribuições previdenciárias', gross: 5000, tax: 800, net: 4200, startMi: 333, dur: null, cost: 0, converted: false }, // jun/2054, data fixa
   ];
-  const passiveAt = mm => PASSIVE.filter(p => mm >= p.start && (p.dur == null || mm < p.start + p.dur));
+  // Uma renda contratada começa numa data fixa (startMi, em mês do motor: o INSS, por exemplo) ou
+  // `start` meses depois da liberdade financeira, que acontece no mês ffMi. `dur` vazio = vitalícia.
+  const inicioRenda = (p, ffMi) => p.startMi != null ? +p.startMi : ffMi + (+p.start || 0);
+  const rendaAtiva = (p, mi, ffMi) => { const ini = inicioRenda(p, ffMi); return mi >= ini && (p.dur == null || mi < ini + p.dur); };
   const annuityCost = () => PASSIVE.reduce((s, p) => s + p.cost, 0);
 
   // Padrão semanal de despesas (base mensal R$ 12.500 = 9.500 de vida + 3.000 de moradia)
@@ -247,11 +250,19 @@ const ENGINE = (() => {
   // valor de um item no mês mm (0 = hoje); antes do primeiro degrau, zero
   const stepAt = (it, mm) => { let v = 0; for (const st of it.steps) { if (mm >= st.from) v = +st.value || 0; else break; } return v; };
   const inicio = it => (it.steps && it.steps.length) ? it.steps[0].from : 0;
-  // O mês do motor começa no salário do dia 5. Um dia do calendário cai na semana (1 a 4) contada a partir dali;
-  // dias 1 a 4 fecham o ciclo anterior e caem na semana 4. O mês do ciclo de uma data d/m é m, ou m−1 se d < 5.
-  const semanaDoDia = d => Math.min(4, Math.max(1, Math.floor(((+d || 5) - 5 + 31) % 31 / 7) + 1));
+  // O mês do motor começa na semana do salário do dia 5 e tem 4 ou 5 semanas. O dia d do mês mm cai na semana
+  // do calendário que contém a data: d/m se d ≥ 5, ou d/(m+1) se d < 5, porque os dias 1 a 4 fecham o ciclo.
+  // O mês do ciclo de uma data d/m é m, ou m−1 se d < 5.
   const mesDoCiclo = mm => ((mm + 8) % 12 + 12) % 12;          // 0 = janeiro
   const cicloDaData = (m, d) => (d >= 5 ? m : (m + 11) % 12);
+  const semanaAbs = dt => Math.floor(Math.round((dt - BIRTH) / 864e5) / 7);   // índice da semana do motor
+  const calDoCiclo = mm => { const cm = mm + 8; return { y: 2026 + Math.floor(cm / 12), m: ((cm % 12) + 12) % 12 }; };
+  const semanasNoCiclo = mm => { const { y, m } = calDoCiclo(mm); return semanaAbs(new Date(y, m + 1, 5)) - semanaAbs(new Date(y, m, 5)); };
+  const semanaDoCiclo = (mm, d) => {
+    const { y, m } = calDoCiclo(mm), dia = Math.max(1, +d || 5);
+    const data = dia >= 5 ? new Date(y, m, Math.min(dia, new Date(y, m + 1, 0).getDate())) : new Date(y, m + 1, dia);
+    return Math.min(semanasNoCiclo(mm), semanaAbs(data) - semanaAbs(new Date(y, m, 5)) + 1);
+  };
   // semana do ciclo em que o item cai (formato antigo, com um único dia ou semana)
   const semanaDe = it => { if (+it.week === 0 && it.week !== undefined && !it.day) return 0; const d = +it.day || 5; return Math.min(4, Math.max(1, Math.ceil(d / 7.75))); };
   // Ocorrências do item no mês mm: lista de { k: semana do ciclo (1 a 4), v: valor de cada ocorrência }.
@@ -263,16 +274,18 @@ const ENGINE = (() => {
   // Formato antigo: despesa cai na semana `week` (0 = diluída nas quatro); renda cai na semana do dia `day`.
   const semanaAntiga = (it, saida) => saida ? (+it.week || 0) : semanaDe(it);
   const ocorrencias = (it, mm, saida) => {
-    const out = [], fq = it.frequency || 'mensal', ini = inicio(it), temDias = it.days && it.days.length;
-    const k0 = temDias ? semanaDoDia(it.days[0]) : (semanaAntiga(it, saida) || 1);   // semana de uma ocorrência avulsa
+    const out = [], fq = it.frequency || 'mensal', ini = inicio(it);
+    // renda no formato antigo, com um só `day`, também é lançada na semana real da data
+    const dias = it.days && it.days.length ? it.days : (!saida && it.day ? [+it.day] : null);
+    const k0 = dias ? semanaDoCiclo(mm, dias[0]) : (semanaAntiga(it, saida) || 1);   // semana de uma ocorrência avulsa
     let diluido = false;
     if (mm >= ini) {
       const v = stepAt(it, mm);
       if (fq === 'pontual') { if (mm === ini) out.push({ k: +it.week || k0, v }); }
-      else if (fq === 'semanal') [1, 2, 3, 4].forEach(k => out.push({ k, v }));
-      else if (fq === 'anual' && it.dates && it.dates.length) it.dates.forEach(dt => { if (cicloDaData(dt.m, dt.d) === mesDoCiclo(mm)) out.push({ k: semanaDoDia(dt.d), v }); });
+      else if (fq === 'semanal') for (let k = 1; k <= semanasNoCiclo(mm); k++) out.push({ k, v });
+      else if (fq === 'anual' && it.dates && it.dates.length) it.dates.forEach(dt => { if (cicloDaData(dt.m, dt.d) === mesDoCiclo(mm)) out.push({ k: semanaDoCiclo(mm, dt.d), v }); });
       else if ((mm - ini) % (FREQ[fq] || 1) === 0) {
-        if (temDias) it.days.forEach(d => out.push({ k: semanaDoDia(d), v }));
+        if (dias) dias.forEach(d => out.push({ k: semanaDoCiclo(mm, d), v }));
         else { const k = semanaAntiga(it, saida); if (k === 0) { diluido = true; [1, 2, 3, 4].forEach(kk => out.push({ k: kk, v: v / 4 })); } else out.push({ k, v }); }
       }
     }
@@ -282,7 +295,7 @@ const ENGINE = (() => {
         if (out.length) out.forEach(o => { o.v = diluido ? +exc[mm] / 4 : +exc[mm]; });
         else out.push({ k: k0, v: +exc[mm] });
       }
-      for (let k = 1; k <= 4; k++) {
+      for (let k = 1; k <= 5; k++) {
         const x = exc[mm + ':' + k]; if (x == null) continue;
         const o = out.filter(o => o.k === k);
         if (o.length) o.forEach(o => { o.v = +x; }); else out.push({ k, v: +x });
@@ -296,7 +309,7 @@ const ENGINE = (() => {
   const mensalizado = (it, mm) => {
     const fq = it.frequency || 'mensal', v = stepAt(it, mm);
     if (fq === 'pontual') return 0;
-    if (fq === 'semanal') return v * 4;
+    if (fq === 'semanal') return v * 365.25 / 7 / 12;
     if (fq === 'anual' && it.dates && it.dates.length) return v * it.dates.length / 12;
     return v * (it.days && it.days.length ? it.days.length : 1) / (FREQ[fq] || 1);
   };
@@ -314,7 +327,7 @@ const ENGINE = (() => {
     const encerrada = c => { if (!c.endObj) return false; const k = OBJ.findIndex(o => o.id === c.endObj); return k >= 0 && done[k]; };
     const livingAt = mm => EXPENSES.reduce((a, c) => a + (encerrada(c) ? 0 : mensalizado(c, mm)), 0);
     // falta mensal para a renda desejada no mês mm depois da liberdade, que começa no mês do motor mi0
-    const gapAt = (mm, mi0) => Math.max(0, DESIRED - passiveAt(mm).reduce((s, p) => s + p.net, 0) - passiveIncomeAt(mi0 + mm));
+    const gapAt = (mm, mi0) => Math.max(0, DESIRED - PASSIVE.reduce((s, p) => s + (rendaAtiva(p, mi0 + mm, mi0) ? p.net : 0), 0) - passiveIncomeAt(mi0 + mm));
     let m = null; // contexto do mês corrente
     const fin = () => cofre + obj.reduce((a, b) => a + b, 0);
     const add = (f, k, v) => { f[k] = (f[k] || 0) + v; };
@@ -380,7 +393,7 @@ const ENGINE = (() => {
           const sustenta = after * R_M >= maxGap;
           if (sustenta || age >= 68) {
             const inv = Math.max(0, fin() - ANNUITY_COST);
-            ff = { week: i, age, finBefore: fin(), cost: ANNUITY_COST, finAfter: inv, pmt: pmt(inv, R_M, horizon), maxGap, months: 0,
+            ff = { week: i, mi: mIdx, age, finBefore: fin(), cost: ANNUITY_COST, finAfter: inv, pmt: pmt(inv, R_M, horizon), maxGap, months: 0,
                    forced: !sustenta, sustentavel: inv * R_M + (DESIRED - maxGap) };
             add(f, 'out_rendas', ANNUITY_COST); // contratação das rendas: saída paga pelo cofre
             events.push({ week: i, type: 'ff', label: 'Liberdade Financeira', ff });
@@ -391,7 +404,7 @@ const ENGINE = (() => {
         const lancarSemana1 = () => doOffset(1, i, f);   // a semana do pagamento já é a semana 1 do ciclo
         if (ff) {
           const mm = ff.months++;
-          const act = passiveAt(mm); let pas = 0;
+          const act = PASSIVE.filter(p => rendaAtiva(p, m.mIdx, ff.mi)); let pas = 0;
           act.forEach(p => { add(f, 'in_pas_' + PASSIVE.indexOf(p), p.net); pas += p.net; });
           const names = act.map(p => p.name), prev = prevActive ? prevActive.split('|') : [];
           if (mm > 0) { // sub-eventos: qual renda terminou ou começou, e o efeito na retirada do patrimônio
@@ -409,12 +422,14 @@ const ENGINE = (() => {
         } else {
           m.scale = 1;                                // os valores já vêm da linha do tempo
           m.salary = incomeAt(m.mIdx);                // equivalente mensal, para dimensionar o aporte
+          // renda de data fixa (o INSS aos 65, por exemplo) que começa antes da liberdade já entra no fluxo
+          PASSIVE.forEach((p, k) => { if (p.startMi != null && rendaAtiva(p, m.mIdx, 0)) { add(f, 'in_pas_' + k, p.net); m.salary += p.net; } });
           m.invest = Math.max(0, m.salary - livingAt(m.mIdx) - recurTotal());
           if (CAP_OVERRIDE != null) m.invest = Math.min(m.invest, CAP_OVERRIDE); // o cliente pode declarar quanto consegue poupar
         }
         lancarSemana1();
       } else if (working && m) {
-        offset++; if (offset <= 4) doOffset(offset, i, f);
+        offset++; if (offset <= 5) doOffset(offset, i, f);   // ciclos de cinco semanas têm lançamentos na quinta
         // mês de 4 semanas: se a próxima semana já é a do salário, os itens da 5ª semana são antecipados para esta
         if (offset === 3) { let nextIncome = false; for (let k = 7; k < 14; k++) if (new Date(d.getTime() + k * 864e5).getDate() === 5) nextIncome = true; if (nextIncome) { doOffset(4, i, f); offset = 4; } }
       }
@@ -479,7 +494,7 @@ const ENGINE = (() => {
   }
   const ORIGENS_OUT = ORIGENS;
   const config = () => ({ desired: DESIRED, lifeExp: LIFE_EXP, salary: SALARY, salaryGrowth: SAL_G, partValue: PART_VALUE, initialWealth: INITIAL_WEALTH, capacityOverride: CAP_OVERRIDE, rate: R_M, profiles: PROFILES, incomes: INCOMES, expenses: EXPENSES, objectives: OBJ, passive: PASSIVE });
-  return { TODAY, BIRTH, WPY, W0, NW, weekDate, tOf, ageOf, OBJ, PASSIVE, PROFILES, STATUS, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoDia, cicloDaData, mesDoCiclo, ativo, ORIGENS: ORIGENS_OUT, FREQ, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, CURRENT_AGE, pmt };
+  return { TODAY, BIRTH, WPY, W0, NW, weekDate, tOf, ageOf, OBJ, PASSIVE, PROFILES, STATUS, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, ORIGENS: ORIGENS_OUT, FREQ, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, CURRENT_AGE, pmt };
 })();
 if (typeof module !== 'undefined') module.exports = ENGINE;
 </script>
@@ -1042,7 +1057,7 @@ function celebrate(mk, manual) {
     lines += `<div class="statusrow"><span class="badge ${o.status}">${ENGINE.STATUS[o.status]}</span><span class="pct">${Math.round(o.ratio * 100)}% do necessário</span></div>`;
     lines += `<div class="strat"><h5>Estratégia</h5>${o.strategy}</div>`;
   } else {
-    const ff = mk.ff, mode = state.mode, active = PASSIVE.filter(p => !p.start).reduce((s, p) => s + p.net, 0);
+    const ff = mk.ff, mode = state.mode, active = PASSIVE.filter(p => ENGINE.rendaAtiva(p, ff.mi, ff.mi)).reduce((s, p) => s + p.net, 0);
     lines += `<div class="grid">`;
     lines += F('Data alvo', weekDate(mk.week).getFullYear() + '', 'aos ' + age + ' anos');
     lines += F('Custo pontual', fmt(ff.cost), 'convertido em rendas');
@@ -1054,7 +1069,7 @@ function celebrate(mk, manual) {
     lines += ff.forced
       ? `<div class="statusrow"><span class="badge risk">Requer revisão</span><span class="pct">o patrimônio sustenta ${fmt(ff.sustentavel)}/mês, não os ${fmt(DESIRED)} desejados</span></div>`
       : `<div class="statusrow"><span class="badge ok">${mode === 'perp' ? 'Renda vitalícia' : 'Renda até os ' + LIFE_EXP + ' anos'}</span><span class="pct">${fmt(ff.finAfter)} de patrimônio investido</span></div>`;
-    lines += ff.forced ? `<div class="strat"><h5>O que precisa mudar</h5>Na idade planejada de aposentadoria, o patrimônio construído sustenta <b>${fmt(ff.sustentavel)}</b> por mês, e não os <b>${fmt(DESIRED)}</b> desejados. Para fechar essa diferença há três caminhos: poupar mais por mês até lá, adiar a aposentadoria alguns anos, ou rever o padrão de vida desejado. Vale conversar com seu consultor sobre qual combinação faz mais sentido.</div>` : `<div class="strat"><h5>Estratégia</h5>${PASSIVE.map(p => '<b>' + p.name + '</b>: ' + fmt(p.net) + '/mês líquido' + (p.dur ? ', por ' + p.dur / 12 + ' anos' : ', vitalício') + (p.start ? ', a partir de ' + (age + p.start / 12) + ' anos' : '') + '.').join(' ')} A partir dos ${age} anos, 100% do seu custo de vida passa a ser pago pelo patrimônio que você construiu, ${mode === 'perp' ? 'com o principal preservado, <b>para sempre</b>' : 'consumindo o principal de forma planejada <b>até os ' + LIFE_EXP + ' anos</b>'}.</div>`;
+    lines += ff.forced ? `<div class="strat"><h5>O que precisa mudar</h5>Na idade planejada de aposentadoria, o patrimônio construído sustenta <b>${fmt(ff.sustentavel)}</b> por mês, e não os <b>${fmt(DESIRED)}</b> desejados. Para fechar essa diferença há três caminhos: poupar mais por mês até lá, adiar a aposentadoria alguns anos, ou rever o padrão de vida desejado. Vale conversar com seu consultor sobre qual combinação faz mais sentido.</div>` : `<div class="strat"><h5>Estratégia</h5>${PASSIVE.map(p => '<b>' + p.name + '</b>: ' + fmt(p.net) + '/mês líquido' + (p.dur ? ', por ' + p.dur / 12 + ' anos' : ', vitalício') + (ENGINE.inicioRenda(p, ff.mi) > ff.mi ? ', a partir de ' + Math.floor(ENGINE.CURRENT_AGE + ENGINE.inicioRenda(p, ff.mi) / 12) + ' anos' : '') + '.').join(' ')} A partir dos ${age} anos, 100% do seu custo de vida passa a ser pago pelo patrimônio que você construiu, ${mode === 'perp' ? 'com o principal preservado, <b>para sempre</b>' : 'consumindo o principal de forma planejada <b>até os ' + LIFE_EXP + ' anos</b>'}.</div>`;
   }
   document.getElementById('mLines').innerHTML = lines;
   card.querySelector('.body').scrollTop = 0;

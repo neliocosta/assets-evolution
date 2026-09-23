@@ -88,7 +88,9 @@ O plano também fica salvo no `localStorage` do navegador, então a tela do cons
   ],
   "passive": [
     { "name": "INSS", "gross": 5000, "tax": 800, "net": 4200,
-      "start": 60, "dur": null, "cost": 0 }   // start/dur em meses após a aposentadoria; dur null = vitalícia
+      "startMi": 333, "dur": null, "cost": 0 },  // data fixa (mês 333 = jun/2054); dur em meses, null = vitalícia
+    { "name": "Fundo de pensão por 5 anos", "gross": 8750, "tax": 1750, "net": 7000,
+      "start": 0, "dur": 60, "cost": 372000 }    // sem startMi: começa `start` meses depois da liberdade
   ]
 }
 ```
@@ -145,13 +147,17 @@ antes ou depois da janela.
   caminho para a página onde são editados.
 
 **Frequência.** O valor do degrau é o de cada ocorrência: o salário de 10 mil pago nos dias 5 e 20 é uma
-linha de 5 mil com `days: [5, 20]`. Um dia do mês cai na semana do ciclo contada a partir do salário do dia 5;
-os dias 1 a 4 fecham o ciclo anterior. Para orçamento, o portal usa o equivalente mensal, então um bônus de
-12 mil por ano pesa mil por mês e uma despesa semanal de 300 pesa 1.200.
+linha de 5 mil com `days: [5, 20]`. Cada ocorrência cai na semana do calendário que contém a sua data, e
+na planilha as semanas aparecem pelo intervalo de datas (20–26/09/26, 27/09–03/10/26). Como o mês vai de
+salário a salário, os dias 1 a 4 fecham o ciclo anterior. Uma despesa semanal cai em todas as semanas do
+mês, que são quatro ou cinco. Para orçamento, o portal usa o equivalente mensal, então um bônus de
+12 mil por ano pesa mil por mês e uma despesa semanal de 300 pesa cerca de 1.304 (52 semanas ÷ 12).
 
 **Aposentadoria.** Na liberdade financeira, a renda ativa (trabalho) para. A renda passiva, como o aluguel
 de um imóvel, continua, e entra no cálculo de quanto o patrimônio precisa sustentar. As rendas contratadas
-continuam contadas em meses a partir da liberdade, e o portal mostra a data e a idade correspondentes.
+começam numa data fixa (o INSS, numa idade definida) ou na liberdade financeira, com ou sem alguns meses
+de espera. Uma renda de data fixa que começa antes da liberdade já entra no fluxo. O portal mostra a data e
+a idade de início e de fim de cada uma.
 
 **Ícones dos objetivos.** O consultor envia um SVG ou PNG, que viaja embutido no plano, ou cola uma classe
 do Font Awesome. O ícone aparece no marco do gráfico e no card do cliente. O Font Awesome é carregado de

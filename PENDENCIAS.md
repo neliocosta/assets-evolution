@@ -36,12 +36,11 @@ Decidir se a tela do cliente passa a usar linguagem do dia a dia enquanto o port
 Sugestões da própria cliente: "aporte" → "quanto guardar por mês"; "custo pontual" → "quanto custa de uma
 vez"; "perpetuidade / consumo até 95" → "o dinheiro nunca acaba / o dinheiro acaba aos 95".
 
-### 2. Rendas passivas — resolvido em parte
-As rendas contratadas agora aparecem como linhas de Entradas no fluxo de caixa, e o cadastro e a tabela
-da página Liberdade financeira mostram a data e a idade de início e de fim. Rendas passivas que não
-dependem da aposentadoria (aluguel de um imóvel) são linhas normais de entrada, do tipo passiva.
-Continua aberto: o início das rendas contratadas ainda é contado a partir da liberdade financeira. O INSS
-começa numa idade fixa, não "60 meses depois da liberdade"; falta a opção de começar numa data ou idade.
+### 2. Rendas passivas — resolvido
+As rendas contratadas aparecem como linhas de Entradas no fluxo de caixa, e o cadastro e a tabela da página
+Liberdade financeira mostram a data e a idade de início e de fim. Cada renda começa numa data fixa (o INSS)
+ou na liberdade financeira. Rendas passivas que não dependem da aposentadoria (aluguel de um imóvel) são
+linhas normais de entrada, do tipo passiva.
 
 ### 3. Cliente-casal
 Só existe um titular, e o campo "Idade hoje" está travado. O caso mais comum da consultora é um casal com
@@ -110,9 +109,10 @@ pedido explícito, então fica registrado como ponto a reavaliar, não como erro
 Num notebook, a tabela de fluxo mostra poucas linhas. Considerar um divisor arrastável entre o gráfico e a
 tabela.
 
-### 18. Semana do ciclo é aproximada
-Um dia do mês cai numa das quatro semanas do ciclo pela distância até o dia 5. Um item no dia 12 pode
-aparecer na semana 1 ou 2, conforme o dia da semana em que o mês começa. A soma do mês está sempre certa.
+### 18. Semana do ciclo — resolvido para linhas novas
+Linhas com dia ou data caem na semana do calendário que contém a data, e as colunas de semana mostram o
+intervalo (20–26/09/26). Continuam no formato antigo, por posição na semana (`week` de 1 a 4), as despesas
+do mock que não têm dia definido; ao receber um dia no cadastro, passam para a regra nova.
 
 ### 19. Rolagem vertical na planilha do fluxo
 A rodinha sobre as células é o zoom, então a página rola pela coluna de nomes ou fora da planilha. Com muitas
@@ -189,5 +189,9 @@ Registradas aqui porque não são óbvias no código:
   mostra os aportes e custos deles.
 - **A planilha do fluxo mostra o que a simulação calcula**, não o que foi digitado. Assim a linha de
   Movimentações é sempre entradas menos saídas, e depois da liberdade aparece o ajuste das despesas à renda.
+- **A semana é mostrada pelo intervalo de datas**, não por número. "Semana 3" dependia de em que dia o mês
+  começava; "20–26/09/26" não deixa dúvida, e cada ocorrência cai na semana que contém a sua data.
+- **O INSS do mock tem data fixa em jun/2054**, a mesma data em que ele começava antes (60 meses depois
+  da liberdade). Os números não mudaram; agora a data não se move se a liberdade mudar.
 - **O valor de uma linha é o de cada ocorrência.** Um salário pago nos dias 5 e 20 é uma linha só, e o
   aumento vira um único degrau.

@@ -125,10 +125,12 @@ console.log('\n5. Periodicidades e regras do fluxo');
   const E3 = carregar(srcCliente);
   const oc = (it, mm, saida) => E3.ocorrencias(it, mm, saida).map(o => o.k + ':' + o.v).join(' ');
   const sal = { id: 's', label: 'Salário', kind: 'ativa', frequency: 'mensal', days: [5, 20], steps: [{ from: 0, value: 5000 }, { from: 13, value: 6000 }] };
-  ok('mensal nos dias 5 e 20 cai nas semanas 1 e 3', oc(sal, 2) === '1:5000 3:5000', oc(sal, 2));
-  ok('mudança de valor em out/2027 (mês 13)', oc(sal, 12) === '1:5000 3:5000' && oc(sal, 13) === '1:6000 3:6000');
+  const k20 = mm => E3.semanaDoCiclo(mm, 20);
+  ok('mensal nos dias 5 e 20: duas ocorrências por mês', oc(sal, 2) === '1:5000 ' + k20(2) + ':5000', oc(sal, 2));
+  ok('mudança de valor em out/2027 (mês 13)', oc(sal, 12) === '1:5000 ' + k20(12) + ':5000' && oc(sal, 13) === '1:6000 ' + k20(13) + ':6000');
   const feira = { id: 'f', frequency: 'semanal', steps: [{ from: 0, value: 300 }] };
-  ok('semanal cai nas quatro semanas', E3.valorEm(feira, 5, true) === 1200 && E3.ocorrencias(feira, 5, true).length === 4);
+  let semOk = true; for (let mm = 0; mm < 24; mm++) semOk = semOk && E3.ocorrencias(feira, mm, true).length === E3.semanasNoCiclo(mm);
+  ok('semanal cai em todas as semanas do mês (4 ou 5)', semOk);
   const ipva = { id: 'i', frequency: 'anual', dates: [{ m: 0, d: 5 }, { m: 1, d: 5 }, { m: 2, d: 5 }], steps: [{ from: 0, value: 1400 }] };
   const mesesIpva = []; for (let mm = 0; mm < 24; mm++) if (E3.valorEm(ipva, mm, true)) mesesIpva.push(E3.mesDoCiclo(mm));
   ok('anual em 5/jan, 5/fev e 5/mar', mesesIpva.join(',') === '0,1,2,0,1,2', 'meses ' + mesesIpva.join(','));
@@ -163,6 +165,15 @@ console.log('\n5. Periodicidades e regras do fluxo');
   ok('exemplo: salário de 10 mil vira 12 mil em out/2027', porMes[12].in_s === 10000 && porMes[13].in_s === 12000);
   ok('exemplo: bônus e guia só no seu mês', porMes[10].in_b === 30000 && !porMes[11].in_b && porMes[8].out_fix_guia === 15000 && !porMes[9].out_fix_guia);
   ok('exemplo: aulas a partir de daqui a 10 anos', !porMes[119].in_aulas && porMes[120].in_aulas === 4000);
+  // cada ocorrência cai na semana do calendário que contém a sua data
+  const contem = (i, dias) => { for (let k = 0; k < 7; k++) if (dias.includes(new Date(E3.weekDate(i).getTime() + k * 864e5).getDate())) return true; return false; };
+  let foraDaData = 0, vistas = 0;
+  for (let i = E3.W0; i < s.ff.week; i++) {
+    const f = s.weeks[i].f;
+    if (f.in_s) { vistas++; if (!contem(i, [5, 20])) foraDaData++; }
+    if (f.out_fix_n) { vistas++; if (!contem(i, [12])) foraDaData++; }
+  }
+  ok('cada ocorrência cai na semana que contém a sua data', vistas > 100 && foraDaData === 0, vistas + ' ocorrências, ' + foraDaData + ' fora da data');
 
   // aluguel pago termina quando a casa é comprada; renda ativa para na liberdade, a passiva continua
   const E4 = carregar(srcCliente); const s4 = E4.run('perp');
@@ -172,6 +183,17 @@ console.log('\n5. Periodicidades e regras do fluxo');
   const mff = s.buckets.month.find(b => b.w0 >= s.ff.week).mi + 2;
   ok('depois da liberdade, a renda ativa para e a passiva continua', !porMes[mff].in_s && !porMes[mff].in_aulas && porMes[mff].in_aluguelrec === 3400,
     'liberdade aos ' + s.ff.age.toFixed(1));
+
+  // renda contratada em data fixa: não depende de quando a liberdade acontece
+  const E6 = carregar(srcCliente); const inss = E6.PASSIVE.find(p => p.name === 'INSS');
+  const inicioInss = sx => { const b = sx.buckets.month.find(b => b.w1 > E6.W0 && b.f['in_pas_' + E6.PASSIVE.indexOf(inss)]); return b && b.mi; };
+  const a6 = inicioInss(E6.run('perp'));
+  E6.configure({ desired: 40000 }); const s6 = E6.run('perp'), b6 = inicioInss(s6);
+  ok('INSS em data fixa começa no mesmo mês mesmo com a liberdade mudando', a6 === inss.startMi && b6 === inss.startMi, 'mês ' + a6 + ' / ' + b6 + ', liberdade aos ' + s6.ff.age.toFixed(1));
+  const E7 = carregar(srcCliente); E7.PASSIVE.find(p => p.name === 'INSS').startMi = 100;
+  const s7 = E7.run('perp'), m7 = {}; s7.buckets.month.forEach(b => { if (b.w1 > E7.W0) m7[b.mi] = b.f; });
+  const k7 = 'in_pas_' + E7.PASSIVE.findIndex(p => p.name === 'INSS');
+  ok('renda de data fixa antes da liberdade já entra no fluxo', !m7[99][k7] && m7[100][k7] === 4200 && s7.ff.mi > 100);
 
   // plano antigo, com o aluguel num campo solto
   const E5 = carregar(srcCliente); const antigo = { rent: 2000, expenses: [{ id: 'm', label: 'Mercado', group: 'adj', week: 0, steps: [{ from: 0, value: 1000 }] }] };
