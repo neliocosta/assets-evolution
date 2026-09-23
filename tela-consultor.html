@@ -332,7 +332,7 @@ details.opc2[open] summary{margin-bottom:10px}
       <span class="fxnivel" id="fxNivel">Mês</span>
       <span class="muted" id="fxJanela"></span>
       <button class="btn btn-secondary" id="fxHoje">Voltar para hoje</button>
-      <div class="budlegend"><span><i class="c-step"></i>valor muda aqui</span><span><i class="c-inh"></i>repetido do anterior</span><span><i class="c-exc"></i>ajuste de uma ocorrência</span><span><i class="c-ff"></i>liberdade financeira</span></div>
+      <div class="budlegend"><span><i class="c-step"></i>valor muda aqui</span><span><i class="c-inh"></i>repetido do anterior</span><span><i class="c-exc"></i>ajuste de uma ocorrência</span><span><i class="c-ff"></i>liberdade financeira</span><span title="Assim todo mês tem exatamente um salário. Uma despesa semanal cai 4 ou 5 vezes, conforme as semanas daquele mês.">mês = do salário do dia 5 ao seguinte, em semanas inteiras</span></div>
     </div>
     <div class="fx">
       <div class="fx-l" id="fxL"></div>
@@ -665,7 +665,7 @@ const ENGINE = (() => {
       let R = 0; for (const k in f) { if (k.startsWith('in_')) R += f[k]; else if (k.startsWith('out_')) R -= f[k]; }
       cofre += R; if (R) add(f, 'mov_cofre', R);
       if (cofre < 0) cofre = 0;
-      weeks[i] = { fin: fin(), cofre, obj: obj.slice(), bens, part, pas: m ? (m.pas || 0) : 0, mi: m ? m.mIdx : -1, ks, f };
+      weeks[i] = { fin: fin(), cofre, obj: obj.slice(), bens, part, pas: m ? (m.pas || 0) : 0, mi: m ? m.mIdx : -1, ks, f: i < W0 ? {} : f };   // o que aconteceu antes de hoje já está no patrimônio
     }
     // agregações
     const bucketize = keyFn => { const out = []; let cur = null; for (let i = 0; i < NW; i++) { const k = weeks[i].mi < 0 ? 'antes de hoje' : keyFn(i); if (!cur || cur.key !== k) { cur = { key: k, w0: i, w1: i + 1, mi: weeks[i].mi, f: {} }; out.push(cur); } cur.w1 = i + 1; const f = weeks[i].f; for (const key in f) cur.f[key] = (cur.f[key] || 0) + f[key]; } return out; };
@@ -781,7 +781,9 @@ function recompute() {
   // ordenar ANTES de configurar: o motor aporta na ordem em que recebe os objetivos (o mais próximo primeiro)
   // e os saldos da simulação são lidos por esse mesmo índice.
   plano.objectives.sort((a, b) => a.months - b.months);
-  ENGINE.configure(plano);                       // deriva required/projected/status teóricos
+  ENGINE.configure(plano);                       // deriva o aporte necessário e a projeção teórica
+  // aporte escolhido como "o necessário" acompanha mudanças de custo, data e patrimônio reservado
+  plano.objectives.forEach(o => { if (o.segueNecessario) { o.planned = Math.ceil(o.required); ENGINE.derive(o); } });
   SIM = ENGINE.run('perp'); BALDES = null;
   plano.objectives.forEach((o, k) => {
     const ev = SIM.events.find(e => e.type === 'obj' && e.obj.id === o.id);
@@ -808,6 +810,7 @@ function media12() {
   return t / 12;
 }
 const temFluxo = () => plano.incomes.length > 0;
+const livreParaReservar = () => Math.max(0, (+plano.initialWealth || 0) - plano.objectives.reduce((t, x) => t + (+x.dedicated || 0), 0));
 const aguardaOrcamento = () => !temFluxo() && (plano.capacityOverride == null || plano.capacityOverride === '');
 const capacity = () => plano.capacityOverride != null && plano.capacityOverride !== ''
   ? +plano.capacityOverride : Math.max(0, media12());
@@ -867,9 +870,11 @@ function renderTop() {
   // "Próximo" leva ao próximo passo que ainda falta; se todos foram feitos, à Liberdade financeira
   document.querySelectorAll('.pagenav [data-ir]').forEach(b => {
     const aqui = b.closest('.page').dataset.page, depois = PAGINAS.slice(PAGINAS.indexOf(aqui) + 1);
-    const faltaAporte = temFluxo() && plano.objectives.some(o => !(o.planned > 0));
-    const alvo = aqui === 'fluxo' && faltaAporte ? 'objetivos' : depois.find(p => !feito[p]) || 'liberdade';
-    b.dataset.ir = alvo; b.textContent = aqui === 'fluxo' && faltaAporte ? 'Próximo: definir os aportes nos Objetivos →' : 'Próximo: ' + NOMES_PAGINA[alvo] + ' →';
+    const faltaAporte = temFluxo() && plano.expenses.length > 0 && plano.objectives.some(o => !(o.planned > 0));
+    const semDespesas = aqui === 'fluxo' && temFluxo() && !plano.expenses.length;
+    const alvo = aqui === 'fluxo' && (faltaAporte || semDespesas) ? 'objetivos' : depois.find(p => !feito[p]) || 'liberdade';
+    b.dataset.ir = alvo;
+    b.textContent = semDespesas ? 'Depois das despesas: definir os aportes →' : aqui === 'fluxo' && faltaAporte ? 'Próximo: definir os aportes nos Objetivos →' : 'Próximo: ' + NOMES_PAGINA[alvo] + ' →';
   });
   const falta = [!plano.name && 'nome', !plano.age && 'idade', !(plano.desired > 0) && 'renda desejada'].filter(Boolean);
   document.getElementById('faltaCliente').innerHTML = falta.length ? `<div class="falta">Falta preencher: ${falta.join(', ')}. Depois siga para Patrimônio e premissas.</div>` : '';
@@ -885,6 +890,7 @@ function renderTop() {
       : pl > cap ? `<div class="warn">Os aportes definidos somam ${fmt(pl)} e a capacidade de poupança é ${fmt(cap)}. A coluna <b>Efetivo</b> mostra o que o orçamento realmente entrega: os objetivos mais distantes ficam sem aporte e o status já considera isso.</div>`
       : plano.objectives.some(o => o.truncado) ? `<div class="warn">Hoje os aportes cabem (${fmt(pl)} de ${fmt(cap)} por mês), mas mais adiante o orçamento não comporta todos: ${plano.objectives.filter(o => o.truncado).map(o => '<b>' + esc(o.name) + '</b>').join(', ')}. O aviso no cartão diz a partir de quando e por quê.</div>`
       : `<div class="ok-note">Os aportes definidos somam ${fmt(pl)}, dentro da capacidade de ${fmt(cap)}.</div>`) +
+    (temFluxo() && (pl > cap || plano.objectives.some(o => o.status !== 'ok')) && livreParaReservar() > 1000 ? `<div class="note">O cliente tem ${fmt(livreParaReservar())} de patrimônio financeiro livre. Reservar parte dele num objetivo (campo "Patrimônio já reservado para ele") reduz o aporte necessário; se o aporte estiver em "usar o necessário", ele se ajusta sozinho.</div>` : '') +
     (temFluxo() && plano.objectives.some(o => !(o.planned > 0)) ? `<div class="fxcap vazio" style="margin-top:10px">Falta definir quanto guardar por mês em ${plano.objectives.filter(o => !(o.planned > 0)).length} objetivo(s). Use o valor de cada cartão ou <button class="btn btn-tertiary btn-small" data-usar-todos>usar o necessário em todos</button></div>` : '');
 }
 
@@ -1053,7 +1059,7 @@ function linhasFluxo() {
       grp(id, g === 'fix' ? 'Fixas' : 'Ajustáveis', { pref: 'out_' + g + '_', depth: 1, cls: 'grp2', plus: g, filhos: true });
       if (!ab(id)) continue;
       plano.expenses.filter(it => (it.group || 'adj') === g).forEach(it => L.push({ id: 'out_' + g + '_' + it.id, label: it.label, t: 'exp', it, keys: ['out_' + g + '_' + it.id], depth: 2, pai: id }));
-      if (g === 'fix') plano.objectives.filter(o => o.recurring).forEach(o => L.push({ id: 'out_fix_' + o.id, label: o.recurring.label || o.name, t: 'ro', keys: ['out_fix_' + o.id], depth: 2, obj: o, pai: id, tag: 'objetivo' }));
+      if (g === 'fix') plano.objectives.filter(o => o.recurring).forEach(o => L.push({ id: 'out_fix_' + o.id, label: (o.recurring.label || o.name) + (o.recurring.amort > 0 ? ' (juros)' : ''), t: 'ro', keys: ['out_fix_' + o.id], depth: 2, obj: o, pai: id, tag: 'objetivo' }));
       L.push({ id: 'ghost_' + g, label: 'nova linha', t: 'ghost', alvo: g, depth: 2, pai: id });
     }
     grp('out_obj', 'Objetivos realizados', { pref: 'out_obj_', depth: 1, cls: 'grp2', filhos: true, somenteComValor: true });
@@ -1095,6 +1101,8 @@ function renderFluxo() {
   fx.nivel = nivel.id; fx.cols = cols; fx.ppw = ppw;
   const xOf = w => (w - fx.t0) * ppw;
   const editavel = nivel.id === 'week' || nivel.id === 'month';
+  // coluna que começa antes da janela é recortada no início, para o número não ficar cortado
+  const posCol = b => { const x = xOf(b.w0), w = (b.w1 - b.w0) * ppw, l = Math.max(0, x); return 'left:' + l + 'px;width:' + Math.max(0, w - (l - x)) + 'px'; };
 
   // linhas visíveis: folhas sem valor na janela somem (menos a que está aberta no cadastro)
   const todas = linhasFluxo(), comValor = r => cols.some(b => Math.abs(valorLinha(r, b)) >= 0.5);
@@ -1133,7 +1141,7 @@ function renderFluxo() {
 
   // cabeçalho, gráfico e células
   const hoje = cols.findIndex(b => b.w0 <= ENGINE.W0 && ENGINE.W0 < b.w1);
-  let h = '<div class="fxhead">' + cols.map((b, ci) => '<div class="fc' + (ci === hoje ? ' hoje' : '') + '" data-col="' + ci + '" style="left:' + xOf(b.w0) + 'px;width:' + ((b.w1 - b.w0) * ppw) + 'px">' + rotulo(nivel.id, b) + '</div>').join('') + '</div>';
+  let h = '<div class="fxhead">' + cols.map((b, ci) => '<div class="fc' + (ci === hoje ? ' hoje' : '') + '" data-col="' + ci + '" style="' + posCol(b) + '">' + rotulo(nivel.id, b) + '</div>').join('') + '</div>';
   h += '<canvas class="fxchart" id="fxChart"></canvas>';
   vis.forEach((r, ri) => {
     let row = '<div class="fxrow ' + (r.t === 'grp' ? r.cls : r.t) + '">';
@@ -1147,7 +1155,7 @@ function renderFluxo() {
       }
       if (v < -0.5) cls += ' neg';
       if (!editavel && r.t !== 'grp') cls += ' zoom';
-      row += '<div class="' + cls + '" data-cel="' + ri + ':' + ci + '" style="left:' + xOf(b.w0) + 'px;width:' + ((b.w1 - b.w0) * ppw) + 'px"' + (v ? ' title="' + money(v) + '"' : '') + '>' + fmtCel(v) + '</div>';
+      row += '<div class="' + cls + '" data-cel="' + ri + ':' + ci + '" style="' + posCol(b) + '"' + (v ? ' title="' + money(v) + '"' : '') + '>' + fmtCel(v) + '</div>';
     });
     h += row + '</div>';
   });
@@ -1162,6 +1170,7 @@ function renderFluxo() {
   const cap = capacity(), pl = plannedTotal(), capEl = document.getElementById('fxCap');
   capEl.innerHTML = !temFluxo()
     ? '<div class="fxcap vazio">Comece pelas <b>Entradas</b>: clique no <b>+</b> ao lado de Entradas e cadastre cada renda do cliente. Depois cadastre as despesas em Fixas e Ajustáveis.</div>'
+    : !plano.expenses.length ? '<div class="fxcap vazio">Entradas cadastradas. Agora cadastre as <b>despesas</b>: clique no <b>+</b> ao lado de Fixas ou de Ajustáveis. Os aportes dos objetivos vêm depois.</div>'
     : `<div class="fxcap${pl > cap ? ' warn' : ''}">Capacidade de poupança: <b>${fmt(cap)}/mês</b> (entradas menos saídas, média dos próximos 12 meses). Aportes definidos nos objetivos: <b>${fmt(pl)}/mês</b>.${pl > cap ? ' Os aportes não cabem no orçamento.' : ''}` +
       (plano.objectives.some(o => !(o.planned > 0)) ? ' Próximo passo: definir quanto guardar para cada objetivo (botão no fim da página).' : '') + '</div>';
   const ent = incomeTotal(0), sai = livingTotal(0);
@@ -1207,7 +1216,7 @@ function renderGoals() {
         <div class="field"><label>Tipo</label><select data-g="${i}" data-k="kind"><option value="consumo"${o.kind === 'consumo' ? ' selected' : ''}>Consumo</option><option value="bem"${o.kind === 'bem' ? ' selected' : ''}>Vira bem</option></select></div>
         <div class="field"><label>Patrimônio já reservado para ele (R$)</label><input data-money type="text" inputmode="decimal" data-g="${i}" data-k="dedicated" value="${o.dedicated ? money(o.dedicated) : ''}" placeholder="R$ 0,00"><div class="deriv">Sai do patrimônio financeiro de hoje (${fmt(plano.initialWealth)}); ainda livre para reservar: ${fmt(Math.max(0, (+plano.initialWealth || 0) - plano.objectives.reduce((t, x) => t + (+x.dedicated || 0), 0)))}. Reservar parte dele reduz o aporte necessário.</div></div>
         <div class="field"><label>Perfil de investimento</label><select data-g="${i}" data-k="profile">${Object.keys(plano.profiles).map(k => `<option value="${k}"${o.profile === k ? ' selected' : ''}>${k[0].toUpperCase() + k.slice(1)} (${(plano.profiles[k] * 100).toFixed(2).replace('.', ',')}%)</option>`).join('')}</select></div>
-        <div class="field"><label>Aporte definido (R$/mês)</label><input data-money type="text" inputmode="decimal" data-g="${i}" data-k="planned" value="${o.planned ? money(o.planned) : ''}" placeholder="R$ 0,00">${o.amount > 0 && Math.abs(o.planned - o.required) >= 1 ? `<button class="usarnec" data-usar-nec="${i}">usar o necessário (${fmt(Math.ceil(o.required))})</button>` : ''}</div>
+        <div class="field"><label>Aporte definido (R$/mês)</label><input data-money type="text" inputmode="decimal" data-g="${i}" data-k="planned" value="${o.planned ? money(o.planned) : ''}" placeholder="R$ 0,00">${o.segueNecessario ? '<div class="deriv">acompanha o necessário; digite um valor para fixar</div>' : o.amount > 0 && Math.abs(o.planned - o.required) >= 1 ? `<button class="usarnec" data-usar-nec="${i}">usar o necessário (${fmt(Math.ceil(o.required))})</button>` : ''}</div>
         <div class="field"><label>Aporte necessário (R$/mês)</label><div class="calcv">${o.amount > 0 ? money(o.required) : '—'}</div><div class="deriv">calculado pela data, custo e patrimônio dedicado</div></div>
       </div>
 
@@ -1219,7 +1228,7 @@ function renderGoals() {
         <div class="c"><span>Cobertura</span><b class="${o.status === 'risk' ? 'low' : o.status === 'ok' ? 'good' : ''}">${Math.round(o.realRatio * 100)}%</b></div>
         <div class="c spacer"><span>Para ficar alcançável</span><b>${o.status === 'ok' ? 'já está' : o.required > o.planned + 0.5 ? 'aporte de ' + fmt(Math.ceil(o.required)) + '/mês' : 'o orçamento precisa entregar o aporte'}</b></div>
       </div>
-      ${(() => { const d = diagnostico(o); if (!d) return ''; const saidas = ['adiar a data do objetivo', d.anteriores.length ? 'reduzir o aporte de ' + d.anteriores.map(x => esc(x.name)).join(', ') + ' (data anterior, recebe primeiro)' : '', 'aumentar a capacidade de poupança no Fluxo de caixa'].filter(Boolean);
+      ${(() => { const d = o.status !== 'ok' && diagnostico(o); if (!d) return ''; const saidas = ['adiar a data do objetivo', d.anteriores.length ? 'reduzir o aporte de ' + d.anteriores.map(x => esc(x.name)).join(', ') + ' (data anterior, recebe primeiro)' : '', 'aumentar a capacidade de poupança no Fluxo de caixa'].filter(Boolean);
         return `<div class="warn">A partir de <b>${monthsLabel(d.mes)}</b> o orçamento deixa de comportar os ${fmt(o.planned)} por mês definidos para este objetivo${d.causas.length ? ': ' + d.causas.join('; ') : ''}. Na média, ele recebe ${fmt(o.effective)} por mês. Para resolver: ${saidas.join(', ou ')}.</div>`; })()}`}
 
       <details class="sub opc2" data-abre="${o.id}:custo"${rec || blocosAbertos.has(o.id + ':custo') ? ' open' : ''}>
@@ -1274,16 +1283,17 @@ function renderLiberdade() {
   const custo = plano.passive.reduce((a, p) => a + (+p.cost || 0), 0);
   const inicio = plano.passive.filter(p => ENGINE.rendaAtiva(p, ffMi(), ffMi())).reduce((a, p) => a + (+p.net || 0), 0);
   document.getElementById('tbPasTotals').innerHTML = `<tr class="total"><td>Renda líquida no início da fase</td><td class="num">${fmt(inicio)}</td><td colspan="2"></td><td class="num">${fmt(custo)}</td></tr>`;
-  document.getElementById('ffQuando').innerHTML = f ? `Pela simulação atual, a liberdade financeira acontece em <b>${monthsLabel(f.mi)}</b>, aos ${Math.floor(f.ff.age)} anos. As datas da tabela acompanham essa data.` : '';
+  document.getElementById('ffQuando').innerHTML = f ? `Pela simulação atual, a liberdade financeira acontece em <b>${monthsLabel(f.mi)}</b>, aos ${Math.floor(f.ff.age)} anos. ${plano.passive.some(p => p.startMi == null) ? ' As rendas que começam na liberdade acompanham essa data.' : ''}` : '';
   // fechamento: o que falta e o próximo passo
   const pend = [];
   if (!(plano.name && plano.age && plano.desired > 0)) pend.push('<button class="link" data-ir="cliente">Cliente</button>: nome, idade e renda desejada');
+  if (!plano.passive.length) pend.push('<button class="link" data-ir="liberdade">Liberdade financeira</button>: nenhuma renda de aposentadoria (INSS, previdência). Se o cliente não tem, pode seguir');
   if (!temFluxo()) pend.push('<button class="link" data-ir="fluxo">Fluxo de caixa</button>: nenhuma entrada cadastrada');
   const revisar = plano.objectives.filter(o => o.status !== 'ok');
   if (temFluxo() && revisar.length) pend.push('<button class="link" data-ir="objetivos">Objetivos</button>: ' + revisar.map(o => esc(o.name || 'sem nome')).join(', ') + (revisar.length > 1 ? ' não cabem' : ' não cabe') + ' por completo no orçamento (o cliente vai ver isso)');
   const forcado = f && f.ff.forced && plano.desired > 0;
   document.getElementById('fimPlano').innerHTML =
-    (forcado ? `<div class="warn" style="margin-top:14px">Aos ${Math.floor(f.ff.age)} anos o patrimônio sustenta <b>${fmt(f.ff.sustentavel)}</b> por mês, e não os <b>${fmt(plano.desired)}</b> desejados. O cliente verá esse aviso. Para fechar a diferença: poupar mais por mês, adiar a aposentadoria ou rever a renda desejada.</div>` : '') +
+    (forcado ? `<div class="warn" style="margin-top:14px">Aos ${Math.floor(f.ff.age)} anos o patrimônio, somado às rendas de aposentadoria, sustenta <b>${fmt(f.ff.sustentavel)}</b> por mês, e não os <b>${fmt(plano.desired)}</b> desejados. O cliente verá esse aviso. Para fechar a diferença: poupar mais por mês, adiar a aposentadoria ou rever a renda desejada.</div>` : '') +
     `<div class="fxcap${pend.length ? ' vazio' : ''}" style="margin-top:16px">${pend.length ? 'Antes de apresentar, confira:<br>' + pend.map(p => '· ' + p).join('<br>') : 'Plano completo. Este é o último passo.'}<button class="btn btn-tertiary btn-small" data-abrir-cliente>Abrir visão do cliente</button></div>`;
   // pior mês: menor soma das rendas contratadas e das rendas passivas do fluxo (aluguéis, rendimentos) em 40 anos
   let pior = Infinity, piorMes = 0;
@@ -1342,6 +1352,7 @@ document.addEventListener('change', e => {
 function campoObjetivo(t, val) {
   const k = t.dataset.k;
   const o = plano.objectives[+t.dataset.g];
+  if (k === 'planned') o.segueNecessario = false;          // digitou o aporte: deixa de acompanhar o necessário
   if (k === 'months') o.months = inputToMonths(t.value);
   else if (k === 'name') { o.name = t.value; o.title = t.value + ' realizado!'; }
   else if (k === 'strategy' || k === 'icon' || k === 'kind' || k === 'profile' || k === 'photo' || k === 'iconFA') o[k] = t.value;
@@ -1377,8 +1388,8 @@ function armar(b, acao) {
 document.addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
   if (b.dataset.delG != null) { armar(b, () => plano.objectives.splice(+b.dataset.delG, 1)); return; }
-  if (b.dataset.usarTodos != null) { plano.objectives.forEach(o => { if (!(o.planned > 0)) o.planned = Math.ceil(o.required); }); renderAll(); return; }
-  if (b.dataset.usarNec != null) { const o = plano.objectives[+b.dataset.usarNec]; o.planned = Math.ceil(o.required); renderAll(); return; }
+  if (b.dataset.usarTodos != null) { plano.objectives.forEach(o => { if (!(o.planned > 0)) { o.planned = Math.ceil(o.required); o.segueNecessario = true; } }); renderAll(); return; }
+  if (b.dataset.usarNec != null) { const o = plano.objectives[+b.dataset.usarNec]; o.planned = Math.ceil(o.required); o.segueNecessario = true; renderAll(); return; }
 });
 
 document.getElementById('btnAddGoal').onclick = () => {
@@ -1581,7 +1592,7 @@ document.getElementById('fxL').addEventListener('click', e => {
     else if (r.id === 'out_rendas') irPara('liberdade');
   }
 });
-document.getElementById('fxHoje').onclick = () => { const span = fx.t1 - fx.t0; animaJanela(S0, S0 + span); };
+document.getElementById('fxHoje').onclick = () => { const span = fxR.clientWidth / (COL_MIN * 1.15 / NIVEIS[1].sem); animaJanela(S0, S0 + span); };
 
 // ---------- gaveta de cadastro ----------
 let gaveta = null;   // { t: 'inc' | 'exp' | 'pas', id (linhas) ou i (rendas), novo }
@@ -1703,8 +1714,8 @@ function campoGaveta(e) {
       else if (t.value !== 'INSS' && t.value !== 'Outra' && it.startMi != null && gaveta.novo) { delete it.startMi; it.start = 0; }
       renderAll(); renderGaveta(); return;
     }
-    else if (kr === 'pessoa') { const ini = it.startMi; it.pessoa = t.value; renderAll(); renderGaveta(); return; }
-    else if (kr === 'idadeIni') { const a = +t.value; if (!(a >= 18 && a <= 100)) return; it.startMi = Math.max(0, Math.round((a - idadeDe(it.pessoa)) * 12)); renderAll(); renderGaveta(); return; }
+    else if (kr === 'pessoa') { const idade = Math.floor(idadeDe(it.pessoa) + (it.startMi || 0) / 12); it.pessoa = t.value; if (it.startMi != null) it.startMi = Math.max(0, Math.round((idade - idadeDe(it.pessoa)) * 12)); gaveta.aviso = ''; renderAll(); renderGaveta(); return; }
+    else if (kr === 'idadeIni') { const a = +t.value; if (!(a >= 18 && a <= 100)) return; gaveta.aviso = ''; it.startMi = Math.max(0, Math.round((a - idadeDe(it.pessoa)) * 12)); renderAll(); renderGaveta(); return; }
     else if (kr === 'dur') it.dur = t.value === '' ? null : Math.max(1, +t.value);
     else if (kr === 'start') it.start = Math.max(0, +t.value || 0);
     else if (kr === 'startMi') { if (!/^\d{4}-\d{2}$/.test(t.value) || t.value < '2026-09') { avisoGaveta('Use uma data de hoje em diante.'); return; } it.startMi = mesDoInput(t.value); avisoGaveta(''); }

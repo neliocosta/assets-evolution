@@ -93,3 +93,21 @@ Corrigido para a rodada 5:
 - A planilha começa hoje (o que já foi recebido está no patrimônio); a data sugerida de um pontual nunca é
   passada; título da gaveta acompanha o nome.
 - Visão do cliente: a linha de bens sobe na compra, não antes; a dica some ao dar zoom.
+
+## Rodada 5 — REPROVADO
+
+4 dúvidas (eram 9), nenhuma bloqueante; a Juliana foi cadastrada sem nenhuma. As dúvidas: o Fluxo mandava definir
+aportes antes das despesas; trocar o INSS para o cônjuge mudava a idade e deixava um aviso velho; a regra das
+colunas de mês não estava explicada; nos objetivos do Marcos a tela não sugeria reservar o patrimônio livre, o
+aporte não se atualizava depois da reserva e o selo ficava verde ao lado de uma caixa vermelha. Ela também achou
+o ano corrente diferente entre a planilha (desde hoje) e a visão do cliente (setembro inteiro).
+
+Corrigido para a rodada 6:
+- Fluxo: com só entradas, o aviso e o "Próximo" pedem as despesas; os aportes vêm depois.
+- Trocar titular/cônjuge mantém a idade de início e limpa o aviso.
+- Legenda explica o mês de salário a salário ("uma despesa semanal cai 4 ou 5 vezes").
+- Objetivos: "usar o necessário" passa a acompanhar custo, data e reserva; o resumo lembra do patrimônio livre;
+  a caixa vermelha só aparece quando o objetivo não está alcançável.
+- Motor: nada antes de hoje entra no fluxo; planilha e visão do cliente têm o mesmo ano corrente.
+- Primeira coluna não corta o número; "Voltar para hoje" volta o zoom; financiamento mostra "(juros)";
+  a Liberdade lembra de conferir as rendas de aposentadoria e explica o que o patrimônio sustenta.
