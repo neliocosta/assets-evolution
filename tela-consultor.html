@@ -299,18 +299,18 @@ details.opc2[open] summary{margin-bottom:10px}
       <div class="field"><label>Nome do cliente <em>obrigatório</em></label><input id="f-name" type="text" placeholder="ex.: Camila e Rafael Souza"></div>
       <div class="field"><label>Idade hoje <em>obrigatório</em></label><input id="f-age" type="number" min="18" max="90" placeholder="anos"></div>
       <div class="field"><label>Renda mensal desejada na aposentadoria <em>obrigatório</em></label><input id="f-desired" data-money type="text" inputmode="decimal" placeholder="R$ por mês, em valores de hoje"></div>
-      <div class="field"><label>Idade para parar de trabalhar</label><input id="f-retire" type="number" min="30" max="90" placeholder="vazio: assim que o patrimônio permitir"></div>
+      <div class="field"><label>Idade para parar de trabalhar (dessa pessoa)</label><input id="f-retire" type="number" min="30" max="90" placeholder="vazio: assim que o patrimônio permitir"></div>
       <div class="field"><label>Expectativa de vida (anos)</label><input id="f-lifeExp" type="number" min="70" max="110"></div>
       <div class="field"><label>Idade do cônjuge (se houver)</label><input id="f-spouse" type="number" min="18" max="90" placeholder="usada no INSS do cônjuge"></div>
     </div>
     <div id="faltaCliente"></div>
-    <div class="note">Casal: em "Idade hoje" use a idade de quem vai parar de trabalhar primeiro e informe a do outro em "Idade do cônjuge". A renda de cada um entra como uma linha própria no Fluxo de caixa, e o INSS de cada um como uma renda na página Liberdade financeira.</div>
+    <div class="note">Casal: em "Idade hoje" use a idade de quem é a referência da aposentadoria (quem vai parar primeiro; se o casal vai parar junto, a do mais velho) e informe a do outro em "Idade do cônjuge". A renda de cada um entra como uma linha própria no Fluxo de caixa, e o INSS de cada um como uma renda na página Liberdade financeira.</div>
     <div class="pagenav"><button class="btn btn-tertiary" data-ir="patrimonio">Próximo: Patrimônio e premissas →</button></div>
   </section>
 
   <section class="page" data-page="patrimonio">
     <h2><svg viewBox="0 0 24 24"><path d="M3 21h18M5 21V10l7-5 7 5v11M9 21v-6h6v6"/></svg>Patrimônio e premissas</h2>
-    <div class="hint">O patrimônio financeiro de hoje é o ponto de partida do gráfico. As taxas são retornos reais líquidos ao mês: a da reserva vale para o cofre, e as dos perfis valem para o dinheiro dedicado a cada objetivo.</div>
+    <div class="hint">O patrimônio financeiro de hoje é o ponto de partida do gráfico. As taxas são retornos reais líquidos ao mês (já descontada a inflação): a da reserva vale para o patrimônio que não está reservado para objetivos, e as dos perfis valem para o dinheiro de cada objetivo. Se não souber, mantenha os valores sugeridos.</div>
     <div class="grid g4">
       <div class="field"><label>Patrimônio financeiro hoje</label><input id="f-wealth" data-money type="text" inputmode="decimal" placeholder="investimentos, poupança, conta"></div>
       <div class="field"><label>Imóveis e outros bens hoje</label><input id="f-bens" data-money type="text" inputmode="decimal" placeholder="casa, apartamentos alugados, carro"></div>
@@ -854,8 +854,8 @@ function renderTop() {
     `<div class="chip" data-ir="fluxo" title="${informada ? 'Valor informado em Patrimônio e premissas' : 'Entradas menos saídas do Fluxo de caixa, média dos próximos 12 meses'}"><span>Capacidade de poupança</span><b>${temFluxo() || informada ? fmt(cap) : '—'}</b></div>` +
     `<div class="chip" data-ir="objetivos"><span>Aportes definidos</span><b class="${pl > cap && temFluxo() ? 'low' : ''}">${fmt(pl)}</b></div>` +
     `<div class="chip"><span>Folga mensal</span><b class="${livre < 0 ? 'low' : 'good'}">${temFluxo() || informada ? fmt(livre) : '—'}</b></div>` +
-    `<div class="chip" data-ir="objetivos"><span>Objetivos fora do orçamento</span><b class="${risco && !aguardaOrcamento() ? 'low' : 'good'}">${aguardaOrcamento() || !plano.objectives.length ? '—' : risco + ' de ' + plano.objectives.length}</b></div>` +
-    `<div class="chip" data-ir="liberdade" title="${ff && ff.forced ? 'Nessa idade o patrimônio não sustenta toda a renda desejada' : ''}"><span>Liberdade financeira</span><b class="${ff && !ff.forced ? 'good' : 'low'}">${ff && plano.desired > 0 ? Math.floor(ff.age) + ' anos · ' + ENGINE.weekDate(ff.week).getFullYear() + (ff.forced ? ' · renda parcial' : '') : '—'}</b></div>`;
+    `<div class="chip" data-ir="objetivos"><span>Objetivos fora do orçamento</span><b class="${risco && !aguardaOrcamento() ? 'low' : 'good'}">${aguardaOrcamento() || !plano.objectives.length ? '—' : plano.objectives.every(o => !(o.planned > 0)) ? 'aportes a definir' : risco + ' de ' + plano.objectives.length}</b></div>` +
+    `<div class="chip" data-ir="liberdade" title="${ff && ff.forced ? 'Nessa idade o patrimônio não sustenta toda a renda desejada' : ''}"><span>Liberdade financeira</span><b class="${ff && !ff.forced ? 'good' : 'low'}">${ff && plano.desired > 0 && (temFluxo() || plano.initialWealth > 0) ? Math.floor(ff.age) + ' anos · ' + ENGINE.weekDate(ff.week).getFullYear() + (ff.forced ? ' · renda parcial' : '') : '—'}</b></div>`;
   document.getElementById('f-cap').placeholder = temFluxo() ? 'vazio: ' + fmt(media12()) + ' (média de 12 meses do Fluxo de caixa)' : 'vazio: calculada pelo Fluxo de caixa';
   // passos concluídos na barra lateral
   const vistas = plano.vistas || {};
@@ -867,8 +867,9 @@ function renderTop() {
   // "Próximo" leva ao próximo passo que ainda falta; se todos foram feitos, à Liberdade financeira
   document.querySelectorAll('.pagenav [data-ir]').forEach(b => {
     const aqui = b.closest('.page').dataset.page, depois = PAGINAS.slice(PAGINAS.indexOf(aqui) + 1);
-    const alvo = depois.find(p => !feito[p]) || 'liberdade';
-    b.dataset.ir = alvo; b.textContent = 'Próximo: ' + NOMES_PAGINA[alvo] + ' →';
+    const faltaAporte = temFluxo() && plano.objectives.some(o => !(o.planned > 0));
+    const alvo = aqui === 'fluxo' && faltaAporte ? 'objetivos' : depois.find(p => !feito[p]) || 'liberdade';
+    b.dataset.ir = alvo; b.textContent = aqui === 'fluxo' && faltaAporte ? 'Próximo: definir os aportes nos Objetivos →' : 'Próximo: ' + NOMES_PAGINA[alvo] + ' →';
   });
   const falta = [!plano.name && 'nome', !plano.age && 'idade', !(plano.desired > 0) && 'renda desejada'].filter(Boolean);
   document.getElementById('faltaCliente').innerHTML = falta.length ? `<div class="falta">Falta preencher: ${falta.join(', ')}. Depois siga para Patrimônio e premissas.</div>` : '';
@@ -883,7 +884,8 @@ function renderTop() {
     (!temFluxo() && !informada ? `<div class="note">O orçamento do cliente ainda não foi preenchido. Siga para o Fluxo de caixa; depois volte aqui para conferir se os aportes cabem. O status acima já considera o que o orçamento consegue entregar.</div>`
       : pl > cap ? `<div class="warn">Os aportes definidos somam ${fmt(pl)} e a capacidade de poupança é ${fmt(cap)}. A coluna <b>Efetivo</b> mostra o que o orçamento realmente entrega: os objetivos mais distantes ficam sem aporte e o status já considera isso.</div>`
       : plano.objectives.some(o => o.truncado) ? `<div class="warn">Hoje os aportes cabem (${fmt(pl)} de ${fmt(cap)} por mês), mas mais adiante o orçamento não comporta todos: ${plano.objectives.filter(o => o.truncado).map(o => '<b>' + esc(o.name) + '</b>').join(', ')}. O aviso no cartão diz a partir de quando e por quê.</div>`
-      : `<div class="ok-note">Os aportes definidos somam ${fmt(pl)}, dentro da capacidade de ${fmt(cap)}.</div>`);
+      : `<div class="ok-note">Os aportes definidos somam ${fmt(pl)}, dentro da capacidade de ${fmt(cap)}.</div>`) +
+    (temFluxo() && plano.objectives.some(o => !(o.planned > 0)) ? `<div class="fxcap vazio" style="margin-top:10px">Falta definir quanto guardar por mês em ${plano.objectives.filter(o => !(o.planned > 0)).length} objetivo(s). Use o valor de cada cartão ou <button class="btn btn-tertiary btn-small" data-usar-todos>usar o necessário em todos</button></div>` : '');
 }
 
 // ===================== FLUXO DE CAIXA =====================
@@ -904,7 +906,7 @@ const fx = { t0: null, t1: null, aberto: new Set(['mov', 'in', 'out', 'out_fix',
 
 function montaBaldes() {
   const W = SIM.weeks, alvo = new Date(2026, 8, 5).getTime();
-  for (let i = ENGINE.W0; i >= ENGINE.W0 - 6; i--) { const d = ENGINE.weekDate(i).getTime(); if (d <= alvo && alvo < d + 7 * 864e5) { S0 = i; break; } }
+  S0 = ENGINE.W0;   // a planilha começa hoje: o que já foi recebido ou pago este mês está no patrimônio de hoje
   const cm = i => W[i].mi + 8;   // meses desde jan/2026
   const chave = { week: i => i, month: i => W[i].mi, quarter: i => Math.floor(cm(i) / 3), year: i => Math.floor(cm(i) / 12), multi: i => Math.floor(cm(i) / 48), decade: i => Math.floor(cm(i) / 120) };
   BALDES = {};
@@ -1004,6 +1006,7 @@ const novoId = p => p + Date.now().toString(36) + Math.random().toString(36).sli
 // data (aaaa-mm-dd) <-> mês do motor: dias 1 a 4 ainda pertencem ao ciclo do mês anterior
 const miDaData = iso => { const [y, m, d] = iso.split('-').map(Number); return Math.max(0, (y - 2026) * 12 + (m - 1) - 8 - (d < 5 ? 1 : 0)); };
 const dataDoMi = (mi, d) => { const { y, m } = anoMes(mi); const dt = new Date(y, m + (d < 5 ? 1 : 0), d); return dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0'); };
+const HOJE_ISO = '2026-09-19';   // hoje, no protótipo
 const mesDoInput = v => { const [y, m] = v.split('-').map(Number); return Math.max(0, (y - MES0.y) * 12 + (m - 1 - MES0.m)); };
 const diaMes = dt => dt.d + '/' + MESES[dt.m];
 
@@ -1160,7 +1163,7 @@ function renderFluxo() {
   capEl.innerHTML = !temFluxo()
     ? '<div class="fxcap vazio">Comece pelas <b>Entradas</b>: clique no <b>+</b> ao lado de Entradas e cadastre cada renda do cliente. Depois cadastre as despesas em Fixas e Ajustáveis.</div>'
     : `<div class="fxcap${pl > cap ? ' warn' : ''}">Capacidade de poupança: <b>${fmt(cap)}/mês</b> (entradas menos saídas, média dos próximos 12 meses). Aportes definidos nos objetivos: <b>${fmt(pl)}/mês</b>.${pl > cap ? ' Os aportes não cabem no orçamento.' : ''}` +
-      (plano.objectives.length ? '<button class="btn btn-secondary btn-small" data-ir="objetivos">Ajustar aportes nos Objetivos</button>' : '') + '</div>';
+      (plano.objectives.some(o => !(o.planned > 0)) ? ' Próximo passo: definir quanto guardar para cada objetivo (botão no fim da página).' : '') + '</div>';
   const ent = incomeTotal(0), sai = livingTotal(0);
   document.getElementById('fxResumo').innerHTML = 'Depois da liberdade financeira, a renda do trabalho para e as despesas se ajustam à renda disponível.';
 }
@@ -1225,7 +1228,7 @@ function renderGoals() {
           <div class="field"><label>Valor (R$/mês)</label><input data-money type="text" inputmode="decimal" data-g="${i}" data-k="recValue" value="${rec && rec.value ? money(rec.value) : ''}" placeholder="R$ 0,00"></div>
           <div class="field"><label>Prazo (meses, vazio = indeterminado)</label><input type="number" step="12" data-g="${i}" data-k="recMonths" value="${rec && rec.months != null ? rec.months : ''}"></div>
           <div class="field"><label>Descrição no fluxo de caixa</label><input data-g="${i}" data-k="recLabel" value="${esc(rec ? rec.label : '')}" placeholder="ex.: Financiamento da casa"></div>
-          <div class="field"><label>Quanto da parcela é amortização (%)</label><input type="number" step="5" min="0" max="100" data-g="${i}" data-k="recAmort" value="${rec && rec.amort ? Math.round(rec.amort * 100) : ''}" placeholder="0 se não for financiamento"><div class="deriv">Num financiamento, a amortização vira patrimônio em bens e só os juros são despesa. Condomínio e IPTU: 0.</div></div>
+          <div class="field"><label>Quanto da parcela é amortização (%)</label><input type="number" step="5" min="0" max="100" data-g="${i}" data-k="recAmort" value="${rec && rec.amort ? Math.round(rec.amort * 100) : ''}" placeholder="0 se não for financiamento"><div class="deriv">Num financiamento, a amortização vira patrimônio em bens e só os juros são despesa. Use a média do prazo todo: valor financiado ÷ soma de todas as parcelas. Condomínio e IPTU: 0.</div></div>
         </div>
       </details>
 
@@ -1254,7 +1257,8 @@ const ffInfo = () => { const ff = SIM && SIM.ff; return ff ? { ff, mi: SIM.weeks
 const quandoMes = mi => monthsLabel(mi) + ', aos ' + Math.floor(ENGINE.CURRENT_AGE + mi / 12) + ' anos';
 const ffMi = () => { const f = ffInfo(); return f ? f.mi : 0; };
 const inicioDaRenda = p => ENGINE.inicioRenda(p, ffMi());   // mês em que a renda começa, pela simulação atual
-const fimDaRenda = p => p.dur == null ? 'até o fim da vida' : 'termina em ' + quandoMes(inicioDaRenda(p) + p.dur - 1);
+const quandoRenda = (p, mi) => p.startMi != null ? monthsLabel(mi) + ', ' + (p.pessoa === 'conjuge' && +plano.spouseAge ? 'cônjuge' : 'titular') + ' com ' + Math.floor(idadeDe(p.pessoa) + mi / 12) + ' anos' : quandoMes(mi);
+const fimDaRenda = p => p.dur == null ? 'até o fim da vida' : 'termina em ' + quandoRenda(p, inicioDaRenda(p) + p.dur - 1);
 const passivaDoFluxo = mi => plano.incomes.reduce((a, c) => a + (ENGINE.ativo(c) ? 0 : ENGINE.mensalizado(c, mi)), 0);
 function renderLiberdade() {
   const tb = document.getElementById('tbPas'), f = ffInfo();
@@ -1263,8 +1267,8 @@ function renderLiberdade() {
     <tr class="clic" data-pas="${i}">
       <td class="txt">${esc(p.name || 'sem nome')}<small>${esc(p.origin || '')}</small></td>
       <td class="txt num">${fmt(p.net)}</td>
-      <td class="txt">${quandoMes(inicioDaRenda(p))}<small>${p.startMi != null ? 'data fixa' : p.start ? p.start + ' meses depois da liberdade' : 'na liberdade financeira'}</small></td>
-      <td class="txt">${p.dur == null ? 'Vitalícia' : quandoMes(inicioDaRenda(p) + p.dur - 1)}<small>${p.dur == null ? 'até o fim da vida' : p.dur + ' meses de duração'}</small></td>
+      <td class="txt">${quandoRenda(p, inicioDaRenda(p))}<small>${p.startMi != null ? 'data fixa' : p.start ? p.start + ' meses depois da liberdade' : 'na liberdade financeira'}</small></td>
+      <td class="txt">${p.dur == null ? 'Vitalícia' : quandoRenda(p, inicioDaRenda(p) + p.dur - 1)}<small>${p.dur == null ? 'até o fim da vida' : p.dur + ' meses de duração'}</small></td>
       <td class="txt num">${fmt(p.cost)}</td>
     </tr>`).join('');
   const custo = plano.passive.reduce((a, p) => a + (+p.cost || 0), 0);
@@ -1373,6 +1377,7 @@ function armar(b, acao) {
 document.addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
   if (b.dataset.delG != null) { armar(b, () => plano.objectives.splice(+b.dataset.delG, 1)); return; }
+  if (b.dataset.usarTodos != null) { plano.objectives.forEach(o => { if (!(o.planned > 0)) o.planned = Math.ceil(o.required); }); renderAll(); return; }
   if (b.dataset.usarNec != null) { const o = plano.objectives[+b.dataset.usarNec]; o.planned = Math.ceil(o.required); renderAll(); return; }
 });
 
@@ -1499,7 +1504,7 @@ function criarLinha(alvo, b, d) {
   const semana = fx.nivel === 'week', k = semana ? kDaSemana(b) : 1;
   const dia = !semana || k === 1 ? 5 : ENGINE.weekDate(b.w0).getDate();
   const it = { id: novoId(alvo === 'inc' ? 'ent' : 'cat'), label: d.nome || 'Nova linha', frequency: d.fq, steps: [{ from: b.mi0, value: d.v }], description: '' };
-  if (d.fq === 'pontual') { it.days = [dia]; it.date = dataDoMi(b.mi0, dia); }
+  if (d.fq === 'pontual') { const iso = dataDoMi(b.mi0, dia) < HOJE_ISO ? HOJE_ISO : dataDoMi(b.mi0, dia); it.days = [+iso.slice(8)]; it.date = iso; it.steps[0].from = miDaData(iso); }
   else if (d.fq === 'mensal') it.days = [dia];
   else if (d.fq === 'semanal') it.weekday = ENGINE.weekDate(b.w0).getDay();
   else if (d.fq === 'anual') it.dates = [{ m: (anoMes(b.mi0).m + (dia < 5 ? 1 : 0)) % 12, d: dia }];
@@ -1634,8 +1639,8 @@ function htmlLinha(it) {
       <input type="number" id="gvDia" min="1" max="31" value="5" style="width:62px"><select id="gvMes">${MESES.map((m, i) => opt(i, m, 0)).join('')}</select><button class="btn btn-secondary btn-small" data-gv-adddata>+ data</button></div>`);
     else {
       const dias = diasDe(it);
-      h += campo('Dias do mês' + (gaveta.diaPadrao ? ' <em>dia sugerido: o primeiro que você adicionar o substitui</em>' : ''), `<div class="chipset">${dias.map((d, j) => `<span class="chipd">dia ${d}<button data-gv-rmdia="${j}" title="Remover">×</button></span>`).join('')}
-        <input type="number" id="gvDia" min="1" max="31" placeholder="dia" style="width:70px"><button class="btn btn-secondary btn-small" data-gv-adddia>+ dia</button></div>`);
+      h += campo(dias.length > 1 ? 'Dias do mês <em>cada dia recebe o valor inteiro</em>' : 'Dia do mês', `<div class="chipset">${dias.map((d, j) => `<span class="chipd">dia ${d}${dias.length > 1 ? `<button data-gv-rmdia="${j}" title="Remover este dia">×</button>` : ''}</span>`).join('')}
+        <input type="number" id="gvDia" min="1" max="31" placeholder="novo dia" style="width:90px">${dias.length <= 1 ? '<button class="btn btn-secondary btn-small" data-gv-trocadia>Trocar o dia</button>' : ''}<button class="btn btn-secondary btn-small" data-gv-adddia>+ outro dia</button></div>`);
       h += '<div class="deriv" style="margin:-4px 0 10px">Valores diferentes em dias diferentes, como adiantamento no dia 20 e saldo no dia 5? Cadastre uma linha para cada.</div>';
       if (!dias.length) h += `<div class="deriv">Sem dia definido: ${it.week === 0 ? 'o valor é diluído nas quatro semanas do mês' : 'cai na ' + (it.week || 1) + 'ª semana do mês'}.</div>`;
     }
@@ -1678,7 +1683,7 @@ function htmlRenda(p) {
   }
   h += `<div class="row2">${campo('Duração (meses, vazio = vitalícia)', `<input type="number" step="12" min="1" data-gvr="dur" value="${p.dur == null ? '' : p.dur}"><div class="deriv" id="gvFim">${fimDaRenda(p)}</div>`)}` +
     campo('Custo de contratação (R$)', `<input data-gvr="cost" data-money type="text" inputmode="decimal" value="${p.cost ? money(p.cost) : ''}" placeholder="0 para o INSS"><div class="deriv">Parte do patrimônio usada para contratar a renda na liberdade financeira.</div>`) + `</div>`;
-  h += `<div class="deriv">${fixa ? 'Idade ou data fixa: não muda quando a liberdade financeira muda.' : f ? 'Acompanha a liberdade financeira da simulação atual: ' + monthsLabel(f.mi) + ', aos ' + Math.floor(f.ff.age) + ' anos. Se ela mudar, as datas mudam junto.' : ''}</div>`;
+  h += `<div class="deriv" id="gvFF">${fixa ? 'Idade ou data fixa: não muda quando a liberdade financeira muda.' : f ? 'Acompanha a liberdade financeira da simulação atual: ' + monthsLabel(f.mi) + ', aos ' + Math.floor(f.ff.age) + ' anos. Se ela mudar, as datas mudam junto.' : ''}</div>`;
   return h + rodape();
 }
 const fraseRenda = p => money(p.net) + ' líquidos por mês, a partir de ' + (p.startMi != null ? monthsLabel(p.startMi) + ', quando ' + quemTexto(p.pessoa) + ' terá ' + Math.floor(idadeDe(p.pessoa) + p.startMi / 12) + ' anos' : quandoMes(inicioDaRenda(p))) + (p.dur == null ? ', até o fim da vida' : ', até ' + quandoMes(inicioDaRenda(p) + p.dur - 1)) + '. Custo de contratação: ' + money(p.cost) + '.';
@@ -1691,7 +1696,13 @@ function campoGaveta(e) {
   if (e.type === 'input' && (t.type === 'month' || t.type === 'date' || t.type === 'number')) return;
   const k = t.dataset.gv, kr = t.dataset.gvr, sm = t.dataset.gvsM, sv = t.dataset.gvsV;
   if (kr) {                                                   // renda contratada
-    if (kr === 'name' || kr === 'origin') it[kr] = t.value;
+    if (kr === 'name') { it.name = t.value; const h3 = gavetaEl.querySelector('.dh h3'); if (h3) h3.lastChild.textContent = t.value || 'Nova renda'; }
+    else if (kr === 'origin') {
+      it.origin = t.value;
+      if (t.value === 'INSS' && it.startMi == null) { it.startMi = Math.max(0, Math.round((65 - idadeDe(it.pessoa)) * 12)); delete it.start; avisoGaveta('O INSS começa numa idade fixa: coloquei 65 anos. Ajuste abaixo se for outra idade.'); }
+      else if (t.value !== 'INSS' && t.value !== 'Outra' && it.startMi != null && gaveta.novo) { delete it.startMi; it.start = 0; }
+      renderAll(); renderGaveta(); return;
+    }
     else if (kr === 'pessoa') { const ini = it.startMi; it.pessoa = t.value; renderAll(); renderGaveta(); return; }
     else if (kr === 'idadeIni') { const a = +t.value; if (!(a >= 18 && a <= 100)) return; it.startMi = Math.max(0, Math.round((a - idadeDe(it.pessoa)) * 12)); renderAll(); renderGaveta(); return; }
     else if (kr === 'dur') it.dur = t.value === '' ? null : Math.max(1, +t.value);
@@ -1707,12 +1718,19 @@ function campoGaveta(e) {
     renderAll();
     document.getElementById('gvIni').textContent = it.startMi != null ? quemTexto(it.pessoa) + ' terá ' + Math.floor(idadeDe(it.pessoa) + it.startMi / 12) + ' anos' : quandoMes(inicioDaRenda(it));
     document.getElementById('gvFim').textContent = fimDaRenda(it);
+    const ffEl = document.getElementById('gvFF'), f2 = ffInfo(); if (ffEl && it.startMi == null && f2) ffEl.textContent = 'Acompanha a liberdade financeira da simulação atual: ' + monthsLabel(f2.mi) + ', aos ' + Math.floor(f2.ff.age) + ' anos. Se ela mudar, as datas mudam junto.';
     atualizaFrase(); return;
   }
   if (sm) { const s = it.steps[+sm]; if (s && t.value) { s.from = Math.max(it.steps[0].from + 1, mesDoInput(t.value)); it.steps.sort((a, b) => a.from - b.from); renderAll(); renderGaveta(); } return; }
   if (sv) { const s = it.steps[+sv]; if (s) s.value = unmoney(t.value); renderAll(); atualizaFrase(); return; }
   if (!k) return;
-  if (k === 'label' || k === 'description') { it[k] = t.value; save(); if (k === 'label') { renderFluxo(); atualizaFrase(); } return; }
+  if (k === 'label' || k === 'description') { it[k] = t.value; save(); if (k === 'label') { renderFluxo(); atualizaFrase(); const h3 = gavetaEl.querySelector('.dh h3'); if (h3) h3.lastChild.textContent = t.value || 'Nova linha'; } return; }
+  if (k === 'origin' && t.value !== '__pas') {                 // a categoria já diz se a renda é do trabalho ou do patrimônio
+    it.origin = t.value;
+    if (['Aluguéis', 'Rendimentos recorrentes'].includes(t.value)) it.kind = 'passiva';
+    else if (t.value !== 'Outras receitas') it.kind = 'ativa';
+    renderAll(); renderGaveta(); return;
+  }
   if (k === 'origin' && t.value === '__pas') {               // virou renda contratada na aposentadoria
     const arr = plano.incomes; arr.splice(arr.indexOf(it), 1);
     plano.passive.push({ name: it.label, origin: 'Contratada na aposentadoria', gross: it.steps[0].value, tax: 0, net: it.steps[0].value, start: 0, dur: null, cost: 0, converted: false });
@@ -1742,7 +1760,7 @@ function campoGaveta(e) {
 gavetaEl.addEventListener('input', campoGaveta);
 gavetaEl.addEventListener('keydown', e => {
   if (e.key !== 'Enter' || e.target.id !== 'gvDia') return;
-  e.preventDefault(); const b = gavetaEl.querySelector('[data-gv-adddia], [data-gv-adddata]'); if (b) b.click();
+  e.preventDefault(); const b = gavetaEl.querySelector('[data-gv-trocadia]') || gavetaEl.querySelector('[data-gv-adddia], [data-gv-adddata]'); if (b) b.click();
 });
 
 gavetaEl.addEventListener('change', e => {
@@ -1771,7 +1789,7 @@ gavetaEl.addEventListener('click', e => {
   if (!it) return;
   if (ds.gvp) {                                                // pontual ou recorrente
     const d0 = (it.days && it.days[0]) || 5;
-    if (ds.gvp === 'pontual') { it.frequency = 'pontual'; it.steps = [it.steps[0]]; it.days = [d0]; it.date = dataDoMi(it.steps[0].from, d0); }
+    if (ds.gvp === 'pontual') { let iso = dataDoMi(it.steps[0].from, d0); if (iso < HOJE_ISO) iso = HOJE_ISO; it.frequency = 'pontual'; it.steps = [it.steps[0]]; it.steps[0].from = miDaData(iso); it.days = [+iso.slice(8)]; it.date = iso; }
     else if (it.frequency === 'pontual') { it.frequency = 'mensal'; it.days = [d0]; delete it.date; delete it.week; }
   } else if (ds.gvf) {                                         // semanal, mensal ou anual
     const d0 = (it.days && it.days[0]) || 5;
@@ -1779,11 +1797,11 @@ gavetaEl.addEventListener('click', e => {
     if (ds.gvf === 'mensal' && !(it.days && it.days.length)) it.days = [d0];
     if (ds.gvf === 'anual' && !Array.isArray(it.dates)) it.dates = [];
     if (ds.gvf === 'semanal' && it.weekday == null) it.weekday = 6;
-  } else if (ds.gvAdddia != null) {
-    const d = Math.min(31, Math.max(1, +gavetaEl.querySelector('#gvDia').value || 0)); if (!+gavetaEl.querySelector('#gvDia').value) return;
-    it.days = gaveta.diaPadrao ? [d] : [...new Set([...diasDe(it), d])].sort((a, b) => a - b);
-    gaveta.diaPadrao = false;
-  } else if (ds.gvRmdia != null) { const ds2 = diasDe(it).slice(); if (ds2.length > 1) { ds2.splice(+ds.gvRmdia, 1); it.days = ds2; } else { avisoGaveta('Toda linha mensal precisa de um dia. Para trocar o dia, escreva o novo dia, clique em + dia e depois remova o antigo.'); return; } }
+  } else if (ds.gvAdddia != null || ds.gvTrocadia != null) {
+    const d = Math.min(31, Math.max(1, +gavetaEl.querySelector('#gvDia').value || 0)); if (!+gavetaEl.querySelector('#gvDia').value) { avisoGaveta('Escreva o dia no campo ao lado antes de clicar.'); return; }
+    it.days = ds.gvTrocadia != null ? [d] : [...new Set([...diasDe(it), d])].sort((a, b) => a - b);
+    avisoGaveta(ds.gvTrocadia != null ? '' : 'Agora a linha acontece ' + it.days.length + ' vezes por mês, com o valor inteiro em cada dia.');
+  } else if (ds.gvRmdia != null) { const ds2 = diasDe(it).slice(); if (ds2.length > 1) { ds2.splice(+ds.gvRmdia, 1); it.days = ds2; } else { avisoGaveta('Toda linha mensal precisa de um dia. Para trocar, use Trocar o dia.'); return; } }
   else if (ds.gvAdddata != null) {
     const d = Math.min(31, Math.max(1, +gavetaEl.querySelector('#gvDia').value || 5)), m = +gavetaEl.querySelector('#gvMes').value;
     it.dates = (it.dates || []).filter(x => !(x.m === m && x.d === d)).concat([{ m, d }]).sort((a, b) => a.m - b.m || a.d - b.d);

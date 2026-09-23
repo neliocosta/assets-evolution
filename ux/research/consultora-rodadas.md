@@ -74,3 +74,22 @@ Corrigido para a rodada 4:
 - Cartão de objetivo mais curto: custo mensal depois de realizado e apresentação ao cliente (estratégia, foto,
   ícone) em blocos opcionais; "patrimônio já reservado" mostra quanto ainda está livre para reservar.
 - Mês da planilha mostra as datas reais das semanas que o formam.
+
+## Rodada 4 — REPROVADO
+
+9 dúvidas (eram 11), nenhuma bloqueante, nenhum erro de script; a consultora conferiu de cabeça 2026 e 2027 dos
+três clientes e tudo bateu. A principal: mudar o dia de uma linha existente somava um segundo dia e dobrava o
+valor sem aviso.
+
+Corrigido para a rodada 5:
+- Dia do mês: "Trocar o dia" e "+ outro dia" são escolhas explícitas; com dois dias, a tela diz que cada dia
+  recebe o valor inteiro.
+- A categoria define ativa ou passiva (Aluguéis e Rendimentos → passiva); a origem INSS já marca idade fixa
+  aos 65, com aviso; a tabela da Liberdade mostra a idade de quem recebe (titular ou cônjuge).
+- Depois do Fluxo, um só próximo passo ("definir os aportes nos Objetivos") e "usar o necessário em todos";
+  o indicador diz "aportes a definir" em vez de "fora do orçamento".
+- Liberdade financeira no topo só depois de haver patrimônio ou fluxo. Textos sobre a reserva, a amortização
+  (média do prazo) e a idade de referência do casal.
+- A planilha começa hoje (o que já foi recebido está no patrimônio); a data sugerida de um pontual nunca é
+  passada; título da gaveta acompanha o nome.
+- Visão do cliente: a linha de bens sobe na compra, não antes; a dica some ao dar zoom.

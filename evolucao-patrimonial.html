@@ -572,7 +572,8 @@ const smoothVal = (s, key, i, h) => { const a = Math.max(W0, i - h), b = Math.mi
 // janela da média móvel: no mínimo um mês, para que a entrada do salário não apareça como salto do patrimônio.
 // A mesma janela vale para o desenho e para o hover, então curva e números sempre coincidem.
 const smoothH = () => Math.round(Math.max(2, Math.min(26, tSpan(state.view) * 3)));
-const SV = (key, i) => smoothVal(sim(), key, i, smoothH());
+// bens e participações mudam em degrau (compra, venda): sem média, para a linha não subir antes da compra
+const SV = (key, i) => key === 'bens' || key === 'part' ? readW(sim().weeks[Math.max(W0, Math.min(NW - 1, i))], key) : smoothVal(sim(), key, i, smoothH());
 
 // --- Escalas ---
 const K_T = 6;                       // compressão log do tempo (anos): u = sign(t)·ln(1+|t|/K)
@@ -994,6 +995,7 @@ addEventListener('mouseup', () => {
   state.drag = null; cv.classList.remove('drag');
 });
 cv.addEventListener('wheel', e => {
+  tip.style.display = 'none';   // o ponto sob o cursor muda com o zoom: a dica some até o mouse mexer de novo
   e.preventDefault();
   if (e.offsetY >= rowsTop - 24) { state.rowScroll = Math.max(0, state.rowScroll + e.deltaY * 0.5); return; } // sobre a tabela: rola a tabela, não o zoom
   if (locked()) return;
