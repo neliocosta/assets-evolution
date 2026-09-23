@@ -754,7 +754,7 @@ function draw() {
   const step = Math.max(1, Math.floor((w1 - w0) / (PW * 1.2)));
   // ordem de baixo para cima: participações → bens → financeiro
   const series = state.viewKind === 'total' ? [['part', C.part, CF.part], ['bens', C.bens, CF.bens], ['fin', C.fin, CF.fin]] : [['fin', C.fin, CF.fin]];
-  const h = smoothH(), val = (key, i) => smoothVal(s, key, i, h);
+  const h = smoothH(), val = (key, i) => key === 'bens' || key === 'part' ? readW(s.weeks[Math.max(W0, Math.min(NW - 1, i))], key) : smoothVal(s, key, i, h);   // bens mudam em degrau, sem média
   const hoverPts = [];
   const drawStack = (a, b, alpha) => {
     if (b < a) return;

@@ -111,3 +111,21 @@ Corrigido para a rodada 6:
 - Motor: nada antes de hoje entra no fluxo; planilha e visão do cliente têm o mesmo ano corrente.
 - Primeira coluna não corta o número; "Voltar para hoje" volta o zoom; financiamento mostra "(juros)";
   a Liberdade lembra de conferir as rendas de aposentadoria e explica o que o patrimônio sustenta.
+
+## Rodada 6 — REPROVADO
+
+8 dúvidas pequenas, nenhuma bloqueante; a visão do cliente bateu nos três clientes. As que ela considerou mais
+importantes: "Trocar o dia" não fazia nada com o campo vazio, e não havia onde achar a frequência semestral. As
+demais: o aviso "Entradas cadastradas" aparecia com uma linha ainda vazia; "Consumo / Vira bem" sem explicação;
+colunas nas bordas da planilha cortadas ou vazias; liberdade no topo antes de haver renda; participações sem
+dizer se contam; pontual com data recusada continuava contando.
+
+Corrigido para a rodada 7:
+- O dia do mês é um campo editável; "+ outro dia" acrescenta, e sem dia digitado o campo é destacado.
+- A frequência anual virou "Em datas do ano", com o exemplo de semestral (30/jun e 30/dez) e de parcelas.
+- Linha sem valor não conta como cadastrada; "Próximo" não pula páginas no plano de exemplo.
+- "Consumo" e "Vira bem" explicados; liberdade no topo só com renda cadastrada; a Liberdade diz que imóveis e
+  participações não pagam a renda desejada.
+- Pontual com data recusada deixa de contar até ter uma data válida.
+- Colunas recortadas nas duas bordas; coluna estreita não mostra número cortado.
+- Visão do cliente: o gráfico também desenha bens e participações sem média, então a linha sobe na compra.
