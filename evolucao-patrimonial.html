@@ -213,7 +213,6 @@ const ENGINE = (() => {
     { name: 'INSS', origin: 'Contribuições previdenciárias', gross: 5000, tax: 800, net: 4200, start: 60, dur: null, cost: 0, converted: false },
   ];
   const passiveAt = mm => PASSIVE.filter(p => mm >= p.start && (p.dur == null || mm < p.start + p.dur));
-  const gapAt = mm => Math.max(0, DESIRED - passiveAt(mm).reduce((s, p) => s + p.net, 0));
   const annuityCost = () => PASSIVE.reduce((s, p) => s + p.cost, 0);
 
   // Padrão semanal de despesas (base mensal R$ 12.500 = 9.500 de vida + 3.000 de moradia)
@@ -222,7 +221,8 @@ const ENGINE = (() => {
   // Uma renda é ativa (trabalho) ou passiva (patrimônio). O fluxo usa sempre o valor líquido,
   // que é o que está nos degraus; o bruto e o resto são cadastro.
   const ORIGENS = ['Salário', 'Pró-labore', 'Distribuição de lucros', 'Bônus', 'Comissões', 'Rendimentos recorrentes', 'Outras receitas'];
-  const FREQ = { mensal: 1, trimestral: 3, semestral: 6, anual: 12, pontual: 0 };
+  // meses entre ocorrências; semanal e anual com datas têm regra própria em ocorrencias()
+  const FREQ = { semanal: 1, mensal: 1, trimestral: 3, semestral: 6, anual: 12, pontual: 0 };
   let INCOMES = [
     { id: 'salario', label: 'Salário da família', kind: 'ativa', origin: 'Salário', gross: 19500, frequency: 'mensal',
       day: 5, description: 'Salário líquido somado do casal.', taxable: true,
@@ -232,6 +232,8 @@ const ENGINE = (() => {
       steps: [{ from: 6, value: 12000 }] },
   ];
   let EXPENSES = [
+    // o aluguel deixa de existir quando o objetivo indicado em endObj é realizado
+    { id: 'moradia', label: 'Moradia (aluguel)', group: 'fix', week: 1, endObj: 'casa', steps: [{ from: 0, value: 3000 }] },
     { id: 'carro', label: 'Carro (2º veículo)', group: 'fix', week: 2, frequency: 'mensal', steps: [{ from: 0, value: 1000 }] },
     { id: 'iptu', label: 'IPTU', group: 'fix', week: 1, frequency: 'anual', steps: [{ from: 4, value: 3200 }] },
     { id: 'ingles', label: 'Curso de inglês', group: 'fix', week: 2, steps: [{ from: 0, value: 800 }, { from: 36, value: 0 }] },
@@ -241,31 +243,78 @@ const ENGINE = (() => {
     { id: 'mercado', label: 'Mercado', group: 'adj', week: 0, steps: [{ from: 0, value: 2700 }] },
     { id: 'lazer', label: 'Lazer', group: 'adj', week: 0, steps: [{ from: 0, value: 1600 }] },
   ];
-  let RENT_BASE = 3000;
   const sortSteps = it => { it.steps = (it.steps || []).slice().sort((a, b) => a.from - b.from); return it; };
   // valor de um item no mês mm (0 = hoje); antes do primeiro degrau, zero
   const stepAt = (it, mm) => { let v = 0; for (const st of it.steps) { if (mm >= st.from) v = +st.value || 0; else break; } return v; };
   const inicio = it => (it.steps && it.steps.length) ? it.steps[0].from : 0;
-  // o item acontece neste mês? mensal todo mês; trimestral a cada 3 a partir do primeiro degrau; pontual uma única vez
-  const aconteceEm = (it, mm) => {
-    const per = FREQ[it.frequency || 'mensal'];
-    if (per === 0) return mm === inicio(it);
-    return mm >= inicio(it) && ((mm - inicio(it)) % per === 0);
-  };
-  const valorEm = (it, mm) => aconteceEm(it, mm) ? stepAt(it, mm) : 0;
-  // equivalente mensal, para orçamento: uma anual de 12 mil pesa 1 mil por mês
-  const mensalizado = (it, mm) => { const per = FREQ[it.frequency || 'mensal']; return per ? stepAt(it, mm) / per : 0; };
-  // semana do ciclo em que o item cai (1 = semana do pagamento); 0 mantém o sentido de "diluído"
+  // O mês do motor começa no salário do dia 5. Um dia do calendário cai na semana (1 a 4) contada a partir dali;
+  // dias 1 a 4 fecham o ciclo anterior e caem na semana 4. O mês do ciclo de uma data d/m é m, ou m−1 se d < 5.
+  const semanaDoDia = d => Math.min(4, Math.max(1, Math.floor(((+d || 5) - 5 + 31) % 31 / 7) + 1));
+  const mesDoCiclo = mm => ((mm + 8) % 12 + 12) % 12;          // 0 = janeiro
+  const cicloDaData = (m, d) => (d >= 5 ? m : (m + 11) % 12);
+  // semana do ciclo em que o item cai (formato antigo, com um único dia ou semana)
   const semanaDe = it => { if (+it.week === 0 && it.week !== undefined && !it.day) return 0; const d = +it.day || 5; return Math.min(4, Math.max(1, Math.ceil(d / 7.75))); };
-  const livingAt = mm => EXPENSES.reduce((a, c) => a + mensalizado(c, mm), 0);
+  // Ocorrências do item no mês mm: lista de { k: semana do ciclo (1 a 4), v: valor de cada ocorrência }.
+  //   pontual   uma vez, no mês do primeiro degrau
+  //   semanal   as quatro semanas do ciclo
+  //   mensal    em cada dia de `days` (ex.: [5, 20]); sem `days`, usa `week`/`day` do formato antigo
+  //   anual     em cada data de `dates` (ex.: [{m:0,d:5}] = 5 de janeiro); sem `dates`, a cada 12 meses do início
+  // `exc` guarda ajustes de uma só ocorrência: chave "mm" vale para o mês inteiro, "mm:k" só para a semana k.
+  // Formato antigo: despesa cai na semana `week` (0 = diluída nas quatro); renda cai na semana do dia `day`.
+  const semanaAntiga = (it, saida) => saida ? (+it.week || 0) : semanaDe(it);
+  const ocorrencias = (it, mm, saida) => {
+    const out = [], fq = it.frequency || 'mensal', ini = inicio(it), temDias = it.days && it.days.length;
+    const k0 = temDias ? semanaDoDia(it.days[0]) : (semanaAntiga(it, saida) || 1);   // semana de uma ocorrência avulsa
+    let diluido = false;
+    if (mm >= ini) {
+      const v = stepAt(it, mm);
+      if (fq === 'pontual') { if (mm === ini) out.push({ k: +it.week || k0, v }); }
+      else if (fq === 'semanal') [1, 2, 3, 4].forEach(k => out.push({ k, v }));
+      else if (fq === 'anual' && it.dates && it.dates.length) it.dates.forEach(dt => { if (cicloDaData(dt.m, dt.d) === mesDoCiclo(mm)) out.push({ k: semanaDoDia(dt.d), v }); });
+      else if ((mm - ini) % (FREQ[fq] || 1) === 0) {
+        if (temDias) it.days.forEach(d => out.push({ k: semanaDoDia(d), v }));
+        else { const k = semanaAntiga(it, saida); if (k === 0) { diluido = true; [1, 2, 3, 4].forEach(kk => out.push({ k: kk, v: v / 4 })); } else out.push({ k, v }); }
+      }
+    }
+    const exc = it.exc;
+    if (exc) {
+      if (exc[mm] != null) {
+        if (out.length) out.forEach(o => { o.v = diluido ? +exc[mm] / 4 : +exc[mm]; });
+        else out.push({ k: k0, v: +exc[mm] });
+      }
+      for (let k = 1; k <= 4; k++) {
+        const x = exc[mm + ':' + k]; if (x == null) continue;
+        const o = out.filter(o => o.k === k);
+        if (o.length) o.forEach(o => { o.v = +x; }); else out.push({ k, v: +x });
+      }
+    }
+    return out.filter(o => o.v);
+  };
+  const valorEm = (it, mm, saida) => ocorrencias(it, mm, saida).reduce((a, o) => a + o.v, 0);
+  const aconteceEm = (it, mm, saida) => ocorrencias(it, mm, saida).length > 0;
+  // equivalente mensal, para orçamento: uma anual de 12 mil pesa 1 mil por mês; pontual e ajustes não entram na média
+  const mensalizado = (it, mm) => {
+    const fq = it.frequency || 'mensal', v = stepAt(it, mm);
+    if (fq === 'pontual') return 0;
+    if (fq === 'semanal') return v * 4;
+    if (fq === 'anual' && it.dates && it.dates.length) return v * it.dates.length / 12;
+    return v * (it.days && it.days.length ? it.days.length : 1) / (FREQ[fq] || 1);
+  };
+  const ativo = it => (it.kind || 'ativa') !== 'passiva';
   const incomeAt = mm => INCOMES.reduce((a, c) => a + mensalizado(c, mm), 0);
+  const passiveIncomeAt = mm => INCOMES.reduce((a, c) => a + (ativo(c) ? 0 : mensalizado(c, mm)), 0);
   const pmt = (pv, i, n) => pv * i / (1 - Math.pow(1 + i, -n));
 
   function run(mode) {
     const weeks = new Array(NW), events = [];
     let cofre = 0, obj = OBJ.map(() => 0), done = OBJ.map(() => false), bens = 0, part = PART_VALUE;
-    let offset = 99, streams = [], houseOwned = false, ff = null, prevActive = '', allocated = false;
+    let offset = 99, streams = [], ff = null, prevActive = '', allocated = false, ks = [];
     const recurTotal = () => streams.reduce((a, st) => a + (st.left === 0 ? 0 : st.value), 0);
+    // despesa com endObj (o aluguel, por exemplo) deixa de existir quando aquele objetivo é realizado
+    const encerrada = c => { if (!c.endObj) return false; const k = OBJ.findIndex(o => o.id === c.endObj); return k >= 0 && done[k]; };
+    const livingAt = mm => EXPENSES.reduce((a, c) => a + (encerrada(c) ? 0 : mensalizado(c, mm)), 0);
+    // falta mensal para a renda desejada no mês mm depois da liberdade, que começa no mês do motor mi0
+    const gapAt = (mm, mi0) => Math.max(0, DESIRED - passiveAt(mm).reduce((s, p) => s + p.net, 0) - passiveIncomeAt(mi0 + mm));
     let m = null; // contexto do mês corrente
     const fin = () => cofre + obj.reduce((a, b) => a + b, 0);
     const add = (f, k, v) => { f[k] = (f[k] || 0) + v; };
@@ -273,16 +322,14 @@ const ENGINE = (() => {
     const transfer = (f, fromKey, toKey, v) => { add(f, fromKey, -v); add(f, toKey, v); };
 
     const doOffset = (k, i, f) => {
-      EXPENSES.forEach(c => {                       // cada categoria cai na semana configurada
-        const devido = valorEm(c, m.mIdx) * m.scale;
-        if (devido <= 0) return;
-        const w = +c.week || 0, val = w === 0 ? devido / 4 : (w === k ? devido : 0);
-        if (val > 0) add(f, 'out_' + c.group + '_' + c.id, val);
+      ks.push(k);
+      EXPENSES.forEach(c => {                       // cada ocorrência cai na sua semana do ciclo
+        if (encerrada(c)) return;
+        ocorrencias(c, m.mIdx, true).forEach(o => { if (o.k === k && o.v > 0) add(f, 'out_' + c.group + '_' + c.id, o.v * m.scale); });
       });
-      INCOMES.forEach(c => {                        // a renda cai na semana do seu dia de recebimento
-        if (semanaDe(c) !== k) return;
-        const v = valorEm(c, m.mIdx);
-        if (v > 0) add(f, 'in_' + c.id, v);
+      INCOMES.forEach(c => {                        // na liberdade financeira o trabalho para; rendas passivas continuam
+        if (ff && ativo(c)) return;
+        ocorrencias(c, m.mIdx, false).forEach(o => { if (o.k === k && o.v > 0) add(f, 'in_' + c.id, o.v); });
       });
       if (k === 1) {
         streams.forEach(st => {
@@ -292,7 +339,6 @@ const ENGINE = (() => {
           if (amort > 0) { bens += amort; cofre -= amort; transfer(f, 'mov_cofre', 'mov_bens', amort); }
           if (st.left > 0) { st.left--; if (st.left === 0) events.push({ week: i, type: 'note', label: st.label + ' quitado' }); }
         });
-        if (!houseOwned) add(f, 'out_fix_moradia', RENT_BASE * m.scale);
       }
       if (k === 4 && m.invest > 0) { // aportes dedicados: transferência do cofre para o saldo de cada objetivo
         let rem = m.invest;
@@ -302,6 +348,7 @@ const ENGINE = (() => {
 
     for (let i = 0; i < NW; i++) {
       const d = weekDate(i), age = ageOf(i), t = tOf(i), f = {};
+      ks = [];
       // Saldo de abertura: hoje o patrimônio financeiro é o que o consultor informou.
       // Não gera lançamento no fluxo (é posição, não movimento) e o histórico anterior não é exibido.
       if (i === W0 && INITIAL_WEALTH != null) cofre = Math.max(0, INITIAL_WEALTH - obj.reduce((a, b) => a + b, 0));
@@ -321,14 +368,13 @@ const ENGINE = (() => {
             if (o.kind === 'bem') { bens += o.amount; cofre -= o.amount; transfer(f, 'mov_cofre', 'mov_bens', o.amount); } // conversão financeiro → bens
             else add(f, 'out_obj_' + o.id, o.amount); // consumo: é uma saída, paga pelo cofre
             if (o.recurring) streams.push({ id: o.id, value: o.recurring.value, left: o.recurring.months == null ? -1 : o.recurring.months, label: o.recurring.label, amort: o.recurring.amort });
-            if (o.kind === 'bem' && o.id === 'casa') houseOwned = true;
             events.push({ week: i, type: 'obj', obj: o, label: o.name, finBefore: fin() });
           }
         });
         // gatilho da Liberdade Financeira
         if (!ff && t > 0 && age >= 50) {
           const horizon = Math.round((LIFE_EXP - age) * 12);
-          let maxGap = 0; for (let mm = 0; mm < horizon; mm++) maxGap = Math.max(maxGap, gapAt(mm));
+          let maxGap = 0; for (let mm = 0; mm < horizon; mm++) maxGap = Math.max(maxGap, gapAt(mm, mIdx));
           const pending = OBJ.reduce((a, o, k) => a + (done[k] ? 0 : o.amount), 0); // compromissos ainda não realizados
           const ANNUITY_COST = annuityCost(); const after = fin() - ANNUITY_COST - pending;
           const sustenta = after * R_M >= maxGap;
@@ -359,12 +405,11 @@ const ENGINE = (() => {
           w = Math.min(w, Math.max(0, cofre - (f.out_rendas || 0)));
           // na aposentadoria o padrão de vida se ajusta à renda disponível
           const custoVida = livingAt(m.mIdx) || 1;
-          m.salary = 0; m.scale = Math.max(0, pas + w - recurTotal()) / custoVida; m.invest = 0; m.pas = pas;
+          m.salary = 0; m.scale = Math.max(0, pas + passiveIncomeAt(m.mIdx) + w - recurTotal()) / custoVida; m.invest = 0; m.pas = pas;
         } else {
           m.scale = 1;                                // os valores já vêm da linha do tempo
           m.salary = incomeAt(m.mIdx);                // equivalente mensal, para dimensionar o aporte
-          const fixos = recurTotal() + (houseOwned ? 0 : RENT_BASE);
-          m.invest = Math.max(0, m.salary - livingAt(m.mIdx) - fixos);
+          m.invest = Math.max(0, m.salary - livingAt(m.mIdx) - recurTotal());
           if (CAP_OVERRIDE != null) m.invest = Math.min(m.invest, CAP_OVERRIDE); // o cliente pode declarar quanto consegue poupar
         }
         lancarSemana1();
@@ -377,7 +422,7 @@ const ENGINE = (() => {
       let R = 0; for (const k in f) { if (k.startsWith('in_')) R += f[k]; else if (k.startsWith('out_')) R -= f[k]; }
       cofre += R; if (R) add(f, 'mov_cofre', R);
       if (cofre < 0) cofre = 0;
-      weeks[i] = { fin: fin(), cofre, obj: obj.slice(), bens, part, pas: m ? (m.pas || 0) : 0, mi: m ? m.mIdx : -1, f };
+      weeks[i] = { fin: fin(), cofre, obj: obj.slice(), bens, part, pas: m ? (m.pas || 0) : 0, mi: m ? m.mIdx : -1, ks, f };
     }
     // agregações
     const bucketize = keyFn => { const out = []; let cur = null; for (let i = 0; i < NW; i++) { const k = keyFn(i); if (!cur || cur.key !== k) { cur = { key: k, w0: i, w1: i + 1, mi: weeks[i].mi, f: {} }; out.push(cur); } cur.w1 = i + 1; const f = weeks[i].f; for (const key in f) cur.f[key] = (cur.f[key] || 0) + f[key]; } return out; };
@@ -403,13 +448,24 @@ const ENGINE = (() => {
     }
     return sortSteps(it);
   }
+  // Plano antigo: o aluguel era um campo solto (plan.rent), que parava quando a casa própria era comprada.
+  // Vira uma despesa fixa comum, que termina quando o objetivo 'casa' é realizado.
+  function normaliza(plan) {
+    if (plan.rent == null) return plan;
+    const linha = { id: 'moradia', label: 'Moradia (aluguel)', group: 'fix', week: 1, steps: [{ from: 0, value: +plan.rent }] };
+    if ((plan.objectives || OBJ).some(o => o.id === 'casa')) linha.endObj = 'casa';
+    if (Array.isArray(plan.expenses)) { if (!plan.expenses.some(e => e.id === 'moradia')) plan.expenses.unshift(linha); }
+    else { const i = EXPENSES.findIndex(e => e.id === 'moradia'); if (i >= 0) EXPENSES[i] = linha; else EXPENSES.unshift(linha); }
+    delete plan.rent;
+    return plan;
+  }
   function configure(plan) {
     if (!plan) return;
+    normaliza(plan);
     if (plan.desired != null) DESIRED = +plan.desired;
     if (plan.lifeExp != null) LIFE_EXP = +plan.lifeExp;
     if (plan.salary != null) SALARY = +plan.salary;
     if (plan.salaryGrowth != null) SAL_G = +plan.salaryGrowth;
-    if (plan.rent != null) RENT_BASE = +plan.rent;
     if (plan.partValue != null) PART_VALUE = +plan.partValue;
     if (plan.initialWealth != null) INITIAL_WEALTH = +plan.initialWealth;
     CAP_OVERRIDE = plan.capacityOverride == null || plan.capacityOverride === '' ? null : +plan.capacityOverride;
@@ -422,8 +478,8 @@ const ENGINE = (() => {
     if (plan.passive) { PASSIVE.length = 0; plan.passive.forEach(p => PASSIVE.push(p)); }
   }
   const ORIGENS_OUT = ORIGENS;
-  const config = () => ({ desired: DESIRED, lifeExp: LIFE_EXP, salary: SALARY, salaryGrowth: SAL_G, rent: RENT_BASE, partValue: PART_VALUE, initialWealth: INITIAL_WEALTH, capacityOverride: CAP_OVERRIDE, rate: R_M, profiles: PROFILES, incomes: INCOMES, expenses: EXPENSES, objectives: OBJ, passive: PASSIVE });
-  return { TODAY, BIRTH, WPY, W0, NW, weekDate, tOf, ageOf, OBJ, PASSIVE, PROFILES, STATUS, derive, run, configure, config, stepAt, valorEm, mensalizado, aconteceEm, ORIGENS: ORIGENS_OUT, FREQ, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, CURRENT_AGE, pmt };
+  const config = () => ({ desired: DESIRED, lifeExp: LIFE_EXP, salary: SALARY, salaryGrowth: SAL_G, partValue: PART_VALUE, initialWealth: INITIAL_WEALTH, capacityOverride: CAP_OVERRIDE, rate: R_M, profiles: PROFILES, incomes: INCOMES, expenses: EXPENSES, objectives: OBJ, passive: PASSIVE });
+  return { TODAY, BIRTH, WPY, W0, NW, weekDate, tOf, ageOf, OBJ, PASSIVE, PROFILES, STATUS, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoDia, cicloDaData, mesDoCiclo, ativo, ORIGENS: ORIGENS_OUT, FREQ, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, CURRENT_AGE, pmt };
 })();
 if (typeof module !== 'undefined') module.exports = ENGINE;
 </script>
@@ -547,7 +603,6 @@ function buildRows() {
     ] },
     { id: 'out', label: 'Saídas', color: C.out, keys: keysWith('out_'), children: [
       { id: 'out_fix', label: 'Fixas', keys: keysWith('out_fix_'), children: [
-        { id: 'out_fix_moradia', label: 'Moradia (aluguel)', keys: ['out_fix_moradia'] },
         ...ENGINE.EXPENSES.filter(c => c.group === 'fix').map(c => ({ id: 'out_fix_' + c.id, label: c.label, keys: ['out_fix_' + c.id] })),
         ...OBJ.filter(o => o.recurring).map(o => ({ id: 'out_fix_' + o.id, label: o.recurring.label, keys: ['out_fix_' + o.id] })),
       ] },

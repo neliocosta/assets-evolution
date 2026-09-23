@@ -120,5 +120,65 @@ for (const [nome, plano] of casos) {
   ok(nome, passou, detalhe);
 }
 
+console.log('\n5. Periodicidades e regras do fluxo');
+{
+  const E3 = carregar(srcCliente);
+  const oc = (it, mm, saida) => E3.ocorrencias(it, mm, saida).map(o => o.k + ':' + o.v).join(' ');
+  const sal = { id: 's', label: 'Salário', kind: 'ativa', frequency: 'mensal', days: [5, 20], steps: [{ from: 0, value: 5000 }, { from: 13, value: 6000 }] };
+  ok('mensal nos dias 5 e 20 cai nas semanas 1 e 3', oc(sal, 2) === '1:5000 3:5000', oc(sal, 2));
+  ok('mudança de valor em out/2027 (mês 13)', oc(sal, 12) === '1:5000 3:5000' && oc(sal, 13) === '1:6000 3:6000');
+  const feira = { id: 'f', frequency: 'semanal', steps: [{ from: 0, value: 300 }] };
+  ok('semanal cai nas quatro semanas', E3.valorEm(feira, 5, true) === 1200 && E3.ocorrencias(feira, 5, true).length === 4);
+  const ipva = { id: 'i', frequency: 'anual', dates: [{ m: 0, d: 5 }, { m: 1, d: 5 }, { m: 2, d: 5 }], steps: [{ from: 0, value: 1400 }] };
+  const mesesIpva = []; for (let mm = 0; mm < 24; mm++) if (E3.valorEm(ipva, mm, true)) mesesIpva.push(E3.mesDoCiclo(mm));
+  ok('anual em 5/jan, 5/fev e 5/mar', mesesIpva.join(',') === '0,1,2,0,1,2', 'meses ' + mesesIpva.join(','));
+  ok('equivalente mensal do anual em três parcelas', Math.abs(E3.mensalizado(ipva, 0) - 350) < 0.01);
+  const bonus = { id: 'b', frequency: 'pontual', days: [20], steps: [{ from: 10, value: 30000 }] };
+  let nb = 0; for (let mm = 0; mm < 60; mm++) nb += E3.ocorrencias(bonus, mm).length;
+  ok('pontual acontece uma única vez', nb === 1 && E3.valorEm(bonus, 10) === 30000);
+  const net = { id: 'n', frequency: 'mensal', days: [12], steps: [{ from: 0, value: 55 }], exc: { 4: 0, '6:2': 80 } };
+  ok('ajuste só nesta ocorrência', E3.valorEm(net, 4, true) === 0 && E3.valorEm(net, 6, true) === 80 && E3.valorEm(net, 7, true) === 55);
+  const fim = { id: 'x', frequency: 'mensal', days: [10], steps: [{ from: 36, value: 2500 }, { from: 180, value: 0 }] };
+  ok('linha que começa no futuro e termina numa data', E3.valorEm(fim, 35, true) === 0 && E3.valorEm(fim, 36, true) === 2500 && E3.valorEm(fim, 180, true) === 0);
+
+  // o exemplo do consultor, simulado por inteiro
+  E3.configure({
+    incomes: [sal,
+      { id: 'aluguelrec', label: 'Aluguel do imóvel', kind: 'passiva', frequency: 'mensal', days: [10], steps: [{ from: 0, value: 3000 }, { from: 13, value: 3400 }] },
+      Object.assign({}, bonus, { label: 'Bônus', kind: 'ativa' }),
+      { id: 'aulas', label: 'Aulas', kind: 'ativa', frequency: 'mensal', days: [5], steps: [{ from: 120, value: 4000 }] }],
+    expenses: [Object.assign({}, feira, { label: 'Feira', group: 'adj' }), Object.assign({}, ipva, { label: 'IPVA', group: 'fix' }),
+      Object.assign({}, net, { label: 'Netflix', group: 'fix' }), Object.assign({}, fim, { label: 'Escola', group: 'fix' }),
+      { id: 'guia', label: 'Guia de imposto', group: 'fix', frequency: 'pontual', days: [20], steps: [{ from: 8, value: 15000 }] }],
+  });
+  const s = E3.run('perp');
+  let erro = 0; const porMes = {};
+  for (const b of s.buckets.month) {
+    if (b.w1 <= E3.W0) continue;
+    let i = 0, o = 0, v = 0;
+    for (const k in b.f) { if (k.startsWith('in_')) i += b.f[k]; else if (k.startsWith('out_')) o += b.f[k]; else if (k.startsWith('mov_')) v += b.f[k]; }
+    erro = Math.max(erro, Math.abs(i - o - v)); porMes[b.mi] = b.f;
+  }
+  ok('exemplo: movimentações = entradas − saídas', erro < 0.01, 'erro máximo ' + erro.toFixed(6));
+  ok('exemplo: salário de 10 mil vira 12 mil em out/2027', porMes[12].in_s === 10000 && porMes[13].in_s === 12000);
+  ok('exemplo: bônus e guia só no seu mês', porMes[10].in_b === 30000 && !porMes[11].in_b && porMes[8].out_fix_guia === 15000 && !porMes[9].out_fix_guia);
+  ok('exemplo: aulas a partir de daqui a 10 anos', !porMes[119].in_aulas && porMes[120].in_aulas === 4000);
+
+  // aluguel pago termina quando a casa é comprada; renda ativa para na liberdade, a passiva continua
+  const E4 = carregar(srcCliente); const s4 = E4.run('perp');
+  const casa = E4.OBJ.find(o => o.id === 'casa').months, mes4 = {};
+  s4.buckets.month.forEach(b => { if (b.w1 > E4.W0) mes4[b.mi] = b.f; });
+  ok('aluguel é pago até a compra da casa e some depois', mes4[casa - 1].out_fix_moradia > 0 && !mes4[casa + 1].out_fix_moradia);
+  const mff = s.buckets.month.find(b => b.w0 >= s.ff.week).mi + 2;
+  ok('depois da liberdade, a renda ativa para e a passiva continua', !porMes[mff].in_s && !porMes[mff].in_aulas && porMes[mff].in_aluguelrec === 3400,
+    'liberdade aos ' + s.ff.age.toFixed(1));
+
+  // plano antigo, com o aluguel num campo solto
+  const E5 = carregar(srcCliente); const antigo = { rent: 2000, expenses: [{ id: 'm', label: 'Mercado', group: 'adj', week: 0, steps: [{ from: 0, value: 1000 }] }] };
+  E5.configure(antigo);
+  const mo = antigo.expenses.find(e => e.id === 'moradia');
+  ok('plano antigo: aluguel vira linha de despesa fixa', !!mo && mo.steps[0].value === 2000 && mo.endObj === 'casa' && antigo.rent === undefined);
+}
+
 console.log('\n' + (falhas ? falhas + ' verificação(ões) falharam.' : 'Tudo certo.') + '\n');
 process.exit(falhas ? 1 : 0);
