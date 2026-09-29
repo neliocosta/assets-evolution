@@ -119,12 +119,13 @@ canvas#main.grab-obj{cursor:ew-resize}
   <div id="modeNote" hidden>Nesta opção o patrimônio é consumido de propósito: ele chega a zero na expectativa de vida configurada, depois de ter pago o padrão de vida desejado todos os meses.</div>
   <button class="btn btn-secondary" id="btnHome" title="Voltar para hoje (zoom de 6 anos)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.5"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg>Hoje</button>
   <label class="btn btn-secondary" title="Carregar um plano exportado pela tela do consultor"><svg viewBox="0 0 24 24"><path d="M12 16V4M8 8l4-4 4 4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>Plano<input type="file" id="fPlan" accept="application/json,.json" hidden></label>
+  <button class="btn btn-secondary" id="btnSkip" hidden title="Ir direto ao final, sem esperar a animação">Pular animação</button>
   <button class="btn btn-primary" id="btnPlay"><svg viewBox="0 0 24 24"><path d="M6 4l14 8-14 8z"/></svg><span>Reproduzir</span></button>
 </header>
 <div id="wrap">
   <canvas id="main"></canvas>
   <div id="tip"></div>
-  <div id="hint">Scroll para zoom, arraste para navegar, Home volta para hoje · Clique numa linha do fluxo para detalhar · Clique num marco para ver o objetivo, arraste-o para mudar a data</div>
+  <div id="hint">Scroll anda no tempo, Ctrl + scroll dá zoom, Shift + scroll também anda, arraste para navegar, Home volta para hoje · Clique numa linha do fluxo para detalhar · Clique num marco para ver o objetivo, arraste-o para mudar a data</div>
   <div id="overlay">
     <canvas id="confetti"></canvas>
     <div class="card" id="card">
@@ -1014,12 +1015,16 @@ addEventListener('mouseup', () => {
   if (state.objDrag) { const moved = state.objDrag.moved; state.objDrag = null; if (moved) { rerun(); state.clickGuard = true; } }
   state.drag = null; cv.classList.remove('drag');
 });
+// rodinha: anda no tempo; Ctrl dá zoom; Shift também anda. Sobre a tabela do fluxo, a rodinha sozinha rola a tabela.
 cv.addEventListener('wheel', e => {
   tip.style.display = 'none';   // o ponto sob o cursor muda com o zoom: a dica some até o mouse mexer de novo
   e.preventDefault();
-  if (e.offsetY >= rowsTop - 24) { state.rowScroll = Math.max(0, state.rowScroll + e.deltaY * 0.5); return; } // sobre a tabela: rola a tabela, não o zoom
+  const zoom = e.ctrlKey || e.metaKey, lado = e.shiftKey || Math.abs(e.deltaX) > Math.abs(e.deltaY);
+  if (e.offsetY >= rowsTop - 24 && !zoom && !lado) { state.rowScroll = Math.max(0, state.rowScroll + e.deltaY * 0.5); return; }
   if (locked()) return;
-  zoomAt(e.offsetX, Math.exp(e.deltaY * 0.0016));
+  if (zoom) { zoomAt(e.offsetX, Math.exp(e.deltaY * 0.0016)); return; }
+  const v = state.view, span = v.uR - v.uL, d = (e.shiftKey ? e.deltaY || e.deltaX : lado ? e.deltaX : e.deltaY) / PW * span;
+  state.view = clampView({ uL: v.uL + d, uR: v.uR + d }); state.target = null;
 }, { passive: false });
 cv.addEventListener('click', e => {
   if (state.clickGuard) { state.clickGuard = false; return; } // acabou de arrastar: não abre o card
@@ -1055,7 +1060,14 @@ document.querySelectorAll('#segMode button').forEach(b => b.onclick = () => {
 
 // --- Autoplay ---
 const btnPlay = document.getElementById('btnPlay');
-function setPlayLabel() { const lbl = btnPlay.querySelector('span'), svg = btnPlay.querySelector('svg'); if (state.done) { lbl.textContent = 'Reproduzir de novo'; svg.innerHTML = '<path d="M6 4l14 8-14 8z"/>'; } else if (state.playing) { lbl.textContent = 'Pausar'; svg.innerHTML = '<path d="M7 4v16M17 4v16"/>'; } else { lbl.textContent = state.started ? 'Continuar' : 'Reproduzir'; svg.innerHTML = '<path d="M6 4l14 8-14 8z"/>'; } }
+const btnSkip = document.getElementById('btnSkip');
+function pularAnimacao() {   // vai direto ao final: fecha o card do marco, solta a pausa e encerra a reprodução
+  overlay.classList.remove('show'); setHold(false); state.paused = false; state.seg = null; state.cursor = NW;
+  for (const m of milestones()) state.milestonesShown.add(m.week);
+  finishPlay();
+}
+btnSkip.onclick = pularAnimacao;
+function setPlayLabel() { btnSkip.hidden = !(state.started && !state.done); const lbl = btnPlay.querySelector('span'), svg = btnPlay.querySelector('svg'); if (state.done) { lbl.textContent = 'Reproduzir de novo'; svg.innerHTML = '<path d="M6 4l14 8-14 8z"/>'; } else if (state.playing) { lbl.textContent = 'Pausar'; svg.innerHTML = '<path d="M7 4v16M17 4v16"/>'; } else { lbl.textContent = state.started ? 'Continuar' : 'Reproduzir'; svg.innerHTML = '<path d="M6 4l14 8-14 8z"/>'; } }
 function togglePlay() {
   if (state.done || !state.started) { state.started = true; state.done = false; state.cursor = W0; state.milestonesShown.clear(); state.seg = null; state.hold = false; state.playing = true; state.view = DEFAULT_VIEW(); state.target = null; cv.classList.add('locked'); }
   else state.playing = !state.playing;

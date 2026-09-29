@@ -189,8 +189,9 @@ Registradas aqui porque não são óbvias no código:
   consultor): a capacidade de poupança fica logo abaixo dele, e os aportes dos objetivos aparecem no fluxo
   depois de definidos. "Próximo" sempre leva à página seguinte.
 - **Rodinha na planilha do fluxo**: Ctrl aproxima, Shift anda no tempo, a rodinha sozinha rola a página
-  (como no Miro e no Excalidraw). A visão do cliente, que é um gráfico de tela cheia, continua com a rodinha
-  no zoom.
+  (como no Miro e no Excalidraw). A visão do cliente segue a mesma regra: a rodinha anda no tempo, Ctrl dá
+  zoom e Shift também anda; sobre a tabela do fluxo, a rodinha sozinha rola a tabela. Durante a reprodução,
+  "Pular animação" vai direto ao final.
 - **As barras de Movimentações usam uma escala só para o período inteiro** (comprimida com asinh, para
   um valor de 1 milhão não achatar os outros), e não a do que está à vista; assim não mudam de tamanho ao andar.
 - **Financiamento é calculado por sistema (Price ou SAC), taxa ao ano e prazo**, no lugar do percentual de
