@@ -428,22 +428,22 @@ const ENGINE = (() => {
   // Objetivos configurados na tela do consultor (somente leitura aqui).
   // Todos têm a mesma estrutura; campos sem valor ficam em 0 / null e o card mostra "—".
   const OBJ = [
-    { id: 'fortaleza', name: 'Viagem a Fortaleza', icon: 'sun', kind: 'consumo', milestone: true, title: 'Viagem a Fortaleza realizada!',
+    { id: 'fortaleza', photo: 'fotos/fortaleza.jpg', name: 'Viagem a Fortaleza', icon: 'sun', kind: 'consumo', milestone: true, title: 'Viagem a Fortaleza realizada!',
       months: 20, amount: 12000, recurring: null,
       dedicated: 3000, profile: 'conservador', planned: 450,
       strategy: 'Viagem de 7 dias para quatro pessoas em maio, fora da alta temporada, com passagens compradas com seis meses de antecedência. O valor fica em renda fixa de liquidez diária, porque o prazo é curto e a data é inegociável.' },
 
-    { id: 'casa', name: 'Casa própria', icon: 'home', kind: 'bem', milestone: true, title: 'Casa própria realizada!',
+    { id: 'casa', photo: 'fotos/casa.jpg', name: 'Casa própria', icon: 'home', kind: 'bem', milestone: true, title: 'Casa própria realizada!',
       months: 46, amount: 180000, recurring: { value: 4000, months: 420, label: 'Financiamento da casa própria', amort: 0.45 },
       dedicated: 45000, profile: 'moderado', planned: 1500,
       strategy: 'Para a compra do apartamento de R$ 600 mil, será dada uma entrada de R$ 180 mil e financiado o restante, com parcela inicial de R$ 4.000 por mês em 420 meses. Para conseguir o crédito, a renda declarada da família precisa ser de cerca de R$ 13.300 por mês, o que está dentro da realidade. O aporte atual não fecha a entrada integral: a diferença sai da reserva ou a data é adiada em alguns meses.' },
 
-    { id: 'europa', name: 'Viagem à Europa em família', icon: 'plane', kind: 'consumo', milestone: true, title: 'Viagem à Europa realizada!',
+    { id: 'europa', photo: 'fotos/europa.jpg', name: 'Viagem à Europa em família', icon: 'plane', kind: 'consumo', milestone: true, title: 'Viagem à Europa realizada!',
       months: 60, amount: 60000, recurring: null,
       dedicated: 18000, profile: 'moderado', planned: 300,
       strategy: 'Roteiro de 21 dias por Itália e França para a família, no verão europeu, com passagens e hospedagem parceladas no semestre anterior. Sem custo recorrente depois. O aporte definido não fecha o valor cheio: a diferença sai da reserva no ano da viagem ou o roteiro é encurtado.' },
 
-    { id: 'intercambio', name: 'Intercâmbio do filho', icon: 'grad', kind: 'consumo', milestone: true, title: 'Intercâmbio do filho realizado!',
+    { id: 'intercambio', photo: 'fotos/intercambio.jpg', name: 'Intercâmbio do filho', icon: 'grad', kind: 'consumo', milestone: true, title: 'Intercâmbio do filho realizado!',
       months: 96, amount: 150000, recurring: null,
       dedicated: 20000, profile: 'moderado', planned: 150,
       strategy: 'Um ano de intercâmbio acadêmico no exterior, com moradia e seguro incluídos, quando o filho tiver 18 anos. Como a capacidade mensal de poupança está comprometida com a casa própria, este objetivo recebe um aporte simbólico até 2030 e precisa ser revisto quando a entrada do imóvel sair do caminho. Sem essa revisão, a maior parte virá da reserva.' },
@@ -575,6 +575,8 @@ const ENGINE = (() => {
   const ativo = it => (it.kind || 'ativa') !== 'passiva';
   const incomeAt = mm => INCOMES.reduce((a, c) => a + mensalizado(c, mm), 0);
   const passiveIncomeAt = mm => INCOMES.reduce((a, c) => a + (ativo(c) ? 0 : mensalizado(c, mm)), 0);
+  // classe do Font Awesome: "fa-plane" ou "plane" sozinhos não desenham nada; falta o estilo (fa-solid)
+  const classeFA = c => { let t = String(c || '').trim().split(/\s+/).filter(Boolean).map(p => /^(fa|fas|far|fab|fal|fad)$/.test(p) || p.startsWith('fa-') ? p : 'fa-' + p); if (!t.length) return ''; if (!t.some(p => /^(fas|far|fab|fal|fad|fa-(solid|regular|brands|light|thin|duotone))$/.test(p))) t.unshift('fa-solid'); return t.filter(p => p !== 'fa').join(' '); };
   const pmt = (pv, i, n) => pv * i / (1 - Math.pow(1 + i, -n));
   // Financiamento de um bem: sistema 'price' (parcela fixa) ou 'sac' (amortização fixa), taxa efetiva ao ano, prazo em meses
   const financiamentoValido = f => !!f && +f.principal > 0 && +f.months > 0;
@@ -780,7 +782,7 @@ const ENGINE = (() => {
   }
   const ORIGENS_OUT = ORIGENS;
   const config = () => ({ age: CURRENT_AGE, retireAge: RETIRE_AGE, initialBens: INITIAL_BENS, desired: DESIRED, lifeExp: LIFE_EXP, salary: SALARY, salaryGrowth: SAL_G, partValue: PART_VALUE, initialWealth: INITIAL_WEALTH, capacityOverride: CAP_OVERRIDE, rate: R_M, profiles: PROFILES, incomes: INCOMES, expenses: EXPENSES, objectives: OBJ, passive: PASSIVE });
-  return { TODAY, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, PASSIVE, PROFILES, STATUS, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
+  return { TODAY, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, PASSIVE, PROFILES, STATUS, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
 })();
 if (typeof module !== 'undefined') module.exports = ENGINE;
 </script>
@@ -1260,7 +1262,7 @@ const tip = t => `<span class="tip" tabindex="0" data-tip="${esc(t)}">?</span>`;
 const finValido = f => !!f && +f.principal > 0 && +f.months > 0;
 // objetivos que a consultora abriu; os demais aparecem numa linha só
 const goalAbertos = new Set();
-const iconeHtml = (o, col) => o.iconData ? `<img src="${o.iconData}" alt="" style="width:20px;height:20px;object-fit:contain">` : o.iconFA ? `<i class="${esc(o.iconFA)}" style="font-size:17px;color:${col}"></i>` : `<svg viewBox="0 0 24 24" style="stroke:${col}"><path d="${ICONS[o.icon] || ICONS.sun}"/></svg>`;
+const iconeHtml = (o, col) => o.iconData ? `<img src="${o.iconData}" alt="" style="width:20px;height:20px;object-fit:contain">` : o.iconFA ? `<i class="${esc(ENGINE.classeFA(o.iconFA))}" style="font-size:17px;color:${col}"></i>` : `<svg viewBox="0 0 24 24" style="stroke:${col}"><path d="${ICONS[o.icon] || ICONS.sun}"/></svg>`;
 const fotoHtml = o => o.photo ? `<img src="${esc(o.photo)}" alt="" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'fotoerro',textContent:'não consegui carregar esta imagem'}))">` : '<span class="fotoerro">sem foto: o card usa o ícone</span>';
 // financiamento do bem: parcelas calculadas mês a mês pelo mesmo motor da simulação
 function resumoFinanciamento(o) {
@@ -1348,7 +1350,7 @@ function renderGoals() {
           <div class="iconpick">
             <span class="prev">${iconeHtml(o, 'var(--nl-navy-900)')}</span>
             <label class="btn btn-secondary" style="padding:6px 10px">Enviar SVG/PNG<input type="file" accept=".svg,.png,image/svg+xml,image/png" data-icon="${i}" hidden></label>
-            <input data-g="${i}" data-k="iconFA" value="${esc(o.iconFA || '')}" placeholder="ou classe Font Awesome: fa-solid fa-car">
+            <input data-g="${i}" data-k="iconFA" value="${esc(o.iconFA || '')}" placeholder="ícone do Font Awesome: plane, car, fa-solid fa-house">
             ${o.iconData || o.iconFA ? `<button class="btn btn-icon" data-clear-icon="${i}" title="Voltar ao ícone padrão">×</button>` : ''}
           </div>
         </div>
