@@ -159,6 +159,7 @@ const ENGINE = (() => {
   const weekDate = i => new Date(BIRTH.getTime() + i * 7 * 864e5);
   const tOf = i => (i - W0) / WPY, ageOf = i => i / WPY;
   // ---- Configuração: tudo o que a tela do consultor define. Os valores abaixo são o padrão do mock. ----
+  let PLAN_MODE = 'perp';
   let R_M = 0.004, GW = Math.pow(1 + R_M, 7 / 30.4375);
   let PART_VALUE = 150000; // participação societária: valor constante (sem remuneração modelada)
   let LIFE_EXP = 95, DESIRED = 25000, SALARY = 15000, SAL_G = 0.045;
@@ -320,6 +321,18 @@ const ENGINE = (() => {
   const incomeAt = mm => INCOMES.reduce((a, c) => a + mensalizado(c, mm), 0);
   const passiveIncomeAt = mm => INCOMES.reduce((a, c) => a + (ativo(c) ? 0 : mensalizado(c, mm)), 0);
   const pmt = (pv, i, n) => pv * i / (1 - Math.pow(1 + i, -n));
+  // Financiamento de um bem: sistema 'price' (parcela fixa) ou 'sac' (amortização fixa), taxa efetiva ao ano, prazo em meses
+  const financiamentoValido = f => !!f && +f.principal > 0 && +f.months > 0;
+  const novoFin = f => ({ sys: f.system === 'sac' ? 'sac' : 'price', P: +f.principal, n: Math.round(+f.months), i: Math.pow(1 + (+f.rateYear || 0), 1 / 12) - 1, bal: +f.principal });
+  // próxima parcela sobre o saldo atual: juros, amortização e valor
+  const parcelaFin = F => {
+    const juros = F.bal * F.i;
+    const amort = Math.min(F.bal, F.sys === 'sac' ? F.P / F.n : F.i > 0 ? pmt(F.P, F.i, F.n) - juros : F.P / F.n);   // price: parcela constante, os juros caem e a amortização sobe
+    return { juros, amort, pay: juros + amort };
+  };
+  const primeiraParcela = f => financiamentoValido(f) ? parcelaFin(novoFin(f)) : null;
+  // todas as parcelas, com o saldo devedor depois de cada uma (a tela do consultor mostra esta tabela)
+  const cronogramaFin = f => { if (!financiamentoValido(f)) return []; const F = novoFin(f), out = []; for (let k = 0; k < F.n; k++) { const p = parcelaFin(F); F.bal = Math.max(0, F.bal - p.amort); out.push({ juros: p.juros, amort: p.amort, pay: p.pay, saldo: F.bal }); } return out; };
 
   function run(mode) {
     const weeks = new Array(NW), events = [];
@@ -351,8 +364,11 @@ const ENGINE = (() => {
       if (k === 1) {
         streams.forEach(st => {
           if (st.left === 0) return;
-          const amort = st.value * st.amort; // parte da parcela que vira patrimônio (bens); o resto é juros/despesa
-          add(f, 'out_fix_' + st.id, st.value - amort);
+          // financiamento: juros e amortização calculados mês a mês pelo saldo devedor; sem ele, a fração fixa (planos antigos)
+          let juros, amort;
+          if (st.fin) { const p = parcelaFin(st.fin); juros = p.juros; amort = p.amort; st.fin.bal = Math.max(0, st.fin.bal - amort); st.value = parcelaFin(st.fin).pay; }
+          else { amort = st.value * st.amort; juros = st.value - amort; }   // a amortização vira patrimônio (bens); o resto é juros/despesa
+          add(f, 'out_fix_' + st.id, juros);
           if (amort > 0) { bens += amort; cofre -= amort; transfer(f, 'mov_cofre', 'mov_bens', amort); }
           if (st.left > 0) { st.left--; if (st.left === 0) events.push({ week: i, type: 'note', label: st.label + ' quitado' }); }
         });
@@ -386,6 +402,7 @@ const ENGINE = (() => {
             if (o.kind === 'bem') { bens += o.amount; cofre -= o.amount; transfer(f, 'mov_cofre', 'mov_bens', o.amount); } // conversão financeiro → bens
             else add(f, 'out_obj_' + o.id, o.amount); // consumo: é uma saída, paga pelo cofre
             if (o.recurring) streams.push({ id: o.id, value: o.recurring.value, left: o.recurring.months == null ? -1 : o.recurring.months, label: o.recurring.label, amort: o.recurring.amort });
+            if (financiamentoValido(o.financing)) { const F = novoFin(o.financing); streams.push({ id: 'fin_' + o.id, value: parcelaFin(F).pay, left: F.n, label: o.financing.label || 'Financiamento', amort: 0, fin: F }); }
             events.push({ week: i, type: 'obj', obj: o, label: o.name, finBefore: fin() });
           }
         });
@@ -487,6 +504,7 @@ const ENGINE = (() => {
   function configure(plan) {
     if (!plan) return;
     normaliza(plan);
+    PLAN_MODE = plan.mode === 'cons' ? 'cons' : 'perp';   // como a liberdade financeira é vivida: perpetuidade ou consumo do patrimônio
     if (plan.desired != null) DESIRED = +plan.desired;
     if (plan.lifeExp != null) LIFE_EXP = +plan.lifeExp;
     if (plan.salary != null) SALARY = +plan.salary;
@@ -507,7 +525,7 @@ const ENGINE = (() => {
   }
   const ORIGENS_OUT = ORIGENS;
   const config = () => ({ age: CURRENT_AGE, retireAge: RETIRE_AGE, initialBens: INITIAL_BENS, desired: DESIRED, lifeExp: LIFE_EXP, salary: SALARY, salaryGrowth: SAL_G, partValue: PART_VALUE, initialWealth: INITIAL_WEALTH, capacityOverride: CAP_OVERRIDE, rate: R_M, profiles: PROFILES, incomes: INCOMES, expenses: EXPENSES, objectives: OBJ, passive: PASSIVE });
-  return { TODAY, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, PASSIVE, PROFILES, STATUS, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, ORIGENS: ORIGENS_OUT, FREQ, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
+  return { TODAY, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, PASSIVE, PROFILES, STATUS, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
 })();
 if (typeof module !== 'undefined') module.exports = ENGINE;
 </script>
@@ -561,6 +579,7 @@ function applyPlan(plan) {
   }
   ENGINE.configure(plan);
   try { localStorage.setItem('nl-plano', JSON.stringify(plan)); } catch (e) { }
+  state.mode = ENGINE.MODE; marcaModo();
   rerun(); rebuildRows();
   state.expanded.clear(); state.rowScroll = 0; state.milestonesShown.clear();
   state.started = false; state.done = false; state.playing = false; state.cursor = W0; state.seg = null;
@@ -586,7 +605,7 @@ const DEFAULT_VIEW = () => ({ uL: uOf(T_MIN), uR: uOf(T_MIN + 6) });
 
 const state = {
   view: DEFAULT_VIEW(), target: null,
-  mode: 'perp', viewKind: 'total',
+  mode: ENGINE.MODE, viewKind: 'total',
   playing: false, started: false, done: false, cursor: W0, paused: false,
   expanded: new Set(), rowScroll: 0, yMax: 1e6, hover: null, drag: null,
   milestonesShown: new Set(),
@@ -640,6 +659,7 @@ function buildRows() {
       { id: 'out_fix', label: 'Fixas', keys: keysWith('out_fix_'), children: [
         ...ENGINE.EXPENSES.filter(c => c.group === 'fix').map(c => ({ id: 'out_fix_' + c.id, label: c.label, keys: ['out_fix_' + c.id] })),
         ...OBJ.filter(o => o.recurring).map(o => ({ id: 'out_fix_' + o.id, label: o.recurring.label, keys: ['out_fix_' + o.id] })),
+        ...OBJ.filter(o => o.financing && +o.financing.principal > 0 && +o.financing.months > 0).map(o => ({ id: 'out_fix_fin_' + o.id, label: (o.financing.label || 'Financiamento') + ' (juros)', keys: ['out_fix_fin_' + o.id] })),
       ] },
       { id: 'out_adj', label: 'Ajustáveis', keys: keysWith('out_adj_'), children: ENGINE.EXPENSES.filter(c => c.group === 'adj').map(c => ({ id: 'out_adj_' + c.id, label: c.label, keys: ['out_adj_' + c.id] })) },
       { id: 'out_obj', label: 'Objetivos realizados', keys: keysWith('out_obj_'), children: OBJ.map(o => ({ id: 'out_obj_' + o.id, label: o.name, keys: ['out_obj_' + o.id] })) },
@@ -1025,6 +1045,8 @@ const locked = () => state.started && !state.done;
 function goHome() { if (locked()) return; state.target = DEFAULT_VIEW(); }
 document.getElementById('btnHome').onclick = goHome;
 document.querySelectorAll('#segView button').forEach(b => b.onclick = () => { document.querySelectorAll('#segView button').forEach(x => x.classList.remove('on')); b.classList.add('on'); state.viewKind = b.dataset.v; });
+function marcaModo() { document.querySelectorAll('#segMode button').forEach(x => x.classList.toggle('on', x.dataset.m === state.mode)); document.getElementById('modeNote').hidden = state.mode !== 'cons'; }
+marcaModo();
 document.querySelectorAll('#segMode button').forEach(b => b.onclick = () => {
   document.querySelectorAll('#segMode button').forEach(x => x.classList.remove('on')); b.classList.add('on'); state.mode = b.dataset.m;
   document.getElementById('modeNote').hidden = state.mode !== 'cons'; // explica a queda a zero antes que ela assuste
@@ -1069,6 +1091,8 @@ function celebrate(mk, manual) {
     lines += F('Data alvo', MONTHS[td.getMonth()] + '/' + td.getFullYear(), 'em ' + o.months + ' meses');
     lines += F('Custo pontual', o.amount ? fmt(o.amount) : dash);
     lines += F('Custo mensal depois', rec ? fmt(rec.value) + '/mês' : dash, rec ? (rec.months == null ? 'por tempo indeterminado' : 'por ' + rec.months + ' meses') : '');
+    const par = ENGINE.primeiraParcela(o.financing);
+    if (par) lines += F('Financiamento', fmt(par.pay) + '/mês', (o.financing.system === 'sac' ? 'SAC' : 'Price') + ' · ' + o.financing.months + ' meses');
     lines += F('Patrimônio dedicado hoje', o.dedicated ? fmt(o.dedicated) : dash);
     lines += F('Perfil de investimento', '<span class="chip">' + o.profile + '</span>', (o.rate * 100).toFixed(2).replace('.', ',') + '% ao mês');
     lines += F('Aporte necessário', o.required > 0 ? fmt(o.required) + '/mês' : dash);

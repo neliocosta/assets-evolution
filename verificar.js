@@ -229,5 +229,32 @@ console.log('\n5. Periodicidades e regras do fluxo');
   ok('plano antigo: aluguel vira linha de despesa fixa', !!mo && mo.steps[0].value === 2000 && mo.endObj === 'casa' && antigo.rent === undefined);
 }
 
+console.log('\n6. Financiamento de bens (Price e SAC)');
+{
+  const EF = carregar(srcCliente);
+  const price = { system: 'price', principal: 300000, rateYear: 0.1, months: 120 }, sac = Object.assign({}, price, { system: 'sac' });
+  const cp = EF.cronogramaFin(price), cs = EF.cronogramaFin(sac);
+  const soma = (c, k) => c.reduce((a, p) => a + p[k], 0);
+  ok('Price: a amortização soma o valor financiado', Math.abs(soma(cp, 'amort') - 300000) < 0.01 && cp.length === 120 && cp[119].saldo < 0.01);
+  ok('Price: parcela constante, juros caem e amortização sobe', Math.abs(cp[0].pay - cp[119].pay) < 0.01 && cp[0].juros > cp[119].juros && cp[0].amort < cp[119].amort, 'parcela ' + Math.round(cp[0].pay));
+  ok('SAC: amortização constante e parcela cai', Math.abs(cs[0].amort - cs[119].amort) < 0.01 && cs[0].pay > cs[119].pay && Math.abs(soma(cs, 'amort') - 300000) < 0.01);
+  ok('SAC paga menos juros no total que a Price', soma(cs, 'juros') < soma(cp, 'juros'), Math.round(soma(cs, 'juros')) + ' contra ' + Math.round(soma(cp, 'juros')));
+  ok('juros zero: parcelas iguais ao principal ÷ prazo', Math.abs(EF.cronogramaFin({ system: 'price', principal: 12000, rateYear: 0, months: 12 })[0].pay - 1000) < 0.01);
+  for (const [nome, fin] of [['Price', price], ['SAC', sac]]) {
+    const E4 = carregar(srcCliente);
+    E4.configure({ objectives: [{ id: 'c', name: 'Casa', icon: 'home', kind: 'bem', months: 24, amount: 100000, recurring: null, financing: fin, dedicated: 0, profile: 'moderado', planned: 3000, strategy: '' }] });
+    const s4 = E4.run('perp');
+    let erro = 0, juros = 0;
+    for (const b of s4.buckets.month) {
+      if (b.w1 <= E4.W0) continue;
+      let i = 0, o = 0, v = 0;
+      for (const k in b.f) { if (k.startsWith('in_')) i += b.f[k]; else if (k.startsWith('out_')) o += b.f[k]; else if (k.startsWith('mov_')) v += b.f[k]; }
+      erro = Math.max(erro, Math.abs(i - o - v)); juros += b.f['out_fix_fin_c'] || 0;
+    }
+    const total = fin === price ? soma(cp, 'juros') : soma(cs, 'juros');
+    ok('financiamento ' + nome + ' na simulação: identidade contábil e juros iguais ao cronograma', erro < 0.01 && Math.abs(juros - total) < 1, 'juros ' + Math.round(juros) + ' de ' + Math.round(total));
+  }
+}
+
 console.log('\n' + (falhas ? falhas + ' verificação(ões) falharam.' : 'Tudo certo.') + '\n');
 process.exit(falhas ? 1 : 0);

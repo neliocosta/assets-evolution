@@ -184,9 +184,17 @@ Registradas aqui porque não são óbvias no código:
   aposentadoria, e o patrimônio em perpetuidade subia para R$ 15 mi aos 90 anos. Agora ele fica estável
   (cerca de R$ 4 mi), e no modo consumo chega perto de zero na expectativa de vida. O fluxo antes da
   liberdade não mudou. Rendas passivas continuam e reduzem o que o patrimônio precisa sustentar.
-- **O portal tem uma página por assunto**, na ordem em que o plano é montado: Cliente, Patrimônio e
-  premissas, Objetivos, Fluxo de caixa, Liberdade financeira. O fluxo vem depois dos objetivos porque
-  mostra os aportes e custos deles.
+- **O portal tem uma página por assunto**, na ordem em que o plano é montado: Cliente, Fluxo de caixa,
+  Patrimônio e premissas, Objetivos, Liberdade financeira. O fluxo veio para o segundo lugar (pedido do
+  consultor): a capacidade de poupança fica logo abaixo dele, e os aportes dos objetivos aparecem no fluxo
+  depois de definidos. "Próximo" sempre leva à página seguinte.
+- **Rodinha na planilha do fluxo**: Ctrl aproxima, Shift anda no tempo, a rodinha sozinha rola a página
+  (como no Miro e no Excalidraw). A visão do cliente, que é um gráfico de tela cheia, continua com a rodinha
+  no zoom.
+- **As barras de Movimentações usam uma escala só para o período inteiro** (comprimida com asinh, para
+  um valor de 1 milhão não achatar os outros), e não a do que está à vista; assim não mudam de tamanho ao andar.
+- **Financiamento é calculado por sistema (Price ou SAC), taxa ao ano e prazo**, no lugar do percentual de
+  amortização informado à mão.
 - **A planilha do fluxo mostra o que a simulação calcula**, não o que foi digitado. Assim a linha de
   Movimentações é sempre entradas menos saídas, e depois da liberdade aparece o ajuste das despesas à renda.
 - **A semana é mostrada pelo intervalo de datas**, não por número. "Semana 3" dependia de em que dia o mês

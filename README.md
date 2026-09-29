@@ -5,7 +5,7 @@ além das fontes do Google, e abrem direto no navegador.
 
 | Arquivo | Para quem | O que faz |
 |---|---|---|
-| `tela-consultor.html` | Consultor | Configura o plano em cinco páginas: Cliente, Patrimônio e premissas, Objetivos, Fluxo de caixa e Liberdade financeira. |
+| `tela-consultor.html` | Consultor | Configura o plano em cinco páginas: Cliente, Fluxo de caixa, Patrimônio e premissas, Objetivos e Liberdade financeira. |
 | `evolucao-patrimonial.html` | Cliente | Mostra a trajetória do patrimônio ao longo da vida, apresentada ao vivo pelo consultor. |
 
 ## Por onde começar
@@ -34,6 +34,9 @@ O plano também fica salvo no `localStorage` do navegador, então a tela do cons
   "name": "Ana Ribeiro", "age": 35, "lifeExp": 95,
   "initialWealth": 500000,     // patrimônio financeiro do cliente hoje: ponto de partida do gráfico
   "capacityOverride": null,    // capacidade de poupança informada pelo cliente; null = salário − despesas
+  "mode": "perp",              // liberdade financeira por "perp" (perpetuidade) ou "cons" (consumo até a expectativa de vida); a visão do cliente abre nela
+  "tipo": "familia",           // "individual" ou "familia": sem família, o cônjuge some do cadastro
+  "horizonte": "month",        // como o Fluxo de caixa abre: month, quarter, semester ou year
   "desired": 25000,            // renda familiar desejada na aposentadoria (R$/mês)
   "rate": 0.004,               // retorno real líquido da reserva (ao mês)
   "partValue": 150000,         // planos antigos traziam "rent": vira a linha de despesa "moradia"
@@ -76,7 +79,8 @@ O plano também fica salvo no `localStorage` do navegador, então a tela do cons
       "kind": "bem",           // "bem" migra para patrimônio; "consumo" é uma saída
       "months": 46,            // data alvo, em meses a partir de set/2026
       "amount": 180000,        // custo pontual
-      "recurring": { "value": 4000, "months": 420, "label": "Financiamento", "amort": 0.45 },
+      "recurring": { "value": 800, "months": null, "label": "Condomínio" },   // custo fixo depois de realizado; "amort" (fração da parcela) só existe em planos antigos
+      "financing": { "system": "sac", "principal": 756000, "rateYear": 0.095, "months": 360 },   // "price" ou "sac"; juros e amortização calculados mês a mês
       "dedicated": 45000,      // patrimônio já dedicado a este objetivo
       "profile": "moderado",
       "planned": 1500,         // aporte mensal definido pelo consultor
@@ -131,7 +135,7 @@ três caminhos para fechar a diferença.
 
 **Fluxo de caixa.** No portal, entradas e saídas aparecem como uma planilha com o tempo na horizontal,
 na mesma estrutura da tela do cliente: Movimentações no patrimônio no topo, Entradas, e Saídas dividida
-em Fixas e Ajustáveis. A rodinha do mouse aproxima e afasta, de décadas até semanas, e arrastar anda no
+em Fixas e Ajustáveis. Ctrl + rodinha aproxima e afasta, de décadas até semanas; Shift + rodinha e arrastar andam no
 tempo. Os valores das células vêm da simulação, então a linha de Movimentações é sempre entradas menos
 saídas. Uma linha sem valor no período à vista fica escondida, e o grupo avisa quantas linhas têm valor
 antes ou depois da janela.
@@ -158,6 +162,13 @@ de um imóvel, continua, e entra no cálculo de quanto o patrimônio precisa sus
 começam numa data fixa (o INSS, numa idade definida) ou na liberdade financeira, com ou sem alguns meses
 de espera. Uma renda de data fixa que começa antes da liberdade já entra no fluxo. O portal mostra a data e
 a idade de início e de fim de cada uma.
+
+**Financiamento de bens.** Um objetivo que vira bem pode ter `financing`: sistema Price (parcela constante) ou
+SAC (amortização constante), valor financiado, taxa efetiva ao ano e prazo em meses. O motor calcula todo mês
+o juro sobre o saldo devedor: os juros são despesa (linha "(juros)" nas saídas fixas) e a amortização vira
+patrimônio em bens. O portal mostra a primeira e a última parcela, o total de juros e a tabela mês a mês. O
+campo antigo `recurring.amort` (fração fixa da parcela) continua funcionando em planos antigos e é substituído
+quando o financiamento é preenchido.
 
 **Ícones dos objetivos.** O consultor envia um SVG ou PNG, que viaja embutido no plano, ou cola uma classe
 do Font Awesome. O ícone aparece no marco do gráfico e no card do cliente. O Font Awesome é carregado de
