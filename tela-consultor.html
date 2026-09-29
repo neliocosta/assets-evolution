@@ -277,6 +277,28 @@ details.opc2[open] summary{margin-bottom:10px}
 .fotoerro{font-size:12px;color:#a9a7a2}
 .iconpick .prev{width:42px;height:42px;border-radius:50%;border:1.5px solid #e3e0d9;display:inline-flex;align-items:center;justify-content:center}
 .iconpick .prev img{width:24px;height:24px;object-fit:contain}
+.planner{border:1px solid #efeeea;border-radius:12px;padding:10px 14px 12px;margin:14px 0 4px;background:#fcfbf9}
+.pv{width:100%;height:auto;display:block;user-select:none;touch-action:none}
+.pv-ax{stroke:#e6e3dd}
+.pv text,.pv rect,.pv path,.pv .pv-pt{pointer-events:none}   /* só as alças recebem o mouse */
+.pv-lb{font:500 10.5px 'DM Sans',sans-serif;fill:#a3a19c}
+.pv-tx{font:600 11px 'DM Sans',sans-serif;fill:var(--nl-navy-900)}
+.pv-tx.bem{fill:#3B6FCB} .pv-tx.cons{fill:#D64545} .pv-tx.ap{fill:#2E9E5B} .pv-tx.gs{fill:#c2621f} .pv-tx.pt{fill:var(--nl-orange-600)}
+.pv-alvo{stroke:#d9d6cf;stroke-dasharray:3 3}
+.pv-nec{stroke:#9a9892;stroke-dasharray:4 4;fill:none;stroke-width:1.3}
+.pv-area{fill:rgba(46,158,91,.10)} .pv-saldo{stroke:#2E9E5B;stroke-width:2.2;fill:none} .pv-saldo.falta{stroke:#FA7A35}
+.pv-bem{stroke:#3B6FCB;stroke-width:2.2} .pv-cons{stroke:#D64545;stroke-width:2;stroke-dasharray:5 3} .pv-gap{stroke:#D64545;stroke-width:2}
+.pv-ap{fill:rgba(46,158,91,.2)} .pv-gasto{fill:rgba(250,122,53,.25)} .pv-fin{fill:rgba(59,111,203,.2)}
+.pv-hit{stroke:transparent;stroke-width:16;fill:transparent;cursor:ns-resize}
+.pv-hit.pt{cursor:move}
+.pv-pt{fill:var(--nl-orange-500);stroke:#fff;stroke-width:2.5}
+.pv-arrastando,.pv-arrastando *{cursor:grabbing !important}
+.pv-ctls{margin-top:4px}
+.pv-ctl{display:grid;grid-template-columns:210px 1fr 150px;gap:14px;align-items:center;margin-top:8px}
+.pv-ctl label{font:600 12px 'DM Sans',sans-serif;color:var(--nl-navy-900);margin:0}
+.pv-ctl input[type=range]{accent-color:var(--nl-orange-500);width:100%;padding:0;border:0;box-shadow:none}
+.pv-nota{margin:2px 0 0 224px;font-size:11.5px;color:#8d8d8d}
+.pv-res{font-size:12.5px;line-height:1.5;margin-top:10px;color:var(--nl-navy-900)}
 .cronog{max-height:240px;overflow:auto;margin-top:6px;border:1px solid #efeeea;border-radius:8px}
 .cronog table{width:100%;font-size:12px}
 .cronog th{position:sticky;top:0;background:#f7f5f1}
@@ -1277,6 +1299,131 @@ function resumoFinanciamento(o) {
 // blocos opcionais que a consultora abriu continuam abertos quando o cartão é redesenhado
 const blocosAbertos = new Set();
 document.addEventListener('toggle', e => { const d = e.target; if (d.dataset && d.dataset.abre) { if (d.open) blocosAbertos.add(d.dataset.abre); else blocosAbertos.delete(d.dataset.abre); } }, true);
+// ---------- planejador do objetivo: gráfico com pontos arrastáveis e controles deslizantes ----------
+// Mostra o objetivo sozinho, como uma prévia da visão do cliente: o saldo juntado até a data, o que acontece
+// na data (vira bem ou é gasto) e o custo mensal depois. É a conta teórica, sem o orçamento; o status do
+// cartão, que vem da simulação, é que diz se cabe.
+const PV = { W: 760, L: 66, R: 18, T: 22, B1: 142, S0: 172, S1: 230, H: 250 };
+const planEsc = {};                                   // escalas congeladas enquanto a consultora arrasta
+const redondo = v => { const e = Math.pow(10, Math.max(0, Math.floor(Math.log10(Math.max(1, v))) - 1)); return Math.ceil(v / e) * e; };
+const passoDe = max => { const b = max / 200, e = Math.pow(10, Math.floor(Math.log10(Math.max(1, b)))); return [1, 2, 5, 10].map(k => k * e).find(p => p >= b); };   // passo redondo: 1, 2 ou 5 × 10ⁿ
+const arred = (v, max) => { const p = passoDe(max); return Math.max(0, Math.min(max, Math.round(v / p) * p)); };
+const taxaObj = o => plano.profiles[o.profile] || 0.005;
+function saldoObj(o, m, aporte) { const r = taxaObj(o), g = Math.pow(1 + r, m); return (+o.dedicated || 0) * g + aporte * (g - 1) / r; }
+function necessario(o) { const r = taxaObj(o), g = Math.pow(1 + r, Math.max(1, o.months)); return Math.max(0, ((+o.amount || 0) - (+o.dedicated || 0) * g) / ((g - 1) / r)); }
+const gastoDepois = o => o.recurring ? +o.recurring.value || 0 : 0;
+const parcelaFin1 = o => finValido(o.financing) ? ENGINE.primeiraParcela(o.financing).pay : 0;
+// quanto tempo depois da data o gráfico mostra: o prazo do custo mensal ou do financiamento, limitado para caber
+function posDepois(o) {
+  const rec = o.recurring, fin = finValido(o.financing) ? +o.financing.months : 0;
+  const real = Math.max(rec && rec.value > 0 ? (rec.months != null ? rec.months : Infinity) : 0, fin);
+  return { real, vis: Math.round(Math.max(24, Math.min(isFinite(real) && real > 0 ? real : 60, Math.max(36, o.months * 2), 120))) };
+}
+function escalas(o) {
+  const proj = saldoObj(o, o.months, +o.planned || 0);
+  return { S: o.months + posDepois(o).vis, Y: redondo(Math.max(+o.amount || 0, proj, 50000) * 1.3),
+           M: redondo(Math.max(+o.planned || 0, necessario(o), gastoDepois(o) + parcelaFin1(o), 1000) * 1.5) };
+}
+const baseGoal = o => `${monthsLabel(o.months)} · ${o.amount > 0 ? fmt(o.amount) : 'sem custo'}${o.planned > 0 ? ' · aporte ' + fmt(o.planned) + '/mês' : ''}`;
+function planSvg(o) {
+  const E = planEsc[o.id] || escalas(o), { W, L, R, T, B1, S0, S1, H } = PV, n = o.months;
+  const x = m => L + m / E.S * (W - L - R), y = v => B1 - Math.min(1, v / E.Y) * (B1 - T), ym = v => S1 - Math.min(1, v / E.M) * (S1 - S0);
+  const ap = +o.planned || 0, nec = necessario(o), amt = +o.amount || 0, proj = saldoObj(o, n, ap), gasto = gastoDepois(o), fin = parcelaFin1(o), dep = posDepois(o);
+  const curva = a => Array.from({ length: 41 }, (_, k) => { const m = n * k / 40; return (k ? 'L' : 'M') + x(m).toFixed(1) + ' ' + y(saldoObj(o, m, a)).toFixed(1); }).join(' ');
+  const xa = x(n), xe = x(n + dep.vis), ok = amt <= 0 || proj >= amt * 0.98;
+  const alca = (x1, yy, x2, h, cor) => `<line x1="${x1}" y1="${yy}" x2="${x2}" y2="${yy}" stroke="${cor}" stroke-width="3"/><line x1="${x1}" y1="${yy}" x2="${x2}" y2="${yy}" class="pv-hit" data-h="${h}"><title>Arraste para cima ou para baixo</title></line>`;
+  let s = `<text x="${L}" y="${T - 9}" class="pv-lb">Saldo do objetivo</text><text x="${L}" y="${S0 - 8}" class="pv-lb">Por mês</text>`;
+  s += `<line x1="${L}" y1="${B1}" x2="${W - R}" y2="${B1}" class="pv-ax"/><line x1="${L}" y1="${S1}" x2="${W - R}" y2="${S1}" class="pv-ax"/>`;
+  s += `<text x="${L - 6}" y="${T + 4}" class="pv-lb" text-anchor="end">${fmtC(E.Y)}</text><text x="${L - 6}" y="${B1}" class="pv-lb" text-anchor="end">0</text>`;
+  s += `<text x="${L - 6}" y="${S0 + 4}" class="pv-lb" text-anchor="end">${fmtC(E.M)}</text><text x="${L - 6}" y="${S1}" class="pv-lb" text-anchor="end">0</text>`;
+  s += `<line x1="${xa}" y1="${T}" x2="${xa}" y2="${S1}" class="pv-alvo"/>`;
+  // até a data: o saldo que o aporte junta e, tracejada, a curva do aporte necessário
+  if (amt > 0) s += `<path d="${curva(nec)}" class="pv-nec"/>`;
+  s += `<path d="${curva(ap)} L${xa} ${B1} L${x(0)} ${B1}Z" class="pv-area"/><path d="${curva(ap)}" class="pv-saldo${ok ? '' : ' falta'}"/>`;
+  // na data: vira bem (fica no patrimônio) ou é gasto
+  if (amt > 0) s += o.kind === 'bem'
+    ? `<line x1="${xa}" y1="${y(amt)}" x2="${xe}" y2="${y(amt)}" class="pv-bem"/><text x="${xa + 12}" y="${y(amt) + 15}" class="pv-tx bem">vira patrimônio em bens</text>`
+    : `<line x1="${xa}" y1="${y(Math.max(amt, proj))}" x2="${xa}" y2="${B1}" class="pv-cons"/><text x="${xa + 12}" y="${B1 - 8}" class="pv-tx cons">gasto na data</text>`;
+  if (amt > 0 && !ok) s += `<line x1="${xa - 7}" y1="${y(proj)}" x2="${xa - 7}" y2="${y(amt)}" class="pv-gap"/><text x="${xa - 12}" y="${(y(proj) + y(amt)) / 2 + 4}" class="pv-tx cons" text-anchor="end">faltam ${fmtC(amt - proj)}</text>`;
+  if (amt > 0 && proj > amt * 1.02) s += `<text x="${xa - 10}" y="${y(proj) + 4}" class="pv-tx ap" text-anchor="end">sobra ${fmtC(proj - amt)}</text>`;
+  if (dep.real > dep.vis) s += `<text x="${xe}" y="${S0 - 8}" class="pv-lb" text-anchor="end">continua ${isFinite(dep.real) ? 'até ' + monthsLabel(n + dep.real) : 'sem prazo'} →</text>`;
+  // por mês: o que guardar até a data e o que gastar depois
+  s += `<rect x="${x(0)}" y="${ym(ap)}" width="${Math.max(0, xa - x(0))}" height="${S1 - ym(ap)}" class="pv-ap"/>`;
+  if (amt > 0) s += `<line x1="${x(0)}" y1="${ym(nec)}" x2="${xa}" y2="${ym(nec)}" class="pv-nec"/>`;
+  if (fin) s += `<rect x="${xa}" y="${ym(gasto + fin)}" width="${xe - xa}" height="${ym(gasto) - ym(gasto + fin)}" class="pv-fin"/>`;
+  s += `<rect x="${xa}" y="${ym(gasto)}" width="${xe - xa}" height="${S1 - ym(gasto)}" class="pv-gasto"/>`;
+  s += alca(x(0), ym(ap), xa, 'aporte', '#2E9E5B') + alca(xa, ym(gasto), xe, 'gasto', '#FA7A35');
+  s += `<text x="${(x(0) + xa) / 2}" y="${ym(ap) - 7}" class="pv-tx ap" text-anchor="middle">${ap ? 'guardar ' + fmt(ap) + '/mês' : 'arraste para cima: quanto guardar'}</text>`;
+  s += `<text x="${(xa + xe) / 2}" y="${ym(gasto + fin) - 7}" class="pv-tx gs" text-anchor="middle">${gasto || fin ? (gasto ? 'gastar ' + fmt(gasto) + '/mês' : '') + (fin ? (gasto ? ' + ' : '') + 'financiamento ' + fmt(fin) : '') : 'arraste para cima: custo mensal depois'}</text>`;
+  // o objetivo: valor (para cima e para baixo) e data (para os lados)
+  s += `<text x="${xa}" y="${y(amt) - 14}" class="pv-tx pt" text-anchor="middle">${amt ? fmt(amt) + ' em ' + monthsLabel(n) : 'arraste: valor e data'}</text>`;
+  s += `<circle cx="${xa}" cy="${y(amt)}" r="8" class="pv-pt"/><circle cx="${xa}" cy="${y(amt)}" r="17" class="pv-hit pt" data-h="valor"><title>Arraste para cima ou para baixo (valor) e para os lados (data)</title></circle>`;
+  s += `<text x="${x(0)}" y="${S1 + 15}" class="pv-lb">hoje</text><text x="${xa}" y="${S1 + 15}" class="pv-lb" text-anchor="middle">${monthsLabel(n)}</text><text x="${xe}" y="${S1 + 15}" class="pv-lb" text-anchor="end">${monthsLabel(n + dep.vis)}</text>`;
+  return `<svg viewBox="0 0 ${W} ${H}" class="pv">${s}</svg>`;
+}
+function planResumo(o) {
+  const ap = +o.planned || 0, amt = +o.amount || 0, n = o.months, proj = saldoObj(o, n, ap), g = gastoDepois(o), fin = parcelaFin1(o), rec = o.recurring;
+  if (!(amt > 0)) return 'Arraste o ponto laranja para cima para definir o valor do objetivo, e para os lados para mudar a data.';
+  return `Guardando <b>${fmt(ap)}/mês</b> por ${n} meses${o.dedicated ? ' (mais ' + fmt(o.dedicated) + ' já reservados)' : ''}, o cliente junta <b>${fmt(proj)}</b> em ${monthsLabel(n)}: ${Math.round(proj / amt * 100)}% dos ${fmt(amt)}.` +
+    (proj < amt * 0.98 ? ` Para chegar lá: <b>${fmt(Math.ceil(necessario(o)))}/mês</b> (linha tracejada).` : '') +
+    (o.kind === 'bem' ? ' Na data, o valor vira patrimônio em bens.' : ' Na data, o valor é gasto.') +
+    (g || fin ? ` Depois: <b>${fmt(g + fin)}/mês</b>${fin ? ' (' + fmt(fin) + ' da 1ª parcela do financiamento)' : ''}${g ? (rec.months != null ? ', o custo mensal por ' + rec.months + ' meses' : ', o custo mensal sem prazo para acabar') : ''}.` : '') +
+    ' <span class="muted">Conta do objetivo sozinho; o status ao lado considera o orçamento.</span>';
+}
+function planControles(o, i) {
+  const E = planEsc[o.id] || escalas(o);
+  const linha = (h, k, rot, val, max) => `<div class="pv-ctl"><label>${rot}</label><input type="range" min="0" max="${max}" step="${passoDe(max)}" value="${Math.min(val, max)}" data-pl="${o.id}" data-h="${h}"><input data-money type="text" inputmode="decimal" data-g="${i}" data-k="${k}" value="${val ? money(val) : ''}" placeholder="R$ 0,00"></div>`;
+  return linha('valor', 'amount', 'Valor do objetivo', +o.amount || 0, E.Y) +
+    linha('aporte', 'planned', 'Quanto guardar por mês até lá', +o.planned || 0, E.M) +
+    `<div class="pv-nota">${o.segueNecessario ? 'o aporte acompanha o necessário; mexa nele para fixar um valor' : o.amount > 0 && Math.abs(o.planned - o.required) >= 1 ? `<button class="usarnec" data-usar-nec="${i}">usar o necessário (${fmt(Math.ceil(o.required))})</button>` : ''}</div>` +
+    linha('gasto', 'recValue', 'Quanto gastar por mês depois', gastoDepois(o), E.M);
+}
+function atualizaPlanner(o) {
+  const el = document.querySelector(`.planner[data-plan="${o.id}"]`); if (!el) return;
+  el.querySelector('.pv-svg').innerHTML = planSvg(o);
+  el.querySelector('.pv-res').innerHTML = planResumo(o);
+  for (const [h, v] of [['aporte', +o.planned || 0], ['valor', +o.amount || 0], ['gasto', gastoDepois(o)]]) {
+    const r = el.querySelector(`input[type=range][data-h="${h}"]`); if (!r) continue;
+    if (document.activeElement !== r) r.value = v;
+    const t = r.nextElementSibling; if (t && document.activeElement !== t) t.value = v ? money(v) : '';
+  }
+  const w = el.closest('.goal').querySelector('.when'); if (w) w.textContent = baseGoal(o);
+}
+function aplicaAlca(o, h, v, meses) {
+  if (h === 'aporte') { o.planned = v; o.segueNecessario = false; }
+  if (h === 'valor') { o.amount = v; if (meses != null) o.months = meses; }
+  if (h === 'gasto') { const rec = o.recurring || { value: 0, months: null, label: o.name, amort: 0 }; rec.value = v; o.recurring = rec.value > 0 || rec.months != null ? rec : null; }
+}
+// controles deslizantes: mexem no gráfico na hora; ao soltar, a simulação roda de novo
+document.addEventListener('input', e => {
+  const t = e.target; if (!t.dataset || t.dataset.pl == null) return;
+  const o = plano.objectives.find(x => x.id === t.dataset.pl); if (!o) return;
+  if (!planEsc[o.id]) planEsc[o.id] = escalas(o);
+  aplicaAlca(o, t.dataset.h, +t.value); atualizaPlanner(o);
+});
+document.addEventListener('change', e => { const t = e.target; if (t.dataset && t.dataset.pl != null) { delete planEsc[t.dataset.pl]; renderAll(); } });
+// arrastar no gráfico
+let planDrag = null;
+document.addEventListener('pointerdown', e => {
+  const h = e.target.closest && e.target.closest('.pv [data-h]'); if (!h) return;
+  const o = plano.objectives.find(x => x.id === h.closest('.planner').dataset.plan); if (!o) return;
+  planEsc[o.id] = escalas(o); planDrag = { o, h: h.dataset.h }; document.body.classList.add('pv-arrastando'); e.preventDefault();
+});
+addEventListener('pointermove', e => {
+  if (!planDrag) return;
+  const { o, h } = planDrag, svg = document.querySelector(`.planner[data-plan="${o.id}"] svg`), E = planEsc[o.id]; if (!svg) return;
+  const p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY; const q = p.matrixTransform(svg.getScreenCTM().inverse());
+  const { W, L, R, T, B1, S0, S1 } = PV;
+  if (h === 'valor') aplicaAlca(o, h, arred((B1 - q.y) / (B1 - T) * E.Y, E.Y), Math.max(1, Math.min(E.S - 6, Math.round((q.x - L) / (W - L - R) * E.S))));
+  else {
+    let v = arred((S1 - q.y) / (S1 - S0) * E.M, E.M);
+    if (h === 'aporte') { const nec = Math.ceil(necessario(o)); if (Math.abs(v - nec) < E.M * 0.03) v = nec; }   // gruda no necessário
+    aplicaAlca(o, h, v);
+  }
+  atualizaPlanner(o);
+});
+addEventListener('pointerup', () => { if (!planDrag) return; delete planEsc[planDrag.o.id]; planDrag = null; document.body.classList.remove('pv-arrastando'); renderAll(); });
+
 function renderGoals() {
   const wrap = document.getElementById('goals');
   const ordem = plano.objectives.map((o, i) => i).sort((a, b) => ((plano.objectives[a].criado || 0) - (plano.objectives[b].criado || 0)) || (plano.objectives[a].months - plano.objectives[b].months));
@@ -1285,27 +1432,30 @@ function renderGoals() {
     const o = plano.objectives[i], rec = o.recurring, aberto = goalAbertos.has(o.id);
     const col = o.status === 'ok' ? 'var(--nl-score-good)' : o.status === 'adj' ? 'var(--nl-score-medium)' : 'var(--nl-score-low)';
     const legado = rec && rec.amort > 0 && !finValido(o.financing);
-    const base = `${monthsLabel(o.months)} · ${o.amount > 0 ? fmt(o.amount) : 'sem custo'}${o.planned > 0 ? ' · aporte ' + fmt(o.planned) + '/mês' : ''}`;
     return `
     <div class="goal${aberto ? '' : ' fechado'}" data-goal="${o.id}">
       <div class="goalhead" data-abrir-goal="${o.id}" title="${aberto ? 'Recolher' : 'Abrir os detalhes'}">
         <div class="ico" style="border-color:${col}">${iconeHtml(o, col)}</div>
-        <div class="nm"><div class="gtitle">${esc(o.name || 'Objetivo sem nome')}</div><div class="when">${base}</div></div>
+        <div class="nm"><div class="gtitle">${esc(o.name || 'Objetivo sem nome')}</div><div class="when">${baseGoal(o)}</div></div>
         ${aguardaOrcamento() ? '<span class="badge espera" title="O status depende do orçamento do cliente">status depois do Fluxo de caixa</span>' : `<span class="badge ${o.status}">${STATUS[o.status]}</span>`}
         <button class="btn btn-icon" data-del-g="${i}" title="Remover objetivo">×</button>
         <span class="chev">${aberto ? '▲' : '▼'}</span>
       </div>
       ${aberto ? `
-      <div class="grid g4">
+      <div class="grid g3">
         <div class="field"><label>Nome do objetivo</label><input data-g="${i}" data-k="name" value="${esc(o.name)}" placeholder="ex.: Casa própria"></div>
-        <div class="field"><label>Data alvo</label>${seletorMes('data-g="' + i + '" data-k="months"', o.months)}</div>
-        <div class="field"><label>Custo pontual (R$)</label><input data-money type="text" inputmode="decimal" data-g="${i}" data-k="amount" value="${o.amount ? money(o.amount) : ''}" placeholder="R$ 0,00"></div>
         <div class="field"><label>Tipo ${tip('Consumo: o dinheiro é gasto (viagem, festa, faculdade). Vira bem: o dinheiro vira patrimônio em bens (imóvel, carro) e não sai do patrimônio total.')}</label><select data-g="${i}" data-k="kind"><option value="consumo"${o.kind === 'consumo' ? ' selected' : ''}>Consumo</option><option value="bem"${o.kind === 'bem' ? ' selected' : ''}>Vira bem</option></select></div>
+        <div class="field"><label>Data alvo</label>${seletorMes('data-g="' + i + '" data-k="months"', o.months)}</div>
+      </div>
+      <div class="planner" data-plan="${o.id}"><div class="pv-svg">${planSvg(o)}</div><div class="pv-ctls">${planControles(o, i)}</div><div class="pv-res">${planResumo(o)}</div></div>
+      <details class="sub opc2" data-abre="${o.id}:mais"${blocosAbertos.has(o.id + ':mais') ? ' open' : ''}>
+        <summary>Mais detalhes <span>perfil de investimento e patrimônio já reservado</span></summary>
+        <div class="grid g3">
         <div class="field"><label>Patrimônio já reservado (R$) ${tip('Sai do patrimônio financeiro de hoje (' + fmt(plano.initialWealth) + '). Ainda livre para reservar: ' + fmt(livreParaReservar()) + '. Reservar parte dele reduz o aporte necessário.')}</label><input data-money type="text" inputmode="decimal" data-g="${i}" data-k="dedicated" value="${o.dedicated ? money(o.dedicated) : ''}" placeholder="R$ 0,00"></div>
         <div class="field"><label>Perfil de investimento</label><select data-g="${i}" data-k="profile">${Object.keys(plano.profiles).map(k => `<option value="${k}"${o.profile === k ? ' selected' : ''}>${k[0].toUpperCase() + k.slice(1)} (${(plano.profiles[k] * 100).toFixed(2).replace('.', ',')}%)</option>`).join('')}</select></div>
-        <div class="field"><label>Aporte definido (R$/mês)</label><input data-money type="text" inputmode="decimal" data-g="${i}" data-k="planned" value="${o.planned ? money(o.planned) : ''}" placeholder="R$ 0,00">${o.segueNecessario ? '<div class="deriv">acompanha o necessário; digite um valor para fixar</div>' : o.amount > 0 && Math.abs(o.planned - o.required) >= 1 ? `<button class="usarnec" data-usar-nec="${i}">usar o necessário (${fmt(Math.ceil(o.required))})</button>` : ''}</div>
         <div class="field"><label>Aporte necessário (R$/mês) ${tip('Calculado pela data, pelo custo e pelo patrimônio já reservado.')}</label><div class="calcv">${o.amount > 0 ? money(o.required) : '—'}</div></div>
-      </div>
+        </div>
+      </details>
 
       ${aguardaOrcamento() ? `<div class="note">Para chegar lá, o cliente precisa guardar <b>${fmt(o.required)} por mês</b>${o.dedicated ? ', além do patrimônio já reservado' : ''}. Preencha o Fluxo de caixa e volte aqui para ver quanto cabe no orçamento.</div>` : `
       <div class="calc">
@@ -1332,9 +1482,8 @@ function renderGoals() {
       </details>` : ''}
 
       <details class="sub opc2" data-abre="${o.id}:custo"${rec && !legado || blocosAbertos.has(o.id + ':custo') ? ' open' : ''}>
-        <summary>Custo mensal depois de realizado <span>condomínio, IPTU, mensalidade (opcional)</span></summary>
+        <summary>Custo mensal depois de realizado <span>prazo e nome no fluxo; o valor fica no gráfico acima</span></summary>
         <div class="grid g4">
-          <div class="field"><label>Valor (R$/mês)</label><input data-money type="text" inputmode="decimal" data-g="${i}" data-k="recValue" value="${rec && rec.value ? money(rec.value) : ''}" placeholder="R$ 0,00"></div>
           <div class="field"><label>Prazo (meses, vazio = indeterminado)</label><input type="number" step="12" data-g="${i}" data-k="recMonths" value="${rec && rec.months != null ? rec.months : ''}"></div>
           <div class="field"><label>Descrição no fluxo de caixa</label><input data-g="${i}" data-k="recLabel" value="${esc(rec ? rec.label : '')}" placeholder="ex.: Condomínio e IPTU"></div>
         </div>

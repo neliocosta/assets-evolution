@@ -170,6 +170,14 @@ patrimônio em bens. O portal mostra a primeira e a última parcela, o total de 
 campo antigo `recurring.amort` (fração fixa da parcela) continua funcionando em planos antigos e é substituído
 quando o financiamento é preenchido.
 
+**Planejador do objetivo.** No portal, cada objetivo aberto mostra um gráfico só dele: o saldo juntado até a
+data (com a curva tracejada do aporte necessário), o que acontece na data (vira bem ou é gasto) e, embaixo, o
+valor por mês antes e depois. Arrastar o ponto laranja muda o valor (para cima e para baixo) e a data (para
+os lados); as barras de baixo mudam quanto guardar e quanto gastar por mês depois (`recurring.value`). Os
+controles deslizantes fazem o mesmo. É a conta do objetivo sozinho; o status do cartão vem da simulação.
+
+**Fotos do exemplo.** Ficam em `fotos/` e entram no plano pelo campo `photo`, como qualquer outro link.
+
 **Ícones dos objetivos.** O consultor envia um SVG ou PNG, que viaja embutido no plano, ou cola uma classe
 do Font Awesome. O ícone aparece no marco do gráfico e no card do cliente. O Font Awesome é carregado de
 um CDN e só funciona com internet; o arquivo enviado funciona offline.

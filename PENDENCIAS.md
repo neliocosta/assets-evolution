@@ -194,6 +194,9 @@ Registradas aqui porque não são óbvias no código:
   "Pular animação" vai direto ao final.
 - **As barras de Movimentações usam uma escala só para o período inteiro** (comprimida com asinh, para
   um valor de 1 milhão não achatar os outros), e não a do que está à vista; assim não mudam de tamanho ao andar.
+- **O objetivo se planeja pelo gráfico.** Nome, tipo e data ficam em cima; valor, aporte e gasto mensal
+  depois ficam no gráfico, com alças e controles deslizantes; perfil e patrimônio reservado vão para "Mais
+  detalhes". O gráfico usa a conta do objetivo sozinho, e o status continua vindo da simulação.
 - **Financiamento é calculado por sistema (Price ou SAC), taxa ao ano e prazo**, no lugar do percentual de
   amortização informado à mão.
 - **A planilha do fluxo mostra o que a simulação calcula**, não o que foi digitado. Assim a linha de
