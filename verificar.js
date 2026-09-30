@@ -284,5 +284,21 @@ console.log('\n7. Custos depois de realizado (lista)');
   ok('bem abaixo de 70% do valor não é comprado nem gera gastos depois', caro.naoComprado && Math.max(...sn.weeks.map(w => w.bens)) === 0 && cond === 0 && errN < 0.01);
 }
 
+console.log('\n8. Saque na liberdade financeira: perpetuidade, consumo ou renda desejada');
+{
+  const Ed = carregar(srcCliente), fimI = Math.round(94 * Ed.WPY);
+  const sp = Ed.run('perp'), sd = Ed.run('desej');
+  // saque = renda desejada − rendas que entram: num ano depois da liberdade, o gasto médio (com a amortização,
+  // que vira bem) é a renda desejada; mês a mês ele varia com as despesas semanais (4 ou 5 por mês)
+  const ano = sd.buckets.month.filter(x => x.w0 > sd.ff.week + 60).slice(0, 12);
+  let gasto = 0; ano.forEach(b => { for (const k in b.f) { if (k.startsWith('out_')) gasto += b.f[k]; if (k === 'mov_bens' && b.f[k] > 0) gasto += b.f[k]; } });
+  const desejo = Ed.config().desired;
+  ok('renda desejada: o gasto médio do ano é a renda desejada', Math.abs(gasto / 12 - desejo) < 1, Math.round(gasto / 12) + ' de ' + desejo);
+  ok('renda desejada menor que o rendimento: o patrimônio cresce mais que na perpetuidade', sd.weeks[fimI].fin > sp.weeks[fimI].fin);
+  const Ea = carregar(srcCliente); Ea.configure({ desired: 60000, retireAge: 60 });
+  const sa = Ea.run('desej'); let acaba = null; for (let i = sa.ff.week + 1; i < Ea.NW; i++) if (sa.weeks[i].fin < 1) { acaba = i; break; }
+  ok('renda desejada alta: o patrimônio acaba antes da expectativa de vida', acaba != null && Ea.ageOf(acaba) < 95, acaba ? 'acaba aos ' + Math.floor(Ea.ageOf(acaba)) : '');
+}
+
 console.log('\n' + (falhas ? falhas + ' verificação(ões) falharam.' : 'Tudo certo.') + '\n');
 process.exit(falhas ? 1 : 0);

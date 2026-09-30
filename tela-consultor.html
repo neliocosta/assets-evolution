@@ -288,7 +288,7 @@ details.opc2[open] summary{margin-bottom:10px}
 .pv-nec{stroke:#a9a7a1;stroke-dasharray:3 3;fill:none;stroke-width:1}
 .pv-area{fill:rgba(46,158,91,.08)} .pv-saldo{stroke:#2E9E5B;stroke-width:1.4;fill:none} .pv-saldo.falta{stroke:#FA7A35}
 .pv-bem{stroke:#3B6FCB;stroke-width:1.4} .pv-cons{stroke:#D64545;stroke-width:1.2;stroke-dasharray:4 3}
-.pv-ap{fill:rgba(46,158,91,.15)} .pv-lap{stroke:#2E9E5B;stroke-width:1.6} .pv-lgs{stroke:#FA7A35;stroke-width:1.6}
+.pv-ap{fill:rgba(46,158,91,.15)} .pv-ent{fill:rgba(46,158,91,.28)} .pv-lap{stroke:#2E9E5B;stroke-width:1.6} .pv-lgs{stroke:#FA7A35;stroke-width:1.6}
 .pv-gfixo{fill:rgba(250,122,53,.22)} .pv-gprice{fill:rgba(59,111,203,.2)} .pv-gsac{fill:rgba(124,92,191,.22)}
 .pv-hit{stroke:transparent;stroke-width:12;fill:transparent;cursor:ns-resize}
 .pv-hit.ew{cursor:ew-resize}
@@ -407,7 +407,7 @@ circle.pv-hit{cursor:ns-resize}
       <h3>Premissas do planejamento</h3>
       <div class="grid g3">
         <div class="field"><label>Plano de <span class="tip" tabindex="0" data-tip="Uma pessoa: só o titular. Família: o cônjuge entra no plano (idade e rendas próprias, como o INSS).">?</span></label><select id="f-tipo"><option value="individual">Uma pessoa</option><option value="familia">Uma família</option></select></div>
-        <div class="field"><label>Liberdade financeira por <span class="tip" tabindex="0" data-tip="Perpetuidade: retira só o rendimento, o patrimônio fica estável e a renda dura para sempre. Consumo: gasta o patrimônio até a expectativa de vida. A visão do cliente abre nesta opção.">?</span></label><select id="f-modo"><option value="perp">Perpetuidade</option><option value="cons">Consumo do patrimônio</option></select></div>
+        <div class="field"><label>Saques na liberdade financeira <span class="tip" tabindex="0" data-tip="Como sacar do patrimônio na liberdade. Perpetuidade: saca só o rendimento; o patrimônio fica estável e o padrão de vida acompanha o que ele rende. Consumo: saca o que esgota o patrimônio na expectativa de vida. Renda desejada: saca só o que falta para a renda desejada; o patrimônio pode acabar antes ou sobrar. A visão do cliente abre nesta opção.">?</span></label><select id="f-modo"><option value="perp">Saques da perpetuidade</option><option value="cons">Consumo até a expectativa de vida</option><option value="desej">Saques da renda desejada</option></select></div>
         <div class="field"><label>Entradas e saídas em horizonte <span class="tip" tabindex="0" data-tip="Como o Fluxo de caixa abre: colunas de mês, trimestre, semestre ou ano. Dá para aproximar e afastar depois.">?</span></label><select id="f-horiz"><option value="month">Mensal</option><option value="quarter">Trimestral</option><option value="semester">Semestral</option><option value="year">Anual</option></select></div>
       </div>
       <div class="grid g4" style="margin-top:14px">
@@ -764,8 +764,9 @@ const ENGINE = (() => {
             if (parts.length) events.push({ week: i, type: 'passive', label: parts.join(' · '), detail: 'Renda passiva líquida passa a ' + pas.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }) + '/mês' });
           }
           prevActive = names.join('|');
-          // perpetuidade: retira exatamente o rendimento real (0,4%/mês) e o principal fica estável; consumo: PMT até a expectativa de vida
-          let w = mode === 'perp' ? fin() * R_M : (age < LIFE_EXP ? ff.pmt : 0);
+          // perpetuidade: retira exatamente o rendimento real e o principal fica estável; consumo: PMT até a expectativa de vida;
+          // renda desejada: retira só o que falta para a renda desejada, e o patrimônio pode acabar antes ou depois
+          let w = mode === 'perp' ? fin() * R_M : mode === 'desej' ? gapAt(m.mIdx - ff.mi, ff.mi) : (age < LIFE_EXP ? ff.pmt : 0);
           w = Math.min(w, Math.max(0, cofre - (f.out_rendas || 0)));
           // na aposentadoria o padrão de vida se ajusta à renda disponível
           const custoVida = livingAt(m.mIdx) || 1;
@@ -831,7 +832,7 @@ const ENGINE = (() => {
   function configure(plan) {
     if (!plan) return;
     normaliza(plan);
-    PLAN_MODE = plan.mode === 'cons' ? 'cons' : 'perp';   // como a liberdade financeira é vivida: perpetuidade ou consumo do patrimônio
+    PLAN_MODE = plan.mode === 'cons' || plan.mode === 'desej' ? plan.mode : 'perp';   // como sacar na liberdade: perpetuidade, consumo até a expectativa de vida ou a renda desejada
     if (plan.desired != null) DESIRED = +plan.desired;
     if (plan.lifeExp != null) LIFE_EXP = +plan.lifeExp;
     if (plan.salary != null) SALARY = +plan.salary;
@@ -908,7 +909,7 @@ function recompute() {
   ENGINE.configure(plano);                       // deriva o aporte necessário e a projeção teórica
   // aporte escolhido como "o necessário" acompanha mudanças de custo, data e patrimônio reservado
   plano.objectives.forEach(o => { if (o.segueNecessario) { o.planned = Math.ceil(o.required); ENGINE.derive(o); } });
-  SIM = ENGINE.run(plano.mode === 'cons' ? 'cons' : 'perp'); BALDES = null;
+  SIM = ENGINE.run(['perp', 'cons', 'desej'].includes(plano.mode) ? plano.mode : 'perp'); BALDES = null;
   plano.objectives.forEach((o, k) => {
     const ev = SIM.events.find(e => e.type === 'obj' && e.obj.id === o.id);
     const fim = ev ? ev.week : ENGINE.NW - 1;
@@ -1411,15 +1412,17 @@ function planSvg(o) {
   const E = planEsc[o.id] || escalas(o), { W, L, R, T, B1, S0, S1, H, FA } = PV, n = Math.min(o.months, E.P);
   const WA = (W - L - R) * FA, x = m => L + m / E.P * WA, xa = x(n), xb = k => xa + k / E.D * (W - R - xa);
   const y = v => B1 - Math.min(1, v / E.Y) * (B1 - T), ym = v => S1 - Math.min(1, v / E.M) * (S1 - S0);
-  const ap = +o.planned || 0, nec = necessario(o), amt = +o.amount || 0, proj = saldoObj(o, o.months, ap), ok = amt <= 0 || proj >= amt * 0.98;
-  const curva = a => Array.from({ length: 41 }, (_, k) => { const m = n * k / 40; return (k ? 'L' : 'M') + x(m).toFixed(1) + ' ' + y(saldoObj(o, m, a)).toFixed(1); }).join(' ');
+  const ap = +o.planned || 0, nec = necessario(o), amt = +o.amount || 0, rv = realVisto(o), apC = rv ? rv.ap : ap, kC = rv ? rv.k : 1;
+  const proj = rv ? o.real : saldoObj(o, o.months, ap), ok = amt <= 0 || proj >= amt * 0.98;
+  const curva = (a, k2) => Array.from({ length: 41 }, (_, k) => { const m = n * k / 40; return (k ? 'L' : 'M') + x(m).toFixed(1) + ' ' + y(saldoObj(o, m, a) * (k2 || 1)).toFixed(1); }).join(' ');
   const hit = (x1, y1, x2, y2, h, dica) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="pv-hit${h === 'data' ? ' ew' : ''}" data-h="${h}"><title>${dica}</title></line>`;
   let s = `<text x="${L}" y="${T - 7}" class="pv-lb">saldo do objetivo</text><text x="${L}" y="${S0 - 6}" class="pv-lb">por mês</text>`;
   s += `<line x1="${L}" y1="${B1}" x2="${W - R}" y2="${B1}" class="pv-ax"/><line x1="${L}" y1="${S1}" x2="${W - R}" y2="${S1}" class="pv-ax"/>`;
   s += `<text x="${L - 5}" y="${T + 3}" class="pv-lb" text-anchor="end">${fmtC(E.Y)}</text><text x="${L - 5}" y="${S0 + 3}" class="pv-lb" text-anchor="end">${fmtC(E.M)}</text>`;
   // até a data
   if (amt > 0) s += `<path d="${curva(nec)}" class="pv-nec"/>`;
-  s += `<path d="${curva(ap)} L${xa} ${B1} L${x(0)} ${B1}Z" class="pv-area"/><path d="${curva(ap)}" class="pv-saldo${ok ? '' : ' falta'}"/>`;
+  s += `<path d="${curva(apC, kC)} L${xa} ${B1} L${x(0)} ${B1}Z" class="pv-area"/><path d="${curva(apC, kC)}" class="pv-saldo${ok ? '' : ' falta'}"/>`;
+  if (rv && rv.ap < ap - 0.5) s += `<rect x="${x(0)}" y="${ym(rv.ap)}" width="${Math.max(0, xa - x(0))}" height="${S1 - ym(rv.ap)}" class="pv-ent"/>`;
   s += `<rect x="${x(0)}" y="${ym(ap)}" width="${Math.max(0, xa - x(0))}" height="${S1 - ym(ap)}" class="pv-ap"/>`;
   if (amt > 0) s += `<line x1="${x(0)}" y1="${ym(nec)}" x2="${xa}" y2="${ym(nec)}" class="pv-nec"/>`;
   s += `<line x1="${x(0)}" y1="${ym(ap)}" x2="${xa}" y2="${ym(ap)}" class="pv-lap"/>`;
@@ -1452,12 +1455,19 @@ function planSvg(o) {
   s += `<text x="${W - R}" y="${S1 + 13}" class="pv-lb" text-anchor="end">${dep.semFim ? monthsLabel(o.months + E.D) + ' e continua →' : dep.fim ? 'último gasto em ' + monthsLabel(o.months + dep.fim - 1) : monthsLabel(o.months + E.D)}</text>`;
   return `<svg viewBox="0 0 ${W} ${H}" class="pv">${s}</svg>`;
 }
+// com o orçamento preenchido (e fora de um arraste), o que a simulação entrega: aporte médio e o fator que leva
+// a curva teórica ao saldo real na data, para que curva, resumo e selo mostrem o mesmo número
+function realVisto(o) {
+  if (planDrag || planEsc[o.id] || aguardaOrcamento() || !(o.amount > 0) || o.real == null) return null;
+  const ap = Math.min(+o.planned || 0, o.effective || 0), teo = saldoObj(o, o.months, ap);
+  return { ap, k: teo > 0 ? o.real / teo : 1 };
+}
 function planResumo(o) {
-  const ap = +o.planned || 0, amt = +o.amount || 0, proj = saldoObj(o, o.months, ap);
+  const ap = +o.planned || 0, amt = +o.amount || 0, rv = realVisto(o), proj = rv ? o.real : saldoObj(o, o.months, ap);
   if (!(amt > 0)) return 'Informe o valor do objetivo, ou arraste a bolinha laranja para cima.';
   const cs = (o.costs || []).filter(c => duracaoCusto(c) > 0);
-  return `Guardando <b>${fmt(ap)}/mês</b>${o.dedicated ? ' (mais ' + fmt(o.dedicated) + ' reservados)' : ''}, junta <b>${fmt(proj)}</b> em ${monthsLabel(o.months)}: ${Math.round(proj / amt * 100)}% do valor.` +
-    (proj < amt * 0.98 ? ` Para chegar lá: <b>${fmt(Math.ceil(necessario(o)))}/mês</b> (tracejado).` : '') +
+  return (rv && rv.ap < ap - 0.5 ? `Definido <b>${fmt(ap)}/mês</b>, mas o orçamento entrega em média <b>${fmt(rv.ap)}/mês</b> (faixa clara)` : `Guardando <b>${fmt(ap)}/mês</b>`) + `${o.dedicated ? ' (mais ' + fmt(o.dedicated) + ' reservados)' : ''}, junta <b>${fmt(proj)}</b> em ${monthsLabel(o.months)}: ${Math.floor(proj / amt * 100)}% do valor.` +
+    (proj < amt * 0.98 ? (rv && ap >= necessario(o) - 0.5 ? ' O aporte definido basta; o que falta é o orçamento não entregar tudo.' : ` Para chegar lá: <b>${fmt(Math.ceil(necessario(o)))}/mês</b> (tracejado).`) : '') +
     (cs.length ? ' Depois: ' + cs.map(c => { const d = duracaoCusto(c), v = ENGINE.serieCusto(c, 1)[0]; return esc(nomeCusto(o, c)) + ' ' + fmt(v) + (c.type === 'sac' ? ' caindo' : '') + '/mês' + (d === Infinity ? ' sem prazo' : ' por ' + d + ' meses'); }).join('; ') + '.' : '');
 }
 function atualizaPlanner(o) {
@@ -1509,11 +1519,11 @@ function renderGoals() {
     const temApres = !!(o.strategy || o.photo || o.iconData || o.iconFA || blocosAbertos.has(o.id + ':apres'));
     const chips = [!temGasto && `<button class="chipadd" data-add-c="${o.id}">+ Gasto depois de realizado</button>`, !temMais && `<button class="chipadd" data-add-sec="${o.id}:mais">+ Patrimônio já reservado</button>`, !temApres && `<button class="chipadd" data-add-sec="${o.id}:apres">+ Apresentação ao cliente</button>`].filter(Boolean);
     const orc = aguardaOrcamento() || !(o.amount > 0) ? '' : o.status === 'ok'
-      ? `<div class="orc ok">No orçamento: recebe ${fmt(o.effective)}/mês e chega a ${fmt(o.real)} (${Math.round(o.realRatio * 100)}%).</div>`
+      ? `<div class="orc ok">No orçamento: recebe ${fmt(o.effective)}/mês e chega a ${fmt(o.real)} (${Math.floor(o.realRatio * 100)}%).</div>`
       : (() => { const d = diagnostico(o), saidas = d ? ['adiar a data', d.anteriores.length ? 'reduzir o aporte de ' + d.anteriores.map(x => esc(x.name)).join(', ') : '', 'aumentar a capacidade de poupança no Fluxo de caixa'].filter(Boolean) : [];
           const cabe = Math.floor(o.real / 1000) * 1000;
           const oferta = cabe >= 1000 ? ` <button class="usarnec" data-cabe="${o.id}">usar ${fmt(cabe)} como valor do objetivo</button> (o que o cliente junta até a data)` : '';
-          return (o.naoComprado ? `<div class="orc low"><b>Não é comprado na simulação:</b> até a data o cliente junta ${fmt(o.real)}, menos de 70% do valor. O bem e os gastos depois dele ficam de fora do patrimônio.${oferta}</div>` : '') + `<div class="orc low">No orçamento: recebe ${fmt(o.effective)}/mês e chega a ${fmt(o.real)} (${Math.round(o.realRatio * 100)}% do valor).` + (d ? ` A partir de <b>${monthsLabel(d.mes)}</b> o orçamento não comporta os ${fmt(o.planned)}/mês${d.causas.length ? ': ' + d.causas.join('; ') : ''}. Para resolver: ${saidas.join(', ou ')}.` : o.required > o.planned + 0.5 ? ` Para ficar alcançável: guardar ${fmt(Math.ceil(o.required))}/mês.` : '') + (o.naoComprado ? '' : oferta) + '</div>'; })();
+          return (o.naoComprado ? `<div class="orc low"><b>Não é comprado na simulação:</b> até a data o cliente junta ${fmt(o.real)}, menos de 70% do valor. O bem e os gastos depois dele ficam de fora do patrimônio.${oferta}</div>` : '') + `<div class="orc low">No orçamento: recebe ${fmt(o.effective)}/mês e chega a ${fmt(o.real)} (${Math.floor(o.realRatio * 100)}% do valor).` + (d ? ` A partir de <b>${monthsLabel(d.mes)}</b> o orçamento não comporta os ${fmt(o.planned)}/mês${d.causas.length ? ': ' + d.causas.join('; ') : ''}. Para resolver: ${saidas.join(', ou ')}.` : o.required > o.planned + 0.5 ? ` Para ficar alcançável: guardar ${fmt(Math.ceil(o.required))}/mês.` : '') + (o.naoComprado ? '' : oferta) + '</div>'; })();
     return `
     <div class="goal${aberto ? '' : ' fechado'}" data-goal="${o.id}">
       <div class="goalhead" data-abrir-goal="${o.id}" title="${aberto ? 'Recolher' : 'Abrir os detalhes'}">
@@ -1568,23 +1578,28 @@ const passivaDoFluxo = mi => plano.incomes.reduce((a, c) => a + (ENGINE.ativo(c)
 // O saque vai até o que o patrimônio sustenta (o rendimento na perpetuidade, a parcela de consumo no outro modo);
 // o que passar disso é o que falta.
 const CORES_RENDA = ['#3B6FCB', '#7C5CBF', '#2A9D8F', '#D9952A', '#5B8DEF', '#A06CD5', '#4E9F9A'];
-function janelasDeRenda(f) {
+function janelasDeRenda(f, miEsg) {
   const mi0 = f.mi, mFim = Math.max(mi0 + 12, Math.round((+plano.lifeExp - ENGINE.CURRENT_AGE) * 12)), out = [];
   const passivasFluxo = plano.incomes.filter(c => !ENGINE.ativo(c));
   for (let mi = mi0; mi < mFim; mi++) {
     const camadas = plano.passive.map((p, k) => ({ id: 'p' + k, nome: p.name || 'Renda sem nome', v: ENGINE.rendaAtiva(p, mi, mi0) ? +p.net || 0 : 0 }))
       .concat(passivasFluxo.map(c => ({ id: 'f' + c.id, nome: c.label || 'Renda passiva', v: ENGINE.mensalizado(c, mi) })))
       .filter(c => c.v > 0.5);
-    const assin = camadas.map(c => c.id + ':' + Math.round(c.v)).join('|'), ult = out[out.length - 1];
-    if (ult && ult.assin === assin) ult.m1 = mi + 1; else out.push({ m0: mi, m1: mi + 1, camadas, assin });
+    const semPatr = miEsg != null && mi >= miEsg;   // o patrimônio financeiro já acabou
+    const assin = camadas.map(c => c.id + ':' + Math.round(c.v)).join('|') + (semPatr ? '|sem' : ''), ult = out[out.length - 1];
+    if (ult && ult.assin === assin) ult.m1 = mi + 1; else out.push({ m0: mi, m1: mi + 1, camadas, assin, semPatr });
   }
   return out;
 }
 function htmlProgramacao() {
   const f = ffInfo();
   if (!f || !(plano.desired > 0) || !temFluxo()) return '<div class="fxcap vazio">A programação da renda aparece quando houver renda desejada (página Cliente) e entradas no Fluxo de caixa.</div>';
-  const js = janelasDeRenda(f), D = +plano.desired, cons = plano.mode === 'cons';
-  const Z = cons ? f.ff.pmt : f.ff.finAfter * plano.rate;   // o que o patrimônio sustenta de saque por mês
+  const modo = ['perp', 'cons', 'desej'].includes(plano.mode) ? plano.mode : 'perp', cons = modo === 'cons', desej = modo === 'desej', D = +plano.desired;
+  let wEsg = null; if (desej) for (let i = f.ff.week + 1; i < ENGINE.NW; i++) if (SIM.weeks[i].fin < 1) { wEsg = i; break; }
+  const js = janelasDeRenda(f, wEsg != null ? SIM.weeks[wEsg].mi : null);
+  // o que o patrimônio sustenta de saque por mês: o rendimento, a parcela de consumo ou, na renda desejada, tudo até acabar
+  const Z0 = cons ? f.ff.pmt : f.ff.finAfter * plano.rate, zDe = j => desej ? (j.semPatr ? 0 : Infinity) : Z0;
+  const idFim = Math.round((+plano.lifeExp) * ENGINE.WPY), sobraFim = SIM.weeks[Math.min(ENGINE.NW - 1, idFim)].fin;
   const cor = {}; let nc = 0; js.forEach(j => j.camadas.forEach(c => { if (!(c.id in cor)) { cor[c.id] = CORES_RENDA[nc++ % CORES_RENDA.length]; } }));
   const W = 900, H = 250, L = 64, R = 12, T = 22, B = 206, m0 = js[0].m0, m1 = js[js.length - 1].m1;
   const topo = Math.max(D, ...js.map(j => j.camadas.reduce((a, c) => a + c.v, 0))) * 1.15;
@@ -1601,19 +1616,19 @@ function htmlProgramacao() {
   js.forEach(j => {
     const x0 = x(j.m0) + 1, x1 = x(j.m1) - 1; let base = 0;
     j.camadas.forEach(c => { const y0 = y(base), y1 = y(base + c.v); s += `<rect x="${x0}" y="${y1}" width="${Math.max(1, x1 - x0)}" height="${y0 - y1}" fill="${cor[c.id]}" opacity=".85"><title>${esc(c.nome)}: ${fmt(c.v)}/mês</title></rect>` + rot(x0, x1, y0, y1, fmtC(c.v), 'claro'); base += c.v; });
-    const saque = Math.max(0, D - base), coberto = Math.min(saque, Z), falta = saque - coberto;
+    const saque = Math.max(0, D - base), coberto = Math.min(saque, zDe(j)), falta = saque - coberto;
     if (coberto > 0) { const y0 = y(base), y1 = y(base + coberto); s += `<rect x="${x0}" y="${y1}" width="${Math.max(1, x1 - x0)}" height="${y0 - y1}" class="pg-saque"><title>Saque do patrimônio: ${fmt(coberto)}/mês</title></rect>` + rot(x0, x1, y0, y1, 'saque ' + fmtC(coberto), 'claro'); }
     if (falta > 0.5) { const y0 = y(base + coberto), y1 = y(D); s += `<rect x="${x0}" y="${y1}" width="${Math.max(1, x1 - x0)}" height="${y0 - y1}" fill="url(#hachura)"><title>Falta: ${fmt(falta)}/mês</title></rect>` + rot(x0, x1, y0, y1, 'falta ' + fmtC(falta), 'falta'); }
     s += `<text x="${x(j.m0) + 2}" y="${B + 14}" class="pg-lb">${idade(j.m0)} anos</text>`;
-    linhas.push(`<tr><td>${idade(j.m0)} a ${idade(j.m1 - 1) + 1} anos<small>${monthsLabel(j.m0)} a ${monthsLabel(j.m1 - 1)}</small></td><td>${j.camadas.length ? j.camadas.map(c => `<i class="sw" style="background:${cor[c.id]}"></i>${esc(c.nome)} ${fmt(c.v)}`).join('<br>') : '<span class="muted">nenhuma</span>'}</td><td class="num">${fmt(coberto)}</td><td class="num${falta > 0.5 ? ' low' : ''}">${falta > 0.5 ? fmt(falta) : '—'}</td></tr>`);
+    linhas.push(`<tr><td>${idade(j.m0)} a ${idade(j.m1)} anos<small>${monthsLabel(j.m0)} a ${monthsLabel(j.m1 - 1)}</small></td><td>${j.camadas.length ? j.camadas.map(c => `<i class="sw" style="background:${cor[c.id]}"></i>${esc(c.nome)} ${fmt(c.v)}`).join('<br>') : '<span class="muted">nenhuma</span>'}</td><td class="num">${fmt(coberto)}</td><td class="num${falta > 0.5 ? ' low' : ''}">${falta > 0.5 ? fmt(falta) : '—'}</td></tr>`);
   });
   s += `<line x1="${L}" y1="${y(D)}" x2="${W - R}" y2="${y(D)}" class="pg-des"/><text x="${L - 6}" y="${y(D) + 3.5}" class="pg-lb forte" text-anchor="end">${fmtC(D)}</text>`;
   s += `<text x="${W - R}" y="${y(D) - 6}" class="pg-lb forte" text-anchor="end">renda desejada ${fmt(D)}/mês</text>`;
   s += `<text x="${W - R}" y="${B + 14}" class="pg-lb" text-anchor="end">${plano.lifeExp} anos</text><text x="${L - 6}" y="${B}" class="pg-lb" text-anchor="end">0</text>`;
   const legenda = Object.keys(cor).map(id => { const c = js.flatMap(j => j.camadas).find(c => c.id === id); return `<span><i class="sw" style="background:${cor[id]}"></i>${esc(c.nome)}</span>`; }).join('') +
-    `<span><i class="sw" style="background:#2E9E5B"></i>Saque do patrimônio</span>` + (js.some(j => Math.max(0, D - j.camadas.reduce((a, c) => a + c.v, 0)) > Z + 0.5) ? `<span><i class="sw" style="background:url(#);background:repeating-linear-gradient(45deg,#FDECEC 0 3px,#D64545 3px 5px)"></i>Falta (o patrimônio não sustenta)</span>` : '');
+    `<span><i class="sw" style="background:#2E9E5B"></i>Saque do patrimônio</span>` + (js.some(j => Math.max(0, D - j.camadas.reduce((a, c) => a + c.v, 0)) > zDe(j) + 0.5) ? `<span><i class="sw" style="background:url(#);background:repeating-linear-gradient(45deg,#FDECEC 0 3px,#D64545 3px 5px)"></i>Falta (o patrimônio não sustenta)</span>` : '');
   return `<div class="bloco"><h3>Programação da renda</h3>
-    <div class="muted" style="margin-bottom:6px">A partir de ${quandoMes(f.mi)}. O patrimônio de ${fmtC(f.ff.finAfter)} ${cons ? 'sustenta saques de até ' + fmt(Z) + ' por mês até os ' + plano.lifeExp + ' anos (consumo)' : 'rende ' + fmt(Z) + ' por mês sem ser consumido (perpetuidade)'}.</div>
+    <div class="muted" style="margin-bottom:6px">A partir de ${quandoMes(f.mi)}. O patrimônio de ${fmtC(f.ff.finAfter)} ${desej ? 'paga só o que falta para a renda desejada: ' + (wEsg != null ? '<b style="color:var(--nl-score-low)">acaba aos ' + Math.floor(ENGINE.ageOf(wEsg)) + ' anos</b>' : 'não acaba; aos ' + plano.lifeExp + ' anos ainda tem ' + fmtC(sobraFim)) : cons ? 'sustenta saques de até ' + fmt(Z0) + ' por mês até os ' + plano.lifeExp + ' anos (consumo)' : 'rende ' + fmt(Z0) + ' por mês sem ser consumido (perpetuidade)'}.</div>
     <svg viewBox="0 0 ${W} ${H}" class="pg">${s}</svg>
     <div class="pg-leg">${legenda}</div>
     <div class="tablewrap" style="margin-top:10px"><table class="pg-tab"><thead><tr><th>Janela</th><th>Rendas que entram (por mês)</th><th class="num">Saque do patrimônio</th><th class="num">Falta</th></tr></thead><tbody>${linhas.join('')}</tbody></table></div>
@@ -2292,7 +2307,7 @@ function aplicaTipo() {
 }
 function fillFields() {
   document.getElementById('f-tipo').value = plano.tipo || (+plano.spouseAge > 0 ? 'familia' : 'individual');
-  document.getElementById('f-modo').value = plano.mode === 'cons' ? 'cons' : 'perp';
+  document.getElementById('f-modo').value = ['perp', 'cons', 'desej'].includes(plano.mode) ? plano.mode : 'perp';
   document.getElementById('f-horiz').value = plano.horizonte || 'month';
   aplicaTipo();
   document.getElementById('f-name').value = plano.name;

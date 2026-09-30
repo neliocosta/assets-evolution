@@ -138,8 +138,10 @@ em cada janela de tempo (uma renda que começa ou termina abre uma janela nova),
 aposentadoria e rendas passivas do fluxo. O saque do patrimônio completa até a renda desejada, limitado ao que o
 patrimônio sustenta (o rendimento na perpetuidade, a parcela de consumo no outro modo); o resto aparece como falta.
 
-- **Perpetuidade**: retirada mensal = patrimônio × taxa. O principal fica estável.
-- **Consumo**: retirada mensal = PMT até a expectativa de vida. O patrimônio chega a zero na data.
+- **Perpetuidade** (`mode: "perp"`): retirada mensal = patrimônio × taxa. O principal fica estável.
+- **Consumo** (`"cons"`): retirada mensal = PMT até a expectativa de vida. O patrimônio chega a zero na data.
+- **Renda desejada** (`"desej"`): retirada mensal = renda desejada − rendas que entram. O patrimônio pode acabar
+  antes da expectativa de vida ou sobrar.
 
 **Fluxo de caixa.** No portal, entradas e saídas aparecem como uma planilha com o tempo na horizontal,
 na mesma estrutura da tela do cliente: Movimentações no patrimônio no topo, Entradas, e Saídas dividida

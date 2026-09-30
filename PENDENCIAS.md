@@ -50,11 +50,6 @@ duas rendas e duas idades. Afeta o modelo do plano, a linha do tempo e o cálcul
 
 # P2 — Atrito forte no trabalho do consultor
 
-### 0. Saque na liberdade: renda desejada ou rendimento inteiro?
-A programação da renda (página Liberdade) mostra saque = renda desejada − rendas que entram, como a consultoria
-planeja. O motor, porém, saca na perpetuidade o rendimento inteiro do patrimônio (e no consumo, a parcela até a
-expectativa de vida) e ajusta o padrão de vida a isso. Quando o patrimônio rende mais que o necessário, a visão
-do cliente mostra o cliente gastando mais do que a renda desejada. Decidir se o motor passa a sacar só o necessário.
 
 ### 4. Botão "ajustar para o aporte necessário"
 Adiar um objetivo derruba o aporte necessário, mas o aporte definido continua onde estava e é preciso
@@ -204,6 +199,11 @@ Registradas aqui porque não são óbvias no código:
   guardar; gastos depois (lista de custo fixo, Price e SAC), patrimônio reservado e perfil, e apresentação
   entram pelos botões "+". No gráfico, a linha tracejada muda só a data e a bolinha só o valor. O gráfico usa
   a conta do objetivo sozinho, e o status continua vindo da simulação.
+- **Como sacar na liberdade é decisão do planejador** (premissa do plano, e botões na visão do cliente):
+  saques da perpetuidade (o rendimento; o padrão de vida acompanha), consumo até a expectativa de vida, ou
+  saques da renda desejada (só o que falta; o patrimônio pode acabar antes ou sobrar).
+- **O gráfico do objetivo mostra o que o orçamento entrega**, não só o aporte definido, para concordar com o
+  selo: um objetivo com aporte suficiente mas orçamento curto aparecia com 100% no gráfico e "com ajustes".
 - **Bem abaixo de 70% do valor na data não é comprado.** Antes a reserva pagava a diferença e o bem entrava
   no patrimônio com o selo "Requer revisão" (a casa de praia do exemplo: R$ 75 mil juntados, R$ 225 mil da
   reserva). Objetivos de consumo continuam sendo gastos, com o selo vermelho.
