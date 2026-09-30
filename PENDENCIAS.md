@@ -76,6 +76,8 @@ Um objetivo é "consumo" ou "vira bem". Um carro vira bem e nunca perde valor. F
 comportamento, ou um percentual de depreciação ao ano.
 
 ### 10. Prioridade explícita do objetivo
+Com a conferência do orçamento, um aporte novo não estoura mais o orçamento; mas planos antigos, ou uma despesa
+nova no Fluxo de caixa, ainda podem deixar objetivos sem aporte, e aí vale a ordem das datas.
 Hoje a ordem de alocação do aporte é a ordem das datas. Quando o orçamento não cobre tudo, quem decide o
 que fica sem aporte é o calendário, não o consultor.
 
@@ -199,6 +201,11 @@ Registradas aqui porque não são óbvias no código:
   guardar; gastos depois (lista de custo fixo, Price e SAC), patrimônio reservado e perfil, e apresentação
   entram pelos botões "+". No gráfico, a linha tracejada muda só a data e a bolinha só o valor. O gráfico usa
   a conta do objetivo sozinho, e o status continua vindo da simulação.
+- **Aporte não passa do orçamento.** Aumentar um aporte que faz faltar dinheiro em algum mês abre o orçamento
+  daquele mês (entradas, despesas, gastos dos objetivos, sobra e aportes pedidos) e obriga a escolher: reduzir
+  uma despesa ou o aporte de outro objetivo a partir daquele mês, guardar só o que cabe, ou cancelar. A conta é
+  a mesma do motor (equivalente mensal) e bate com o que a simulação entrega. Mudanças de despesa no Fluxo de
+  caixa ainda não passam por essa conferência.
 - **Como sacar na liberdade é decisão do planejador** (premissa do plano, e botões na visão do cliente):
   saques da perpetuidade (o rendimento; o padrão de vida acompanha), consumo até a expectativa de vida, ou
   saques da renda desejada (só o que falta; o patrimônio pode acabar antes ou sobrar).

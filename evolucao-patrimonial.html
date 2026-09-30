@@ -354,7 +354,7 @@ const ENGINE = (() => {
     let offset = 99, streams = [], ff = null, prevActive = '', allocated = false, ks = [];
     const recurTotal = () => streams.reduce((a, st) => a + (st.left === 0 ? 0 : st.value), 0);
     // despesa com endObj (o aluguel, por exemplo) deixa de existir quando aquele objetivo é realizado
-    const encerrada = c => { if (!c.endObj) return false; const k = OBJ.findIndex(o => o.id === c.endObj); return k >= 0 && done[k]; };
+    const encerrada = c => { if (!c.endObj) return false; const k = OBJ.findIndex(o => o.id === c.endObj); return k >= 0 && done[k] && !OBJ[k].naoComprado; };
     const livingAt = mm => EXPENSES.reduce((a, c) => a + (encerrada(c) ? 0 : mensalizado(c, mm)), 0);
     // falta mensal para a renda desejada no mês mm depois da liberdade, que começa no mês do motor mi0
     const gapAt = (mm, mi0) => Math.max(0, DESIRED - PASSIVE.reduce((s, p) => s + (rendaAtiva(p, mi0 + mm, mi0) ? p.net : 0), 0) - passiveIncomeAt(mi0 + mm));

@@ -189,6 +189,10 @@ quanto guardar e o primeiro custo fixo. Antes e depois da data o tempo tem escal
 patrimônio reservado e perfil, e apresentação ao cliente entram pelos botões "+". É a conta do objetivo
 sozinho; o status do cartão vem da simulação.
 
+**Orçamento dos aportes.** Em cada mês antes da liberdade, sobra para aportes = entradas − despesas − gastos
+dos objetivos já realizados (equivalente mensal, a mesma conta do motor). Um aumento de aporte que cria falta
+em algum mês abre o orçamento desse mês e pede o que reduzir.
+
 **Fotos do exemplo.** Ficam em `fotos/` e entram no plano pelo campo `photo`, como qualquer outro link.
 
 **Ícones dos objetivos.** O consultor envia um SVG ou PNG, que viaja embutido no plano, ou cola uma classe

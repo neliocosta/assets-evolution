@@ -309,6 +309,22 @@ circle.pv-hit{cursor:ns-resize}
 .sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
 .pg-tab td{font-size:12.5px;vertical-align:top} .pg-tab td small{display:block;color:#9a9a9a;font-size:11px}
 .pg-tab td.low{color:var(--nl-score-low);font-weight:600}
+.estouro{position:fixed;inset:0;background:rgba(20,32,48,.45);z-index:80;display:flex;align-items:center;justify-content:center;padding:20px}
+.estouro[hidden]{display:none}
+.eo-card{background:#fff;border-radius:14px;max-width:560px;width:100%;max-height:90vh;overflow:auto;padding:20px 22px;box-shadow:0 18px 50px rgba(0,0,0,.25)}
+.eo-card h3{font:600 15px Sora,sans-serif;color:var(--nl-navy-900);margin-bottom:6px}
+.eo-grid{margin:12px 0;border:1px solid #efeeea;border-radius:10px;padding:8px 12px}
+.eo-l{display:flex;justify-content:space-between;gap:12px;font-size:12.5px;padding:3px 0;color:#4d4c48}
+.eo-l.forte{font-weight:600;color:var(--nl-navy-900);border-top:1px solid #f1efea;margin-top:3px;padding-top:6px}
+.eo-l.low{color:var(--nl-score-low)} .eo-l .novo{color:var(--nl-orange-600);font-size:11px}
+.eo-sep{font:600 11px Sora,sans-serif;color:var(--nl-navy-900);margin:10px 0 4px}
+.eo-opc{display:flex;flex-direction:column;gap:4px;max-height:220px;overflow:auto}
+.eo-o{display:flex;align-items:center;gap:10px;font-size:12.5px;padding:6px 8px;border:1px solid #efeeea;border-radius:8px;cursor:pointer}
+.eo-o:has(input:checked){border-color:var(--nl-orange-500);background:#fff7f1}
+.eo-o span{flex:1;text-align:left} .eo-o small{color:#9a9a9a;margin-left:6px} .eo-o b{white-space:nowrap}
+.eo-o input[type=radio]{width:auto;flex:none;margin:0;padding:0;box-shadow:none;accent-color:var(--nl-orange-500)}
+.eo-red{display:flex;align-items:center;gap:10px;margin-top:10px;font-size:12.5px} .eo-red input{max-width:160px}
+.eo-bts{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
 .g5{grid-template-columns:1.7fr 1fr 1.25fr 1.1fr 1.1fr}
 .orc{font-size:12px;line-height:1.5;padding:7px 11px;border-radius:8px;margin-bottom:8px}
 .orc.ok{background:#F1F8F3;color:#2b6e45} .orc.low{background:#FDF3F3;color:#9b3a3a}
@@ -448,6 +464,7 @@ circle.pv-hit{cursor:ns-resize}
 
 <div class="drawer" id="drawer" hidden></div>
 <div class="pop" id="pop" hidden></div>
+<div class="estouro" id="estouro" hidden></div>
 
 <script id="engine">
 // ===================== MOTOR DE SIMULAÇÃO (semanal, 0–100 anos) =====================
@@ -661,7 +678,7 @@ const ENGINE = (() => {
     let offset = 99, streams = [], ff = null, prevActive = '', allocated = false, ks = [];
     const recurTotal = () => streams.reduce((a, st) => a + (st.left === 0 ? 0 : st.value), 0);
     // despesa com endObj (o aluguel, por exemplo) deixa de existir quando aquele objetivo é realizado
-    const encerrada = c => { if (!c.endObj) return false; const k = OBJ.findIndex(o => o.id === c.endObj); return k >= 0 && done[k]; };
+    const encerrada = c => { if (!c.endObj) return false; const k = OBJ.findIndex(o => o.id === c.endObj); return k >= 0 && done[k] && !OBJ[k].naoComprado; };
     const livingAt = mm => EXPENSES.reduce((a, c) => a + (encerrada(c) ? 0 : mensalizado(c, mm)), 0);
     // falta mensal para a renda desejada no mês mm depois da liberdade, que começa no mês do motor mi0
     const gapAt = (mm, mi0) => Math.max(0, DESIRED - PASSIVE.reduce((s, p) => s + (rendaAtiva(p, mi0 + mm, mi0) ? p.net : 0), 0) - passiveIncomeAt(mi0 + mm));
@@ -940,6 +957,96 @@ const livreParaReservar = () => Math.max(0, (+plano.initialWealth || 0) - plano.
 const aguardaOrcamento = () => !temFluxo() && (plano.capacityOverride == null || plano.capacityOverride === '');
 const capacity = () => plano.capacityOverride != null && plano.capacityOverride !== ''
   ? +plano.capacityOverride : Math.max(0, media12());
+
+// ---------- orçamento dos aportes: não se guarda mais do que sobra ----------
+// A mesma conta que o motor faz em cada mês antes da liberdade: entradas − despesas − gastos dos objetivos já
+// realizados (tudo no equivalente mensal) é o que pode ir para os aportes. Depois da liberdade, nada.
+function orcamentoDoMes(mi) {
+  const realizado = o => o.months <= mi;
+  const ent = plano.incomes.reduce((a, c) => a + ENGINE.mensalizado(c, mi), 0) + plano.passive.reduce((a, p) => a + (p.startMi != null && ENGINE.rendaAtiva(p, mi, 0) ? +p.net || 0 : 0), 0);
+  const desp = plano.expenses.map(c => { const fim = c.endObj && plano.objectives.find(o => o.id === c.endObj); return { it: c, v: fim && realizado(fim) && !fim.naoComprado ? 0 : ENGINE.mensalizado(c, mi) }; });
+  const custos = [];
+  plano.objectives.forEach(o => { if (!realizado(o) || o.naoComprado) return; (o.costs || []).forEach(c => { const v = ENGINE.serieCusto(c, mi - o.months + 1)[mi - o.months]; if (v > 0) custos.push({ o, c, v }); }); });
+  const aportes = plano.objectives.filter(o => mi < o.months && +o.planned > 0).map(o => ({ o, v: +o.planned }));
+  const miFF = SIM && SIM.ff ? SIM.weeks[SIM.ff.week].mi : Infinity;
+  let disp = ent - desp.reduce((a, d) => a + d.v, 0) - custos.reduce((a, c) => a + c.v, 0);
+  if (plano.capacityOverride != null && plano.capacityOverride !== '') disp = Math.min(disp, +plano.capacityOverride);
+  disp = mi >= miFF ? 0 : Math.max(0, disp);
+  const pedido = aportes.reduce((a, x) => a + x.v, 0);
+  return { mi, ent, desp, custos, aportes, disp, pedido, falta: Math.max(0, pedido - disp), depoisDaLiberdade: mi >= miFF };
+}
+const faltasOrcamento = () => { const fim = Math.max(0, ...plano.objectives.map(o => o.months)), out = []; for (let mi = 0; mi < fim; mi++) out.push(orcamentoDoMes(mi).falta); return out; };
+// O último estado aceito: aumentar um aporte que piora a falta de algum mês abre o orçamento daquele mês.
+let aceito = null, pendente = null;
+const fotoAportes = faltas => ({ planned: Object.fromEntries(plano.objectives.map(o => [o.id, +o.planned || 0])), seg: Object.fromEntries(plano.objectives.map(o => [o.id, !!o.segueNecessario])), faltas });
+function conferirOrcamento() {
+  if (pendente) return;
+  if (aguardaOrcamento()) { aceito = fotoAportes([]); return; }
+  const a = document.activeElement; if (a && a.dataset && a.dataset.k === 'planned') return;   // confere ao sair do campo
+  const agora = faltasOrcamento();
+  if (!aceito) { aceito = fotoAportes(agora); return; }
+  const subiu = plano.objectives.filter(o => (+o.planned || 0) > (aceito.planned[o.id] || 0) + 0.5);
+  const mi = agora.findIndex((f, k) => f > (aceito.faltas[k] || 0) + 1);
+  if (subiu.length && mi >= 0) { pendente = { mi, subiu: subiu.map(o => o.id) }; mostrarEstouro(); return; }
+  aceito = fotoAportes(agora);
+}
+function mostrarEstouro() {
+  const el = document.getElementById('estouro'), { mi, subiu } = pendente, b = orcamentoDoMes(mi), antes = aceito.faltas[mi] || 0, falta = Math.ceil(b.falta - antes);   // só a falta que o aumento criou
+  const nomes = subiu.map(id => esc((plano.objectives.find(o => o.id === id) || {}).name || 'objetivo')).join(', ');
+  const cabe = subiu.reduce((a, id) => { const o = plano.objectives.find(x => x.id === id); return a + Math.max(0, (+o.planned || 0) - (aceito.planned[id] || 0)); }, 0) - (b.falta - antes);
+  const opc = [];
+  if (!b.depoisDaLiberdade) {
+    b.desp.filter(d => d.v > 0.5 && ENGINE.stepAt(d.it, mi) > 0).sort((x, y) => (x.it.group === 'adj' ? 0 : 1) - (y.it.group === 'adj' ? 0 : 1) || y.v - x.v)
+      .forEach(d => opc.push({ id: 'e:' + d.it.id, rot: esc(d.it.label || 'sem nome'), tag: d.it.group === 'adj' ? 'despesa ajustável' : 'despesa fixa', v: d.v }));
+    b.aportes.filter(x => !subiu.includes(x.o.id)).forEach(x => opc.push({ id: 'o:' + x.o.id, rot: 'Aporte de ' + esc(x.o.name || 'objetivo'), tag: 'outro objetivo', v: x.v }));
+  }
+  const linhaAp = b.aportes.map(x => `<div class="eo-l"><span>${esc(x.o.name || 'objetivo')}${subiu.includes(x.o.id) ? ' <b class="novo">aumentado</b>' : ''}</span><b>${fmt(x.v)}</b></div>`).join('');
+  el.innerHTML = `<div class="eo-card" role="dialog" aria-modal="true">
+    <h3>O orçamento não comporta este aporte a partir de ${monthsLabel(mi)}</h3>
+    <p class="muted">Para guardar mais em ${nomes}, alguma coisa do orçamento do cliente precisa diminuir. Escolha o quê.</p>
+    <div class="eo-grid">
+      <div class="eo-l"><span>Entradas do mês</span><b>${fmt(b.ent)}</b></div>
+      <div class="eo-l"><span>Despesas</span><b>− ${fmt(b.desp.reduce((a, d) => a + d.v, 0))}</b></div>
+      ${b.custos.length ? `<div class="eo-l"><span>Gastos de objetivos já realizados</span><b>− ${fmt(b.custos.reduce((a, c) => a + c.v, 0))}</b></div>` : ''}
+      <div class="eo-l forte"><span>Sobra para aportes${plano.capacityOverride != null && plano.capacityOverride !== '' ? ' (limitada à capacidade informada)' : ''}</span><b>${fmt(b.disp)}</b></div>
+      <div class="eo-sep">Aportes pedidos em ${monthsLabel(mi)}</div>${linhaAp}
+      <div class="eo-l forte low"><span>Faltam por mês com o aumento${antes > 1 ? ` <small>(fora os ${fmt(antes)} que já faltavam)</small>` : ''}</span><b>${fmt(falta)}</b></div>
+    </div>
+    ${b.depoisDaLiberdade ? `<div class="warn">${monthsLabel(mi)} já é depois da liberdade financeira: a renda do trabalho parou e não há sobra para aportes. Antecipe a data do objetivo ou guarde só o que cabe.</div>` : `
+    <div class="eo-sep">Reduzir a partir de ${monthsLabel(mi)}</div>
+    <div class="eo-opc">${opc.map((x, k) => `<label class="eo-o"><input type="radio" name="eoItem" value="${x.id}"${k ? '' : ''}><span>${x.rot} <small>${x.tag}</small></span><b>${fmt(x.v)}/mês</b></label>`).join('') || '<div class="muted">Não há despesas nem outros aportes neste mês para reduzir.</div>'}</div>
+    <div class="eo-red"><label>Reduzir em</label><input id="eoValor" data-money type="text" inputmode="decimal" value="${money(falta)}"><span class="muted">por mês</span></div>`}
+    <div class="eo-bts">
+      ${b.depoisDaLiberdade ? '' : '<button class="btn btn-primary" id="eoReduzir" disabled>Reduzir e guardar</button>'}
+      ${cabe >= 1 ? `<button class="btn btn-secondary" id="eoCabe">Guardar só o que cabe (+${fmt(cabe)}/mês)</button>` : ''}
+      <button class="btn btn-secondary" id="eoCancelar">Cancelar o aumento</button>
+    </div>
+  </div>`;
+  el.hidden = false;
+}
+document.addEventListener('change', e => { if (e.target.name === 'eoItem') { const b = document.getElementById('eoReduzir'); if (b) b.disabled = false; } });
+// sair do campo do aporte confere o orçamento (enquanto digita, não)
+document.addEventListener('change', e => { if (e.target.dataset && e.target.dataset.k === 'planned') setTimeout(renderAll, 0); });
+document.addEventListener('click', e => {
+  const t = e.target.closest('#eoReduzir, #eoCabe, #eoCancelar'); if (!t || !pendente) return;
+  const { mi, subiu } = pendente, b = orcamentoDoMes(mi);
+  if (t.id === 'eoCancelar') subiu.forEach(id => { const o = plano.objectives.find(x => x.id === id); if (o) { o.planned = aceito.planned[id] || 0; o.segueNecessario = aceito.seg[id]; } });
+  if (t.id === 'eoCabe') {   // tira a falta do aumento, sem voltar abaixo do que estava aceito
+    let resto = b.falta - (aceito.faltas[mi] || 0);
+    subiu.forEach(id => { const o = plano.objectives.find(x => x.id === id), ant = aceito.planned[id] || 0, tira = Math.min(resto, (+o.planned || 0) - ant); o.planned = Math.floor((+o.planned - tira) * 100) / 100; o.segueNecessario = false; resto -= tira; });
+  }
+  if (t.id === 'eoReduzir') {
+    const sel = document.querySelector('input[name="eoItem"]:checked'); if (!sel) return;
+    const R = unmoney(document.getElementById('eoValor').value); if (!(R > 0)) return;
+    const [tipo, id] = sel.value.split(':');
+    if (tipo === 'e') {   // um degrau a partir do mês: o valor de cada ocorrência cai o equivalente a R por mês
+      const it = plano.expenses.find(x => x.id === id), v = ENGINE.stepAt(it, mi), fator = ENGINE.mensalizado(it, mi) / (v || 1);
+      setStep(it, mi, Math.max(0, Math.round((v - R / (fator || 1)) * 100) / 100));
+    } else { const o = plano.objectives.find(x => x.id === id); o.planned = Math.max(0, (+o.planned || 0) - R); o.segueNecessario = false; }
+  }
+  pendente = null; document.getElementById('estouro').hidden = true;
+  renderAll();   // confere de novo: se ainda faltar em outro mês, o orçamento daquele mês abre em seguida
+});
 const plannedTotal = () => plano.objectives.reduce((a, o) => a + (+o.planned || 0), 0);
 
 // Por que um objetivo não recebe o aporte definido: o primeiro mês em que o orçamento entrega menos e a
@@ -969,6 +1076,7 @@ function renderAll() {
     const i = plano.objectives.findIndex(o => o.id === oid), el = document.querySelector('[data-g="' + i + '"][data-k="' + fk + '"]');
     if (el) { el.focus(); if (el.type === 'text' || el.tagName === 'TEXTAREA') { el.value = txt; try { el.setSelectionRange(txt.length, txt.length); } catch (e) { } } }
   }
+  conferirOrcamento();   // depois de devolver o foco: enquanto o aporte está sendo digitado, não confere
 }
 
 function renderTop() {
@@ -2272,7 +2380,7 @@ const planoVazio = () => ({ name: '', age: '', lifeExp: 95, desired: 0, retireAg
   rate: PLANO_PADRAO.rate, profiles: Object.assign({}, PLANO_PADRAO.profiles), incomes: [], expenses: [], objectives: [], passive: [] });
 const temConteudo = () => !!(plano.name || plano.incomes.length || plano.expenses.length || plano.objectives.length);
 function trocarPlano(b, novo, rotulo) {
-  const aplicar = () => { if (gaveta) { gaveta = null; renderGaveta(); } plano = novo(); fx.t0 = null; save(); fillFields(); renderAll(); irPara('cliente'); document.getElementById('f-name').focus(); };
+  const aplicar = () => { if (gaveta) { gaveta = null; renderGaveta(); } aceito = null; pendente = null; document.getElementById('estouro').hidden = true; plano = novo(); fx.t0 = null; save(); fillFields(); renderAll(); irPara('cliente'); document.getElementById('f-name').focus(); };
   if (!temConteudo() || b.dataset.armed) { delete b.dataset.armed; b.classList.remove('armed'); b.textContent = rotulo; aplicar(); return; }
   b.dataset.rotulo = rotulo; b.dataset.armed = '1'; b.classList.add('armed'); b.textContent = 'Apagar o plano atual? Clique de novo';
 }
