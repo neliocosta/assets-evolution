@@ -31,6 +31,24 @@ Na tela do cliente, o botão **"Fluxo de caixa"** abre a tabela numa janela pró
 toda (`evolucao-patrimonial.html?fluxo#plano=<base64>`). Ela abre nos próximos 24 meses, mês a mês, com entradas
 e saídas já detalhadas, e leva o plano como está na tela (datas de objetivos e idade de parar arrastadas incluídas).
 
+## Propostas do cliente
+
+A tela do cliente mostra o plano aprovado pelo consultor. O cliente pode mudar, na própria tela, o valor de uma
+entrada ou saída do fluxo de caixa (clique na célula: a partir daquele mês ou só naquele mês), o custo e a data
+alvo de um objetivo (no card do marco, ou arrastando o marco) e a idade para parar de trabalhar (no card da
+Liberdade Financeira, ou arrastando-a). **Nada disso muda o plano**: cada mudança vira uma alteração numa
+proposta, e a tela alterna entre "Plano atual" e "Com as alterações" para o cliente ver o efeito.
+
+O cliente revisa e envia a proposta. O consultor abre **Propostas do cliente** (no menu, com o número de
+alterações), aprova ou recusa uma a uma, escreve uma resposta e conclui. Só as aprovadas entram no plano.
+
+- No protótipo, a proposta vai pelo navegador (`localStorage`, chave `nl-proposta`) ou por arquivo (`Baixar
+  proposta (.json)` no cliente, `Carregar proposta (.json)` no consultor).
+- A resposta fica registrada no próprio plano (`propostas: [{ id, em, decisoes, nota }]`), então chega ao cliente
+  também quando o plano atualizado vai por link ou arquivo.
+- Formato de cada alteração e as funções que a aplicam (`aplicaAlteracoes`, `descreveAlteracao`) estão no motor,
+  compartilhado pelas duas telas.
+
 ## Formato do plano
 
 ```jsonc
