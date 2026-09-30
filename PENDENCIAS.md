@@ -50,6 +50,12 @@ duas rendas e duas idades. Afeta o modelo do plano, a linha do tempo e o cálcul
 
 # P2 — Atrito forte no trabalho do consultor
 
+### 0. Saque na liberdade: renda desejada ou rendimento inteiro?
+A programação da renda (página Liberdade) mostra saque = renda desejada − rendas que entram, como a consultoria
+planeja. O motor, porém, saca na perpetuidade o rendimento inteiro do patrimônio (e no consumo, a parcela até a
+expectativa de vida) e ajusta o padrão de vida a isso. Quando o patrimônio rende mais que o necessário, a visão
+do cliente mostra o cliente gastando mais do que a renda desejada. Decidir se o motor passa a sacar só o necessário.
+
 ### 4. Botão "ajustar para o aporte necessário"
 Adiar um objetivo derruba o aporte necessário, mas o aporte definido continua onde estava e é preciso
 digitar de novo. Um botão por objetivo, e talvez um "encaixar tudo no orçamento", resolvem.

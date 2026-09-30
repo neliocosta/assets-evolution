@@ -133,6 +133,11 @@ aposentadoria junto. Se aos 68 anos o patrimônio ainda não sustentar a renda d
 mesmo assim, mas sem celebração: o card informa quanto o patrimônio de fato sustenta por mês e aponta os
 três caminhos para fechar a diferença.
 
+**Programação da renda.** No portal, a página Liberdade financeira mostra a renda desejada como uma barra e,
+em cada janela de tempo (uma renda que começa ou termina abre uma janela nova), as rendas que entram: rendas de
+aposentadoria e rendas passivas do fluxo. O saque do patrimônio completa até a renda desejada, limitado ao que o
+patrimônio sustenta (o rendimento na perpetuidade, a parcela de consumo no outro modo); o resto aparece como falta.
+
 - **Perpetuidade**: retirada mensal = patrimônio × taxa. O principal fica estável.
 - **Consumo**: retirada mensal = PMT até a expectativa de vida. O patrimônio chega a zero na data.
 

@@ -300,6 +300,15 @@ circle.pv-hit{cursor:ns-resize}
 .pv-taxa label{font:600 11.5px 'DM Sans',sans-serif;color:var(--nl-navy-900);margin:0;white-space:nowrap}
 .pv-taxa input[type=range]{flex:0 1 260px;accent-color:var(--nl-orange-500);padding:0;border:0;box-shadow:none}
 .pv-taxa b{font:600 12px 'DM Sans',sans-serif;color:var(--nl-navy-900);min-width:92px}
+.pg{width:100%;height:auto;display:block}
+.pg-ax{stroke:#e6e3dd} .pg-des{stroke:var(--nl-navy-900);stroke-width:1.2;stroke-dasharray:5 4}
+.pg-lb{font:500 10px 'DM Sans',sans-serif;fill:#a3a19c} .pg-lb.forte{fill:var(--nl-navy-900);font-weight:600}
+.pg-v{font:600 10px 'DM Sans',sans-serif;fill:#fff} .pg-v.falta{fill:#9b3a3a}
+.pg-saque{fill:#2E9E5B;opacity:.85}
+.pg-leg{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:6px;font-size:12px;color:#5d5c58}
+.sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+.pg-tab td{font-size:12.5px;vertical-align:top} .pg-tab td small{display:block;color:#9a9a9a;font-size:11px}
+.pg-tab td.low{color:var(--nl-score-low);font-weight:600}
 .g5{grid-template-columns:1.7fr 1fr 1.25fr 1.1fr 1.1fr}
 .orc{font-size:12px;line-height:1.5;padding:7px 11px;border-radius:8px;margin-bottom:8px}
 .orc.ok{background:#F1F8F3;color:#2b6e45} .orc.low{background:#FDF3F3;color:#9b3a3a}
@@ -422,6 +431,7 @@ circle.pv-hit{cursor:ns-resize}
   <section class="page" data-page="liberdade">
     <h2><svg viewBox="0 0 24 24"><path d="M18.2 8.5c2 0 3.8 1.6 3.8 3.5s-1.8 3.5-3.8 3.5c-3.8 0-8.6-7-12.4-7C3.8 8.5 2 10.1 2 12s1.8 3.5 3.8 3.5c3.8 0 8.6-7 12.4-7z"/></svg>Liberdade financeira</h2>
     <div class="hint">Rendas contratadas no momento da aposentadoria. O cliente vê a renda líquida. O custo é a parte do patrimônio financeiro convertida para contratar a renda — o INSS, por exemplo, não tem custo aqui porque já foi pago em contribuições. Estas rendas também aparecem como linhas de Entradas no fluxo de caixa. Clique numa renda para editar. Quem paga a renda desejada é o patrimônio financeiro: imóveis e participações societárias não entram nessa conta (um aluguel recebido entra, como renda passiva do fluxo).</div>
+    <div id="ffProg"></div>
     <div class="tablewrap"><table>
       <thead><tr><th style="width:28%">Renda</th><th class="num">Líquido (R$/mês)</th><th>Começa</th><th>Termina</th><th class="num">Custo (R$)</th></tr></thead>
       <tbody id="tbPas"></tbody>
@@ -1553,8 +1563,65 @@ const inicioDaRenda = p => ENGINE.inicioRenda(p, ffMi());   // mês em que a ren
 const quandoRenda = (p, mi) => p.startMi != null ? monthsLabel(mi) + ', ' + (p.pessoa === 'conjuge' && conjuge() ? 'cônjuge' : 'titular') + ' com ' + Math.floor(idadeDe(p.pessoa) + mi / 12) + ' anos' : quandoMes(mi);
 const fimDaRenda = p => p.dur == null ? 'até o fim da vida' : 'termina em ' + quandoRenda(p, inicioDaRenda(p) + p.dur - 1);
 const passivaDoFluxo = mi => plano.incomes.reduce((a, c) => a + (ENGINE.ativo(c) ? 0 : ENGINE.mensalizado(c, mi)), 0);
+// Programação da renda na liberdade financeira: a renda desejada é uma barra; em cada janela de tempo as rendas
+// que já entram (INSS, fundos de pensão, aluguéis do fluxo) preenchem uma parte e o saque do patrimônio completa.
+// O saque vai até o que o patrimônio sustenta (o rendimento na perpetuidade, a parcela de consumo no outro modo);
+// o que passar disso é o que falta.
+const CORES_RENDA = ['#3B6FCB', '#7C5CBF', '#2A9D8F', '#D9952A', '#5B8DEF', '#A06CD5', '#4E9F9A'];
+function janelasDeRenda(f) {
+  const mi0 = f.mi, mFim = Math.max(mi0 + 12, Math.round((+plano.lifeExp - ENGINE.CURRENT_AGE) * 12)), out = [];
+  const passivasFluxo = plano.incomes.filter(c => !ENGINE.ativo(c));
+  for (let mi = mi0; mi < mFim; mi++) {
+    const camadas = plano.passive.map((p, k) => ({ id: 'p' + k, nome: p.name || 'Renda sem nome', v: ENGINE.rendaAtiva(p, mi, mi0) ? +p.net || 0 : 0 }))
+      .concat(passivasFluxo.map(c => ({ id: 'f' + c.id, nome: c.label || 'Renda passiva', v: ENGINE.mensalizado(c, mi) })))
+      .filter(c => c.v > 0.5);
+    const assin = camadas.map(c => c.id + ':' + Math.round(c.v)).join('|'), ult = out[out.length - 1];
+    if (ult && ult.assin === assin) ult.m1 = mi + 1; else out.push({ m0: mi, m1: mi + 1, camadas, assin });
+  }
+  return out;
+}
+function htmlProgramacao() {
+  const f = ffInfo();
+  if (!f || !(plano.desired > 0) || !temFluxo()) return '<div class="fxcap vazio">A programação da renda aparece quando houver renda desejada (página Cliente) e entradas no Fluxo de caixa.</div>';
+  const js = janelasDeRenda(f), D = +plano.desired, cons = plano.mode === 'cons';
+  const Z = cons ? f.ff.pmt : f.ff.finAfter * plano.rate;   // o que o patrimônio sustenta de saque por mês
+  const cor = {}; let nc = 0; js.forEach(j => j.camadas.forEach(c => { if (!(c.id in cor)) { cor[c.id] = CORES_RENDA[nc++ % CORES_RENDA.length]; } }));
+  const W = 900, H = 250, L = 64, R = 12, T = 22, B = 206, m0 = js[0].m0, m1 = js[js.length - 1].m1;
+  const topo = Math.max(D, ...js.map(j => j.camadas.reduce((a, c) => a + c.v, 0))) * 1.15;
+  // cada janela tem uma largura mínima, para que uma fase de 1 ano seja legível ao lado de uma de 20
+  const peso = js.map(j => Math.max(j.m1 - j.m0, (m1 - m0) * 0.14)), soma = peso.reduce((a, b) => a + b, 0), xs = [L];
+  peso.forEach(p => xs.push(xs[xs.length - 1] + p / soma * (W - L - R)));
+  const x = m => { const k = js.findIndex(j => m >= j.m0 && m < j.m1); if (k < 0) return W - R; return xs[k] + (m - js[k].m0) / (js[k].m1 - js[k].m0) * (xs[k + 1] - xs[k]); };
+  const y = v => B - v / topo * (B - T);
+  const idade = m => Math.floor(ENGINE.CURRENT_AGE + m / 12);
+  let s = `<defs><pattern id="hachura" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="#FDECEC"/><line x1="0" y1="0" x2="0" y2="6" stroke="#D64545" stroke-width="2"/></pattern></defs>`;
+  s += `<line x1="${L}" y1="${B}" x2="${W - R}" y2="${B}" class="pg-ax"/>`;
+  const rot = (x0, x1, y0, y1, txt, cls) => (x1 - x0 >= 58 && y0 - y1 >= 13) ? `<text x="${(x0 + x1) / 2}" y="${(y0 + y1) / 2 + 3.5}" class="pg-v ${cls || ''}" text-anchor="middle">${txt}</text>` : '';
+  const linhas = [];
+  js.forEach(j => {
+    const x0 = x(j.m0) + 1, x1 = x(j.m1) - 1; let base = 0;
+    j.camadas.forEach(c => { const y0 = y(base), y1 = y(base + c.v); s += `<rect x="${x0}" y="${y1}" width="${Math.max(1, x1 - x0)}" height="${y0 - y1}" fill="${cor[c.id]}" opacity=".85"><title>${esc(c.nome)}: ${fmt(c.v)}/mês</title></rect>` + rot(x0, x1, y0, y1, fmtC(c.v), 'claro'); base += c.v; });
+    const saque = Math.max(0, D - base), coberto = Math.min(saque, Z), falta = saque - coberto;
+    if (coberto > 0) { const y0 = y(base), y1 = y(base + coberto); s += `<rect x="${x0}" y="${y1}" width="${Math.max(1, x1 - x0)}" height="${y0 - y1}" class="pg-saque"><title>Saque do patrimônio: ${fmt(coberto)}/mês</title></rect>` + rot(x0, x1, y0, y1, 'saque ' + fmtC(coberto), 'claro'); }
+    if (falta > 0.5) { const y0 = y(base + coberto), y1 = y(D); s += `<rect x="${x0}" y="${y1}" width="${Math.max(1, x1 - x0)}" height="${y0 - y1}" fill="url(#hachura)"><title>Falta: ${fmt(falta)}/mês</title></rect>` + rot(x0, x1, y0, y1, 'falta ' + fmtC(falta), 'falta'); }
+    s += `<text x="${x(j.m0) + 2}" y="${B + 14}" class="pg-lb">${idade(j.m0)} anos</text>`;
+    linhas.push(`<tr><td>${idade(j.m0)} a ${idade(j.m1 - 1) + 1} anos<small>${monthsLabel(j.m0)} a ${monthsLabel(j.m1 - 1)}</small></td><td>${j.camadas.length ? j.camadas.map(c => `<i class="sw" style="background:${cor[c.id]}"></i>${esc(c.nome)} ${fmt(c.v)}`).join('<br>') : '<span class="muted">nenhuma</span>'}</td><td class="num">${fmt(coberto)}</td><td class="num${falta > 0.5 ? ' low' : ''}">${falta > 0.5 ? fmt(falta) : '—'}</td></tr>`);
+  });
+  s += `<line x1="${L}" y1="${y(D)}" x2="${W - R}" y2="${y(D)}" class="pg-des"/><text x="${L - 6}" y="${y(D) + 3.5}" class="pg-lb forte" text-anchor="end">${fmtC(D)}</text>`;
+  s += `<text x="${W - R}" y="${y(D) - 6}" class="pg-lb forte" text-anchor="end">renda desejada ${fmt(D)}/mês</text>`;
+  s += `<text x="${W - R}" y="${B + 14}" class="pg-lb" text-anchor="end">${plano.lifeExp} anos</text><text x="${L - 6}" y="${B}" class="pg-lb" text-anchor="end">0</text>`;
+  const legenda = Object.keys(cor).map(id => { const c = js.flatMap(j => j.camadas).find(c => c.id === id); return `<span><i class="sw" style="background:${cor[id]}"></i>${esc(c.nome)}</span>`; }).join('') +
+    `<span><i class="sw" style="background:#2E9E5B"></i>Saque do patrimônio</span>` + (js.some(j => Math.max(0, D - j.camadas.reduce((a, c) => a + c.v, 0)) > Z + 0.5) ? `<span><i class="sw" style="background:url(#);background:repeating-linear-gradient(45deg,#FDECEC 0 3px,#D64545 3px 5px)"></i>Falta (o patrimônio não sustenta)</span>` : '');
+  return `<div class="bloco"><h3>Programação da renda</h3>
+    <div class="muted" style="margin-bottom:6px">A partir de ${quandoMes(f.mi)}. O patrimônio de ${fmtC(f.ff.finAfter)} ${cons ? 'sustenta saques de até ' + fmt(Z) + ' por mês até os ' + plano.lifeExp + ' anos (consumo)' : 'rende ' + fmt(Z) + ' por mês sem ser consumido (perpetuidade)'}.</div>
+    <svg viewBox="0 0 ${W} ${H}" class="pg">${s}</svg>
+    <div class="pg-leg">${legenda}</div>
+    <div class="tablewrap" style="margin-top:10px"><table class="pg-tab"><thead><tr><th>Janela</th><th>Rendas que entram (por mês)</th><th class="num">Saque do patrimônio</th><th class="num">Falta</th></tr></thead><tbody>${linhas.join('')}</tbody></table></div>
+  </div>`;
+}
 function renderLiberdade() {
   const tb = document.getElementById('tbPas'), f = ffInfo();
+  document.getElementById('ffProg').innerHTML = htmlProgramacao();
   if (!plano.passive.length) tb.innerHTML = '<tr><td colspan="5" class="txt" style="color:#8d8d8d;font-weight:500;padding:16px 10px">Nenhuma renda de aposentadoria cadastrada. Se o cliente tem INSS ou vai contratar previdência, clique em <b>+ Adicionar renda</b>.</td></tr>';
   else tb.innerHTML = plano.passive.map((p, i) => `
     <tr class="clic" data-pas="${i}">
