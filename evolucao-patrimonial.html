@@ -717,8 +717,6 @@ function buildRows() {
       { id: 'out_obj', label: 'Objetivos realizados', keys: keysWith('out_obj_'), children: OBJ.map(o => ({ id: 'out_obj_' + o.id, label: o.name, keys: ['out_obj_' + o.id] })) },
       { id: 'out_rendas', label: 'Contratação de rendas (fundos de pensão)', keys: ['out_rendas'], icon: 'convert' },
     ] },
-    // resultado do período: o que entrou menos o que saiu (antes das movimentações no patrimônio)
-    { id: 'saldo', label: 'Saldo (entradas − saídas)', color: C.fin, keys: [], calc: f => { let v = 0; for (const k in f) { if (k.startsWith('in_')) v += f[k]; else if (k.startsWith('out_')) v -= f[k]; } return v; } },
     { id: 'mov', label: 'Movimentações no patrimônio', color: C.mov, keys: keysWith('mov_'), children: [
       { id: 'mov_cofre', label: 'Cofre genérico (reserva)', keys: ['mov_cofre'], icon: 'convert' },
       ...OBJ.map(o => ({ id: 'mov_obj_' + o.id, label: 'Objetivo: ' + o.name, keys: ['mov_obj_' + o.id] })),
@@ -727,7 +725,7 @@ function buildRows() {
   ];
 }
 let ROWS = [];
-const rebuildRows = () => { ROWS = buildRows(); ROWS.unshift(ROWS.pop()); }; // Movimentações no topo, saldo depois das saídas
+const rebuildRows = () => { ROWS = buildRows(); ROWS.unshift(ROWS.pop()); }; // Movimentações no topo
 rebuildRows();
 // linhas visíveis: sub-linhas só aparecem quando têm algum valor na janela visível
 function flatRows() {
@@ -736,7 +734,7 @@ function flatRows() {
   const walk = (r, depth, color) => { if (depth && !hasVal(r)) return; out.push({ r, depth, color }); if (r.children && state.expanded.has(r.id)) r.children.forEach(c => walk(c, depth + 1, color)); };
   ROWS.forEach(r => walk(r, 0, r.color)); return out;
 }
-const rowVal = (r, f) => r.calc ? r.calc(f) : r.keys.reduce((s, k) => s + (f[k] || 0), 0);
+const rowVal = (r, f) => r.keys.reduce((s, k) => s + (f[k] || 0), 0);
 
 // --- Marcos ---
 function milestones() {
@@ -947,6 +945,16 @@ function computeBuckets() {
 function visibleBuckets() { return VB; }
 const bucketX = b => [xOfW(b.w0), xOfW(b.w1)];
 
+// Escala das barras de uma linha: fixa para o plano inteiro naquele nível (mês, ano...), para que o mesmo valor
+// tenha sempre a mesma barra, não importa o trecho à vista. Usa o percentil 90 dos valores, de hoje em diante:
+// um valor excepcional (a contratação das rendas, a compra de um bem) enche a barra sem achatar todas as outras.
+const ESCALAS = new WeakMap();
+function escalaDaLinha(r, lvl) {
+  const s = sim(); let porNivel = ESCALAS.get(s); if (!porNivel) ESCALAS.set(s, porNivel = {});
+  const chave = lvl + '|' + r.id; if (porNivel[chave] != null) return porNivel[chave];
+  const vs = s.buckets[lvl].filter(b => b.w1 > W0).map(b => Math.abs(rowVal(r, b.f))).filter(v => v >= 0.5).sort((a, b) => a - b);
+  return porNivel[chave] = vs.length ? Math.max(1, vs[Math.min(vs.length - 1, Math.floor(vs.length * 0.9))]) : 1;
+}
 function drawCashflow() {
   const rows = flatRows(), { lvl, list } = visibleBuckets(), rev = revealWeek();
   const lblUnit = { week: 'por semana', month: 'por mês', quarter: 'por trimestre', year: 'por ano', multi: 'por 4 anos', decade: 'por década' }[lvl];
@@ -972,9 +980,9 @@ function drawCashflow() {
   const maxScroll = Math.max(0, rows.length * rowH - base); state.rowScroll = Math.min(state.rowScroll, maxScroll);
   rows.forEach((row, ri) => {
     const y = rowsTop + ri * rowH - state.rowScroll; if (y + rowH < rowsTop || y > H) return;
-    const r = row.r, isTop = row.depth === 0, isSaldo = r.id === 'saldo', isMov = r.id.startsWith('mov');
+    const r = row.r, isTop = row.depth === 0, isMov = r.id.startsWith('mov');
     // fundo de linha
-    ctx.fillStyle = isSaldo ? 'rgba(46,158,91,.06)' : isTop ? 'rgba(32,52,76,.04)' : 'rgba(32,52,76,.015)'; ctx.fillRect(0, y, W, rowH - 2);
+    ctx.fillStyle = isTop ? 'rgba(32,52,76,.04)' : 'rgba(32,52,76,.015)'; ctx.fillRect(0, y, W, rowH - 2);
     // rótulo
     const lx = 24 + row.depth * 14, fonte = (isTop ? '600 12px "Sora"' : '12px "DM Sans"') + ', sans-serif';
     ctx.fillStyle = isTop ? C.navy : 'rgba(32,52,76,.75)'; ctx.font = fonte; ctx.textAlign = 'left';
@@ -985,12 +993,12 @@ function drawCashflow() {
     if (r.icon === 'convert') drawConvertIcon(PL - 16, y + rowH / 2, 6, C.mov);
     if (isTop) { ctx.fillStyle = row.color; ctx.fillRect(12, y + 6, 3, rowH - 14); }
     ctx.strokeStyle = 'rgba(32,52,76,.08)'; ctx.beginPath(); ctx.moveTo(PL, y + rowH - 2); ctx.lineTo(W - PR, y + rowH - 2); ctx.stroke();
-    // células: barra proporcional ao maior valor da linha no período à vista, valor em texto e seta verde (entra) ou vermelha (sai)
-    const vals = list.map(b => rowVal(r, b.f)), maxAbs = Math.max(1, ...vals.map(Math.abs));
+    // células: barra proporcional à escala da linha, valor em texto e seta verde (entra) ou vermelha (sai)
+    const vals = list.map(b => rowVal(r, b.f)), maxAbs = escalaDaLinha(r, lvl);
     const fonteV = (isTop ? '600 ' : '') + '11.5px "DM Sans", sans-serif';
     // da forma mais completa para a mais curta: o valor exato vem antes do arredondado
     const opcoes = v => {
-      const a = Math.abs(v), sinal = (isMov || isSaldo) && v < 0 ? '−' : isSaldo ? '+' : '';
+      const a = Math.abs(v), sinal = isMov && v < 0 ? '−' : '';
       return [
         [(sinal && sinal + ' ') + (a >= 1e6 ? 'R$ ' + fmtC(a) : fmt(a)), true],
         [(sinal && sinal + ' ') + fmt(a), false],
@@ -1009,18 +1017,18 @@ function drawCashflow() {
       const v = vals[bi], { x1, cx0, cx1, larg } = celula(b), revealed = !fade || b.w0 <= rev;
       ctx.strokeStyle = 'rgba(32,52,76,.06)'; ctx.beginPath(); ctx.moveTo(x1, y); ctx.lineTo(x1, y + rowH - 2); ctx.stroke();
       if (Math.abs(v) < 0.5 || x1 < PL) return;
-      const up = isSaldo ? v > 0 : r.id.startsWith('out') ? false : v > 0;
+      const up = r.id.startsWith('out') ? false : v > 0;
       const tom = isMov ? (v < 0 ? C.out : C.mov) : up ? C.fin : C.out;
       ctx.globalAlpha = revealed ? 1 : 0.35;
-      if (cx1 > cx0) { ctx.fillStyle = hexA(tom, isTop ? .17 : .10); ctx.beginPath(); const bw = Math.max(2, (cx1 - cx0) * Math.abs(v) / maxAbs); if (ctx.roundRect) ctx.roundRect(cx0, y + 3, bw, rowH - 8, 3); else ctx.rect(cx0, y + 3, bw, rowH - 8); ctx.fill(); }
+      if (cx1 > cx0) { ctx.fillStyle = hexA(tom, isTop ? .17 : .10); ctx.beginPath(); const bw = Math.max(2, (cx1 - cx0) * Math.min(1, Math.abs(v) / maxAbs)); if (ctx.roundRect) ctx.roundRect(cx0, y + 3, bw, rowH - 8, 3); else ctx.rect(cx0, y + 3, bw, rowH - 8); ctx.fill(); }
       ctx.fillStyle = isTop || (isMov && v < 0) ? FORTE[tom] : '#3d4a5c'; ctx.font = fonteV; ctx.textAlign = 'right';
       const cy = y + rowH / 2 - 1, xr = cx1 - 3, o = opcoes(v);
       let k = nivel; while (k < o.length - 1 && !cabe(o[k], larg)) k++;   // a coluna cortada na borda pode precisar de menos
       const [txt, marcador] = o[k];
-      if (larg < 16) { ctx.globalAlpha = 1; return; }   // coluna estreita demais: fica só a barra; nas demais, a forma mais curta sempre aparece
+      if (!cabe(o[k], larg)) { ctx.globalAlpha = 1; return; }   // não cabe nem a forma mais curta (coluna cortada na borda): fica só a barra
       ctx.fillText(txt, xr, cy);
       const ax = xr - ctx.measureText(txt).width - 8;
-      if (!marcador || isSaldo) { ctx.globalAlpha = 1; return; }
+      if (!marcador) { ctx.globalAlpha = 1; return; }
       if (isMov) { // movimentação de patrimônio não é receita nem despesa: marcador próprio
         ctx.font = '11px "Segoe UI Emoji", "Apple Color Emoji", sans-serif'; ctx.textAlign = 'center'; ctx.fillText(v > 0 ? '💰' : '💳', ax - 2, cy);
       } else { // entrada (seta verde) ou saída (seta vermelha)
