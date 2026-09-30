@@ -305,6 +305,7 @@ circle.pv-hit{cursor:ns-resize}
 .pg-des-hit{stroke:transparent;stroke-width:14;fill:none;cursor:copy}
 .pg-pt{fill:#fff;stroke:var(--nl-orange-500);stroke-width:2;pointer-events:none} .pg-pt-hit{fill:transparent;cursor:ns-resize}
 .pg text{pointer-events:none}
+.pg-guia{stroke:var(--nl-navy-900);stroke-width:1;stroke-dasharray:2 3;opacity:.45;pointer-events:none} .pg-guia-tx{font:600 10.5px 'DM Sans',sans-serif;fill:var(--nl-navy-900)} .pg-guia-bg{fill:#fff;opacity:.92;pointer-events:none}
 .pr-tab td{vertical-align:top} .pr-tab td small{display:block;color:#9a9a9a;font-size:11px;margin-top:3px}
 .pr-tab input,.pr-tab select{font-size:12.5px;padding:6px 8px}
 .pr-ini{display:flex;align-items:center;gap:6px;white-space:nowrap} .pr-ini input{width:70px} .pr-ini select{width:auto}
@@ -1724,22 +1725,29 @@ function janelasDeRenda(f, miEsg) {
   return out;
 }
 let PG = null;   // geometria do último desenho, para os cliques e o arraste na linha da renda desejada
+let PGZ = null;  // zoom do gráfico (Ctrl + rodinha): { m0, m1 } em meses; vazio = a liberdade inteira
+const PGZ_MIN = 12;   // aproxima até 12 meses à vista, mês a mês
 function htmlProgramacao() {
   const f = ffInfo();
   if (!f || !(plano.desired > 0) || !temFluxo()) return '<div class="fxcap vazio">A programação da renda aparece quando houver renda desejada (página Cliente) e entradas no Fluxo de caixa.</div>';
   const modo = ['perp', 'cons', 'desej'].includes(plano.mode) ? plano.mode : 'perp', cons = modo === 'cons', desej = modo === 'desej';
   let wEsg = null; if (desej) for (let i = f.ff.week + 1; i < ENGINE.NW; i++) if (SIM.weeks[i].fin < 1) { wEsg = i; break; }
-  const js = janelasDeRenda(f, wEsg != null ? SIM.weeks[wEsg].mi : null);
+  let js = janelasDeRenda(f, wEsg != null ? SIM.weeks[wEsg].mi : null);
   const Z0 = cons ? f.ff.pmt : f.ff.finAfter * plano.rate, zDe = j => desej ? (j.semPatr ? 0 : Infinity) : Z0;
   const idFim = Math.round((+plano.lifeExp) * ENGINE.WPY), sobraFim = SIM.weeks[Math.min(ENGINE.NW - 1, idFim)].fin;
   const cor = {}; let nc = 0; js.forEach(j => j.camadas.forEach(c => { if (!(c.id in cor)) cor[c.id] = CORES_RENDA[nc++ % CORES_RENDA.length]; }));
+  const tabela = js;   // a tabela abaixo mostra sempre todas as janelas, com ou sem zoom
+  // com zoom, o gráfico mostra só o trecho [m0, m1): as janelas são recortadas nas bordas e o tempo fica linear
+  const mTodo0 = js[0].m0, mTodo1 = js[js.length - 1].m1;
+  if (PGZ && (PGZ.m1 - PGZ.m0 >= mTodo1 - mTodo0 || PGZ.m0 < mTodo0 || PGZ.m1 > mTodo1)) PGZ = PGZ.m1 - PGZ.m0 >= mTodo1 - mTodo0 ? null : { m0: Math.max(mTodo0, Math.min(PGZ.m0, mTodo1 - (PGZ.m1 - PGZ.m0))), m1: Math.min(mTodo1, Math.max(PGZ.m0, mTodo0) + (PGZ.m1 - PGZ.m0)) };
+  if (PGZ) js = js.filter(j => j.m1 > PGZ.m0 && j.m0 < PGZ.m1).map(j => Object.assign({}, j, { m0: Math.max(j.m0, PGZ.m0), m1: Math.min(j.m1, PGZ.m1) }));
   const W = 900, H = 262, L = 76, R = 12, T = 26, B = 216, m0 = js[0].m0, m1 = js[js.length - 1].m1;
-  const topo = (PG && PG.congelado) ? PG.topo : Math.max(...js.map(j => Math.max(j.D, j.camadas.reduce((a, c) => a + c.v, 0)))) * 1.25;
-  const peso = js.map(j => Math.max(j.m1 - j.m0, (m1 - m0) * 0.12)), soma = peso.reduce((a, b) => a + b, 0), xs = [L];
+  const topo = (PG && PG.congelado) ? PG.topo : Math.max(...tabela.map(j => Math.max(j.D, j.camadas.reduce((a, c) => a + c.v, 0)))) * 1.25;
+  const peso = js.map(j => PGZ ? j.m1 - j.m0 : Math.max(j.m1 - j.m0, (m1 - m0) * 0.12)), soma = peso.reduce((a, b) => a + b, 0), xs = [L];
   peso.forEach(p => xs.push(xs[xs.length - 1] + p / soma * (W - L - R)));
   const x = m => { const k = js.findIndex(j => m >= j.m0 && m < j.m1); if (k < 0) return W - R; return xs[k] + (m - js[k].m0) / (js[k].m1 - js[k].m0) * (xs[k + 1] - xs[k]); };
   const y = v => B - v / topo * (B - T), idade = m => Math.floor(ENGINE.CURRENT_AGE + m / 12);
-  PG = { js, xs, topo, T, B, W, L, R, congelado: PG && PG.congelado };
+  PG = { js, xs, topo, T, B, W, L, R, m0, m1, mTodo0, mTodo1, congelado: PG && PG.congelado };
   let s = `<defs><pattern id="hachura" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="#FBEFEF"/><line x1="0" y1="0" x2="0" y2="6" stroke="#E2A1A1" stroke-width="2"/></pattern></defs>`;
   s += `<line x1="${L}" y1="${B}" x2="${W - R}" y2="${B}" class="pg-ax"/>`;
   const rot = (x0, x1, y0, y1, txt, cls) => (x1 - x0 >= 70 && y0 - y1 >= 13) ? `<text x="${(x0 + x1) / 2}" y="${(y0 + y1) / 2 + 3.5}" class="pg-v ${cls || ''}" text-anchor="middle">${txt}</text>` : '';
@@ -1750,18 +1758,30 @@ function htmlProgramacao() {
     const saque = Math.max(0, D - base), coberto = Math.min(saque, zDe(j)), falta = saque - coberto;
     if (coberto > 0) { const y0 = y(base), y1 = y(base + coberto); s += `<rect x="${x0}" y="${y1}" width="${Math.max(1, x1 - x0)}" height="${y0 - y1}" class="pg-saque"><title>Saque do patrimônio: ${fmt(coberto)}/mês</title></rect>` + rot(x0, x1, y0, y1, 'saque ' + fmt(coberto)); }
     if (falta > 0.5) { const y0 = y(base + coberto), y1 = y(D); s += `<rect x="${x0}" y="${y1}" width="${Math.max(1, x1 - x0)}" height="${y0 - y1}" fill="url(#hachura)"><title>Falta: ${fmt(falta)}/mês</title></rect>` + rot(x0, x1, y0, y1, 'falta ' + fmt(falta), 'falta'); }
-    s += `<text x="${xs[k] + 2}" y="${B + 14}" class="pg-lb">${idade(j.m0)} anos</text>`;
+    if (!PGZ) s += `<text x="${xs[k] + 2}" y="${B + 14}" class="pg-lb">${idade(j.m0)} anos</text>`;
     linhaD += (k ? `L${xs[k]} ${y(D)} ` : `M${xs[k]} ${y(D)} `) + `L${xs[k + 1]} ${y(D)} `;
-    linhas.push(`<tr><td>${idade(j.m0)} a ${idade(j.m1)} anos<small>${monthsLabel(j.m0)} a ${monthsLabel(j.m1 - 1)}</small></td><td class="num">${fmt(D)}</td><td>${j.camadas.length ? j.camadas.map(c => `<i class="sw" style="background:${cor[c.id]}"></i>${esc(c.nome)} ${fmt(c.v)}`).join('<br>') : '<span class="muted">nenhuma</span>'}</td><td class="num">${fmt(coberto)}</td><td class="num${falta > 0.5 ? ' low' : ''}">${falta > 0.5 ? fmt(falta) : '—'}</td></tr>`);
+    if (!PGZ) linhas.push(`<tr><td>${idade(j.m0)} a ${idade(j.m1)} anos<small>${monthsLabel(j.m0)} a ${monthsLabel(j.m1 - 1)}</small></td><td class="num">${fmt(D)}</td><td>${j.camadas.length ? j.camadas.map(c => `<i class="sw" style="background:${cor[c.id]}"></i>${esc(c.nome)} ${fmt(c.v)}`).join('<br>') : '<span class="muted">nenhuma</span>'}</td><td class="num">${fmt(coberto)}</td><td class="num${falta > 0.5 ? ' low' : ''}">${falta > 0.5 ? fmt(falta) : '—'}</td></tr>`);
   });
+  if (PGZ) {
+    // marcas do eixo com zoom: meses quando cabem (até 3 anos à vista), senão anos de idade
+    const span = m1 - m0, passo = span <= 18 ? 1 : span <= 36 ? 3 : 12;
+    for (let m = Math.ceil(m0 / passo) * passo; m < m1; m += passo) {
+      const xm = x(m); if (xm > W - R - 30) break;
+      s += `<line x1="${xm}" y1="${B}" x2="${xm}" y2="${B + 4}" class="pg-ax"/><text x="${xm}" y="${B + 14}" class="pg-lb" text-anchor="middle">${passo < 12 ? monthsLabel(m) : idade(m) + ' anos'}</text>`;
+    }
+    // a tabela continua com todas as janelas: calcula as linhas fora do recorte
+    tabela.forEach(j => { const base = j.camadas.reduce((a, c) => a + c.v, 0), saque = Math.max(0, j.D - base), coberto = Math.min(saque, zDe(j)), falta = saque - coberto;
+      linhas.push(`<tr><td>${idade(j.m0)} a ${idade(j.m1)} anos<small>${monthsLabel(j.m0)} a ${monthsLabel(j.m1 - 1)}</small></td><td class="num">${fmt(j.D)}</td><td>${j.camadas.length ? j.camadas.map(c => `<i class="sw" style="background:${cor[c.id]}"></i>${esc(c.nome)} ${fmt(c.v)}`).join('<br>') : '<span class="muted">nenhuma</span>'}</td><td class="num">${fmt(coberto)}</td><td class="num${falta > 0.5 ? ' low' : ''}">${falta > 0.5 ? fmt(falta) : '—'}</td></tr>`); });
+  }
   // a linha da renda desejada: dois cliques criam um ponto; o ponto arrasta para cima e para baixo
   s += `<path d="${linhaD}" class="pg-des"/><path d="${linhaD}" class="pg-des-hit"><title>Clique duas vezes para mudar a renda desejada a partir desta idade</title></path>`;
   s += `<text x="${L - 6}" y="${y(js[0].D) + 3.5}" class="pg-lb forte" text-anchor="end">${fmt(js[0].D)}</text>`;
   (plano.desiredSteps || []).forEach((st, k) => { if (st.from < m0 || st.from >= m1) return; const cx = x(st.from), cy = y(+st.value || 0);
     s += `<text x="${cx}" y="${cy - 10}" class="pg-lb forte" text-anchor="middle">${fmt(+st.value || 0)} aos ${idade(st.from)}</text><circle cx="${cx}" cy="${cy}" r="5" class="pg-pt"/><circle cx="${cx}" cy="${cy}" r="12" class="pg-pt-hit" data-degrau="${k}"><title>Arraste para cima ou para baixo; dois cliques removem</title></circle>`; });
-  s += `<text x="${W - R}" y="${T - 10}" class="pg-lb" text-anchor="end">renda desejada (tracejado) · dois cliques na linha criam um ponto</text>`;
-  s += `<text x="${W - R}" y="${B + 14}" class="pg-lb" text-anchor="end">${plano.lifeExp} anos</text><text x="${L - 6}" y="${B}" class="pg-lb" text-anchor="end">0</text>`;
-  const legenda = Object.keys(cor).map(id => { const c = js.flatMap(j => j.camadas).find(c => c.id === id); return `<span><i class="sw" style="background:${cor[id]}"></i>${esc(c.nome)}</span>`; }).join('') +
+  s += `<text x="${W - R}" y="${T - 10}" class="pg-lb" text-anchor="end">renda desejada (tracejado) · dois cliques na linha criam um ponto, no ponto removem · Ctrl + rodinha aproxima${PGZ ? ', Shift + rodinha anda' : ''}</text>`;
+  s += `<g id="pgGuia"></g>`;   // linha e idade sob o mouse
+  s += `<text x="${W - R}" y="${B + 14}" class="pg-lb" text-anchor="end">${PGZ ? idade(m1) + ' anos' : plano.lifeExp + ' anos'}</text><text x="${L - 6}" y="${B}" class="pg-lb" text-anchor="end">0</text>`;
+  const legenda = Object.keys(cor).map(id => { const c = tabela.flatMap(j => j.camadas).find(c => c.id === id); return `<span><i class="sw" style="background:${cor[id]}"></i>${esc(c.nome)}</span>`; }).join('') +
     `<span><i class="sw" style="background:#A8DDB9"></i>Saque do patrimônio</span>` + (js.some(j => Math.max(0, j.D - j.camadas.reduce((a, c) => a + c.v, 0)) > zDe(j) + 0.5) ? `<span><i class="sw" style="background:repeating-linear-gradient(45deg,#FBEFEF 0 3px,#E2A1A1 3px 5px)"></i>Falta (o patrimônio não sustenta)</span>` : '');
   return `<div class="bloco"><h3>Programação da renda</h3>
     <div class="muted" style="margin-bottom:6px">A partir de ${quandoMes(f.mi)}. O patrimônio de ${fmt(f.ff.finAfter)} ${desej ? 'paga só o que falta para a renda desejada: ' + (wEsg != null ? '<b style="color:var(--nl-score-low)">acaba aos ' + Math.floor(ENGINE.ageOf(wEsg)) + ' anos</b>' : 'não acaba; aos ' + plano.lifeExp + ' anos ainda tem ' + fmt(sobraFim)) : cons ? 'sustenta saques de até ' + fmt(Z0) + ' por mês até os ' + plano.lifeExp + ' anos (consumo)' : 'rende ' + fmt(Z0) + ' por mês sem ser consumido (perpetuidade)'}.</div>
@@ -1777,28 +1797,68 @@ function mesNoX(xv) {
 }
 const pontoSvg = (svg, e) => { const p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY; return p.matrixTransform(svg.getScreenCTM().inverse()); };
 const redesenhaProg = () => { document.getElementById('ffProg').innerHTML = htmlProgramacao(); };
+// dois cliques na linha criam um ponto (os dois cliques no ponto são tratados no pointerdown, abaixo)
 document.addEventListener('dblclick', e => {
   const svg = e.target.closest && e.target.closest('#pgSvg'); if (!svg || !PG) return;
-  const pt = e.target.closest('[data-degrau]');
-  if (pt) { plano.desiredSteps.splice(+pt.dataset.degrau, 1); renderAll(); return; }   // dois cliques no ponto: remove
   if (!e.target.classList.contains('pg-des-hit')) return;
   const mi = mesNoX(pontoSvg(svg, e).x);
   plano.desiredSteps = (plano.desiredSteps || []).filter(s => s.from !== mi);
   plano.desiredSteps.push({ from: mi, value: desejoEm(mi) }); plano.desiredSteps.sort((a, b) => a.from - b.from);
   renderAll();
 });
-let pgDrag = null;
+// Ponto: arrasta para cima e para baixo; dois cliques removem. O dblclick do navegador não serve aqui:
+// soltar o primeiro clique redesenha o gráfico e o segundo cai num elemento novo.
+let pgDrag = null, pgUltimoClique = null;
 document.addEventListener('pointerdown', e => {
   const pt = e.target.closest && e.target.closest('#pgSvg [data-degrau]'); if (!pt) return;
-  pgDrag = { k: +pt.dataset.degrau }; PG.congelado = true; e.preventDefault();
+  const k = +pt.dataset.degrau, agora = Date.now(); e.preventDefault();
+  if (pgUltimoClique && pgUltimoClique.k === k && agora - pgUltimoClique.t < 400) {   // segundo clique no mesmo ponto: remove
+    pgUltimoClique = null; pgDrag = null; PG.congelado = false; plano.desiredSteps.splice(k, 1); renderAll(); return;
+  }
+  pgUltimoClique = { k, t: agora };
+  pgDrag = { k, moveu: false }; PG.congelado = true;
 });
+// guia sob o mouse: a idade (e o mês) onde um ponto seria criado; no arraste, o valor do ponto
+function guiaPg(svg, e) {
+  const g = svg.querySelector('#pgGuia'); if (!g || !PG) return;
+  const q = pontoSvg(svg, e);
+  if (q.x < PG.L || q.x > PG.W - PG.R || q.y < PG.T - 16 || q.y > PG.B) { g.innerHTML = ''; return; }
+  const mi = pgDrag ? plano.desiredSteps[pgDrag.k].from : mesNoX(q.x), k = PG.js.findIndex(j => mi >= j.m0 && mi < j.m1);
+  const xm = k < 0 ? q.x : PG.xs[k] + (mi - PG.js[k].m0) / (PG.js[k].m1 - PG.js[k].m0) * (PG.xs[k + 1] - PG.xs[k]);
+  const txt = Math.floor(ENGINE.CURRENT_AGE + mi / 12) + ' anos · ' + monthsLabel(mi) + (pgDrag ? ' · ' + fmt(+plano.desiredSteps[pgDrag.k].value || 0) : '');
+  const larg = txt.length * 5.6 + 12, tx = Math.min(PG.W - PG.R - larg / 2, Math.max(PG.L + larg / 2, xm));
+  g.innerHTML = `<line x1="${xm}" y1="${PG.T}" x2="${xm}" y2="${PG.B}" class="pg-guia"/><rect x="${tx - larg / 2}" y="${PG.B - 19}" width="${larg}" height="15" rx="4" class="pg-guia-bg"/><text x="${tx}" y="${PG.B - 8}" class="pg-guia-tx" text-anchor="middle">${txt}</text>`;
+}
 addEventListener('pointermove', e => {
-  if (!pgDrag) return;
   const svg = document.getElementById('pgSvg'); if (!svg) return;
-  const q = pontoSvg(svg, e), v = Math.max(0, Math.round((PG.B - q.y) / (PG.B - PG.T) * PG.topo / 100) * 100);
-  plano.desiredSteps[pgDrag.k].value = v; redesenhaProg();
+  if (pgDrag) {
+    const q = pontoSvg(svg, e), v = Math.max(0, Math.round((PG.B - q.y) / (PG.B - PG.T) * PG.topo / 100) * 100);
+    if (v !== plano.desiredSteps[pgDrag.k].value) { plano.desiredSteps[pgDrag.k].value = v; pgDrag.moveu = true; redesenhaProg(); }
+  }
+  if (e.target.closest && e.target.closest('#pgSvg') || pgDrag) guiaPg(document.getElementById('pgSvg'), e);
+  else { const g = svg.querySelector('#pgGuia'); if (g && g.innerHTML) g.innerHTML = ''; }
 });
-addEventListener('pointerup', () => { if (!pgDrag) return; pgDrag = null; PG.congelado = false; renderAll(); });
+// soltar só refaz a tela inteira se o ponto mudou de valor; um clique parado não redesenha (e o segundo clique acha o ponto)
+addEventListener('pointerup', () => { if (!pgDrag) return; const moveu = pgDrag.moveu; pgDrag = null; PG.congelado = false; if (moveu) { pgUltimoClique = null; renderAll(); } });
+// Ctrl + rodinha aproxima e afasta em volta do mouse, até 12 meses à vista; Shift + rodinha anda no tempo
+document.addEventListener('wheel', e => {
+  const svg = e.target.closest && e.target.closest('#pgSvg'); if (!svg || !PG) return;
+  const zoom = e.ctrlKey || e.metaKey, anda = e.shiftKey && PGZ;
+  if (!zoom && !anda) return;
+  e.preventDefault();
+  const a = PGZ ? PGZ.m0 : PG.mTodo0, b = PGZ ? PGZ.m1 : PG.mTodo1, tot = PG.mTodo1 - PG.mTodo0, span = b - a;
+  if (zoom) {
+    const mc = mesNoX(pontoSvg(svg, e).x), frac = span ? (mc - a) / span : .5;
+    const novo = Math.max(PGZ_MIN, Math.min(tot, Math.round(span * Math.exp(e.deltaY * 0.002))));
+    if (novo === span) return;
+    if (novo >= tot) PGZ = null;
+    else { const m0 = Math.round(mc - frac * novo); PGZ = { m0: Math.max(PG.mTodo0, Math.min(PG.mTodo1 - novo, m0)), m1: 0 }; PGZ.m1 = PGZ.m0 + novo; }
+  } else {
+    const d = Math.sign(e.deltaY || e.deltaX) * Math.max(1, Math.round(span * 0.1)), m0 = Math.max(PG.mTodo0, Math.min(PG.mTodo1 - span, a + d));
+    if (m0 === a) return; PGZ = { m0, m1: m0 + span };
+  }
+  redesenhaProg(); guiaPg(document.getElementById('pgSvg'), e);
+}, { passive: false });
 
 // ---------- rendas da aposentadoria, cadastradas na própria tabela ----------
 function htmlLinhaRenda(p, i) {
