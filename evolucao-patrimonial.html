@@ -999,11 +999,13 @@ function drawCashflow() {
     // da forma mais completa para a mais curta: o valor exato vem antes do arredondado
     const opcoes = v => {
       const a = Math.abs(v), sinal = isMov && v < 0 ? '−' : '';
+      const exato = Math.round(a).toLocaleString('pt-BR');   // sem "R$": a cor e a barra já dizem o que é
+      const curto = a >= 1e3 && a < 1e4 ? (a / 1e3).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + ' mil' : fmtC(a);   // 2.500 vira "2,5 mil", não "3 mil"
       return [
         [(sinal && sinal + ' ') + (a >= 1e6 ? 'R$ ' + fmtC(a) : fmt(a)), true],
         [(sinal && sinal + ' ') + fmt(a), false],
-        [sinal + Math.round(a).toLocaleString('pt-BR'), false],   // sem "R$": a cor e a barra já dizem o que é
-        [sinal + (a >= 1e3 && a < 1e4 ? (a / 1e3).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + ' mil' : fmtC(a)), false],   // 2.500 vira "2,5 mil", não "3 mil"
+        [sinal + exato, false],
+        [sinal + curto, false],
       ];
     };
     const celula = b => { const [x0, x1] = bucketX(b), cx0 = Math.max(x0, PL) + 2, cx1 = Math.min(x1, W - PR) - 2; return { x1, cx0, cx1, larg: cx1 - cx0 - 4 }; };
@@ -1024,7 +1026,9 @@ function drawCashflow() {
       ctx.fillStyle = isTop || (isMov && v < 0) ? FORTE[tom] : '#3d4a5c'; ctx.font = fonteV; ctx.textAlign = 'right';
       const cy = y + rowH / 2 - 1, xr = cx1 - 3, o = opcoes(v);
       let k = nivel; while (k < o.length - 1 && !cabe(o[k], larg)) k++;   // a coluna cortada na borda pode precisar de menos
-      const [txt, marcador] = o[k];
+      let [txt, marcador] = o[k];
+      // movimentações mantêm o 💰/💳 também nas formas curtas, onde couber; o emoji já diz se entra ou sai, então dispensa o "−"
+      if (isMov && !marcador) { const semSinal = txt.replace(/^−\s?/, ''); if (ctx.measureText(semSinal).width + 14 <= larg) { txt = semSinal; marcador = true; } }
       if (!cabe(o[k], larg)) { ctx.globalAlpha = 1; return; }   // não cabe nem a forma mais curta (coluna cortada na borda): fica só a barra
       ctx.fillText(txt, xr, cy);
       const ax = xr - ctx.measureText(txt).width - 8;
