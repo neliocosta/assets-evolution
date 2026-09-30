@@ -798,7 +798,7 @@ const ENGINE = (() => {
           w = Math.min(w, Math.max(0, cofre - (f.out_rendas || 0)));
           // na aposentadoria o padrão de vida se ajusta à renda disponível
           const custoVida = livingAt(m.mIdx) || 1;
-          m.salary = 0; m.scale = Math.max(0, pas + passiveIncomeAt(m.mIdx) + w - recurTotal()) / custoVida; m.invest = 0; m.pas = pas + passiveIncomeAt(m.mIdx);
+          m.salary = 0; m.scale = Math.max(0, pas + passiveIncomeAt(m.mIdx) + w - recurTotal()) / custoVida; m.invest = 0; m.pas = pas + passiveIncomeAt(m.mIdx); m.saque = w;
         } else {
           m.scale = 1;                                // os valores já vêm da linha do tempo
           m.salary = incomeAt(m.mIdx);                // equivalente mensal, para dimensionar o aporte
@@ -817,7 +817,7 @@ const ENGINE = (() => {
       let R = 0; for (const k in f) { if (k.startsWith('in_')) R += f[k]; else if (k.startsWith('out_')) R -= f[k]; }
       cofre += R; if (R) add(f, 'mov_cofre', R);
       if (cofre < 0) cofre = 0;
-      weeks[i] = { fin: fin(), cofre, obj: obj.slice(), bens, part, pas: m ? (m.pas || 0) : 0, mi: m ? m.mIdx : -1, ks, f: i < W0 ? {} : f };   // o que aconteceu antes de hoje já está no patrimônio
+      weeks[i] = { fin: fin(), cofre, obj: obj.slice(), bens, part, pas: m ? (m.pas || 0) : 0, saque: m ? (m.saque || 0) : 0, mi: m ? m.mIdx : -1, ks, f: i < W0 ? {} : f };   // o que aconteceu antes de hoje já está no patrimônio
     }
     // agregações
     const bucketize = keyFn => { const out = []; let cur = null; for (let i = 0; i < NW; i++) { const k = weeks[i].mi < 0 ? 'antes de hoje' : keyFn(i); if (!cur || cur.key !== k) { cur = { key: k, w0: i, w1: i + 1, mi: weeks[i].mi, f: {} }; out.push(cur); } cur.w1 = i + 1; const f = weeks[i].f; for (const key in f) cur.f[key] = (cur.f[key] || 0) + f[key]; } return out; };

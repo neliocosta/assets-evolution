@@ -56,6 +56,10 @@ canvas#main.grab-obj{cursor:ew-resize}
 #tip .sw{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px;vertical-align:middle}
 #tip .sec{margin-top:8px;padding-top:6px;border-top:1px solid #eee;font-family:Sora,sans-serif;font-size:11px;color:var(--nl-navy-900);font-weight:600}
 #tip .muted{color:#999}
+#tip .vida{background:#F1F8F3;border-radius:9px;padding:8px 10px;margin:4px 0 8px}
+#tip .vida>span{display:block;font-size:11px;color:#2b6e45}
+#tip .vida>b{display:block;font:600 17px Sora,sans-serif;color:#1f5a37;margin:1px 0 4px}
+#tip .vida-d{display:flex;flex-direction:column;gap:2px;font-size:11.5px;color:#3f4a45}
 #hint{position:absolute;left:0;right:0;bottom:0;padding:7px 16px;background:#fff;border-top:1px solid #f1efec;font-size:11px;color:#999;pointer-events:none}
 #overlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;z-index:10;background:rgba(32,52,76,.28)}
 #overlay.show{display:flex}
@@ -465,7 +469,7 @@ const ENGINE = (() => {
           w = Math.min(w, Math.max(0, cofre - (f.out_rendas || 0)));
           // na aposentadoria o padrão de vida se ajusta à renda disponível
           const custoVida = livingAt(m.mIdx) || 1;
-          m.salary = 0; m.scale = Math.max(0, pas + passiveIncomeAt(m.mIdx) + w - recurTotal()) / custoVida; m.invest = 0; m.pas = pas + passiveIncomeAt(m.mIdx);
+          m.salary = 0; m.scale = Math.max(0, pas + passiveIncomeAt(m.mIdx) + w - recurTotal()) / custoVida; m.invest = 0; m.pas = pas + passiveIncomeAt(m.mIdx); m.saque = w;
         } else {
           m.scale = 1;                                // os valores já vêm da linha do tempo
           m.salary = incomeAt(m.mIdx);                // equivalente mensal, para dimensionar o aporte
@@ -484,7 +488,7 @@ const ENGINE = (() => {
       let R = 0; for (const k in f) { if (k.startsWith('in_')) R += f[k]; else if (k.startsWith('out_')) R -= f[k]; }
       cofre += R; if (R) add(f, 'mov_cofre', R);
       if (cofre < 0) cofre = 0;
-      weeks[i] = { fin: fin(), cofre, obj: obj.slice(), bens, part, pas: m ? (m.pas || 0) : 0, mi: m ? m.mIdx : -1, ks, f: i < W0 ? {} : f };   // o que aconteceu antes de hoje já está no patrimônio
+      weeks[i] = { fin: fin(), cofre, obj: obj.slice(), bens, part, pas: m ? (m.pas || 0) : 0, saque: m ? (m.saque || 0) : 0, mi: m ? m.mIdx : -1, ks, f: i < W0 ? {} : f };   // o que aconteceu antes de hoje já está no patrimônio
     }
     // agregações
     const bucketize = keyFn => { const out = []; let cur = null; for (let i = 0; i < NW; i++) { const k = weeks[i].mi < 0 ? 'antes de hoje' : keyFn(i); if (!cur || cur.key !== k) { cur = { key: k, w0: i, w1: i + 1, mi: weeks[i].mi, f: {} }; out.push(cur); } cur.w1 = i + 1; const f = weeks[i].f; for (const key in f) cur.f[key] = (cur.f[key] || 0) + f[key]; } return out; };
@@ -999,6 +1003,10 @@ function chartTip(i) {
   const s = sim(), w = s.weeks[i], d = weekDate(i), age = ageOf(i);
   const done = id => s.events.find(e => e.type === 'obj' && e.obj.id === id && e.week <= i);
   let h = `<h4>${fmtDate(d)} · ${Math.floor(age)} anos</h4>`;
+  if (s.ff && i >= s.ff.week) {   // valores do mês (de salário a salário), não da média da curva
+    const pas = w.pas || 0, saque = w.saque || 0;
+    h += `<div class="vida"><span>Seu padrão de vida</span><b>${fmt(pas + saque)}/mês</b><div class="vida-d"><span><i class="sw" style="background:#7C5CBF"></i>${fmt(pas)} de renda passiva</span><span><i class="sw" style="background:${C.fin}"></i>${fmt(saque)} retirados do patrimônio</span></div></div>`;
+  }
   // eventos próximos ao ponto (marcos e sub-eventos) entram no tooltip
   s.events.filter(e => Math.abs(xOfW(e.week) - xOfW(i)) <= 10).forEach(e => { h += `<div class="row" style="color:#20344C"><span>◆ ${e.label}</span></div>`; if (e.detail) h += `<div class="row muted"><span>${e.detail}</span></div>`; });
   // mesmos valores que a curva desenha (média móvel de no mínimo um mês)
@@ -1010,7 +1018,6 @@ function chartTip(i) {
   h += `<div class="sec">Alocação do patrimônio financeiro</div>`;
   h += `<div class="row"><span>Cofre genérico (reserva)</span><b>${fmt(v('cofre'))}</b></div>`;
   OBJ.forEach((o, k) => { const dn = done(o.id); h += `<div class="row"><span>${o.name}</span>` + (dn ? (o.naoComprado ? `<b class="muted" style="color:#D64545">não comprado</b>` : `<b class="muted">realizado ✓</b>`) : `<b>${fmt(v('obj' + k))}</b>`) + `</div>`; });
-  if (s.ff && i >= s.ff.week) { h += `<div class="sec">Renda passiva líquida (mês)</div><div class="row"><span>Total</span><b>${fmt(v('pas'))}</b></div>`; }
   return h;
 }
 function cashTip(b, rows) {
