@@ -79,8 +79,10 @@ O plano também fica salvo no `localStorage` do navegador, então a tela do cons
       "kind": "bem",           // "bem" migra para patrimônio; "consumo" é uma saída
       "months": 46,            // data alvo, em meses a partir de set/2026
       "amount": 180000,        // custo pontual
-      "recurring": { "value": 800, "months": null, "label": "Condomínio" },   // custo fixo depois de realizado; "amort" (fração da parcela) só existe em planos antigos
-      "financing": { "system": "sac", "principal": 756000, "rateYear": 0.095, "months": 360 },   // "price" ou "sac"; juros e amortização calculados mês a mês
+      "costs": [                // gastos depois de realizado; cada um vira uma linha de saída fixa
+        { "id": "k1", "type": "fixo", "value": 800, "months": null, "label": "Condomínio" },           // months null = sem prazo
+        { "id": "k2", "type": "sac", "principal": 756000, "rateYear": 0.095, "months": 360 }        // "price" ou "sac": juros e amortização mês a mês
+      ],                        // planos antigos com "recurring" e "financing" são convertidos; "amort" num fixo é a fração antiga da parcela
       "dedicated": 45000,      // patrimônio já dedicado a este objetivo
       "profile": "moderado",
       "planned": 1500,         // aporte mensal definido pelo consultor
@@ -163,18 +165,21 @@ começam numa data fixa (o INSS, numa idade definida) ou na liberdade financeira
 de espera. Uma renda de data fixa que começa antes da liberdade já entra no fluxo. O portal mostra a data e
 a idade de início e de fim de cada uma.
 
-**Financiamento de bens.** Um objetivo que vira bem pode ter `financing`: sistema Price (parcela constante) ou
-SAC (amortização constante), valor financiado, taxa efetiva ao ano e prazo em meses. O motor calcula todo mês
+**Gastos depois de realizado.** Cada objetivo tem uma lista `costs`: custo fixo por mês (com ou sem prazo) ou
+financiamento, pelo sistema Price (parcela constante) ou SAC (amortização constante), com valor financiado,
+taxa efetiva ao ano e prazo em meses. O motor calcula todo mês
 o juro sobre o saldo devedor: os juros são despesa (linha "(juros)" nas saídas fixas) e a amortização vira
-patrimônio em bens. O portal mostra a primeira e a última parcela, o total de juros e a tabela mês a mês. O
-campo antigo `recurring.amort` (fração fixa da parcela) continua funcionando em planos antigos e é substituído
-quando o financiamento é preenchido.
+patrimônio em bens. O portal mostra a primeira e a última parcela, o total de juros e a tabela mês a mês.
+Um custo fixo de plano antigo com `amort` (fração fixa da parcela) continua funcionando; trocar o tipo para
+Price ou SAC passa a calcular mês a mês.
 
-**Planejador do objetivo.** No portal, cada objetivo aberto mostra um gráfico só dele: o saldo juntado até a
-data (com a curva tracejada do aporte necessário), o que acontece na data (vira bem ou é gasto) e, embaixo, o
-valor por mês antes e depois. Arrastar o ponto laranja muda o valor (para cima e para baixo) e a data (para
-os lados); as barras de baixo mudam quanto guardar e quanto gastar por mês depois (`recurring.value`). Os
-controles deslizantes fazem o mesmo. É a conta do objetivo sozinho; o status do cartão vem da simulação.
+**Planejador do objetivo.** No portal, o objetivo abre com o básico (nome, tipo, data, valor e quanto guardar)
+e um gráfico só dele: o saldo juntado até a data (tracejado, o caminho do aporte necessário), o que acontece na
+data (vira bem ou é gasto) e, embaixo, o valor por mês antes e depois, com cada gasto na sua camada e no seu
+prazo (a parcela SAC cai). A linha tracejada vertical arrasta só a data; a bolinha, só o valor; as barras,
+quanto guardar e o primeiro custo fixo. Antes e depois da data o tempo tem escalas próprias. Gastos depois,
+patrimônio reservado e perfil, e apresentação ao cliente entram pelos botões "+". É a conta do objetivo
+sozinho; o status do cartão vem da simulação.
 
 **Fotos do exemplo.** Ficam em `fotos/` e entram no plano pelo campo `photo`, como qualquer outro link.
 

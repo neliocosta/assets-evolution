@@ -249,11 +249,32 @@ console.log('\n6. Financiamento de bens (Price e SAC)');
       if (b.w1 <= E4.W0) continue;
       let i = 0, o = 0, v = 0;
       for (const k in b.f) { if (k.startsWith('in_')) i += b.f[k]; else if (k.startsWith('out_')) o += b.f[k]; else if (k.startsWith('mov_')) v += b.f[k]; }
-      erro = Math.max(erro, Math.abs(i - o - v)); juros += b.f['out_fix_fin_c'] || 0;
+      erro = Math.max(erro, Math.abs(i - o - v)); juros += b.f['out_fix_c_k2'] || 0;   // o financiamento antigo vira o custo k2 da lista
     }
     const total = fin === price ? soma(cp, 'juros') : soma(cs, 'juros');
     ok('financiamento ' + nome + ' na simulação: identidade contábil e juros iguais ao cronograma', erro < 0.01 && Math.abs(juros - total) < 1, 'juros ' + Math.round(juros) + ' de ' + Math.round(total));
   }
+}
+
+console.log('\n7. Custos depois de realizado (lista)');
+{
+  const E7 = carregar(srcCliente);
+  const velho = { id: 'v', name: 'Casa', icon: 'home', kind: 'bem', months: 12, amount: 50000, dedicated: 0, profile: 'moderado', planned: 5000, strategy: '',
+    recurring: { value: 900, months: null, label: 'Condomínio', amort: 0 }, financing: { system: 'sac', principal: 200000, rateYear: 0.1, months: 240 } };
+  E7.configure({ objectives: [velho] });
+  ok('plano antigo: custo fixo e financiamento viram itens da lista', velho.costs.length === 2 && velho.costs[0].type === 'fixo' && velho.costs[1].type === 'sac' && !('recurring' in velho) && !('financing' in velho));
+  const sc = E7.serieCusto(velho.costs[1], 241), sf = E7.serieCusto({ type: 'fixo', value: 900, months: 24 }, 30);
+  ok('série do SAC cai e termina no prazo', sc[0] > sc[239] && sc[239] > 0 && sc[240] === 0);
+  ok('série do custo fixo com prazo termina no prazo', sf[23] === 900 && sf[24] === 0);
+  const s7 = E7.run('perp');
+  let erro = 0, fixo = 0;
+  for (const b of s7.buckets.month) {
+    if (b.w1 <= E7.W0) continue;
+    let i = 0, o = 0, v = 0;
+    for (const k in b.f) { if (k.startsWith('in_')) i += b.f[k]; else if (k.startsWith('out_')) o += b.f[k]; else if (k.startsWith('mov_')) v += b.f[k]; }
+    erro = Math.max(erro, Math.abs(i - o - v)); fixo += b.f['out_fix_v_k1'] || 0;
+  }
+  ok('fixo e SAC juntos: identidade contábil', erro < 0.01 && fixo > 0, 'condomínio lançado: ' + Math.round(fixo));
 }
 
 console.log('\n' + (falhas ? falhas + ' verificação(ões) falharam.' : 'Tudo certo.') + '\n');

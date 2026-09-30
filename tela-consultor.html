@@ -277,28 +277,37 @@ details.opc2[open] summary{margin-bottom:10px}
 .fotoerro{font-size:12px;color:#a9a7a2}
 .iconpick .prev{width:42px;height:42px;border-radius:50%;border:1.5px solid #e3e0d9;display:inline-flex;align-items:center;justify-content:center}
 .iconpick .prev img{width:24px;height:24px;object-fit:contain}
-.planner{border:1px solid #efeeea;border-radius:12px;padding:10px 14px 12px;margin:14px 0 4px;background:#fcfbf9}
-.pv{width:100%;height:auto;display:block;user-select:none;touch-action:none}
-.pv-ax{stroke:#e6e3dd}
+.planner{border:1px solid #efeeea;border-radius:10px;padding:8px 12px 10px;margin:12px 0 6px;background:#fcfbf9}
+.pv{width:100%;max-width:900px;height:auto;display:block;user-select:none;touch-action:none}
 .pv text,.pv rect,.pv path,.pv .pv-pt{pointer-events:none}   /* só as alças recebem o mouse */
-.pv-lb{font:500 10.5px 'DM Sans',sans-serif;fill:#a3a19c}
-.pv-tx{font:600 11px 'DM Sans',sans-serif;fill:var(--nl-navy-900)}
+.pv-ax{stroke:#ebe8e2;stroke-width:1}
+.pv-lb{font:500 9.5px 'DM Sans',sans-serif;fill:#a8a6a1} .pv-lb.dt{fill:var(--nl-navy-900);font-weight:600}
+.pv-tx{font:600 9.5px 'DM Sans',sans-serif;fill:var(--nl-navy-900)}
 .pv-tx.bem{fill:#3B6FCB} .pv-tx.cons{fill:#D64545} .pv-tx.ap{fill:#2E9E5B} .pv-tx.gs{fill:#c2621f} .pv-tx.pt{fill:var(--nl-orange-600)}
-.pv-alvo{stroke:#d9d6cf;stroke-dasharray:3 3}
-.pv-nec{stroke:#9a9892;stroke-dasharray:4 4;fill:none;stroke-width:1.3}
-.pv-area{fill:rgba(46,158,91,.10)} .pv-saldo{stroke:#2E9E5B;stroke-width:2.2;fill:none} .pv-saldo.falta{stroke:#FA7A35}
-.pv-bem{stroke:#3B6FCB;stroke-width:2.2} .pv-cons{stroke:#D64545;stroke-width:2;stroke-dasharray:5 3} .pv-gap{stroke:#D64545;stroke-width:2}
-.pv-ap{fill:rgba(46,158,91,.2)} .pv-gasto{fill:rgba(250,122,53,.25)} .pv-fin{fill:rgba(59,111,203,.2)}
-.pv-hit{stroke:transparent;stroke-width:16;fill:transparent;cursor:ns-resize}
-.pv-hit.pt{cursor:move}
-.pv-pt{fill:var(--nl-orange-500);stroke:#fff;stroke-width:2.5}
-.pv-arrastando,.pv-arrastando *{cursor:grabbing !important}
-.pv-ctls{margin-top:4px}
-.pv-ctl{display:grid;grid-template-columns:210px 1fr 150px;gap:14px;align-items:center;margin-top:8px}
-.pv-ctl label{font:600 12px 'DM Sans',sans-serif;color:var(--nl-navy-900);margin:0}
-.pv-ctl input[type=range]{accent-color:var(--nl-orange-500);width:100%;padding:0;border:0;box-shadow:none}
-.pv-nota{margin:2px 0 0 224px;font-size:11.5px;color:#8d8d8d}
-.pv-res{font-size:12.5px;line-height:1.5;margin-top:10px;color:var(--nl-navy-900)}
+.pv-alvo{stroke:#b9b6af;stroke-width:1;stroke-dasharray:3 3}
+.pv-nec{stroke:#a9a7a1;stroke-dasharray:3 3;fill:none;stroke-width:1}
+.pv-area{fill:rgba(46,158,91,.08)} .pv-saldo{stroke:#2E9E5B;stroke-width:1.4;fill:none} .pv-saldo.falta{stroke:#FA7A35}
+.pv-bem{stroke:#3B6FCB;stroke-width:1.4} .pv-cons{stroke:#D64545;stroke-width:1.2;stroke-dasharray:4 3}
+.pv-ap{fill:rgba(46,158,91,.15)} .pv-lap{stroke:#2E9E5B;stroke-width:1.6} .pv-lgs{stroke:#FA7A35;stroke-width:1.6}
+.pv-gfixo{fill:rgba(250,122,53,.22)} .pv-gprice{fill:rgba(59,111,203,.2)} .pv-gsac{fill:rgba(124,92,191,.22)}
+.pv-hit{stroke:transparent;stroke-width:12;fill:transparent;cursor:ns-resize}
+.pv-hit.ew{cursor:ew-resize}
+circle.pv-hit{cursor:ns-resize}
+.pv-pt{fill:var(--nl-orange-500);stroke:#fff;stroke-width:1.5}
+.pv-arrastando,.pv-arrastando *{cursor:ns-resize !important} .pv-arrastando-ew,.pv-arrastando-ew *{cursor:ew-resize !important}
+.pv-res{font-size:12px;line-height:1.5;margin-top:4px;color:#5d5c58}
+.g5{grid-template-columns:1.7fr 1fr 1.25fr 1.1fr 1.1fr}
+.orc{font-size:12px;line-height:1.5;padding:7px 11px;border-radius:8px;margin-bottom:8px}
+.orc.ok{background:#F1F8F3;color:#2b6e45} .orc.low{background:#FDF3F3;color:#9b3a3a}
+.secao{border-top:1px dashed #eceae5;margin-top:12px;padding-top:10px}
+.secao h4{font:600 11.5px Sora,sans-serif;color:var(--nl-navy-900);margin-bottom:8px}
+.custo{margin-bottom:8px}
+.custo-l{display:grid;grid-template-columns:1.7fr 1.4fr 1fr 1fr 1fr auto;gap:10px;align-items:end}
+.custo-res{font-size:12px;color:#5d5c58;margin-top:6px;line-height:1.5}
+.custo-res summary{font-size:11.5px;color:var(--nl-navy-900);cursor:pointer;margin-top:4px}
+.chips-add{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.chipadd{background:#fff;border:1px dashed #d9d6cf;border-radius:999px;padding:5px 12px;font:600 11.5px 'DM Sans',sans-serif;color:var(--nl-navy-900);cursor:pointer}
+.chipadd:hover{border-color:var(--nl-orange-500);color:var(--nl-orange-600)}
 .cronog{max-height:240px;overflow:auto;margin-top:6px;border:1px solid #efeeea;border-radius:8px}
 .cronog table{width:100%;font-size:12px}
 .cronog th{position:sticky;top:0;background:#f7f5f1}
@@ -485,6 +494,18 @@ const ENGINE = (() => {
     o.ratio = o.amount > 0 ? o.projected / o.amount : 1;
     o.status = o.ratio >= 0.98 ? 'ok' : o.ratio >= 0.7 ? 'adj' : 'risk';
   };
+  // Custos de um objetivo depois de realizado: lista de itens. 'fixo' (valor por mês, com ou sem prazo),
+  // 'price' ou 'sac' (financiamento: valor financiado, taxa efetiva ao ano, prazo em meses).
+  // Planos antigos traziam um só 'recurring' e um só 'financing': viram itens da lista.
+  const migraCustos = o => {
+    if (Array.isArray(o.costs)) return;
+    o.costs = [];
+    const r = o.recurring, f = o.financing;
+    if (r && (+r.value > 0 || r.months != null)) o.costs.push({ id: 'k1', type: 'fixo', value: +r.value || 0, months: r.months == null ? null : +r.months, label: r.label || '', amort: +r.amort || 0 });
+    if (f && f.system) o.costs.push({ id: 'k2', type: f.system === 'sac' ? 'sac' : 'price', principal: +f.principal || 0, rateYear: f.rateYear, months: f.months, label: f.label || '' });
+    delete o.recurring; delete o.financing;
+  };
+  OBJ.forEach(migraCustos);
   OBJ.forEach(derive);
   const STATUS = { ok: 'Alcançável', adj: 'Alcançável com ajustes', risk: 'Requer revisão' };
   // Rendas passivas contratadas na Liberdade Financeira
@@ -602,7 +623,7 @@ const ENGINE = (() => {
   const pmt = (pv, i, n) => pv * i / (1 - Math.pow(1 + i, -n));
   // Financiamento de um bem: sistema 'price' (parcela fixa) ou 'sac' (amortização fixa), taxa efetiva ao ano, prazo em meses
   const financiamentoValido = f => !!f && +f.principal > 0 && +f.months > 0;
-  const novoFin = f => ({ sys: f.system === 'sac' ? 'sac' : 'price', P: +f.principal, n: Math.round(+f.months), i: Math.pow(1 + (+f.rateYear || 0), 1 / 12) - 1, bal: +f.principal });
+  const novoFin = f => ({ sys: (f.system || f.type) === 'sac' ? 'sac' : 'price', P: +f.principal, n: Math.round(+f.months), i: Math.pow(1 + (+f.rateYear || 0), 1 / 12) - 1, bal: +f.principal });
   // próxima parcela sobre o saldo atual: juros, amortização e valor
   const parcelaFin = F => {
     const juros = F.bal * F.i;
@@ -611,6 +632,12 @@ const ENGINE = (() => {
   };
   const primeiraParcela = f => financiamentoValido(f) ? parcelaFin(novoFin(f)) : null;
   // todas as parcelas, com o saldo devedor depois de cada uma (a tela do consultor mostra esta tabela)
+  // quanto o cliente paga em cada um dos d meses depois da data (o valor inteiro da parcela, juros e amortização)
+  const serieCusto = (c, d) => {
+    if (c.type === 'price' || c.type === 'sac') { const cr = cronogramaFin(c); return Array.from({ length: d }, (_, k) => k < cr.length ? cr[k].pay : 0); }
+    const fim = c.months == null || c.months === '' ? Infinity : +c.months;
+    return Array.from({ length: d }, (_, k) => k < fim ? +c.value || 0 : 0);
+  };
   const cronogramaFin = f => { if (!financiamentoValido(f)) return []; const F = novoFin(f), out = []; for (let k = 0; k < F.n; k++) { const p = parcelaFin(F); F.bal = Math.max(0, F.bal - p.amort); out.push({ juros: p.juros, amort: p.amort, pay: p.pay, saldo: F.bal }); } return out; };
 
   function run(mode) {
@@ -680,8 +707,11 @@ const ENGINE = (() => {
             const bal = obj[k]; saldoNaData[k] = bal; obj[k] = 0; cofre += bal; transfer(f, 'mov_obj_' + o.id, 'mov_cofre', bal); // saldo dedicado volta ao cofre
             if (o.kind === 'bem') { bens += o.amount; cofre -= o.amount; transfer(f, 'mov_cofre', 'mov_bens', o.amount); } // conversão financeiro → bens
             else add(f, 'out_obj_' + o.id, o.amount); // consumo: é uma saída, paga pelo cofre
-            if (o.recurring) streams.push({ id: o.id, value: o.recurring.value, left: o.recurring.months == null ? -1 : o.recurring.months, label: o.recurring.label, amort: o.recurring.amort });
-            if (financiamentoValido(o.financing)) { const F = novoFin(o.financing); streams.push({ id: 'fin_' + o.id, value: parcelaFin(F).pay, left: F.n, label: o.financing.label || 'Financiamento', amort: 0, fin: F }); }
+            (o.costs || []).forEach(c => {   // cada custo vira uma linha de saída fixa: out_fix_<objetivo>_<custo>
+              const id = o.id + '_' + c.id;
+              if (c.type === 'price' || c.type === 'sac') { if (financiamentoValido(c)) { const F = novoFin(c); streams.push({ id, value: parcelaFin(F).pay, left: F.n, label: c.label || 'Financiamento', amort: 0, fin: F }); } }
+              else if (+c.value > 0) streams.push({ id, value: +c.value, left: c.months == null || c.months === '' ? -1 : +c.months, label: c.label || o.name, amort: +c.amort || 0 });
+            });
             events.push({ week: i, type: 'obj', obj: o, label: o.name, finBefore: fin() });
           }
         });
@@ -799,12 +829,12 @@ const ENGINE = (() => {
     if (Array.isArray(plan.incomes)) INCOMES = plan.incomes.map(migra);
     else if (plan.salary != null) INCOMES = [{ id: 'salario', label: 'Salário da família', steps: [{ from: 0, value: +plan.salary }] }];
     if (Array.isArray(plan.expenses)) EXPENSES = plan.expenses.map(migra);
-    if (Array.isArray(plan.objectives)) { OBJ.length = 0; plan.objectives.forEach(o => OBJ.push(o)); OBJ.forEach(derive); }
+    if (Array.isArray(plan.objectives)) { OBJ.length = 0; plan.objectives.forEach(o => OBJ.push(o)); OBJ.forEach(migraCustos); OBJ.forEach(derive); }
     if (Array.isArray(plan.passive)) { PASSIVE.length = 0; plan.passive.forEach(p => PASSIVE.push(p)); }
   }
   const ORIGENS_OUT = ORIGENS;
   const config = () => ({ age: CURRENT_AGE, retireAge: RETIRE_AGE, initialBens: INITIAL_BENS, desired: DESIRED, lifeExp: LIFE_EXP, salary: SALARY, salaryGrowth: SAL_G, partValue: PART_VALUE, initialWealth: INITIAL_WEALTH, capacityOverride: CAP_OVERRIDE, rate: R_M, profiles: PROFILES, incomes: INCOMES, expenses: EXPENSES, objectives: OBJ, passive: PASSIVE });
-  return { TODAY, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, PASSIVE, PROFILES, STATUS, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
+  return { TODAY, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, PASSIVE, PROFILES, STATUS, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, serieCusto, financiamentoValido, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
 })();
 if (typeof module !== 'undefined') module.exports = ENGINE;
 </script>
@@ -906,8 +936,7 @@ function diagnostico(o) {
   const perto = st => st.from <= mes && st.from >= mes - 2, causas = [];
   plano.incomes.forEach(it => it.steps.forEach((st, j) => { if (perto(st) && j > 0 && +st.value < +it.steps[j - 1].value) causas.push(`${esc(it.label)} cai de ${fmt(it.steps[j - 1].value)} para ${fmt(st.value)} em ${monthsLabel(st.from)}`); }));
   plano.expenses.forEach(it => it.steps.forEach((st, j) => { if (perto(st) && +st.value > (j ? +it.steps[j - 1].value : 0) && st.from > 0) causas.push(`${esc(it.label)} ${j && +it.steps[j - 1].value ? 'sobe para' : 'começa, com'} ${fmt(st.value)} em ${monthsLabel(st.from)}`); }));
-  plano.objectives.forEach(x => { if (x.recurring && x.recurring.value > 0 && x.months <= mes && x.months >= mes - 2) causas.push(`${esc(x.recurring.label || x.name)} começa em ${monthsLabel(x.months)}`); });
-  plano.objectives.forEach(x => { if (finValido(x.financing) && x.months <= mes && x.months >= mes - 2) causas.push(esc(x.financing.label || 'Financiamento de ' + x.name) + ' começa em ' + monthsLabel(x.months)); });
+  plano.objectives.forEach(x => (x.costs || []).forEach(c => { if (duracaoCusto(c) > 0 && x.months <= mes && x.months >= mes - 2) causas.push(`${esc(nomeCusto(x, c))} começa em ${monthsLabel(x.months)}`); }));
   const anteriores = plano.objectives.filter(x => x !== o && x.months < o.months && x.planned > 0);
   return { mes, causas, anteriores };
 }
@@ -1138,8 +1167,7 @@ function linhasFluxo() {
       grp(id, g === 'fix' ? 'Fixas' : 'Ajustáveis', { pref: 'out_' + g + '_', depth: 1, cls: 'grp2', plus: g, filhos: true });
       if (!ab(id)) continue;
       plano.expenses.filter(it => (it.group || 'adj') === g).forEach(it => L.push({ id: 'out_' + g + '_' + it.id, label: it.label, t: 'exp', it, keys: ['out_' + g + '_' + it.id], depth: 2, pai: id }));
-      if (g === 'fix') plano.objectives.filter(o => o.recurring).forEach(o => L.push({ id: 'out_fix_' + o.id, label: (o.recurring.label || o.name) + (o.recurring.amort > 0 ? ' (juros)' : ''), t: 'ro', keys: ['out_fix_' + o.id], depth: 2, obj: o, pai: id, tag: 'objetivo' }));
-      if (g === 'fix') plano.objectives.filter(o => finValido(o.financing)).forEach(o => L.push({ id: 'out_fix_fin_' + o.id, label: (o.financing.label || 'Financiamento de ' + (o.name || 'objetivo')) + ' (juros)', t: 'ro', keys: ['out_fix_fin_' + o.id], depth: 2, obj: o, pai: id, tag: 'objetivo' }));
+      if (g === 'fix') plano.objectives.forEach(o => (o.costs || []).forEach(c => L.push({ id: 'out_fix_' + o.id + '_' + c.id, label: nomeCusto(o, c) + (ehFin(c) || +c.amort > 0 ? ' (juros)' : ''), t: 'ro', keys: ['out_fix_' + o.id + '_' + c.id], depth: 2, obj: o, pai: id, tag: 'objetivo' })));
       L.push({ id: 'ghost_' + g, label: 'nova linha', t: 'ghost', alvo: g, depth: 2, pai: id });
     }
     grp('out_obj', 'Objetivos realizados', { pref: 'out_obj_', depth: 1, cls: 'grp2', filhos: true, somenteComValor: true });
@@ -1281,29 +1309,53 @@ function desenhaGrafico(cols, xOf, ppw, W) {
 
 // dica em balão: o campo fica limpo e a explicação aparece ao passar o mouse
 const tip = t => `<span class="tip" tabindex="0" data-tip="${esc(t)}">?</span>`;
-const finValido = f => !!f && +f.principal > 0 && +f.months > 0;
 // objetivos que a consultora abriu; os demais aparecem numa linha só
 const goalAbertos = new Set();
 const iconeHtml = (o, col) => o.iconData ? `<img src="${o.iconData}" alt="" style="width:20px;height:20px;object-fit:contain">` : o.iconFA ? `<i class="${esc(ENGINE.classeFA(o.iconFA))}" style="font-size:17px;color:${col}"></i>` : `<svg viewBox="0 0 24 24" style="stroke:${col}"><path d="${ICONS[o.icon] || ICONS.sun}"/></svg>`;
 const fotoHtml = o => o.photo ? `<img src="${esc(o.photo)}" alt="" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'fotoerro',textContent:'não consegui carregar esta imagem'}))">` : '<span class="fotoerro">sem foto: o card usa o ícone</span>';
-// financiamento do bem: parcelas calculadas mês a mês pelo mesmo motor da simulação
-function resumoFinanciamento(o) {
-  const cr = ENGINE.cronogramaFin(o.financing);
-  if (!cr.length) return '';
-  const juros = cr.reduce((a, p) => a + p.juros, 0), ult = cr[cr.length - 1], p1 = cr[0];
-  const linhas = cr.map((p, k) => `<tr><td>${k + 1}</td><td class="num">${fmt(p.pay)}</td><td class="num">${fmt(p.juros)}</td><td class="num">${fmt(p.amort)}</td><td class="num">${fmt(p.saldo)}</td></tr>`).join('');
-  return `<div class="ok-note">1ª parcela <b>${fmt(p1.pay)}</b> (${fmt(p1.juros)} de juros e ${fmt(p1.amort)} de amortização) · última parcela <b>${fmt(ult.pay)}</b> · total de juros <b>${fmt(juros)}</b>. Os juros são despesa no fluxo de caixa; a amortização vira patrimônio em bens.</div>
-    <details class="opc2" style="margin-top:8px"><summary>Evolução mês a mês <span>${cr.length} parcelas</span></summary>
-      <div class="cronog"><table><thead><tr><th>Parcela</th><th class="num">Valor</th><th class="num">Juros</th><th class="num">Amortização</th><th class="num">Saldo devedor</th></tr></thead><tbody>${linhas}</tbody></table></div></details>`;
-}
-// blocos opcionais que a consultora abriu continuam abertos quando o cartão é redesenhado
+// seções que a consultora acrescentou num objetivo (gastos depois, reserva e perfil, apresentação)
 const blocosAbertos = new Set();
-document.addEventListener('toggle', e => { const d = e.target; if (d.dataset && d.dataset.abre) { if (d.open) blocosAbertos.add(d.dataset.abre); else blocosAbertos.delete(d.dataset.abre); } }, true);
-// ---------- planejador do objetivo: gráfico com pontos arrastáveis e controles deslizantes ----------
-// Mostra o objetivo sozinho, como uma prévia da visão do cliente: o saldo juntado até a data, o que acontece
-// na data (vira bem ou é gasto) e o custo mensal depois. É a conta teórica, sem o orçamento; o status do
-// cartão, que vem da simulação, é que diz se cabe.
-const PV = { W: 760, L: 66, R: 18, T: 22, B1: 142, S0: 172, S1: 230, H: 250 };
+
+// ---------- custos depois de realizado: custo fixo, parcela Price ou parcela SAC ----------
+const TIPO_CUSTO = { fixo: 'Custo fixo por mês', price: 'Financiamento Price (parcela fixa)', sac: 'Financiamento SAC (parcela decrescente)' };
+const ehFin = c => c.type === 'price' || c.type === 'sac';
+const nomeCusto = (o, c) => c.label || (ehFin(c) ? 'Financiamento' + (o.name ? ' de ' + o.name : '') : 'Custo mensal' + (o.name ? ' de ' + o.name : ''));
+// meses que o custo dura depois da data; Infinity = sem prazo
+const duracaoCusto = c => ehFin(c) ? (ENGINE.financiamentoValido(c) ? Math.round(+c.months) : 0) : (+c.value > 0 ? (c.months == null || c.months === '' ? Infinity : +c.months) : 0);
+function resumoFin(c) {
+  const cr = ENGINE.cronogramaFin(c); if (!cr.length) return '<div class="muted" style="margin-top:6px">Preencha valor financiado, juros e prazo.</div>';
+  const juros = cr.reduce((a, p) => a + p.juros, 0), p1 = cr[0], ult = cr[cr.length - 1];
+  const linhas = cr.map((p, k) => `<tr><td>${k + 1}</td><td class="num">${fmt(p.pay)}</td><td class="num">${fmt(p.juros)}</td><td class="num">${fmt(p.amort)}</td><td class="num">${fmt(p.saldo)}</td></tr>`).join('');
+  return `<div class="custo-res">1ª parcela <b>${fmt(p1.pay)}</b> (${fmt(p1.juros)} de juros) · última <b>${fmt(ult.pay)}</b> · juros no total <b>${fmt(juros)}</b>. Juros são despesa; a amortização vira patrimônio em bens.
+    <details class="opc2"><summary>ver as ${cr.length} parcelas</summary><div class="cronog"><table><thead><tr><th>Parcela</th><th class="num">Valor</th><th class="num">Juros</th><th class="num">Amortização</th><th class="num">Saldo devedor</th></tr></thead><tbody>${linhas}</tbody></table></div></details></div>`;
+}
+function htmlCusto(o, i, c) {
+  const k = f => `data-g="${i}" data-k="c:${c.id}:${f}"`;
+  const campos = ehFin(c)
+    ? `<div class="field"><label>Valor financiado</label><input data-money type="text" inputmode="decimal" ${k('principal')} value="${+c.principal ? money(c.principal) : ''}" placeholder="R$ 0,00"></div>
+       <div class="field"><label>Juros (% ao ano) ${tip('Taxa efetiva anual. O motor converte para a taxa mensal equivalente.')}</label><input type="number" step="0.1" min="0" ${k('rate')} value="${c.rateYear != null ? +(c.rateYear * 100).toFixed(4) : ''}" placeholder="ex.: 9,5"></div>
+       <div class="field"><label>Prazo (meses)</label><input type="number" step="12" min="1" ${k('months')} value="${c.months || ''}" placeholder="ex.: 360"></div>`
+    : `<div class="field"><label>Valor por mês</label><input data-money type="text" inputmode="decimal" ${k('value')} value="${+c.value ? money(c.value) : ''}" placeholder="R$ 0,00"></div>
+       <div class="field"><label>Prazo (meses)</label><input type="number" step="12" min="1" ${k('months')} value="${c.months != null ? c.months : ''}" placeholder="vazio: sem prazo"></div>
+       <div class="field"></div>`;
+  return `<div class="custo">
+    <div class="custo-l">
+      <div class="field"><label>Tipo de gasto</label><select ${k('type')}>${Object.keys(TIPO_CUSTO).map(t => `<option value="${t}"${c.type === t ? ' selected' : ''}>${TIPO_CUSTO[t]}</option>`).join('')}</select></div>
+      <div class="field"><label>Nome no fluxo de caixa</label><input ${k('label')} value="${esc(c.label || '')}" placeholder="${esc(nomeCusto(o, Object.assign({}, c, { label: '' })))}"></div>
+      ${campos}
+      <button class="btn btn-icon" data-del-c="${o.id}:${c.id}" title="Remover este gasto">×</button>
+    </div>
+    ${!ehFin(c) && +c.amort > 0 ? `<div class="muted" style="margin-top:4px">Plano antigo: ${Math.round(c.amort * 100)}% de cada parcela conta como amortização. Para calcular mês a mês, troque o tipo para Price ou SAC.</div>` : ''}
+    ${ehFin(c) ? resumoFin(c) : ''}
+  </div>`;
+}
+
+// ---------- gráfico do objetivo ----------
+// O objetivo sozinho, como uma prévia da visão do cliente: o saldo juntado até a data, o que acontece na data
+// (vira bem ou é gasto) e, embaixo, o valor por mês antes e depois. É a conta teórica, sem o orçamento; o status
+// do cartão, que vem da simulação, é que diz se cabe. Antes da data e depois dela o tempo tem escalas próprias,
+// para que um financiamento de 30 anos caiba ao lado de um objetivo de 2 anos.
+const PV = { W: 720, L: 54, R: 12, T: 18, B1: 100, S0: 124, S1: 168, H: 186, FA: 0.56 };
 const planEsc = {};                                   // escalas congeladas enquanto a consultora arrasta
 const redondo = v => { const e = Math.pow(10, Math.max(0, Math.floor(Math.log10(Math.max(1, v))) - 1)); return Math.ceil(v / e) * e; };
 const passoDe = max => { const b = max / 200, e = Math.pow(10, Math.floor(Math.log10(Math.max(1, b)))); return [1, 2, 5, 10].map(k => k * e).find(p => p >= b); };   // passo redondo: 1, 2 ou 5 × 10ⁿ
@@ -1311,110 +1363,100 @@ const arred = (v, max) => { const p = passoDe(max); return Math.max(0, Math.min(
 const taxaObj = o => plano.profiles[o.profile] || 0.005;
 function saldoObj(o, m, aporte) { const r = taxaObj(o), g = Math.pow(1 + r, m); return (+o.dedicated || 0) * g + aporte * (g - 1) / r; }
 function necessario(o) { const r = taxaObj(o), g = Math.pow(1 + r, Math.max(1, o.months)); return Math.max(0, ((+o.amount || 0) - (+o.dedicated || 0) * g) / ((g - 1) / r)); }
-const gastoDepois = o => o.recurring ? +o.recurring.value || 0 : 0;
-const parcelaFin1 = o => finValido(o.financing) ? ENGINE.primeiraParcela(o.financing).pay : 0;
-// quanto tempo depois da data o gráfico mostra: o prazo do custo mensal ou do financiamento, limitado para caber
-function posDepois(o) {
-  const rec = o.recurring, fin = finValido(o.financing) ? +o.financing.months : 0;
-  const real = Math.max(rec && rec.value > 0 ? (rec.months != null ? rec.months : Infinity) : 0, fin);
-  return { real, vis: Math.round(Math.max(24, Math.min(isFinite(real) && real > 0 ? real : 60, Math.max(36, o.months * 2), 120))) };
+// meses mostrados depois da data: o prazo do custo mais longo; sem prazo, pelo menos 5 anos; sem custos, 2 anos
+function mesesDepois(o) {
+  const d = (o.costs || []).map(duracaoCusto), fin = d.filter(isFinite), max = fin.length ? Math.max(...fin) : 0;
+  return { vis: Math.max(12, d.some(x => x === Infinity) ? Math.max(max, 60) : max || 24), semFim: d.some(x => x === Infinity), fim: max };
 }
+// camadas do gasto depois: os custos fixos embaixo (a alça fica no primeiro), os financiamentos em cima
+const custosOrdem = o => (o.costs || []).slice().sort((a, b) => ehFin(a) - ehFin(b));
 function escalas(o) {
-  const proj = saldoObj(o, o.months, +o.planned || 0);
-  return { S: o.months + posDepois(o).vis, Y: redondo(Math.max(+o.amount || 0, proj, 50000) * 1.3),
-           M: redondo(Math.max(+o.planned || 0, necessario(o), gastoDepois(o) + parcelaFin1(o), 1000) * 1.5) };
+  const D = mesesDepois(o).vis, series = custosOrdem(o).map(c => ENGINE.serieCusto(c, D));
+  const pico = D ? Math.max(0, ...Array.from({ length: D }, (_, k) => series.reduce((a, s) => a + s[k], 0))) : 0;
+  return { P: Math.max(12, Math.ceil(o.months * 1.5)), D, Y: redondo(Math.max(+o.amount || 0, saldoObj(o, o.months, +o.planned || 0), 10000) * 1.3),
+           M: redondo(Math.max(+o.planned || 0, necessario(o), pico, 500) * 1.35) };
 }
-const baseGoal = o => `${monthsLabel(o.months)} · ${o.amount > 0 ? fmt(o.amount) : 'sem custo'}${o.planned > 0 ? ' · aporte ' + fmt(o.planned) + '/mês' : ''}`;
+const baseGoal = o => `${monthsLabel(o.months)} · ${o.amount > 0 ? fmt(o.amount) : 'sem valor'}${o.planned > 0 ? ' · guardar ' + fmt(o.planned) + '/mês' : ''}`;
 function planSvg(o) {
-  const E = planEsc[o.id] || escalas(o), { W, L, R, T, B1, S0, S1, H } = PV, n = o.months;
-  const x = m => L + m / E.S * (W - L - R), y = v => B1 - Math.min(1, v / E.Y) * (B1 - T), ym = v => S1 - Math.min(1, v / E.M) * (S1 - S0);
-  const ap = +o.planned || 0, nec = necessario(o), amt = +o.amount || 0, proj = saldoObj(o, n, ap), gasto = gastoDepois(o), fin = parcelaFin1(o), dep = posDepois(o);
+  const E = planEsc[o.id] || escalas(o), { W, L, R, T, B1, S0, S1, H, FA } = PV, n = Math.min(o.months, E.P);
+  const WA = (W - L - R) * FA, x = m => L + m / E.P * WA, xa = x(n), xb = k => xa + k / E.D * (W - R - xa);
+  const y = v => B1 - Math.min(1, v / E.Y) * (B1 - T), ym = v => S1 - Math.min(1, v / E.M) * (S1 - S0);
+  const ap = +o.planned || 0, nec = necessario(o), amt = +o.amount || 0, proj = saldoObj(o, o.months, ap), ok = amt <= 0 || proj >= amt * 0.98;
   const curva = a => Array.from({ length: 41 }, (_, k) => { const m = n * k / 40; return (k ? 'L' : 'M') + x(m).toFixed(1) + ' ' + y(saldoObj(o, m, a)).toFixed(1); }).join(' ');
-  const xa = x(n), xe = x(n + dep.vis), ok = amt <= 0 || proj >= amt * 0.98;
-  const alca = (x1, yy, x2, h, cor) => `<line x1="${x1}" y1="${yy}" x2="${x2}" y2="${yy}" stroke="${cor}" stroke-width="3"/><line x1="${x1}" y1="${yy}" x2="${x2}" y2="${yy}" class="pv-hit" data-h="${h}"><title>Arraste para cima ou para baixo</title></line>`;
-  let s = `<text x="${L}" y="${T - 9}" class="pv-lb">Saldo do objetivo</text><text x="${L}" y="${S0 - 8}" class="pv-lb">Por mês</text>`;
+  const hit = (x1, y1, x2, y2, h, dica) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="pv-hit${h === 'data' ? ' ew' : ''}" data-h="${h}"><title>${dica}</title></line>`;
+  let s = `<text x="${L}" y="${T - 7}" class="pv-lb">saldo do objetivo</text><text x="${L}" y="${S0 - 6}" class="pv-lb">por mês</text>`;
   s += `<line x1="${L}" y1="${B1}" x2="${W - R}" y2="${B1}" class="pv-ax"/><line x1="${L}" y1="${S1}" x2="${W - R}" y2="${S1}" class="pv-ax"/>`;
-  s += `<text x="${L - 6}" y="${T + 4}" class="pv-lb" text-anchor="end">${fmtC(E.Y)}</text><text x="${L - 6}" y="${B1}" class="pv-lb" text-anchor="end">0</text>`;
-  s += `<text x="${L - 6}" y="${S0 + 4}" class="pv-lb" text-anchor="end">${fmtC(E.M)}</text><text x="${L - 6}" y="${S1}" class="pv-lb" text-anchor="end">0</text>`;
-  s += `<line x1="${xa}" y1="${T}" x2="${xa}" y2="${S1}" class="pv-alvo"/>`;
-  // até a data: o saldo que o aporte junta e, tracejada, a curva do aporte necessário
+  s += `<text x="${L - 5}" y="${T + 3}" class="pv-lb" text-anchor="end">${fmtC(E.Y)}</text><text x="${L - 5}" y="${S0 + 3}" class="pv-lb" text-anchor="end">${fmtC(E.M)}</text>`;
+  // até a data
   if (amt > 0) s += `<path d="${curva(nec)}" class="pv-nec"/>`;
   s += `<path d="${curva(ap)} L${xa} ${B1} L${x(0)} ${B1}Z" class="pv-area"/><path d="${curva(ap)}" class="pv-saldo${ok ? '' : ' falta'}"/>`;
-  // na data: vira bem (fica no patrimônio) ou é gasto
-  if (amt > 0) s += o.kind === 'bem'
-    ? `<line x1="${xa}" y1="${y(amt)}" x2="${xe}" y2="${y(amt)}" class="pv-bem"/><text x="${xa + 12}" y="${y(amt) + 15}" class="pv-tx bem">vira patrimônio em bens</text>`
-    : `<line x1="${xa}" y1="${y(Math.max(amt, proj))}" x2="${xa}" y2="${B1}" class="pv-cons"/><text x="${xa + 12}" y="${B1 - 8}" class="pv-tx cons">gasto na data</text>`;
-  if (amt > 0 && !ok) s += `<line x1="${xa - 7}" y1="${y(proj)}" x2="${xa - 7}" y2="${y(amt)}" class="pv-gap"/><text x="${xa - 12}" y="${(y(proj) + y(amt)) / 2 + 4}" class="pv-tx cons" text-anchor="end">faltam ${fmtC(amt - proj)}</text>`;
-  if (amt > 0 && proj > amt * 1.02) s += `<text x="${xa - 10}" y="${y(proj) + 4}" class="pv-tx ap" text-anchor="end">sobra ${fmtC(proj - amt)}</text>`;
-  if (dep.real > dep.vis) s += `<text x="${xe}" y="${S0 - 8}" class="pv-lb" text-anchor="end">continua ${isFinite(dep.real) ? 'até ' + monthsLabel(n + dep.real) : 'sem prazo'} →</text>`;
-  // por mês: o que guardar até a data e o que gastar depois
   s += `<rect x="${x(0)}" y="${ym(ap)}" width="${Math.max(0, xa - x(0))}" height="${S1 - ym(ap)}" class="pv-ap"/>`;
   if (amt > 0) s += `<line x1="${x(0)}" y1="${ym(nec)}" x2="${xa}" y2="${ym(nec)}" class="pv-nec"/>`;
-  if (fin) s += `<rect x="${xa}" y="${ym(gasto + fin)}" width="${xe - xa}" height="${ym(gasto) - ym(gasto + fin)}" class="pv-fin"/>`;
-  s += `<rect x="${xa}" y="${ym(gasto)}" width="${xe - xa}" height="${S1 - ym(gasto)}" class="pv-gasto"/>`;
-  s += alca(x(0), ym(ap), xa, 'aporte', '#2E9E5B') + alca(xa, ym(gasto), xe, 'gasto', '#FA7A35');
-  s += `<text x="${(x(0) + xa) / 2}" y="${ym(ap) - 7}" class="pv-tx ap" text-anchor="middle">${ap ? 'guardar ' + fmt(ap) + '/mês' : 'arraste para cima: quanto guardar'}</text>`;
-  s += `<text x="${(xa + xe) / 2}" y="${ym(gasto + fin) - 7}" class="pv-tx gs" text-anchor="middle">${gasto || fin ? (gasto ? 'gastar ' + fmt(gasto) + '/mês' : '') + (fin ? (gasto ? ' + ' : '') + 'financiamento ' + fmt(fin) : '') : 'arraste para cima: custo mensal depois'}</text>`;
-  // o objetivo: valor (para cima e para baixo) e data (para os lados)
-  s += `<text x="${xa}" y="${y(amt) - 14}" class="pv-tx pt" text-anchor="middle">${amt ? fmt(amt) + ' em ' + monthsLabel(n) : 'arraste: valor e data'}</text>`;
-  s += `<circle cx="${xa}" cy="${y(amt)}" r="8" class="pv-pt"/><circle cx="${xa}" cy="${y(amt)}" r="17" class="pv-hit pt" data-h="valor"><title>Arraste para cima ou para baixo (valor) e para os lados (data)</title></circle>`;
-  s += `<text x="${x(0)}" y="${S1 + 15}" class="pv-lb">hoje</text><text x="${xa}" y="${S1 + 15}" class="pv-lb" text-anchor="middle">${monthsLabel(n)}</text><text x="${xe}" y="${S1 + 15}" class="pv-lb" text-anchor="end">${monthsLabel(n + dep.vis)}</text>`;
+  s += `<line x1="${x(0)}" y1="${ym(ap)}" x2="${xa}" y2="${ym(ap)}" class="pv-lap"/>`;
+  s += `<text x="${(x(0) + xa) / 2}" y="${ym(ap) - 5}" class="pv-tx ap" text-anchor="middle">${ap ? 'guardar ' + fmt(ap) + '/mês' : 'arraste para cima: quanto guardar'}</text>`;
+  // na data: vira bem ou é gasto
+  if (amt > 0) s += o.kind === 'bem'
+    ? `<line x1="${xa}" y1="${y(amt)}" x2="${W - R}" y2="${y(amt)}" class="pv-bem"/><text x="${xa + 9}" y="${y(amt) + 12}" class="pv-tx bem">vira patrimônio em bens</text>`
+    : `<line x1="${xa}" y1="${y(Math.max(amt, proj))}" x2="${xa}" y2="${B1}" class="pv-cons"/><text x="${xa + 9}" y="${B1 - 6}" class="pv-tx cons">gasto na data</text>`;
+  if (amt > 0 && !ok) s += `<text x="${xa - 8}" y="${(y(proj) + y(amt)) / 2 + 3}" class="pv-tx cons" text-anchor="end">faltam ${fmtC(amt - proj)}</text>`;
+  if (amt > 0 && proj > amt * 1.02) s += `<text x="${xa - 8}" y="${y(proj) + 3}" class="pv-tx ap" text-anchor="end">sobra ${fmtC(proj - amt)}</text>`;
+  // depois da data: cada gasto numa camada, mês a mês (a parcela SAC cai, a Price fica reta)
+  const cs = custosOrdem(o), base = new Array(E.D + 1).fill(0), CORES = { fixo: 'pv-gfixo', price: 'pv-gprice', sac: 'pv-gsac' };
+  cs.forEach(c => {
+    const sr = ENGINE.serieCusto(c, E.D); let top = '', bot = '';
+    for (let k = 0; k < E.D; k++) { const a = base[k], b = a + sr[k]; top += `L${xb(k).toFixed(1)} ${ym(b).toFixed(1)} L${xb(k + 1).toFixed(1)} ${ym(b).toFixed(1)} `; bot = `L${xb(k + 1).toFixed(1)} ${ym(a).toFixed(1)} L${xb(k).toFixed(1)} ${ym(a).toFixed(1)} ` + bot; base[k] = b; }
+    s += `<path d="M${xa} ${ym(0)} ${top}${bot}Z" class="${CORES[c.type] || 'pv-gfixo'}"/>`;
+  });
+  const g0 = base[0];
+  s += `<text x="${xa + 9}" y="${ym(g0) - 5}" class="pv-tx gs">${g0 > 0 ? 'depois: ' + fmt(g0) + '/mês' : cs.length ? '' : 'sem gasto mensal depois'}</text>`;
+  const fixo1 = cs[0] && !ehFin(cs[0]) ? cs[0] : null;
+  if (fixo1) { const fim = Math.min(E.D, duracaoCusto(fixo1)); s += `<line x1="${xa}" y1="${ym(+fixo1.value || 0)}" x2="${xb(fim)}" y2="${ym(+fixo1.value || 0)}" class="pv-lgs"/>` + hit(xa, ym(+fixo1.value || 0), xb(fim), ym(+fixo1.value || 0), 'gasto', 'Arraste para cima ou para baixo: ' + esc(nomeCusto(o, fixo1))); }
+  // a data (linha tracejada, para os lados) e o valor (bolinha, para cima e para baixo)
+  s += `<line x1="${xa}" y1="${T - 4}" x2="${xa}" y2="${S1}" class="pv-alvo"/>` + hit(xa, T - 4, xa, S1, 'data', 'Arraste para os lados: data do objetivo');
+  s += hit(x(0), ym(ap), xa, ym(ap), 'aporte', 'Arraste para cima ou para baixo: quanto guardar por mês');
+  s += `<text x="${xa}" y="${y(amt) - 9}" class="pv-tx pt" text-anchor="middle">${amt ? fmt(amt) : 'arraste: valor'}</text>`;
+  s += `<circle cx="${xa}" cy="${y(amt)}" r="4.5" class="pv-pt"/><circle cx="${xa}" cy="${y(amt)}" r="11" class="pv-hit" data-h="valor"><title>Arraste para cima ou para baixo: valor do objetivo</title></circle>`;
+  const dep = mesesDepois(o);
+  s += `<text x="${x(0)}" y="${S1 + 13}" class="pv-lb">hoje</text><text x="${xa}" y="${S1 + 13}" class="pv-lb dt" text-anchor="middle">${monthsLabel(o.months)}</text>`;
+  s += `<text x="${W - R}" y="${S1 + 13}" class="pv-lb" text-anchor="end">${dep.semFim ? monthsLabel(o.months + E.D) + ' e continua →' : dep.fim ? 'último gasto em ' + monthsLabel(o.months + dep.fim - 1) : monthsLabel(o.months + E.D)}</text>`;
   return `<svg viewBox="0 0 ${W} ${H}" class="pv">${s}</svg>`;
 }
 function planResumo(o) {
-  const ap = +o.planned || 0, amt = +o.amount || 0, n = o.months, proj = saldoObj(o, n, ap), g = gastoDepois(o), fin = parcelaFin1(o), rec = o.recurring;
-  if (!(amt > 0)) return 'Arraste o ponto laranja para cima para definir o valor do objetivo, e para os lados para mudar a data.';
-  return `Guardando <b>${fmt(ap)}/mês</b> por ${n} meses${o.dedicated ? ' (mais ' + fmt(o.dedicated) + ' já reservados)' : ''}, o cliente junta <b>${fmt(proj)}</b> em ${monthsLabel(n)}: ${Math.round(proj / amt * 100)}% dos ${fmt(amt)}.` +
-    (proj < amt * 0.98 ? ` Para chegar lá: <b>${fmt(Math.ceil(necessario(o)))}/mês</b> (linha tracejada).` : '') +
-    (o.kind === 'bem' ? ' Na data, o valor vira patrimônio em bens.' : ' Na data, o valor é gasto.') +
-    (g || fin ? ` Depois: <b>${fmt(g + fin)}/mês</b>${fin ? ' (' + fmt(fin) + ' da 1ª parcela do financiamento)' : ''}${g ? (rec.months != null ? ', o custo mensal por ' + rec.months + ' meses' : ', o custo mensal sem prazo para acabar') : ''}.` : '') +
-    ' <span class="muted">Conta do objetivo sozinho; o status ao lado considera o orçamento.</span>';
-}
-function planControles(o, i) {
-  const E = planEsc[o.id] || escalas(o);
-  const linha = (h, k, rot, val, max) => `<div class="pv-ctl"><label>${rot}</label><input type="range" min="0" max="${max}" step="${passoDe(max)}" value="${Math.min(val, max)}" data-pl="${o.id}" data-h="${h}"><input data-money type="text" inputmode="decimal" data-g="${i}" data-k="${k}" value="${val ? money(val) : ''}" placeholder="R$ 0,00"></div>`;
-  return linha('valor', 'amount', 'Valor do objetivo', +o.amount || 0, E.Y) +
-    linha('aporte', 'planned', 'Quanto guardar por mês até lá', +o.planned || 0, E.M) +
-    `<div class="pv-nota">${o.segueNecessario ? 'o aporte acompanha o necessário; mexa nele para fixar um valor' : o.amount > 0 && Math.abs(o.planned - o.required) >= 1 ? `<button class="usarnec" data-usar-nec="${i}">usar o necessário (${fmt(Math.ceil(o.required))})</button>` : ''}</div>` +
-    linha('gasto', 'recValue', 'Quanto gastar por mês depois', gastoDepois(o), E.M);
+  const ap = +o.planned || 0, amt = +o.amount || 0, proj = saldoObj(o, o.months, ap);
+  if (!(amt > 0)) return 'Informe o valor do objetivo, ou arraste a bolinha laranja para cima.';
+  const cs = (o.costs || []).filter(c => duracaoCusto(c) > 0);
+  return `Guardando <b>${fmt(ap)}/mês</b>${o.dedicated ? ' (mais ' + fmt(o.dedicated) + ' reservados)' : ''}, junta <b>${fmt(proj)}</b> em ${monthsLabel(o.months)}: ${Math.round(proj / amt * 100)}% do valor.` +
+    (proj < amt * 0.98 ? ` Para chegar lá: <b>${fmt(Math.ceil(necessario(o)))}/mês</b> (tracejado).` : '') +
+    (cs.length ? ' Depois: ' + cs.map(c => { const d = duracaoCusto(c), v = ENGINE.serieCusto(c, 1)[0]; return esc(nomeCusto(o, c)) + ' ' + fmt(v) + (c.type === 'sac' ? ' caindo' : '') + '/mês' + (d === Infinity ? ' sem prazo' : ' por ' + d + ' meses'); }).join('; ') + '.' : '');
 }
 function atualizaPlanner(o) {
   const el = document.querySelector(`.planner[data-plan="${o.id}"]`); if (!el) return;
   el.querySelector('.pv-svg').innerHTML = planSvg(o);
   el.querySelector('.pv-res').innerHTML = planResumo(o);
-  for (const [h, v] of [['aporte', +o.planned || 0], ['valor', +o.amount || 0], ['gasto', gastoDepois(o)]]) {
-    const r = el.querySelector(`input[type=range][data-h="${h}"]`); if (!r) continue;
-    if (document.activeElement !== r) r.value = v;
-    const t = r.nextElementSibling; if (t && document.activeElement !== t) t.value = v ? money(v) : '';
-  }
-  const w = el.closest('.goal').querySelector('.when'); if (w) w.textContent = baseGoal(o);
+  const g = el.closest('.goal'), w = g.querySelector('.when'); if (w) w.textContent = baseGoal(o);
+  for (const [k, v] of [['amount', +o.amount || 0], ['planned', +o.planned || 0]]) { const t = g.querySelector(`[data-k="${k}"]`); if (t && document.activeElement !== t) t.value = v ? money(v) : ''; }
+  const c = custosOrdem(o)[0], tc = c && g.querySelector(`[data-k="c:${c.id}:value"]`); if (tc && document.activeElement !== tc) tc.value = +c.value ? money(c.value) : '';
 }
 function aplicaAlca(o, h, v, meses) {
   if (h === 'aporte') { o.planned = v; o.segueNecessario = false; }
-  if (h === 'valor') { o.amount = v; if (meses != null) o.months = meses; }
-  if (h === 'gasto') { const rec = o.recurring || { value: 0, months: null, label: o.name, amort: 0 }; rec.value = v; o.recurring = rec.value > 0 || rec.months != null ? rec : null; }
+  if (h === 'valor') o.amount = v;
+  if (h === 'data') o.months = meses;
+  if (h === 'gasto') { const c = custosOrdem(o)[0]; if (c && !ehFin(c)) c.value = v; }
 }
-// controles deslizantes: mexem no gráfico na hora; ao soltar, a simulação roda de novo
-document.addEventListener('input', e => {
-  const t = e.target; if (!t.dataset || t.dataset.pl == null) return;
-  const o = plano.objectives.find(x => x.id === t.dataset.pl); if (!o) return;
-  if (!planEsc[o.id]) planEsc[o.id] = escalas(o);
-  aplicaAlca(o, t.dataset.h, +t.value); atualizaPlanner(o);
-});
-document.addEventListener('change', e => { const t = e.target; if (t.dataset && t.dataset.pl != null) { delete planEsc[t.dataset.pl]; renderAll(); } });
-// arrastar no gráfico
+// arrastar no gráfico: a linha tracejada muda só a data, a bolinha só o valor, as barras o valor por mês
 let planDrag = null;
 document.addEventListener('pointerdown', e => {
   const h = e.target.closest && e.target.closest('.pv [data-h]'); if (!h) return;
   const o = plano.objectives.find(x => x.id === h.closest('.planner').dataset.plan); if (!o) return;
-  planEsc[o.id] = escalas(o); planDrag = { o, h: h.dataset.h }; document.body.classList.add('pv-arrastando'); e.preventDefault();
+  planEsc[o.id] = escalas(o); planDrag = { o, h: h.dataset.h }; document.body.classList.add(h.dataset.h === 'data' ? 'pv-arrastando-ew' : 'pv-arrastando'); e.preventDefault();
 });
 addEventListener('pointermove', e => {
   if (!planDrag) return;
   const { o, h } = planDrag, svg = document.querySelector(`.planner[data-plan="${o.id}"] svg`), E = planEsc[o.id]; if (!svg) return;
   const p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY; const q = p.matrixTransform(svg.getScreenCTM().inverse());
-  const { W, L, R, T, B1, S0, S1 } = PV;
-  if (h === 'valor') aplicaAlca(o, h, arred((B1 - q.y) / (B1 - T) * E.Y, E.Y), Math.max(1, Math.min(E.S - 6, Math.round((q.x - L) / (W - L - R) * E.S))));
+  const { W, L, R, T, B1, S0, S1, FA } = PV;
+  if (h === 'data') aplicaAlca(o, h, 0, Math.max(1, Math.min(E.P, Math.round((q.x - L) / ((W - L - R) * FA) * E.P))));
+  else if (h === 'valor') aplicaAlca(o, h, arred((B1 - q.y) / (B1 - T) * E.Y, E.Y));
   else {
     let v = arred((S1 - q.y) / (S1 - S0) * E.M, E.M);
     if (h === 'aporte') { const nec = Math.ceil(necessario(o)); if (Math.abs(v - nec) < E.M * 0.03) v = nec; }   // gruda no necessário
@@ -1422,89 +1464,61 @@ addEventListener('pointermove', e => {
   }
   atualizaPlanner(o);
 });
-addEventListener('pointerup', () => { if (!planDrag) return; delete planEsc[planDrag.o.id]; planDrag = null; document.body.classList.remove('pv-arrastando'); renderAll(); });
+addEventListener('pointerup', () => { if (!planDrag) return; delete planEsc[planDrag.o.id]; planDrag = null; document.body.classList.remove('pv-arrastando', 'pv-arrastando-ew'); renderAll(); });
 
 function renderGoals() {
   const wrap = document.getElementById('goals');
   const ordem = plano.objectives.map((o, i) => i).sort((a, b) => ((plano.objectives[a].criado || 0) - (plano.objectives[b].criado || 0)) || (plano.objectives[a].months - plano.objectives[b].months));
   if (!ordem.length) { wrap.innerHTML = '<div class="goal-empty">Nenhum objetivo ainda. Clique em <b>+ Adicionar objetivo</b> para cadastrar o primeiro, ou siga para o Fluxo de caixa se o cliente não tem objetivos.</div>'; return; }
   wrap.innerHTML = ordem.map(i => {
-    const o = plano.objectives[i], rec = o.recurring, aberto = goalAbertos.has(o.id);
+    const o = plano.objectives[i], aberto = goalAbertos.has(o.id), cs = o.costs || [];
     const col = o.status === 'ok' ? 'var(--nl-score-good)' : o.status === 'adj' ? 'var(--nl-score-medium)' : 'var(--nl-score-low)';
-    const legado = rec && rec.amort > 0 && !finValido(o.financing);
+    // as seções extras aparecem quando têm conteúdo ou quando a consultora as acrescenta
+    const temGasto = cs.length > 0, temMais = !!(+o.dedicated || o.profile !== 'moderado' || blocosAbertos.has(o.id + ':mais'));
+    const temApres = !!(o.strategy || o.photo || o.iconData || o.iconFA || blocosAbertos.has(o.id + ':apres'));
+    const chips = [!temGasto && `<button class="chipadd" data-add-c="${o.id}">+ Gasto depois de realizado</button>`, !temMais && `<button class="chipadd" data-add-sec="${o.id}:mais">+ Patrimônio reservado e perfil</button>`, !temApres && `<button class="chipadd" data-add-sec="${o.id}:apres">+ Apresentação ao cliente</button>`].filter(Boolean);
+    const orc = aguardaOrcamento() || !(o.amount > 0) ? '' : o.status === 'ok'
+      ? `<div class="orc ok">No orçamento: recebe ${fmt(o.effective)}/mês e chega a ${fmt(o.real)} (${Math.round(o.realRatio * 100)}%).</div>`
+      : (() => { const d = diagnostico(o), saidas = d ? ['adiar a data', d.anteriores.length ? 'reduzir o aporte de ' + d.anteriores.map(x => esc(x.name)).join(', ') : '', 'aumentar a capacidade de poupança no Fluxo de caixa'].filter(Boolean) : [];
+          return `<div class="orc low">No orçamento: recebe ${fmt(o.effective)}/mês e chega a ${fmt(o.real)} (${Math.round(o.realRatio * 100)}% do valor).` + (d ? ` A partir de <b>${monthsLabel(d.mes)}</b> o orçamento não comporta os ${fmt(o.planned)}/mês${d.causas.length ? ': ' + d.causas.join('; ') : ''}. Para resolver: ${saidas.join(', ou ')}.` : o.required > o.planned + 0.5 ? ` Para ficar alcançável: guardar ${fmt(Math.ceil(o.required))}/mês.` : '') + '</div>'; })();
     return `
     <div class="goal${aberto ? '' : ' fechado'}" data-goal="${o.id}">
       <div class="goalhead" data-abrir-goal="${o.id}" title="${aberto ? 'Recolher' : 'Abrir os detalhes'}">
         <div class="ico" style="border-color:${col}">${iconeHtml(o, col)}</div>
         <div class="nm"><div class="gtitle">${esc(o.name || 'Objetivo sem nome')}</div><div class="when">${baseGoal(o)}</div></div>
-        ${aguardaOrcamento() ? '<span class="badge espera" title="O status depende do orçamento do cliente">status depois do Fluxo de caixa</span>' : `<span class="badge ${o.status}">${STATUS[o.status]}</span>`}
+        ${!(o.amount > 0) ? '<span class="badge espera">falta o valor</span>' : aguardaOrcamento() ? '<span class="badge espera" title="O status depende do orçamento do cliente">status depois do Fluxo de caixa</span>' : `<span class="badge ${o.status}">${STATUS[o.status]}</span>`}
         <button class="btn btn-icon" data-del-g="${i}" title="Remover objetivo">×</button>
         <span class="chev">${aberto ? '▲' : '▼'}</span>
       </div>
       ${aberto ? `
-      <div class="grid g3">
+      <div class="grid g5">
         <div class="field"><label>Nome do objetivo</label><input data-g="${i}" data-k="name" value="${esc(o.name)}" placeholder="ex.: Casa própria"></div>
         <div class="field"><label>Tipo ${tip('Consumo: o dinheiro é gasto (viagem, festa, faculdade). Vira bem: o dinheiro vira patrimônio em bens (imóvel, carro) e não sai do patrimônio total.')}</label><select data-g="${i}" data-k="kind"><option value="consumo"${o.kind === 'consumo' ? ' selected' : ''}>Consumo</option><option value="bem"${o.kind === 'bem' ? ' selected' : ''}>Vira bem</option></select></div>
         <div class="field"><label>Data alvo</label>${seletorMes('data-g="' + i + '" data-k="months"', o.months)}</div>
+        <div class="field"><label>Valor do objetivo</label><input data-money type="text" inputmode="decimal" data-g="${i}" data-k="amount" value="${o.amount ? money(o.amount) : ''}" placeholder="R$ 0,00"></div>
+        <div class="field"><label>Guardar por mês</label><input data-money type="text" inputmode="decimal" data-g="${i}" data-k="planned" value="${o.planned ? money(o.planned) : ''}" placeholder="R$ 0,00">${o.segueNecessario ? '<div class="deriv">acompanha o necessário</div>' : o.amount > 0 && Math.abs(o.planned - o.required) >= 1 ? `<button class="usarnec" data-usar-nec="${i}">usar o necessário (${fmt(Math.ceil(o.required))})</button>` : ''}</div>
       </div>
-      <div class="planner" data-plan="${o.id}"><div class="pv-svg">${planSvg(o)}</div><div class="pv-ctls">${planControles(o, i)}</div><div class="pv-res">${planResumo(o)}</div></div>
-      <details class="sub opc2" data-abre="${o.id}:mais"${blocosAbertos.has(o.id + ':mais') ? ' open' : ''}>
-        <summary>Mais detalhes <span>perfil de investimento e patrimônio já reservado</span></summary>
-        <div class="grid g3">
-        <div class="field"><label>Patrimônio já reservado (R$) ${tip('Sai do patrimônio financeiro de hoje (' + fmt(plano.initialWealth) + '). Ainda livre para reservar: ' + fmt(livreParaReservar()) + '. Reservar parte dele reduz o aporte necessário.')}</label><input data-money type="text" inputmode="decimal" data-g="${i}" data-k="dedicated" value="${o.dedicated ? money(o.dedicated) : ''}" placeholder="R$ 0,00"></div>
-        <div class="field"><label>Perfil de investimento</label><select data-g="${i}" data-k="profile">${Object.keys(plano.profiles).map(k => `<option value="${k}"${o.profile === k ? ' selected' : ''}>${k[0].toUpperCase() + k.slice(1)} (${(plano.profiles[k] * 100).toFixed(2).replace('.', ',')}%)</option>`).join('')}</select></div>
-        <div class="field"><label>Aporte necessário (R$/mês) ${tip('Calculado pela data, pelo custo e pelo patrimônio já reservado.')}</label><div class="calcv">${o.amount > 0 ? money(o.required) : '—'}</div></div>
-        </div>
-      </details>
-
-      ${aguardaOrcamento() ? `<div class="note">Para chegar lá, o cliente precisa guardar <b>${fmt(o.required)} por mês</b>${o.dedicated ? ', além do patrimônio já reservado' : ''}. Preencha o Fluxo de caixa e volte aqui para ver quanto cabe no orçamento.</div>` : `
-      <div class="calc">
-        <div class="c"><span>Aporte que o orçamento entrega</span><b class="${o.truncado ? 'low' : ''}">${fmt(o.effective)}/mês</b></div>
-        <div class="c"><span>Projeção na data alvo</span><b class="${o.status === 'risk' ? 'low' : o.status === 'ok' ? 'good' : ''}">${fmt(o.real)}</b></div>
-        <div class="c"><span>Custo do objetivo</span><b>${fmt(o.amount)}</b></div>
-        <div class="c"><span>Cobertura</span><b class="${o.status === 'risk' ? 'low' : o.status === 'ok' ? 'good' : ''}">${Math.round(o.realRatio * 100)}%</b></div>
-        <div class="c spacer"><span>Para ficar alcançável</span><b>${o.status === 'ok' ? 'já está' : o.required > o.planned + 0.5 ? 'aporte de ' + fmt(Math.ceil(o.required)) + '/mês' : 'o orçamento precisa entregar o aporte'}</b></div>
-      </div>
-      ${(() => { const d = o.status !== 'ok' && diagnostico(o); if (!d) return ''; const saidas = ['adiar a data do objetivo', d.anteriores.length ? 'reduzir o aporte de ' + d.anteriores.map(x => esc(x.name)).join(', ') + ' (data anterior, recebe primeiro)' : '', 'aumentar a capacidade de poupança no Fluxo de caixa'].filter(Boolean);
-        return `<div class="warn">A partir de <b>${monthsLabel(d.mes)}</b> o orçamento deixa de comportar os ${fmt(o.planned)} por mês definidos para este objetivo${d.causas.length ? ': ' + d.causas.join('; ') : ''}. Na média, ele recebe ${fmt(o.effective)} por mês. Para resolver: ${saidas.join(', ou ')}.</div>`; })()}`}
-
-      ${o.kind === 'bem' ? `
-      <details class="sub opc2" data-abre="${o.id}:fin"${finValido(o.financing) || legado || blocosAbertos.has(o.id + ':fin') ? ' open' : ''}>
-        <summary>Financiamento do bem <span>Price ou SAC, com juros e amortização mês a mês (opcional)</span></summary>
-        ${legado ? `<div class="note" style="margin-top:0">Este objetivo usa uma amortização fixa de ${Math.round(rec.amort * 100)}% da parcela (plano antigo). Ao preencher o financiamento abaixo, ele substitui o custo mensal com amortização.</div>` : ''}
-        <div class="grid g4">
-          <div class="field"><label>Sistema ${tip('Price: parcelas iguais; no começo pagam mais juros e menos amortização. SAC: amortização igual todo mês; a parcela começa maior e cai.')}</label><select data-g="${i}" data-k="finSystem"><option value="">Sem financiamento</option><option value="price"${o.financing && o.financing.system === 'price' ? ' selected' : ''}>Tabela Price</option><option value="sac"${o.financing && o.financing.system === 'sac' ? ' selected' : ''}>SAC</option></select></div>
-          <div class="field"><label>Valor financiado (R$)</label><input data-money type="text" inputmode="decimal" data-g="${i}" data-k="finPrincipal" value="${o.financing && o.financing.principal ? money(o.financing.principal) : ''}" placeholder="R$ 0,00"></div>
-          <div class="field"><label>Taxa de juros (% ao ano) ${tip('Taxa efetiva anual. O motor converte para a taxa mensal equivalente.')}</label><input type="number" step="0.1" min="0" data-g="${i}" data-k="finRate" value="${o.financing && o.financing.rateYear != null ? +(o.financing.rateYear * 100).toFixed(4) : ''}" placeholder="ex.: 9,5"></div>
-          <div class="field"><label>Prazo (meses)</label><input type="number" step="12" min="1" data-g="${i}" data-k="finMonths" value="${o.financing && o.financing.months ? o.financing.months : ''}" placeholder="ex.: 360"></div>
-        </div>
-        ${finValido(o.financing) ? resumoFinanciamento(o) : ''}
-      </details>` : ''}
-
-      <details class="sub opc2" data-abre="${o.id}:custo"${rec && !legado || blocosAbertos.has(o.id + ':custo') ? ' open' : ''}>
-        <summary>Custo mensal depois de realizado <span>prazo e nome no fluxo; o valor fica no gráfico acima</span></summary>
-        <div class="grid g4">
-          <div class="field"><label>Prazo (meses, vazio = indeterminado)</label><input type="number" step="12" data-g="${i}" data-k="recMonths" value="${rec && rec.months != null ? rec.months : ''}"></div>
-          <div class="field"><label>Descrição no fluxo de caixa</label><input data-g="${i}" data-k="recLabel" value="${esc(rec ? rec.label : '')}" placeholder="ex.: Condomínio e IPTU"></div>
-        </div>
-      </details>
-
-      <details class="sub opc2" data-abre="${o.id}:apres"${o.strategy || o.photo || o.iconData || o.iconFA || blocosAbertos.has(o.id + ':apres') ? ' open' : ''}>
-        <summary>Apresentação ao cliente <span>estratégia, foto e ícone (opcional)</span></summary>
-        <label>Estratégia apresentada ao cliente</label>
-        <textarea data-g="${i}" data-k="strategy" placeholder="Como este objetivo será atingido, em linguagem de conversa com o cliente.">${esc(o.strategy)}</textarea>
-        <div class="grid g2" style="margin-top:12px">
-        <div class="field wide"><label>Foto do objetivo ${tip('Endereço (link) de uma imagem. Sem foto, o card do cliente usa o ícone.')}</label><input data-g="${i}" data-k="photo" value="${esc(o.photo || '')}" placeholder="https://…"><div class="fotoprev">${fotoHtml(o)}</div></div>
-        <div class="field"><label>Ícone do objetivo ${tip('Envie um SVG ou PNG, ou cole a classe de um ícone do Font Awesome (precisa de internet).')}</label>
+      <div class="planner" data-plan="${o.id}"><div class="pv-svg">${planSvg(o)}</div><div class="pv-res">${planResumo(o)}</div></div>
+      ${orc}
+      ${temGasto ? `<div class="secao"><h4>Depois de realizado</h4>${cs.map(c => htmlCusto(o, i, c)).join('')}<button class="chipadd" data-add-c="${o.id}">+ outro gasto</button></div>` : ''}
+      ${temMais ? `<div class="secao"><h4>Patrimônio reservado e perfil</h4><div class="grid g3">
+        <div class="field"><label>Patrimônio já reservado ${tip('Sai do patrimônio financeiro de hoje (' + fmt(plano.initialWealth) + '). Ainda livre para reservar: ' + fmt(livreParaReservar()) + '. Reservar parte dele reduz o quanto guardar por mês.')}</label><input data-money type="text" inputmode="decimal" data-g="${i}" data-k="dedicated" value="${o.dedicated ? money(o.dedicated) : ''}" placeholder="R$ 0,00"></div>
+        <div class="field"><label>Perfil de investimento</label><select data-g="${i}" data-k="profile">${Object.keys(plano.profiles).map(k => `<option value="${k}"${o.profile === k ? ' selected' : ''}>${k[0].toUpperCase() + k.slice(1)} (${(plano.profiles[k] * 100).toFixed(2).replace('.', ',')}% ao mês)</option>`).join('')}</select></div>
+      </div></div>` : ''}
+      ${temApres ? `<div class="secao"><h4>Apresentação ao cliente</h4>
+        <textarea data-g="${i}" data-k="strategy" placeholder="Estratégia: como este objetivo será atingido, em linguagem de conversa com o cliente.">${esc(o.strategy)}</textarea>
+        <div class="grid g2" style="margin-top:10px">
+        <div class="field wide"><label>Foto (link da imagem) ${tip('Sem foto, o card do cliente usa o ícone.')}</label><input data-g="${i}" data-k="photo" value="${esc(o.photo || '')}" placeholder="https://…"><div class="fotoprev">${fotoHtml(o)}</div></div>
+        <div class="field"><label>Ícone ${tip('Envie um SVG ou PNG, ou escreva o nome de um ícone do Font Awesome (precisa de internet).')}</label>
           <div class="iconpick">
             <span class="prev">${iconeHtml(o, 'var(--nl-navy-900)')}</span>
             <label class="btn btn-secondary" style="padding:6px 10px">Enviar SVG/PNG<input type="file" accept=".svg,.png,image/svg+xml,image/png" data-icon="${i}" hidden></label>
-            <input data-g="${i}" data-k="iconFA" value="${esc(o.iconFA || '')}" placeholder="ícone do Font Awesome: plane, car, fa-solid fa-house">
+            <input data-g="${i}" data-k="iconFA" value="${esc(o.iconFA || '')}" placeholder="Font Awesome: plane, car, house">
             ${o.iconData || o.iconFA ? `<button class="btn btn-icon" data-clear-icon="${i}" title="Voltar ao ícone padrão">×</button>` : ''}
           </div>
         </div>
-        </div>
-      </details>` : ''}
+        </div></div>` : ''}
+      ${chips.length ? `<div class="chips-add">${chips.join('')}</div>` : ''}` : ''}
     </div>`;
   }).join('');
 }
@@ -1607,23 +1621,16 @@ function campoObjetivo(t, val) {
   if (k === 'months') o.months = inputToMonths(t.value);
   else if (k === 'name') { o.name = t.value; o.title = t.value + ' realizado!'; }
   else if (k === 'strategy' || k === 'icon' || k === 'kind' || k === 'profile' || k === 'photo' || k === 'iconFA') o[k] = t.value;
-  else if (k.startsWith('fin')) {
-    const f = o.financing || { system: 'price', principal: 0, rateYear: null, months: null, label: '' };
-    if (k === 'finSystem') f.system = t.value;
-    else if (!f.system) f.system = 'price';                       // digitar um valor já escolhe a tabela Price
-    if (k === 'finPrincipal') f.principal = val();
-    if (k === 'finRate') f.rateYear = t.value === '' ? null : Math.max(0, +t.value) / 100;
-    if (k === 'finMonths') f.months = t.value === '' ? null : Math.round(+t.value);
-    o.financing = f.system ? f : null;                            // "Sem financiamento" limpa tudo
-    if (finValido(o.financing) && o.recurring && o.recurring.amort > 0) o.recurring = null;   // o financiamento substitui a amortização fixa do plano antigo
-  }
-  else if (k.startsWith('rec')) {
-    const rec = o.recurring || { value: 0, months: null, label: '', amort: 0 };
-    if (k === 'recValue') rec.value = val();
-    if (k === 'recMonths') rec.months = t.value === '' ? null : +t.value;
-    if (k === 'recLabel') rec.label = t.value;
-    o.recurring = rec.value > 0 || rec.months != null || rec.amort > 0 || rec.label ? rec : null;   // guarda o que já foi digitado, mesmo antes do valor
-    if (o.recurring && !o.recurring.label) o.recurring.label = o.name;
+  else if (k.startsWith('c:')) {                                  // um dos gastos depois de realizado
+    const [, cid, f] = k.split(':'), c = (o.costs || []).find(x => x.id === cid); if (!c) return;
+    if (f === 'type') c.type = t.value;
+    if (f === 'label') c.label = t.value;
+    if (f === 'value') c.value = val();
+    if (f === 'principal') c.principal = val();
+    if (f === 'months') c.months = t.value === '' ? null : Math.max(1, Math.round(+t.value));
+    if (f === 'rate') c.rateYear = t.value === '' ? null : Math.max(0, +t.value) / 100;
+    if (f === 'type' && ehFin(c)) c.amort = 0;                    // o financiamento calcula a amortização mês a mês
+    if (f === 'label') { save(); return; }
   }
   else o[k] = val();
   if (k === 'name') { const g = t.closest('.goal'); if (g) g.querySelector('.gtitle').textContent = t.value || 'Objetivo sem nome'; }
@@ -1631,7 +1638,7 @@ function campoObjetivo(t, val) {
     const g = t.closest('.goal');
     if (g) { const pf = g.querySelector('.fotoprev'), pi = g.querySelector('.prev'), ic = g.querySelector('.ico'); if (pf) pf.innerHTML = fotoHtml(o); if (pi) pi.innerHTML = iconeHtml(o, 'var(--nl-navy-900)'); if (ic) ic.innerHTML = iconeHtml(o, ic.style.borderColor); }
   }
-  if (k === 'strategy' || k === 'name' || k === 'photo' || k === 'iconFA' || k === 'recLabel') { save(); renderTop(); return; }
+  if (k === 'strategy' || k === 'name' || k === 'photo' || k === 'iconFA') { save(); renderTop(); return; }
   renderAll();                                     // refaz a simulação e devolve o foco ao campo
 }
 // número grava ao terminar (change); mês e data só ao sair do campo, porque o navegador avisa a cada parte digitada
@@ -1654,6 +1661,14 @@ document.addEventListener('click', e => {
   const cab = e.target.closest('[data-abrir-goal]');
   if (cab && !e.target.closest('button')) { const id = cab.dataset.abrirGoal; if (goalAbertos.has(id)) goalAbertos.delete(id); else goalAbertos.add(id); renderGoals(); return; }
   const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.addC != null) {
+    const o = plano.objectives.find(x => x.id === b.dataset.addC), id = 'k' + Date.now().toString(36);
+    (o.costs = o.costs || []).push({ id, type: 'fixo', value: 0, months: null, label: '' }); renderAll();
+    const el = document.querySelector('[data-k="c:' + id + ':type"]'); if (el) el.focus();
+    return;
+  }
+  if (b.dataset.delC != null) { const [oid, cid] = b.dataset.delC.split(':'), o = plano.objectives.find(x => x.id === oid); armar(b, () => { o.costs = o.costs.filter(c => c.id !== cid); }); return; }
+  if (b.dataset.addSec != null) { blocosAbertos.add(b.dataset.addSec); renderGoals(); return; }
   if (b.dataset.delG != null) { armar(b, () => plano.objectives.splice(+b.dataset.delG, 1)); return; }
   if (b.dataset.usarTodos != null) { plano.objectives.forEach(o => { if (!(o.planned > 0)) { o.planned = Math.ceil(o.required); o.segueNecessario = true; } }); renderAll(); return; }
   if (b.dataset.usarNec != null) { const o = plano.objectives[+b.dataset.usarNec]; o.planned = Math.ceil(o.required); o.segueNecessario = true; renderAll(); return; }
@@ -1662,7 +1677,7 @@ document.addEventListener('click', e => {
 document.getElementById('btnAddGoal').onclick = () => {
   const id = 'obj' + Date.now().toString(36);
   plano.objectives.push({ id, criado: Date.now(), name: '', icon: 'sun', kind: 'consumo', milestone: true, title: '',
-    months: 12, amount: 0, recurring: null, dedicated: 0, profile: 'moderado', planned: 0, strategy: '' });
+    months: 12, amount: 0, costs: [], dedicated: 0, profile: 'moderado', planned: 0, strategy: '' });
   goalAbertos.add(id); renderAll();
   const i = plano.objectives.findIndex(o => o.id === id), el = document.querySelector('[data-g="' + i + '"][data-k="name"]');
   if (el) { const card = el.closest('.goal'); card.classList.add('novo'); card.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.focus(); }
