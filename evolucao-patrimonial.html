@@ -135,7 +135,7 @@ canvas#main.grab-obj{cursor:ew-resize}
         <h2 id="mTitle"></h2>
         <div class="sub" id="mSub"></div>
         <div class="lines" id="mLines"></div>
-        <div class="foot"><div class="prog"><i id="mProg"></i></div><button class="hold" id="btnHold" title="Segure para pausar a contagem"><svg viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></svg></button><button class="btn btn-primary" id="btnResume">Continuar</button></div>
+        <div class="foot"><div class="prog"><i id="mProg"></i></div><button class="hold" id="btnHold" title="Pausar a contagem"><svg viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></svg></button><button class="btn btn-primary" id="btnResume">Continuar</button></div>
       </div>
     </div>
   </div>
@@ -1180,23 +1180,24 @@ function celebrate(mk, manual) {
   }
   document.getElementById('mLines').innerHTML = lines;
   card.querySelector('.body').scrollTop = 0;
-  overlay.classList.add('show'); overlayElapsed = 0; overlayManual = !!manual; overlayHover = card.matches(':hover');
+  overlay.classList.add('show'); overlayElapsed = 0; overlayManual = !!manual; setHold(false);
   if (!manual && !unmet) startConfetti(); else confettiT0 = 0;
   if (manual) mProg.style.width = '0';
 }
-const CARD_SECONDS = 12; // tempo do card antes de retomar sozinho (congela com o mouse em cima)
-let overlayElapsed = 0, overlayManual = false, overlayHover = false;
-function resumeFromMilestone() { overlay.classList.remove('show'); overlayHover = false; state.paused = false; state.seg = null; }
+const CARD_SECONDS = 12; // tempo do card antes de retomar sozinho (o botão de pausa segura a contagem)
+let overlayElapsed = 0, overlayManual = false;
+function resumeFromMilestone() { overlay.classList.remove('show'); setHold(false); state.paused = false; state.seg = null; }
 document.getElementById('btnResume').onclick = resumeFromMilestone;
 document.getElementById('btnClose').onclick = resumeFromMilestone;
 overlay.addEventListener('mousedown', e => { if (e.target === overlay) resumeFromMilestone(); }); // clique fora do card fecha
-card.addEventListener('mouseenter', () => overlayHover = true);
-card.addEventListener('mouseleave', () => overlayHover = false);
 // segurar para pausar: enquanto o mouse estiver pressionado no botão, vídeo e contagem do card congelam
 const btnHold = document.getElementById('btnHold');
-const setHold = on => { state.hold = on; btnHold.classList.toggle('holding', on); };
-btnHold.addEventListener('mousedown', () => setHold(true));
-addEventListener('mouseup', () => setHold(false)); btnHold.addEventListener('mouseleave', () => setHold(false));
+const setHold = on => {
+  state.hold = on; btnHold.classList.toggle('holding', on);
+  btnHold.title = on ? 'Continuar a contagem' : 'Pausar a contagem';
+  btnHold.querySelector('svg').innerHTML = on ? '<path d="M8 5l11 7-11 7z"/>' : '<path d="M8 5v14M16 5v14"/>';
+};
+btnHold.addEventListener('click', () => setHold(!state.hold));
 // ritmo do autoplay: cada trecho até o próximo marco dura um tempo quase fixo (marcos próximos avançam devagar, distantes avançam rápido)
 function planSegment() {
   const mk = milestones().find(m => (m.kind === 'obj' || m.kind === 'ff') && !state.milestonesShown.has(m.week) && m.week > state.cursor);
@@ -1227,7 +1228,7 @@ function frame(now) {
     if (!state.done) { const span = Math.max(6, t * 1.5 + 6); const tc = tOf(state.cursor); state.target = clampView({ uL: uOf(tc - span * 0.72), uR: uOf(tc + span * 0.28) }); }
   }
   if (overlay.classList.contains('show')) {
-    if (!overlayManual && !state.hold && !overlayHover) { overlayElapsed += dt; mProg.style.width = Math.min(100, overlayElapsed / CARD_SECONDS * 100) + '%'; if (overlayElapsed >= CARD_SECONDS) resumeFromMilestone(); }
+    if (!overlayManual && !state.hold) { overlayElapsed += dt; mProg.style.width = Math.min(100, overlayElapsed / CARD_SECONDS * 100) + '%'; if (overlayElapsed >= CARD_SECONDS) resumeFromMilestone(); }
     drawConfetti(dt);
   }
   draw();

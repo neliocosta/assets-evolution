@@ -156,7 +156,8 @@ financeira terminando com "para sempre".
 Onde ela ficou ansiosa, e que vale vigiar em qualquer mudança futura:
 
 - A janela vermelha do intercâmbio do filho, com "34% do necessário". Era o futuro do filho em vermelho, e
-  a janela sumiu antes de ela terminar de ler. Hoje a contagem congela com o mouse em cima, mas o impacto
+  a janela sumiu antes de ela terminar de ler. Hoje o botão de pausa do card (um clique pausa, outro continua)
+  segura a contagem; a pausa automática com o mouse em cima foi tirada porque parecia travamento. O impacto
   emocional do vermelho continua.
 - A queda do patrimônio a zero no modo de consumo. Hoje há uma faixa explicando que é intencional.
 
