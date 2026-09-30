@@ -46,6 +46,23 @@ linhas normais de entrada, do tipo passiva.
 Só existe um titular, e o campo "Idade hoje" está travado. O caso mais comum da consultora é um casal com
 duas rendas e duas idades. Afeta o modelo do plano, a linha do tempo e o cálculo da liberdade financeira.
 
+### 20. "Hoje" fixo em 19/09/2026 (rodada 7)
+O motor usa `TODAY = new Date(2026, 8, 19)` e o portal usa `HOJE` com a mesma data. Com a data real de 30/09,
+o ano de 2026 conta o adiantamento de 20/09 e as feiras e plantões que já passaram (Camila: Entradas 2026
+R$ 54.300 em vez de R$ 52.000; Juliana: plantões R$ 27.000 em vez de R$ 23.400), e o pontual sugere 19/set, que
+já passou. Decidir se "hoje" vem do relógio ou de uma data gravada no plano, sem quebrar a identidade contábil
+nem o `verificar.js`.
+
+### 21. Idade nos marcos dos objetivos um ano menor (rodada 7)
+Na visão do cliente, todo objetivo em setembro mostra um ano a menos (Viagem set/2028 "34 anos", esperado 35;
+Faculdade do Marcos set/2029 "50", esperado 51; Sala da Juliana set/2031 "42", esperado 43). Provavelmente o
+aniversário assumido é 19/09 (`BIRTH`) e o marco cai antes dele. A idade de hoje e a da liberdade estão certas.
+
+### 22. Ponto da renda desejada não é removido (rodada 7, a única dúvida bloqueante)
+A dica diz "dois cliques removem", mas dois cliques no ponto não o removem (5 tentativas). O arraste pula de
+R$ 40.100 para R$ 39.900 e não volta ao valor exato; o ponto fica em `desiredSteps`, e a visão do cliente mostra
+"muda com a idade".
+
 ---
 
 # P2 — Atrito forte no trabalho do consultor
@@ -85,6 +102,27 @@ que fica sem aporte é o calendário, não o consultor.
 O plano vive no `localStorage` de um navegador e viaja por arquivo `.json`. Não existe lista de clientes
 nem histórico de versões do plano.
 
+### 23. Aviso "Falta definir quanto guardar" que não some (rodada 7)
+No Marcos, com a faculdade toda coberta pelo patrimônio reservado (necessário R$ 0, "Alcançável"), a caixa
+continua com "Falta definir quanto guardar por mês em 1 objetivo(s)" e não diz qual.
+
+### 24. Diálogo do orçamento (rodada 7)
+Não oferece reservar patrimônio livre, que era a saída natural do Marcos (R$ 1,8 mi), e a tabela e o topo atrás
+dele já mostram os aportes aplicados ("Folga mensal R$ -13.369") antes da decisão. O rótulo "Guardar só o que
+cabe (+R$ 1.568/mês)" não diz se vale desde hoje ou só a partir do mês que estoura.
+
+### 25. Retirada do patrimônio na visão do cliente (rodada 7)
+No Marcos, a visão diz "Retirada do patrimônio R$ 32.000/mês", e o portal diz rendas de R$ 14.000 e saque de
+R$ 5.221 (renda parcial). Os aluguéis parecem ficar de fora.
+
+### 26. Idade de início das rendas na estratégia (rodada 7)
+"INSS da Camila… a partir de 67 anos": a estratégia da liberdade usa a idade do titular (`CURRENT_AGE`) para
+todas as rendas, mesmo as do cônjuge (`evolucao-patrimonial.html`, bloco "Estratégia" do card da liberdade).
+
+### 27. Casal e troca de cliente (rodada 7)
+"Plano de: Uma pessoa" vem marcado mesmo com a idade do cônjuge preenchida. "+ Novo cliente" apaga o plano sem
+lembrar de baixar o `.json`, e o portal não diz como reabrir um plano baixado (ligado ao item 11).
+
 ---
 
 # P3 — Refino
@@ -120,6 +158,27 @@ do mock que não têm dia definido; ao receber um dia no cadastro, passam para a
 ### 19. Rolagem vertical na planilha do fluxo
 A rodinha sobre as células é o zoom, então a página rola pela coluna de nomes ou fora da planilha. Com muitas
 linhas abertas, avaliar um cabeçalho fixo.
+
+### 28. Arredondamento do necessário (rodada 7)
+O necessário mostrado e o gravado por "usar o necessário" diferem em R$ 1 (786/787, 2.333/2.334); o portal
+mostra 99% e a visão do cliente 100% do necessário.
+
+### 29. Sextas de 2027 (rodada 7)
+Plantões semanais às sextas somam 52 em 2027, que tem 53 (01/01 e 31/12). Conferir a regra das semanas do ano.
+
+### 30. Textos (rodada 7)
+Problemas encontrados:
+- A legenda "mês = do salário do dia 5" aparece para quem não recebe salário no dia 5.
+- A página Objetivos vazia diz "siga para o Fluxo de caixa", mas o Fluxo agora vem antes.
+- A gaveta de despesa pergunta "Recebe em mais de um dia?".
+- "Cofre genérico (reserva)" aparece na planilha sem ter sido criado.
+- Um objetivo sem nome e sem valor aparece como "Alcançável".
+- Price e SAC pedem o valor financiado quando o cliente só sabe a parcela.
+- O cartão da casa não oferece encerrar o aluguel. Isso só se faz pela linha do aluguel, com "Até um objetivo
+  ser realizado".
+
+### 31. Favicon (rodada 7)
+A primeira carga gera um 404 do `favicon.ico` no console.
 
 ---
 

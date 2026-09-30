@@ -129,3 +129,35 @@ Corrigido para a rodada 7:
 - Pontual com data recusada deixa de contar até ter uma data válida.
 - Colunas recortadas nas duas bordas; coluna estreita não mostra número cortado.
 - Visão do cliente: o gráfico também desenha bens e participações sem média, então a linha sobe na compra.
+
+## Rodada 7 — REPROVADO
+
+7 dúvidas (eram 8), uma bloqueante; os três clientes foram cadastrados até o fim, sem erro de script (só o 404
+do favicon). A ordem sugerida pela tela funcionou nos três. A bloqueante: na Liberdade do Marcos, o ponto da
+renda desejada por idade não sai com dois cliques, embora a dica diga "dois cliques removem"; arrastar de volta
+não acerta R$ 40.000 (pula de 40.100 para 39.900) e a visão do cliente fica com "muda com a idade". As pequenas:
+o aviso "Falta definir quanto guardar por mês em 1 objetivo(s)" continua com o necessário em R$ 0 e não diz qual;
+o diálogo do orçamento não oferece reservar patrimônio livre e mostra os aportes aplicados atrás dele antes da
+decisão; "Plano de: Uma pessoa" vem marcado mesmo com a idade do cônjuge preenchida; trocar de cliente não
+lembra de baixar o plano; a legenda do mês fala em "salário do dia 5" para a Juliana, que não tem; o pontual
+sugere uma data que já passou (19/set).
+
+Mais grave que as dúvidas foram os números que não bateram na conferência de cabeça:
+- 2026 conta ocorrências de antes de hoje (30/09): o adiantamento do Rafael de 20/09 (Entradas 2026 R$ 54.300 em
+  vez de R$ 52.000), feiras de sábados passados (Saídas R$ 19.575 em vez de R$ 19.275) e plantões de sextas
+  passadas (R$ 27.000 em vez de R$ 23.400). Causa provável: o motor fixa hoje em 19/09/2026 (`TODAY`/`HOJE`).
+- A idade nos marcos dos objetivos sai um ano menor nos três clientes (Viagem set/2028 "34 anos", esperado 35;
+  Faculdade set/2029 "50", esperado 51; Sala set/2031 "42", esperado 43).
+- Visão do Marcos: "Retirada do patrimônio R$ 32.000/mês", contra saque de R$ 5.221 e rendas de R$ 14.000 no portal.
+- Estratégia da liberdade: "INSS da Camila… a partir de 67 anos" (67 é a idade do Rafael; ela recebe aos 65).
+- Diferença de R$ 1 entre o necessário mostrado e o gravado por "usar o necessário"; 99% no portal e 100% na visão.
+- Plantões 2027 com 52 sextas (2027 tem 53).
+
+Elogios: a frase-resumo no topo de cada gaveta; "Em datas do ano" com os exemplos (13º, lucros, IPVA, seguro e
+conselho de primeira); o dia do mês editável; "+ mudança de valor"; Ctrl/Shift + rodinha e "Voltar para hoje";
+"Até um objetivo ser realizado"; a sugestão de reservar o patrimônio livre; o diálogo do orçamento da Juliana
+(mês, conta e redução visível como mudança de valor); gráfico arrastável e rentabilidade com o nome do perfil;
+tabela de rendas com a gaveta "⋯"; a mensagem de data passada; o fechamento "Plano completo".
+
+O ciclo de testes com a consultora foi encerrado nesta rodada, sem correções e sem rodada 8. O que continua
+aberto está em `PENDENCIAS.md` (itens 20 a 31).
