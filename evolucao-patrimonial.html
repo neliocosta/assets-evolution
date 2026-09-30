@@ -94,6 +94,10 @@ canvas#main.grab-obj{cursor:ew-resize}
 #cellPop .modos label{display:flex;align-items:center;gap:8px;color:var(--nl-navy-900);cursor:pointer}
 #cellPop .nota{color:#8d8d8d;font-size:11.5px;line-height:1.45;margin-bottom:10px}
 #cellPop .bts{display:flex;gap:8px;justify-content:flex-end}
+#cellPop .campo{margin-bottom:8px} #cellPop .campo span{display:block;font:500 11px 'DM Sans',sans-serif;color:#8d8d8d;margin-bottom:3px}
+#cellPop .campo input,#cellPop select{width:100%;border:1px solid var(--nl-gray-300);border-radius:8px;padding:7px 9px;font:500 13px 'DM Sans',sans-serif;color:var(--nl-navy-900);background:#fff}
+#cellPop .campo input:focus,#cellPop select:focus{outline:none;border-color:var(--nl-orange-500)}
+#cellPop .rmlinha{background:none;border:0;color:var(--nl-score-low);font:600 12px 'DM Sans',sans-serif;cursor:pointer;padding:0;margin-bottom:10px;text-decoration:underline}
 .card .prop{border-top:1px dashed #eceae5;margin-top:14px;padding-top:12px}
 .card .prop h5{font:600 11px Sora,sans-serif;color:var(--nl-navy-900);margin-bottom:8px}
 .card .prop .pr{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
@@ -171,7 +175,6 @@ body.fluxo .stats{margin-left:auto}
   <button class="btn btn-secondary" id="btnHome" title="Voltar para hoje (zoom de 6 anos)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.5"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg>Hoje</button>
   <button class="btn btn-secondary" id="btnFluxo" title="Abrir o fluxo de caixa numa janela própria, sem o gráfico"><svg viewBox="0 0 24 24"><path d="M3 5h18M3 12h18M3 19h18M8 3v18"/></svg>Fluxo de caixa</button>
   <button class="btn btn-secondary" id="btnVoltar" title="Fechar o fluxo de caixa e voltar ao gráfico">← Voltar ao gráfico</button>
-  <label class="btn btn-secondary" id="btnPlano" title="Carregar um plano exportado pela tela do consultor"><svg viewBox="0 0 24 24"><path d="M12 16V4M8 8l4-4 4 4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>Plano<input type="file" id="fPlan" accept="application/json,.json" hidden></label>
   <span class="ajuda" id="ajuda" tabindex="0">?</span>
   <button class="btn btn-secondary" id="btnSkip" hidden title="Ir direto ao final, sem esperar a animação">Pular animação</button>
   <button class="btn btn-primary" id="btnPlay"><svg viewBox="0 0 24 24"><path d="M6 4l14 8-14 8z"/></svg><span>Reproduzir</span></button>
@@ -610,11 +613,13 @@ const ENGINE = (() => {
   //   { tipo: 'fluxo', lista: 'incomes' | 'expenses', id, modo: 'dali' | 'mes', mi, de, para }
   //       valor de uma entrada ou saída a partir do mês mi (vale até o próximo degrau) ou só naquele mês
   //   { tipo: 'liberdade', campo: 'retireAge', de, para }                            idade para parar de trabalhar
+  //   { tipo: 'linha', acao: 'nova', lista, id, label, group | kind, mi, para }        nova entrada ou saída mensal, a partir do mês mi
+  //   { tipo: 'linha', acao: 'remover', lista, id, mi, de }                           a linha deixa de existir a partir do mês mi
   // `de` é o valor do plano quando a proposta foi feita: se o consultor mudou o plano depois, a tela avisa.
   const MESES_P = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
   const mesDoPlano = mi => { const d = new Date(2026, 8 + (+mi || 0), 1); return MESES_P[d.getMonth()] + '/' + d.getFullYear(); };
   const reais = v => 'R$ ' + Math.round(+v || 0).toLocaleString('pt-BR');
-  const itemDaAlteracao = (plan, a) => a.tipo === 'objetivo' ? (plan.objectives || []).find(o => o.id === a.id) : a.tipo === 'fluxo' ? (plan[a.lista] || []).find(i => i.id === a.id) : null;
+  const itemDaAlteracao = (plan, a) => a.tipo === 'objetivo' ? (plan.objectives || []).find(o => o.id === a.id) : a.tipo === 'fluxo' || a.tipo === 'linha' ? (plan[a.lista] || []).find(i => i.id === a.id) : null;
   // degrau a partir do mês m, com a mesma regra da tela do consultor: igual ao mês anterior não vira degrau
   function degrauEm(it, m, v) {
     it.steps = (it.steps || []).slice().sort((a, b) => a.from - b.from);
@@ -627,6 +632,7 @@ const ENGINE = (() => {
   }
   // valor que a alteração mexe, no plano dado (para comparar com `de` e mostrar "no plano hoje")
   function valorAtual(plan, a) {
+    if (a.tipo === 'linha') { const it = itemDaAlteracao(plan, a); return a.acao === 'nova' ? (it ? stepAt(sortSteps(Object.assign({}, it)), a.mi) : null) : it ? stepAt(sortSteps(Object.assign({}, it)), a.mi) : undefined; }
     if (a.tipo === 'liberdade') return plan.retireAge == null || plan.retireAge === '' ? null : +plan.retireAge;
     const it = itemDaAlteracao(plan, a); if (!it) return undefined;
     if (a.tipo === 'objetivo') return +it[a.campo];
@@ -638,7 +644,19 @@ const ENGINE = (() => {
   function aplicaAlteracoes(plan, alts) {
     (alts || []).forEach(a => {
       if (a.tipo === 'liberdade') { plan.retireAge = a.para; return; }
+      if (a.tipo === 'linha' && a.acao === 'nova') {   // mesma forma de uma linha criada pelo consultor na planilha
+        if (itemDaAlteracao(plan, a)) return;
+        const it = { id: a.id, label: a.label || 'Nova linha', frequency: 'mensal', days: [5], steps: [{ from: +a.mi, value: +a.para }], description: 'Proposta pelo cliente' };
+        if (a.lista === 'incomes') Object.assign(it, { kind: a.kind || 'ativa', origin: a.kind === 'passiva' ? 'Rendimentos recorrentes' : 'Outras receitas', gross: 0, taxable: true });
+        else it.group = a.group === 'adj' ? 'adj' : 'fix';
+        (plan[a.lista] = plan[a.lista] || []).push(it); return;
+      }
       const it = itemDaAlteracao(plan, a); if (!it) return;
+      if (a.tipo === 'linha') {   // remover a partir de mi: os degraus seguintes e os ajustes somem, e a linha vai a zero
+        it.steps = (it.steps || []).filter(st => st.from < a.mi).concat({ from: +a.mi, value: 0 });
+        if (it.exc) Object.keys(it.exc).forEach(k => { if (parseInt(k, 10) >= a.mi) delete it.exc[k]; });
+        return;
+      }
       if (a.tipo === 'objetivo') { it[a.campo] = +a.para; return; }
       if (a.modo === 'mes') { it.exc = Object.assign({}, it.exc, { [a.mi]: +a.para }); return; }
       degrauEm(it, +a.mi, +a.para);
@@ -647,7 +665,10 @@ const ENGINE = (() => {
   }
   // texto da alteração para as duas telas: o que muda, o valor proposto e o valor de antes
   function descreveAlteracao(plan, a) {
-    const it = itemDaAlteracao(plan, a), val = v => v == null ? 'assim que o patrimônio permitir' : a.tipo === 'liberdade' ? v + ' anos' : a.campo === 'months' ? mesDoPlano(v) : reais(v);
+    const it = itemDaAlteracao(plan, a), val = v => v == null ? (a.tipo === 'liberdade' ? 'assim que o patrimônio permitir' : '—') : a.tipo === 'liberdade' ? v + ' anos' : a.campo === 'months' ? mesDoPlano(v) : reais(v);
+    const lado = a.lista === 'incomes' ? 'entrada' : 'saída';
+    if (a.tipo === 'linha' && a.acao === 'nova') return { oque: 'Nova ' + lado + ' (' + (a.lista === 'incomes' ? (a.kind === 'passiva' ? 'renda passiva' : 'renda do trabalho') : a.group === 'adj' ? 'ajustável' : 'fixa') + '): ' + (a.label || 'sem nome'), de: '—', para: reais(a.para) + '/mês a partir de ' + mesDoPlano(a.mi), atual: it ? 'já existe' : '—', mudou: !!it };
+    if (a.tipo === 'linha') return { oque: (it ? it.label : 'Linha removida') + ': remover a partir de ' + mesDoPlano(a.mi), de: val(a.de), para: 'R$ 0 (sem a linha)', atual: val(valorAtual(plan, a)), mudou: valorAtual(plan, a) !== a.de };
     let oque;
     if (a.tipo === 'liberdade') oque = 'Idade para parar de trabalhar';
     else if (a.tipo === 'objetivo') oque = (it ? it.name : 'Objetivo removido') + ': ' + (a.campo === 'months' ? 'data alvo' : 'custo');
@@ -660,19 +681,87 @@ const ENGINE = (() => {
 })();
 if (typeof module !== 'undefined') module.exports = ENGINE;
 </script>
+<script id="armazem">
+// ===================== ARMAZÉM: onde o plano e a proposta ficam =====================
+// O consultor grava o plano; o cliente lê o plano e grava a proposta; o consultor responde. Cada um do seu
+// computador. Na área logada da Nord Liberta isto é a API da plataforma; no protótipo há dois modos:
+//   nuvem  o banco compartilhado do link publicado no Claude (claude.use('db')): consultor e cliente abrem o
+//          mesmo link, cada um na sua máquina, e veem as mudanças do outro na hora. Quem é dono do link é o
+//          consultor; quem recebeu o link compartilhado (como Contribuidor) é o cliente.
+//   local  sem esse banco (localhost): o armazenamento do navegador, com as duas telas no mesmo computador.
+// A cópia local também guarda o último estado, para a tela abrir na hora enquanto a nuvem responde.
+const ARMAZEM = (() => {
+  const CHAVE = { plano: 'nl-plano', proposta: 'nl-proposta' }, DOC = { plano: 'plano/atual', proposta: 'propostas/atual' };
+  const ouvintes = { plano: [], proposta: [] }, ultimo = {};
+  let db = null, info = null;
+  const lerLocal = k => { try { return JSON.parse(localStorage.getItem(CHAVE[k]) || 'null'); } catch (e) { return null; } };
+  const gravarLocal = (k, v) => { try { if (v == null) localStorage.removeItem(CHAVE[k]); else localStorage.setItem(CHAVE[k], JSON.stringify(v)); } catch (e) { } };
+  const avisa = (k, v) => { const txt = JSON.stringify(v); if (txt === ultimo[k]) return; ultimo[k] = txt; ouvintes[k].forEach(f => { try { f(v == null ? null : JSON.parse(txt)); } catch (e) { console.error(e); } }); };
+  // resolve { modo: 'nuvem' | 'local', dono }; na nuvem, passa a ouvir o plano e a proposta ao vivo
+  function iniciar() {
+    if (info) return info;
+    info = (async () => {
+      const c = typeof window !== 'undefined' && window.claude && window.claude.use ? window.claude : null;
+      if (c) {
+        const espera = (pr, ms) => Promise.race([pr, new Promise(r => setTimeout(() => r(null), ms))]);
+        try { db = await espera(c.use('db'), 8000); } catch (e) { db = null; }
+        let dono = true; try { const u = await espera(c.use('user'), 4000); if (u) dono = await u.isOwner(); } catch (e) { }
+        if (db) {
+          for (const k of ['plano', 'proposta']) {
+            ultimo[k] = JSON.stringify(lerLocal(k));
+            await new Promise(pronto => {
+              let primeiro = true;
+              db.doc(DOC[k]).onSnapshot(snap => {
+                const v = snap.exists ? structuredClone(snap.data().dados) : null;
+                if (primeiro) { primeiro = false; pronto(); }
+                if (snap.metadata && snap.metadata.hasPendingWrites) return;   // a própria gravação, ainda a caminho
+                if (!snap.exists && k === 'plano') return;   // banco ainda sem plano: vale o que o consultor tem aqui
+                gravarLocal(k, v); avisa(k, v);
+              }, () => { if (primeiro) { primeiro = false; pronto(); } });
+              setTimeout(() => { if (primeiro) { primeiro = false; pronto(); } }, 8000);
+            });
+          }
+          return { modo: 'nuvem', dono };
+        }
+      }
+      // local: outra aba deste navegador mudou o plano ou a proposta
+      addEventListener('storage', e => { for (const k in CHAVE) if (e.key === CHAVE[k]) avisa(k, lerLocal(k)); });
+      return { modo: 'local', dono: true };
+    })();
+    return info;
+  }
+  return {
+    iniciar,
+    ler: k => lerLocal(k),                            // o último estado conhecido (na nuvem, o da última atualização)
+    ouvir(k, f) { ouvintes[k].push(f); },             // mudanças feitas por outra pessoa ou outra aba
+    async gravar(k, v) {
+      gravarLocal(k, v); ultimo[k] = JSON.stringify(v);
+      if (!db) return;
+      const ref = db.doc(DOC[k]);
+      try { if (v == null) await ref.delete(); else await ref.set({ dados: v, em: new Date().toISOString() }); }
+      catch (e) { if (e && e.code === 'unavailable') { await new Promise(r => setTimeout(r, 400 + Math.random() * 600)); if (v == null) await ref.delete(); else await ref.set({ dados: v, em: new Date().toISOString() }); } else throw e; }
+    },
+    get nuvem() { return !!db; },
+  };
+})();
+</script>
 
 <script>
 // ===================== APLICAÇÃO =====================
 // ?fluxo: janela só do fluxo de caixa, sem o gráfico, aberta pelo botão "Fluxo de caixa"
 const FLUXO = new URLSearchParams(location.search).has('fluxo');
+// Quem está vendo: o cliente, na área logada dele (padrão), ou o consultor apresentando o plano (?apresentar).
+// O cliente só vê esta tela e propõe alterações; o consultor, apresentando, vê o que o cliente propôs sem editar.
+const PAPEL = new URLSearchParams(location.search).has('apresentar') ? 'apresentar' : 'cliente';
 let PLANO = null;   // plano recebido, para repassar à janela do fluxo com o que o cliente mudou aqui
 // Plano vindo da tela do consultor: #plano=<base64 do JSON>, ou o último salvo no navegador
 (function loadPlan() {
   try {
-    const m = location.hash.match(/plano=([^&]+)/);
+    // o consultor apresentando pode trazer o plano no endereço; o cliente sempre lê o plano gravado pelo consultor
+    const m = PAPEL === 'apresentar' && location.hash.match(/plano=([^&]+)/);
     let json = null;
     if (m) json = new TextDecoder().decode(Uint8Array.from(atob(decodeURIComponent(m[1]).replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0)));
-    else { try { json = localStorage.getItem('nl-plano'); } catch (e) { /* file:// sem storage */ } }
+    else { const p = ARMAZEM.ler('plano'); json = p ? JSON.stringify(p) : null; }
     if (json) { const plan = JSON.parse(json); PLANO = plan; ENGINE.configure(plan); saudar(plan); }
   } catch (e) { console.warn('Plano não aplicado:', e.message); }
 })();
@@ -718,11 +807,11 @@ function updateStats() {
   el.className = ff && !ff.forced ? 'ff' : '';
   el.title = ff && ff.forced ? 'Nessa idade o patrimônio ainda não sustenta a renda desejada' : '';
 }
-// Plano carregado de um arquivo .json exportado pela tela do consultor
+// Plano novo gravado pelo consultor (ou a resposta a uma proposta)
 function applyPlan(plan) {
   // outra idade muda onde está "hoje" na linha do tempo: recarrega a tela com o plano salvo
   if (plan.age != null && +plan.age !== ENGINE.CURRENT_AGE) {
-    try { localStorage.setItem('nl-plano', JSON.stringify(plan)); history.replaceState(null, '', location.pathname); location.reload(); return; } catch (e) { }
+    try { localStorage.setItem('nl-plano', JSON.stringify(plan)); history.replaceState(null, '', location.pathname + location.search); location.reload(); return; } catch (e) { }
   }
   ENGINE.configure(plan); PLANO = plan;
   try { localStorage.setItem('nl-plano', JSON.stringify(plan)); } catch (e) { }
@@ -802,16 +891,16 @@ function buildRows() {
   const allKeys = new Set(); sim().buckets.year.forEach(b => Object.keys(b.f).forEach(k => allKeys.add(k)));
   const keysWith = p => [...allKeys].filter(k => k.startsWith(p));
   return [
-    { id: 'in', label: 'Entradas', color: C.in, keys: keysWith('in_'), children: [
+    { id: 'in', label: 'Entradas', color: C.in, keys: keysWith('in_'), novo: { lista: 'incomes' }, children: [
       ...ENGINE.INCOMES.map(c => ({ id: 'in_' + c.id, label: c.label, keys: ['in_' + c.id], edit: { lista: 'incomes', id: c.id } })),
       ...PASSIVE.map((p, i) => ({ id: 'in_pas_' + i, label: p.name, keys: ['in_pas_' + i], icon: p.converted ? 'convert' : null, note: p.origin })),
     ] },
-    { id: 'out', label: 'Saídas', color: C.out, keys: keysWith('out_'), children: [
-      { id: 'out_fix', label: 'Fixas', keys: keysWith('out_fix_'), children: [
+    { id: 'out', label: 'Saídas', color: C.out, keys: keysWith('out_'), novo: { lista: 'expenses' }, children: [
+      { id: 'out_fix', label: 'Fixas', keys: keysWith('out_fix_'), novo: { lista: 'expenses', group: 'fix' }, children: [
         ...ENGINE.EXPENSES.filter(c => c.group === 'fix').map(c => ({ id: 'out_fix_' + c.id, label: c.label, keys: ['out_fix_' + c.id], edit: { lista: 'expenses', id: c.id } })),
         ...OBJ.flatMap(o => (o.costs || []).map(c => ({ id: 'out_fix_' + o.id + '_' + c.id, label: (c.label || (c.type === 'fixo' ? o.name : 'Financiamento')) + (c.type !== 'fixo' || +c.amort > 0 ? ' (juros)' : ''), keys: ['out_fix_' + o.id + '_' + c.id] }))),
       ] },
-      { id: 'out_adj', label: 'Ajustáveis', keys: keysWith('out_adj_'), children: ENGINE.EXPENSES.filter(c => c.group === 'adj').map(c => ({ id: 'out_adj_' + c.id, label: c.label, keys: ['out_adj_' + c.id], edit: { lista: 'expenses', id: c.id } })) },
+      { id: 'out_adj', label: 'Ajustáveis', keys: keysWith('out_adj_'), novo: { lista: 'expenses', group: 'adj' }, children: ENGINE.EXPENSES.filter(c => c.group === 'adj').map(c => ({ id: 'out_adj_' + c.id, label: c.label, keys: ['out_adj_' + c.id], edit: { lista: 'expenses', id: c.id } })) },
       { id: 'out_obj', label: 'Objetivos realizados', keys: keysWith('out_obj_'), children: OBJ.map(o => ({ id: 'out_obj_' + o.id, label: o.name, keys: ['out_obj_' + o.id] })) },
       { id: 'out_rendas', label: 'Contratação de rendas (fundos de pensão)', keys: ['out_rendas'], icon: 'convert' },
     ] },
@@ -1089,12 +1178,13 @@ function drawCashflow() {
     let label = r.label;
     while (ctx.measureText(label).width > PL - lx - 34 && label.length > 4) label = label.slice(0, -2).trimEnd() + '…';
     ctx.fillText(label, lx + 14, y + rowH / 2);
+    if (r.edit && proposto(a => a.tipo === 'linha' && a.acao === 'nova' && a.id === r.edit.id)) marcaProposta(lx + 6, y + rowH / 2);   // linha criada na proposta
     if (r.icon === 'convert') drawConvertIcon(PL - 16, y + rowH / 2, 6, C.mov);
     if (isTop) { ctx.fillStyle = row.color; ctx.fillRect(12, y + 6, 3, rowH - 14); }
     ctx.strokeStyle = 'rgba(32,52,76,.08)'; ctx.beginPath(); ctx.moveTo(PL, y + rowH - 2); ctx.lineTo(W - PR, y + rowH - 2); ctx.stroke();
     // células: barra proporcional à escala da linha, valor em texto e seta verde (entra) ou vermelha (sai)
     const vals = list.map(b => rowVal(r, b.f)), maxAbs = escalaDaLinha(r, lvl);
-    const altsDaLinha = r.edit ? alteracoesVistas().filter(a => a.tipo === 'fluxo' && a.lista === r.edit.lista && a.id === r.edit.id) : [];
+    const altsDaLinha = r.edit ? alteracoesVistas().filter(a => (a.tipo === 'fluxo' || a.tipo === 'linha') && a.lista === r.edit.lista && a.id === r.edit.id) : [];
     const fonteV = (isTop ? '600 ' : '') + '11.5px "DM Sans", sans-serif';
     // da forma mais completa para a mais curta: o valor exato vem antes do arredondado
     const opcoes = v => {
@@ -1200,7 +1290,7 @@ cv.addEventListener('mousemove', e => {
   if (y < rowsTop) cv.style.cursor = '';
   if (x < PL) { tip.style.display = 'none'; state.hover = null; return; }
   if (y < chartBot) { const i = Math.round(W0 + tOfX(x) * WPY); if (i < 0 || i >= NW) { tip.style.display = 'none'; return; } showTip(x, y, chartTip(i)); }
-  else if (y >= rowsTop) { const rr = flatRows()[Math.floor((y - rowsTop + state.rowScroll) / rowH)]; cv.style.cursor = rr && rr.r.edit && !locked() ? 'cell' : ''; const { list } = visibleBuckets(); const b = list.find(b => { const [x0, x1] = bucketX(b); return x >= x0 && x < x1; }); if (b) showTip(x, y, cashTip(b, flatRows())); else tip.style.display = 'none'; }
+  else if (y >= rowsTop) { const rr = flatRows()[Math.floor((y - rowsTop + state.rowScroll) / rowH)]; cv.style.cursor = PAPEL === 'cliente' && rr && (rr.r.edit || rr.r.novo) && !locked() ? 'cell' : ''; const { list } = visibleBuckets(); const b = list.find(b => { const [x0, x1] = bucketX(b); return x >= x0 && x < x1; }); if (b) showTip(x, y, cashTip(b, flatRows())); else tip.style.display = 'none'; }
   else tip.style.display = 'none';
 });
 cv.addEventListener('mouseleave', () => { tip.style.display = 'none'; state.hover = null; });
@@ -1217,9 +1307,11 @@ cv.addEventListener('mousedown', e => {
 addEventListener('mouseup', () => {
   if (state.objDrag) {   // a data arrastada vai para a proposta do cliente; o plano não muda
     const d = state.objDrag; state.objDrag = null;
-    if (d.moved) { const b = BASE.objectives.find(x => x.id === d.o.id); if (!proporAlteracao([{ tipo: 'objetivo', id: d.o.id, campo: 'months', de: b ? +b.months : d.o.months, para: d.o.months }])) aplicaVista(); state.clickGuard = true; }
+    if (d.moved && PAPEL === 'apresentar') { rerun(); state.clickGuard = true; }   // o consultor apresentando testa a data; nada é gravado
+    else if (d.moved) { const b = BASE.objectives.find(x => x.id === d.o.id); if (!proporAlteracao([{ tipo: 'objetivo', id: d.o.id, campo: 'months', de: b ? +b.months : d.o.months, para: d.o.months }])) aplicaVista(); state.clickGuard = true; }
   }
-  if (state.ffDrag) { const d = state.ffDrag; state.ffDrag = null; tip.style.display = 'none'; if (d.moved && d.age != null) { if (!proporAlteracao([{ tipo: 'liberdade', campo: 'retireAge', de: BASE.retireAge == null ? null : +BASE.retireAge, para: d.age }])) aplicaVista(); state.clickGuard = true; } }
+  if (state.ffDrag) { const d = state.ffDrag; state.ffDrag = null; tip.style.display = 'none'; if (d.moved && d.age != null && PAPEL === 'apresentar') { ENGINE.setRetireAge(d.age); rerun(); state.clickGuard = true; }
+  else if (d.moved && d.age != null) { if (!proporAlteracao([{ tipo: 'liberdade', campo: 'retireAge', de: BASE.retireAge == null ? null : +BASE.retireAge, para: d.age }])) aplicaVista(); state.clickGuard = true; } }
   if (state.drag && state.drag.moved) state.panEnd = performance.now();   // o clique que encerra um arraste não abre a célula
   state.drag = null; cv.classList.remove('drag');
 });
@@ -1242,9 +1334,10 @@ cv.addEventListener('click', e => {
     if (mk) { tip.style.display = 'none'; celebrate(mk, true); }
     return;
   }
-  if (e.offsetX >= PL && e.offsetY >= rowsTop && !locked() && !(state.panEnd && performance.now() - state.panEnd < 300)) {   // célula de entrada ou saída: propor outro valor
+  if (PAPEL === 'cliente' && e.offsetX >= PL && e.offsetY >= rowsTop && !locked() && !(state.panEnd && performance.now() - state.panEnd < 300)) {   // célula de entrada ou saída: propor outro valor
     const row = flatRows()[Math.floor((e.offsetY - rowsTop + state.rowScroll) / rowH)], b = visibleBuckets().list.find(b => { const [x0, x1] = bucketX(b); return e.offsetX >= x0 && e.offsetX < x1; });
     if (row && b && row.r.edit) { tip.style.display = 'none'; abrirCelula(row.r, b, e.offsetX, e.offsetY); }
+    else if (row && b && row.r.novo) { tip.style.display = 'none'; abrirNovaLinha(row.r, b, e.offsetX, e.offsetY); }
     return;
   }
   if (e.offsetX >= PL || e.offsetY < rowsTop) return;
@@ -1266,11 +1359,9 @@ document.getElementById('btnHome').onclick = goHome;
 document.getElementById('ajuda').title = FLUXO
   ? 'Rodinha rola as linhas · Shift + rodinha ou arrastar anda no tempo · Ctrl + rodinha aproxima ou afasta (de semanas a décadas) · Clique numa linha para abrir ou fechar o detalhe · Hoje volta aos próximos 24 meses'
   : 'Rodinha anda no tempo · Ctrl + rodinha dá zoom · Shift + rodinha também anda · Arraste para navegar · Hoje volta para hoje · Clique numa linha do fluxo para detalhar · Clique num marco para ver o objetivo e arraste-o para mudar a data · Arraste a Liberdade Financeira para mudar a idade de parar';
-// "Fluxo de caixa": abre a tabela numa janela própria, com o plano aprovado e a mesma proposta
+// "Fluxo de caixa": abre a tabela numa janela própria, com o mesmo plano e a mesma proposta
 document.getElementById('btnFluxo').onclick = () => {
-  const plano = Object.assign({}, BASE, { mode: state.mode });   // o plano aprovado: a janela lê a proposta do navegador
-  const b64 = btoa(String.fromCharCode(...new TextEncoder().encode(JSON.stringify(plano)))).replace(/\+/g, '-').replace(/\//g, '_');
-  const url = '?fluxo#plano=' + b64;   // mesma página, com o marcador da janela do fluxo
+  const url = '?fluxo' + (PAPEL === 'apresentar' ? '&apresentar' : '');   // mesma página e mesmo papel; plano e proposta vêm do armazém
   let w = null; try { w = window.open(url, 'nl-fluxo', 'popup,width=' + screen.availWidth + ',height=' + screen.availHeight); } catch (e) { }
   if (!w) location.href = url;   // janela bloqueada: abre na mesma aba
 };
@@ -1361,7 +1452,7 @@ function celebrate(mk, manual) {
       : `<div class="statusrow"><span class="badge ${esg && ageOf(esg) < LIFE_EXP ? 'risk' : 'ok'}">${mode === 'perp' ? 'Renda vitalícia' : mode === 'desej' ? (esg ? 'Patrimônio dura até os ' + Math.floor(ageOf(esg)) + ' anos' : 'Patrimônio não acaba') : 'Renda até os ' + LIFE_EXP + ' anos'}</span><span class="pct">${fmt(ff.finAfter)} de patrimônio investido</span></div>`;
     lines += ff.forced ? `<div class="strat"><h5>O que precisa mudar</h5>Na idade planejada de aposentadoria, o patrimônio construído sustenta <b>${fmt(ff.sustentavel)}</b> por mês, e não os <b>${fmt(DESIRED)}</b> desejados. Para fechar essa diferença há três caminhos: poupar mais por mês até lá, adiar a aposentadoria alguns anos, ou rever o padrão de vida desejado. Vale conversar com seu consultor sobre qual combinação faz mais sentido.</div>` : `<div class="strat"><h5>Estratégia</h5>${PASSIVE.map(p => '<b>' + p.name + '</b>: ' + fmt(p.net) + '/mês líquido' + (p.dur ? ', por ' + p.dur / 12 + ' anos' : ', vitalício') + (ENGINE.inicioRenda(p, ff.mi) > ff.mi ? ', a partir de ' + Math.floor(ENGINE.CURRENT_AGE + ENGINE.inicioRenda(p, ff.mi) / 12) + ' anos' : '') + '.').join(' ')} A partir dos ${age} anos, 100% do seu custo de vida passa a ser pago pelo patrimônio que você construiu, ${mode === 'perp' ? 'com o principal preservado, <b>para sempre</b>' : 'consumindo o principal de forma planejada <b>até os ' + LIFE_EXP + ' anos</b>'}.</div>`;
   }
-  if (manual) lines += mk.kind === 'obj' ? blocoPropostaObjetivo(mk.obj) : mk.kind === 'ff' ? blocoPropostaLiberdade(mk.ff) : '';
+  if (manual && PAPEL === 'cliente') lines += mk.kind === 'obj' ? blocoPropostaObjetivo(mk.obj) : mk.kind === 'ff' ? blocoPropostaLiberdade(mk.ff) : '';
   document.getElementById('mLines').innerHTML = lines;
   card.querySelector('.body').scrollTop = 0;
   overlay.classList.add('show'); overlayElapsed = 0; overlayManual = !!manual; setHold(false);
@@ -1418,25 +1509,11 @@ function frame(now) {
   draw();
   requestAnimationFrame(frame);
 }
-document.getElementById('fPlan').addEventListener('change', ev => {
-  const f = ev.target.files[0]; if (!f) return;
-  const rd = new FileReader();
-  rd.onload = () => { try { applyPlan(JSON.parse(rd.result)); } catch (e) { alert('Não consegui ler esse plano: ' + e.message); } };
-  rd.readAsText(f); ev.target.value = '';
-});
-addEventListener('dragover', e => e.preventDefault());
-addEventListener('drop', e => {
-  e.preventDefault(); const f = e.dataTransfer.files[0]; if (!f) return;
-  const rd = new FileReader();
-  rd.onload = () => { try { applyPlan(JSON.parse(rd.result)); } catch (err) { alert('Não consegui ler esse plano: ' + err.message); } };
-  rd.readAsText(f);
-});
 // ===================== PROPOSTAS DO CLIENTE =====================
 // O cliente vê o plano aprovado pelo consultor. O que ele muda aqui (valores do fluxo de caixa, custo e data dos
 // objetivos, idade de parar) vira uma proposta: a tela mostra o efeito, mas o plano só muda quando o consultor
 // aprovar. A proposta fica no navegador ('nl-proposta') ou vai em arquivo; a resposta volta no próprio plano
 // (plan.propostas), para chegar ao cliente também quando o plano vier por link ou arquivo.
-const PROP_KEY = 'nl-proposta';
 const baseDe = plan => structuredClone(Object.assign({}, plan || {}, ENGINE.config(), { mode: ENGINE.MODE, name: (plan && plan.name) || '' }));
 let BASE = null, PROP = null, VER = 'proposta';
 const escH = t => String(t == null ? '' : t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -1446,8 +1523,8 @@ const temAlteracoes = () => !!(PROP && PROP.status !== 'respondida' && PROP.ops.
 const alteracoesVistas = () => VER === 'proposta' && temAlteracoes() ? PROP.ops : [];
 const proposto = f => alteracoesVistas().some(f);
 function marcaProposta(x, y) { ctx.save(); ctx.fillStyle = C.orange; ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(x, y, 3.5, 0, 7); ctx.fill(); ctx.stroke(); ctx.restore(); }
-function lerProposta() { try { const p = JSON.parse(localStorage.getItem(PROP_KEY) || 'null'); return p && Array.isArray(p.ops) && (p.planoNome || '') === (BASE.name || '') ? p : null; } catch (e) { return null; } }
-function salvaProposta() { try { if (PROP) localStorage.setItem(PROP_KEY, JSON.stringify(PROP)); else localStorage.removeItem(PROP_KEY); } catch (e) { } }
+function lerProposta() { const p = ARMAZEM.ler('proposta'); return p && Array.isArray(p.ops) && (p.planoNome || '') === (BASE.name || '') && !(PAPEL === 'apresentar' && p.status === 'rascunho') ? p : null; }   // rascunho é do cliente: o consultor só vê o que foi enviado
+function salvaProposta() { ARMAZEM.gravar('proposta', PROP).catch(e => avisar(e && e.code === 'invalid_argument' ? 'Você não tem permissão para enviar propostas neste plano.' : 'Não consegui gravar a proposta. Tente de novo em instantes.')); }
 // o plano carregado já traz a resposta do consultor a esta proposta?
 function respostaNoPlano() {
   if (!PROP || PROP.status !== 'pendente') return;
@@ -1462,6 +1539,7 @@ function aplicaVista() {
 }
 // inclui alterações na proposta; a mesma alteração substitui a anterior, e voltar ao valor do plano a desfaz
 function proporAlteracao(alts) {
+  if (PAPEL !== 'cliente') return false;
   if (PROP && PROP.status === 'pendente') { avisar('Sua proposta está com o consultor. Cancele o envio para mudar algo.'); return false; }
   if (!PROP || PROP.status === 'respondida') PROP = { id: 'p' + Date.now(), planoNome: BASE.name || '', status: 'rascunho', ops: [] };
   const chave = a => [a.tipo, a.lista, a.id, a.campo, a.modo, a.mi].join('|');
@@ -1479,6 +1557,11 @@ function desenhaPropBar() {
   const n = PROP.ops.length, alts = n + (n === 1 ? ' alteração' : ' alterações');
   const seg = `<div class="seg"><button data-ver="atual" class="${VER === 'atual' ? 'on' : ''}">Plano atual</button><button data-ver="proposta" class="${VER === 'proposta' ? 'on' : ''}">Com as alterações</button></div>`;
   bar.className = PROP.status; bar.hidden = false;
+  if (PAPEL === 'apresentar') {   // o consultor vê o que o cliente enviou e responde no portal
+    if (PROP.status === 'pendente') bar.innerHTML = `<span>✉ <b>${escH(PROP.planoNome || 'O cliente')} enviou uma proposta</b> com ${alts}${dataCurta(PROP.enviadaEm) ? ' em ' + dataCurta(PROP.enviadaEm) : ''}.</span><div class="acoes">${seg}<button class="btn btn-secondary btn-small" data-prop="revisar">Ver proposta</button><a class="btn btn-primary btn-small" href="tela-consultor.html#propostas" style="text-decoration:none">Responder no portal</a></div>`;
+    else bar.hidden = true;
+    return;
+  }
   if (PROP.status === 'rascunho') bar.innerHTML = `<span>✎ <b>${alts} na sua proposta.</b> Nada muda no seu plano até o consultor aprovar.</span><div class="acoes">${seg}<button class="btn btn-secondary btn-small" data-prop="revisar">Revisar e enviar</button><button class="btn btn-secondary btn-small" data-prop="descartar">Descartar</button></div>`;
   else if (PROP.status === 'pendente') bar.innerHTML = `<span>⏳ <b>Proposta enviada ${dataCurta(PROP.enviadaEm) ? 'em ' + dataCurta(PROP.enviadaEm) : ''}</b>, aguardando o consultor (${alts}).</span><div class="acoes">${seg}<button class="btn btn-secondary btn-small" data-prop="revisar">Ver proposta</button><button class="btn btn-secondary btn-small" data-prop="cancelar">Cancelar envio</button></div>`;
   else {
@@ -1494,12 +1577,12 @@ function abrirRevisao() {
     return `<div class="alt"><div class="o">${escH(d.oque)}<small>no plano: ${escH(d.de)}</small></div><div class="dp">→ <b>${escH(d.para)}</b></div>` +
       (rasc ? `<button class="rm" data-rm="${i}" title="Tirar da proposta">×</button>` : dec ? `<span class="dec ${dec === 'aprovada' ? 'ok' : 'no'}">${dec}</span>` : '') + `</div>`;
   }).join('');
-  document.getElementById('propModalC').innerHTML = `<h3>${rasc ? 'Revisar a proposta' : resp ? 'Resposta do consultor' : 'Proposta enviada'}</h3>
-    <div class="muted">${rasc ? 'Estas alterações vão para o seu consultor. Nada muda no seu plano até ele aprovar, e ele pode aceitar algumas e recusar outras.' : resp ? 'As alterações aprovadas entram no seu plano; as recusadas ficam de fora.' : 'Enquanto o consultor não responde, a proposta não pode ser mudada. Para mudar algo, cancele o envio.'}</div>
+  document.getElementById('propModalC').innerHTML = `<h3>${PAPEL === 'apresentar' ? 'Proposta do cliente' : rasc ? 'Revisar a proposta' : resp ? 'Resposta do consultor' : 'Proposta enviada'}</h3>
+    <div class="muted">${PAPEL === 'apresentar' ? 'Proposta enviada pelo cliente. Para aprovar ou recusar, use Propostas do cliente, no portal.' : rasc ? 'Estas alterações vão para o seu consultor. Nada muda no seu plano até ele aprovar, e ele pode aceitar algumas e recusar outras.' : resp ? 'As alterações aprovadas entram no seu plano; as recusadas ficam de fora.' : 'Enquanto o consultor não responde, a proposta não pode ser mudada. Para mudar algo, cancele o envio.'}</div>
     <div class="alts">${linhas || '<div class="alt"><div class="o">Nenhuma alteração</div></div>'}</div>
     ${rasc ? `<label class="muted" for="propMsg">Mensagem para o consultor (opcional)</label><textarea id="propMsg" placeholder="Ex.: consegui um aumento a partir de março e quero antecipar a viagem.">${escH(PROP.mensagem)}</textarea>` : PROP.mensagem ? `<div class="muted">Sua mensagem: “${escH(PROP.mensagem)}”</div>` : ''}
     ${resp && PROP.nota ? `<div class="nota-resp"><b>Consultor:</b> ${escH(PROP.nota)}</div>` : ''}
-    <div class="bts">${resp ? '' : '<button class="btn btn-secondary btn-small" data-prop="baixar" title="Para mandar ao consultor por outro caminho">Baixar proposta (.json)</button>'}<button class="btn btn-secondary btn-small" data-prop="fechar">Fechar</button>${rasc ? `<button class="btn btn-primary btn-small" data-prop="enviar"${PROP.ops.length ? '' : ' disabled'}>Enviar ao consultor</button>` : ''}</div>`;
+    <div class="bts"><button class="btn btn-secondary btn-small" data-prop="fechar">Fechar</button>${rasc ? `<button class="btn btn-primary btn-small" data-prop="enviar"${PROP.ops.length ? '' : ' disabled'}>Enviar ao consultor</button>` : ''}</div>`;
   document.getElementById('propModal').hidden = false;
 }
 const fecharRevisao = () => { document.getElementById('propModal').hidden = true; };
@@ -1515,17 +1598,16 @@ document.addEventListener('click', e => {
   if (a === 'revisar') abrirRevisao();
   else if (a === 'fechar') fecharRevisao();
   else if (a === 'enviar') { PROP.mensagem = (document.getElementById('propMsg') || {}).value || ''; PROP.status = 'pendente'; PROP.enviadaEm = new Date().toISOString(); salvaProposta(); fecharRevisao(); desenhaPropBar(); avisar('Proposta enviada ao seu consultor.'); }
-  else if (a === 'baixar') { if (document.getElementById('propMsg')) PROP.mensagem = document.getElementById('propMsg').value; salvaProposta(); const bl = new Blob([JSON.stringify(PROP, null, 2)], { type: 'application/json' }), l = document.createElement('a'); l.href = URL.createObjectURL(bl); l.download = 'proposta-' + (BASE.name || 'cliente').toLowerCase().replace(/[^a-z0-9]+/g, '-') + '.json'; l.click(); URL.revokeObjectURL(l.href); }
   else if (a === 'cancelar') { PROP.status = 'rascunho'; delete PROP.enviadaEm; salvaProposta(); desenhaPropBar(); avisar('Envio cancelado. A proposta voltou para você.'); }
   else if (a === 'descartar') {   // dois cliques: o primeiro pede confirmação no próprio botão
     if (!bt.dataset.armed) { bt.dataset.armed = '1'; bt.textContent = 'Descartar tudo? Clique de novo'; return; }
     PROP = null; salvaProposta(); aplicaVista(); avisar('Proposta descartada.');
   }
   else if (a === 'ok') { PROP = null; salvaProposta(); VER = 'proposta'; aplicaVista(); }
-  else if (a === 'atualizar') {   // o plano aprovado está no navegador (mesmo computador do consultor): recarrega a tela com ele
-    let novo = null; try { novo = JSON.parse(localStorage.getItem('nl-plano') || 'null'); } catch (err) { }
-    if (novo && (novo.propostas || []).some(x => x.id === PROP.id)) { history.replaceState(null, '', location.pathname + location.search); location.reload(); }
-    else avisar('Peça ao seu consultor o link ou o arquivo do plano atualizado.');
+  else if (a === 'atualizar') {   // o plano com a resposta ainda não chegou a esta tela: busca o último gravado
+    const novo = ARMAZEM.ler('plano');
+    if (novo && (novo.propostas || []).some(x => x.id === PROP.id)) trocaBase(novo);
+    else avisar('O plano atualizado ainda não chegou. Ele aparece aqui assim que o consultor gravar.');
   }
 });
 document.getElementById('propModal').addEventListener('mousedown', e => { if (e.target.id === 'propModal') fecharRevisao(); });
@@ -1573,29 +1655,78 @@ function abrirCelula(r, b, px, py) {
   const mi = Math.max(0, b.mi), porMes = VB.lvl === 'month' || VB.lvl === 'week', mes = ENGINE.mesDoPlano(mi);
   const atual = it.exc && it.exc[mi] != null ? +it.exc[mi] : ENGINE.stepAt(it, mi);
   cellCtx = { r, mi };
+  const nova = temAlteracoes() && PROP.ops.some(a => a.tipo === 'linha' && a.acao === 'nova' && a.id === r.edit.id);
   cellPop.innerHTML = `<h5>${escH(r.label)}</h5><div class="q">${mes} · hoje ${fmt(atual)} ${FREQ_TXT[it.frequency || 'mensal'] || 'por ocorrência'}</div>
     <input type="text" id="cpV" inputmode="decimal" value="${fmt(atual)}">
     <div class="modos"><label><input type="radio" name="cpm" value="dali" checked> A partir de ${mes}</label>${porMes ? `<label><input type="radio" name="cpm" value="mes"> Só em ${mes}</label>` : ''}</div>
     <div class="nota">${porMes ? '' : 'Aproxime até o mês (Ctrl + rodinha) para mudar um mês só. '}Vai para a sua proposta: o consultor decide se entra no plano.</div>
+    <button class="rmlinha" data-cp="${nova ? 'tirar' : 'remover'}">${nova ? 'Tirar esta linha da proposta' : 'Remover esta linha a partir de ' + mes}</button>
     <div class="bts"><button class="btn btn-secondary btn-small" data-cp="fechar">Cancelar</button><button class="btn btn-primary btn-small" data-cp="ok">Incluir na proposta</button></div>`;
+  mostraPop(px, py); const inp = document.getElementById('cpV'); inp.focus(); inp.select();
+}
+function mostraPop(px, py) {
   cellPop.hidden = false;
   const wr = document.getElementById('wrap').getBoundingClientRect(), w = cellPop.offsetWidth, h = cellPop.offsetHeight;
   cellPop.style.left = Math.max(8, Math.min(wr.width - w - 8, px + 12)) + 'px'; cellPop.style.top = Math.max(8, Math.min(wr.height - h - 8, py + 12)) + 'px';
-  const inp = document.getElementById('cpV'); inp.focus(); inp.select();
+}
+// linha nova: clique na célula de Entradas, Saídas, Fixas ou Ajustáveis, no mês em que ela começa
+function abrirNovaLinha(r, b, px, py) {
+  if (PROP && PROP.status === 'pendente') { avisar('Sua proposta está com o consultor. Cancele o envio para mudar algo.'); return; }
+  const mi = Math.max(0, b.mi), mes = ENGINE.mesDoPlano(mi), entrada = r.novo.lista === 'incomes';
+  cellCtx = { r, mi, nova: true };
+  cellPop.innerHTML = `<h5>${entrada ? 'Nova entrada' : 'Nova saída'}</h5><div class="q">todo mês, a partir de ${mes}</div>
+    <div class="campo"><span>Nome</span><input type="text" id="cpNome" placeholder="${entrada ? 'Ex.: aluguel do apartamento' : 'Ex.: academia'}" style="text-align:left;font-weight:500"></div>
+    ${entrada ? `<div class="campo"><span>Tipo</span><select id="cpTipo"><option value="ativa">Renda do trabalho</option><option value="passiva">Renda passiva (aluguel, dividendos)</option></select></div>`
+      : !r.novo.group ? `<div class="campo"><span>Tipo</span><select id="cpTipo"><option value="fix">Fixa</option><option value="adj">Ajustável</option></select></div>` : ''}
+    <div class="campo"><span>Valor por mês</span><input type="text" id="cpV" inputmode="decimal" placeholder="R$ 0"></div>
+    <div class="nota">Vai para a sua proposta: o consultor decide se entra no plano.</div>
+    <div class="bts"><button class="btn btn-secondary btn-small" data-cp="fechar">Cancelar</button><button class="btn btn-primary btn-small" data-cp="ok">Incluir na proposta</button></div>`;
+  mostraPop(px, py); document.getElementById('cpNome').focus();
 }
 function salvarCelula() {
   if (!cellCtx) return;
+  if (cellCtx.nova) {
+    const { r, mi } = cellCtx, nome = document.getElementById('cpNome').value.trim(), v = lerReais(document.getElementById('cpV').value), tipo = (document.getElementById('cpTipo') || {}).value;
+    if (!nome) { avisar('Dê um nome para a linha.'); return; }
+    if (!(v > 0)) { avisar('Informe o valor por mês.'); return; }
+    const alt = { tipo: 'linha', acao: 'nova', lista: r.novo.lista, id: 'cli_' + Date.now().toString(36), label: nome, mi, para: v, de: null };
+    if (r.novo.lista === 'incomes') alt.kind = tipo || 'ativa'; else alt.group = r.novo.group || tipo || 'fix';
+    fecharCelula(); state.expanded.add(r.id); if (r.novo.lista === 'expenses') state.expanded.add(alt.group === 'adj' ? 'out_adj' : 'out_fix');
+    proporAlteracao([alt]); return;
+  }
   const { r, mi } = cellCtx, v = lerReais(document.getElementById('cpV').value), modo = (cellPop.querySelector('input[name=cpm]:checked') || {}).value || 'dali';
   if (isNaN(v)) { avisar('Informe um valor.'); return; }
   const alt = { tipo: 'fluxo', lista: r.edit.lista, id: r.edit.id, modo, mi, para: v };
-  alt.de = ENGINE.valorAtual(BASE, alt);
+  alt.de = ENGINE.valorAtual(BASE, alt); if (alt.de === undefined) alt.de = null;   // linha nova da proposta: não existe no plano
   fecharCelula(); proporAlteracao([alt]);
 }
-cellPop.addEventListener('click', e => { const b = e.target.closest('[data-cp]'); if (!b) return; if (b.dataset.cp === 'ok') salvarCelula(); else fecharCelula(); });
+cellPop.addEventListener('click', e => {
+  const b = e.target.closest('[data-cp]'); if (!b) return;
+  const a = b.dataset.cp, ctxC = cellCtx;
+  if (a === 'ok') salvarCelula();
+  else if (a === 'remover' && ctxC) {   // a linha deixa de existir a partir deste mês
+    const alt = { tipo: 'linha', acao: 'remover', lista: ctxC.r.edit.lista, id: ctxC.r.edit.id, mi: ctxC.mi };
+    alt.de = ENGINE.valorAtual(BASE, alt); fecharCelula(); proporAlteracao([alt]);
+  }
+  else if (a === 'tirar' && ctxC) {   // linha nova da proposta: sai com tudo o que foi proposto nela
+    const id = ctxC.r.edit.id; fecharCelula();
+    PROP.ops = PROP.ops.filter(o => o.id !== id || o.tipo === 'objetivo'); salvaProposta(); aplicaVista(); avisar('Linha tirada da proposta.');
+  }
+  else fecharCelula();
+});
 cellPop.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); salvarCelula(); } else if (e.key === 'Escape') fecharCelula(); });
 document.addEventListener('mousedown', e => { if (cellCtx && !e.target.closest('#cellPop') && e.target !== cv) fecharCelula(); });
-// outra janela (a do fluxo, ou a tela do consultor no mesmo navegador) mudou a proposta
-addEventListener('storage', e => { if (e.key === PROP_KEY) { PROP = lerProposta(); respostaNoPlano(); aplicaVista(); } });
+// o consultor (de onde estiver) ou outra janela mudou a proposta ou o plano
+ARMAZEM.ouvir('proposta', () => { PROP = lerProposta(); respostaNoPlano(); aplicaVista(); });
+ARMAZEM.ouvir('plano', plan => { if (plan) trocaBase(plan); });
+// plano novo sem mudar a idade: troca a base sem mexer no que está à vista (zoom, linhas abertas)
+function trocaBase(plan) {
+  if (plan.age != null && +plan.age !== ENGINE.CURRENT_AGE) { applyPlan(plan); return; }
+  ENGINE.configure(structuredClone(plan)); PLANO = plan; BASE = baseDe(plan); saudar(plan);
+  PROP = lerProposta(); respostaNoPlano(); aplicaVista();
+}
+// na nuvem, só o dono do link é consultor: quem mais abrir a apresentação cai na visão do cliente
+ARMAZEM.iniciar().then(info => { if (PAPEL === 'apresentar' && !info.dono) location.replace(location.pathname + (FLUXO ? '?fluxo' : '')); });
 
 BASE = baseDe(PLANO); PROP = lerProposta(); respostaNoPlano();
 if (temAlteracoes()) aplicaVista(); else desenhaPropBar();

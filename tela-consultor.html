@@ -381,8 +381,8 @@ circle.pv-hit{cursor:ns-resize}
   </nav>
   <div class="foot">
     <button class="btn btn-primary" id="btnOpen"><svg viewBox="0 0 24 24"><path d="M15 3h6v6M10 14L21 3M18 13v8H3V6h8"/></svg>Abrir visão do cliente</button>
-    <button class="btn btn-secondary" id="btnExport" style="width:100%;margin-top:9px"><svg viewBox="0 0 24 24"><path d="M12 4v12M8 12l4 4 4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>Baixar plano (.json)</button>
-    <div class="muted" style="color:rgba(255,255,255,.45);font-size:11px;margin-top:9px;line-height:1.45">O botão laranja abre a Evolução Patrimonial já com este plano. Se o navegador bloquear, baixe o arquivo e carregue-o pelo botão “Plano” na tela do cliente.</div>
+    <a class="btn btn-secondary" id="btnComoCliente" href="evolucao-patrimonial.html" target="_blank" style="width:100%;margin-top:9px;text-decoration:none">Ver como o cliente vê</a>
+    <div class="muted" id="notaArmazem" style="color:rgba(255,255,255,.45);font-size:11px;margin-top:9px;line-height:1.45">O plano é gravado e chega sozinho à área do cliente. O que ele propuser aparece em Propostas do cliente.</div>
   </div>
 </aside>
 
@@ -487,9 +487,8 @@ circle.pv-hit{cursor:ns-resize}
 
   <section class="page" data-page="propostas">
     <h2><svg viewBox="0 0 24 24"><path d="M22 12h-6l-2 3h-4l-2-3H2M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/></svg>Propostas do cliente</h2>
-    <div class="hint">Na área dele, o cliente pode propor outros valores no fluxo de caixa, outro custo ou outra data para um objetivo, e outra idade para parar de trabalhar. Nada disso muda o plano: cada alteração só entra quando você aprovar. Aprove ou recuse uma a uma e conclua a resposta; o cliente vê o resultado na tela dele.</div>
+    <div class="hint">Na área dele, o cliente pode propor outros valores no fluxo de caixa, linhas novas ou a remoção de uma linha, outro custo ou outra data para um objetivo, e outra idade para parar de trabalhar. Nada disso muda o plano: cada alteração só entra quando você aprovar. Aprove ou recuse uma a uma e conclua a resposta; o cliente vê o resultado na tela dele.</div>
     <div id="propC"></div>
-    <div class="pc-acoes"><label class="btn btn-secondary" title="Proposta baixada pelo cliente na tela dele">Carregar proposta (.json)<input type="file" id="fProp" accept="application/json,.json" hidden></label></div>
   </section>
 </main>
 
@@ -908,11 +907,13 @@ const ENGINE = (() => {
   //   { tipo: 'fluxo', lista: 'incomes' | 'expenses', id, modo: 'dali' | 'mes', mi, de, para }
   //       valor de uma entrada ou saída a partir do mês mi (vale até o próximo degrau) ou só naquele mês
   //   { tipo: 'liberdade', campo: 'retireAge', de, para }                            idade para parar de trabalhar
+  //   { tipo: 'linha', acao: 'nova', lista, id, label, group | kind, mi, para }        nova entrada ou saída mensal, a partir do mês mi
+  //   { tipo: 'linha', acao: 'remover', lista, id, mi, de }                           a linha deixa de existir a partir do mês mi
   // `de` é o valor do plano quando a proposta foi feita: se o consultor mudou o plano depois, a tela avisa.
   const MESES_P = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
   const mesDoPlano = mi => { const d = new Date(2026, 8 + (+mi || 0), 1); return MESES_P[d.getMonth()] + '/' + d.getFullYear(); };
   const reais = v => 'R$ ' + Math.round(+v || 0).toLocaleString('pt-BR');
-  const itemDaAlteracao = (plan, a) => a.tipo === 'objetivo' ? (plan.objectives || []).find(o => o.id === a.id) : a.tipo === 'fluxo' ? (plan[a.lista] || []).find(i => i.id === a.id) : null;
+  const itemDaAlteracao = (plan, a) => a.tipo === 'objetivo' ? (plan.objectives || []).find(o => o.id === a.id) : a.tipo === 'fluxo' || a.tipo === 'linha' ? (plan[a.lista] || []).find(i => i.id === a.id) : null;
   // degrau a partir do mês m, com a mesma regra da tela do consultor: igual ao mês anterior não vira degrau
   function degrauEm(it, m, v) {
     it.steps = (it.steps || []).slice().sort((a, b) => a.from - b.from);
@@ -925,6 +926,7 @@ const ENGINE = (() => {
   }
   // valor que a alteração mexe, no plano dado (para comparar com `de` e mostrar "no plano hoje")
   function valorAtual(plan, a) {
+    if (a.tipo === 'linha') { const it = itemDaAlteracao(plan, a); return a.acao === 'nova' ? (it ? stepAt(sortSteps(Object.assign({}, it)), a.mi) : null) : it ? stepAt(sortSteps(Object.assign({}, it)), a.mi) : undefined; }
     if (a.tipo === 'liberdade') return plan.retireAge == null || plan.retireAge === '' ? null : +plan.retireAge;
     const it = itemDaAlteracao(plan, a); if (!it) return undefined;
     if (a.tipo === 'objetivo') return +it[a.campo];
@@ -936,7 +938,19 @@ const ENGINE = (() => {
   function aplicaAlteracoes(plan, alts) {
     (alts || []).forEach(a => {
       if (a.tipo === 'liberdade') { plan.retireAge = a.para; return; }
+      if (a.tipo === 'linha' && a.acao === 'nova') {   // mesma forma de uma linha criada pelo consultor na planilha
+        if (itemDaAlteracao(plan, a)) return;
+        const it = { id: a.id, label: a.label || 'Nova linha', frequency: 'mensal', days: [5], steps: [{ from: +a.mi, value: +a.para }], description: 'Proposta pelo cliente' };
+        if (a.lista === 'incomes') Object.assign(it, { kind: a.kind || 'ativa', origin: a.kind === 'passiva' ? 'Rendimentos recorrentes' : 'Outras receitas', gross: 0, taxable: true });
+        else it.group = a.group === 'adj' ? 'adj' : 'fix';
+        (plan[a.lista] = plan[a.lista] || []).push(it); return;
+      }
       const it = itemDaAlteracao(plan, a); if (!it) return;
+      if (a.tipo === 'linha') {   // remover a partir de mi: os degraus seguintes e os ajustes somem, e a linha vai a zero
+        it.steps = (it.steps || []).filter(st => st.from < a.mi).concat({ from: +a.mi, value: 0 });
+        if (it.exc) Object.keys(it.exc).forEach(k => { if (parseInt(k, 10) >= a.mi) delete it.exc[k]; });
+        return;
+      }
       if (a.tipo === 'objetivo') { it[a.campo] = +a.para; return; }
       if (a.modo === 'mes') { it.exc = Object.assign({}, it.exc, { [a.mi]: +a.para }); return; }
       degrauEm(it, +a.mi, +a.para);
@@ -945,7 +959,10 @@ const ENGINE = (() => {
   }
   // texto da alteração para as duas telas: o que muda, o valor proposto e o valor de antes
   function descreveAlteracao(plan, a) {
-    const it = itemDaAlteracao(plan, a), val = v => v == null ? 'assim que o patrimônio permitir' : a.tipo === 'liberdade' ? v + ' anos' : a.campo === 'months' ? mesDoPlano(v) : reais(v);
+    const it = itemDaAlteracao(plan, a), val = v => v == null ? (a.tipo === 'liberdade' ? 'assim que o patrimônio permitir' : '—') : a.tipo === 'liberdade' ? v + ' anos' : a.campo === 'months' ? mesDoPlano(v) : reais(v);
+    const lado = a.lista === 'incomes' ? 'entrada' : 'saída';
+    if (a.tipo === 'linha' && a.acao === 'nova') return { oque: 'Nova ' + lado + ' (' + (a.lista === 'incomes' ? (a.kind === 'passiva' ? 'renda passiva' : 'renda do trabalho') : a.group === 'adj' ? 'ajustável' : 'fixa') + '): ' + (a.label || 'sem nome'), de: '—', para: reais(a.para) + '/mês a partir de ' + mesDoPlano(a.mi), atual: it ? 'já existe' : '—', mudou: !!it };
+    if (a.tipo === 'linha') return { oque: (it ? it.label : 'Linha removida') + ': remover a partir de ' + mesDoPlano(a.mi), de: val(a.de), para: 'R$ 0 (sem a linha)', atual: val(valorAtual(plan, a)), mudou: valorAtual(plan, a) !== a.de };
     let oque;
     if (a.tipo === 'liberdade') oque = 'Idade para parar de trabalhar';
     else if (a.tipo === 'objetivo') oque = (it ? it.name : 'Objetivo removido') + ': ' + (a.campo === 'months' ? 'data alvo' : 'custo');
@@ -957,6 +974,69 @@ const ENGINE = (() => {
   return { TODAY, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, PASSIVE, PROFILES, STATUS, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, serieCusto, desiredAt, aplicaAlteracoes, descreveAlteracao, valorAtual, mesDoPlano, setRetireAge: a => { RETIRE_AGE = a == null ? null : Math.max(CURRENT_AGE, +a); }, financiamentoValido, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
 })();
 if (typeof module !== 'undefined') module.exports = ENGINE;
+</script>
+<script id="armazem">
+// ===================== ARMAZÉM: onde o plano e a proposta ficam =====================
+// O consultor grava o plano; o cliente lê o plano e grava a proposta; o consultor responde. Cada um do seu
+// computador. Na área logada da Nord Liberta isto é a API da plataforma; no protótipo há dois modos:
+//   nuvem  o banco compartilhado do link publicado no Claude (claude.use('db')): consultor e cliente abrem o
+//          mesmo link, cada um na sua máquina, e veem as mudanças do outro na hora. Quem é dono do link é o
+//          consultor; quem recebeu o link compartilhado (como Contribuidor) é o cliente.
+//   local  sem esse banco (localhost): o armazenamento do navegador, com as duas telas no mesmo computador.
+// A cópia local também guarda o último estado, para a tela abrir na hora enquanto a nuvem responde.
+const ARMAZEM = (() => {
+  const CHAVE = { plano: 'nl-plano', proposta: 'nl-proposta' }, DOC = { plano: 'plano/atual', proposta: 'propostas/atual' };
+  const ouvintes = { plano: [], proposta: [] }, ultimo = {};
+  let db = null, info = null;
+  const lerLocal = k => { try { return JSON.parse(localStorage.getItem(CHAVE[k]) || 'null'); } catch (e) { return null; } };
+  const gravarLocal = (k, v) => { try { if (v == null) localStorage.removeItem(CHAVE[k]); else localStorage.setItem(CHAVE[k], JSON.stringify(v)); } catch (e) { } };
+  const avisa = (k, v) => { const txt = JSON.stringify(v); if (txt === ultimo[k]) return; ultimo[k] = txt; ouvintes[k].forEach(f => { try { f(v == null ? null : JSON.parse(txt)); } catch (e) { console.error(e); } }); };
+  // resolve { modo: 'nuvem' | 'local', dono }; na nuvem, passa a ouvir o plano e a proposta ao vivo
+  function iniciar() {
+    if (info) return info;
+    info = (async () => {
+      const c = typeof window !== 'undefined' && window.claude && window.claude.use ? window.claude : null;
+      if (c) {
+        const espera = (pr, ms) => Promise.race([pr, new Promise(r => setTimeout(() => r(null), ms))]);
+        try { db = await espera(c.use('db'), 8000); } catch (e) { db = null; }
+        let dono = true; try { const u = await espera(c.use('user'), 4000); if (u) dono = await u.isOwner(); } catch (e) { }
+        if (db) {
+          for (const k of ['plano', 'proposta']) {
+            ultimo[k] = JSON.stringify(lerLocal(k));
+            await new Promise(pronto => {
+              let primeiro = true;
+              db.doc(DOC[k]).onSnapshot(snap => {
+                const v = snap.exists ? structuredClone(snap.data().dados) : null;
+                if (primeiro) { primeiro = false; pronto(); }
+                if (snap.metadata && snap.metadata.hasPendingWrites) return;   // a própria gravação, ainda a caminho
+                gravarLocal(k, v); avisa(k, v);
+              }, () => { if (primeiro) { primeiro = false; pronto(); } });
+              setTimeout(() => { if (primeiro) { primeiro = false; pronto(); } }, 8000);
+            });
+          }
+          return { modo: 'nuvem', dono };
+        }
+      }
+      // local: outra aba deste navegador mudou o plano ou a proposta
+      addEventListener('storage', e => { for (const k in CHAVE) if (e.key === CHAVE[k]) avisa(k, lerLocal(k)); });
+      return { modo: 'local', dono: true };
+    })();
+    return info;
+  }
+  return {
+    iniciar,
+    ler: k => lerLocal(k),                            // o último estado conhecido (na nuvem, o da última atualização)
+    ouvir(k, f) { ouvintes[k].push(f); },             // mudanças feitas por outra pessoa ou outra aba
+    async gravar(k, v) {
+      gravarLocal(k, v); ultimo[k] = JSON.stringify(v);
+      if (!db) return;
+      const ref = db.doc(DOC[k]);
+      try { if (v == null) await ref.delete(); else await ref.set({ dados: v, em: new Date().toISOString() }); }
+      catch (e) { if (e && e.code === 'unavailable') { await new Promise(r => setTimeout(r, 400 + Math.random() * 600)); if (v == null) await ref.delete(); else await ref.set({ dados: v, em: new Date().toISOString() }); } else throw e; }
+    },
+    get nuvem() { return !!db; },
+  };
+})();
 </script>
 
 <script>
@@ -984,7 +1064,17 @@ function load() {
   try { const raw = localStorage.getItem('nl-plano'); if (raw) return Object.assign(structuredClone(PLANO_PADRAO), JSON.parse(raw)); } catch (e) { }
   return structuredClone(PLANO_PADRAO);
 }
-function save() { try { localStorage.setItem('nl-plano', JSON.stringify(plano)); } catch (e) { } }
+function save() { try { localStorage.setItem('nl-plano', JSON.stringify(plano)); } catch (e) { } gravarNuvem(false); }
+// O plano também vai para o armazém compartilhado, de onde a área do cliente lê. Grava depois de uma pausa na
+// digitação (ou já, ao abrir a visão do cliente), só quando mudou, e só depois de ler o que o armazém tinha:
+// num computador novo, o plano do armazém é que vale.
+let nuvemPronta = false, nuvemTimer = null, nuvemUltimo = null;
+function gravarNuvem(agora) {
+  if (!nuvemPronta) return;
+  clearTimeout(nuvemTimer);
+  const vai = () => { const txt = JSON.stringify(plano); if (txt === nuvemUltimo) return; nuvemUltimo = txt; ARMAZEM.gravar('plano', JSON.parse(txt)).catch(() => { nuvemUltimo = null; }); };
+  if (agora) vai(); else nuvemTimer = setTimeout(vai, 1500);
+}
 
 // ---------- utilidades ----------
 const MESES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
@@ -2565,9 +2655,9 @@ document.addEventListener('click', e => {
 // O cliente propõe alterações na tela dele (valores do fluxo, custo e data dos objetivos, idade de parar) e as
 // envia; nada muda no plano até o consultor aprovar. A proposta chega pelo navegador ('nl-proposta') ou por
 // arquivo. A resposta volta ao cliente no próprio plano (plano.propostas) e, no mesmo navegador, na proposta.
-const PROP_KEY = 'nl-proposta';
 let propC = null, decC = { id: null, dec: [], nota: '' };
-function lerPropostaC() { try { const p = JSON.parse(localStorage.getItem(PROP_KEY) || 'null'); return p && Array.isArray(p.ops) ? p : null; } catch (e) { return null; } }
+// o rascunho é do cliente: só aparece aqui o que ele enviou
+function lerPropostaC() { const p = ARMAZEM.ler('proposta'); return p && Array.isArray(p.ops) && p.status !== 'rascunho' ? p : null; }
 const dataHora = iso => { const d = new Date(iso); return isNaN(d) ? '' : d.toLocaleDateString('pt-BR') + ' às ' + String(d.getHours()).padStart(2, '0') + 'h' + String(d.getMinutes()).padStart(2, '0'); };
 function renderPropostas() {
   propC = lerPropostaC();
@@ -2575,10 +2665,7 @@ function renderPropostas() {
   nav.textContent = pend ? propC.ops.length : ''; nav.classList.toggle('tem', !!pend);
   nav.title = pend ? 'Proposta do cliente aguardando sua resposta' : '';
   const el = document.getElementById('propC'); if (!el) return;
-  if (!propC || propC.status === 'rascunho') {
-    el.innerHTML = `<div class="goal-empty">Nenhuma proposta aguardando resposta.${propC && propC.ops.length ? ' O cliente está montando uma proposta com ' + propC.ops.length + (propC.ops.length === 1 ? ' alteração' : ' alterações') + ', ainda não enviada.' : ''}</div>`;
-    return;
-  }
+  if (!propC) { el.innerHTML = `<div class="goal-empty">Nenhuma proposta aguardando resposta. Quando o cliente enviar uma, ela aparece aqui, de onde ele estiver.</div>`; return; }
   const outro = (propC.planoNome || '') !== (plano.name || '');
   if (propC.id !== decC.id) decC = { id: propC.id, dec: propC.status === 'respondida' ? (propC.decisoes || []).slice() : [], nota: propC.status === 'respondida' ? propC.nota || '' : '' };
   const resp = propC.status === 'respondida';
@@ -2593,7 +2680,7 @@ function renderPropostas() {
     ${outro ? `<div class="warn">Esta proposta é do plano de "${esc(propC.planoNome || 'sem nome')}", e o plano aberto é "${esc(plano.name || 'sem nome')}". Abra o plano desse cliente para responder.</div>` : ''}
     ${propC.mensagem ? `<div class="pc-msg">“${esc(propC.mensagem)}”</div>` : ''}
     <div class="tablewrap"><table class="pc-tab"><thead><tr><th>Alteração</th><th>No plano hoje</th><th>Proposto</th><th style="text-align:right">${resp ? 'Decisão' : 'Sua decisão'}</th></tr></thead><tbody>${linhas}</tbody></table></div>
-    ${resp ? (decC.nota ? `<div class="ok-note" style="margin-top:12px">Sua resposta: ${esc(decC.nota)}</div>` : '') + `<div class="note">As alterações aprovadas já estão no plano. O cliente vê a resposta na tela dele (no mesmo navegador, na hora; em outro computador, quando receber o plano atualizado pelo link ou pelo arquivo).</div>`
+    ${resp ? (decC.nota ? `<div class="ok-note" style="margin-top:12px">Sua resposta: ${esc(decC.nota)}</div>` : '') + `<div class="note">As alterações aprovadas já estão no plano, e o cliente já vê a resposta na área dele.</div>`
       : `<div class="field" style="margin-top:14px"><label>Resposta ao cliente (opcional)</label><textarea id="pcNota" placeholder="Ex.: a viagem cabe em dezembro, mas o lazer precisa continuar como está.">${esc(decC.nota)}</textarea></div>
     <div class="pc-acoes"><button class="btn btn-secondary" data-pc="todas:aprovada">Aprovar todas</button><button class="btn btn-secondary" data-pc="todas:recusada">Recusar todas</button><button class="btn btn-secondary" data-abrir-cliente title="A visão do cliente mostra o plano com e sem as alterações">Ver o efeito na visão do cliente</button>
       <button class="btn btn-primary" data-pc="concluir"${faltam || outro ? ' disabled style="opacity:.5;cursor:not-allowed"' : ''}>Concluir resposta${faltam ? ' (faltam ' + faltam + ')' : ''}</button></div>`}
@@ -2615,17 +2702,11 @@ function concluirResposta() {
   ENGINE.aplicaAlteracoes(plano, aprovadas);
   plano.propostas = (plano.propostas || []).filter(x => x.id !== propC.id).concat({ id: propC.id, em, decisoes: decC.dec.slice(), nota: decC.nota });
   Object.assign(propC, { status: 'respondida', decisoes: decC.dec.slice(), nota: decC.nota, respondidaEm: em });
-  try { localStorage.setItem(PROP_KEY, JSON.stringify(propC)); } catch (e) { }
-  fillFields(); renderAll();
+  fillFields(); renderAll(); gravarNuvem(true);   // o plano com as aprovadas vai antes da resposta, para o cliente já recebê-lo junto
+  ARMAZEM.gravar('proposta', propC).catch(() => alert('Não consegui gravar a resposta. Tente de novo.'));
 }
-document.getElementById('fProp').addEventListener('change', ev => {
-  const f = ev.target.files[0]; if (!f) return;
-  const rd = new FileReader();
-  rd.onload = () => { try { const p = JSON.parse(rd.result); if (!Array.isArray(p.ops)) throw new Error('não é uma proposta'); if (p.status === 'rascunho') p.status = 'pendente'; localStorage.setItem(PROP_KEY, JSON.stringify(p)); renderPropostas(); } catch (e) { alert('Não consegui ler essa proposta: ' + e.message); } };
-  rd.readAsText(f); ev.target.value = '';
-});
-// a proposta chegou ou mudou em outra aba (a visão do cliente no mesmo navegador)
-addEventListener('storage', e => { if (e.key === PROP_KEY) renderPropostas(); });
+// a proposta chegou ou mudou (enviada pelo cliente, de onde ele estiver)
+ARMAZEM.ouvir('proposta', () => renderPropostas());
 
 // páginas do portal: cada assunto numa página, na ordem em que o plano é montado
 const PAGINAS = ['cliente', 'fluxo', 'patrimonio', 'objetivos', 'liberdade', 'propostas'];
@@ -2664,22 +2745,16 @@ document.addEventListener('click', e => { if (e.target.closest('[data-abrir-clie
 document.getElementById('btnNovo').onclick = e => trocarPlano(e.currentTarget, planoVazio, '+ Novo cliente');
 document.getElementById('btnExemplo').onclick = e => trocarPlano(e.currentTarget, () => structuredClone(PLANO_PADRAO), 'ver exemplo');
 
-// abrir a visão do cliente com este plano no hash
+// abrir a visão do cliente para apresentar: o plano vai gravado e também no endereço, e as ferramentas de proposta ficam de fora
 document.getElementById('btnOpen').onclick = () => {
   const json = JSON.stringify(plano);
   const b64 = btoa(String.fromCharCode(...new TextEncoder().encode(json))).replace(/\+/g, '-').replace(/\//g, '_');
-  save();
-  window.open('evolucao-patrimonial.html#plano=' + b64, '_blank');
+  save(); gravarNuvem(true);
+  window.open('evolucao-patrimonial.html?apresentar#plano=' + b64, '_blank');
 };
 
-document.getElementById('btnExport').onclick = () => {
-  save();
-  const blob = new Blob([JSON.stringify(plano, null, 2)], { type: 'application/json' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'plano-' + plano.name.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '.json';
-  a.click(); URL.revokeObjectURL(a.href);
-};
+// "Ver como o cliente vê": a mesma tela que o cliente tem na área logada, com as ferramentas de proposta
+document.getElementById('btnComoCliente').addEventListener('click', () => gravarNuvem(true));
 
 // preencher os campos fixos e desenhar
 // plano de uma pessoa: o campo e a orientação do cônjuge saem da página Cliente
@@ -2710,6 +2785,19 @@ function fillFields() {
   document.getElementById('f-cap').value = plano.capacityOverride == null ? '' : money(plano.capacityOverride);
 }
 fillFields(); renderAll(); irPara(location.hash.slice(1));
+// Armazém: na nuvem, só o dono do link é consultor (quem mais abrir vai para a área do cliente), e o plano gravado lá
+// substitui o deste navegador; depois disso, cada mudança do consultor volta a ser gravada.
+ARMAZEM.iniciar().then(info => {
+  if (!info.dono) { location.replace('evolucao-patrimonial.html'); return; }
+  const doArmazem = ARMAZEM.ler('plano');
+  if (info.modo === 'nuvem' && doArmazem && JSON.stringify(doArmazem) !== JSON.stringify(plano)) { plano = Object.assign(structuredClone(PLANO_PADRAO), doArmazem); fx.t0 = null; fillFields(); }
+  nuvemPronta = true; renderAll();
+  if (info.modo === 'nuvem') gravarNuvem(true);   // banco ainda vazio: o plano deste navegador passa a ser o do cliente
+  else document.getElementById('notaArmazem').textContent = 'Neste computador, o plano e as propostas ficam no navegador: abra a área do cliente aqui mesmo para testar. No link publicado, cada um usa o seu computador.';
+  document.documentElement.style.visibility = '';
+});
+// no link publicado, a página só aparece depois de saber quem está vendo (o cliente não vê o portal)
+if (window.claude) { document.documentElement.style.visibility = 'hidden'; setTimeout(() => { document.documentElement.style.visibility = ''; }, 6000); }
 addEventListener('resize', () => renderFluxo());
 </script>
 </body>

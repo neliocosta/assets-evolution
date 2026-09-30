@@ -17,38 +17,47 @@ além das fontes do Google, e abrem direto no navegador.
 
 ## Como as duas telas se conectam
 
-O consultor configura o plano e tem dois caminhos para levá-lo à tela do cliente:
-
-1. **Botão "Abrir visão do cliente"** — abre a tela do cliente com o plano codificado no final da URL
-   (`evolucao-patrimonial.html#plano=<base64>`). É o caminho de um clique.
-2. **Botão "Baixar plano (.json)"** — salva um arquivo que o cliente carrega pelo botão "Plano", no topo
-   da tela de Evolução Patrimonial. Funciona em qualquer navegador, inclusive quando a abertura de abas
-   é bloqueada ou quando os arquivos estão em máquinas diferentes.
-
-O plano também fica salvo no `localStorage` do navegador, então a tela do consultor reabre no ponto em que parou.
+O consultor configura o plano no portal, e ele é gravado sozinho no armazém compartilhado (veja "Quem vê o quê e
+onde os dados ficam", abaixo), de onde a área do cliente lê. Não há arquivo para trocar. O portal reabre no ponto
+em que parou.
 
 Na tela do cliente, o botão **"Fluxo de caixa"** abre a tabela numa janela própria, sem o gráfico e ocupando a tela
-toda (`evolucao-patrimonial.html?fluxo#plano=<base64>`). Ela abre nos próximos 24 meses, mês a mês, com entradas
-e saídas já detalhadas, e leva o plano como está na tela (datas de objetivos e idade de parar arrastadas incluídas).
+toda (`evolucao-patrimonial.html?fluxo`). Ela abre nos próximos 24 meses, mês a mês, com entradas e saídas já
+detalhadas, e mostra o mesmo plano e a mesma proposta da tela principal.
 
 ## Propostas do cliente
 
-A tela do cliente mostra o plano aprovado pelo consultor. O cliente pode mudar, na própria tela, o valor de uma
-entrada ou saída do fluxo de caixa (clique na célula: a partir daquele mês ou só naquele mês), o custo e a data
-alvo de um objetivo (no card do marco, ou arrastando o marco) e a idade para parar de trabalhar (no card da
-Liberdade Financeira, ou arrastando-a). **Nada disso muda o plano**: cada mudança vira uma alteração numa
-proposta, e a tela alterna entre "Plano atual" e "Com as alterações" para o cliente ver o efeito.
+A tela do cliente mostra o plano aprovado pelo consultor. O cliente pode, na própria tela:
 
-O cliente revisa e envia a proposta. O consultor abre **Propostas do cliente** (no menu, com o número de
-alterações), aprova ou recusa uma a uma, escreve uma resposta e conclui. Só as aprovadas entram no plano.
+- mudar o valor de uma entrada ou saída (clique na célula: a partir daquele mês ou só naquele mês);
+- criar uma entrada ou saída nova (clique na célula de Entradas, Saídas, Fixas ou Ajustáveis, no mês em que ela
+  começa) ou remover uma linha a partir de um mês (no mesmo clique da célula);
+- mudar o custo e a data alvo de um objetivo (no card do marco, ou arrastando o marco);
+- mudar a idade para parar de trabalhar (no card da Liberdade Financeira, ou arrastando-a).
 
-- No protótipo, a proposta vai pelo navegador (`localStorage`, chave `nl-proposta`) ou por arquivo (`Baixar
-  proposta (.json)` no cliente, `Carregar proposta (.json)` no consultor).
-- A resposta fica registrada no próprio plano (`propostas: [{ id, em, decisoes, nota }]`), então chega ao cliente
-  também quando o plano atualizado vai por link ou arquivo.
-- Formato de cada alteração e as funções que a aplicam (`aplicaAlteracoes`, `descreveAlteracao`) estão no motor,
-  compartilhado pelas duas telas.
+**Nada disso muda o plano**: cada mudança vira uma alteração numa proposta, e a tela alterna entre "Plano atual" e
+"Com as alterações" para o cliente ver o efeito. Ele revisa e envia; o consultor abre **Propostas do cliente** (no
+menu, com o número de alterações), aprova ou recusa uma a uma, responde e conclui. Só as aprovadas entram no plano,
+e a resposta fica registrada nele (`propostas: [{ id, em, decisoes, nota }]`).
 
+## Quem vê o quê e onde os dados ficam
+
+- **Cliente**: só a tela de Evolução Patrimonial (`evolucao-patrimonial.html`), com as ferramentas de proposta.
+  Nada de preparo do consultor, nada para carregar ou baixar.
+- **Consultor**: o portal (`tela-consultor.html`). "Abrir visão do cliente" apresenta o plano
+  (`evolucao-patrimonial.html?apresentar`): sem editar, e mostrando a proposta que o cliente enviou.
+  "Ver como o cliente vê" abre a tela exatamente como o cliente a tem.
+
+O plano e a proposta ficam num armazém (`<script id="armazem">`, duplicado nas duas telas como o motor e sincronizado
+pelo `sync-motor.js`). Na área logada da Nord Liberta, ele é a API da plataforma. No protótipo:
+
+- **no link publicado no Claude**, é o banco compartilhado do próprio link (documentos `plano/atual` e
+  `propostas/atual`): o consultor (dono do link) e o cliente (com quem o link foi compartilhado, como Contribuidor)
+  usam cada um o seu computador e veem as mudanças do outro na hora. Quem não é dono cai na área do cliente;
+- **em localhost**, é o armazenamento do navegador, com as duas telas no mesmo computador.
+
+Não há troca de arquivos: o consultor grava o plano (sozinho, a cada pausa na edição), o cliente grava a proposta, e
+cada tela ouve o que a outra gravou.
 ## Formato do plano
 
 ```jsonc

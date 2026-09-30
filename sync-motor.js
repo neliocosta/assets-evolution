@@ -1,8 +1,14 @@
-// Copia o bloco do motor da tela do cliente para a tela do consultor.
-// As duas telas são autocontidas, então o motor é duplicado de propósito; rode isto após mexer nele.
+// Copia o motor e o armazém da tela do cliente para a tela do consultor.
+// As duas telas são autocontidas, então os dois blocos são duplicados de propósito; rode isto após mexer neles.
 const fs = require('fs');
-const eng = fs.readFileSync('evolucao-patrimonial.html', 'utf8').match(/<script id="engine">[\s\S]*?<\/script>/)[0];
+const origem = fs.readFileSync('evolucao-patrimonial.html', 'utf8');
 const p = 'tela-consultor.html';
-const s = fs.readFileSync(p, 'utf8').replace(/<script id="engine">[\s\S]*?<\/script>/, eng);
+let s = fs.readFileSync(p, 'utf8');
+for (const id of ['engine', 'armazem']) {
+  const re = new RegExp('<script id="' + id + '">[\\s\\S]*?<\\/script>');
+  const bloco = origem.match(re)[0];
+  if (re.test(s)) s = s.replace(re, () => bloco);
+  else s = s.replace(/(<script id="engine">[\s\S]*?<\/script>)/, (m) => m + '\n' + bloco);   // primeira vez: logo depois do motor
+  console.log(id + ' sincronizado (' + Math.round(bloco.length / 1024) + ' KB)');
+}
 fs.writeFileSync(p, s);
-console.log('motor sincronizado (' + Math.round(eng.length / 1024) + ' KB)');
