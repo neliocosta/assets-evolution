@@ -27,6 +27,10 @@ O consultor configura o plano e tem dois caminhos para levá-lo à tela do clien
 
 O plano também fica salvo no `localStorage` do navegador, então a tela do consultor reabre no ponto em que parou.
 
+Na tela do cliente, o botão **"Fluxo de caixa"** abre a tabela numa janela própria, sem o gráfico e ocupando a tela
+toda (`evolucao-patrimonial.html?fluxo#plano=<base64>`). Ela abre nos próximos 24 meses, mês a mês, com entradas
+e saídas já detalhadas, e leva o plano como está na tela (datas de objetivos e idade de parar arrastadas incluídas).
+
 ## Formato do plano
 
 ```jsonc

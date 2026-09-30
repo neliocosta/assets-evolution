@@ -60,7 +60,11 @@ canvas#main.grab-obj{cursor:ew-resize}
 #tip .vida>span{display:block;font-size:11px;color:#2b6e45}
 #tip .vida>b{display:block;font:600 17px Sora,sans-serif;color:#1f5a37;margin:1px 0 4px}
 #tip .vida-d{display:flex;flex-direction:column;gap:2px;font-size:11.5px;color:#3f4a45}
-#hint{position:absolute;left:0;right:0;bottom:0;padding:7px 16px;background:#fff;border-top:1px solid #f1efec;font-size:11px;color:#999;pointer-events:none}
+.ajuda{width:26px;height:26px;border-radius:50%;background:#F0EEE9;color:#8a8a8a;font:700 12px 'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center;cursor:help;flex:0 0 auto}
+/* janela só do fluxo de caixa (?fluxo): sem o gráfico, a tabela ocupa a tela toda */
+body.fluxo .legend,body.fluxo #segView,body.fluxo #btnPlay,body.fluxo #btnSkip,body.fluxo #btnPlano,body.fluxo #btnFluxo,body.fluxo .hello{display:none!important}
+#btnVoltar{display:none} body.fluxo #btnVoltar{display:flex}
+body.fluxo .stats{margin-left:auto}
 #overlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;z-index:10;background:rgba(32,52,76,.28)}
 #overlay.show{display:flex}
 #confetti{position:absolute;inset:0;pointer-events:none}
@@ -122,15 +126,17 @@ canvas#main.grab-obj{cursor:ew-resize}
   <div class="seg" id="segMode"><button class="on" data-m="perp" title="A retirada mensal é só o rendimento: o patrimônio fica estável e a renda dura para sempre.">Perpetuidade</button><button data-m="cons" title="A retirada mensal consome também o principal, de forma planejada, até a expectativa de vida.">Consumo até <span id="lblLife">95</span></button><button data-m="desej" title="A retirada mensal é só o que falta para a renda desejada. O patrimônio pode acabar antes da expectativa de vida ou sobrar.">Renda desejada</button></div>
   <div id="modeNote" hidden>Nesta opção o patrimônio é consumido de propósito: ele chega a zero na expectativa de vida configurada, depois de ter pago o padrão de vida desejado todos os meses.</div>
   <button class="btn btn-secondary" id="btnHome" title="Voltar para hoje (zoom de 6 anos)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.5"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg>Hoje</button>
-  <label class="btn btn-secondary" title="Carregar um plano exportado pela tela do consultor"><svg viewBox="0 0 24 24"><path d="M12 16V4M8 8l4-4 4 4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>Plano<input type="file" id="fPlan" accept="application/json,.json" hidden></label>
+  <button class="btn btn-secondary" id="btnFluxo" title="Abrir o fluxo de caixa numa janela própria, sem o gráfico"><svg viewBox="0 0 24 24"><path d="M3 5h18M3 12h18M3 19h18M8 3v18"/></svg>Fluxo de caixa</button>
+  <button class="btn btn-secondary" id="btnVoltar" title="Fechar o fluxo de caixa e voltar ao gráfico">← Voltar ao gráfico</button>
+  <label class="btn btn-secondary" id="btnPlano" title="Carregar um plano exportado pela tela do consultor"><svg viewBox="0 0 24 24"><path d="M12 16V4M8 8l4-4 4 4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>Plano<input type="file" id="fPlan" accept="application/json,.json" hidden></label>
+  <span class="ajuda" id="ajuda" tabindex="0">?</span>
   <button class="btn btn-secondary" id="btnSkip" hidden title="Ir direto ao final, sem esperar a animação">Pular animação</button>
   <button class="btn btn-primary" id="btnPlay"><svg viewBox="0 0 24 24"><path d="M6 4l14 8-14 8z"/></svg><span>Reproduzir</span></button>
 </header>
 <div id="wrap">
   <canvas id="main"></canvas>
   <div id="tip"></div>
-  <div id="hint">Scroll anda no tempo, Ctrl + scroll dá zoom, Shift + scroll também anda, arraste para navegar, Home volta para hoje · Clique numa linha do fluxo para detalhar · Clique num marco para ver o objetivo, arraste-o para mudar a data; arraste a Liberdade Financeira para mudar a idade de parar</div>
-  <div id="overlay">
+    <div id="overlay">
     <canvas id="confetti"></canvas>
     <div class="card" id="card">
       <button class="close" id="btnClose" title="Fechar (Esc)" aria-label="Fechar">×</button>
@@ -560,6 +566,9 @@ if (typeof module !== 'undefined') module.exports = ENGINE;
 
 <script>
 // ===================== APLICAÇÃO =====================
+// ?fluxo: janela só do fluxo de caixa, sem o gráfico, aberta pelo botão "Fluxo de caixa"
+const FLUXO = new URLSearchParams(location.search).has('fluxo');
+let PLANO = null;   // plano recebido, para repassar à janela do fluxo com o que o cliente mudou aqui
 // Plano vindo da tela do consultor: #plano=<base64 do JSON>, ou o último salvo no navegador
 (function loadPlan() {
   try {
@@ -567,7 +576,7 @@ if (typeof module !== 'undefined') module.exports = ENGINE;
     let json = null;
     if (m) json = new TextDecoder().decode(Uint8Array.from(atob(decodeURIComponent(m[1]).replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0)));
     else { try { json = localStorage.getItem('nl-plano'); } catch (e) { /* file:// sem storage */ } }
-    if (json) { const plan = JSON.parse(json); ENGINE.configure(plan); saudar(plan); }
+    if (json) { const plan = JSON.parse(json); PLANO = plan; ENGINE.configure(plan); saudar(plan); }
   } catch (e) { console.warn('Plano não aplicado:', e.message); }
 })();
 // "Camila e Rafael Souza" vira "Camila e Rafael"; um nome só vira o primeiro nome
@@ -618,11 +627,11 @@ function applyPlan(plan) {
   if (plan.age != null && +plan.age !== ENGINE.CURRENT_AGE) {
     try { localStorage.setItem('nl-plano', JSON.stringify(plan)); history.replaceState(null, '', location.pathname); location.reload(); return; } catch (e) { }
   }
-  ENGINE.configure(plan);
+  ENGINE.configure(plan); PLANO = plan;
   try { localStorage.setItem('nl-plano', JSON.stringify(plan)); } catch (e) { }
   state.mode = ENGINE.MODE; marcaModo();
   rerun(); rebuildRows();
-  state.expanded.clear(); state.rowScroll = 0; state.milestonesShown.clear();
+  state.expanded = abertosPorPadrao(); state.rowScroll = 0; state.milestonesShown.clear();
   state.started = false; state.done = false; state.playing = false; state.cursor = W0; state.seg = null;
   state.view = DEFAULT_VIEW(); state.target = null; cv.classList.remove('locked'); setPlayLabel();
   saudar(plan);
@@ -636,27 +645,30 @@ const smoothH = () => Math.round(Math.max(2, Math.min(26, tSpan(state.view) * 3)
 const SV = (key, i) => key === 'bens' || key === 'part' ? readW(sim().weeks[Math.max(W0, Math.min(NW - 1, i))], key) : smoothVal(sim(), key, i, smoothH());
 
 // --- Escalas ---
-const K_T = 6;                       // compressão log do tempo (anos): u = sign(t)·ln(1+|t|/K)
+const K_T = FLUXO ? 1000 : 6;        // compressão log do tempo (anos): u = sign(t)·ln(1+|t|/K); no fluxo, praticamente linear para as colunas terem a mesma largura
 const Y0 = 500000;                   // "joelho" do eixo Y: y = asinh(P/Y0)
 const uOf = t => Math.sign(t) * Math.log(1 + Math.abs(t) / K_T);
 const tOfU = u => Math.sign(u) * K_T * (Math.exp(Math.abs(u)) - 1);
-const T_MIN = 0, T_MAX = 100 - ENGINE.CURRENT_AGE; // linha do tempo começa em "hoje" (pequena margem à esquerda)
+// na janela do fluxo, a linha do tempo começa no início do mês corrente (dia 5), para a primeira coluna ser um mês inteiro
+const T_MIN = FLUXO ? tOf(SIM.perp.weeks.findIndex(w => w.mi === 0)) : 0, T_MAX = 100 - ENGINE.CURRENT_AGE; // linha do tempo começa em "hoje" (pequena margem à esquerda)
 const SPAN_MIN = 16 / WPY, SPAN_MAX = 100;
-const DEFAULT_VIEW = () => ({ uL: uOf(T_MIN), uR: uOf(T_MIN + 6) });
+const DEFAULT_VIEW = () => ({ uL: uOf(T_MIN), uR: uOf(T_MIN + (FLUXO ? 2 : 6)) });   // janela do fluxo abre em 24 meses
 
 const state = {
   view: DEFAULT_VIEW(), target: null,
   mode: ENGINE.MODE, viewKind: 'total',
   playing: false, started: false, done: false, cursor: W0, paused: false,
-  expanded: new Set(), rowScroll: 0, yMax: 1e6, hover: null, drag: null,
+  expanded: abertosPorPadrao(), rowScroll: 0, yMax: 1e6, hover: null, drag: null,
   milestonesShown: new Set(),
 };
 const sim = () => SIM[state.mode];
+// na janela do fluxo, entradas e saídas já abrem detalhadas
+function abertosPorPadrao() { return new Set(FLUXO ? ['in', 'out', 'out_fix', 'out_adj', 'out_obj'] : []); }
 
 // --- Canvas ---
 const cv = document.getElementById('main'), ctx = cv.getContext('2d');
-let W = 0, H = 0, PL = 236, PR = 24, PW = 0, chartTop = 20, chartBot = 0, rowsTop = 0, rowH = 26;
-function resize() { const r = cv.getBoundingClientRect(); W = r.width; H = r.height; const dpr = devicePixelRatio || 1; cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); PW = W - PL - PR; chartBot = Math.round(H * 0.62); rowsTop = chartBot + 60; }
+let W = 0, H = 0, PL = 236, PR = 24, PW = 0, chartTop = 20, chartBot = 0, rowsTop = 0, rowH = FLUXO ? 30 : 28;
+function resize() { const r = cv.getBoundingClientRect(); W = r.width; H = r.height; const dpr = devicePixelRatio || 1; cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); PW = W - PL - PR; chartBot = FLUXO ? 0 : Math.round(H * 0.62); rowsTop = FLUXO ? 46 : chartBot + 60; }
 addEventListener('resize', resize); new ResizeObserver(resize).observe(cv); resize(); // o cabeçalho reflui ao carregar fontes: o canvas precisa acompanhar
 
 const xOfT = t => PL + (uOf(t) - state.view.uL) / (state.view.uR - state.view.uL) * PW;
@@ -705,6 +717,8 @@ function buildRows() {
       { id: 'out_obj', label: 'Objetivos realizados', keys: keysWith('out_obj_'), children: OBJ.map(o => ({ id: 'out_obj_' + o.id, label: o.name, keys: ['out_obj_' + o.id] })) },
       { id: 'out_rendas', label: 'Contratação de rendas (fundos de pensão)', keys: ['out_rendas'], icon: 'convert' },
     ] },
+    // resultado do período: o que entrou menos o que saiu (antes das movimentações no patrimônio)
+    { id: 'saldo', label: 'Saldo (entradas − saídas)', color: C.fin, keys: [], calc: f => { let v = 0; for (const k in f) { if (k.startsWith('in_')) v += f[k]; else if (k.startsWith('out_')) v -= f[k]; } return v; } },
     { id: 'mov', label: 'Movimentações no patrimônio', color: C.mov, keys: keysWith('mov_'), children: [
       { id: 'mov_cofre', label: 'Cofre genérico (reserva)', keys: ['mov_cofre'], icon: 'convert' },
       ...OBJ.map(o => ({ id: 'mov_obj_' + o.id, label: 'Objetivo: ' + o.name, keys: ['mov_obj_' + o.id] })),
@@ -713,7 +727,7 @@ function buildRows() {
   ];
 }
 let ROWS = [];
-const rebuildRows = () => { ROWS = buildRows(); ROWS.unshift(ROWS.pop()); }; // Movimentações no topo
+const rebuildRows = () => { ROWS = buildRows(); ROWS.unshift(ROWS.pop()); }; // Movimentações no topo, saldo depois das saídas
 rebuildRows();
 // linhas visíveis: sub-linhas só aparecem quando têm algum valor na janela visível
 function flatRows() {
@@ -722,7 +736,7 @@ function flatRows() {
   const walk = (r, depth, color) => { if (depth && !hasVal(r)) return; out.push({ r, depth, color }); if (r.children && state.expanded.has(r.id)) r.children.forEach(c => walk(c, depth + 1, color)); };
   ROWS.forEach(r => walk(r, 0, r.color)); return out;
 }
-const rowVal = (r, f) => r.keys.reduce((s, k) => s + (f[k] || 0), 0);
+const rowVal = (r, f) => r.calc ? r.calc(f) : r.keys.reduce((s, k) => s + (f[k] || 0), 0);
 
 // --- Marcos ---
 function milestones() {
@@ -800,6 +814,7 @@ function draw() {
   ctx.clearRect(0, 0, W, H);
   const [w0, w1] = visibleWeeks();
   computeBuckets();
+  if (FLUXO) { drawCashflow(); return; }
   // y max alvo (janela visível)
   let mx = 0; for (let i = w0; i <= w1; i += 4) { const w = weeks[i]; mx = Math.max(mx, state.viewKind === 'total' ? w.fin + w.bens + w.part : w.fin); }
   const tgt = Math.max(mx * 1.12, 50000); state.yMax += (tgt - state.yMax) * 0.12;
@@ -911,7 +926,7 @@ function drawTimeAxis(bot) {
 }
 
 // nível de agregação: o mais fino cujas colunas visíveis tenham largura mínima para exibir o valor em texto
-const MIN_COL = 60, LEVELS = ['week', 'month', 'quarter', 'year', 'multi', 'decade'];
+const MIN_COL = FLUXO ? 40 : 60, LEVELS = ['week', 'month', 'quarter', 'year', 'multi', 'decade'];
 // rótulo do período de cada coluna
 function periodLabel(lvl, b) {
   if (lvl === 'week') { const d = new Date(weekDate(Math.max(b.w0, W0)).getTime() + 3 * 864e5), y = d.getFullYear();
@@ -925,8 +940,9 @@ function periodLabel(lvl, b) {
 }
 let VB = { lvl: 'year', list: [] };
 function listFor(lvl) { const arr = sim().buckets[lvl], [w0, w1] = visibleWeeks(), out = []; for (const b of arr) { if (b.w1 <= w0 || b.w1 <= W0) continue; if (b.w0 > w1) break; out.push(b); } return out; }
+// a coluna cortada pela linha de hoje não decide o nível: estreita, ela empurraria a tabela para o nível de cima
 function computeBuckets() {
-  for (const lvl of LEVELS) { const list = listFor(lvl); const minW = list.reduce((m, b) => { const x0 = Math.max(xOfW(Math.max(b.w0, W0)), PL), x1 = Math.min(xOfW(b.w1), W - PR), full = xOfW(b.w1) - xOfW(b.w0); return (x1 - x0) < full * 0.5 ? m : Math.min(m, x1 - x0); }, 1e9); if (minW >= MIN_COL || lvl === LEVELS[LEVELS.length - 1]) { VB = { lvl, list }; return; } }
+  for (const lvl of LEVELS) { const list = listFor(lvl); const minW = list.reduce((m, b) => { const x0 = Math.max(xOfW(Math.max(b.w0, W0)), PL), x1 = Math.min(xOfW(b.w1), W - PR), full = xOfW(b.w1) - xOfW(b.w0); return b.w0 < W0 || (x1 - x0) < full * 0.5 ? m : Math.min(m, x1 - x0); }, 1e9); if (minW >= MIN_COL || lvl === LEVELS[LEVELS.length - 1]) { VB = { lvl, list }; return; } }
 }
 function visibleBuckets() { return VB; }
 const bucketX = b => [xOfW(b.w0), xOfW(b.w1)];
@@ -936,56 +952,79 @@ function drawCashflow() {
   const lblUnit = { week: 'por semana', month: 'por mês', quarter: 'por trimestre', year: 'por ano', multi: 'por 4 anos', decade: 'por década' }[lvl];
   ctx.fillStyle = 'rgba(32,52,76,.55)'; ctx.font = '600 11px "Sora", sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
   ctx.fillText('Fluxo de caixa · ' + lblUnit, 24, rowsTop - 10);
-  // cabeçalho das colunas com o período
+  // cabeçalho das colunas com o período; a coluna de hoje fica destacada
   ctx.save(); ctx.beginPath(); ctx.rect(PL, rowsTop - 22, PW, 22); ctx.clip();
   ctx.fillStyle = 'rgba(32,52,76,.04)'; ctx.fillRect(PL, rowsTop - 20, PW, 19);
-  ctx.font = '600 10px "DM Sans", sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = 'rgba(32,52,76,.7)';
-  list.forEach(b => { const x0 = Math.max(xOfW(Math.max(b.w0, W0)), PL), x1 = Math.min(xOfW(b.w1), W - PR); const lb = periodLabel(lvl, b); if (x1 - x0 >= ctx.measureText(lb).width + 8) ctx.fillText(lb, (x0 + x1) / 2, rowsTop - 10); ctx.strokeStyle = 'rgba(32,52,76,.08)'; ctx.beginPath(); ctx.moveTo(xOfW(b.w1), rowsTop - 20); ctx.lineTo(xOfW(b.w1), rowsTop - 1); ctx.stroke(); });
+  ctx.font = '600 10px "DM Sans", sans-serif'; ctx.textAlign = 'center';
+  list.forEach(b => {
+    const x0 = Math.max(xOfW(b.w0), PL), x1 = Math.min(xOfW(b.w1), W - PR), hoje = b.w0 <= W0 && W0 < b.w1;
+    let lb = periodLabel(lvl, b); if (lvl === 'month' && x1 - x0 < ctx.measureText(lb).width + 8) lb = lb.replace('./20', '/');   // "out./2026" vira "out/26"
+    if (hoje) { ctx.fillStyle = C.orange; ctx.fillRect(x0, rowsTop - 20, x1 - x0, 19); }
+    ctx.fillStyle = hoje ? '#fff' : 'rgba(32,52,76,.7)';
+    if (x1 - x0 >= ctx.measureText(lb).width + 8) ctx.fillText(lb, (x0 + x1) / 2, rowsTop - 10);
+    ctx.strokeStyle = 'rgba(32,52,76,.08)'; ctx.beginPath(); ctx.moveTo(xOfW(b.w1), rowsTop - 20); ctx.lineTo(xOfW(b.w1), rowsTop - 1); ctx.stroke();
+  });
   ctx.restore();
-  ctx.save(); ctx.beginPath(); ctx.rect(0, rowsTop, W, H - rowsTop - 34); ctx.clip();
-  const maxScroll = Math.max(0, rows.length * rowH - (H - rowsTop - 34)); state.rowScroll = Math.min(state.rowScroll, maxScroll);
+  // o futuro só fica apagado durante a reprodução; parado, a tabela mostra tudo com a mesma força
+  const fade = state.started && !state.done, base = H - rowsTop - 8;
+  const FORTE = { [C.fin]: '#1f7a45', [C.out]: '#B83A3A', [C.mov]: '#6246A8' };
+  ctx.save(); ctx.beginPath(); ctx.rect(0, rowsTop, W, base); ctx.clip();
+  const maxScroll = Math.max(0, rows.length * rowH - base); state.rowScroll = Math.min(state.rowScroll, maxScroll);
   rows.forEach((row, ri) => {
     const y = rowsTop + ri * rowH - state.rowScroll; if (y + rowH < rowsTop || y > H) return;
-    const r = row.r, isTop = row.depth === 0;
+    const r = row.r, isTop = row.depth === 0, isSaldo = r.id === 'saldo', isMov = r.id.startsWith('mov');
     // fundo de linha
-    ctx.fillStyle = isTop ? 'rgba(32,52,76,.04)' : 'rgba(32,52,76,.015)'; ctx.fillRect(0, y, W, rowH - 2);
+    ctx.fillStyle = isSaldo ? 'rgba(46,158,91,.06)' : isTop ? 'rgba(32,52,76,.04)' : 'rgba(32,52,76,.015)'; ctx.fillRect(0, y, W, rowH - 2);
     // rótulo
-    const lx = 24 + row.depth * 14;
-    ctx.fillStyle = isTop ? C.navy : 'rgba(32,52,76,.75)'; ctx.font = (isTop ? '600 12px "Sora"' : '11px "DM Sans"') + ', sans-serif'; ctx.textAlign = 'left';
+    const lx = 24 + row.depth * 14, fonte = (isTop ? '600 12px "Sora"' : '12px "DM Sans"') + ', sans-serif';
+    ctx.fillStyle = isTop ? C.navy : 'rgba(32,52,76,.75)'; ctx.font = fonte; ctx.textAlign = 'left';
     if (r.children) { ctx.fillStyle = 'rgba(32,52,76,.5)'; ctx.fillText(state.expanded.has(r.id) ? '▾' : '▸', lx, y + rowH / 2); ctx.fillStyle = isTop ? C.navy : 'rgba(32,52,76,.75)'; }
-    let label = r.label; ctx.font = (isTop ? '600 12px "Sora"' : '11px "DM Sans"') + ', sans-serif';
+    let label = r.label;
     while (ctx.measureText(label).width > PL - lx - 34 && label.length > 4) label = label.slice(0, -2).trimEnd() + '…';
     ctx.fillText(label, lx + 14, y + rowH / 2);
     if (r.icon === 'convert') drawConvertIcon(PL - 16, y + rowH / 2, 6, C.mov);
     if (isTop) { ctx.fillStyle = row.color; ctx.fillRect(12, y + 6, 3, rowH - 14); }
-    // células (planilha): sempre o valor em texto, com seta verde (entra) ou vermelha (sai)
     ctx.strokeStyle = 'rgba(32,52,76,.08)'; ctx.beginPath(); ctx.moveTo(PL, y + rowH - 2); ctx.lineTo(W - PR, y + rowH - 2); ctx.stroke();
-    list.forEach(b => {
-      const v = rowVal(r, b.f), [x0, x1] = bucketX(b), revealed = b.w0 <= rev;
+    // células: barra proporcional ao maior valor da linha no período à vista, valor em texto e seta verde (entra) ou vermelha (sai)
+    const vals = list.map(b => rowVal(r, b.f)), maxAbs = Math.max(1, ...vals.map(Math.abs));
+    const fonteV = (isTop ? '600 ' : '') + '11.5px "DM Sans", sans-serif';
+    // da forma mais completa para a mais curta: o valor exato vem antes do arredondado
+    const opcoes = v => {
+      const a = Math.abs(v), sinal = (isMov || isSaldo) && v < 0 ? '−' : isSaldo ? '+' : '';
+      return [
+        [(sinal && sinal + ' ') + (a >= 1e6 ? 'R$ ' + fmtC(a) : fmt(a)), true],
+        [(sinal && sinal + ' ') + fmt(a), false],
+        [sinal + Math.round(a).toLocaleString('pt-BR'), false],   // sem "R$": a cor e a barra já dizem o que é
+        [sinal + (a >= 1e3 && a < 1e4 ? (a / 1e3).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + ' mil' : fmtC(a)), false],   // 2.500 vira "2,5 mil", não "3 mil"
+      ];
+    };
+    const celula = b => { const [x0, x1] = bucketX(b), cx0 = Math.max(x0, PL) + 2, cx1 = Math.min(x1, W - PR) - 2; return { x1, cx0, cx1, larg: cx1 - cx0 - 4 }; };
+    const cabe = (o, larg) => ctx.measureText(o[0]).width + (o[1] ? 14 : 0) <= larg;
+    // a linha inteira usa o mesmo formato: o mais completo que cabe em todas as colunas (meses de 4 e 5 semanas têm larguras diferentes);
+    // colunas cortadas nas bordas não decidem
+    ctx.font = fonteV;
+    let nivel = 0;
+    list.forEach((b, bi) => { const v = vals[bi]; if (Math.abs(v) < 0.5) return; const { larg, x1 } = celula(b); if (x1 < PL || x1 > W - PR + 1 || b.w0 < W0 && !FLUXO) return; const o = opcoes(v); let k = nivel; while (k < o.length - 1 && !cabe(o[k], larg)) k++; nivel = k; });
+    list.forEach((b, bi) => {
+      const v = vals[bi], { x1, cx0, cx1, larg } = celula(b), revealed = !fade || b.w0 <= rev;
       ctx.strokeStyle = 'rgba(32,52,76,.06)'; ctx.beginPath(); ctx.moveTo(x1, y); ctx.lineTo(x1, y + rowH - 2); ctx.stroke();
       if (Math.abs(v) < 0.5 || x1 < PL) return;
-      const isMov = r.id.startsWith('mov'), up = r.id.startsWith('out') ? false : v > 0, col = up ? C.fin : C.out;
+      const up = isSaldo ? v > 0 : r.id.startsWith('out') ? false : v > 0;
+      const tom = isMov ? (v < 0 ? C.out : C.mov) : up ? C.fin : C.out;
       ctx.globalAlpha = revealed ? 1 : 0.35;
-      ctx.fillStyle = isMov && v < 0 ? C.out : (isTop ? C.navy : '#555'); ctx.font = (isTop ? '600 ' : '') + '11px "DM Sans", sans-serif'; ctx.textAlign = 'right';
-      const cy = y + rowH / 2 - 1, xr = Math.min(x1, W - PR) - 6, larg = xr - Math.max(x0, PL) - 4;
-      const sinal = isMov && v < 0 ? '− ' : '';
-      // da forma mais completa para a mais curta, até caber: com marcador, sem marcador, sem "R$"
-      const opcoes = [
-        [sinal + (Math.abs(v) >= 1e6 ? 'R$ ' + fmtC(Math.abs(v)) : fmt(Math.abs(v))), true],
-        [sinal + 'R$ ' + fmtC(Math.abs(v)), true],
-        [sinal + 'R$ ' + fmtC(Math.abs(v)), false],
-        [sinal + fmtC(Math.abs(v)), false],
-      ];
-      let txt = null, marcador = false;
-      for (const [t, m] of opcoes) { if (ctx.measureText(t).width + (m ? 14 : 2) <= larg) { txt = t; marcador = m; break; } }
-      if (txt == null) { ctx.globalAlpha = 1; return; }
+      if (cx1 > cx0) { ctx.fillStyle = hexA(tom, isTop ? .17 : .10); ctx.beginPath(); const bw = Math.max(2, (cx1 - cx0) * Math.abs(v) / maxAbs); if (ctx.roundRect) ctx.roundRect(cx0, y + 3, bw, rowH - 8, 3); else ctx.rect(cx0, y + 3, bw, rowH - 8); ctx.fill(); }
+      ctx.fillStyle = isTop || (isMov && v < 0) ? FORTE[tom] : '#3d4a5c'; ctx.font = fonteV; ctx.textAlign = 'right';
+      const cy = y + rowH / 2 - 1, xr = cx1 - 3, o = opcoes(v);
+      let k = nivel; while (k < o.length - 1 && !cabe(o[k], larg)) k++;   // a coluna cortada na borda pode precisar de menos
+      const [txt, marcador] = o[k];
+      if (larg < 16) { ctx.globalAlpha = 1; return; }   // coluna estreita demais: fica só a barra; nas demais, a forma mais curta sempre aparece
       ctx.fillText(txt, xr, cy);
       const ax = xr - ctx.measureText(txt).width - 8;
-      if (!marcador) { ctx.globalAlpha = 1; return; }
+      if (!marcador || isSaldo) { ctx.globalAlpha = 1; return; }
       if (isMov) { // movimentação de patrimônio não é receita nem despesa: marcador próprio
         ctx.font = '11px "Segoe UI Emoji", "Apple Color Emoji", sans-serif'; ctx.textAlign = 'center'; ctx.fillText(v > 0 ? '💰' : '💳', ax - 2, cy);
       } else { // entrada (seta verde) ou saída (seta vermelha)
-        ctx.strokeStyle = col; ctx.lineWidth = 1.5; ctx.lineCap = 'round'; ctx.beginPath();
+        ctx.strokeStyle = tom; ctx.lineWidth = 1.5; ctx.lineCap = 'round'; ctx.beginPath();
         ctx.moveTo(ax, cy - 4); ctx.lineTo(ax, cy + 4);
         if (up) { ctx.moveTo(ax - 3, cy - 1); ctx.lineTo(ax, cy - 4); ctx.lineTo(ax + 3, cy - 1); } else { ctx.moveTo(ax - 3, cy + 1); ctx.lineTo(ax, cy + 4); ctx.lineTo(ax + 3, cy + 1); }
         ctx.stroke();
@@ -1094,12 +1133,25 @@ addEventListener('keydown', e => {
   else if (e.ctrlKey && e.key === '-') { e.preventDefault(); if (!locked()) zoomAt(PL + PW / 2, 1.25); }
   else if (e.key === 'Escape') { if (overlay.classList.contains('show')) resumeFromMilestone(); }
   else if (e.key === 'Home') { goHome(); }
-  else if (e.key === ' ') { e.preventDefault(); togglePlay(); }
+  else if (e.key === ' ' && !FLUXO) { e.preventDefault(); togglePlay(); }
   else if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') { if (locked()) return; const span = state.view.uR - state.view.uL, d = (e.key === 'ArrowLeft' ? -1 : 1) * span * 0.1; state.view = clampView({ uL: state.view.uL + d, uR: state.view.uR + d }); state.target = null; }
 });
 const locked = () => state.started && !state.done;
 function goHome() { if (locked()) return; state.target = DEFAULT_VIEW(); }
 document.getElementById('btnHome').onclick = goHome;
+document.getElementById('ajuda').title = FLUXO
+  ? 'Rodinha rola as linhas · Shift + rodinha ou arrastar anda no tempo · Ctrl + rodinha aproxima ou afasta (de semanas a décadas) · Clique numa linha para abrir ou fechar o detalhe · Hoje volta aos próximos 24 meses'
+  : 'Rodinha anda no tempo · Ctrl + rodinha dá zoom · Shift + rodinha também anda · Arraste para navegar · Hoje volta para hoje · Clique numa linha do fluxo para detalhar · Clique num marco para ver o objetivo e arraste-o para mudar a data · Arraste a Liberdade Financeira para mudar a idade de parar';
+// "Fluxo de caixa": abre a tabela numa janela própria, com o plano como está agora (datas e idade arrastadas incluídas)
+document.getElementById('btnFluxo').onclick = () => {
+  const plano = Object.assign({}, PLANO || {}, ENGINE.config(), { mode: state.mode });
+  const b64 = btoa(String.fromCharCode(...new TextEncoder().encode(JSON.stringify(plano)))).replace(/\+/g, '-').replace(/\//g, '_');
+  const url = '?fluxo#plano=' + b64;   // mesma página, com o marcador da janela do fluxo
+  let w = null; try { w = window.open(url, 'nl-fluxo', 'popup,width=' + screen.availWidth + ',height=' + screen.availHeight); } catch (e) { }
+  if (!w) location.href = url;   // janela bloqueada: abre na mesma aba
+};
+document.getElementById('btnVoltar').onclick = () => { if (window.opener) window.close(); else history.back(); };
+if (FLUXO) { document.body.classList.add('fluxo'); document.title = 'Fluxo de caixa — Nord Liberta'; document.querySelector('.brand small').textContent = 'Fluxo de caixa'; }
 document.querySelectorAll('#segView button').forEach(b => b.onclick = () => { document.querySelectorAll('#segView button').forEach(x => x.classList.remove('on')); b.classList.add('on'); state.viewKind = b.dataset.v; });
 // semana em que o patrimônio financeiro acaba depois da liberdade (null se não acaba)
 function fimDoPatrimonio(s) { if (!s.ff) return null; for (let i = s.ff.week + 1; i < NW; i++) if (s.weeks[i].fin < 1) return i; return null; }
