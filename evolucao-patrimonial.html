@@ -125,7 +125,7 @@ canvas#main.grab-obj{cursor:ew-resize}
 <div id="wrap">
   <canvas id="main"></canvas>
   <div id="tip"></div>
-  <div id="hint">Scroll anda no tempo, Ctrl + scroll dá zoom, Shift + scroll também anda, arraste para navegar, Home volta para hoje · Clique numa linha do fluxo para detalhar · Clique num marco para ver o objetivo, arraste-o para mudar a data</div>
+  <div id="hint">Scroll anda no tempo, Ctrl + scroll dá zoom, Shift + scroll também anda, arraste para navegar, Home volta para hoje · Clique numa linha do fluxo para detalhar · Clique num marco para ver o objetivo, arraste-o para mudar a data; arraste a Liberdade Financeira para mudar a idade de parar</div>
   <div id="overlay">
     <canvas id="confetti"></canvas>
     <div class="card" id="card">
@@ -194,7 +194,7 @@ const ENGINE = (() => {
   // Campos derivados: aporte necessário, projeção na data alvo e status.
   // Recalculado sempre que a data alvo muda (o cliente pode arrastar o marco na tela).
   const derive = o => {
-    const r = PROFILES[o.profile], n = Math.max(1, o.months), g = Math.pow(1 + r, n), fac = (g - 1) / r;
+    const r = o.rateM != null && o.rateM !== '' ? +o.rateM : PROFILES[o.profile], n = Math.max(1, o.months), g = Math.pow(1 + r, n), fac = (g - 1) / r;
     o.rate = r;
     o.required = Math.max(0, (o.amount - o.dedicated * g) / fac);   // aporte mensal necessário
     o.projected = o.dedicated * g + o.planned * fac;                // projeção com o aporte definido
@@ -412,9 +412,13 @@ const ENGINE = (() => {
           if (t >= 0 && !done[k] && mIdx >= o.months) {
             done[k] = true;
             const bal = obj[k]; saldoNaData[k] = bal; obj[k] = 0; cofre += bal; transfer(f, 'mov_obj_' + o.id, 'mov_cofre', bal); // saldo dedicado volta ao cofre
-            if (o.kind === 'bem') { bens += o.amount; cofre -= o.amount; transfer(f, 'mov_cofre', 'mov_bens', o.amount); } // conversão financeiro → bens
+            // um bem que não chega a 70% do valor na data (Requer revisão) não é comprado: o saldo fica na reserva,
+            // e o bem e os gastos depois dele (condomínio, financiamento) não entram na simulação
+            o.naoComprado = o.kind === 'bem' && o.amount > 0 && bal < o.amount * 0.7;
+            if (o.naoComprado) { /* nada a converter */ }
+            else if (o.kind === 'bem') { bens += o.amount; cofre -= o.amount; transfer(f, 'mov_cofre', 'mov_bens', o.amount); } // conversão financeiro → bens
             else add(f, 'out_obj_' + o.id, o.amount); // consumo: é uma saída, paga pelo cofre
-            (o.costs || []).forEach(c => {   // cada custo vira uma linha de saída fixa: out_fix_<objetivo>_<custo>
+            if (!o.naoComprado) (o.costs || []).forEach(c => {   // cada custo vira uma linha de saída fixa: out_fix_<objetivo>_<custo>
               const id = o.id + '_' + c.id;
               if (c.type === 'price' || c.type === 'sac') { if (financiamentoValido(c)) { const F = novoFin(c); streams.push({ id, value: parcelaFin(F).pay, left: F.n, label: c.label || 'Financiamento', amort: 0, fin: F }); } }
               else if (+c.value > 0) streams.push({ id, value: +c.value, left: c.months == null || c.months === '' ? -1 : +c.months, label: c.label || o.name, amort: +c.amort || 0 });
@@ -541,7 +545,7 @@ const ENGINE = (() => {
   }
   const ORIGENS_OUT = ORIGENS;
   const config = () => ({ age: CURRENT_AGE, retireAge: RETIRE_AGE, initialBens: INITIAL_BENS, desired: DESIRED, lifeExp: LIFE_EXP, salary: SALARY, salaryGrowth: SAL_G, partValue: PART_VALUE, initialWealth: INITIAL_WEALTH, capacityOverride: CAP_OVERRIDE, rate: R_M, profiles: PROFILES, incomes: INCOMES, expenses: EXPENSES, objectives: OBJ, passive: PASSIVE });
-  return { TODAY, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, PASSIVE, PROFILES, STATUS, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, serieCusto, financiamentoValido, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
+  return { TODAY, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, PASSIVE, PROFILES, STATUS, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, serieCusto, setRetireAge: a => { RETIRE_AGE = a == null ? null : Math.max(CURRENT_AGE, +a); }, financiamentoValido, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
 })();
 if (typeof module !== 'undefined') module.exports = ENGINE;
 </script>
@@ -572,7 +576,20 @@ let SERIES = [];
 const buildSeries = () => { SERIES = ['fin', 'bens', 'part', 'cofre', 'pas'].concat(OBJ.map((o, k) => 'obj' + k)); };
 buildSeries();
 const readW = (w, key) => key.startsWith('obj') ? w.obj[+key.slice(3)] : w[key];
-function buildPre() { for (const k in SIM) { const s = SIM[k]; s.pre = {}; SERIES.forEach(key => { const a = new Float64Array(NW + 1); for (let i = 0; i < NW; i++) a[i + 1] = a[i] + readW(s.weeks[i], key); s.pre[key] = a; }); } }
+// Saídas únicas (contratação das rendas, compra de um bem, gasto de um objetivo) não entram na média:
+// a curva cai inteira na semana em que acontecem. jc[i] soma essas saídas até a semana i; a média é feita
+// sobre o patrimônio com elas devolvidas e depois elas são descontadas de novo.
+const COM_SALTO = new Set(['fin', 'cofre']);
+function saltos(s) {
+  const j = new Float64Array(NW);
+  s.events.forEach(e => {
+    if (e.type === 'ff') j[e.week] += e.ff.cost || 0;
+    if (e.type === 'obj' && !e.obj.naoComprado) j[e.week] += +e.obj.amount || 0;
+  });
+  const jc = new Float64Array(NW); let t = 0; for (let i = 0; i < NW; i++) { t += j[i]; jc[i] = t; }
+  return jc;
+}
+function buildPre() { for (const k in SIM) { const s = SIM[k]; s.pre = {}; s.jc = saltos(s); SERIES.forEach(key => { const a = new Float64Array(NW + 1), sal = COM_SALTO.has(key); for (let i = 0; i < NW; i++) a[i + 1] = a[i] + readW(s.weeks[i], key) + (sal ? s.jc[i] : 0); s.pre[key] = a; }); } }
 buildPre();
 // Refaz a projeção inteira depois que uma data alvo muda. Objetivos mais próximos têm prioridade no aporte.
 function rerun() { OBJ.sort((a, b) => a.months - b.months); SIM.perp = ENGINE.run('perp'); SIM.cons = ENGINE.run('cons'); buildSeries(); buildPre(); updateStats(); }
@@ -603,7 +620,7 @@ function applyPlan(plan) {
   saudar(plan);
 }
 const STATUS_COLOR = { ok: '#2E9E5B', adj: '#FA7A35', risk: '#D64545' };
-const smoothVal = (s, key, i, h) => { const a = Math.max(W0, i - h), b = Math.min(NW - 1, i + h); return (s.pre[key][b + 1] - s.pre[key][a]) / (b - a + 1); };
+const smoothVal = (s, key, i, h) => { const a = Math.max(W0, i - h), b = Math.min(NW - 1, i + h); return (s.pre[key][b + 1] - s.pre[key][a]) / (b - a + 1) - (COM_SALTO.has(key) ? s.jc[Math.max(0, Math.min(NW - 1, i))] : 0); };
 // janela da média móvel: no mínimo um mês, para que a entrada do salário não apareça como salto do patrimônio.
 // A mesma janela vale para o desenho e para o hover, então curva e números sempre coincidem.
 const smoothH = () => Math.round(Math.max(2, Math.min(26, tSpan(state.view) * 3)));
@@ -710,6 +727,7 @@ function milestones() {
   });
   // enquanto o marco é arrastado, ele acompanha o cursor (a projeção só é refeita ao soltar)
   if (state.objDrag) { const mk = list.find(m => m.obj === state.objDrag.o); if (mk) mk.week = W0 + state.objDrag.o.months * WPY / 12; }
+  if (state.ffDrag && state.ffDrag.age != null) { const mk = list.find(m => m.kind === 'ff'); if (mk) mk.week = W0 + (state.ffDrag.age - ENGINE.CURRENT_AGE) * WPY; }
   return list;
 }
 const ICONS = {
@@ -987,7 +1005,7 @@ function chartTip(i) {
   h += `<div class="row"><span><i class="sw" style="background:${C.part}"></i>Participações societárias</span><b>${fmt(v('part'))}</b></div>`;
   h += `<div class="sec">Alocação do patrimônio financeiro</div>`;
   h += `<div class="row"><span>Cofre genérico (reserva)</span><b>${fmt(v('cofre'))}</b></div>`;
-  OBJ.forEach((o, k) => { const dn = done(o.id); h += `<div class="row"><span>${o.name}</span>` + (dn ? `<b class="muted">realizado ✓</b>` : `<b>${fmt(v('obj' + k))}</b>`) + `</div>`; });
+  OBJ.forEach((o, k) => { const dn = done(o.id); h += `<div class="row"><span>${o.name}</span>` + (dn ? (o.naoComprado ? `<b class="muted" style="color:#D64545">não comprado</b>` : `<b class="muted">realizado ✓</b>`) : `<b>${fmt(v('obj' + k))}</b>`) + `</div>`; });
   if (s.ff && i >= s.ff.week) { h += `<div class="sec">Renda passiva líquida (mês)</div><div class="row"><span>Total</span><b>${fmt(v('pas'))}</b></div>`; }
   return h;
 }
@@ -1007,6 +1025,12 @@ cv.addEventListener('mousemove', e => {
     if (m !== d.o.months) { d.o.months = m; ENGINE.derive(d.o); }
     return;
   }
+  if (state.ffDrag) {
+    const d = state.ffDrag, a = Math.max(ENGINE.CURRENT_AGE + 1, Math.min(90, Math.round(ENGINE.CURRENT_AGE + tOfX(Math.max(x, PL + 2)))));
+    if (Math.abs(x - d.x0) > 3) d.moved = true;
+    d.age = a; showTip(x, e.offsetY, '<b>Parar de trabalhar aos ' + a + ' anos</b><br>solte para refazer a projeção');
+    return;
+  }
   if (state.drag) { const dx = x - state.drag.x; const span = state.view.uR - state.view.uL; state.view = clampView({ uL: state.drag.uL - dx / PW * span, uR: state.drag.uR - dx / PW * span }); state.target = null; return; }
   state.hover = { x, y };
   cv.classList.toggle('grab-obj', !locked() && !!milestoneHit(x, y));
@@ -1022,11 +1046,13 @@ cv.addEventListener('mousedown', e => {
   if (locked()) return;
   const mk = milestoneHit(e.offsetX, e.offsetY);
   if (mk && mk.kind === 'obj') { state.objDrag = { o: mk.obj, x0: e.offsetX, moved: false }; tip.style.display = 'none'; return; } // arrastar muda a data alvo
+  if (mk && mk.kind === 'ff') { state.ffDrag = { x0: e.offsetX, moved: false, age: null }; tip.style.display = 'none'; return; }   // arrastar muda a idade de parar
   if (e.offsetX < PL) return;
   state.drag = { x: e.offsetX, uL: state.view.uL, uR: state.view.uR }; cv.classList.add('drag'); tip.style.display = 'none';
 });
 addEventListener('mouseup', () => {
   if (state.objDrag) { const moved = state.objDrag.moved; state.objDrag = null; if (moved) { rerun(); state.clickGuard = true; } }
+  if (state.ffDrag) { const d = state.ffDrag; state.ffDrag = null; tip.style.display = 'none'; if (d.moved && d.age != null) { ENGINE.setRetireAge(d.age); rerun(); state.clickGuard = true; } }
   state.drag = null; cv.classList.remove('drag');
 });
 // rodinha: anda no tempo; Ctrl dá zoom; Shift também anda. Sobre a tabela do fluxo, a rodinha sozinha rola a tabela.
@@ -1121,7 +1147,8 @@ function celebrate(mk, manual) {
     custos.forEach(({ c, v }) => lines += F(c.label || (c.type === 'fixo' ? 'Custo mensal depois' : 'Financiamento'), fmt(v) + '/mês',
       (c.type === 'sac' ? 'SAC, parcela cai · ' : c.type === 'price' ? 'Price, parcela fixa · ' : '') + (c.months == null || c.months === '' ? 'por tempo indeterminado' : 'por ' + c.months + ' meses')));
     lines += F('Patrimônio dedicado hoje', o.dedicated ? fmt(o.dedicated) : dash);
-    lines += F('Perfil de investimento', '<span class="chip">' + o.profile + '</span>', (o.rate * 100).toFixed(2).replace('.', ',') + '% ao mês');
+    lines += F('Rentabilidade', (o.rate * 100).toFixed(2).replace('.', ',') + '% ao mês', 'perfil ' + o.profile);
+    if (o.naoComprado) lines += F('Situação', 'não comprado no plano', 'o valor juntado não chega a 70% do custo');
     lines += F('Aporte necessário', o.required > 0 ? fmt(o.required) + '/mês' : dash);
     lines += F('Aporte definido', o.planned ? fmt(o.planned) + '/mês' : dash, o.planned ? 'pelo seu consultor' : '');
     lines += F('Projeção na data alvo', fmt(o.real != null ? o.real : o.projected), 'de ' + fmt(o.amount) + ' necessários');
@@ -1145,13 +1172,13 @@ function celebrate(mk, manual) {
   }
   document.getElementById('mLines').innerHTML = lines;
   card.querySelector('.body').scrollTop = 0;
-  overlay.classList.add('show'); overlayElapsed = 0; overlayManual = !!manual;
+  overlay.classList.add('show'); overlayElapsed = 0; overlayManual = !!manual; overlayHover = card.matches(':hover');
   if (!manual && !unmet) startConfetti(); else confettiT0 = 0;
   if (manual) mProg.style.width = '0';
 }
 const CARD_SECONDS = 12; // tempo do card antes de retomar sozinho (congela com o mouse em cima)
 let overlayElapsed = 0, overlayManual = false, overlayHover = false;
-function resumeFromMilestone() { overlay.classList.remove('show'); state.paused = false; state.seg = null; }
+function resumeFromMilestone() { overlay.classList.remove('show'); overlayHover = false; state.paused = false; state.seg = null; }
 document.getElementById('btnResume').onclick = resumeFromMilestone;
 document.getElementById('btnClose').onclick = resumeFromMilestone;
 overlay.addEventListener('mousedown', e => { if (e.target === overlay) resumeFromMilestone(); }); // clique fora do card fecha

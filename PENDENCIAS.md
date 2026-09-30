@@ -67,7 +67,7 @@ Nem na planilha, nem ao arrastar um marco na tela do cliente, nem ao remover um 
 confirmação em dois cliques, o resto não tem volta. Com a edição direto na célula, isso ficou mais urgente.
 
 ### 8. Arrastar o marco no cliente não volta para o portal
-A nova data vive só na sessão do navegador do cliente. Depois da reunião, o consultor precisa repetir a
+A nova data (e a nova idade de parar, ao arrastar a Liberdade Financeira) vive só na sessão do navegador do cliente. Depois da reunião, o consultor precisa repetir a
 alteração no portal.
 
 ### 9. Depreciação de bens
@@ -198,6 +198,13 @@ Registradas aqui porque não são óbvias no código:
   guardar; gastos depois (lista de custo fixo, Price e SAC), patrimônio reservado e perfil, e apresentação
   entram pelos botões "+". No gráfico, a linha tracejada muda só a data e a bolinha só o valor. O gráfico usa
   a conta do objetivo sozinho, e o status continua vindo da simulação.
+- **Bem abaixo de 70% do valor na data não é comprado.** Antes a reserva pagava a diferença e o bem entrava
+  no patrimônio com o selo "Requer revisão" (a casa de praia do exemplo: R$ 75 mil juntados, R$ 225 mil da
+  reserva). Objetivos de consumo continuam sendo gastos, com o selo vermelho.
+- **A média da curva não espalha saídas únicas.** Com o zoom aberto a média chegava a 26 semanas para cada
+  lado, e a contratação de R$ 1,1 mi da liberdade aparecia como uma queda de R$ 225 mil.
+- **Rentabilidade por objetivo**, num controle de 0,35% a 0,65% ao mês ao lado do gráfico; o perfil é o nome
+  da faixa mais próxima.
 - **Financiamento é calculado por sistema (Price ou SAC), taxa ao ano e prazo**, no lugar do percentual de
   amortização informado à mão.
 - **A planilha do fluxo mostra o que a simulação calcula**, não o que foi digitado. Assim a linha de

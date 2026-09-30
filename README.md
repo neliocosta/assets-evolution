@@ -84,7 +84,8 @@ O plano também fica salvo no `localStorage` do navegador, então a tela do cons
         { "id": "k2", "type": "sac", "principal": 756000, "rateYear": 0.095, "months": 360 }        // "price" ou "sac": juros e amortização mês a mês
       ],                        // planos antigos com "recurring" e "financing" são convertidos; "amort" num fixo é a fração antiga da parcela
       "dedicated": 45000,      // patrimônio já dedicado a este objetivo
-      "profile": "moderado",
+      "profile": "moderado",   // nome da faixa; a taxa usada é rateM quando existe
+      "rateM": 0.005,          // rentabilidade própria do objetivo, ao mês (o portal vai de 0,35% a 0,65%)
       "planned": 1500,         // aporte mensal definido pelo consultor
       "photo": "",             // endereço de uma imagem, opcional; sem foto o card usa o ícone
       "iconData": "",          // SVG ou PNG enviado pelo consultor, embutido como data URL
@@ -197,7 +198,13 @@ exatamente um salário e um conjunto de despesas, mesmo quando cai em cinco sema
 Trimestres, anos e décadas agregam esses meses, então todo trimestre tem três meses e todo ano tem doze.
 
 **Suavização.** A curva usa média móvel de no mínimo um mês, e o hover lê exatamente a mesma série. Sem
-isso o salário entrando em uma única semana apareceria como um salto de patrimônio de quase 3%.
+isso o salário entrando em uma única semana apareceria como um salto de patrimônio de quase 3%. Saídas
+únicas (contratação das rendas, compra de um bem, gasto de um objetivo) ficam fora da média: a curva cai
+inteira na semana em que acontecem.
+
+**Bem fora do alcance.** Um objetivo que vira bem e chega à data com menos de 70% do valor (Requer revisão)
+não é comprado na simulação: o saldo fica na reserva e o bem e os gastos depois dele não entram. O portal
+oferece usar como valor o que o cliente de fato junta até a data.
 
 ## Decisões de projeto
 

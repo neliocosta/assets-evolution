@@ -259,7 +259,7 @@ console.log('\n6. Financiamento de bens (Price e SAC)');
 console.log('\n7. Custos depois de realizado (lista)');
 {
   const E7 = carregar(srcCliente);
-  const velho = { id: 'v', name: 'Casa', icon: 'home', kind: 'bem', months: 12, amount: 50000, dedicated: 0, profile: 'moderado', planned: 5000, strategy: '',
+  const velho = { id: 'v', name: 'Casa', icon: 'home', kind: 'bem', months: 12, amount: 30000, dedicated: 0, profile: 'moderado', planned: 5000, strategy: '',
     recurring: { value: 900, months: null, label: 'Condomínio', amort: 0 }, financing: { system: 'sac', principal: 200000, rateYear: 0.1, months: 240 } };
   E7.configure({ objectives: [velho] });
   ok('plano antigo: custo fixo e financiamento viram itens da lista', velho.costs.length === 2 && velho.costs[0].type === 'fixo' && velho.costs[1].type === 'sac' && !('recurring' in velho) && !('financing' in velho));
@@ -275,6 +275,13 @@ console.log('\n7. Custos depois de realizado (lista)');
     erro = Math.max(erro, Math.abs(i - o - v)); fixo += b.f['out_fix_v_k1'] || 0;
   }
   ok('fixo e SAC juntos: identidade contábil', erro < 0.01 && fixo > 0, 'condomínio lançado: ' + Math.round(fixo));
+  // bem que não chega a 70% do valor na data: não é comprado, e os gastos depois dele não entram
+  const EN = carregar(srcCliente);
+  const caro = { id: 'p', name: 'Casa de praia', icon: 'palm', kind: 'bem', months: 24, amount: 5000000, dedicated: 0, profile: 'moderado', planned: 1000, strategy: '', costs: [{ id: 'k1', type: 'fixo', value: 2000, months: null, label: 'Condomínio' }] };
+  EN.configure({ objectives: [caro] });
+  const sn = EN.run('perp'); let cond = 0, errN = 0;
+  for (const b of sn.buckets.month) { if (b.w1 <= EN.W0) continue; let i = 0, o = 0, v = 0; for (const k in b.f) { if (k.startsWith('in_')) i += b.f[k]; else if (k.startsWith('out_')) o += b.f[k]; else if (k.startsWith('mov_')) v += b.f[k]; } errN = Math.max(errN, Math.abs(i - o - v)); cond += b.f['out_fix_p_k1'] || 0; }
+  ok('bem abaixo de 70% do valor não é comprado nem gera gastos depois', caro.naoComprado && Math.max(...sn.weeks.map(w => w.bens)) === 0 && cond === 0 && errN < 0.01);
 }
 
 console.log('\n' + (falhas ? falhas + ' verificação(ões) falharam.' : 'Tudo certo.') + '\n');
