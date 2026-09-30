@@ -37,7 +37,8 @@ O plano também fica salvo no `localStorage` do navegador, então a tela do cons
   "mode": "perp",              // liberdade financeira por "perp" (perpetuidade) ou "cons" (consumo até a expectativa de vida); a visão do cliente abre nela
   "tipo": "familia",           // "individual" ou "familia": sem família, o cônjuge some do cadastro
   "horizonte": "month",        // como o Fluxo de caixa abre: month, quarter, semester ou year
-  "desired": 25000,            // renda familiar desejada na aposentadoria (R$/mês)
+  "desired": 25000,
+  "desiredSteps": [ {"from": 480, "value": 20000} ],   // a renda desejada muda a partir de um mês (0 = set/2026)            // renda familiar desejada na aposentadoria (R$/mês)
   "rate": 0.004,               // retorno real líquido da reserva (ao mês)
   "partValue": 150000,         // planos antigos traziam "rent": vira a linha de despesa "moradia"
   "profiles": { "conservador": 0.004, "moderado": 0.005, "agressivo": 0.006 },

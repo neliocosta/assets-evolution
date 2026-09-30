@@ -203,9 +203,14 @@ Registradas aqui porque não são óbvias no código:
   a conta do objetivo sozinho, e o status continua vindo da simulação.
 - **Aporte não passa do orçamento.** Aumentar um aporte que faz faltar dinheiro em algum mês abre o orçamento
   daquele mês (entradas, despesas, gastos dos objetivos, sobra e aportes pedidos) e obriga a escolher: reduzir
-  uma despesa ou o aporte de outro objetivo a partir daquele mês, guardar só o que cabe, ou cancelar. A conta é
+  despesas ou aportes de outros objetivos a partir daquele mês (um valor em cada item, quantos forem, até cobrir
+  a falta), guardar só o que cabe, ou cancelar. A conta é
   a mesma do motor (equivalente mensal) e bate com o que a simulação entrega. Mudanças de despesa no Fluxo de
   caixa ainda não passam por essa conferência.
+- **Liberdade financeira: primeiro o cadastro, depois o gráfico.** As rendas se cadastram na própria tabela
+  (nome, valor, começo, duração, custo; o resto na gaveta "⋯"), e a programação da renda vem no fim, com valores
+  exatos até o real e cores suaves. A renda desejada pode mudar com a idade: dois cliques na linha tracejada criam
+  um ponto que arrasta para cima e para baixo (`desiredSteps`); dois cliques no ponto o removem.
 - **Como sacar na liberdade é decisão do planejador** (premissa do plano, e botões na visão do cliente):
   saques da perpetuidade (o rendimento; o padrão de vida acompanha), consumo até a expectativa de vida, ou
   saques da renda desejada (só o que falta; o patrimônio pode acabar antes ou sobrar).
