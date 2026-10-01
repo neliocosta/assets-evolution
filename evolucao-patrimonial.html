@@ -61,6 +61,94 @@ canvas#main.grab-obj{cursor:ew-resize}
 #tip .vida>b{display:block;font:600 17px Sora,sans-serif;color:#1f5a37;margin:1px 0 4px}
 #tip .vida-d{display:flex;flex-direction:column;gap:2px;font-size:11.5px;color:#3f4a45}
 .ajuda{width:26px;height:26px;border-radius:50%;background:#F0EEE9;color:#8a8a8a;font:700 12px 'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center;cursor:help;flex:0 0 auto}
+/* jornada do cliente: as telas finais, em fases */
+#fases{display:flex;align-items:center;gap:8px;padding:8px 24px;background:#fff;border-top:1px solid #f1efec;font:500 12px 'DM Sans',sans-serif;color:#9a9a9a;position:relative;z-index:1;box-shadow:0 2px 6px rgba(0,0,0,.03)}
+#fases .lbl{margin-right:6px;text-transform:uppercase;letter-spacing:.06em;font-size:10.5px;font-weight:600}
+#fases button{display:flex;align-items:center;gap:8px;border:0;background:transparent;font:600 12.5px 'DM Sans',sans-serif;color:#8a8a8a;padding:6px 12px 6px 6px;border-radius:9999px;cursor:pointer}
+#fases button i{font-style:normal;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#F0EEE9;color:#8a8a8a;font-size:11px}
+#fases button.on{background:var(--nl-peach-100);color:var(--nl-orange-600)} #fases button.on i{background:var(--nl-orange-500);color:#fff}
+#fases button:hover:not(.on){background:#f6f4f0}
+#fases .seta{color:#cfcbc3}
+body.fluxo #fases{display:none}
+body.fase-riscos .legend,body.fase-riscos .stats,body.fase-riscos #segView,body.fase-riscos #segMode,body.fase-riscos #btnHome,body.fase-riscos #btnFluxo,body.fase-riscos #btnPlay,body.fase-riscos #btnSkip,body.fase-riscos #ajuda,body.fase-riscos #btnVideo{display:none!important}
+/* gestão de riscos */
+#riscos{flex:1;min-height:0;overflow:auto;background:var(--nl-cream-50)}
+#riscos .rc{max-width:1120px;margin:0 auto;padding:24px 24px 60px}
+.rk-topo{display:grid;grid-template-columns:1.25fr 1fr;gap:20px;margin-bottom:20px}
+.video{position:relative;aspect-ratio:16/9;border-radius:14px;overflow:hidden;background:linear-gradient(135deg,#20344C,#131F2E);color:#fff;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;text-align:center;box-shadow:var(--shadow-card)}
+.video .play{width:62px;height:62px;border-radius:50%;background:var(--nl-orange-500);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 20px rgba(250,122,53,.35)}
+.video .play svg{width:24px;height:24px;fill:#fff;margin-left:4px}
+.video b{font:600 15px Sora,sans-serif} .video span{font-size:12px;opacity:.65;max-width:80%;line-height:1.45}
+.video iframe,.video video{position:absolute;inset:0;width:100%;height:100%;border:0;background:#000}
+.nota-card{background:#fff;border-radius:14px;box-shadow:var(--shadow-card);padding:20px 22px;display:flex;flex-direction:column;gap:12px}
+.nota-card h2{font:600 18px Sora,sans-serif;color:var(--nl-navy-900);line-height:1.25}
+.nota-card .sub{font-size:12.5px;color:#8a8a8a;line-height:1.5}
+.nota-linha{display:flex;align-items:center;gap:18px}
+.anel{width:118px;height:118px;flex:0 0 118px;position:relative}
+.anel svg{width:100%;height:100%;transform:rotate(-90deg)}
+.anel b{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:700 28px Sora,sans-serif;color:var(--nl-navy-900)}
+.contagem{display:flex;flex-direction:column;gap:6px;font-size:12.5px;color:var(--nl-gray-700)}
+.contagem span{display:flex;align-items:center;gap:8px} .contagem i{width:10px;height:10px;border-radius:50%;display:inline-block}
+.rk-grade{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px}
+.rk-tile{background:#fff;border-radius:12px;box-shadow:var(--shadow-card);padding:14px 14px 12px;border-top:4px solid #d9d6cf;cursor:pointer;text-align:left;border-left:0;border-right:0;border-bottom:0;font:inherit;display:flex;flex-direction:column;gap:6px;transition:transform .12s,box-shadow .12s}
+.rk-tile:hover{transform:translateY(-2px);box-shadow:var(--shadow-card-module)}
+.rk-tile .t{display:flex;align-items:center;gap:8px;font:600 13px Sora,sans-serif;color:var(--nl-navy-900)}
+.rk-tile svg{width:18px;height:18px;flex:0 0 18px;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.rk-tile .r{font-size:11.5px;color:#8a8a8a;line-height:1.4}
+.st{display:inline-flex;align-items:center;gap:5px;font:600 11px 'DM Sans',sans-serif;padding:3px 9px;border-radius:9999px;align-self:flex-start;white-space:nowrap}
+.st.ok{background:#E7F5EC;color:#22794a} .st.atencao{background:#FFF1E6;color:#C25A12} .st.critico{background:#FDECEC;color:#B83A3A} .st.pendente{background:#F0EEE9;color:#8a8a8a}
+.rk-tile.ok{border-top-color:var(--nl-score-good)} .rk-tile.atencao{border-top-color:var(--nl-score-medium)} .rk-tile.critico{border-top-color:var(--nl-score-low)}
+.rk-tile.ok svg{stroke:var(--nl-score-good)} .rk-tile.atencao svg{stroke:var(--nl-score-medium)} .rk-tile.critico svg{stroke:var(--nl-score-low)} .rk-tile.pendente svg{stroke:#b5b3ae}
+.rk-card{background:#fff;border-radius:14px;box-shadow:var(--shadow-card);margin-bottom:14px;overflow:hidden;scroll-margin-top:12px}
+.rk-card>summary{list-style:none;display:flex;align-items:center;gap:12px;padding:16px 20px;cursor:pointer}
+.rk-card>summary::-webkit-details-marker{display:none}
+.rk-card>summary h3{font:600 15px Sora,sans-serif;color:var(--nl-navy-900);flex:1}
+.rk-card>summary .chev{color:#b5b3ae;font-size:12px;transition:transform .15s} .rk-card[open]>summary .chev{transform:rotate(90deg)}
+.rk-card .corpo{padding:0 20px 20px;border-top:1px solid #f3f1ec}
+.rk-card .expl{font-size:12.5px;color:#7a7a7a;line-height:1.55;margin:14px 0}
+.rk-card .expl b{color:var(--nl-navy-900)}
+.rk-tab{width:100%;border-collapse:collapse;font-size:12.5px;margin:6px 0 4px}
+.rk-tab th{background:var(--nl-navy-900);color:#fff;font:600 11px Sora,sans-serif;text-align:left;padding:8px 10px}
+.rk-tab th:first-child{border-radius:8px 0 0 8px} .rk-tab th:last-child{border-radius:0 8px 8px 0}
+.rk-tab td{padding:9px 10px;border-bottom:1px solid #f3f1ec;color:var(--nl-gray-700)}
+.rk-tab td.n,.rk-tab th.n{text-align:right} .rk-tab td b{color:var(--nl-navy-900)}
+.rk-tab tr.tot td{font-weight:700;color:var(--nl-navy-900);border-bottom:0}
+.rk-tab td.low{color:var(--nl-score-low);font-weight:600} .rk-tab td.good{color:var(--nl-score-good);font-weight:600}
+.rk-tab tr.clic{cursor:pointer} .rk-tab tr.clic:hover td{background:#fcfbf9}
+.apolice td{background:#fcfbf9;font-size:12px;line-height:1.6}
+.degraus{position:relative;height:46px;margin:30px 0 34px}
+.degraus .trilho{position:absolute;left:0;right:0;top:16px;height:14px;border-radius:7px;background:linear-gradient(90deg,#FDECEC 0 40%,#FFF1E6 40% 70%,#FFF7EF 70% 100%)}
+.degraus .cheio{position:absolute;left:0;top:16px;height:14px;border-radius:7px;background:var(--nl-navy-900)}
+.degraus .marca{position:absolute;top:8px;height:30px;border-left:2px dashed #b9b6af}
+.degraus .marca span{position:absolute;top:34px;transform:translateX(-50%);white-space:nowrap;font:600 11px 'DM Sans',sans-serif;color:var(--nl-navy-900)}
+.degraus .marca small{display:block;font-weight:500;color:#9a9a9a;text-align:center}
+.degraus .voce{position:absolute;top:-22px;transform:translateX(-50%);white-space:nowrap;font:700 11.5px 'DM Sans',sans-serif;color:var(--nl-orange-600)}
+.kpis{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}
+.kpi{background:var(--nl-cream-50);border-radius:10px;padding:9px 13px;min-width:130px}
+.kpi span{display:block;font:500 11px 'DM Sans',sans-serif;color:#8d8d8d} .kpi b{font:600 15px Sora,sans-serif;color:var(--nl-navy-900)}
+.kpi b.low{color:var(--nl-score-low)} .kpi b.good{color:var(--nl-score-good)}
+.simula{border:1px dashed #e7c9b3;background:#FFFAF6;border-radius:12px;padding:14px 16px;margin-top:14px}
+.simula h4{font:600 12px Sora,sans-serif;color:var(--nl-orange-600);margin-bottom:4px}
+.simula .muted{font-size:12px;color:#8d8d8d;line-height:1.5;margin-bottom:10px}
+.simula .lin{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.simula label{display:flex;flex-direction:column;gap:3px;font:500 11px 'DM Sans',sans-serif;color:#8d8d8d}
+.simula input,.simula textarea{border:1px solid var(--nl-gray-300);border-radius:8px;padding:7px 9px;font:600 13px 'DM Sans',sans-serif;color:var(--nl-navy-900);background:#fff}
+.simula input{width:150px} .simula textarea{width:100%;min-height:54px;font-weight:500;resize:vertical;margin-top:8px}
+.simula input:focus,.simula textarea:focus{outline:none;border-color:var(--nl-orange-500)}
+.simula .bts{display:flex;gap:8px;justify-content:flex-end;margin-top:10px}
+.chipsh{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0} .chipsh span{background:#EEF2F7;color:var(--nl-navy-900);border-radius:9999px;padding:4px 10px;font:600 11.5px 'DM Sans',sans-serif}
+.alt-box{background:#F1F8F3;border-radius:12px;padding:12px 14px;margin-top:12px;font-size:12.5px;color:#2b6e45;line-height:1.55}
+.alt-box b{color:#1f5a37}
+.barra{height:12px;border-radius:6px;background:#F0EEE9;overflow:hidden;display:flex}
+.barra i{display:block;height:100%}
+.escada{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;align-items:end;height:130px;margin:14px 0 4px}
+.escada div{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;gap:4px;font-size:11px;color:#8a8a8a}
+.escada div i{width:70%;background:linear-gradient(180deg,#5DBB86,#2E9E5B);border-radius:6px 6px 2px 2px;min-height:2px}
+.escada div b{font:600 11.5px 'DM Sans',sans-serif;color:var(--nl-navy-900)}
+.ruina-l{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #f3f1ec;font-size:13px;color:var(--nl-navy-900)}
+.ruina-l:last-child{border-bottom:0} .ruina-l span{flex:1}
+.prov{font-size:11px;color:#b08a6a;font-style:italic}
+@media (max-width:900px){ .rk-topo{grid-template-columns:1fr} .rk-grade{grid-template-columns:repeat(2,1fr)} }
 /* propostas do cliente: nada muda no plano até o consultor aprovar */
 #propBar{display:flex;align-items:center;gap:10px 14px;flex-wrap:wrap;padding:8px 24px;background:var(--nl-peach-100);color:var(--nl-orange-600);font:500 12.5px 'DM Sans',sans-serif;border-bottom:1px solid #f6dcc8;position:relative;z-index:1}
 #propBar.pendente{background:#EEF2F7;color:var(--nl-navy-900);border-color:#dde4ee}
@@ -175,11 +263,14 @@ body.fluxo .stats{margin-left:auto}
   <button class="btn btn-secondary" id="btnHome" title="Voltar para hoje (zoom de 6 anos)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.5"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg>Hoje</button>
   <button class="btn btn-secondary" id="btnFluxo" title="Abrir o fluxo de caixa numa janela própria, sem o gráfico"><svg viewBox="0 0 24 24"><path d="M3 5h18M3 12h18M3 19h18M8 3v18"/></svg>Fluxo de caixa</button>
   <button class="btn btn-secondary" id="btnVoltar" title="Fechar o fluxo de caixa e voltar ao gráfico">← Voltar ao gráfico</button>
+  <button class="btn btn-secondary" id="btnVideo" title="Vídeo do seu consultor sobre esta tela"><svg viewBox="0 0 24 24"><path d="M6 4l14 8-14 8z"/></svg>Vídeo</button>
   <span class="ajuda" id="ajuda" tabindex="0">?</span>
   <button class="btn btn-secondary" id="btnSkip" hidden title="Ir direto ao final, sem esperar a animação">Pular animação</button>
   <button class="btn btn-primary" id="btnPlay"><svg viewBox="0 0 24 24"><path d="M6 4l14 8-14 8z"/></svg><span>Reproduzir</span></button>
 </header>
+<nav id="fases"><span class="lbl">Sua jornada</span><button data-fase="riscos"><i>1</i>Gestão de riscos</button><span class="seta">→</span><button data-fase="evolucao"><i>2</i>Evolução patrimonial</button></nav>
 <div id="propBar" hidden></div>
+<div id="riscos" hidden></div>
 <div id="wrap">
   <canvas id="main"></canvas>
   <div id="tip"></div>
@@ -613,12 +704,17 @@ const ENGINE = (() => {
   //   { tipo: 'fluxo', lista: 'incomes' | 'expenses', id, modo: 'dali' | 'mes', mi, de, para }
   //       valor de uma entrada ou saída a partir do mês mi (vale até o próximo degrau) ou só naquele mês
   //   { tipo: 'liberdade', campo: 'retireAge', de, para }                            idade para parar de trabalhar
+  //   { tipo: 'campo', caminho: 'riscos.reserva.custoVida', rotulo, formato: 'reais'|'numero'|'texto'|'lista', de, para }
+  //       qualquer campo do plano, pelo caminho (índices de lista como números: 'riscos.saude.vidas.0.premio')
+  // Toda alteração pode levar `nota`: a justificativa do cliente.
   //   { tipo: 'linha', acao: 'nova', lista, id, label, group | kind, mi, para }        nova entrada ou saída mensal, a partir do mês mi
   //   { tipo: 'linha', acao: 'remover', lista, id, mi, de }                           a linha deixa de existir a partir do mês mi
   // `de` é o valor do plano quando a proposta foi feita: se o consultor mudou o plano depois, a tela avisa.
   const MESES_P = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
   const mesDoPlano = mi => { const d = new Date(2026, 8 + (+mi || 0), 1); return MESES_P[d.getMonth()] + '/' + d.getFullYear(); };
   const reais = v => 'R$ ' + Math.round(+v || 0).toLocaleString('pt-BR');
+  const lerCaminho = (o, c) => String(c).split('.').reduce((x, k) => x == null ? undefined : x[k], o);
+  function gravaCaminho(o, c, v) { const ks = String(c).split('.'), ult = ks.pop(); let x = o; ks.forEach((k, i) => { if (x[k] == null || typeof x[k] !== 'object') x[k] = /^\d+$/.test(ks[i + 1] || ult) ? [] : {}; x = x[k]; }); x[ult] = v; }
   const itemDaAlteracao = (plan, a) => a.tipo === 'objetivo' ? (plan.objectives || []).find(o => o.id === a.id) : a.tipo === 'fluxo' || a.tipo === 'linha' ? (plan[a.lista] || []).find(i => i.id === a.id) : null;
   // degrau a partir do mês m, com a mesma regra da tela do consultor: igual ao mês anterior não vira degrau
   function degrauEm(it, m, v) {
@@ -632,6 +728,7 @@ const ENGINE = (() => {
   }
   // valor que a alteração mexe, no plano dado (para comparar com `de` e mostrar "no plano hoje")
   function valorAtual(plan, a) {
+    if (a.tipo === 'campo') { const v = lerCaminho(plan, a.caminho); return v === undefined ? null : v; }
     if (a.tipo === 'linha') { const it = itemDaAlteracao(plan, a); return a.acao === 'nova' ? (it ? stepAt(sortSteps(Object.assign({}, it)), a.mi) : null) : it ? stepAt(sortSteps(Object.assign({}, it)), a.mi) : undefined; }
     if (a.tipo === 'liberdade') return plan.retireAge == null || plan.retireAge === '' ? null : +plan.retireAge;
     const it = itemDaAlteracao(plan, a); if (!it) return undefined;
@@ -644,6 +741,7 @@ const ENGINE = (() => {
   function aplicaAlteracoes(plan, alts) {
     (alts || []).forEach(a => {
       if (a.tipo === 'liberdade') { plan.retireAge = a.para; return; }
+      if (a.tipo === 'campo') { gravaCaminho(plan, a.caminho, JSON.parse(JSON.stringify(a.para))); return; }
       if (a.tipo === 'linha' && a.acao === 'nova') {   // mesma forma de uma linha criada pelo consultor na planilha
         if (itemDaAlteracao(plan, a)) return;
         const it = { id: a.id, label: a.label || 'Nova linha', frequency: 'mensal', days: [5], steps: [{ from: +a.mi, value: +a.para }], description: 'Proposta pelo cliente' };
@@ -667,6 +765,11 @@ const ENGINE = (() => {
   function descreveAlteracao(plan, a) {
     const it = itemDaAlteracao(plan, a), val = v => v == null ? (a.tipo === 'liberdade' ? 'assim que o patrimônio permitir' : '—') : a.tipo === 'liberdade' ? v + ' anos' : a.campo === 'months' ? mesDoPlano(v) : reais(v);
     const lado = a.lista === 'incomes' ? 'entrada' : 'saída';
+    if (a.tipo === 'campo') {
+      const f = v => v == null || v === '' ? '—' : a.formato === 'reais' ? reais(v) : a.formato === 'lista' ? [].concat(v).join(', ') : String(v), atual = valorAtual(plan, a);
+      const mudou = JSON.stringify(atual) !== JSON.stringify(a.de == null ? null : a.de);   // deTexto: como o valor de antes aparece (ex.: o custo calculado pelo fluxo)
+      return { oque: a.rotulo || a.caminho, de: a.deTexto || f(a.de), para: f(a.para), atual: mudou ? f(atual) : a.deTexto || f(atual), mudou };
+    }
     if (a.tipo === 'linha' && a.acao === 'nova') return { oque: 'Nova ' + lado + ' (' + (a.lista === 'incomes' ? (a.kind === 'passiva' ? 'renda passiva' : 'renda do trabalho') : a.group === 'adj' ? 'ajustável' : 'fixa') + '): ' + (a.label || 'sem nome'), de: '—', para: reais(a.para) + '/mês a partir de ' + mesDoPlano(a.mi), atual: it ? 'já existe' : '—', mudou: !!it };
     if (a.tipo === 'linha') return { oque: (it ? it.label : 'Linha removida') + ': remover a partir de ' + mesDoPlano(a.mi), de: val(a.de), para: 'R$ 0 (sem a linha)', atual: val(valorAtual(plan, a)), mudou: valorAtual(plan, a) !== a.de };
     let oque;
@@ -675,9 +778,86 @@ const ENGINE = (() => {
     else oque = (it ? it.label : 'Linha removida') + ': ' + (a.modo === 'mes' ? 'só em ' + mesDoPlano(a.mi) : 'a partir de ' + mesDoPlano(a.mi));
     return { oque, de: val(a.de), para: val(a.para), atual: val(valorAtual(plan, a)), mudou: valorAtual(plan, a) !== a.de && !(valorAtual(plan, a) == null && a.de == null) };
   }
+  // ---- Gestão de riscos ----
+  // Oito ameaças ao padrão de vida da família. Cada uma recebe um status pela regra abaixo, a partir do que o
+  // consultor registrou em plan.riscos (e do fluxo e do patrimônio do plano):
+  //   ok (em dia) · atencao (neutro) · critico (vermelho) · pendente (ainda não avaliado: fica fora da nota)
+  // A nota da família (0 a 100%) é a média ponderada: ok vale 1, atencao 0,5, critico 0. Pesos em plan.riscos.pesos.
+  const RISCOS = [
+    { id: 'reserva', nome: 'Desemprego e emergência' }, { id: 'saude', nome: 'Problema de saúde' },
+    { id: 'terceiros', nome: 'Danos a terceiros' }, { id: 'ruina', nome: 'Ruína em investimentos' },
+    { id: 'liquidez', nome: 'Risco de liquidez' }, { id: 'bens', nome: 'Proteção dos bens' },
+    { id: 'renda', nome: 'Proteção da renda' }, { id: 'familia', nome: 'Proteção da família' },
+  ];
+  // Natureza do trabalho → meses de reserva (t). PROVISÓRIO: valores de exemplo até o vetor oficial.
+  const NATUREZAS = [['Servidor público', 2], ['CLT (empresa privada)', 3], ['Profissional liberal ou autônomo', 4], ['Empresário', 5]];
+  const ITENS_RUINA = [['fraude', 'Investimento fraudulento identificado'], ['classe', 'Alta concentração em classe de ativo'], ['ativo', 'Alta concentração em ativo específico'], ['corrosao', 'Possibilidade de corrosão do poder de compra']];
+  const NOTA = { ok: 1, atencao: 0.5, critico: 0 };
+  // custo de vida mensal do plano: média das saídas dos próximos 12 meses (equivalente mensal de cada linha)
+  function custoDeVida(plan) {
+    const its = (plan.expenses || []).map(it => sortSteps(Object.assign({}, it)));
+    let t = 0; for (let mm = 0; mm < 12; mm++) its.forEach(it => { t += mensalizado(it, mm); });
+    return t / 12;
+  }
+  const num = v => v == null || v === '' || isNaN(+v) ? null : +v;
+  function avaliaRiscos(plan) {
+    const R = plan.riscos || {}, out = {};
+    // Desemprego e emergência: ideal = custo de vida × (d + t); mínima 40%, aceitável 70%
+    { const r = R.reserva || {}, custo = num(r.custoVida) != null ? +r.custoVida : custoDeVida(plan);
+      const nat = NATUREZAS.find(n => n[0] === r.natureza), d = r.dependentes ? 3 : 0, t = nat ? nat[1] : null;
+      const calculado = t != null ? custo * (d + t) : null, ideal = num(r.alvo) != null ? +r.alvo : calculado;
+      const atual = num(r.atual) != null ? +r.atual : num((R.liquidez || {}).d0);
+      const status = ideal == null || !(ideal > 0) || atual == null ? 'pendente' : atual >= ideal ? 'ok' : atual >= ideal * 0.4 ? 'atencao' : 'critico';
+      out.reserva = { status, custo, d, t, meses: t != null ? d + t : null, calculado, ideal, minima: ideal != null ? ideal * 0.4 : null, aceitavel: ideal != null ? ideal * 0.7 : null, atual, alvoProprio: num(r.alvo) != null }; }
+    // Saúde: a avaliação do consultor decide
+    { const r = R.saude || {}, vidas = r.vidas || [], total = vidas.reduce((a, v) => a + (+v.premio || 0), 0), alt = r.alternativa || {};
+      const status = { adequado: 'ok', otimizavel: 'atencao', sem_plano: 'critico' }[r.avaliacao] || 'pendente';
+      out.saude = { status, total, economia: num(alt.preco) != null && total ? total - alt.preco : null }; }
+    // Danos a terceiros: coberturas necessárias × atuais
+    { const itens = ((R.terceiros || {}).itens || []).filter(i => num(i.ideal) > 0);
+      const status = !(R.terceiros || {}).avaliado ? 'pendente' : !itens.length || itens.every(i => +i.atual >= +i.ideal) ? 'ok' : itens.some(i => !(+i.atual > 0)) ? 'critico' : 'atencao';
+      out.terceiros = { status, falta: itens.reduce((a, i) => a + Math.max(0, +i.ideal - (+i.atual || 0)), 0) }; }
+    // Ruína: um item em risco deixa tudo vermelho; um em atenção, tudo em atenção; todos verificados, ok
+    { const it = (R.ruina || {}).itens || {}, v = ITENS_RUINA.map(([k]) => it[k] || '');
+      const status = v.includes('risco') ? 'critico' : v.includes('atencao') ? 'atencao' : v.every(x => x === 'ok') ? 'ok' : 'pendente';
+      out.ruina = { status, avaliados: v.filter(Boolean).length }; }
+    // Liquidez: o consultor avalia; a composição do patrimônio vem do plano
+    { const r = R.liquidez || {}, fin = +plan.initialWealth || 0, ben = +plan.initialBens || 0, par = +plan.partValue || 0, tot = fin + ben + par;
+      out.liquidez = { status: { ok: 'ok', atencao: 'atencao', critico: 'critico' }[r.avaliacao] || 'pendente', fin, ben, par, tot,
+        escada: [['D+0', num(r.d0)], ['D+30', num(r.d30)], ['D+60', num(r.d60)], ['D+180', num(r.d180)], ['1 ano', num(r.d360)]] }; }
+    // Bens: algum sem proteção, vermelho; algum com proteção insuficiente, atenção; todos protegidos, ok
+    { const itens = (R.bens || {}).itens || [], p = itens.map(b => b.protecao || '');
+      const status = !itens.length ? 'pendente' : p.includes('nenhuma') ? 'critico' : p.includes('insuficiente') ? 'atencao' : p.every(x => x === 'total') ? 'ok' : 'pendente';
+      out.bens = { status, total: itens.reduce((a, b) => a + (+b.valor || 0), 0), protegido: itens.filter(b => b.protecao === 'total').reduce((a, b) => a + (+b.valor || 0), 0) }; }
+    // Renda e família: não precisa ou tem o que precisa, ok; precisa e tem menos, atenção; precisa e não tem, vermelho
+    for (const k of ['renda', 'familia']) {
+      const r = R[k] || {}, nec = num(r.necessario), at = +r.atual || 0;
+      const status = r.precisa == null ? 'pendente' : !r.precisa ? 'ok' : nec == null ? 'pendente' : at >= nec ? 'ok' : at > 0 ? 'atencao' : 'critico';
+      out[k] = { status, necessario: nec, atual: at, falta: nec != null ? Math.max(0, nec - at) : null };
+    }
+    const pesos = Object.assign({}, ...RISCOS.map(x => ({ [x.id]: 1 })), R.pesos || {});
+    let soma = 0, peso = 0; RISCOS.forEach(x => { const st = out[x.id].status; if (st === 'pendente') return; soma += (+pesos[x.id] || 0) * NOTA[st]; peso += +pesos[x.id] || 0; });
+    return { itens: out, nota: peso ? soma / peso : null, avaliados: RISCOS.filter(x => out[x.id].status !== 'pendente').length, pesos };
+  }
+  // Plano de exemplo dos riscos (família da Ana Ribeiro), para o portal e para a tela do cliente sem plano
+  const RISCOS_EXEMPLO = {
+    pesos: { reserva: 1, saude: 1, terceiros: 1, ruina: 1, liquidez: 1, bens: 1, renda: 1, familia: 1 },
+    reserva: { dependentes: true, natureza: 'CLT (empresa privada)', custoVida: null, atual: null, alvo: null },
+    saude: { avaliacao: 'otimizavel', tipo: 'Adesão', hospitais: ['Hospital Alemão Oswaldo Cruz', 'Beneficência Portuguesa', 'Hospital Samaritano'],
+      vidas: [{ nome: 'Ana', idade: 35, premio: 1150 }, { nome: 'Marcos', idade: 38, premio: 1350 }, { nome: 'Luiza', idade: 1, premio: 290 }],
+      alternativa: { tipo: 'PME', hospitais: ['Hospital Alemão Oswaldo Cruz', 'Beneficência Portuguesa', 'Hospital Samaritano'], preco: 2280 } },
+    terceiros: { avaliado: true, itens: [{ nome: 'Responsabilidade civil profissional', ideal: 400000, atual: 0 }, { nome: 'Responsabilidade civil familiar', ideal: 500000, atual: 0 }] },
+    ruina: { itens: { fraude: 'ok', classe: 'atencao', ativo: 'ok', corrosao: '' } },
+    liquidez: { avaliacao: 'ok', d0: 60000, d30: 150000, d60: 250000, d180: 380000, d360: 500000 },
+    bens: { itens: [
+      { nome: 'Carro da família', valor: 120000, protecao: 'total', apolice: { seguradora: 'Porto Seguro', numero: '0531.22.118790', cobertura: '100% da tabela FIPE, terceiros R$ 200 mil', premio: 4200, vigencia: 'até mar/2027' } },
+      { nome: 'Carro (2º veículo)', valor: 60000, protecao: 'nenhuma', apolice: null }] },
+    renda: { precisa: true, necessario: 900000, atual: 300000 },
+    familia: { precisa: true, necessario: 1500000, atual: 0 },
+  };
   const ORIGENS_OUT = ORIGENS;
   const config = () => ({ age: CURRENT_AGE, retireAge: RETIRE_AGE, initialBens: INITIAL_BENS, desired: DESIRED, desiredSteps: DESIRED_STEPS, lifeExp: LIFE_EXP, salary: SALARY, salaryGrowth: SAL_G, partValue: PART_VALUE, initialWealth: INITIAL_WEALTH, capacityOverride: CAP_OVERRIDE, rate: R_M, profiles: PROFILES, incomes: INCOMES, expenses: EXPENSES, objectives: OBJ, passive: PASSIVE });
-  return { TODAY, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, PASSIVE, PROFILES, STATUS, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, serieCusto, desiredAt, aplicaAlteracoes, descreveAlteracao, valorAtual, mesDoPlano, setRetireAge: a => { RETIRE_AGE = a == null ? null : Math.max(CURRENT_AGE, +a); }, financiamentoValido, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
+  return { TODAY, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, PASSIVE, PROFILES, STATUS, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, serieCusto, desiredAt, aplicaAlteracoes, descreveAlteracao, valorAtual, mesDoPlano, RISCOS, NATUREZAS, ITENS_RUINA, RISCOS_EXEMPLO, avaliaRiscos, custoDeVida, lerCaminho, gravaCaminho, setRetireAge: a => { RETIRE_AGE = a == null ? null : Math.max(CURRENT_AGE, +a); }, financiamentoValido, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
 })();
 if (typeof module !== 'undefined') module.exports = ENGINE;
 </script>
@@ -1514,7 +1694,7 @@ function frame(now) {
 // objetivos, idade de parar) vira uma proposta: a tela mostra o efeito, mas o plano só muda quando o consultor
 // aprovar. A proposta fica no navegador ('nl-proposta') ou vai em arquivo; a resposta volta no próprio plano
 // (plan.propostas), para chegar ao cliente também quando o plano vier por link ou arquivo.
-const baseDe = plan => structuredClone(Object.assign({}, plan || {}, ENGINE.config(), { mode: ENGINE.MODE, name: (plan && plan.name) || '' }));
+const baseDe = plan => structuredClone(Object.assign({ riscos: plan ? undefined : ENGINE.RISCOS_EXEMPLO }, plan || {}, ENGINE.config(), { mode: ENGINE.MODE, name: (plan && plan.name) || '' }));   // sem plano: os riscos do exemplo
 let BASE = null, PROP = null, VER = 'proposta';
 const escH = t => String(t == null ? '' : t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const lerReais = t => { const v = parseFloat(String(t).replace(/[^\d,-]/g, '').replace(',', '.')); return isFinite(v) ? Math.max(0, v) : NaN; };
@@ -1535,14 +1715,14 @@ function respostaNoPlano() {
 function aplicaVista() {
   const plan = structuredClone(BASE);
   if (VER === 'proposta' && temAlteracoes()) ENGINE.aplicaAlteracoes(plan, PROP.ops);
-  ENGINE.configure(plan); rerun(); rebuildRows(); desenhaPropBar();
+  ENGINE.configure(plan); rerun(); rebuildRows(); desenhaPropBar(); renderRiscos();
 }
 // inclui alterações na proposta; a mesma alteração substitui a anterior, e voltar ao valor do plano a desfaz
 function proporAlteracao(alts) {
   if (PAPEL !== 'cliente') return false;
   if (PROP && PROP.status === 'pendente') { avisar('Sua proposta está com o consultor. Cancele o envio para mudar algo.'); return false; }
   if (!PROP || PROP.status === 'respondida') PROP = { id: 'p' + Date.now(), planoNome: BASE.name || '', status: 'rascunho', ops: [] };
-  const chave = a => [a.tipo, a.lista, a.id, a.campo, a.modo, a.mi].join('|');
+  const chave = a => [a.tipo, a.lista, a.id, a.campo, a.modo, a.mi, a.caminho, a.acao].join('|');
   alts.forEach(a => { PROP.ops = PROP.ops.filter(o => chave(o) !== chave(a)); if (a.para !== a.de) PROP.ops.push(a); });
   salvaProposta(); VER = 'proposta'; aplicaVista();
   avisar(PROP.ops.length ? 'Incluído na sua proposta. O plano só muda quando o consultor aprovar.' : 'Sem alterações: a proposta voltou ao plano atual.');
@@ -1574,7 +1754,7 @@ function abrirRevisao() {
   const rasc = PROP.status === 'rascunho', resp = PROP.status === 'respondida';
   const linhas = PROP.ops.map((a, i) => {
     const d = ENGINE.descreveAlteracao(BASE, a), dec = resp ? (PROP.decisoes || [])[i] : null;
-    return `<div class="alt"><div class="o">${escH(d.oque)}<small>no plano: ${escH(d.de)}</small></div><div class="dp">→ <b>${escH(d.para)}</b></div>` +
+    return `<div class="alt"><div class="o">${escH(d.oque)}<small>no plano: ${escH(d.de)}${a.nota ? ' · “' + escH(a.nota) + '”' : ''}</small></div><div class="dp">→ <b>${escH(d.para)}</b></div>` +
       (rasc ? `<button class="rm" data-rm="${i}" title="Tirar da proposta">×</button>` : dec ? `<span class="dec ${dec === 'aprovada' ? 'ok' : 'no'}">${dec}</span>` : '') + `</div>`;
   }).join('');
   document.getElementById('propModalC').innerHTML = `<h3>${PAPEL === 'apresentar' ? 'Proposta do cliente' : rasc ? 'Revisar a proposta' : resp ? 'Resposta do consultor' : 'Proposta enviada'}</h3>
@@ -1593,7 +1773,9 @@ document.addEventListener('click', e => {
   if (rm && PROP) { PROP.ops.splice(+rm.dataset.rm, 1); salvaProposta(); aplicaVista(); if (PROP.ops.length) abrirRevisao(); else fecharRevisao(); return; }
   const po = e.target.closest('[data-prop-obj]'); if (po) { proporObjetivo(po.dataset.propObj); return; }
   if (e.target.closest('[data-prop-ff]')) { proporLiberdade(); return; }
-  const bt = e.target.closest('[data-prop]'); if (!bt || !PROP) return;
+  const bt = e.target.closest('[data-prop]'); if (!bt) return;
+  if (bt.dataset.prop === 'fechar') { fecharRevisao(); return; }
+  if (!PROP) return;
   const a = bt.dataset.prop;
   if (a === 'revisar') abrirRevisao();
   else if (a === 'fechar') fecharRevisao();
@@ -1728,7 +1910,187 @@ function trocaBase(plan) {
 // na nuvem, só o dono do link é consultor: quem mais abrir a apresentação cai na visão do cliente
 ARMAZEM.iniciar().then(info => { if (PAPEL === 'apresentar' && !info.dono) location.replace(location.pathname + (FLUXO ? '?fluxo' : '')); });
 
+// ===================== JORNADA DO CLIENTE: FASES =====================
+// As telas finais do cliente, em ordem: cada fase mostra um resultado do planejamento e tem um vídeo do consultor.
+// A Evolução Patrimonial é a última. O consultor apresentando vê as mesmas fases.
+const FASES = ['riscos', 'evolucao'], NOME_FASE = { riscos: 'Gestão de riscos', evolucao: 'Evolução patrimonial' };
+let FASE = (() => { const q = new URLSearchParams(location.search).get('fase'); if (FASES.includes(q)) return q; try { const f = localStorage.getItem('nl-fase'); if (FASES.includes(f)) return f; } catch (e) { } return 'riscos'; })();
+if (FLUXO) FASE = 'evolucao';
+function mostraFase(f) {
+  FASE = f; try { localStorage.setItem('nl-fase', f); } catch (e) { }
+  document.body.classList.toggle('fase-riscos', f === 'riscos');
+  document.getElementById('riscos').hidden = f !== 'riscos'; document.getElementById('wrap').hidden = f !== 'evolucao';
+  document.querySelectorAll('#fases [data-fase]').forEach(b => b.classList.toggle('on', b.dataset.fase === f));
+  if (!FLUXO) document.querySelector('.brand small').textContent = NOME_FASE[f];
+  fecharCelula(); if (f === 'riscos') renderRiscos(); else requestAnimationFrame(resize);
+}
+document.getElementById('fases').addEventListener('click', e => { const b = e.target.closest('[data-fase]'); if (b) mostraFase(b.dataset.fase); });
+
+// vídeo do consultor: o endereço vem do plano (plan.videos[fase]); sem vídeo, o espaço fica reservado
+function videoHtml(chave, titulo, texto) {
+  const url = ((BASE && BASE.videos) || {})[chave];
+  if (url) {
+    const yt = /(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]{6,})/.exec(url), vm = /vimeo\.com\/(\d+)/.exec(url);
+    if (yt) return `<div class="video"><iframe src="https://www.youtube.com/embed/${yt[1]}" allowfullscreen title="${escH(titulo)}"></iframe></div>`;
+    if (vm) return `<div class="video"><iframe src="https://player.vimeo.com/video/${vm[1]}" allowfullscreen title="${escH(titulo)}"></iframe></div>`;
+    return `<div class="video"><video controls src="${escH(url)}"></video></div>`;
+  }
+  return `<div class="video"><div class="play"><svg viewBox="0 0 24 24"><path d="M6 4l14 8-14 8z"/></svg></div><b>${escH(titulo)}</b><span>${escH(texto)}</span></div>`;
+}
+document.getElementById('btnVideo').addEventListener('click', () => {
+  document.getElementById('propModalC').innerHTML = videoHtml('evolucao', 'Como ler a sua evolução patrimonial', 'Aqui vai entrar o vídeo do seu consultor explicando esta tela.') + '<div class="bts"><button class="btn btn-secondary btn-small" data-prop="fechar">Fechar</button></div>';
+  document.getElementById('propModal').hidden = false;
+});
+
+// ===================== FASE: GESTÃO DE RISCOS =====================
+const COR_ST = { ok: '#2E9E5B', atencao: '#FA7A35', critico: '#D64545', pendente: '#cfcbc3' };
+const NOME_ST = { ok: 'Em dia', atencao: 'Atenção', critico: 'Crítico', pendente: 'Não avaliado' };
+const ICONE_RISCO = {
+  reserva: 'M12 2a10 10 0 100 20 10 10 0 000-20zM12 8a4 4 0 100 8 4 4 0 000-8zM4.9 4.9l4.3 4.3M14.8 14.8l4.3 4.3M14.8 9.2l4.3-4.3M4.9 19.1l4.3-4.3',
+  saude: 'M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 00-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 000-7.8zM3.5 12h4l2-3 3 6 2-3h6',
+  terceiros: 'M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.9M16 3.1a4 4 0 010 7.8',
+  ruina: 'M23 18l-9.5-9.5-5 5L1 6M17 18h6v-6', liquidez: 'M12 2.7l5.7 5.6a8 8 0 11-11.3 0z',
+  bens: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10zM9 12l2 2 4-4',
+  renda: 'M20 12V8H6a2 2 0 010-4h12v4M4 6v12a2 2 0 002 2h14v-4M18 12a2 2 0 000 4h4v-4z',
+  familia: 'M3 10l9-7 9 7v10a2 2 0 01-2 2H5a2 2 0 01-2-2zM12 18s-4-2.3-4-5a2 2 0 014-1 2 2 0 014 1c0 2.7-4 5-4 5z',
+};
+const stHtml = st => `<span class="st ${st}">${NOME_ST[st]}</span>`;
+const pct = (v, t) => t ? Math.round(v / t * 100) + '%' : '—';
+// plano à vista (com as alterações da proposta, quando é o caso) e a simulação local do cliente, que não grava nada
+const planoVista = () => { const p = structuredClone(BASE); if (VER === 'proposta' && temAlteracoes()) ENGINE.aplicaAlteracoes(p, PROP.ops); return p; };
+const SIMR = { custo: null, alvo: null };
+const abertos = new Set(['reserva']);
+function resumoRisco(id, a, R) {
+  const x = a.itens[id];
+  if (x.status === 'pendente') return 'Ainda não avaliado pelo seu consultor.';
+  if (id === 'reserva') return 'Reserva de ' + fmt(x.atual) + ' para um ideal de ' + fmt(x.ideal) + '.';
+  if (id === 'saude') return x.status === 'critico' ? 'A família está sem plano de saúde.' : x.economia > 0 ? 'Dá para economizar ' + fmt(x.economia) + ' por mês.' : x.status === 'ok' ? 'O plano atual está adequado.' : 'O plano pode ser otimizado.';
+  if (id === 'terceiros') return x.falta > 0 ? 'Faltam ' + fmt(x.falta) + ' em coberturas.' : 'As coberturas necessárias estão contratadas.';
+  if (id === 'ruina') return x.status === 'ok' ? 'Nenhum sinal de ruína nos investimentos.' : x.status === 'critico' ? 'Há um risco identificado nos investimentos.' : 'Há pontos de atenção nos investimentos.';
+  if (id === 'liquidez') { const d0 = (x.escada[0] || [])[1]; return d0 != null ? fmt(d0) + ' disponíveis no mesmo dia.' : 'Liquidez avaliada pelo consultor.'; }
+  if (id === 'bens') return pct(x.protegido, x.total) + ' do valor dos bens está protegido.';
+  return x.status === 'ok' ? 'A proteção necessária está garantida.' : 'Faltam ' + fmt(x.falta) + ' de proteção.';
+}
+function renderRiscos() {
+  const el = document.getElementById('riscos'); if (!el || FASE !== 'riscos') return;
+  const P = planoVista(), R = P.riscos || {}, a = ENGINE.avaliaRiscos(P), cont = { ok: 0, atencao: 0, critico: 0, pendente: 0 };
+  ENGINE.RISCOS.forEach(x => cont[a.itens[x.id].status]++);
+  const nota = a.nota == null ? null : Math.round(a.nota * 100), circ = 2 * Math.PI * 50, corNota = nota == null ? '#cfcbc3' : nota >= 75 ? COR_ST.ok : nota >= 45 ? COR_ST.atencao : COR_ST.critico;
+  const rolagem = el.scrollTop;
+  let h = `<div class="rc"><div class="rk-topo">${videoHtml('riscos', 'Por que proteger o seu padrão de vida', 'Aqui vai entrar o vídeo do seu consultor explicando os riscos e como você pode simular outros valores.')}
+    <div class="nota-card"><h2>Gestão de riscos da família</h2><div class="sub">Avaliamos as oito principais ameaças ao padrão de vida da sua família. Cada uma está em dia, pede atenção ou é crítica; a nota mostra quanto dos riscos já está bem resolvido.</div>
+      <div class="nota-linha"><div class="anel"><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="50" fill="none" stroke="#F0EEE9" stroke-width="12"/><circle cx="60" cy="60" r="50" fill="none" stroke="${corNota}" stroke-width="12" stroke-linecap="round" stroke-dasharray="${circ}" stroke-dashoffset="${circ * (1 - (nota || 0) / 100)}"/></svg><b>${nota == null ? '—' : nota + '%'}</b></div>
+        <div class="contagem"><span><i style="background:${COR_ST.ok}"></i>${cont.ok} em dia</span><span><i style="background:${COR_ST.atencao}"></i>${cont.atencao} pedem atenção</span><span><i style="background:${COR_ST.critico}"></i>${cont.critico} críticos</span>${cont.pendente ? `<span><i style="background:${COR_ST.pendente}"></i>${cont.pendente} ainda não avaliados</span>` : ''}</div></div></div></div>
+    <div class="rk-grade">${ENGINE.RISCOS.map(x => { const st = a.itens[x.id].status; return `<button class="rk-tile ${st}" data-risco="${x.id}"><div class="t"><svg viewBox="0 0 24 24"><path d="${ICONE_RISCO[x.id]}"/></svg>${x.nome}</div>${stHtml(st)}<div class="r">${escH(resumoRisco(x.id, a, R))}</div></button>`; }).join('')}</div>`;
+  h += ENGINE.RISCOS.map(x => `<details class="rk-card" id="rk-${x.id}"${abertos.has(x.id) ? ' open' : ''}><summary>${stHtml(a.itens[x.id].status)}<h3>${x.nome}</h3><span class="chev">▶</span></summary><div class="corpo">${corpoRisco(x.id, P, a)}</div></details>`).join('');
+  el.innerHTML = h + '</div>'; el.scrollTop = rolagem;
+  if (abertos.has('reserva')) desenhaReserva();
+}
+const podeProp = () => PAPEL === 'cliente' && !(PROP && PROP.status === 'pendente');
+const avisoPend = () => PAPEL === 'cliente' && PROP && PROP.status === 'pendente' ? '<div class="muted" style="font-size:12px;color:#8d8d8d;margin-top:10px">Sua proposta está com o consultor. Para propor algo novo, cancele o envio.</div>' : '';
+function corpoRisco(id, P, a) {
+  const R = P.riscos || {}, x = a.itens[id];
+  if (id === 'reserva') {
+    const r = R.reserva || {};
+    return `<div class="expl">A reserva de emergência segura o padrão de vida se a renda parar. O valor ideal é o <b>custo de vida mensal</b> multiplicado pelos meses de proteção: <b>${x.d}</b> por ${r.dependentes ? 'ter' : 'não ter'} dependentes financeiros mais <b>${x.t != null ? x.t : '—'}</b> pela natureza do trabalho${r.natureza ? ' (' + escH(r.natureza) + ')' : ''}${x.meses != null ? ', <b>' + x.meses + ' meses</b>' : ''}. <span class="prov">Multiplicadores da natureza do trabalho provisórios.</span></div>
+      <div id="resVis"></div>
+      ${PAPEL === 'cliente' ? `<div class="simula"><h4>Simule outros valores</h4><div class="muted">Mude o custo de vida (ou o alvo de reserva) e veja os novos valores na hora. A simulação não muda nada; se quiser, proponha ao consultor com uma justificativa.</div>
+        <div class="lin"><label>Custo de vida mensal<input id="simCusto" inputmode="decimal" value="${SIMR.custo != null ? fmt(SIMR.custo) : fmt(x.custo)}"></label><label>Alvo de reserva (opcional)<input id="simAlvo" inputmode="decimal" placeholder="o ideal calculado" value="${SIMR.alvo != null ? fmt(SIMR.alvo) : ''}"></label><button class="btn btn-secondary btn-small" data-sim="limpar">Voltar ao plano</button></div>
+        ${podeProp() ? `<textarea id="simNota" placeholder="Justificativa para o consultor (ex.: vou cortar a TV a cabo e reduzir o lazer)"></textarea><div class="bts"><button class="btn btn-primary btn-small" data-sim="propor">Propor ao consultor</button></div>` : avisoPend()}</div>` : ''}`;
+  }
+  if (id === 'saude') {
+    const r = R.saude || {}, vidas = r.vidas || [], alt = r.alternativa || {};
+    if (r.avaliacao === 'sem_plano') return `<div class="expl">A família não tem plano de saúde: um problema de saúde pode consumir a reserva e os investimentos. Converse com o seu consultor sobre as opções.</div>`;
+    let h = `<div class="expl">Comparamos o plano atual com uma boa oferta para as mesmas idades e os hospitais que a família quer.</div>
+      <div class="kpis"><div class="kpi"><span>Plano atual</span><b>${escH(r.tipo || '—')}</b></div><div class="kpi"><span>Custo por mês</span><b>${fmt(x.total)}</b></div>${x.economia != null ? `<div class="kpi"><span>Economia possível</span><b class="${x.economia > 0 ? 'good' : ''}">${fmt(Math.max(0, x.economia))}/mês</b></div>` : ''}</div>
+      <div style="font:600 11.5px 'DM Sans',sans-serif;color:#8a8a8a;margin-top:6px">Hospitais desejados</div><div class="chipsh">${(r.hospitais || []).map(n => `<span>${escH(n)}</span>`).join('') || '<span>—</span>'}</div>
+      <table class="rk-tab"><thead><tr><th>Vida</th><th class="n">Idade</th><th class="n">Prêmio mensal</th></tr></thead><tbody>${vidas.map(v => `<tr><td><b>${escH(v.nome || '—')}</b></td><td class="n">${v.idade != null && v.idade !== '' ? v.idade + (+v.idade === 1 ? ' ano' : ' anos') : '—'}</td><td class="n">${fmt(+v.premio || 0)}</td></tr>`).join('')}<tr class="tot"><td>Total</td><td></td><td class="n">${fmt(x.total)}</td></tr></tbody></table>`;
+    if (alt.preco) h += `<div class="alt-box">Alternativa: plano <b>${escH(alt.tipo || '')}</b> com cobertura em ${escH((alt.hospitais || []).join(', ') || 'hospitais equivalentes')}, por <b>${fmt(alt.preco)}/mês</b>.${x.economia > 0 ? ` Economia estimada de <b>${fmt(x.economia)} por mês</b> (${fmt(x.economia * 12)} no ano).` : ''}</div>`;
+    if (PAPEL === 'cliente') h += podeProp() ? `<div class="simula"><h4>Algo diferente?</h4><div class="muted">Corrija idades e prêmios ou diga em quais hospitais quer atendimento. Vai como proposta para o seu consultor.</div>
+      ${vidas.map((v, i) => `<div class="lin" style="margin-bottom:6px"><label>${escH(v.nome || 'Vida ' + (i + 1))}: idade<input data-sv="${i}:idade" type="number" min="0" max="120" value="${escH(v.idade)}" style="width:90px"></label><label>Prêmio mensal<input data-sv="${i}:premio" inputmode="decimal" value="${fmt(+v.premio || 0)}"></label></div>`).join('')}
+      <label style="margin-top:6px">Hospitais desejados (separados por vírgula)<input id="svHosp" value="${escH((r.hospitais || []).join(', '))}" style="width:100%"></label>
+      <textarea id="svNota" placeholder="Justificativa para o consultor"></textarea><div class="bts"><button class="btn btn-primary btn-small" data-sim="saude">Propor ao consultor</button></div></div>` : avisoPend();
+    return h;
+  }
+  if (id === 'terceiros') {
+    const its = (R.terceiros || {}).itens || [];
+    return `<div class="expl">Um acidente com outra pessoa ou um erro no trabalho podem gerar uma indenização que consome o patrimônio. O seguro de responsabilidade civil cobre isso.</div>` +
+      (its.length ? `<table class="rk-tab"><thead><tr><th>Necessidade</th><th class="n">Cobertura ideal</th><th class="n">Atual</th><th class="n">Diferença</th></tr></thead><tbody>${its.map(i => { const d = Math.max(0, (+i.ideal || 0) - (+i.atual || 0)); return `<tr><td><b>${escH(i.nome)}</b></td><td class="n">${fmt(+i.ideal || 0)}</td><td class="n">${fmt(+i.atual || 0)}</td><td class="n ${d > 0 ? 'low' : 'good'}">${d > 0 ? fmt(d) : 'coberto'}</td></tr>`; }).join('')}</tbody></table>` : '<div class="expl">Nenhuma necessidade identificada.</div>');
+  }
+  if (id === 'ruina') {
+    const it = (R.ruina || {}).itens || {}, mapa = { risco: ['critico', 'Identificado'], atencao: ['atencao', 'Atenção'], ok: ['ok', 'Verificado: não há'], '': ['pendente', 'Não avaliado'] };
+    return `<div class="expl">Situações que podem destruir parte dos investimentos de uma vez ou corroê-los aos poucos.</div>` + ENGINE.ITENS_RUINA.map(([k, n]) => { const [st, t] = mapa[it[k] || ''] || mapa['']; return `<div class="ruina-l"><span>${n}</span><span class="st ${st}">${t}</span></div>`; }).join('');
+  }
+  if (id === 'liquidez') {
+    const tot = x.tot || 1, mx = Math.max(1, x.fin, ...x.escada.map(e => e[1] || 0));
+    return `<div class="expl">Quanto do patrimônio vira dinheiro, e em quanto tempo, se for preciso.</div>
+      <div class="barra">${[[x.fin, C.fin], [x.ben, C.bens], [x.par, C.part]].map(([v, c]) => v ? `<i style="width:${v / tot * 100}%;background:${c}"></i>` : '').join('')}</div>
+      <div class="kpis"><div class="kpi"><span>Mercado financeiro</span><b>${pct(x.fin, x.tot)}</b></div><div class="kpi"><span>Imóveis e outros bens</span><b>${pct(x.ben, x.tot)}</b></div><div class="kpi"><span>Participações societárias</span><b>${pct(x.par, x.tot)}</b></div></div>
+      <div style="font:600 11.5px 'DM Sans',sans-serif;color:#8a8a8a;margin-top:12px">Patrimônio financeiro que pode ser acessado em</div>
+      <div class="escada">${x.escada.map(([n, v]) => `<div><b>${v != null ? 'R$ ' + fmtC(v) : '—'}</b><i style="height:${v != null ? Math.max(2, v / mx * 100) : 2}%"></i>${n}</div>`).join('')}</div>`;
+  }
+  if (id === 'bens') {
+    const its = (R.bens || {}).itens || [], txt = { total: ['ok', 'Protegido'], insuficiente: ['atencao', 'Proteção insuficiente'], nenhuma: ['critico', 'Sem proteção'] };
+    return `<div class="expl">Os bens da família e se estão protegidos. Clique num bem protegido para ver a apólice.</div>` + (its.length ? `<table class="rk-tab"><thead><tr><th>Bem</th><th class="n">Valor</th><th>Proteção</th></tr></thead><tbody>${its.map((b, i) => { const [st, t] = txt[b.protecao] || ['pendente', 'Não avaliado'], ap = b.apolice; return `<tr${ap ? ` class="clic" data-apolice="${i}"` : ''}><td><b>${escH(b.nome)}</b>${ap ? ' <span style="color:#9a9a9a;font-size:11px">ver apólice ▾</span>' : ''}</td><td class="n">${fmt(+b.valor || 0)}</td><td><span class="st ${st}">${t}</span></td></tr>` + (ap ? `<tr class="apolice" id="ap-${i}" hidden><td colspan="3"><b>${escH(ap.seguradora || 'Seguradora')}</b>${ap.numero ? ' · apólice ' + escH(ap.numero) : ''}<br>${ap.cobertura ? 'Cobertura: ' + escH(ap.cobertura) + '<br>' : ''}${ap.premio ? 'Prêmio: ' + fmt(+ap.premio) + ' por ano' : ''}${ap.vigencia ? ' · vigência ' + escH(ap.vigencia) : ''}</td></tr>` : ''); }).join('')}</tbody></table>` : '<div class="expl">Nenhum bem cadastrado.</div>');
+  }
+  // renda e família
+  const r = R[id] || {}, oque = id === 'renda' ? 'a renda da família se quem trabalha ficar impedido de trabalhar (invalidez ou acidente)' : 'o padrão de vida da família se faltar quem sustenta a casa';
+  if (r.precisa === false) return `<div class="expl">Hoje a família não precisa desta proteção.</div>`;
+  return `<div class="expl">O seguro protege ${oque}. <span class="prov">O cálculo detalhado da necessidade entra em breve.</span></div>
+    <div class="kpis"><div class="kpi"><span>Proteção necessária</span><b>${x.necessario != null ? fmt(x.necessario) : '—'}</b></div><div class="kpi"><span>Proteção atual</span><b>${fmt(x.atual)}</b></div><div class="kpi"><span>Falta</span><b class="${x.falta > 0 ? 'low' : 'good'}">${x.falta > 0 ? fmt(x.falta) : 'nada'}</b></div></div>
+    ${x.necessario ? `<div class="barra"><i style="width:${Math.min(100, x.atual / x.necessario * 100)}%;background:${COR_ST[x.status]}"></i></div>` : ''}`;
+}
+// régua da reserva: mínima, aceitável e ideal, e onde a família está (com a simulação, se houver)
+function desenhaReserva() {
+  const el = document.getElementById('resVis'); if (!el) return;
+  const P = planoVista(); P.riscos = P.riscos || {}; P.riscos.reserva = Object.assign({}, P.riscos.reserva);
+  if (SIMR.custo != null) P.riscos.reserva.custoVida = SIMR.custo;
+  if (SIMR.alvo != null) P.riscos.reserva.alvo = SIMR.alvo;
+  const x = ENGINE.avaliaRiscos(P).itens.reserva;
+  if (x.ideal == null) { el.innerHTML = '<div class="expl">O seu consultor ainda não definiu a reserva ideal.</div>'; return; }
+  const topo = Math.max(x.ideal, x.atual || 0) * 1.08, p = v => Math.min(100, v / topo * 100);
+  el.innerHTML = `<div class="kpis"><div class="kpi"><span>Custo de vida mensal</span><b>${fmt(x.custo)}</b></div><div class="kpi"><span>Reserva mínima (40%)</span><b>${fmt(x.minima)}</b></div><div class="kpi"><span>Reserva aceitável (70%)</span><b>${fmt(x.aceitavel)}</b></div><div class="kpi"><span>Reserva ideal${x.alvoProprio ? ' (alvo)' : ''}</span><b>${fmt(x.ideal)}</b></div><div class="kpi"><span>Você tem hoje</span><b class="${x.status === 'ok' ? 'good' : x.status === 'critico' ? 'low' : ''}">${x.atual != null ? fmt(x.atual) : '—'}</b></div></div>
+    <div class="degraus"><div class="trilho"></div>${x.atual != null ? `<div class="cheio" style="width:${p(x.atual)}%"></div><div class="voce" style="left:${p(x.atual)}%">você: ${fmt(x.atual)}</div>` : ''}
+      ${[['mínima', x.minima], ['aceitável', x.aceitavel], ['ideal', x.ideal]].map(([n, v]) => `<div class="marca" style="left:${p(v)}%"><span>${n}<small>R$ ${fmtC(v)}</small></span></div>`).join('')}</div>
+    ${SIMR.custo != null || SIMR.alvo != null ? `<div class="muted" style="font-size:12px;color:var(--nl-orange-600)">Simulação: ${stHtml(x.status)} ${x.status === 'ok' ? 'com estes valores a reserva fica em dia.' : 'faltariam ' + fmt(x.ideal - (x.atual || 0)) + ' para o ideal.'}</div>` : ''}`;
+}
+document.getElementById('riscos').addEventListener('click', e => {
+  const t = e.target.closest('[data-risco]');
+  if (t) { abertos.add(t.dataset.risco); renderRiscos(); document.getElementById('rk-' + t.dataset.risco).scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
+  const ap = e.target.closest('[data-apolice]'); if (ap) { const r = document.getElementById('ap-' + ap.dataset.apolice); r.hidden = !r.hidden; return; }
+  const b = e.target.closest('[data-sim]'); if (!b) return;
+  const P = BASE.riscos || {};
+  if (b.dataset.sim === 'limpar') { SIMR.custo = SIMR.alvo = null; renderRiscos(); }
+  else if (b.dataset.sim === 'propor') {
+    const nota = document.getElementById('simNota').value.trim(), r = P.reserva || {}, alts = [], efetivo = ENGINE.avaliaRiscos(BASE).itens.reserva;
+    if (SIMR.custo != null && Math.round(SIMR.custo) !== Math.round(efetivo.custo)) alts.push({ tipo: 'campo', caminho: 'riscos.reserva.custoVida', rotulo: 'Reserva de emergência: custo de vida mensal', formato: 'reais', de: r.custoVida == null ? null : +r.custoVida, deTexto: fmt(efetivo.custo) + (r.custoVida == null ? ' (do fluxo de caixa)' : ''), para: SIMR.custo, nota });
+    if (SIMR.alvo != null && Math.round(SIMR.alvo) !== Math.round(efetivo.ideal || 0)) alts.push({ tipo: 'campo', caminho: 'riscos.reserva.alvo', rotulo: 'Reserva de emergência: alvo de reserva', formato: 'reais', de: r.alvo == null ? null : +r.alvo, deTexto: efetivo.ideal != null ? fmt(efetivo.ideal) + (r.alvo == null ? ' (ideal calculado)' : '') : '—', para: SIMR.alvo, nota });
+    if (!alts.length) { avisar('Mude o custo de vida ou o alvo antes de propor.'); return; }
+    if (!nota) { avisar('Escreva uma justificativa para o consultor.'); document.getElementById('simNota').focus(); return; }
+    SIMR.custo = SIMR.alvo = null; proporAlteracao(alts);
+  }
+  else if (b.dataset.sim === 'saude') {
+    const r = P.saude || {}, nota = document.getElementById('svNota').value.trim(), alts = [];
+    (r.vidas || []).forEach((v, i) => {
+      const idade = document.querySelector(`[data-sv="${i}:idade"]`).value, premio = lerReais(document.querySelector(`[data-sv="${i}:premio"]`).value), nome = v.nome || 'vida ' + (i + 1);
+      if (idade !== '' && +idade !== +v.idade) alts.push({ tipo: 'campo', caminho: `riscos.saude.vidas.${i}.idade`, rotulo: `Plano de saúde: idade de ${nome}`, formato: 'numero', de: v.idade, para: +idade, nota });
+      if (!isNaN(premio) && Math.round(premio) !== Math.round(+v.premio || 0)) alts.push({ tipo: 'campo', caminho: `riscos.saude.vidas.${i}.premio`, rotulo: `Plano de saúde: prêmio de ${nome}`, formato: 'reais', de: +v.premio || 0, para: premio, nota });
+    });
+    const hosp = document.getElementById('svHosp').value.split(',').map(t => t.trim()).filter(Boolean);
+    if (JSON.stringify(hosp) !== JSON.stringify(r.hospitais || [])) alts.push({ tipo: 'campo', caminho: 'riscos.saude.hospitais', rotulo: 'Plano de saúde: hospitais desejados', formato: 'lista', de: r.hospitais || [], para: hosp, nota });
+    if (!alts.length) { avisar('Nada mudou em relação ao plano.'); return; }
+    if (!nota) { avisar('Escreva uma justificativa para o consultor.'); document.getElementById('svNota').focus(); return; }
+    proporAlteracao(alts);
+  }
+});
+document.getElementById('riscos').addEventListener('input', e => {
+  if (e.target.id === 'simCusto') { const v = lerReais(e.target.value); SIMR.custo = isNaN(v) ? null : v; desenhaReserva(); }
+  if (e.target.id === 'simAlvo') { const v = lerReais(e.target.value); SIMR.alvo = isNaN(v) || !v ? null : v; desenhaReserva(); }
+});
+document.getElementById('riscos').addEventListener('toggle', e => { const d = e.target; if (!d.id || !d.id.startsWith('rk-')) return; const id = d.id.slice(3); if (d.open) { abertos.add(id); if (id === 'reserva') desenhaReserva(); } else abertos.delete(id); }, true);
+
 BASE = baseDe(PLANO); PROP = lerProposta(); respostaNoPlano();
+mostraFase(FASE);
 if (temAlteracoes()) aplicaVista(); else desenhaPropBar();
 updateStats(); setPlayLabel(); requestAnimationFrame(frame);
 </script>

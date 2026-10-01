@@ -25,6 +25,38 @@ Na tela do cliente, o botão **"Fluxo de caixa"** abre a tabela numa janela pró
 toda (`evolucao-patrimonial.html?fluxo`). Ela abre nos próximos 24 meses, mês a mês, com entradas e saídas já
 detalhadas, e mostra o mesmo plano e a mesma proposta da tela principal.
 
+## Jornada do cliente e gestão de riscos
+
+A área do cliente é uma jornada de fases (a barra "Sua jornada", abaixo do cabeçalho): cada fase mostra um resultado do
+planejamento e tem um espaço para o vídeo do consultor (link do YouTube, do Vimeo ou do arquivo, em `plano.videos`;
+vazio, o espaço fica reservado). Hoje são duas: **Gestão de riscos** e **Evolução patrimonial** (a última). A fase
+pode vir no endereço (`?fase=riscos`); senão, a tela abre na última vista.
+
+**Gestão de riscos** avalia oito ameaças ao padrão de vida (`plano.riscos`, preenchido no portal, na página Gestão de
+riscos). O status de cada uma sai de `ENGINE.avaliaRiscos`, no motor, igual nas duas telas:
+
+| Ameaça | Em dia | Atenção | Crítico |
+|---|---|---|---|
+| Desemprego e emergência | reserva atual ≥ ideal | entre a mínima (40%) e o ideal | abaixo da mínima |
+| Problema de saúde | plano adequado | pode ser otimizado | sem plano |
+| Danos a terceiros | coberturas suficientes | cobertura menor que a ideal | necessidade sem cobertura |
+| Ruína em investimentos | todos os itens verificados | algum item em atenção | algum item identificado |
+| Risco de liquidez | avaliação do consultor | avaliação do consultor | avaliação do consultor |
+| Proteção dos bens | todos protegidos | algum com proteção insuficiente | algum sem proteção |
+| Proteção da renda / da família | não precisa, ou tem o necessário | tem menos que o necessário | precisa e não tem |
+
+- Reserva ideal = custo de vida mensal × (d + t): d = 3 com dependentes financeiros, 0 sem; t pela natureza do
+  trabalho (`ENGINE.NATUREZAS`, **valores provisórios** até o vetor oficial). O custo de vida vem do Fluxo de caixa
+  (média das saídas dos próximos 12 meses), a reserva atual vem do D+0 da liquidez; o consultor pode informar outros.
+- A composição do patrimônio (financeiro, imóveis, participações) vem da página Patrimônio.
+- Proteção da renda e da família: necessário e atual informados pelo consultor; **o cálculo do seguro de vida e de
+  acidentes pessoais ainda vai entrar**.
+- Nota da família (0 a 100%): média ponderada dos status (em dia 1, atenção 0,5, crítico 0; não avaliados ficam de
+  fora), com pesos editáveis em `plano.riscos.pesos` (todos 1 por padrão).
+- O cliente simula à vontade (por exemplo, o custo de vida de 8.000 para 7.500 refaz a reserva na hora) e pode propor
+  ao consultor, com justificativa, o custo de vida, o alvo de reserva, as idades e os prêmios do plano de saúde e os
+  hospitais desejados. São alterações do tipo `campo` (qualquer caminho do plano), aprovadas como as outras.
+
 ## Propostas do cliente
 
 A tela do cliente mostra o plano aprovado pelo consultor. O cliente pode, na própria tela:

@@ -100,6 +100,20 @@ aside nav a.feito i{background:var(--nl-score-good);border-color:var(--nl-score-
 aside nav a i.contador{display:none} aside nav a i.contador.tem{display:flex;background:var(--nl-orange-500);border-color:var(--nl-orange-500);color:#fff;opacity:1}
 aside nav .sep-nav{height:1px;background:rgba(255,255,255,.1);margin:8px 10px}
 .pc-tab td{vertical-align:middle;font-size:12.5px;padding:9px 10px}
+.rkc-resumo{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.rkc-nota{font:700 30px Sora,sans-serif;color:var(--nl-navy-900);min-width:92px}
+.rkc-nota small{display:block;font:500 11px 'DM Sans',sans-serif;color:#8d8d8d}
+.rkc-chips{display:flex;flex-wrap:wrap;gap:8px;flex:1}
+.rkc-chip{display:flex;align-items:center;gap:7px;background:var(--nl-cream-50);border-radius:9999px;padding:5px 11px 5px 6px;font:600 12px 'DM Sans',sans-serif;color:var(--nl-navy-900);cursor:pointer;border:0}
+.rkc-chip i{width:10px;height:10px;border-radius:50%}
+.st-c{display:inline-block;font:600 11px 'DM Sans',sans-serif;padding:3px 9px;border-radius:9999px;margin-left:8px;vertical-align:1px}
+.st-c.ok{background:#E7F5EC;color:#22794a} .st-c.atencao{background:#FFF1E6;color:#C25A12} .st-c.critico{background:#FDECEC;color:#B83A3A} .st-c.pendente{background:#F0EEE9;color:#8a8a8a}
+.rkc-calc{background:var(--nl-cream-50);border-radius:10px;padding:10px 13px;font-size:12.5px;color:var(--nl-navy-900);margin-top:12px;line-height:1.55}
+.rkc-tab td{padding:4px 6px} .rkc-tab input,.rkc-tab select{padding:6px 8px;font-size:12.5px}
+.rkc-ap{display:grid;grid-template-columns:1.2fr 1fr 1.6fr .9fr 1fr;gap:6px;padding:2px 6px 10px}
+.rkc-ap input{padding:5px 8px;font-size:12px}
+.rkc-pesos{display:grid;grid-template-columns:repeat(4,1fr);gap:10px 14px}
+.prov-c{font-size:11px;color:#b08a6a;font-style:italic}
 .pc-tab td.o{font-weight:600;color:var(--nl-navy-900)} .pc-tab td.o small{display:block;font-weight:500;color:#9a9a9a;font-size:11px;margin-top:2px}
 .pc-tab td.para{color:var(--nl-orange-600);font-weight:600}
 .pc-tab .mudou{display:block;color:var(--nl-score-low);font-size:11px;font-weight:500;margin-top:2px}
@@ -374,14 +388,15 @@ circle.pv-hit{cursor:ns-resize}
     <a data-nav="cliente" role="button" tabindex="0"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg>Cliente<i>1</i></a>
     <a data-nav="fluxo" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M3 5h18M3 12h18M3 19h18M8 3v18M16 3v18"/></svg>Fluxo de caixa<i>2</i></a>
     <a data-nav="patrimonio" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M3 21h18M5 21V10l7-5 7 5v11M9 21v-6h6v6"/></svg>Patrimônio e premissas<i>3</i></a>
-    <a data-nav="objetivos" role="button" tabindex="0"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1"/></svg>Objetivos<i>4</i></a>
-    <a data-nav="liberdade" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M18.2 8.5c2 0 3.8 1.6 3.8 3.5s-1.8 3.5-3.8 3.5c-3.8 0-8.6-7-12.4-7C3.8 8.5 2 10.1 2 12s1.8 3.5 3.8 3.5c3.8 0 8.6-7 12.4-7z"/></svg>Liberdade financeira<i>5</i></a>
+    <a data-nav="riscos" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Gestão de riscos<i>4</i></a>
+    <a data-nav="objetivos" role="button" tabindex="0"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1"/></svg>Objetivos<i>5</i></a>
+    <a data-nav="liberdade" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M18.2 8.5c2 0 3.8 1.6 3.8 3.5s-1.8 3.5-3.8 3.5c-3.8 0-8.6-7-12.4-7C3.8 8.5 2 10.1 2 12s1.8 3.5 3.8 3.5c3.8 0 8.6-7 12.4-7z"/></svg>Liberdade financeira<i>6</i></a>
     <div class="sep-nav"></div>
     <a data-nav="propostas" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M22 12h-6l-2 3h-4l-2-3H2M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/></svg>Propostas do cliente<i class="contador" id="navProp"></i></a>
   </nav>
   <div class="foot">
     <button class="btn btn-primary" id="btnOpen"><svg viewBox="0 0 24 24"><path d="M15 3h6v6M10 14L21 3M18 13v8H3V6h8"/></svg>Abrir visão do cliente</button>
-    <a class="btn btn-secondary" id="btnComoCliente" href="evolucao-patrimonial.html" target="_blank" style="width:100%;margin-top:9px;text-decoration:none">Ver como o cliente vê</a>
+    <a class="btn btn-secondary" id="btnComoCliente" href="evolucao-patrimonial.html?fase=riscos" target="_blank" style="width:100%;margin-top:9px;text-decoration:none">Ver como o cliente vê</a>
     <div class="muted" id="notaArmazem" style="color:rgba(255,255,255,.45);font-size:11px;margin-top:9px;line-height:1.45">O plano é gravado e chega sozinho à área do cliente. O que ele propuser aparece em Propostas do cliente.</div>
   </div>
 </aside>
@@ -483,6 +498,13 @@ circle.pv-hit{cursor:ns-resize}
     <div id="ffProg" style="margin-top:16px"></div>
     <div id="ffNote" style="margin-top:14px"></div>
     <div id="fimPlano"></div>
+  </section>
+
+  <section class="page" data-page="riscos">
+    <h2><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Gestão de riscos</h2>
+    <div class="hint">Avalie as oito ameaças ao padrão de vida da família. O status de cada uma sai das regras abaixo, a partir do que você registrar (e do fluxo de caixa e do patrimônio já preenchidos); a nota da família é a média ponderada pelos pesos. O cliente vê o resultado na fase Gestão de riscos da área dele.</div>
+    <div id="riscosC"></div>
+    <div class="pagenav"><button class="btn btn-tertiary" data-ir="objetivos">Próximo</button></div>
   </section>
 
   <section class="page" data-page="propostas">
@@ -907,12 +929,17 @@ const ENGINE = (() => {
   //   { tipo: 'fluxo', lista: 'incomes' | 'expenses', id, modo: 'dali' | 'mes', mi, de, para }
   //       valor de uma entrada ou saída a partir do mês mi (vale até o próximo degrau) ou só naquele mês
   //   { tipo: 'liberdade', campo: 'retireAge', de, para }                            idade para parar de trabalhar
+  //   { tipo: 'campo', caminho: 'riscos.reserva.custoVida', rotulo, formato: 'reais'|'numero'|'texto'|'lista', de, para }
+  //       qualquer campo do plano, pelo caminho (índices de lista como números: 'riscos.saude.vidas.0.premio')
+  // Toda alteração pode levar `nota`: a justificativa do cliente.
   //   { tipo: 'linha', acao: 'nova', lista, id, label, group | kind, mi, para }        nova entrada ou saída mensal, a partir do mês mi
   //   { tipo: 'linha', acao: 'remover', lista, id, mi, de }                           a linha deixa de existir a partir do mês mi
   // `de` é o valor do plano quando a proposta foi feita: se o consultor mudou o plano depois, a tela avisa.
   const MESES_P = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
   const mesDoPlano = mi => { const d = new Date(2026, 8 + (+mi || 0), 1); return MESES_P[d.getMonth()] + '/' + d.getFullYear(); };
   const reais = v => 'R$ ' + Math.round(+v || 0).toLocaleString('pt-BR');
+  const lerCaminho = (o, c) => String(c).split('.').reduce((x, k) => x == null ? undefined : x[k], o);
+  function gravaCaminho(o, c, v) { const ks = String(c).split('.'), ult = ks.pop(); let x = o; ks.forEach((k, i) => { if (x[k] == null || typeof x[k] !== 'object') x[k] = /^\d+$/.test(ks[i + 1] || ult) ? [] : {}; x = x[k]; }); x[ult] = v; }
   const itemDaAlteracao = (plan, a) => a.tipo === 'objetivo' ? (plan.objectives || []).find(o => o.id === a.id) : a.tipo === 'fluxo' || a.tipo === 'linha' ? (plan[a.lista] || []).find(i => i.id === a.id) : null;
   // degrau a partir do mês m, com a mesma regra da tela do consultor: igual ao mês anterior não vira degrau
   function degrauEm(it, m, v) {
@@ -926,6 +953,7 @@ const ENGINE = (() => {
   }
   // valor que a alteração mexe, no plano dado (para comparar com `de` e mostrar "no plano hoje")
   function valorAtual(plan, a) {
+    if (a.tipo === 'campo') { const v = lerCaminho(plan, a.caminho); return v === undefined ? null : v; }
     if (a.tipo === 'linha') { const it = itemDaAlteracao(plan, a); return a.acao === 'nova' ? (it ? stepAt(sortSteps(Object.assign({}, it)), a.mi) : null) : it ? stepAt(sortSteps(Object.assign({}, it)), a.mi) : undefined; }
     if (a.tipo === 'liberdade') return plan.retireAge == null || plan.retireAge === '' ? null : +plan.retireAge;
     const it = itemDaAlteracao(plan, a); if (!it) return undefined;
@@ -938,6 +966,7 @@ const ENGINE = (() => {
   function aplicaAlteracoes(plan, alts) {
     (alts || []).forEach(a => {
       if (a.tipo === 'liberdade') { plan.retireAge = a.para; return; }
+      if (a.tipo === 'campo') { gravaCaminho(plan, a.caminho, JSON.parse(JSON.stringify(a.para))); return; }
       if (a.tipo === 'linha' && a.acao === 'nova') {   // mesma forma de uma linha criada pelo consultor na planilha
         if (itemDaAlteracao(plan, a)) return;
         const it = { id: a.id, label: a.label || 'Nova linha', frequency: 'mensal', days: [5], steps: [{ from: +a.mi, value: +a.para }], description: 'Proposta pelo cliente' };
@@ -961,6 +990,11 @@ const ENGINE = (() => {
   function descreveAlteracao(plan, a) {
     const it = itemDaAlteracao(plan, a), val = v => v == null ? (a.tipo === 'liberdade' ? 'assim que o patrimônio permitir' : '—') : a.tipo === 'liberdade' ? v + ' anos' : a.campo === 'months' ? mesDoPlano(v) : reais(v);
     const lado = a.lista === 'incomes' ? 'entrada' : 'saída';
+    if (a.tipo === 'campo') {
+      const f = v => v == null || v === '' ? '—' : a.formato === 'reais' ? reais(v) : a.formato === 'lista' ? [].concat(v).join(', ') : String(v), atual = valorAtual(plan, a);
+      const mudou = JSON.stringify(atual) !== JSON.stringify(a.de == null ? null : a.de);   // deTexto: como o valor de antes aparece (ex.: o custo calculado pelo fluxo)
+      return { oque: a.rotulo || a.caminho, de: a.deTexto || f(a.de), para: f(a.para), atual: mudou ? f(atual) : a.deTexto || f(atual), mudou };
+    }
     if (a.tipo === 'linha' && a.acao === 'nova') return { oque: 'Nova ' + lado + ' (' + (a.lista === 'incomes' ? (a.kind === 'passiva' ? 'renda passiva' : 'renda do trabalho') : a.group === 'adj' ? 'ajustável' : 'fixa') + '): ' + (a.label || 'sem nome'), de: '—', para: reais(a.para) + '/mês a partir de ' + mesDoPlano(a.mi), atual: it ? 'já existe' : '—', mudou: !!it };
     if (a.tipo === 'linha') return { oque: (it ? it.label : 'Linha removida') + ': remover a partir de ' + mesDoPlano(a.mi), de: val(a.de), para: 'R$ 0 (sem a linha)', atual: val(valorAtual(plan, a)), mudou: valorAtual(plan, a) !== a.de };
     let oque;
@@ -969,9 +1003,86 @@ const ENGINE = (() => {
     else oque = (it ? it.label : 'Linha removida') + ': ' + (a.modo === 'mes' ? 'só em ' + mesDoPlano(a.mi) : 'a partir de ' + mesDoPlano(a.mi));
     return { oque, de: val(a.de), para: val(a.para), atual: val(valorAtual(plan, a)), mudou: valorAtual(plan, a) !== a.de && !(valorAtual(plan, a) == null && a.de == null) };
   }
+  // ---- Gestão de riscos ----
+  // Oito ameaças ao padrão de vida da família. Cada uma recebe um status pela regra abaixo, a partir do que o
+  // consultor registrou em plan.riscos (e do fluxo e do patrimônio do plano):
+  //   ok (em dia) · atencao (neutro) · critico (vermelho) · pendente (ainda não avaliado: fica fora da nota)
+  // A nota da família (0 a 100%) é a média ponderada: ok vale 1, atencao 0,5, critico 0. Pesos em plan.riscos.pesos.
+  const RISCOS = [
+    { id: 'reserva', nome: 'Desemprego e emergência' }, { id: 'saude', nome: 'Problema de saúde' },
+    { id: 'terceiros', nome: 'Danos a terceiros' }, { id: 'ruina', nome: 'Ruína em investimentos' },
+    { id: 'liquidez', nome: 'Risco de liquidez' }, { id: 'bens', nome: 'Proteção dos bens' },
+    { id: 'renda', nome: 'Proteção da renda' }, { id: 'familia', nome: 'Proteção da família' },
+  ];
+  // Natureza do trabalho → meses de reserva (t). PROVISÓRIO: valores de exemplo até o vetor oficial.
+  const NATUREZAS = [['Servidor público', 2], ['CLT (empresa privada)', 3], ['Profissional liberal ou autônomo', 4], ['Empresário', 5]];
+  const ITENS_RUINA = [['fraude', 'Investimento fraudulento identificado'], ['classe', 'Alta concentração em classe de ativo'], ['ativo', 'Alta concentração em ativo específico'], ['corrosao', 'Possibilidade de corrosão do poder de compra']];
+  const NOTA = { ok: 1, atencao: 0.5, critico: 0 };
+  // custo de vida mensal do plano: média das saídas dos próximos 12 meses (equivalente mensal de cada linha)
+  function custoDeVida(plan) {
+    const its = (plan.expenses || []).map(it => sortSteps(Object.assign({}, it)));
+    let t = 0; for (let mm = 0; mm < 12; mm++) its.forEach(it => { t += mensalizado(it, mm); });
+    return t / 12;
+  }
+  const num = v => v == null || v === '' || isNaN(+v) ? null : +v;
+  function avaliaRiscos(plan) {
+    const R = plan.riscos || {}, out = {};
+    // Desemprego e emergência: ideal = custo de vida × (d + t); mínima 40%, aceitável 70%
+    { const r = R.reserva || {}, custo = num(r.custoVida) != null ? +r.custoVida : custoDeVida(plan);
+      const nat = NATUREZAS.find(n => n[0] === r.natureza), d = r.dependentes ? 3 : 0, t = nat ? nat[1] : null;
+      const calculado = t != null ? custo * (d + t) : null, ideal = num(r.alvo) != null ? +r.alvo : calculado;
+      const atual = num(r.atual) != null ? +r.atual : num((R.liquidez || {}).d0);
+      const status = ideal == null || !(ideal > 0) || atual == null ? 'pendente' : atual >= ideal ? 'ok' : atual >= ideal * 0.4 ? 'atencao' : 'critico';
+      out.reserva = { status, custo, d, t, meses: t != null ? d + t : null, calculado, ideal, minima: ideal != null ? ideal * 0.4 : null, aceitavel: ideal != null ? ideal * 0.7 : null, atual, alvoProprio: num(r.alvo) != null }; }
+    // Saúde: a avaliação do consultor decide
+    { const r = R.saude || {}, vidas = r.vidas || [], total = vidas.reduce((a, v) => a + (+v.premio || 0), 0), alt = r.alternativa || {};
+      const status = { adequado: 'ok', otimizavel: 'atencao', sem_plano: 'critico' }[r.avaliacao] || 'pendente';
+      out.saude = { status, total, economia: num(alt.preco) != null && total ? total - alt.preco : null }; }
+    // Danos a terceiros: coberturas necessárias × atuais
+    { const itens = ((R.terceiros || {}).itens || []).filter(i => num(i.ideal) > 0);
+      const status = !(R.terceiros || {}).avaliado ? 'pendente' : !itens.length || itens.every(i => +i.atual >= +i.ideal) ? 'ok' : itens.some(i => !(+i.atual > 0)) ? 'critico' : 'atencao';
+      out.terceiros = { status, falta: itens.reduce((a, i) => a + Math.max(0, +i.ideal - (+i.atual || 0)), 0) }; }
+    // Ruína: um item em risco deixa tudo vermelho; um em atenção, tudo em atenção; todos verificados, ok
+    { const it = (R.ruina || {}).itens || {}, v = ITENS_RUINA.map(([k]) => it[k] || '');
+      const status = v.includes('risco') ? 'critico' : v.includes('atencao') ? 'atencao' : v.every(x => x === 'ok') ? 'ok' : 'pendente';
+      out.ruina = { status, avaliados: v.filter(Boolean).length }; }
+    // Liquidez: o consultor avalia; a composição do patrimônio vem do plano
+    { const r = R.liquidez || {}, fin = +plan.initialWealth || 0, ben = +plan.initialBens || 0, par = +plan.partValue || 0, tot = fin + ben + par;
+      out.liquidez = { status: { ok: 'ok', atencao: 'atencao', critico: 'critico' }[r.avaliacao] || 'pendente', fin, ben, par, tot,
+        escada: [['D+0', num(r.d0)], ['D+30', num(r.d30)], ['D+60', num(r.d60)], ['D+180', num(r.d180)], ['1 ano', num(r.d360)]] }; }
+    // Bens: algum sem proteção, vermelho; algum com proteção insuficiente, atenção; todos protegidos, ok
+    { const itens = (R.bens || {}).itens || [], p = itens.map(b => b.protecao || '');
+      const status = !itens.length ? 'pendente' : p.includes('nenhuma') ? 'critico' : p.includes('insuficiente') ? 'atencao' : p.every(x => x === 'total') ? 'ok' : 'pendente';
+      out.bens = { status, total: itens.reduce((a, b) => a + (+b.valor || 0), 0), protegido: itens.filter(b => b.protecao === 'total').reduce((a, b) => a + (+b.valor || 0), 0) }; }
+    // Renda e família: não precisa ou tem o que precisa, ok; precisa e tem menos, atenção; precisa e não tem, vermelho
+    for (const k of ['renda', 'familia']) {
+      const r = R[k] || {}, nec = num(r.necessario), at = +r.atual || 0;
+      const status = r.precisa == null ? 'pendente' : !r.precisa ? 'ok' : nec == null ? 'pendente' : at >= nec ? 'ok' : at > 0 ? 'atencao' : 'critico';
+      out[k] = { status, necessario: nec, atual: at, falta: nec != null ? Math.max(0, nec - at) : null };
+    }
+    const pesos = Object.assign({}, ...RISCOS.map(x => ({ [x.id]: 1 })), R.pesos || {});
+    let soma = 0, peso = 0; RISCOS.forEach(x => { const st = out[x.id].status; if (st === 'pendente') return; soma += (+pesos[x.id] || 0) * NOTA[st]; peso += +pesos[x.id] || 0; });
+    return { itens: out, nota: peso ? soma / peso : null, avaliados: RISCOS.filter(x => out[x.id].status !== 'pendente').length, pesos };
+  }
+  // Plano de exemplo dos riscos (família da Ana Ribeiro), para o portal e para a tela do cliente sem plano
+  const RISCOS_EXEMPLO = {
+    pesos: { reserva: 1, saude: 1, terceiros: 1, ruina: 1, liquidez: 1, bens: 1, renda: 1, familia: 1 },
+    reserva: { dependentes: true, natureza: 'CLT (empresa privada)', custoVida: null, atual: null, alvo: null },
+    saude: { avaliacao: 'otimizavel', tipo: 'Adesão', hospitais: ['Hospital Alemão Oswaldo Cruz', 'Beneficência Portuguesa', 'Hospital Samaritano'],
+      vidas: [{ nome: 'Ana', idade: 35, premio: 1150 }, { nome: 'Marcos', idade: 38, premio: 1350 }, { nome: 'Luiza', idade: 1, premio: 290 }],
+      alternativa: { tipo: 'PME', hospitais: ['Hospital Alemão Oswaldo Cruz', 'Beneficência Portuguesa', 'Hospital Samaritano'], preco: 2280 } },
+    terceiros: { avaliado: true, itens: [{ nome: 'Responsabilidade civil profissional', ideal: 400000, atual: 0 }, { nome: 'Responsabilidade civil familiar', ideal: 500000, atual: 0 }] },
+    ruina: { itens: { fraude: 'ok', classe: 'atencao', ativo: 'ok', corrosao: '' } },
+    liquidez: { avaliacao: 'ok', d0: 60000, d30: 150000, d60: 250000, d180: 380000, d360: 500000 },
+    bens: { itens: [
+      { nome: 'Carro da família', valor: 120000, protecao: 'total', apolice: { seguradora: 'Porto Seguro', numero: '0531.22.118790', cobertura: '100% da tabela FIPE, terceiros R$ 200 mil', premio: 4200, vigencia: 'até mar/2027' } },
+      { nome: 'Carro (2º veículo)', valor: 60000, protecao: 'nenhuma', apolice: null }] },
+    renda: { precisa: true, necessario: 900000, atual: 300000 },
+    familia: { precisa: true, necessario: 1500000, atual: 0 },
+  };
   const ORIGENS_OUT = ORIGENS;
   const config = () => ({ age: CURRENT_AGE, retireAge: RETIRE_AGE, initialBens: INITIAL_BENS, desired: DESIRED, desiredSteps: DESIRED_STEPS, lifeExp: LIFE_EXP, salary: SALARY, salaryGrowth: SAL_G, partValue: PART_VALUE, initialWealth: INITIAL_WEALTH, capacityOverride: CAP_OVERRIDE, rate: R_M, profiles: PROFILES, incomes: INCOMES, expenses: EXPENSES, objectives: OBJ, passive: PASSIVE });
-  return { TODAY, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, PASSIVE, PROFILES, STATUS, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, serieCusto, desiredAt, aplicaAlteracoes, descreveAlteracao, valorAtual, mesDoPlano, setRetireAge: a => { RETIRE_AGE = a == null ? null : Math.max(CURRENT_AGE, +a); }, financiamentoValido, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
+  return { TODAY, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, PASSIVE, PROFILES, STATUS, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, serieCusto, desiredAt, aplicaAlteracoes, descreveAlteracao, valorAtual, mesDoPlano, RISCOS, NATUREZAS, ITENS_RUINA, RISCOS_EXEMPLO, avaliaRiscos, custoDeVida, lerCaminho, gravaCaminho, setRetireAge: a => { RETIRE_AGE = a == null ? null : Math.max(CURRENT_AGE, +a); }, financiamentoValido, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
 })();
 if (typeof module !== 'undefined') module.exports = ENGINE;
 </script>
@@ -1009,6 +1120,7 @@ const ARMAZEM = (() => {
                 const v = snap.exists ? structuredClone(snap.data().dados) : null;
                 if (primeiro) { primeiro = false; pronto(); }
                 if (snap.metadata && snap.metadata.hasPendingWrites) return;   // a própria gravação, ainda a caminho
+                if (!snap.exists && k === 'plano') return;   // banco ainda sem plano: vale o que o consultor tem aqui
                 gravarLocal(k, v); avisa(k, v);
               }, () => { if (primeiro) { primeiro = false; pronto(); } });
               setTimeout(() => { if (primeiro) { primeiro = false; pronto(); } }, 8000);
@@ -1055,7 +1167,7 @@ const STATUS = { ok: 'Alcançável', adj: 'Alcançável com ajustes', risk: 'Req
 
 // O plano padrão vem do próprio motor: uma só fonte de verdade para os dois lados.
 const PLANO_PADRAO = Object.assign(
-  { name: 'Ana Ribeiro', age: 35 },
+  { name: 'Ana Ribeiro', age: 35, riscos: JSON.parse(JSON.stringify(ENGINE.RISCOS_EXEMPLO)), videos: {} },
   JSON.parse(JSON.stringify(ENGINE.config()))
 );
 
@@ -1256,7 +1368,7 @@ function renderAll() {
   // o campo em edição volta com o foco e com o texto exatamente como estava sendo digitado
   const foco = document.activeElement, fg = foco && foco.dataset ? foco.dataset.g : null, fk = foco && foco.dataset ? foco.dataset.k : null;
   const oid = fg != null && plano.objectives[+fg] ? plano.objectives[+fg].id : null, txt = foco ? foco.value : null;
-  recompute(); renderTop(); renderFluxo(); renderGoals(); renderLiberdade(); renderPropostas(); save();
+  recompute(); renderTop(); renderFluxo(); renderGoals(); renderLiberdade(); renderRiscosC(); renderPropostas(); save();
   if (oid && fk) {
     const i = plano.objectives.findIndex(o => o.id === oid), el = document.querySelector('[data-g="' + i + '"][data-k="' + fk + '"]');
     if (el) { el.focus(); if (el.type === 'text' || el.tagName === 'TEXTAREA') { el.value = txt; try { el.setSelectionRange(txt.length, txt.length); } catch (e) { } } }
@@ -1284,7 +1396,7 @@ function renderTop() {
   const feito = { cliente: !!(plano.name && plano.age && plano.desired > 0),
     patrimonio: !!(vistas.patrimonio || plano.initialWealth > 0 || plano.initialBens > 0 || plano.partValue > 0),
     objetivos: !!(vistas.objetivos || (plano.objectives.length && plano.objectives.every(o => o.name && o.amount > 0))),
-    fluxo: temFluxo(), liberdade: !!vistas.liberdade };
+    fluxo: temFluxo(), liberdade: !!vistas.liberdade, riscos: !!vistas.riscos };
   document.querySelectorAll('#nav a').forEach(a => a.classList.toggle('feito', !!feito[a.dataset.nav]));
   // "Próximo" leva à página seguinte, na ordem da barra lateral
   document.querySelectorAll('.pagenav [data-ir]').forEach(b => {
@@ -2651,6 +2763,99 @@ document.addEventListener('click', e => {
 // pré-visualização usa o Font Awesome quando o consultor cola uma classe
 (function () { const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css'; document.head.appendChild(l); })();
 
+// ===================== GESTÃO DE RISCOS =====================
+// O consultor registra a situação de cada uma das oito ameaças em plano.riscos; o motor (avaliaRiscos) dá o status de
+// cada uma pela regra combinada e a nota da família. Campos com data-r="caminho" gravam direto no plano.
+const NOME_STC = { ok: 'Em dia', atencao: 'Atenção', critico: 'Crítico', pendente: 'Não avaliado' }, COR_STC = { ok: '#2E9E5B', atencao: '#FA7A35', critico: '#D64545', pendente: '#cfcbc3' };
+const lerR = c => ENGINE.lerCaminho(plano, c);
+function campoR(c, tipo, extra) {
+  const v = lerR(c), val = v == null ? '' : tipo === 'reais' ? money(v) : tipo === 'lista' ? [].concat(v).join(', ') : v;
+  return `<input data-r="${c}" data-rt="${tipo}"${tipo === 'reais' ? ' data-money-opt inputmode="decimal"' : tipo === 'num' ? ' type="number"' : ''} value="${esc(val)}"${extra || ''}>`;
+}
+function selR(c, ops, tipo) { const v = lerR(c), atual = v == null ? '' : tipo === 'bool' ? (v ? 'sim' : 'nao') : String(v); return `<select data-r="${c}" data-rt="${tipo || 'texto'}">${ops.map(([k, n]) => `<option value="${esc(k)}"${String(k) === atual ? ' selected' : ''}>${esc(n)}</option>`).join('')}</select>`; }
+const stC = st => `<span class="st-c ${st}">${NOME_STC[st]}</span>`;
+function renderRiscosC() {
+  const el = document.getElementById('riscosC'); if (!el) return;
+  plano.riscos = plano.riscos || {}; plano.videos = plano.videos || {};
+  const a = ENGINE.avaliaRiscos(plano), it = a.itens, R = plano.riscos, f = n => fmt(n || 0);
+  const vazio = !Object.keys(R).some(k => k !== 'pesos');
+  const blocos = [];
+  blocos.push(`<div class="bloco"><div class="rkc-resumo" id="rkcResumo">${resumoRiscosC(a)}</div>
+    ${vazio ? `<div class="note">Nada registrado ainda. <button class="btn btn-tertiary btn-small" data-rexemplo>Usar o exemplo como ponto de partida</button></div>` : ''}
+    <div class="pc-acoes"><button class="btn btn-secondary" data-abrir-cliente>Ver na tela do cliente</button></div></div>`);
+  blocos.push(`<div class="bloco"><h3>Vídeos para o cliente</h3><div class="grid g2">
+    <div class="field"><label>Fase Gestão de riscos (link do YouTube, do Vimeo ou do arquivo)</label>${campoR('videos.riscos', 'texto', ' placeholder="vazio: o espaço do vídeo fica reservado"')}</div>
+    <div class="field"><label>Fase Evolução patrimonial</label>${campoR('videos.evolucao', 'texto', ' placeholder="vazio: o espaço do vídeo fica reservado"')}</div></div></div>`);
+  const r = it.reserva, sn = [['', 'não informado'], ['sim', 'Sim'], ['nao', 'Não']];
+  blocos.push(`<div class="bloco" id="rkc-reserva"><h3>1. Desemprego e emergência${stC(r.status)}</h3><div class="grid g3">
+    <div class="field"><label>Dependentes financeiros (d = 3)</label>${selR('riscos.reserva.dependentes', sn, 'bool')}</div>
+    <div class="field"><label>Natureza do trabalho (t) <span class="prov-c">valores provisórios</span></label>${selR('riscos.reserva.natureza', [['', 'escolha']].concat(ENGINE.NATUREZAS.map(([n, t]) => [n, n + ' · ' + t])))}</div>
+    <div class="field"><label>Custo de vida mensal</label>${campoR('riscos.reserva.custoVida', 'reais', ` placeholder="vazio: ${f(ENGINE.custoDeVida(plano))} do fluxo"`)}</div>
+    <div class="field"><label>Reserva atual</label>${campoR('riscos.reserva.atual', 'reais', ` placeholder="vazio: D+0 da liquidez"`)}</div>
+    <div class="field"><label>Alvo de reserva (opcional)</label>${campoR('riscos.reserva.alvo', 'reais', ' placeholder="vazio: o ideal calculado"')}</div></div>
+    <div class="rkc-calc">${r.ideal != null ? `Ideal ${f(r.ideal)}${r.alvoProprio ? ' (alvo definido)' : ` = ${f(r.custo)} × (${r.d} + ${r.t}) meses`} · aceitável ${f(r.aceitavel)} · mínima ${f(r.minima)} · atual ${r.atual != null ? f(r.atual) : '—'}. Em dia a partir do ideal; atenção entre a mínima e o ideal; crítico abaixo da mínima.` : 'Escolha a natureza do trabalho para calcular a reserva ideal.'}</div></div>`);
+  const S = R.saude || {};
+  blocos.push(`<div class="bloco" id="rkc-saude"><h3>2. Problema de saúde${stC(it.saude.status)}</h3><div class="grid g3">
+    <div class="field"><label>Avaliação</label>${selR('riscos.saude.avaliacao', [['', 'não avaliado'], ['adequado', 'Plano adequado (em dia)'], ['otimizavel', 'Pode ser otimizado (atenção)'], ['sem_plano', 'Sem plano de saúde (crítico)']])}</div>
+    <div class="field"><label>Tipo do plano atual</label>${selR('riscos.saude.tipo', [['', '—'], ['Individual', 'Individual'], ['Familiar', 'Familiar'], ['Adesão', 'Adesão'], ['PME', 'PME'], ['PJ', 'PJ']])}</div>
+    <div class="field"><label>Hospitais desejados (vírgula)</label>${campoR('riscos.saude.hospitais', 'lista')}</div></div>
+    <table class="rkc-tab" style="min-width:0;margin-top:12px"><thead><tr><th>Vida</th><th>Idade</th><th>Prêmio mensal</th><th></th></tr></thead><tbody>${(S.vidas || []).map((v, i) => `<tr><td>${campoR(`riscos.saude.vidas.${i}.nome`, 'texto')}</td><td>${campoR(`riscos.saude.vidas.${i}.idade`, 'num')}</td><td>${campoR(`riscos.saude.vidas.${i}.premio`, 'reais')}</td><td><button class="btn btn-icon" data-rrm="riscos.saude.vidas.${i}" title="Remover">×</button></td></tr>`).join('')}
+    <tr class="total"><td>Total</td><td></td><td>${f(it.saude.total)}</td><td></td></tr></tbody></table>
+    <button class="btn btn-step" data-radd="riscos.saude.vidas">+ vida</button>
+    <div class="grid g3" style="margin-top:12px"><div class="field"><label>Alternativa: tipo</label>${selR('riscos.saude.alternativa.tipo', [['', '—'], ['Individual', 'Individual'], ['Familiar', 'Familiar'], ['Adesão', 'Adesão'], ['PME', 'PME'], ['PJ', 'PJ']])}</div>
+    <div class="field"><label>Alternativa: hospitais (vírgula)</label>${campoR('riscos.saude.alternativa.hospitais', 'lista')}</div><div class="field"><label>Alternativa: preço mensal</label>${campoR('riscos.saude.alternativa.preco', 'reais')}</div></div>
+    ${it.saude.economia != null ? `<div class="rkc-calc">Economia estimada: ${f(it.saude.economia)} por mês (${f(it.saude.economia * 12)} no ano).</div>` : ''}</div>`);
+  blocos.push(`<div class="bloco" id="rkc-terceiros"><h3>3. Danos a terceiros${stC(it.terceiros.status)}</h3>
+    <label style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><input type="checkbox" data-r="riscos.terceiros.avaliado" data-rt="chk" style="width:auto"${(R.terceiros || {}).avaliado ? ' checked' : ''}> Avaliado (sem necessidades listadas = em dia)</label>
+    <table class="rkc-tab" style="min-width:0"><thead><tr><th>Necessidade</th><th>Cobertura ideal</th><th>Cobertura atual</th><th></th></tr></thead><tbody>${((R.terceiros || {}).itens || []).map((x, i) => `<tr><td>${campoR(`riscos.terceiros.itens.${i}.nome`, 'texto')}</td><td>${campoR(`riscos.terceiros.itens.${i}.ideal`, 'reais')}</td><td>${campoR(`riscos.terceiros.itens.${i}.atual`, 'reais')}</td><td><button class="btn btn-icon" data-rrm="riscos.terceiros.itens.${i}">×</button></td></tr>`).join('')}</tbody></table>
+    <button class="btn btn-step" data-radd="riscos.terceiros.itens">+ necessidade</button><div class="rkc-calc">Em dia se tudo está coberto; atenção se há cobertura menor que a ideal; crítico se alguma necessidade não tem cobertura.</div></div>`);
+  blocos.push(`<div class="bloco" id="rkc-ruina"><h3>4. Ruína em investimentos${stC(it.ruina.status)}</h3><div class="grid g2">${ENGINE.ITENS_RUINA.map(([k, n]) => `<div class="field"><label>${n}</label>${selR('riscos.ruina.itens.' + k, [['', 'não avaliado'], ['ok', 'Verificado: não há'], ['atencao', 'Atenção'], ['risco', 'Identificado (risco)']])}</div>`).join('')}</div>
+    <div class="rkc-calc">Um item identificado deixa a área crítica; um em atenção, em atenção; todos verificados, em dia.</div></div>`);
+  const L = it.liquidez;
+  blocos.push(`<div class="bloco" id="rkc-liquidez"><h3>5. Risco de liquidez${stC(L.status)}</h3>
+    <div class="rkc-calc" style="margin:0 0 12px">Do patrimônio de hoje: ${L.tot ? Math.round(L.fin / L.tot * 100) : 0}% no mercado financeiro, ${L.tot ? Math.round(L.ben / L.tot * 100) : 0}% em imóveis e outros bens, ${L.tot ? Math.round(L.par / L.tot * 100) : 0}% em participações societárias (da página Patrimônio).</div>
+    <div class="grid g3"><div class="field"><label>Avaliação</label>${selR('riscos.liquidez.avaliacao', [['', 'não avaliado'], ['ok', 'Liquidez em dia'], ['atencao', 'Neutra (atenção)'], ['critico', 'Preocupante (crítico)']])}</div></div>
+    <div class="grid" style="grid-template-columns:repeat(5,1fr);margin-top:12px">${[['d0', 'D+0'], ['d30', 'D+30'], ['d60', 'D+60'], ['d180', 'D+180'], ['d360', '1 ano']].map(([k, n]) => `<div class="field"><label>Acessível em ${n}</label>${campoR('riscos.liquidez.' + k, 'reais')}</div>`).join('')}</div></div>`);
+  blocos.push(`<div class="bloco" id="rkc-bens"><h3>6. Proteção dos bens${stC(it.bens.status)}</h3>
+    <table class="rkc-tab" style="min-width:0"><thead><tr><th>Bem</th><th>Valor</th><th>Proteção</th><th></th></tr></thead><tbody>${((R.bens || {}).itens || []).map((b, i) => `<tr><td>${campoR(`riscos.bens.itens.${i}.nome`, 'texto')}</td><td>${campoR(`riscos.bens.itens.${i}.valor`, 'reais')}</td><td>${selR(`riscos.bens.itens.${i}.protecao`, [['', 'não avaliado'], ['total', 'Protegido'], ['insuficiente', 'Proteção insuficiente'], ['nenhuma', 'Sem proteção']])}</td><td><button class="btn btn-icon" data-rrm="riscos.bens.itens.${i}">×</button></td></tr>
+      ${b.protecao && b.protecao !== 'nenhuma' ? `<tr><td colspan="4"><div class="rkc-ap">${campoR(`riscos.bens.itens.${i}.apolice.seguradora`, 'texto', ' placeholder="seguradora"')}${campoR(`riscos.bens.itens.${i}.apolice.numero`, 'texto', ' placeholder="nº da apólice"')}${campoR(`riscos.bens.itens.${i}.apolice.cobertura`, 'texto', ' placeholder="cobertura"')}${campoR(`riscos.bens.itens.${i}.apolice.premio`, 'reais', ' placeholder="prêmio anual"')}${campoR(`riscos.bens.itens.${i}.apolice.vigencia`, 'texto', ' placeholder="vigência"')}</div></td></tr>` : ''}`).join('')}</tbody></table>
+    <button class="btn btn-step" data-radd="riscos.bens.itens">+ bem</button><div class="rkc-calc">Em dia se todos estão protegidos; atenção se algum tem proteção insuficiente; crítico se algum está sem proteção.</div></div>`);
+  for (const [k, n, sub] of [['renda', '7. Proteção da renda', 'invalidez e acidentes pessoais'], ['familia', '8. Proteção da família', 'seguro de vida']]) {
+    blocos.push(`<div class="bloco" id="rkc-${k}"><h3>${n}${stC(it[k].status)}</h3><div class="grid g3">
+      <div class="field"><label>Precisa de proteção (${sub})?</label>${selR('riscos.' + k + '.precisa', sn, 'bool')}</div>
+      <div class="field"><label>Proteção necessária <span class="prov-c">cálculo em breve</span></label>${campoR('riscos.' + k + '.necessario', 'reais')}</div>
+      <div class="field"><label>Proteção atual</label>${campoR('riscos.' + k + '.atual', 'reais')}</div></div></div>`);
+  }
+  const P = Object.assign({}, a.pesos);
+  blocos.push(`<div class="bloco"><h3>Pesos na nota da família</h3><div class="hint" style="margin-bottom:10px">Quanto cada ameaça pesa na nota. Em dia vale 1, atenção 0,5 e crítico 0; as não avaliadas ficam de fora.</div>
+    <div class="rkc-pesos">${ENGINE.RISCOS.map(x => `<div class="field"><label>${x.nome}</label>${campoR('riscos.pesos.' + x.id, 'num', ' min="0" step="0.5"')}</div>`).join('')}</div></div>`);
+  if (!R.pesos) R.pesos = P;
+  el.innerHTML = blocos.join('');
+}
+function resumoRiscosC(a) {
+  const nota = a.nota == null ? '—' : Math.round(a.nota * 100) + '%';
+  return `<div class="rkc-nota">${nota}<small>nota da família · ${a.avaliados} de 8 avaliados</small></div><div class="rkc-chips">${ENGINE.RISCOS.map(x => `<button class="rkc-chip" data-rir="${x.id}"><i style="background:${COR_STC[a.itens[x.id].status]}"></i>${x.nome}</button>`).join('')}</div>`;
+}
+function valorDoCampoR(t) {
+  const tp = t.dataset.rt;
+  if (tp === 'chk') return t.checked;
+  if (tp === 'bool') return t.value === '' ? null : t.value === 'sim';
+  if (tp === 'reais') return t.value.replace(/\D/g, '') === '' ? null : unmoney(t.value);
+  if (tp === 'num') return t.value === '' ? null : +t.value;
+  if (tp === 'lista') return t.value.split(',').map(x => x.trim()).filter(Boolean);
+  return t.value;
+}
+// digitando: grava e atualiza só o resumo (o formulário não é redesenhado, para não perder o foco); ao sair do campo ou escolher numa lista, redesenha
+document.addEventListener('input', e => { const t = e.target; if (!t.dataset || t.dataset.r == null || t.tagName === 'SELECT' || t.type === 'checkbox') return; ENGINE.gravaCaminho(plano, t.dataset.r, valorDoCampoR(t)); save(); const r = document.getElementById('rkcResumo'); if (r) r.innerHTML = resumoRiscosC(ENGINE.avaliaRiscos(plano)); });
+document.addEventListener('change', e => { const t = e.target; if (!t.dataset || t.dataset.r == null) return; ENGINE.gravaCaminho(plano, t.dataset.r, valorDoCampoR(t)); setTimeout(renderAll, 0); });
+document.addEventListener('click', e => {
+  const add = e.target.closest('[data-radd]'), rm = e.target.closest('[data-rrm]'), ex = e.target.closest('[data-rexemplo]'), ir = e.target.closest('[data-rir]');
+  if (add) { const c = add.dataset.radd, lista = lerR(c) || []; lista.push(c.endsWith('vidas') ? { nome: '', idade: null, premio: 0 } : c.endsWith('bens.itens') ? { nome: '', valor: 0, protecao: '' } : { nome: '', ideal: 0, atual: 0 }); ENGINE.gravaCaminho(plano, c, lista); if (c.includes('terceiros')) plano.riscos.terceiros.avaliado = true; renderAll(); }
+  else if (rm) { const ks = rm.dataset.rrm.split('.'), i = +ks.pop(), lista = lerR(ks.join('.')); lista.splice(i, 1); renderAll(); }
+  else if (ex) { plano.riscos = JSON.parse(JSON.stringify(ENGINE.RISCOS_EXEMPLO)); renderAll(); }
+  else if (ir) { const b = document.getElementById('rkc-' + ir.dataset.rir); if (b) b.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+});
+
 // ===================== PROPOSTAS DO CLIENTE =====================
 // O cliente propõe alterações na tela dele (valores do fluxo, custo e data dos objetivos, idade de parar) e as
 // envia; nada muda no plano até o consultor aprovar. A proposta chega pelo navegador ('nl-proposta') ou por
@@ -2672,7 +2877,7 @@ function renderPropostas() {
   const linhas = propC.ops.map((a, i) => {
     const d = ENGINE.descreveAlteracao(plano, a), dec = decC.dec[i];
     const [nome, detalhe] = d.oque.split(': ');
-    return `<tr><td class="o">${esc(nome)}${detalhe ? `<small>${esc(detalhe)}</small>` : ''}</td><td>${esc(d.atual)}${d.mudou && !resp ? `<span class="mudou">o plano mudou desde a proposta (era ${esc(d.de)})</span>` : ''}</td><td class="para">${esc(d.para)}</td>` +
+    return `<tr><td class="o">${esc(nome)}${detalhe ? `<small>${esc(detalhe)}</small>` : ''}${a.nota ? `<small style="color:var(--nl-orange-600)">“${esc(a.nota)}”</small>` : ''}</td><td>${esc(d.atual)}${d.mudou && !resp ? `<span class="mudou">o plano mudou desde a proposta (era ${esc(d.de)})</span>` : ''}</td><td class="para">${esc(d.para)}</td>` +
       `<td style="text-align:right">${resp ? `<span class="badge ${dec === 'aprovada' ? 'ok' : 'risk'}">${dec || '—'}</span>` : `<div class="pc-dec"><button data-dec="${i}:aprovada" class="${dec === 'aprovada' ? 'ok' : ''}">Aprovar</button><button data-dec="${i}:recusada" class="${dec === 'recusada' ? 'no' : ''}">Recusar</button></div>`}</td></tr>`;
   }).join('');
   const faltam = propC.ops.filter((a, i) => !decC.dec[i]).length;
@@ -2709,8 +2914,8 @@ function concluirResposta() {
 ARMAZEM.ouvir('proposta', () => renderPropostas());
 
 // páginas do portal: cada assunto numa página, na ordem em que o plano é montado
-const PAGINAS = ['cliente', 'fluxo', 'patrimonio', 'objetivos', 'liberdade', 'propostas'];
-const NOMES_PAGINA = { cliente: 'Cliente', patrimonio: 'Patrimônio e premissas', objetivos: 'Objetivos', fluxo: 'Fluxo de caixa', liberdade: 'Liberdade financeira', propostas: 'Propostas do cliente' };
+const PAGINAS = ['cliente', 'fluxo', 'patrimonio', 'riscos', 'objetivos', 'liberdade', 'propostas'];
+const NOMES_PAGINA = { cliente: 'Cliente', patrimonio: 'Patrimônio e premissas', objetivos: 'Objetivos', fluxo: 'Fluxo de caixa', liberdade: 'Liberdade financeira', riscos: 'Gestão de riscos', propostas: 'Propostas do cliente' };
 let paginaAtual = null;
 function irPara(p) {
   if (!PAGINAS.includes(p)) p = 'cliente';
@@ -2734,7 +2939,7 @@ document.getElementById('nav').addEventListener('keydown', e => { const a = e.ta
 
 // Novo cliente: plano em branco, sem nada do exemplo. Com um plano em andamento, pede confirmação no próprio botão.
 const planoVazio = () => ({ name: '', age: '', lifeExp: 95, desired: 0, retireAge: null, initialWealth: 0, initialBens: 0, partValue: 0, capacityOverride: null,
-  rate: PLANO_PADRAO.rate, profiles: Object.assign({}, PLANO_PADRAO.profiles), incomes: [], expenses: [], objectives: [], passive: [] });
+  rate: PLANO_PADRAO.rate, profiles: Object.assign({}, PLANO_PADRAO.profiles), incomes: [], expenses: [], objectives: [], passive: [], riscos: {}, videos: {} });
 const temConteudo = () => !!(plano.name || plano.incomes.length || plano.expenses.length || plano.objectives.length);
 function trocarPlano(b, novo, rotulo) {
   const aplicar = () => { if (gaveta) { gaveta = null; renderGaveta(); } aceito = null; pendente = null; document.getElementById('estouro').hidden = true; plano = novo(); fx.t0 = null; save(); fillFields(); renderAll(); irPara('cliente'); document.getElementById('f-name').focus(); };
@@ -2750,7 +2955,7 @@ document.getElementById('btnOpen').onclick = () => {
   const json = JSON.stringify(plano);
   const b64 = btoa(String.fromCharCode(...new TextEncoder().encode(json))).replace(/\+/g, '-').replace(/\//g, '_');
   save(); gravarNuvem(true);
-  window.open('evolucao-patrimonial.html?apresentar#plano=' + b64, '_blank');
+  window.open('evolucao-patrimonial.html?apresentar&fase=' + (paginaAtual === 'riscos' ? 'riscos' : 'evolucao') + '#plano=' + b64, '_blank');
 };
 
 // "Ver como o cliente vê": a mesma tela que o cliente tem na área logada, com as ferramentas de proposta
