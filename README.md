@@ -43,19 +43,32 @@ riscos). O status de cada uma sai de `ENGINE.avaliaRiscos`, no motor, igual nas 
 | Ruína em investimentos | todos os itens verificados | algum item em atenção | algum item identificado |
 | Risco de liquidez | avaliação do consultor | avaliação do consultor | avaliação do consultor |
 | Proteção dos bens | todos protegidos | algum com proteção insuficiente | algum sem proteção |
-| Proteção da renda / da família | não precisa, ou tem o necessário | tem menos que o necessário | precisa e não tem |
+| Proteção da renda / da família | todas as pessoas não precisam ou têm o necessário | alguém tem menos que o necessário | alguém precisa e não tem |
 
 - Reserva ideal = custo de vida mensal × (d + t): d = 3 com dependentes financeiros, 0 sem; t pela natureza do
-  trabalho (`ENGINE.NATUREZAS`, **valores provisórios** até o vetor oficial). O custo de vida vem do Fluxo de caixa
-  (média das saídas dos próximos 12 meses), a reserva atual vem do D+0 da liquidez; o consultor pode informar outros.
+  trabalho (`ENGINE.NATUREZAS`, os da calculadora de reserva da Nord: servidor público e aposentado 3; estagiário e
+  CLT 5; liberal, autônomo e empresário 7). O custo de vida vem do Fluxo de caixa (média das saídas dos próximos 12
+  meses), a reserva atual vem do D+0 da liquidez; o consultor pode informar outros. Com a lista de dependentes do
+  item 8, é ela que diz se há dependentes.
 - A composição do patrimônio (financeiro, imóveis, participações) vem da página Patrimônio.
-- Proteção da renda e da família: necessário e atual informados pelo consultor; **o cálculo do seguro de vida e de
-  acidentes pessoais ainda vai entrar**.
+- **Proteção da renda (seguro de acidentes pessoais) e da família (seguro de vida)**: a conta da calculadora de
+  seguros da Nord (liberta.nordinvestimentos.com.br/seguros), em `ENGINE.calculaSeguros`, feita para cada gerador de
+  renda da família (`plano.riscos.seguro.geradores`). Por pessoa:
+  A renda que deseja proteger (a da família × a participação da pessoa; vazia, a renda do trabalho do fluxo);
+  B renda passiva (a do fluxo × o percentual que o consultor dá à pessoa, 100% por padrão); C renda protegida (INSS
+  por invalidez, ou pensão do INSS por morte); D renda a cobrir = A − B − C; E patrimônio financeiro × a parte da
+  pessoa no patrimônio; F prazo; G valor presente de D por F, a 0,4% ao mês.
+  Acidentes: F até os 95 anos da pessoa, necessidade = G − E. Vida: F até o último dependente deixar de depender
+  (criança até os 25 anos, adulto até os 95, pela data de nascimento em `plano.riscos.dependentes`), H sucessão =
+  5% a 20% (padrão 10%) × (financeiro + bens + participações) × a parte da pessoa, necessidade = G + H − E; sem
+  dependentes, não é essencial. A cobertura atual de cada pessoa decide o status; a ameaça fica com o pior.
+  O card do cliente segue a apresentação da Nord: a necessidade em destaque e a memória de cálculo de A a H.
+  A doença grave, que a Nord pergunta, não entra na conta.
 - Nota da família (0 a 100%): média ponderada dos status (em dia 1, atenção 0,5, crítico 0; não avaliados ficam de
   fora), com pesos editáveis em `plano.riscos.pesos` (todos 1 por padrão).
 - O cliente simula à vontade (por exemplo, o custo de vida de 8.000 para 7.500 refaz a reserva na hora) e pode propor
-  ao consultor, com justificativa, o custo de vida, o alvo de reserva, as idades e os prêmios do plano de saúde e os
-  hospitais desejados. São alterações do tipo `campo` (qualquer caminho do plano), aprovadas como as outras.
+  ao consultor, com justificativa, o custo de vida, o alvo de reserva, as idades e os prêmios do plano de saúde, os
+  hospitais desejados e, nos seguros, o INSS (por invalidez e por morte) e a cobertura atual de cada pessoa. São alterações do tipo `campo` (qualquer caminho do plano), aprovadas como as outras.
 
 ## Propostas do cliente
 

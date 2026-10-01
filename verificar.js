@@ -300,5 +300,20 @@ console.log('\n8. Saque na liberdade financeira: perpetuidade, consumo ou renda 
   ok('renda desejada alta: o patrimônio acaba antes da expectativa de vida', acaba != null && Ea.ageOf(acaba) < 95, acaba ? 'acaba aos ' + Math.floor(Ea.ageOf(acaba)) : '');
 }
 
+console.log('\n9. Seguro de vida e de acidentes pessoais (calculadora da Nord)');
+{
+  const Es = carregar(srcCliente);
+  // caso conferido no site da Nord: 40 anos, renda 10 mil, filho de 5 anos, financeiro 200 mil, bens 500 mil → R$ 1.410.933,03
+  const um = g => ({ age: 40, initialWealth: 200000, initialBens: 500000, partValue: 0, incomes: [], riscos: { dependentes: [{ relacao: 'filho', nasc: '2021-09' }],
+    seguro: { renda: 10000, passiva: 0, geradores: [Object.assign({ pessoa: 'titular', participacao: 100, patrimonioPct: 100, inssInvalidez: 3000, inssMorte: 0 }, g)] } } });
+  const p = Es.calculaSeguros(um({})).pessoas[0];
+  ok('vida: a mesma necessidade da calculadora da Nord', Math.abs(p.vida.necessidade - 1410933.03) < 0.01, p.vida.necessidade.toFixed(2));
+  ok('acidentes: até os 95 anos, G − E', p.acidentes.F === 660 && Math.abs(p.acidentes.necessidade - (7000 * (1 - Math.pow(1.004, -660)) / 0.004 - 200000)) < 0.01);
+  const sem = um({}); sem.riscos.dependentes = [];
+  ok('sem dependentes: o seguro de vida não é essencial e a reserva perde o d', Es.calculaSeguros(sem).pessoas[0].vida.status === 'ok' && Es.avaliaRiscos(sem).itens.reserva.d === 0);
+  ok('cobertura parcial: atenção; nenhuma: crítico', Es.avaliaRiscos(um({ coberturaVida: 500000 })).itens.familia.status === 'atencao' && Es.avaliaRiscos(um({})).itens.familia.status === 'critico');
+  ok('plano sem o cálculo de seguro: não avaliado', Es.avaliaRiscos({ riscos: {} }).itens.renda.status === 'pendente');
+}
+
 console.log('\n' + (falhas ? falhas + ' verificação(ões) falharam.' : 'Tudo certo.') + '\n');
 process.exit(falhas ? 1 : 0);

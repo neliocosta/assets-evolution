@@ -9,20 +9,23 @@ anterior. Leia junto com o `README.md`, que descreve como as duas telas funciona
 2. Abra `tela-consultor.html` e `evolucao-patrimonial.html` no navegador. Os arquivos são autocontidos.
 3. Escolha um item de **P1** abaixo.
 
-## Próxima sessão: gestão de riscos (em aberto)
+## Gestão de riscos (em aberto)
 
 A gestão de riscos já existe (fase 1 da jornada do cliente e página "Gestão de riscos" no portal; veja o README).
-Faltam três insumos, todos marcados como provisórios na tela:
+Resolvidos em 01/10/2026: o seguro de vida e de acidentes pessoais (a conta da calculadora de seguros da Nord, com
+os ajustes do usuário: renda que deseja proteger dividida entre os geradores de renda, adulto até 95 anos, criança
+até 25, sucessão de 5% a 20%, 0,4% ao mês) e o vetor da natureza do trabalho (o da calculadora de reserva da Nord,
+conferido simulando no site). Falta:
 
-1. **Seguro de vida e de acidentes pessoais** (ameaças "Proteção da renda" e "Proteção da família"). A Nord já faz esse
-   cálculo e apresenta o resultado em https://liberta.nordinvestimentos.com.br/seguros (e páginas seguintes). Acesse a
-   página, entenda as entradas, as fórmulas e como o resultado é apresentado, e leve o cálculo para o motor
-   (`avaliaRiscos`, chaves `renda` e `familia`; hoje "necessário" e "atual" são digitados pelo consultor).
-   O domínio precisa estar liberado no Network access do ambiente; nesta sessão ele estava bloqueado (403 no proxy).
-2. **Vetor da natureza do trabalho** (multiplicador t da reserva ideal). `ENGINE.NATUREZAS` tem valores de exemplo
-   (servidor público 2, CLT 3, liberal/autônomo 4, empresário 5). O usuário vai mandar o vetor oficial.
-3. **Cadastro de bens.** Hoje a lista de bens é cadastrada na página Gestão de riscos. O usuário vai mandar o material
+1. **Cadastro de bens.** Hoje a lista de bens é cadastrada na página Gestão de riscos. O usuário vai mandar o material
    de coleta da Nord; os bens devem passar a vir de um cadastro anterior, com as informações desse material.
+2. **Dependentes e geradores de renda vindos do cadastro.** Hoje são cadastrados na página Gestão de riscos (itens 7
+   e 8). Vão ser perguntados numa etapa anterior; aqui, só lidos.
+3. **Apólices enviadas pelo cliente.** O usuário quer que o cliente, ao responder, possa enviar as apólices atuais
+   (vida, acidentes, doenças graves). Hoje a cobertura atual é um valor digitado.
+4. **Divisão da renda passiva e do patrimônio por propriedade.** Hoje o consultor informa, por pessoa, o percentual da
+   renda passiva e do patrimônio. O ideal, segundo o usuário, é ler a propriedade de cada bem (quem é dono de quanto),
+   que também é a base do ITCMD.
 
 O usuário ainda vai avaliar as telas de gestão de riscos e pode pedir ajustes.
 

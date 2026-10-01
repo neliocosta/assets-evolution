@@ -114,6 +114,8 @@ aside nav .sep-nav{height:1px;background:rgba(255,255,255,.1);margin:8px 10px}
 .rkc-ap input{padding:5px 8px;font-size:12px}
 .rkc-pesos{display:grid;grid-template-columns:repeat(4,1fr);gap:10px 14px}
 .prov-c{font-size:11px;color:#b08a6a;font-style:italic}
+.rkc-ger{position:relative;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px 12px;align-items:end;background:var(--nl-cream-50);border-radius:10px;padding:12px 40px 12px 12px;margin-top:10px}
+.rkc-ger input,.rkc-ger select{width:100%;padding:6px 8px;font-size:12.5px} .rkc-ger .btn-icon{position:absolute;top:8px;right:8px}
 .pc-tab td.o{font-weight:600;color:var(--nl-navy-900)} .pc-tab td.o small{display:block;font-weight:500;color:#9a9a9a;font-size:11px;margin-top:2px}
 .pc-tab td.para{color:var(--nl-orange-600);font-weight:600}
 .pc-tab .mudou{display:block;color:var(--nl-score-low);font-size:11px;font-weight:500;margin-top:2px}
@@ -1014,8 +1016,8 @@ const ENGINE = (() => {
     { id: 'liquidez', nome: 'Risco de liquidez' }, { id: 'bens', nome: 'Proteção dos bens' },
     { id: 'renda', nome: 'Proteção da renda' }, { id: 'familia', nome: 'Proteção da família' },
   ];
-  // Natureza do trabalho → meses de reserva (t). PROVISÓRIO: valores de exemplo até o vetor oficial.
-  const NATUREZAS = [['Servidor público', 2], ['CLT (empresa privada)', 3], ['Profissional liberal ou autônomo', 4], ['Empresário', 5]];
+  // Natureza do trabalho → meses de reserva (t), os mesmos da calculadora de reserva da Nord (com dependentes, +3)
+  const NATUREZAS = [['Servidor público', 3], ['Aposentado', 3], ['Estagiário', 5], ['CLT (empresa privada)', 5], ['Profissional liberal ou autônomo', 7], ['Empresário', 7]];
   const ITENS_RUINA = [['fraude', 'Investimento fraudulento identificado'], ['classe', 'Alta concentração em classe de ativo'], ['ativo', 'Alta concentração em ativo específico'], ['corrosao', 'Possibilidade de corrosão do poder de compra']];
   const NOTA = { ok: 1, atencao: 0.5, critico: 0 };
   // custo de vida mensal do plano: média das saídas dos próximos 12 meses (equivalente mensal de cada linha)
@@ -1025,15 +1027,70 @@ const ENGINE = (() => {
     return t / 12;
   }
   const num = v => v == null || v === '' || isNaN(+v) ? null : +v;
+  // ---- Seguro de vida e de acidentes pessoais ----
+  // A conta é a da calculadora de seguros da Nord (/seguros), com os ajustes do consultor: o ponto de partida é a renda
+  // que a família deseja proteger, dividida entre os geradores de renda, e cada um tem o seu seguro. Por pessoa:
+  //   A renda que deseja proteger (renda da família × participação)   B renda passiva (× a parte que conta para a pessoa)
+  //   C renda protegida (INSS por invalidez, ou pensão do INSS por morte)   D renda a cobrir = A − B − C (mínimo 0)
+  //   E patrimônio financeiro (× a parte que é da pessoa)   F prazo de consumo   G = valor presente de D por F, a 0,4% a.m.
+  //   Acidentes: F até os 95 anos da pessoa; necessidade = G − E.
+  //   Vida: F até o último dependente deixar de depender (criança até os 25 anos, adulto até os 95);
+  //         H sucessão = % (5 a 20) × (financeiro + bens + participações) × a parte da pessoa; necessidade = G + H − E.
+  //         Sem dependentes não há seguro de vida a calcular.
+  const SEGURO = { taxa: 0.004, independencia: 25, vidaAdulto: 95, sucessao: 10 };
+  const RELACOES = [['filho', 'Filho(a) ou criança'], ['conjuge', 'Cônjuge'], ['pai', 'Pai ou mãe'], ['outro', 'Outro adulto']];
+  // meses de hoje até a pessoa nascida em "AAAA-MM" fazer a idade dada
+  const mesesAteIdade = (nasc, idade) => { const m = /^(\d{4})-(\d{2})/.exec(nasc || ''); return m ? (+m[1] + idade) * 12 + (+m[2] - 1) - (TODAY.getFullYear() * 12 + TODAY.getMonth()) : null; };
+  const valorPresente = (mensal, n, i) => mensal > 0 && n > 0 ? mensal * (1 - Math.pow(1 + i, -n)) / i : 0;
+  // equivalente mensal das entradas dos próximos 12 meses: renda do trabalho (ativa) ou passiva
+  function rendaDoFluxo(plan, passiva) {
+    const its = (plan.incomes || []).filter(it => ativo(it) !== passiva).map(it => sortSteps(Object.assign({}, it)));
+    let t = 0; for (let mm = 0; mm < 12; mm++) its.forEach(it => { t += mensalizado(it, mm); });
+    return t / 12;
+  }
+  const statusSeguro = (nec, atual) => nec <= 0 || atual >= nec ? 'ok' : atual > 0 ? 'atencao' : 'critico';
+  function calculaSeguros(plan) {
+    const S = (plan.riscos || {}).seguro; if (!S) return null;
+    const pc = (v, padrao) => (num(v) != null ? +v : padrao) / 100;
+    const deps = ((plan.riscos || {}).dependentes || []).map(d => {
+      const lim = d.relacao === 'filho' ? SEGURO.independencia : SEGURO.vidaAdulto, ate = mesesAteIdade(d.nasc, lim);
+      return { nome: d.nome || '', relacao: d.relacao, nasc: d.nasc, idade: ate == null ? null : Math.floor((lim * 12 - ate) / 12), limite: lim, meses: ate == null ? null : Math.max(0, ate) };
+    });
+    const prazoVida = Math.max(0, ...deps.map(d => d.meses || 0));
+    const doFluxo = { renda: rendaDoFluxo(plan, false), passiva: rendaDoFluxo(plan, true) };
+    const renda = num(S.renda) != null ? +S.renda : doFluxo.renda, passiva = num(S.passiva) != null ? +S.passiva : doFluxo.passiva;
+    const fin = +plan.initialWealth || 0, bens = +plan.initialBens || 0, part = +plan.partValue || 0;
+    const sucessaoPct = Math.min(20, Math.max(5, num(S.sucessaoPct) != null ? +S.sucessaoPct : SEGURO.sucessao));
+    const geradores = S.geradores && S.geradores.length ? S.geradores : [{ pessoa: 'titular', participacao: 100 }];
+    const pessoas = geradores.map(g => {
+      // idade: do nascimento informado (mês e ano); sem ele, a do plano (titular ou cônjuge)
+      const idade = mesesAteIdade(g.nasc, 0) != null ? Math.floor(-mesesAteIdade(g.nasc, 0) / 12) : g.pessoa === 'outro' ? null
+        : g.pessoa === 'conjuge' ? (+plan.spouseAge > 0 ? +plan.spouseAge : null) : (+plan.age > 0 ? +plan.age : CURRENT_AGE);
+      const fatia = pc(g.participacao, 100 / geradores.length), patr = pc(g.patrimonioPct, 100 / geradores.length);
+      const A = renda * fatia, B = passiva * pc(g.passivaPct, 100), E = fin * patr;
+      const conta = (C, meses, H, atual) => {
+        const D = Math.max(0, A - B - C), G = valorPresente(D, meses, SEGURO.taxa), necessidade = G + H - E;
+        return { A, B, C, D, E, F: meses, G, H, necessidade, atual, falta: Math.max(0, necessidade - atual), status: statusSeguro(necessidade, atual) };
+      };
+      const acidentes = conta(+g.inssInvalidez || 0, idade == null ? 0 : Math.max(0, (SEGURO.vidaAdulto - idade) * 12), 0, +g.coberturaInvalidez || 0);
+      if (idade == null) acidentes.status = 'pendente';
+      const vida = conta(+g.inssMorte || 0, prazoVida, deps.length ? sucessaoPct / 100 * (fin + bens + part) * patr : 0, +g.coberturaVida || 0);
+      if (!deps.length) Object.assign(vida, { necessidade: 0, falta: 0, status: 'ok', semDependentes: true });
+      return { nome: g.nome || (g.pessoa === 'conjuge' ? 'Cônjuge' : g.pessoa === 'outro' ? 'Outra pessoa' : 'Titular'), pessoa: g.pessoa || 'titular', idade, participacao: fatia, acidentes, vida };
+    });
+    return { renda, passiva, doFluxo, fin, bens, part, sucessaoPct, deps, prazoVida, taxa: SEGURO.taxa, pessoas,
+      somaParticipacao: geradores.reduce((a, g) => a + (num(g.participacao) != null ? +g.participacao : 100 / geradores.length), 0) };
+  }
   function avaliaRiscos(plan) {
     const R = plan.riscos || {}, out = {};
     // Desemprego e emergência: ideal = custo de vida × (d + t); mínima 40%, aceitável 70%
     { const r = R.reserva || {}, custo = num(r.custoVida) != null ? +r.custoVida : custoDeVida(plan);
-      const nat = NATUREZAS.find(n => n[0] === r.natureza), d = r.dependentes ? 3 : 0, t = nat ? nat[1] : null;
+      const temDep = Array.isArray(R.dependentes) ? R.dependentes.length > 0 : !!r.dependentes;   // a lista de dependentes, quando existe, decide
+      const nat = NATUREZAS.find(n => n[0] === r.natureza), d = temDep ? 3 : 0, t = nat ? nat[1] : null;
       const calculado = t != null ? custo * (d + t) : null, ideal = num(r.alvo) != null ? +r.alvo : calculado;
       const atual = num(r.atual) != null ? +r.atual : num((R.liquidez || {}).d0);
       const status = ideal == null || !(ideal > 0) || atual == null ? 'pendente' : atual >= ideal ? 'ok' : atual >= ideal * 0.4 ? 'atencao' : 'critico';
-      out.reserva = { status, custo, d, t, meses: t != null ? d + t : null, calculado, ideal, minima: ideal != null ? ideal * 0.4 : null, aceitavel: ideal != null ? ideal * 0.7 : null, atual, alvoProprio: num(r.alvo) != null }; }
+      out.reserva = { status, custo, dependentes: temDep, d, t, meses: t != null ? d + t : null, calculado, ideal, minima: ideal != null ? ideal * 0.4 : null, aceitavel: ideal != null ? ideal * 0.7 : null, atual, alvoProprio: num(r.alvo) != null }; }
     // Saúde: a avaliação do consultor decide
     { const r = R.saude || {}, vidas = r.vidas || [], total = vidas.reduce((a, v) => a + (+v.premio || 0), 0), alt = r.alternativa || {};
       const status = { adequado: 'ok', otimizavel: 'atencao', sem_plano: 'critico' }[r.avaliacao] || 'pendente';
@@ -1054,11 +1111,13 @@ const ENGINE = (() => {
     { const itens = (R.bens || {}).itens || [], p = itens.map(b => b.protecao || '');
       const status = !itens.length ? 'pendente' : p.includes('nenhuma') ? 'critico' : p.includes('insuficiente') ? 'atencao' : p.every(x => x === 'total') ? 'ok' : 'pendente';
       out.bens = { status, total: itens.reduce((a, b) => a + (+b.valor || 0), 0), protegido: itens.filter(b => b.protecao === 'total').reduce((a, b) => a + (+b.valor || 0), 0) }; }
-    // Renda e família: não precisa ou tem o que precisa, ok; precisa e tem menos, atenção; precisa e não tem, vermelho
+    // Renda (seguro de acidentes pessoais) e família (seguro de vida): um cálculo para cada gerador de renda.
+    // Cada pessoa: não precisa ou tem o necessário, ok; tem menos, atenção; não tem, crítico. A ameaça fica com o pior.
+    const seg = calculaSeguros(plan);
     for (const k of ['renda', 'familia']) {
-      const r = R[k] || {}, nec = num(r.necessario), at = +r.atual || 0;
-      const status = r.precisa == null ? 'pendente' : !r.precisa ? 'ok' : nec == null ? 'pendente' : at >= nec ? 'ok' : at > 0 ? 'atencao' : 'critico';
-      out[k] = { status, necessario: nec, atual: at, falta: nec != null ? Math.max(0, nec - at) : null };
+      const ps = seg ? seg.pessoas.map(p => p[k === 'renda' ? 'acidentes' : 'vida']).filter(x => x.status !== 'pendente') : [];
+      const status = !ps.length ? 'pendente' : ['critico', 'atencao', 'ok'].find(s => ps.some(x => x.status === s));
+      out[k] = { status, seg, necessario: ps.reduce((a, x) => a + Math.max(0, x.necessidade), 0), atual: ps.reduce((a, x) => a + x.atual, 0), falta: ps.reduce((a, x) => a + x.falta, 0) };
     }
     const pesos = Object.assign({}, ...RISCOS.map(x => ({ [x.id]: 1 })), R.pesos || {});
     let soma = 0, peso = 0; RISCOS.forEach(x => { const st = out[x.id].status; if (st === 'pendente') return; soma += (+pesos[x.id] || 0) * NOTA[st]; peso += +pesos[x.id] || 0; });
@@ -1077,12 +1136,14 @@ const ENGINE = (() => {
     bens: { itens: [
       { nome: 'Carro da família', valor: 120000, protecao: 'total', apolice: { seguradora: 'Porto Seguro', numero: '0531.22.118790', cobertura: '100% da tabela FIPE, terceiros R$ 200 mil', premio: 4200, vigencia: 'até mar/2027' } },
       { nome: 'Carro (2º veículo)', valor: 60000, protecao: 'nenhuma', apolice: null }] },
-    renda: { precisa: true, necessario: 900000, atual: 300000 },
-    familia: { precisa: true, necessario: 1500000, atual: 0 },
+    dependentes: [{ nome: 'Luiza', relacao: 'filho', nasc: '2025-06' }],
+    seguro: { renda: null, passiva: null, sucessaoPct: 10, geradores: [
+      { nome: 'Ana', pessoa: 'titular', nasc: '', participacao: 60, passivaPct: 100, patrimonioPct: 50, inssInvalidez: 3000, inssMorte: 3000, coberturaInvalidez: 300000, coberturaVida: 500000 },
+      { nome: 'Marcos', pessoa: 'conjuge', nasc: '1988-03', participacao: 40, passivaPct: 100, patrimonioPct: 50, inssInvalidez: 2500, inssMorte: 2500, coberturaInvalidez: 0, coberturaVida: 0 }] },
   };
   const ORIGENS_OUT = ORIGENS;
   const config = () => ({ age: CURRENT_AGE, retireAge: RETIRE_AGE, initialBens: INITIAL_BENS, desired: DESIRED, desiredSteps: DESIRED_STEPS, lifeExp: LIFE_EXP, salary: SALARY, salaryGrowth: SAL_G, partValue: PART_VALUE, initialWealth: INITIAL_WEALTH, capacityOverride: CAP_OVERRIDE, rate: R_M, profiles: PROFILES, incomes: INCOMES, expenses: EXPENSES, objectives: OBJ, passive: PASSIVE });
-  return { TODAY, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, PASSIVE, PROFILES, STATUS, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, serieCusto, desiredAt, aplicaAlteracoes, descreveAlteracao, valorAtual, mesDoPlano, RISCOS, NATUREZAS, ITENS_RUINA, RISCOS_EXEMPLO, avaliaRiscos, custoDeVida, lerCaminho, gravaCaminho, setRetireAge: a => { RETIRE_AGE = a == null ? null : Math.max(CURRENT_AGE, +a); }, financiamentoValido, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
+  return { TODAY, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, PASSIVE, PROFILES, STATUS, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, serieCusto, desiredAt, aplicaAlteracoes, descreveAlteracao, valorAtual, mesDoPlano, RISCOS, NATUREZAS, ITENS_RUINA, RISCOS_EXEMPLO, avaliaRiscos, custoDeVida, SEGURO, RELACOES, calculaSeguros, mesesAteIdade, lerCaminho, gravaCaminho, setRetireAge: a => { RETIRE_AGE = a == null ? null : Math.max(CURRENT_AGE, +a); }, financiamentoValido, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
 })();
 if (typeof module !== 'undefined') module.exports = ENGINE;
 </script>
@@ -2788,8 +2849,8 @@ function renderRiscosC() {
     <div class="field"><label>Fase Evolução patrimonial</label>${campoR('videos.evolucao', 'texto', ' placeholder="vazio: o espaço do vídeo fica reservado"')}</div></div></div>`);
   const r = it.reserva, sn = [['', 'não informado'], ['sim', 'Sim'], ['nao', 'Não']];
   blocos.push(`<div class="bloco" id="rkc-reserva"><h3>1. Desemprego e emergência${stC(r.status)}</h3><div class="grid g3">
-    <div class="field"><label>Dependentes financeiros (d = 3)</label>${selR('riscos.reserva.dependentes', sn, 'bool')}</div>
-    <div class="field"><label>Natureza do trabalho (t) <span class="prov-c">valores provisórios</span></label>${selR('riscos.reserva.natureza', [['', 'escolha']].concat(ENGINE.NATUREZAS.map(([n, t]) => [n, n + ' · ' + t])))}</div>
+    <div class="field"><label>Dependentes financeiros (d = 3)</label>${Array.isArray(R.dependentes) ? `<input disabled value="${R.dependentes.length ? 'Sim: ' + R.dependentes.length + ' na lista do item 8' : 'Não: lista do item 8 vazia'}">` : selR('riscos.reserva.dependentes', sn, 'bool')}</div>
+    <div class="field"><label>Natureza do trabalho (t)</label>${selR('riscos.reserva.natureza', [['', 'escolha']].concat(ENGINE.NATUREZAS.map(([n, t]) => [n, n + ' · ' + t])))}</div>
     <div class="field"><label>Custo de vida mensal</label>${campoR('riscos.reserva.custoVida', 'reais', ` placeholder="vazio: ${f(ENGINE.custoDeVida(plano))} do fluxo"`)}</div>
     <div class="field"><label>Reserva atual</label>${campoR('riscos.reserva.atual', 'reais', ` placeholder="vazio: D+0 da liquidez"`)}</div>
     <div class="field"><label>Alvo de reserva (opcional)</label>${campoR('riscos.reserva.alvo', 'reais', ' placeholder="vazio: o ideal calculado"')}</div></div>
@@ -2820,17 +2881,46 @@ function renderRiscosC() {
     <table class="rkc-tab" style="min-width:0"><thead><tr><th>Bem</th><th>Valor</th><th>Proteção</th><th></th></tr></thead><tbody>${((R.bens || {}).itens || []).map((b, i) => `<tr><td>${campoR(`riscos.bens.itens.${i}.nome`, 'texto')}</td><td>${campoR(`riscos.bens.itens.${i}.valor`, 'reais')}</td><td>${selR(`riscos.bens.itens.${i}.protecao`, [['', 'não avaliado'], ['total', 'Protegido'], ['insuficiente', 'Proteção insuficiente'], ['nenhuma', 'Sem proteção']])}</td><td><button class="btn btn-icon" data-rrm="riscos.bens.itens.${i}">×</button></td></tr>
       ${b.protecao && b.protecao !== 'nenhuma' ? `<tr><td colspan="4"><div class="rkc-ap">${campoR(`riscos.bens.itens.${i}.apolice.seguradora`, 'texto', ' placeholder="seguradora"')}${campoR(`riscos.bens.itens.${i}.apolice.numero`, 'texto', ' placeholder="nº da apólice"')}${campoR(`riscos.bens.itens.${i}.apolice.cobertura`, 'texto', ' placeholder="cobertura"')}${campoR(`riscos.bens.itens.${i}.apolice.premio`, 'reais', ' placeholder="prêmio anual"')}${campoR(`riscos.bens.itens.${i}.apolice.vigencia`, 'texto', ' placeholder="vigência"')}</div></td></tr>` : ''}`).join('')}</tbody></table>
     <button class="btn btn-step" data-radd="riscos.bens.itens">+ bem</button><div class="rkc-calc">Em dia se todos estão protegidos; atenção se algum tem proteção insuficiente; crítico se algum está sem proteção.</div></div>`);
-  for (const [k, n, sub] of [['renda', '7. Proteção da renda', 'invalidez e acidentes pessoais'], ['familia', '8. Proteção da família', 'seguro de vida']]) {
-    blocos.push(`<div class="bloco" id="rkc-${k}"><h3>${n}${stC(it[k].status)}</h3><div class="grid g3">
-      <div class="field"><label>Precisa de proteção (${sub})?</label>${selR('riscos.' + k + '.precisa', sn, 'bool')}</div>
-      <div class="field"><label>Proteção necessária <span class="prov-c">cálculo em breve</span></label>${campoR('riscos.' + k + '.necessario', 'reais')}</div>
-      <div class="field"><label>Proteção atual</label>${campoR('riscos.' + k + '.atual', 'reais')}</div></div></div>`);
-  }
+  blocos.push(...blocosSeguro(it, R));
   const P = Object.assign({}, a.pesos);
   blocos.push(`<div class="bloco"><h3>Pesos na nota da família</h3><div class="hint" style="margin-bottom:10px">Quanto cada ameaça pesa na nota. Em dia vale 1, atenção 0,5 e crítico 0; as não avaliadas ficam de fora.</div>
     <div class="rkc-pesos">${ENGINE.RISCOS.map(x => `<div class="field"><label>${x.nome}</label>${campoR('riscos.pesos.' + x.id, 'num', ' min="0" step="0.5"')}</div>`).join('')}</div></div>`);
   if (!R.pesos) R.pesos = P;
   el.innerHTML = blocos.join('');
+}
+const novoGerador = (pessoa, pct) => ({ nome: '', pessoa, nasc: '', participacao: pct, passivaPct: 100, patrimonioPct: pct, inssInvalidez: 0, inssMorte: 0, coberturaInvalidez: 0, coberturaVida: 0 });
+// casal: titular e cônjuge, metade cada um, para o consultor ajustar
+const novoSeguro = () => ({ renda: null, passiva: null, sucessaoPct: 10, geradores: conjuge() ? [novoGerador('titular', 50), novoGerador('conjuge', 50)] : [novoGerador('titular', 100)] });
+// 7 e 8: seguro de acidentes pessoais e de vida, um para cada gerador de renda (a conta está em ENGINE.calculaSeguros)
+function blocosSeguro(it, R) {
+  const s = it.renda.seg, f = n => fmt(n || 0), pct = c => campoR(c, 'num', ' min="0" max="100" step="5"');
+  if (!s) return [['renda', '7. Proteção da renda'], ['familia', '8. Proteção da família']].map(([k, n]) => `<div class="bloco" id="rkc-${k}"><h3>${n}${stC('pendente')}</h3>
+    <div class="note">O seguro de acidentes pessoais e o de vida são calculados com a renda e o patrimônio do plano, para cada pessoa que gera renda na família. <button class="btn btn-tertiary btn-small" data-rseguro>Calcular com os dados do plano</button></div></div>`);
+  const G = R.seguro.geradores = R.seguro.geradores || [], quem = [['titular', 'Titular' + (plano.age ? ' (' + plano.age + ' anos)' : '')], ['conjuge', 'Cônjuge' + (+plano.spouseAge > 0 ? ' (' + plano.spouseAge + ' anos)' : '')], ['outro', 'Outra pessoa']];
+  const soma = Math.round(s.somaParticipacao * 10) / 10;
+  const memoria = k => s.pessoas.map(p => { const c = p[k]; const nome = `<b>${esc(p.nome)}</b>`;
+    if (c.status === 'pendente') return `${nome}: falta a idade (nascimento, ou a idade do plano).`;
+    if (c.semDependentes) return `${nome}: sem dependentes, o seguro de vida não é essencial.`;
+    return `${nome}${p.idade != null ? ' (' + p.idade + ' anos)' : ''}: A ${f(c.A)} − B ${f(c.B)} − C ${f(c.C)} = D ${f(c.D)} por ${(c.F / 12).toLocaleString('pt-BR', { maximumFractionDigits: 1 })} anos → G ${f(c.G)}${k === 'vida' ? ' + H ' + f(c.H) : ''} − E ${f(c.E)} = <b>${c.necessidade > 0 ? f(c.necessidade) : 'não essencial'}</b> · atual ${f(c.atual)} ${stC(c.status)}`; }).join('<br>');
+  const b7 = `<div class="bloco" id="rkc-renda"><h3>7. Proteção da renda (seguro de acidentes pessoais)${stC(it.renda.status)}</h3>
+    <div class="hint" style="margin-bottom:10px">Os geradores de renda e os valores abaixo valem também para o item 8. Cada pessoa tem o seu seguro: A é a renda que ela protege (a renda da família × a participação), B a renda passiva que conta para ela, E o patrimônio financeiro que é dela.</div>
+    <div class="grid g3"><div class="field"><label>Renda que deseja proteger (família, por mês)</label>${campoR('riscos.seguro.renda', 'reais', ` placeholder="vazio: ${f(s.doFluxo.renda)}, a renda do trabalho no fluxo"`)}</div>
+      <div class="field"><label>Renda passiva (aluguéis e negócios, por mês)</label>${campoR('riscos.seguro.passiva', 'reais', ` placeholder="vazio: ${f(s.doFluxo.passiva)}, a renda passiva no fluxo"`)}</div></div>
+    ${G.map((g, i) => { const c = `riscos.seguro.geradores.${i}.`, cp = (n, h) => `<div class="field"><label>${n}</label>${h}</div>`; return `<div class="rkc-ger">
+      ${cp('Gerador de renda', campoR(c + 'nome', 'texto', ' placeholder="nome"'))}${cp('Quem', selR(c + 'pessoa', quem))}${cp('Nascimento (vazio: idade do plano)', campoR(c + 'nasc', 'texto', ' type="month"'))}
+      ${cp('% da renda da família', pct(c + 'participacao'))}${cp('% da renda passiva', pct(c + 'passivaPct'))}${cp('% do patrimônio', pct(c + 'patrimonioPct'))}
+      ${cp('INSS por invalidez', campoR(c + 'inssInvalidez', 'reais'))}${cp('Cobertura atual de invalidez por acidente', campoR(c + 'coberturaInvalidez', 'reais'))}
+      <button class="btn btn-icon" data-rrm="riscos.seguro.geradores.${i}" title="Remover">×</button></div>`; }).join('')}
+    <button class="btn btn-step" data-radd="riscos.seguro.geradores">+ gerador de renda</button>
+    ${G.length && Math.abs(soma - 100) > 0.05 ? `<div class="note">As participações na renda somam ${soma.toLocaleString('pt-BR')}%, e não 100%.</div>` : ''}
+    <div class="rkc-calc">${memoria('acidentes')}<br>Prazo até os 95 anos da pessoa, desconto de 0,4% ao mês. Em dia se não precisa ou tem o necessário; atenção se tem menos; crítico se não tem. A ameaça fica com o pior status entre as pessoas.</div></div>`;
+  const b8 = `<div class="bloco" id="rkc-familia"><h3>8. Proteção da família (seguro de vida)${stC(it.familia.status)}</h3>
+    <table class="rkc-tab" style="min-width:0"><thead><tr><th>Dependente financeiro</th><th>Relação</th><th>Nascimento (mês e ano)</th><th>Depende até</th><th></th></tr></thead><tbody>${(R.dependentes || []).map((d, i) => { const x = s.deps[i] || {}; return `<tr><td>${campoR(`riscos.dependentes.${i}.nome`, 'texto', ' placeholder="nome"')}</td><td>${selR(`riscos.dependentes.${i}.relacao`, ENGINE.RELACOES)}</td><td>${campoR(`riscos.dependentes.${i}.nasc`, 'texto', ' type="month"')}</td><td class="muted">${x.meses == null ? '—' : x.limite + ' anos' + (x.meses ? ', daqui a ' + (x.meses / 12).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + ' anos' : ' (já não depende)')}</td><td><button class="btn btn-icon" data-rrm="riscos.dependentes.${i}" title="Remover">×</button></td></tr>`; }).join('')}</tbody></table>
+    <button class="btn btn-step" data-radd="riscos.dependentes">+ dependente</button>
+    <div class="grid g3" style="margin-top:12px"><div class="field"><label>Sucessão (% do patrimônio, de 5 a 20)</label>${campoR('riscos.seguro.sucessaoPct', 'num', ' min="5" max="20" step="0.5" placeholder="10"')}</div></div>
+    <table class="rkc-tab" style="min-width:0;margin-top:6px"><thead><tr><th>Gerador de renda</th><th>Pensão do INSS por morte</th><th>Seguro de vida atual</th></tr></thead><tbody>${G.map((g, i) => `<tr><td>${esc(s.pessoas[i] ? s.pessoas[i].nome : '')}</td><td>${campoR(`riscos.seguro.geradores.${i}.inssMorte`, 'reais')}</td><td>${campoR(`riscos.seguro.geradores.${i}.coberturaVida`, 'reais')}</td></tr>`).join('')}</tbody></table>
+    <div class="rkc-calc">${memoria('vida')}<br>Prazo até o último dependente deixar de depender (criança até os 25 anos, adulto até os 95). H = ${s.sucessaoPct.toLocaleString('pt-BR')}% × (financeiro + bens + participações) × a parte da pessoa no patrimônio.</div></div>`;
+  return [b7, b8];
 }
 function resumoRiscosC(a) {
   const nota = a.nota == null ? '—' : Math.round(a.nota * 100) + '%';
@@ -2850,7 +2940,8 @@ document.addEventListener('input', e => { const t = e.target; if (!t.dataset || 
 document.addEventListener('change', e => { const t = e.target; if (!t.dataset || t.dataset.r == null) return; ENGINE.gravaCaminho(plano, t.dataset.r, valorDoCampoR(t)); setTimeout(renderAll, 0); });
 document.addEventListener('click', e => {
   const add = e.target.closest('[data-radd]'), rm = e.target.closest('[data-rrm]'), ex = e.target.closest('[data-rexemplo]'), ir = e.target.closest('[data-rir]');
-  if (add) { const c = add.dataset.radd, lista = lerR(c) || []; lista.push(c.endsWith('vidas') ? { nome: '', idade: null, premio: 0 } : c.endsWith('bens.itens') ? { nome: '', valor: 0, protecao: '' } : { nome: '', ideal: 0, atual: 0 }); ENGINE.gravaCaminho(plano, c, lista); if (c.includes('terceiros')) plano.riscos.terceiros.avaliado = true; renderAll(); }
+  if (e.target.closest('[data-rseguro]')) { plano.riscos.seguro = novoSeguro(); if (!Array.isArray(plano.riscos.dependentes)) plano.riscos.dependentes = []; renderAll(); return; }
+  if (add) { const c = add.dataset.radd, lista = lerR(c) || []; lista.push(c.endsWith('vidas') ? { nome: '', idade: null, premio: 0 } : c.endsWith('bens.itens') ? { nome: '', valor: 0, protecao: '' } : c.endsWith('dependentes') ? { nome: '', relacao: 'filho', nasc: '' } : c.endsWith('geradores') ? novoGerador(lista.length ? 'outro' : 'titular', 0) : { nome: '', ideal: 0, atual: 0 }); ENGINE.gravaCaminho(plano, c, lista); if (c.includes('terceiros')) plano.riscos.terceiros.avaliado = true; renderAll(); }
   else if (rm) { const ks = rm.dataset.rrm.split('.'), i = +ks.pop(), lista = lerR(ks.join('.')); lista.splice(i, 1); renderAll(); }
   else if (ex) { plano.riscos = JSON.parse(JSON.stringify(ENGINE.RISCOS_EXEMPLO)); renderAll(); }
   else if (ir) { const b = document.getElementById('rkc-' + ir.dataset.rir); if (b) b.scrollIntoView({ behavior: 'smooth', block: 'start' }); }

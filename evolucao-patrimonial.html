@@ -148,6 +148,17 @@ body.fase-riscos .legend,body.fase-riscos .stats,body.fase-riscos #segView,body.
 .ruina-l{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #f3f1ec;font-size:13px;color:var(--nl-navy-900)}
 .ruina-l:last-child{border-bottom:0} .ruina-l span{flex:1}
 .prov{font-size:11px;color:#b08a6a;font-style:italic}
+.seg-p{border:1px solid #f0eee9;border-radius:12px;padding:14px 16px;margin:12px 0}
+.seg-p h4{font:600 13.5px Sora,sans-serif;color:var(--nl-navy-900);display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.seg-p h4 small{font:500 11.5px 'DM Sans',sans-serif;color:#8d8d8d}
+.seg-tot{display:flex;justify-content:space-between;align-items:center;gap:12px;background:var(--nl-navy-900);color:#fff;border-radius:10px;padding:12px 14px;margin-bottom:6px}
+.seg-tot span{font:600 12.5px 'DM Sans',sans-serif} .seg-tot small{display:block;font:500 11px 'DM Sans',sans-serif;opacity:.7;margin-top:2px}
+.seg-tot b{font:700 19px Sora,sans-serif;white-space:nowrap}
+.seg-l{display:flex;justify-content:space-between;gap:12px;padding:7px 2px;border-bottom:1px solid #f6f4f0;font-size:12.5px;color:var(--nl-gray-700)}
+.seg-l b{color:var(--nl-navy-900);white-space:nowrap} .seg-l small{color:#9a9a9a;margin-left:4px}
+.seg-l.sub{background:#fcfbf9}
+.seg-nao{background:#F1F8F3;border-radius:10px;padding:11px 13px;font-size:12.5px;color:#2b6e45;line-height:1.5}
+.seg-nota{font-size:11px;color:#9a9a9a;text-align:center;margin-top:10px;line-height:1.5}
 @media (max-width:900px){ .rk-topo{grid-template-columns:1fr} .rk-grade{grid-template-columns:repeat(2,1fr)} }
 /* propostas do cliente: nada muda no plano até o consultor aprovar */
 #propBar{display:flex;align-items:center;gap:10px 14px;flex-wrap:wrap;padding:8px 24px;background:var(--nl-peach-100);color:var(--nl-orange-600);font:500 12.5px 'DM Sans',sans-serif;border-bottom:1px solid #f6dcc8;position:relative;z-index:1}
@@ -789,8 +800,8 @@ const ENGINE = (() => {
     { id: 'liquidez', nome: 'Risco de liquidez' }, { id: 'bens', nome: 'Proteção dos bens' },
     { id: 'renda', nome: 'Proteção da renda' }, { id: 'familia', nome: 'Proteção da família' },
   ];
-  // Natureza do trabalho → meses de reserva (t). PROVISÓRIO: valores de exemplo até o vetor oficial.
-  const NATUREZAS = [['Servidor público', 2], ['CLT (empresa privada)', 3], ['Profissional liberal ou autônomo', 4], ['Empresário', 5]];
+  // Natureza do trabalho → meses de reserva (t), os mesmos da calculadora de reserva da Nord (com dependentes, +3)
+  const NATUREZAS = [['Servidor público', 3], ['Aposentado', 3], ['Estagiário', 5], ['CLT (empresa privada)', 5], ['Profissional liberal ou autônomo', 7], ['Empresário', 7]];
   const ITENS_RUINA = [['fraude', 'Investimento fraudulento identificado'], ['classe', 'Alta concentração em classe de ativo'], ['ativo', 'Alta concentração em ativo específico'], ['corrosao', 'Possibilidade de corrosão do poder de compra']];
   const NOTA = { ok: 1, atencao: 0.5, critico: 0 };
   // custo de vida mensal do plano: média das saídas dos próximos 12 meses (equivalente mensal de cada linha)
@@ -800,15 +811,70 @@ const ENGINE = (() => {
     return t / 12;
   }
   const num = v => v == null || v === '' || isNaN(+v) ? null : +v;
+  // ---- Seguro de vida e de acidentes pessoais ----
+  // A conta é a da calculadora de seguros da Nord (/seguros), com os ajustes do consultor: o ponto de partida é a renda
+  // que a família deseja proteger, dividida entre os geradores de renda, e cada um tem o seu seguro. Por pessoa:
+  //   A renda que deseja proteger (renda da família × participação)   B renda passiva (× a parte que conta para a pessoa)
+  //   C renda protegida (INSS por invalidez, ou pensão do INSS por morte)   D renda a cobrir = A − B − C (mínimo 0)
+  //   E patrimônio financeiro (× a parte que é da pessoa)   F prazo de consumo   G = valor presente de D por F, a 0,4% a.m.
+  //   Acidentes: F até os 95 anos da pessoa; necessidade = G − E.
+  //   Vida: F até o último dependente deixar de depender (criança até os 25 anos, adulto até os 95);
+  //         H sucessão = % (5 a 20) × (financeiro + bens + participações) × a parte da pessoa; necessidade = G + H − E.
+  //         Sem dependentes não há seguro de vida a calcular.
+  const SEGURO = { taxa: 0.004, independencia: 25, vidaAdulto: 95, sucessao: 10 };
+  const RELACOES = [['filho', 'Filho(a) ou criança'], ['conjuge', 'Cônjuge'], ['pai', 'Pai ou mãe'], ['outro', 'Outro adulto']];
+  // meses de hoje até a pessoa nascida em "AAAA-MM" fazer a idade dada
+  const mesesAteIdade = (nasc, idade) => { const m = /^(\d{4})-(\d{2})/.exec(nasc || ''); return m ? (+m[1] + idade) * 12 + (+m[2] - 1) - (TODAY.getFullYear() * 12 + TODAY.getMonth()) : null; };
+  const valorPresente = (mensal, n, i) => mensal > 0 && n > 0 ? mensal * (1 - Math.pow(1 + i, -n)) / i : 0;
+  // equivalente mensal das entradas dos próximos 12 meses: renda do trabalho (ativa) ou passiva
+  function rendaDoFluxo(plan, passiva) {
+    const its = (plan.incomes || []).filter(it => ativo(it) !== passiva).map(it => sortSteps(Object.assign({}, it)));
+    let t = 0; for (let mm = 0; mm < 12; mm++) its.forEach(it => { t += mensalizado(it, mm); });
+    return t / 12;
+  }
+  const statusSeguro = (nec, atual) => nec <= 0 || atual >= nec ? 'ok' : atual > 0 ? 'atencao' : 'critico';
+  function calculaSeguros(plan) {
+    const S = (plan.riscos || {}).seguro; if (!S) return null;
+    const pc = (v, padrao) => (num(v) != null ? +v : padrao) / 100;
+    const deps = ((plan.riscos || {}).dependentes || []).map(d => {
+      const lim = d.relacao === 'filho' ? SEGURO.independencia : SEGURO.vidaAdulto, ate = mesesAteIdade(d.nasc, lim);
+      return { nome: d.nome || '', relacao: d.relacao, nasc: d.nasc, idade: ate == null ? null : Math.floor((lim * 12 - ate) / 12), limite: lim, meses: ate == null ? null : Math.max(0, ate) };
+    });
+    const prazoVida = Math.max(0, ...deps.map(d => d.meses || 0));
+    const doFluxo = { renda: rendaDoFluxo(plan, false), passiva: rendaDoFluxo(plan, true) };
+    const renda = num(S.renda) != null ? +S.renda : doFluxo.renda, passiva = num(S.passiva) != null ? +S.passiva : doFluxo.passiva;
+    const fin = +plan.initialWealth || 0, bens = +plan.initialBens || 0, part = +plan.partValue || 0;
+    const sucessaoPct = Math.min(20, Math.max(5, num(S.sucessaoPct) != null ? +S.sucessaoPct : SEGURO.sucessao));
+    const geradores = S.geradores && S.geradores.length ? S.geradores : [{ pessoa: 'titular', participacao: 100 }];
+    const pessoas = geradores.map(g => {
+      // idade: do nascimento informado (mês e ano); sem ele, a do plano (titular ou cônjuge)
+      const idade = mesesAteIdade(g.nasc, 0) != null ? Math.floor(-mesesAteIdade(g.nasc, 0) / 12) : g.pessoa === 'outro' ? null
+        : g.pessoa === 'conjuge' ? (+plan.spouseAge > 0 ? +plan.spouseAge : null) : (+plan.age > 0 ? +plan.age : CURRENT_AGE);
+      const fatia = pc(g.participacao, 100 / geradores.length), patr = pc(g.patrimonioPct, 100 / geradores.length);
+      const A = renda * fatia, B = passiva * pc(g.passivaPct, 100), E = fin * patr;
+      const conta = (C, meses, H, atual) => {
+        const D = Math.max(0, A - B - C), G = valorPresente(D, meses, SEGURO.taxa), necessidade = G + H - E;
+        return { A, B, C, D, E, F: meses, G, H, necessidade, atual, falta: Math.max(0, necessidade - atual), status: statusSeguro(necessidade, atual) };
+      };
+      const acidentes = conta(+g.inssInvalidez || 0, idade == null ? 0 : Math.max(0, (SEGURO.vidaAdulto - idade) * 12), 0, +g.coberturaInvalidez || 0);
+      if (idade == null) acidentes.status = 'pendente';
+      const vida = conta(+g.inssMorte || 0, prazoVida, deps.length ? sucessaoPct / 100 * (fin + bens + part) * patr : 0, +g.coberturaVida || 0);
+      if (!deps.length) Object.assign(vida, { necessidade: 0, falta: 0, status: 'ok', semDependentes: true });
+      return { nome: g.nome || (g.pessoa === 'conjuge' ? 'Cônjuge' : g.pessoa === 'outro' ? 'Outra pessoa' : 'Titular'), pessoa: g.pessoa || 'titular', idade, participacao: fatia, acidentes, vida };
+    });
+    return { renda, passiva, doFluxo, fin, bens, part, sucessaoPct, deps, prazoVida, taxa: SEGURO.taxa, pessoas,
+      somaParticipacao: geradores.reduce((a, g) => a + (num(g.participacao) != null ? +g.participacao : 100 / geradores.length), 0) };
+  }
   function avaliaRiscos(plan) {
     const R = plan.riscos || {}, out = {};
     // Desemprego e emergência: ideal = custo de vida × (d + t); mínima 40%, aceitável 70%
     { const r = R.reserva || {}, custo = num(r.custoVida) != null ? +r.custoVida : custoDeVida(plan);
-      const nat = NATUREZAS.find(n => n[0] === r.natureza), d = r.dependentes ? 3 : 0, t = nat ? nat[1] : null;
+      const temDep = Array.isArray(R.dependentes) ? R.dependentes.length > 0 : !!r.dependentes;   // a lista de dependentes, quando existe, decide
+      const nat = NATUREZAS.find(n => n[0] === r.natureza), d = temDep ? 3 : 0, t = nat ? nat[1] : null;
       const calculado = t != null ? custo * (d + t) : null, ideal = num(r.alvo) != null ? +r.alvo : calculado;
       const atual = num(r.atual) != null ? +r.atual : num((R.liquidez || {}).d0);
       const status = ideal == null || !(ideal > 0) || atual == null ? 'pendente' : atual >= ideal ? 'ok' : atual >= ideal * 0.4 ? 'atencao' : 'critico';
-      out.reserva = { status, custo, d, t, meses: t != null ? d + t : null, calculado, ideal, minima: ideal != null ? ideal * 0.4 : null, aceitavel: ideal != null ? ideal * 0.7 : null, atual, alvoProprio: num(r.alvo) != null }; }
+      out.reserva = { status, custo, dependentes: temDep, d, t, meses: t != null ? d + t : null, calculado, ideal, minima: ideal != null ? ideal * 0.4 : null, aceitavel: ideal != null ? ideal * 0.7 : null, atual, alvoProprio: num(r.alvo) != null }; }
     // Saúde: a avaliação do consultor decide
     { const r = R.saude || {}, vidas = r.vidas || [], total = vidas.reduce((a, v) => a + (+v.premio || 0), 0), alt = r.alternativa || {};
       const status = { adequado: 'ok', otimizavel: 'atencao', sem_plano: 'critico' }[r.avaliacao] || 'pendente';
@@ -829,11 +895,13 @@ const ENGINE = (() => {
     { const itens = (R.bens || {}).itens || [], p = itens.map(b => b.protecao || '');
       const status = !itens.length ? 'pendente' : p.includes('nenhuma') ? 'critico' : p.includes('insuficiente') ? 'atencao' : p.every(x => x === 'total') ? 'ok' : 'pendente';
       out.bens = { status, total: itens.reduce((a, b) => a + (+b.valor || 0), 0), protegido: itens.filter(b => b.protecao === 'total').reduce((a, b) => a + (+b.valor || 0), 0) }; }
-    // Renda e família: não precisa ou tem o que precisa, ok; precisa e tem menos, atenção; precisa e não tem, vermelho
+    // Renda (seguro de acidentes pessoais) e família (seguro de vida): um cálculo para cada gerador de renda.
+    // Cada pessoa: não precisa ou tem o necessário, ok; tem menos, atenção; não tem, crítico. A ameaça fica com o pior.
+    const seg = calculaSeguros(plan);
     for (const k of ['renda', 'familia']) {
-      const r = R[k] || {}, nec = num(r.necessario), at = +r.atual || 0;
-      const status = r.precisa == null ? 'pendente' : !r.precisa ? 'ok' : nec == null ? 'pendente' : at >= nec ? 'ok' : at > 0 ? 'atencao' : 'critico';
-      out[k] = { status, necessario: nec, atual: at, falta: nec != null ? Math.max(0, nec - at) : null };
+      const ps = seg ? seg.pessoas.map(p => p[k === 'renda' ? 'acidentes' : 'vida']).filter(x => x.status !== 'pendente') : [];
+      const status = !ps.length ? 'pendente' : ['critico', 'atencao', 'ok'].find(s => ps.some(x => x.status === s));
+      out[k] = { status, seg, necessario: ps.reduce((a, x) => a + Math.max(0, x.necessidade), 0), atual: ps.reduce((a, x) => a + x.atual, 0), falta: ps.reduce((a, x) => a + x.falta, 0) };
     }
     const pesos = Object.assign({}, ...RISCOS.map(x => ({ [x.id]: 1 })), R.pesos || {});
     let soma = 0, peso = 0; RISCOS.forEach(x => { const st = out[x.id].status; if (st === 'pendente') return; soma += (+pesos[x.id] || 0) * NOTA[st]; peso += +pesos[x.id] || 0; });
@@ -852,12 +920,14 @@ const ENGINE = (() => {
     bens: { itens: [
       { nome: 'Carro da família', valor: 120000, protecao: 'total', apolice: { seguradora: 'Porto Seguro', numero: '0531.22.118790', cobertura: '100% da tabela FIPE, terceiros R$ 200 mil', premio: 4200, vigencia: 'até mar/2027' } },
       { nome: 'Carro (2º veículo)', valor: 60000, protecao: 'nenhuma', apolice: null }] },
-    renda: { precisa: true, necessario: 900000, atual: 300000 },
-    familia: { precisa: true, necessario: 1500000, atual: 0 },
+    dependentes: [{ nome: 'Luiza', relacao: 'filho', nasc: '2025-06' }],
+    seguro: { renda: null, passiva: null, sucessaoPct: 10, geradores: [
+      { nome: 'Ana', pessoa: 'titular', nasc: '', participacao: 60, passivaPct: 100, patrimonioPct: 50, inssInvalidez: 3000, inssMorte: 3000, coberturaInvalidez: 300000, coberturaVida: 500000 },
+      { nome: 'Marcos', pessoa: 'conjuge', nasc: '1988-03', participacao: 40, passivaPct: 100, patrimonioPct: 50, inssInvalidez: 2500, inssMorte: 2500, coberturaInvalidez: 0, coberturaVida: 0 }] },
   };
   const ORIGENS_OUT = ORIGENS;
   const config = () => ({ age: CURRENT_AGE, retireAge: RETIRE_AGE, initialBens: INITIAL_BENS, desired: DESIRED, desiredSteps: DESIRED_STEPS, lifeExp: LIFE_EXP, salary: SALARY, salaryGrowth: SAL_G, partValue: PART_VALUE, initialWealth: INITIAL_WEALTH, capacityOverride: CAP_OVERRIDE, rate: R_M, profiles: PROFILES, incomes: INCOMES, expenses: EXPENSES, objectives: OBJ, passive: PASSIVE });
-  return { TODAY, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, PASSIVE, PROFILES, STATUS, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, serieCusto, desiredAt, aplicaAlteracoes, descreveAlteracao, valorAtual, mesDoPlano, RISCOS, NATUREZAS, ITENS_RUINA, RISCOS_EXEMPLO, avaliaRiscos, custoDeVida, lerCaminho, gravaCaminho, setRetireAge: a => { RETIRE_AGE = a == null ? null : Math.max(CURRENT_AGE, +a); }, financiamentoValido, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
+  return { TODAY, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, PASSIVE, PROFILES, STATUS, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, serieCusto, desiredAt, aplicaAlteracoes, descreveAlteracao, valorAtual, mesDoPlano, RISCOS, NATUREZAS, ITENS_RUINA, RISCOS_EXEMPLO, avaliaRiscos, custoDeVida, SEGURO, RELACOES, calculaSeguros, mesesAteIdade, lerCaminho, gravaCaminho, setRetireAge: a => { RETIRE_AGE = a == null ? null : Math.max(CURRENT_AGE, +a); }, financiamentoValido, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
 })();
 if (typeof module !== 'undefined') module.exports = ENGINE;
 </script>
@@ -1985,6 +2055,7 @@ function renderRiscos() {
   h += ENGINE.RISCOS.map(x => `<details class="rk-card" id="rk-${x.id}"${abertos.has(x.id) ? ' open' : ''}><summary>${stHtml(a.itens[x.id].status)}<h3>${x.nome}</h3><span class="chev">▶</span></summary><div class="corpo">${corpoRisco(x.id, P, a)}</div></details>`).join('');
   el.innerHTML = h + '</div>'; el.scrollTop = rolagem;
   if (abertos.has('reserva')) desenhaReserva();
+  desenhaSeguros();
 }
 const podeProp = () => PAPEL === 'cliente' && !(PROP && PROP.status === 'pendente');
 const avisoPend = () => PAPEL === 'cliente' && PROP && PROP.status === 'pendente' ? '<div class="muted" style="font-size:12px;color:#8d8d8d;margin-top:10px">Sua proposta está com o consultor. Para propor algo novo, cancele o envio.</div>' : '';
@@ -1992,7 +2063,7 @@ function corpoRisco(id, P, a) {
   const R = P.riscos || {}, x = a.itens[id];
   if (id === 'reserva') {
     const r = R.reserva || {};
-    return `<div class="expl">A reserva de emergência segura o padrão de vida se a renda parar. O valor ideal é o <b>custo de vida mensal</b> multiplicado pelos meses de proteção: <b>${x.d}</b> por ${r.dependentes ? 'ter' : 'não ter'} dependentes financeiros mais <b>${x.t != null ? x.t : '—'}</b> pela natureza do trabalho${r.natureza ? ' (' + escH(r.natureza) + ')' : ''}${x.meses != null ? ', <b>' + x.meses + ' meses</b>' : ''}. <span class="prov">Multiplicadores da natureza do trabalho provisórios.</span></div>
+    return `<div class="expl">A reserva de emergência segura o padrão de vida se a renda parar. O valor ideal é o <b>custo de vida mensal</b> multiplicado pelos meses de proteção: <b>${x.d}</b> por ${x.dependentes ? 'ter' : 'não ter'} dependentes financeiros mais <b>${x.t != null ? x.t : '—'}</b> pela natureza do trabalho${r.natureza ? ' (' + escH(r.natureza) + ')' : ''}${x.meses != null ? ', <b>' + x.meses + ' meses</b>' : ''}.</div>
       <div id="resVis"></div>
       ${PAPEL === 'cliente' ? `<div class="simula"><h4>Simule outros valores</h4><div class="muted">Mude o custo de vida (ou o alvo de reserva) e veja os novos valores na hora. A simulação não muda nada; se quiser, proponha ao consultor com uma justificativa.</div>
         <div class="lin"><label>Custo de vida mensal<input id="simCusto" inputmode="decimal" value="${SIMR.custo != null ? fmt(SIMR.custo) : fmt(x.custo)}"></label><label>Alvo de reserva (opcional)<input id="simAlvo" inputmode="decimal" placeholder="o ideal calculado" value="${SIMR.alvo != null ? fmt(SIMR.alvo) : ''}"></label><button class="btn btn-secondary btn-small" data-sim="limpar">Voltar ao plano</button></div>
@@ -2033,12 +2104,45 @@ function corpoRisco(id, P, a) {
     const its = (R.bens || {}).itens || [], txt = { total: ['ok', 'Protegido'], insuficiente: ['atencao', 'Proteção insuficiente'], nenhuma: ['critico', 'Sem proteção'] };
     return `<div class="expl">Os bens da família e se estão protegidos. Clique num bem protegido para ver a apólice.</div>` + (its.length ? `<table class="rk-tab"><thead><tr><th>Bem</th><th class="n">Valor</th><th>Proteção</th></tr></thead><tbody>${its.map((b, i) => { const [st, t] = txt[b.protecao] || ['pendente', 'Não avaliado'], ap = b.apolice; return `<tr${ap ? ` class="clic" data-apolice="${i}"` : ''}><td><b>${escH(b.nome)}</b>${ap ? ' <span style="color:#9a9a9a;font-size:11px">ver apólice ▾</span>' : ''}</td><td class="n">${fmt(+b.valor || 0)}</td><td><span class="st ${st}">${t}</span></td></tr>` + (ap ? `<tr class="apolice" id="ap-${i}" hidden><td colspan="3"><b>${escH(ap.seguradora || 'Seguradora')}</b>${ap.numero ? ' · apólice ' + escH(ap.numero) : ''}<br>${ap.cobertura ? 'Cobertura: ' + escH(ap.cobertura) + '<br>' : ''}${ap.premio ? 'Prêmio: ' + fmt(+ap.premio) + ' por ano' : ''}${ap.vigencia ? ' · vigência ' + escH(ap.vigencia) : ''}</td></tr>` : ''); }).join('')}</tbody></table>` : '<div class="expl">Nenhum bem cadastrado.</div>');
   }
-  // renda e família
-  const r = R[id] || {}, oque = id === 'renda' ? 'a renda da família se quem trabalha ficar impedido de trabalhar (invalidez ou acidente)' : 'o padrão de vida da família se faltar quem sustenta a casa';
-  if (r.precisa === false) return `<div class="expl">Hoje a família não precisa desta proteção.</div>`;
-  return `<div class="expl">O seguro protege ${oque}. <span class="prov">O cálculo detalhado da necessidade entra em breve.</span></div>
-    <div class="kpis"><div class="kpi"><span>Proteção necessária</span><b>${x.necessario != null ? fmt(x.necessario) : '—'}</b></div><div class="kpi"><span>Proteção atual</span><b>${fmt(x.atual)}</b></div><div class="kpi"><span>Falta</span><b class="${x.falta > 0 ? 'low' : 'good'}">${x.falta > 0 ? fmt(x.falta) : 'nada'}</b></div></div>
-    ${x.necessario ? `<div class="barra"><i style="width:${Math.min(100, x.atual / x.necessario * 100)}%;background:${COR_ST[x.status]}"></i></div>` : ''}`;
+  // renda e família: o seguro de cada gerador de renda, como na calculadora de seguros da Nord
+  if (!x.seg) return `<div class="expl">O seu consultor ainda não calculou esta proteção.</div>`;
+  const vida = id === 'familia', campoInss = vida ? 'inssMorte' : 'inssInvalidez', campoCob = vida ? 'coberturaVida' : 'coberturaInvalidez';
+  const geradores = ((R.seguro || {}).geradores || []).length ? R.seguro.geradores : [{}];
+  return `<div class="expl">${vida ? 'O seguro de vida garante a renda da família se faltar quem a sustenta, até o último dependente deixar de depender, e paga os custos da sucessão.' : 'O seguro de acidentes pessoais garante a renda se quem trabalha ficar inválido por um acidente, até os 95 anos.'} A conta é feita para cada pessoa que gera renda na família.</div>
+    <div id="segVis-${id}">${seguroHtml(id, x.seg)}</div>
+    ${PAPEL === 'cliente' ? (podeProp() ? `<div class="simula"><h4>Simule outros valores</h4><div class="muted">Informe ${vida ? 'a pensão do INSS e o seguro de vida' : 'o INSS por invalidez e o seguro de acidentes'} que você tem hoje e veja a necessidade na hora. A simulação não muda nada; se quiser, proponha ao consultor com uma justificativa.</div>
+      ${geradores.map((g, i) => { const nome = x.seg.pessoas[i] ? x.seg.pessoas[i].nome : 'Titular', v = c => SIMS[segCaminho(i, c)] != null ? SIMS[segCaminho(i, c)] : +g[c] || 0;
+        return `<div class="lin" style="margin-bottom:6px"><label>${escH(nome)}: ${vida ? 'pensão do INSS por morte' : 'INSS por invalidez'}<input data-sg="${segCaminho(i, campoInss)}" inputmode="decimal" value="${fmt(v(campoInss))}"></label><label>${vida ? 'Seguro de vida atual' : 'Cobertura atual de invalidez por acidente'}<input data-sg="${segCaminho(i, campoCob)}" inputmode="decimal" value="${fmt(v(campoCob))}"></label></div>`; }).join('')}
+      <textarea id="sgNota-${id}" placeholder="Justificativa para o consultor"></textarea><div class="bts"><button class="btn btn-secondary btn-small" data-sim="seglimpar">Limpar</button><button class="btn btn-primary btn-small" data-sim="seguro" data-seg="${id}">Propor ao consultor</button></div></div>` : avisoPend()) : ''}`;
+}
+// simulação local do cliente no seguro: caminho do plano → valor; não grava nada
+const SIMS = {};
+const segCaminho = (i, campo) => `riscos.seguro.geradores.${i}.${campo}`;
+function planoSeguroSim() { const P = planoVista(); Object.entries(SIMS).forEach(([c, v]) => ENGINE.gravaCaminho(P, c, v)); return P; }
+const prazoTxt = m => { const a = Math.floor(m / 12), r = m % 12; return !m ? '—' : (a ? a + (a === 1 ? ' ano' : ' anos') : '') + (a && r ? ' e ' : '') + (r ? r + (r === 1 ? ' mês' : ' meses') : ''); };
+// apresentação da Nord: a necessidade em destaque e, embaixo, a memória de cálculo de A a H
+function seguroHtml(id, s) {
+  const vida = id === 'familia', varios = s.pessoas.length > 1;
+  return s.pessoas.map(p => {
+    const c = p[vida ? 'vida' : 'acidentes'], nome = escH(p.nome);
+    const cab = `<h4>${varios ? nome : 'Seu seguro'} ${stHtml(c.status)}<small>${varios ? Math.round(p.participacao * 100) + '% da renda da família · ' : ''}${p.idade != null ? p.idade + ' anos' : 'idade não informada'}</small></h4>`;
+    if (c.status === 'pendente') return `<div class="seg-p">${cab}<div class="expl" style="margin:0">Falta a idade de ${nome} para calcular.</div></div>`;
+    if (c.semDependentes) return `<div class="seg-p">${cab}<div class="seg-nao">Sem dependentes financeiros, o seguro de vida não é considerado essencial${varios ? ' para ' + nome : ''}.</div></div>`;
+    if (c.necessidade <= 0) return `<div class="seg-p">${cab}<div class="seg-nao">Com base nos dados do plano, esta cobertura não é considerada essencial${varios ? ' para ' + nome : ''}: o patrimônio e as rendas já cobrem a necessidade.</div></div>`;
+    const l = (letra, nome, v, nota, sub) => `<div class="seg-l${sub ? ' sub' : ''}"><span>(${letra}) ${nome}${nota ? `<small>${nota}</small>` : ''}</span><b>${v}</b></div>`;
+    return `<div class="seg-p">${cab}
+      <div class="seg-tot"><span>Necessidade estimada de cobertura de ${vida ? 'vida' : 'acidentes'}<small>${vida ? '(I) = G + H − E' : '(H) = G − E'}</small></span><b>${fmt(c.necessidade)}</b></div>
+      ${l('A', 'Renda que deseja proteger', fmt(c.A))}${l('B', 'Renda passiva atual', fmt(c.B))}${l('C', 'Renda protegida atual', fmt(c.C), vida ? 'pensão do INSS' : 'INSS por invalidez')}
+      ${l('D', 'Renda a cobrir', fmt(c.D), '(A − B − C)', true)}${l('E', 'Patrimônio financeiro atual', fmt(c.E))}
+      ${l('F', 'Prazo de consumo', prazoTxt(c.F), vida ? 'até o último dependente' : 'até os 95 anos')}${l('G', 'Patrimônio necessário a cobrir', fmt(c.G))}
+      ${vida ? l('H', 'Necessidade de sucessão', fmt(c.H), s.sucessaoPct.toLocaleString('pt-BR') + '% da parte no patrimônio') : ''}
+      <div class="kpis"><div class="kpi"><span>Cobertura atual</span><b>${fmt(c.atual)}</b></div><div class="kpi"><span>Falta</span><b class="${c.falta > 0 ? 'low' : 'good'}">${c.falta > 0 ? fmt(c.falta) : 'nada'}</b></div></div>
+      <div class="barra"><i style="width:${Math.min(100, c.atual / c.necessidade * 100)}%;background:${COR_ST[c.status]}"></i></div></div>`;
+  }).join('') + '<div class="seg-nota">Os valores são estimados com base nas informações do plano. É necessário consultar um profissional de seguros para validar estas contas e avaliar o cenário atual.</div>';
+}
+function desenhaSeguros() {
+  const a = ENGINE.avaliaRiscos(planoSeguroSim());
+  ['renda', 'familia'].forEach(id => { const el = document.getElementById('segVis-' + id); if (el && a.itens[id].seg) el.innerHTML = seguroHtml(id, a.itens[id].seg); });
 }
 // régua da reserva: mínima, aceitável e ideal, e onde a família está (com a simulação, se houver)
 function desenhaReserva() {
@@ -2061,6 +2165,18 @@ document.getElementById('riscos').addEventListener('click', e => {
   const b = e.target.closest('[data-sim]'); if (!b) return;
   const P = BASE.riscos || {};
   if (b.dataset.sim === 'limpar') { SIMR.custo = SIMR.alvo = null; renderRiscos(); }
+  else if (b.dataset.sim === 'seglimpar') { Object.keys(SIMS).forEach(k => delete SIMS[k]); renderRiscos(); }
+  else if (b.dataset.sim === 'seguro') {
+    const id = b.dataset.seg, vida = id === 'familia', nota = document.getElementById('sgNota-' + id).value.trim(), alts = [];
+    const pessoas = ENGINE.avaliaRiscos(BASE).itens[id].seg.pessoas, campos = vida ? [['inssMorte', 'pensão do INSS por morte'], ['coberturaVida', 'seguro de vida atual']] : [['inssInvalidez', 'INSS por invalidez'], ['coberturaInvalidez', 'cobertura atual de invalidez por acidente']];
+    pessoas.forEach((p, i) => campos.forEach(([c, n]) => {
+      const cam = segCaminho(i, c), de = ENGINE.lerCaminho(BASE, cam), para = SIMS[cam];
+      if (para != null && Math.round(para) !== Math.round(+de || 0)) alts.push({ tipo: 'campo', caminho: cam, rotulo: (vida ? 'Proteção da família' : 'Proteção da renda') + ': ' + n + ' de ' + p.nome, formato: 'reais', de: de == null ? null : +de, deTexto: fmt(+de || 0), para, nota });
+    }));
+    if (!alts.length) { avisar('Mude algum valor antes de propor.'); return; }
+    if (!nota) { avisar('Escreva uma justificativa para o consultor.'); document.getElementById('sgNota-' + id).focus(); return; }
+    alts.forEach(a => delete SIMS[a.caminho]); proporAlteracao(alts);
+  }
   else if (b.dataset.sim === 'propor') {
     const nota = document.getElementById('simNota').value.trim(), r = P.reserva || {}, alts = [], efetivo = ENGINE.avaliaRiscos(BASE).itens.reserva;
     if (SIMR.custo != null && Math.round(SIMR.custo) !== Math.round(efetivo.custo)) alts.push({ tipo: 'campo', caminho: 'riscos.reserva.custoVida', rotulo: 'Reserva de emergência: custo de vida mensal', formato: 'reais', de: r.custoVida == null ? null : +r.custoVida, deTexto: fmt(efetivo.custo) + (r.custoVida == null ? ' (do fluxo de caixa)' : ''), para: SIMR.custo, nota });
@@ -2086,6 +2202,7 @@ document.getElementById('riscos').addEventListener('click', e => {
 document.getElementById('riscos').addEventListener('input', e => {
   if (e.target.id === 'simCusto') { const v = lerReais(e.target.value); SIMR.custo = isNaN(v) ? null : v; desenhaReserva(); }
   if (e.target.id === 'simAlvo') { const v = lerReais(e.target.value); SIMR.alvo = isNaN(v) || !v ? null : v; desenhaReserva(); }
+  if (e.target.dataset.sg) { const v = lerReais(e.target.value); if (isNaN(v)) delete SIMS[e.target.dataset.sg]; else SIMS[e.target.dataset.sg] = v; desenhaSeguros(); }
 });
 document.getElementById('riscos').addEventListener('toggle', e => { const d = e.target; if (!d.id || !d.id.startsWith('rk-')) return; const id = d.id.slice(3); if (d.open) { abertos.add(id); if (id === 'reserva') desenhaReserva(); } else abertos.delete(id); }, true);
 
