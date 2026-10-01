@@ -1103,10 +1103,11 @@ const ENGINE = (() => {
     { const it = (R.ruina || {}).itens || {}, v = ITENS_RUINA.map(([k]) => it[k] || '');
       const status = v.includes('risco') ? 'critico' : v.includes('atencao') ? 'atencao' : v.every(x => x === 'ok') ? 'ok' : 'pendente';
       out.ruina = { status, avaliados: v.filter(Boolean).length }; }
-    // Liquidez: o consultor avalia; a composição do patrimônio vem do plano
-    { const r = R.liquidez || {}, fin = +plan.initialWealth || 0, ben = +plan.initialBens || 0, par = +plan.partValue || 0, tot = fin + ben + par;
-      out.liquidez = { status: { ok: 'ok', atencao: 'atencao', critico: 'critico' }[r.avaliacao] || 'pendente', fin, ben, par, tot,
-        escada: [['D+0', num(r.d0)], ['D+30', num(r.d30)], ['D+60', num(r.d60)], ['D+180', num(r.d180)], ['1 ano', num(r.d360)]] }; }
+    // Liquidez: o consultor avalia; a composição do patrimônio vem do plano. Cada degrau da escada também em
+    // múltiplos do padrão de vida mensal (o mesmo custo de vida da reserva): D+0 = 4× quer dizer 4 meses de vida.
+    { const r = R.liquidez || {}, fin = +plan.initialWealth || 0, ben = +plan.initialBens || 0, par = +plan.partValue || 0, tot = fin + ben + par, padrao = out.reserva.custo;
+      out.liquidez = { status: { ok: 'ok', atencao: 'atencao', critico: 'critico' }[r.avaliacao] || 'pendente', fin, ben, par, tot, padrao,
+        escada: [['D+0', num(r.d0)], ['D+30', num(r.d30)], ['D+60', num(r.d60)], ['D+180', num(r.d180)], ['1 ano', num(r.d360)]].map(([n, v]) => [n, v, v != null && padrao > 0 ? v / padrao : null]) }; }
     // Bens: algum sem proteção, vermelho; algum com proteção insuficiente, atenção; todos protegidos, ok
     { const itens = (R.bens || {}).itens || [], p = itens.map(b => b.protecao || '');
       const status = !itens.length ? 'pendente' : p.includes('nenhuma') ? 'critico' : p.includes('insuficiente') ? 'atencao' : p.every(x => x === 'total') ? 'ok' : 'pendente';
@@ -2876,7 +2877,8 @@ function renderRiscosC() {
   blocos.push(`<div class="bloco" id="rkc-liquidez"><h3>5. Risco de liquidez${stC(L.status)}</h3>
     <div class="rkc-calc" style="margin:0 0 12px">Do patrimônio de hoje: ${L.tot ? Math.round(L.fin / L.tot * 100) : 0}% no mercado financeiro, ${L.tot ? Math.round(L.ben / L.tot * 100) : 0}% em imóveis e outros bens, ${L.tot ? Math.round(L.par / L.tot * 100) : 0}% em participações societárias (da página Patrimônio).</div>
     <div class="grid g3"><div class="field"><label>Avaliação</label>${selR('riscos.liquidez.avaliacao', [['', 'não avaliado'], ['ok', 'Liquidez em dia'], ['atencao', 'Neutra (atenção)'], ['critico', 'Preocupante (crítico)']])}</div></div>
-    <div class="grid" style="grid-template-columns:repeat(5,1fr);margin-top:12px">${[['d0', 'D+0'], ['d30', 'D+30'], ['d60', 'D+60'], ['d180', 'D+180'], ['d360', '1 ano']].map(([k, n]) => `<div class="field"><label>Acessível em ${n}</label>${campoR('riscos.liquidez.' + k, 'reais')}</div>`).join('')}</div></div>`);
+    <div class="grid" style="grid-template-columns:repeat(5,1fr);margin-top:12px">${[['d0', 'D+0'], ['d30', 'D+30'], ['d60', 'D+60'], ['d180', 'D+180'], ['d360', '1 ano']].map(([k, n], j) => { const m = L.escada[j][2]; return `<div class="field"><label>Acessível em ${n}${m != null ? ` <b style="color:var(--nl-navy-900)">· ${(m < 10 ? Math.round(m * 10) / 10 : Math.round(m)).toLocaleString('pt-BR')}×</b>` : ''}</label>${campoR('riscos.liquidez.' + k, 'reais')}</div>`; }).join('')}</div>
+    <div class="rkc-calc">O cliente vê cada valor em vezes o padrão de vida mensal: ${L.padrao > 0 ? f(L.padrao) + ', o custo de vida da reserva (item 1)' : 'preencha o custo de vida no item 1'}.</div></div>`);
   blocos.push(`<div class="bloco" id="rkc-bens"><h3>6. Proteção dos bens${stC(it.bens.status)}</h3>
     <table class="rkc-tab" style="min-width:0"><thead><tr><th>Bem</th><th>Valor</th><th>Proteção</th><th></th></tr></thead><tbody>${((R.bens || {}).itens || []).map((b, i) => `<tr><td>${campoR(`riscos.bens.itens.${i}.nome`, 'texto')}</td><td>${campoR(`riscos.bens.itens.${i}.valor`, 'reais')}</td><td>${selR(`riscos.bens.itens.${i}.protecao`, [['', 'não avaliado'], ['total', 'Protegido'], ['insuficiente', 'Proteção insuficiente'], ['nenhuma', 'Sem proteção']])}</td><td><button class="btn btn-icon" data-rrm="riscos.bens.itens.${i}">×</button></td></tr>
       ${b.protecao && b.protecao !== 'nenhuma' ? `<tr><td colspan="4"><div class="rkc-ap">${campoR(`riscos.bens.itens.${i}.apolice.seguradora`, 'texto', ' placeholder="seguradora"')}${campoR(`riscos.bens.itens.${i}.apolice.numero`, 'texto', ' placeholder="nº da apólice"')}${campoR(`riscos.bens.itens.${i}.apolice.cobertura`, 'texto', ' placeholder="cobertura"')}${campoR(`riscos.bens.itens.${i}.apolice.premio`, 'reais', ' placeholder="prêmio anual"')}${campoR(`riscos.bens.itens.${i}.apolice.vigencia`, 'texto', ' placeholder="vigência"')}</div></td></tr>` : ''}`).join('')}</tbody></table>

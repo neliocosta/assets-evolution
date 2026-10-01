@@ -27,7 +27,7 @@ detalhadas, e mostra o mesmo plano e a mesma proposta da tela principal.
 
 ## Jornada do cliente e gestão de riscos
 
-A área do cliente é uma jornada de fases (a barra "Sua jornada", abaixo do cabeçalho): cada fase mostra um resultado do
+A área do cliente é uma jornada de fases (os passos ao lado da marca, no cabeçalho): cada fase mostra um resultado do
 planejamento e tem um espaço para o vídeo do consultor (link do YouTube, do Vimeo ou do arquivo, em `plano.videos`;
 vazio, o espaço fica reservado). Hoje são duas: **Gestão de riscos** e **Evolução patrimonial** (a última). A fase
 pode vir no endereço (`?fase=riscos`); senão, a tela abre na última vista.
@@ -50,7 +50,9 @@ riscos). O status de cada uma sai de `ENGINE.avaliaRiscos`, no motor, igual nas 
   CLT 5; liberal, autônomo e empresário 7). O custo de vida vem do Fluxo de caixa (média das saídas dos próximos 12
   meses), a reserva atual vem do D+0 da liquidez; o consultor pode informar outros. Com a lista de dependentes do
   item 8, é ela que diz se há dependentes.
-- A composição do patrimônio (financeiro, imóveis, participações) vem da página Patrimônio.
+- A composição do patrimônio (financeiro, imóveis, participações) vem da página Patrimônio. O consultor informa a
+  liquidez em reais (D+0 a 1 ano), e o cliente a vê em vezes o padrão de vida mensal (o custo de vida da reserva):
+  R$ 60 mil com padrão de R$ 12.678 aparece como 4,7×.
 - **Proteção da renda (seguro de acidentes pessoais) e da família (seguro de vida)**: a conta da calculadora de
   seguros da Nord (liberta.nordinvestimentos.com.br/seguros), em `ENGINE.calculaSeguros`, feita para cada gerador de
   renda da família (`plano.riscos.seguro.geradores`). Por pessoa:

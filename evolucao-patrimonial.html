@@ -24,11 +24,13 @@ header{min-height:64px;display:flex;flex-wrap:wrap;align-items:center;gap:12px 2
 .brand .dot{width:10px;height:10px;border-radius:50%;background:var(--nl-orange-500)}
 .brand small{font-weight:500;color:#888;font-size:13px;margin-left:6px}
 .hello{font-family:Montserrat,sans-serif;color:#777;font-size:13px;white-space:nowrap}
-.legend{display:flex;gap:14px;margin-left:auto;font-size:12px;color:var(--nl-gray-700)}
-.legend span{display:flex;align-items:center;gap:6px;white-space:nowrap}
-.legend i{width:12px;height:12px;border-radius:3px;display:inline-block;border:1.5px solid;opacity:.9}
-.legend i.ring{border-radius:50%;border-width:2.5px;background:#fff}
-.legend .sep{width:1px;height:16px;background:var(--nl-gray-300);align-self:center}
+/* legenda compacta: patrimônio na primeira linha, status dos objetivos na segunda */
+.legend{display:grid;grid-template-columns:repeat(3,auto);gap:3px 14px;margin-left:auto;font-size:11px;color:var(--nl-gray-700)}
+.legend span{display:flex;align-items:center;gap:5px;white-space:nowrap}
+.legend i{width:10px;height:10px;border-radius:3px;display:inline-block;border:1.5px solid;opacity:.9}
+.legend i.ring{border-radius:50%;border-width:2px;background:#fff}
+.brand small{display:none} body.fluxo .brand small{display:inline}
+@media (max-width:1300px){ .hello{display:none} }
 .stats{display:flex;gap:10px}
 .stat{background:var(--nl-cream-50);border-radius:11px;padding:6px 14px;line-height:1.25}
 .stat span{display:block;font:500 10.5px 'DM Sans',sans-serif;color:#8d8d8d}
@@ -62,14 +64,16 @@ canvas#main.grab-obj{cursor:ew-resize}
 #tip .vida-d{display:flex;flex-direction:column;gap:2px;font-size:11.5px;color:#3f4a45}
 .ajuda{width:26px;height:26px;border-radius:50%;background:#F0EEE9;color:#8a8a8a;font:700 12px 'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center;cursor:help;flex:0 0 auto}
 /* jornada do cliente: as telas finais, em fases */
-#fases{display:flex;align-items:center;gap:8px;padding:8px 24px;background:#fff;border-top:1px solid #f1efec;font:500 12px 'DM Sans',sans-serif;color:#9a9a9a;position:relative;z-index:1;box-shadow:0 2px 6px rgba(0,0,0,.03)}
-#fases .lbl{margin-right:6px;text-transform:uppercase;letter-spacing:.06em;font-size:10.5px;font-weight:600}
-#fases button{display:flex;align-items:center;gap:8px;border:0;background:transparent;font:600 12.5px 'DM Sans',sans-serif;color:#8a8a8a;padding:6px 12px 6px 6px;border-radius:9999px;cursor:pointer}
-#fases button i{font-style:normal;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#F0EEE9;color:#8a8a8a;font-size:11px}
+/* a jornada fica no cabeçalho, ao lado da marca, e não ocupa uma faixa própria */
+#fases{display:flex;align-items:center;gap:4px;font:500 12px 'DM Sans',sans-serif;color:#9a9a9a}
+#fases button{display:flex;align-items:center;gap:7px;border:0;background:transparent;font:600 12px 'DM Sans',sans-serif;color:#8a8a8a;padding:4px 11px 4px 4px;border-radius:9999px;cursor:pointer;white-space:nowrap}
+#fases button i{font-style:normal;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#F0EEE9;color:#8a8a8a;font-size:11px}
 #fases button.on{background:var(--nl-peach-100);color:var(--nl-orange-600)} #fases button.on i{background:var(--nl-orange-500);color:#fff}
 #fases button:hover:not(.on){background:#f6f4f0}
 #fases .seta{color:#cfcbc3}
 body.fluxo #fases{display:none}
+/* "Hoje" só na janela do fluxo de caixa; no gráfico, a tecla Home volta para hoje */
+body:not(.fluxo) #btnHome{display:none}
 body.fase-riscos .legend,body.fase-riscos .stats,body.fase-riscos #segView,body.fase-riscos #segMode,body.fase-riscos #btnHome,body.fase-riscos #btnFluxo,body.fase-riscos #btnPlay,body.fase-riscos #btnSkip,body.fase-riscos #ajuda,body.fase-riscos #btnVideo{display:none!important}
 /* gestão de riscos */
 #riscos{flex:1;min-height:0;overflow:auto;background:var(--nl-cream-50)}
@@ -144,7 +148,7 @@ body.fase-riscos .legend,body.fase-riscos .stats,body.fase-riscos #segView,body.
 .escada{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;align-items:end;height:130px;margin:14px 0 4px}
 .escada div{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;gap:4px;font-size:11px;color:#8a8a8a}
 .escada div i{width:70%;background:linear-gradient(180deg,#5DBB86,#2E9E5B);border-radius:6px 6px 2px 2px;min-height:2px}
-.escada div b{font:600 11.5px 'DM Sans',sans-serif;color:var(--nl-navy-900)}
+.escada div b{font:700 15px Sora,sans-serif;color:var(--nl-navy-900)} .escada div small{font:500 10.5px 'DM Sans',sans-serif;color:#9a9a9a;margin-top:-4px}
 .ruina-l{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #f3f1ec;font-size:13px;color:var(--nl-navy-900)}
 .ruina-l:last-child{border-bottom:0} .ruina-l span{flex:1}
 .prov{font-size:11px;color:#b08a6a;font-style:italic}
@@ -255,14 +259,13 @@ body.fluxo .stats{margin-left:auto}
 </head>
 <body>
 <header>
-  <div class="brand"><span class="dot"></span>Nord Liberta <small>Evolução patrimonial</small></div>
+  <div class="brand"><span class="dot"></span>Nord Liberta <small>Fluxo de caixa</small></div>
+  <nav id="fases" title="Sua jornada"><button data-fase="riscos"><i>1</i>Gestão de riscos</button><span class="seta">→</span><button data-fase="evolucao"><i>2</i>Evolução patrimonial</button></nav>
   <div class="hello">Olá, Ana 👋 · 35 anos</div>
   <div class="legend">
     <span><i style="background:rgba(46,158,91,.25);border-color:var(--c-fin)"></i>Financeiro</span>
     <span><i style="background:rgba(59,111,203,.22);border-color:var(--c-bens)"></i>Bens</span>
     <span><i style="background:rgba(217,149,42,.25);border-color:var(--c-part)"></i>Participações</span>
-    
-      <span class="sep"></span>
     <span><i class="ring" style="border-color:#2E9E5B"></i>Alcançável</span>
     <span><i class="ring" style="border-color:#FA7A35"></i>Com ajustes</span>
     <span><i class="ring" style="border-color:#D64545"></i>Requer revisão</span>
@@ -279,7 +282,6 @@ body.fluxo .stats{margin-left:auto}
   <button class="btn btn-secondary" id="btnSkip" hidden title="Ir direto ao final, sem esperar a animação">Pular animação</button>
   <button class="btn btn-primary" id="btnPlay"><svg viewBox="0 0 24 24"><path d="M6 4l14 8-14 8z"/></svg><span>Reproduzir</span></button>
 </header>
-<nav id="fases"><span class="lbl">Sua jornada</span><button data-fase="riscos"><i>1</i>Gestão de riscos</button><span class="seta">→</span><button data-fase="evolucao"><i>2</i>Evolução patrimonial</button></nav>
 <div id="propBar" hidden></div>
 <div id="riscos" hidden></div>
 <div id="wrap">
@@ -887,10 +889,11 @@ const ENGINE = (() => {
     { const it = (R.ruina || {}).itens || {}, v = ITENS_RUINA.map(([k]) => it[k] || '');
       const status = v.includes('risco') ? 'critico' : v.includes('atencao') ? 'atencao' : v.every(x => x === 'ok') ? 'ok' : 'pendente';
       out.ruina = { status, avaliados: v.filter(Boolean).length }; }
-    // Liquidez: o consultor avalia; a composição do patrimônio vem do plano
-    { const r = R.liquidez || {}, fin = +plan.initialWealth || 0, ben = +plan.initialBens || 0, par = +plan.partValue || 0, tot = fin + ben + par;
-      out.liquidez = { status: { ok: 'ok', atencao: 'atencao', critico: 'critico' }[r.avaliacao] || 'pendente', fin, ben, par, tot,
-        escada: [['D+0', num(r.d0)], ['D+30', num(r.d30)], ['D+60', num(r.d60)], ['D+180', num(r.d180)], ['1 ano', num(r.d360)]] }; }
+    // Liquidez: o consultor avalia; a composição do patrimônio vem do plano. Cada degrau da escada também em
+    // múltiplos do padrão de vida mensal (o mesmo custo de vida da reserva): D+0 = 4× quer dizer 4 meses de vida.
+    { const r = R.liquidez || {}, fin = +plan.initialWealth || 0, ben = +plan.initialBens || 0, par = +plan.partValue || 0, tot = fin + ben + par, padrao = out.reserva.custo;
+      out.liquidez = { status: { ok: 'ok', atencao: 'atencao', critico: 'critico' }[r.avaliacao] || 'pendente', fin, ben, par, tot, padrao,
+        escada: [['D+0', num(r.d0)], ['D+30', num(r.d30)], ['D+60', num(r.d60)], ['D+180', num(r.d180)], ['1 ano', num(r.d360)]].map(([n, v]) => [n, v, v != null && padrao > 0 ? v / padrao : null]) }; }
     // Bens: algum sem proteção, vermelho; algum com proteção insuficiente, atenção; todos protegidos, ok
     { const itens = (R.bens || {}).itens || [], p = itens.map(b => b.protecao || '');
       const status = !itens.length ? 'pendente' : p.includes('nenhuma') ? 'critico' : p.includes('insuficiente') ? 'atencao' : p.every(x => x === 'total') ? 'ok' : 'pendente';
@@ -1608,7 +1611,7 @@ function goHome() { if (locked()) return; state.target = DEFAULT_VIEW(); }
 document.getElementById('btnHome').onclick = goHome;
 document.getElementById('ajuda').title = FLUXO
   ? 'Rodinha rola as linhas · Shift + rodinha ou arrastar anda no tempo · Ctrl + rodinha aproxima ou afasta (de semanas a décadas) · Clique numa linha para abrir ou fechar o detalhe · Hoje volta aos próximos 24 meses'
-  : 'Rodinha anda no tempo · Ctrl + rodinha dá zoom · Shift + rodinha também anda · Arraste para navegar · Hoje volta para hoje · Clique numa linha do fluxo para detalhar · Clique num marco para ver o objetivo e arraste-o para mudar a data · Arraste a Liberdade Financeira para mudar a idade de parar';
+  : 'Rodinha anda no tempo · Ctrl + rodinha dá zoom · Shift + rodinha também anda · Arraste para navegar · A tecla Home volta para hoje · Clique numa linha do fluxo para detalhar · Clique num marco para ver o objetivo e arraste-o para mudar a data · Arraste a Liberdade Financeira para mudar a idade de parar';
 // "Fluxo de caixa": abre a tabela numa janela própria, com o mesmo plano e a mesma proposta
 document.getElementById('btnFluxo').onclick = () => {
   const url = '?fluxo' + (PAPEL === 'apresentar' ? '&apresentar' : '');   // mesma página e mesmo papel; plano e proposta vêm do armazém
@@ -1991,7 +1994,6 @@ function mostraFase(f) {
   document.body.classList.toggle('fase-riscos', f === 'riscos');
   document.getElementById('riscos').hidden = f !== 'riscos'; document.getElementById('wrap').hidden = f !== 'evolucao';
   document.querySelectorAll('#fases [data-fase]').forEach(b => b.classList.toggle('on', b.dataset.fase === f));
-  if (!FLUXO) document.querySelector('.brand small').textContent = NOME_FASE[f];
   fecharCelula(); if (f === 'riscos') renderRiscos(); else requestAnimationFrame(resize);
 }
 document.getElementById('fases').addEventListener('click', e => { const b = e.target.closest('[data-fase]'); if (b) mostraFase(b.dataset.fase); });
@@ -2026,6 +2028,8 @@ const ICONE_RISCO = {
 };
 const stHtml = st => `<span class="st ${st}">${NOME_ST[st]}</span>`;
 const pct = (v, t) => t ? Math.round(v / t * 100) + '%' : '—';
+// múltiplo do padrão de vida: 4×, 2,5×, 20×
+const vezes = m => (m < 10 ? Math.round(m * 10) / 10 : Math.round(m)).toLocaleString('pt-BR') + '×';
 // plano à vista (com as alterações da proposta, quando é o caso) e a simulação local do cliente, que não grava nada
 const planoVista = () => { const p = structuredClone(BASE); if (VER === 'proposta' && temAlteracoes()) ENGINE.aplicaAlteracoes(p, PROP.ops); return p; };
 const SIMR = { custo: null, alvo: null };
@@ -2037,7 +2041,7 @@ function resumoRisco(id, a, R) {
   if (id === 'saude') return x.status === 'critico' ? 'A família está sem plano de saúde.' : x.economia > 0 ? 'Dá para economizar ' + fmt(x.economia) + ' por mês.' : x.status === 'ok' ? 'O plano atual está adequado.' : 'O plano pode ser otimizado.';
   if (id === 'terceiros') return x.falta > 0 ? 'Faltam ' + fmt(x.falta) + ' em coberturas.' : 'As coberturas necessárias estão contratadas.';
   if (id === 'ruina') return x.status === 'ok' ? 'Nenhum sinal de ruína nos investimentos.' : x.status === 'critico' ? 'Há um risco identificado nos investimentos.' : 'Há pontos de atenção nos investimentos.';
-  if (id === 'liquidez') { const d0 = (x.escada[0] || [])[1]; return d0 != null ? fmt(d0) + ' disponíveis no mesmo dia.' : 'Liquidez avaliada pelo consultor.'; }
+  if (id === 'liquidez') { const [, d0, m0] = x.escada[0] || []; return m0 != null ? vezes(m0) + ' o padrão de vida mensal disponível no mesmo dia.' : d0 != null ? fmt(d0) + ' disponíveis no mesmo dia.' : 'Liquidez avaliada pelo consultor.'; }
   if (id === 'bens') return pct(x.protegido, x.total) + ' do valor dos bens está protegido.';
   return x.status === 'ok' ? 'A proteção necessária está garantida.' : 'Faltam ' + fmt(x.falta) + ' de proteção.';
 }
@@ -2097,8 +2101,8 @@ function corpoRisco(id, P, a) {
     return `<div class="expl">Quanto do patrimônio vira dinheiro, e em quanto tempo, se for preciso.</div>
       <div class="barra">${[[x.fin, C.fin], [x.ben, C.bens], [x.par, C.part]].map(([v, c]) => v ? `<i style="width:${v / tot * 100}%;background:${c}"></i>` : '').join('')}</div>
       <div class="kpis"><div class="kpi"><span>Mercado financeiro</span><b>${pct(x.fin, x.tot)}</b></div><div class="kpi"><span>Imóveis e outros bens</span><b>${pct(x.ben, x.tot)}</b></div><div class="kpi"><span>Participações societárias</span><b>${pct(x.par, x.tot)}</b></div></div>
-      <div style="font:600 11.5px 'DM Sans',sans-serif;color:#8a8a8a;margin-top:12px">Patrimônio financeiro que pode ser acessado em</div>
-      <div class="escada">${x.escada.map(([n, v]) => `<div><b>${v != null ? 'R$ ' + fmtC(v) : '—'}</b><i style="height:${v != null ? Math.max(2, v / mx * 100) : 2}%"></i>${n}</div>`).join('')}</div>`;
+      <div style="font:600 11.5px 'DM Sans',sans-serif;color:#8a8a8a;margin-top:12px">Patrimônio financeiro que pode ser acessado, em vezes o padrão de vida mensal${x.padrao > 0 ? ' (' + fmt(x.padrao) + ')' : ''}</div>
+      <div class="escada">${x.escada.map(([n, v, m]) => `<div><b>${m != null ? vezes(m) : v != null ? 'R$ ' + fmtC(v) : '—'}</b>${m != null ? `<small>R$ ${fmtC(v)}</small>` : ''}<i style="height:${v != null ? Math.max(2, v / mx * 100) : 2}%"></i>${n}</div>`).join('')}</div>`;
   }
   if (id === 'bens') {
     const its = (R.bens || {}).itens || [], txt = { total: ['ok', 'Protegido'], insuficiente: ['atencao', 'Proteção insuficiente'], nenhuma: ['critico', 'Sem proteção'] };

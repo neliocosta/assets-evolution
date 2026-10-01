@@ -319,3 +319,7 @@ Registradas aqui porque não são óbvias no código:
   da liberdade). Os números não mudaram; agora a data não se move se a liberdade mudar.
 - **O valor de uma linha é o de cada ocorrência.** Um salário pago nos dias 5 e 20 é uma linha só, e o
   aumento vira um único degrau.
+- **Tela do cliente mais enxuta (01/10/2026).** A jornada saiu da faixa própria e foi para o cabeçalho, ao lado da
+  marca; a legenda virou um bloco de duas linhas (patrimônio em cima, status dos objetivos embaixo); o botão "Hoje"
+  saiu do gráfico (a tecla Home faz o mesmo) e continua só na janela do fluxo de caixa. Abaixo de 1300 px o
+  "Olá, …" some para o cabeçalho caber em duas linhas.
