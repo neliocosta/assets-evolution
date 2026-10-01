@@ -9,6 +9,29 @@ anterior. Leia junto com o `README.md`, que descreve como as duas telas funciona
 2. Abra `tela-consultor.html` e `evolucao-patrimonial.html` no navegador. Os arquivos são autocontidos.
 3. Escolha um item de **P1** abaixo.
 
+## Próxima sessão: gestão de riscos (em aberto)
+
+A gestão de riscos já existe (fase 1 da jornada do cliente e página "Gestão de riscos" no portal; veja o README).
+Faltam três insumos, todos marcados como provisórios na tela:
+
+1. **Seguro de vida e de acidentes pessoais** (ameaças "Proteção da renda" e "Proteção da família"). A Nord já faz esse
+   cálculo e apresenta o resultado em https://liberta.nordinvestimentos.com.br/seguros (e páginas seguintes). Acesse a
+   página, entenda as entradas, as fórmulas e como o resultado é apresentado, e leve o cálculo para o motor
+   (`avaliaRiscos`, chaves `renda` e `familia`; hoje "necessário" e "atual" são digitados pelo consultor).
+   O domínio precisa estar liberado no Network access do ambiente; nesta sessão ele estava bloqueado (403 no proxy).
+2. **Vetor da natureza do trabalho** (multiplicador t da reserva ideal). `ENGINE.NATUREZAS` tem valores de exemplo
+   (servidor público 2, CLT 3, liberal/autônomo 4, empresário 5). O usuário vai mandar o vetor oficial.
+3. **Cadastro de bens.** Hoje a lista de bens é cadastrada na página Gestão de riscos. O usuário vai mandar o material
+   de coleta da Nord; os bens devem passar a vir de um cadastro anterior, com as informações desse material.
+
+O usuário ainda vai avaliar as telas de gestão de riscos e pode pedir ajustes.
+
+**Link publicado** (para o usuário testar de outra máquina): https://claude.ai/artifact/LRmPxMYFK7TcoUkjYXatLX.
+É uma cópia ajustada dos dois HTML: abre as telas na mesma aba (o visualizador bloqueia janelas novas), usa o
+Font Awesome publicado junto (o visualizador bloqueia o cdnjs) e tem o banco compartilhado (capacidades `db` e
+`user`, regras: `plano` só o dono grava, `propostas` grava quem é Contribuidor). Para republicar, gere a cópia a
+partir dos arquivos do repositório com essas três trocas e publique no mesmo link, mantendo as capacidades.
+
 ## Armadilhas deste repositório
 
 - **O motor está duplicado.** O mesmo bloco `<script id="engine">` existe nas duas telas, porque cada uma
