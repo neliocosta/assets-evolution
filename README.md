@@ -27,10 +27,14 @@ detalhadas, e mostra o mesmo plano e a mesma proposta da tela principal.
 
 ## Jornada do cliente e gestão de riscos
 
-A área do cliente é uma jornada de fases (os passos ao lado da marca, no cabeçalho): cada fase mostra um resultado do
-planejamento e tem um espaço para o vídeo do consultor (link do YouTube, do Vimeo ou do arquivo, em `plano.videos`;
-vazio, o espaço fica reservado). Hoje são duas: **Gestão de riscos** e **Evolução patrimonial** (a última). A fase
-pode vir no endereço (`?fase=riscos`); senão, a tela abre na última vista.
+A área do cliente é organizada como um livro: capítulos com páginas (`CAPITULOS`, na tela do cliente). Cada página
+mostra um resultado do planejamento e tem um espaço para o vídeo do consultor (link do YouTube, do Vimeo ou do
+arquivo, em `plano.videos[id da página]`; vazio, o espaço fica reservado). O cabeçalho mostra só a página atual
+("Capítulo 5 · 21 de 22 / Gestão de riscos"), com anterior e próxima; um clique nela abre o sumário com todos os
+capítulos. Assim a navegação cabe igual com 2 ou 25 páginas. Hoje existem **Gestão de riscos** (capítulo 5) e
+**Evolução patrimonial** (capítulo 6, a última); os capítulos 1 a 4, com 5 páginas cada, são um esqueleto (mock) das
+páginas que ainda vão entrar. A página pode vir no endereço (`?fase=riscos`, `?fase=c2p3`); senão, a tela abre na
+última vista.
 
 **Gestão de riscos** avalia oito ameaças ao padrão de vida (`plano.riscos`, preenchido no portal, na página Gestão de
 riscos). O status de cada uma sai de `ENGINE.avaliaRiscos`, no motor, igual nas duas telas:

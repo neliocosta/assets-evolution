@@ -323,3 +323,6 @@ Registradas aqui porque não são óbvias no código:
   marca; a legenda virou um bloco de duas linhas (patrimônio em cima, status dos objetivos embaixo); o botão "Hoje"
   saiu do gráfico (a tecla Home faz o mesmo) e continua só na janela do fluxo de caixa. Abaixo de 1300 px o
   "Olá, …" some para o cabeçalho caber em duas linhas.
+- **Jornada em capítulos (01/10/2026).** Com 20 a 25 páginas previstas, os passos lado a lado não cabiam. O cabeçalho
+  mostra só a página atual, com anterior e próxima, e o sumário lista capítulos e páginas. Os capítulos 1 a 4 são um
+  esqueleto (5 páginas cada, "em breve"): troque os títulos e o conteúdo em `CAPITULOS` quando as páginas existirem.

@@ -63,18 +63,32 @@ canvas#main.grab-obj{cursor:ew-resize}
 #tip .vida>b{display:block;font:600 17px Sora,sans-serif;color:#1f5a37;margin:1px 0 4px}
 #tip .vida-d{display:flex;flex-direction:column;gap:2px;font-size:11.5px;color:#3f4a45}
 .ajuda{width:26px;height:26px;border-radius:50%;background:#F0EEE9;color:#8a8a8a;font:700 12px 'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center;cursor:help;flex:0 0 auto}
-/* jornada do cliente: as telas finais, em fases */
-/* a jornada fica no cabeçalho, ao lado da marca, e não ocupa uma faixa própria */
-#fases{display:flex;align-items:center;gap:4px;font:500 12px 'DM Sans',sans-serif;color:#9a9a9a}
-#fases button{display:flex;align-items:center;gap:7px;border:0;background:transparent;font:600 12px 'DM Sans',sans-serif;color:#8a8a8a;padding:4px 11px 4px 4px;border-radius:9999px;cursor:pointer;white-space:nowrap}
-#fases button i{font-style:normal;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#F0EEE9;color:#8a8a8a;font-size:11px}
-#fases button.on{background:var(--nl-peach-100);color:var(--nl-orange-600)} #fases button.on i{background:var(--nl-orange-500);color:#fff}
-#fases button:hover:not(.on){background:#f6f4f0}
-#fases .seta{color:#cfcbc3}
+/* jornada do cliente: capítulos e páginas. O cabeçalho mostra a página atual (anterior, próxima e o sumário) */
+#fases{position:relative;display:flex;align-items:center;gap:2px;background:#F7F5F1;border-radius:12px;padding:3px}
+#fases>button{border:0;background:transparent;cursor:pointer;border-radius:9px;color:var(--nl-navy-900)}
+#fases>button[data-pg]{width:28px;height:34px;font:600 18px 'DM Sans',sans-serif;line-height:1}
+#fases>button[data-pg]:disabled{color:#d3cfc7;cursor:default}
+#fases>button:hover:not(:disabled){background:#fff}
+#pgAtual{display:flex;align-items:center;gap:10px;padding:3px 10px;text-align:left;min-width:200px}
+#pgAtual span{display:flex;flex-direction:column;flex:1;min-width:0}
+#pgAtual small{font:600 10px 'DM Sans',sans-serif;color:var(--nl-orange-600);text-transform:uppercase;letter-spacing:.05em}
+#pgAtual b{font:600 13px Sora,sans-serif;color:var(--nl-navy-900);white-space:nowrap}
+#pgAtual em{font-style:normal;color:#a9a59d;font-size:11px}
+#sumario{position:absolute;top:calc(100% + 8px);left:0;width:340px;max-height:70vh;overflow:auto;background:#fff;border-radius:14px;box-shadow:0 14px 40px rgba(0,0,0,.18);padding:8px;z-index:40}
+#sumario .cap{padding:6px 4px 8px;border-bottom:1px solid #f3f1ec} #sumario .cap:last-child{border-bottom:0}
+#sumario h5{display:flex;align-items:center;gap:8px;font:600 12.5px Sora,sans-serif;color:var(--nl-navy-900);margin:2px 4px 4px}
+#sumario h5 i{font-style:normal;width:20px;height:20px;border-radius:50%;background:#F0EEE9;color:#8a8a8a;font:700 10.5px 'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center}
+#sumario h5 em{margin-left:auto;font:500 10.5px 'DM Sans',sans-serif;color:#b0aca4;font-style:italic}
+#sumario button{display:block;width:100%;text-align:left;border:0;background:transparent;font:500 12.5px 'DM Sans',sans-serif;color:var(--nl-gray-700);padding:6px 10px 6px 32px;border-radius:8px;cursor:pointer}
+#sumario .mock button{color:#a9a59d}
+#sumario button:hover{background:#f6f4f0} #sumario button.on{background:var(--nl-peach-100);color:var(--nl-orange-600);font-weight:600}
 body.fluxo #fases{display:none}
+#pagina{flex:1;min-height:0;overflow:auto;background:var(--nl-cream-50)}
+#pagina .rc{max-width:1120px;margin:0 auto;padding:24px 24px 60px;display:flex;flex-direction:column;gap:16px}
+.pg-nav{display:flex;justify-content:space-between;gap:12px}
 /* "Hoje" só na janela do fluxo de caixa; no gráfico, a tecla Home volta para hoje */
 body:not(.fluxo) #btnHome{display:none}
-body.fase-riscos .legend,body.fase-riscos .stats,body.fase-riscos #segView,body.fase-riscos #segMode,body.fase-riscos #btnHome,body.fase-riscos #btnFluxo,body.fase-riscos #btnPlay,body.fase-riscos #btnSkip,body.fase-riscos #ajuda,body.fase-riscos #btnVideo{display:none!important}
+body.sem-grafico .legend,body.sem-grafico .stats,body.sem-grafico #segView,body.sem-grafico #segMode,body.sem-grafico #btnHome,body.sem-grafico #btnFluxo,body.sem-grafico #btnPlay,body.sem-grafico #btnSkip,body.sem-grafico #ajuda,body.sem-grafico #btnVideo{display:none!important}
 /* gestão de riscos */
 #riscos{flex:1;min-height:0;overflow:auto;background:var(--nl-cream-50)}
 #riscos .rc{max-width:1120px;margin:0 auto;padding:24px 24px 60px}
@@ -260,7 +274,7 @@ body.fluxo .stats{margin-left:auto}
 <body>
 <header>
   <div class="brand"><span class="dot"></span>Nord Liberta <small>Fluxo de caixa</small></div>
-  <nav id="fases" title="Sua jornada"><button data-fase="riscos"><i>1</i>Gestão de riscos</button><span class="seta">→</span><button data-fase="evolucao"><i>2</i>Evolução patrimonial</button></nav>
+  <nav id="fases"><button data-pg="ant" title="Página anterior">‹</button><button id="pgAtual" title="Sumário: todos os capítulos e páginas"><span><small id="pgCap"></small><b id="pgTit"></b></span><em>▾</em></button><button data-pg="prox" title="Próxima página">›</button><div id="sumario" hidden></div></nav>
   <div class="hello">Olá, Ana 👋 · 35 anos</div>
   <div class="legend">
     <span><i style="background:rgba(46,158,91,.25);border-color:var(--c-fin)"></i>Financeiro</span>
@@ -284,6 +298,7 @@ body.fluxo .stats{margin-left:auto}
 </header>
 <div id="propBar" hidden></div>
 <div id="riscos" hidden></div>
+<div id="pagina" hidden></div>
 <div id="wrap">
   <canvas id="main"></canvas>
   <div id="tip"></div>
@@ -1983,20 +1998,51 @@ function trocaBase(plan) {
 // na nuvem, só o dono do link é consultor: quem mais abrir a apresentação cai na visão do cliente
 ARMAZEM.iniciar().then(info => { if (PAPEL === 'apresentar' && !info.dono) location.replace(location.pathname + (FLUXO ? '?fluxo' : '')); });
 
-// ===================== JORNADA DO CLIENTE: FASES =====================
-// As telas finais do cliente, em ordem: cada fase mostra um resultado do planejamento e tem um vídeo do consultor.
-// A Evolução Patrimonial é a última. O consultor apresentando vê as mesmas fases.
-const FASES = ['riscos', 'evolucao'], NOME_FASE = { riscos: 'Gestão de riscos', evolucao: 'Evolução patrimonial' };
-let FASE = (() => { const q = new URLSearchParams(location.search).get('fase'); if (FASES.includes(q)) return q; try { const f = localStorage.getItem('nl-fase'); if (FASES.includes(f)) return f; } catch (e) { } return 'riscos'; })();
+// ===================== JORNADA DO CLIENTE: CAPÍTULOS E PÁGINAS =====================
+// As telas finais do cliente, como um livro: capítulos com páginas, cada página com um resultado do planejamento e o
+// vídeo do consultor (plan.videos[id da página]). O cabeçalho mostra só a página atual, com anterior e próxima; o
+// sumário lista todas. Só Gestão de riscos e Evolução patrimonial (a última) existem: os capítulos 1 a 4 são o
+// esqueleto das páginas que ainda vão entrar. O consultor apresentando vê as mesmas páginas.
+const CAPITULOS = [1, 2, 3, 4].map(c => ({ titulo: 'Capítulo ' + c, mock: true, paginas: [1, 2, 3, 4, 5].map(k => ({ id: 'c' + c + 'p' + k, titulo: 'Página ' + c + '.' + k, mock: true })) }))
+  .concat({ titulo: 'Gestão de riscos', paginas: [{ id: 'riscos', titulo: 'Gestão de riscos' }] }, { titulo: 'Evolução patrimonial', paginas: [{ id: 'evolucao', titulo: 'Evolução patrimonial' }] });
+const PAGINAS = CAPITULOS.flatMap((c, ci) => c.paginas.map(p => Object.assign({ cap: ci + 1, capTitulo: c.titulo }, p)));
+const paginaDe = id => PAGINAS.find(p => p.id === id);
+let FASE = (() => { const q = new URLSearchParams(location.search).get('fase'); if (paginaDe(q)) return q; try { const f = localStorage.getItem('nl-fase'); if (paginaDe(f)) return f; } catch (e) { } return 'riscos'; })();
 if (FLUXO) FASE = 'evolucao';
 function mostraFase(f) {
+  const pg = paginaDe(f) || paginaDe('riscos'); f = pg.id;
   FASE = f; try { localStorage.setItem('nl-fase', f); } catch (e) { }
-  document.body.classList.toggle('fase-riscos', f === 'riscos');
-  document.getElementById('riscos').hidden = f !== 'riscos'; document.getElementById('wrap').hidden = f !== 'evolucao';
-  document.querySelectorAll('#fases [data-fase]').forEach(b => b.classList.toggle('on', b.dataset.fase === f));
-  fecharCelula(); if (f === 'riscos') renderRiscos(); else requestAnimationFrame(resize);
+  document.body.classList.toggle('sem-grafico', f !== 'evolucao');
+  document.getElementById('riscos').hidden = f !== 'riscos'; document.getElementById('wrap').hidden = f !== 'evolucao'; document.getElementById('pagina').hidden = !pg.mock;
+  const k = PAGINAS.indexOf(pg);
+  document.getElementById('pgCap').textContent = 'Capítulo ' + pg.cap + ' · ' + (k + 1) + ' de ' + PAGINAS.length;
+  document.getElementById('pgTit').textContent = pg.titulo;
+  document.querySelector('#fases [data-pg="ant"]').disabled = k === 0;
+  document.querySelector('#fases [data-pg="prox"]').disabled = k === PAGINAS.length - 1;
+  document.getElementById('sumario').hidden = true;
+  fecharCelula();
+  if (f === 'riscos') renderRiscos(); else if (pg.mock) renderPaginaMock(pg); else requestAnimationFrame(resize);
 }
-document.getElementById('fases').addEventListener('click', e => { const b = e.target.closest('[data-fase]'); if (b) mostraFase(b.dataset.fase); });
+const passaPagina = d => { const k = PAGINAS.findIndex(p => p.id === FASE) + d; if (PAGINAS[k]) mostraFase(PAGINAS[k].id); };
+function renderSumario() {
+  document.getElementById('sumario').innerHTML = CAPITULOS.map((c, ci) => `<div class="cap${c.mock ? ' mock' : ''}"><h5><i>${ci + 1}</i>${escH(c.titulo)}${c.mock ? '<em>em breve</em>' : ''}</h5>` +
+    (c.paginas.length > 1 || c.mock ? c.paginas.map(p => `<button data-ir-pg="${p.id}" class="${p.id === FASE ? 'on' : ''}">${escH(p.titulo)}</button>`).join('') : `<button data-ir-pg="${c.paginas[0].id}" class="${c.paginas[0].id === FASE ? 'on' : ''}">Abrir</button>`) + '</div>').join('');
+}
+// página do esqueleto: o lugar do vídeo e do conteúdo que ainda vai ser construído
+function renderPaginaMock(pg) {
+  const k = PAGINAS.indexOf(pg);
+  document.getElementById('pagina').innerHTML = `<div class="rc"><div class="rk-topo" style="margin:0">${videoHtml(pg.id, pg.titulo, 'Aqui vai entrar o vídeo do seu consultor sobre esta página.')}
+    <div class="nota-card"><h2>${escH(pg.titulo)}</h2><div class="sub">${escH(pg.capTitulo)} · página ${k + 1} de ${PAGINAS.length}. Esta página ainda vai ser construída: aqui entra um resultado do seu planejamento.</div></div></div>
+    <div class="pg-nav">${k > 0 ? `<button class="btn btn-secondary" data-pg="ant">‹ ${escH(PAGINAS[k - 1].titulo)}</button>` : '<span></span>'}${PAGINAS[k + 1] ? `<button class="btn btn-primary" data-pg="prox">${escH(PAGINAS[k + 1].titulo)} ›</button>` : ''}</div></div>`;
+}
+document.addEventListener('click', e => {
+  const a = e.target.closest('[data-pg]'); if (a && !a.disabled) { passaPagina(a.dataset.pg === 'ant' ? -1 : 1); return; }
+  const ir = e.target.closest('[data-ir-pg]'); if (ir) { mostraFase(ir.dataset.irPg); return; }
+  const s = document.getElementById('sumario');
+  if (e.target.closest('#pgAtual')) { s.hidden = !s.hidden; if (!s.hidden) { renderSumario(); const on = s.querySelector('.on'); if (on) s.scrollTop = on.offsetTop - s.clientHeight / 2; } return; }
+  if (!s.hidden && !e.target.closest('#sumario')) s.hidden = true;
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') document.getElementById('sumario').hidden = true; });
 
 // vídeo do consultor: o endereço vem do plano (plan.videos[fase]); sem vídeo, o espaço fica reservado
 function videoHtml(chave, titulo, texto) {
