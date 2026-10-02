@@ -22,8 +22,8 @@ conferido simulando no site). Falta:
    ainda tem a sua própria lista (`plano.riscos.bens.itens`, com nome, valor e proteção), e as duas não se falam: no
    exemplo, os nomes e valores foram igualados à mão. Falta a proteção de cada bem ser marcada sobre a lista do
    Patrimônio. O usuário vai mandar o material de coleta da Nord, com as demais informações de cada bem.
-2. **Dependentes e geradores de renda vindos do cadastro.** Hoje são cadastrados na página Gestão de riscos (itens 7
-   e 8). Vão ser perguntados numa etapa anterior; aqui, só lidos.
+2. **Geradores de renda vindos do cadastro.** Os dependentes já são perguntados na página Cliente (02/10/2026) e só
+   lidos no item 8. Os geradores de renda (quem é, a participação na renda, o INSS) continuam no item 7.
 3. **Apólices enviadas pelo cliente.** O usuário quer que o cliente, ao responder, possa enviar as apólices atuais
    (vida, acidentes, doenças graves). Hoje a cobertura atual é um valor digitado.
 4. **Divisão da renda passiva e do patrimônio por propriedade.** Hoje o consultor informa, por pessoa, o percentual da
@@ -43,10 +43,11 @@ Em aberto:
    (0,5× a 18×, 18× a 60×, 60× a 200×, 200×), que são os do protótipo (`ENGINE.FASES_VIDA`). As fases (2/9 e 6/9) e o
    total (bens + financeiro − dívidas) batem com a calculadora; ela não conta participações societárias, o protótipo
    conta.
-2. **Dívidas só como saldo devedor de um bem.** Um empréstimo sem bem (pessoal, consignado) não tem onde entrar. E a
-   dívida não entra na simulação: o gráfico da evolução patrimonial usa os bens pelo valor de mercado, e a parcela do
-   financiamento é uma saída do fluxo de caixa.
-3. **O cliente não propõe nada nesta página.** Na Gestão de riscos, ele simula e propõe; aqui só vê. Se ele puder corrigir
+2. **A dívida não entra na simulação.** O detalhe de cada dívida (crédito, parcelas, parcela atual, juros, situação)
+   é informativo: o gráfico da evolução patrimonial usa os bens pelo valor de mercado, e a parcela continua sendo uma
+   saída que o consultor lança no Fluxo de caixa. Falta decidir se a parcela da dívida vira, ela mesma, a linha do
+   fluxo (como a renda do bem já faz) e se o saldo devedor desconta na evolução patrimonial.
+3. **O cliente não propõe nada na página de patrimônio.** Na Gestão de riscos, ele simula e propõe; aqui só vê. Se ele puder corrigir
    valores (do bem, de uma instituição), a proposta é do tipo `campo` (por exemplo `patrimonio.bens.2.mercado`), e o
    total do plano já acompanha (`sincronizaPatrimonio` roda ao aplicar as propostas).
 4. **Idade de quem?** A fase usa a idade do titular (`plan.age`) e a idade para parar de trabalhar dele. Num casal, cada
@@ -366,3 +367,31 @@ Registradas aqui porque não são óbvias no código:
   custo de vida da reserva, o mesmo da liquidez em vezes o padrão. Sem a idade em que começou a trabalhar, a página
   mostra o patrimônio sem a fase. O status protegido, atenção e crítico é só das ameaças: aqui a leitura é em
   palavras ("abaixo do mínimo", "entre o esperado e o máximo").
+- **Patrimônio ideal refeito para o cliente (02/10/2026).** O usuário pediu: sem a curva da evolução do patrimônio (só as
+  idades de cada fase) e sem copiar o slide, com as referências de UX já usadas na Gestão de riscos (dashboards do
+  Dribbble: um número dominante por cartão, cor só onde informa). Ficou: a fase atual e a trilha das cinco fases com as
+  idades; três cartões (patrimônio total com a composição, esperado para a idade numa régua mínimo–esperado–máximo,
+  dinheiro disponível contra a liquidez ideal); as classes em colunas, com bens e dívidas que abrem o detalhe; e a conta
+  do esperado recolhida, com a tabela das fases deste cliente. A régua tem posições fixas (mínimo 20%, esperado 50%,
+  máximo 80%), como a régua da calculadora da Nord, para que um total muito acima do máximo não esmague as marcas.
+- **Dívidas com detalhe e renda do bem (02/10/2026).** Pedido do usuário: toda dívida tem crédito contratado, parcelas
+  contratadas, parcela atual, situação (em dia ou inadimplente) e juros contratados; e um bem pode gerar renda passiva.
+  O detalhe vale igual para o financiamento de um bem (aparece quando o saldo devedor é maior que zero) e para as outras
+  dívidas (lista nova: pessoal, consignado, cartão). A renda do bem não é um valor digitado de novo: o bem aponta para a
+  linha de renda passiva do Fluxo de caixa, que o consultor escolhe ou cadastra dali mesmo, para o valor não ficar em
+  dois lugares. Os detalhes da dívida do exemplo (crédito, parcelas, parcela, juros) são ilustrativos.
+- **Revisão de UX do portal (02/10/2026).** O usuário achou o portal "poluído e contraintuitivo" e que Patrimônio e
+  premissas são coisas de momentos diferentes. O que mudou:
+  - Oito passos em três grupos na barra lateral: dados do cliente (Cliente, Fluxo de caixa, Patrimônio), planejamento
+    (Gestão de riscos, Objetivos, Liberdade financeira, Premissas) e com o cliente (Apresentação, Propostas).
+  - Cada campo foi para a página do seu momento: o tipo de plano (uma pessoa ou casal), a idade em que começou a
+    trabalhar e os dependentes vão para Cliente; "abrir o fluxo em meses ou anos" vai para o Fluxo de caixa; o modo de
+    saque vai para Liberdade financeira; as rentabilidades ficam sozinhas em Premissas; os vídeos de todas as páginas do
+    cliente vão para Apresentação, que mostra também o que cada página vai exibir e o que falta.
+  - Página sem moldura: título com o passo, uma frase do que se faz ali e blocos-cartão, um por assunto. As explicações
+    longas (casal, planilha, rendas, objetivo ou despesa futura, dependentes, pesos) ficam recolhidas em "?".
+  - Os indicadores do topo (capacidade, aportes, folga, liberdade) só aparecem onde ajudam a decidir: Fluxo de caixa,
+    Objetivos e Liberdade financeira. "Plano de Ana Ribeiro" saiu do topo: o nome já está na barra lateral.
+  - Gestão de riscos: uma ameaça por vez, escolhida em abas com o status de cada uma, com anterior e próxima no pé; os
+    pesos ficam recolhidos.
+  - A barra lateral tem um botão só ("Apresentar ao cliente") e o "Ver como o cliente vê" como link.

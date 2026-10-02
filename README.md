@@ -5,7 +5,7 @@ além das fontes do Google, e abrem direto no navegador.
 
 | Arquivo | Para quem | O que faz |
 |---|---|---|
-| `tela-consultor.html` | Consultor | Configura o plano em cinco páginas: Cliente, Fluxo de caixa, Patrimônio e premissas, Objetivos e Liberdade financeira. |
+| `tela-consultor.html` | Consultor | Configura o plano em oito passos, em três grupos: dados do cliente (Cliente, Fluxo de caixa, Patrimônio), planejamento (Gestão de riscos, Objetivos, Liberdade financeira, Premissas) e com o cliente (Apresentação, Propostas). |
 | `evolucao-patrimonial.html` | Cliente | Mostra a trajetória do patrimônio ao longo da vida, apresentada ao vivo pelo consultor. |
 
 ## Por onde começar
@@ -37,23 +37,28 @@ capítulos 1 a 3, com 5 páginas cada, são um esqueleto (mock) das páginas que
 endereço (`?fase=patrimonio`, `?fase=riscos`, `?fase=c2p3`); senão, a tela abre na última vista.
 
 **Fase da vida e patrimônio** junta num só lugar o patrimônio de hoje e o compara com o esperado para a idade
-(`ENGINE.faseDaVida`, no motor). O consultor preenche, na página Patrimônio e premissas do portal:
+(`ENGINE.faseDaVida`, no motor). No portal, a idade em que o cliente começou a trabalhar fica na página Cliente, e a
+página Patrimônio tem:
 
-- o patrimônio financeiro por instituição, as participações societárias por empresa e os bens com valor de mercado e
-  saldo devedor (`plano.patrimonio`). As listas são a fonte dos totais que o resto do plano usa: `initialWealth`
-  (financeiro), `partValue` (participações) e `initialBens` (valor de mercado dos bens), somados em
-  `ENGINE.sincronizaPatrimonio`, que roda ao configurar o motor e ao aplicar as propostas do cliente. Um plano antigo,
-  só com os totais, ganha uma linha por total na primeira vez que a página abre;
-- a idade em que o cliente começou a trabalhar e a liquidez ideal (em reais).
+- o mercado financeiro por instituição (com a liquidez ideal, em reais), as participações societárias por empresa, os
+  bens com valor de mercado e saldo devedor, e as outras dívidas (`plano.patrimonio`). As listas são a fonte dos totais
+  que o resto do plano usa: `initialWealth` (financeiro), `partValue` (participações) e `initialBens` (valor de mercado
+  dos bens), somados em `ENGINE.sincronizaPatrimonio`, que roda ao configurar o motor e ao aplicar as propostas do
+  cliente. Um plano antigo, só com os totais, ganha uma linha por total na primeira vez que a página abre;
+- toda dívida, o financiamento de um bem (quando ele tem saldo devedor) ou uma dívida avulsa, tem o mesmo detalhe:
+  crédito contratado, parcelas contratadas, parcela atual, juros contratados (% ao ano) e situação (em dia ou
+  inadimplente);
+- um bem que gera renda passiva aponta para a linha de entrada do Fluxo de caixa (`bem.renda`, o id da linha): o
+  consultor escolhe uma renda passiva que já existe ou cadastra uma nova dali mesmo. O valor fica num lugar só, o fluxo.
 
-Na tela do cliente, no alto, a fase atual com o patrimônio total e o esperado; embaixo, a curva da vida financeira
-com as cinco fases e o "você" na idade de hoje, e as barras na mesma escala: liquidez ideal, financeiro,
-participações e bens empilhados, as dívidas descontando, o patrimônio total e o mínimo, o esperado e o máximo para a
-idade. Financeiro, participações, bens e dívidas abrem o detalhe (instituições, empresas, bens, saldo devedor de cada
-bem). Uma leitura em palavras fecha a página: onde o total está entre o mínimo e o máximo, de onde vem o esperado, e o
-financeiro comparado à liquidez ideal (também em vezes o padrão de vida mensal).
+Na tela do cliente: no alto, a fase atual e as cinco fases com as idades de cada uma, ao lado do vídeo. Depois, três
+números: o patrimônio total (com a barra da composição e as dívidas hachuradas), o esperado para a idade (numa régua
+com mínimo, esperado e máximo, e o cliente nela) e o dinheiro disponível (o financeiro em % da liquidez ideal e em
+vezes o padrão de vida). Embaixo, "De onde vem o seu patrimônio": uma coluna por classe (mercado financeiro,
+participações, bens, dívidas), com os itens; um bem ou uma dívida abre o detalhe (financiamento, situação, renda que o
+bem gera). Por último, recolhido, "Como o patrimônio esperado é calculado", com a tabela das fases deste cliente.
 
-- Patrimônio total = financeiro + participações + bens (valor de mercado) − saldo devedor dos bens.
+- Patrimônio total = financeiro + participações + bens (valor de mercado) − saldo devedor dos bens − outras dívidas.
 - Fases: a vida de trabalho (de quando começou até a idade para parar de trabalhar, da página Cliente; vazia, 65
   anos) dividida em nonos. Preparação antes de começar; Início de carreira até 2/9; Consolidação até 6/9; Plenitude
   até 9/9; Liberdade financeira depois. Começou aos 23, para aos 65: marcos em 23, 32, 51 e 65.
@@ -131,7 +136,7 @@ e a resposta fica registrada nele (`propostas: [{ id, em, decisoes, nota }]`).
 
 - **Cliente**: só a tela de Evolução Patrimonial (`evolucao-patrimonial.html`), com as ferramentas de proposta.
   Nada de preparo do consultor, nada para carregar ou baixar.
-- **Consultor**: o portal (`tela-consultor.html`). "Abrir visão do cliente" apresenta o plano
+- **Consultor**: o portal (`tela-consultor.html`). "Apresentar ao cliente" (barra lateral e página Apresentação) apresenta o plano
   (`evolucao-patrimonial.html?apresentar`): sem editar, e mostrando a proposta que o cliente enviou.
   "Ver como o cliente vê" abre a tela exatamente como o cliente a tem.
 
@@ -155,7 +160,11 @@ cada tela ouve o que a outra gravou.
     "comecou": 23, "liquidezIdeal": 400000,
     "financeiro": [ {"nome": "Itaú", "valor": 150000} ],                     // soma em initialWealth
     "participacoes": [ {"nome": "Papelaria Canetinha", "valor": 50000} ],     // soma em partValue
-    "bens": [ {"nome": "Apartamento em Mogi", "mercado": 950000, "saldoDevedor": 368000} ]   // mercado soma em initialBens
+    "bens": [ {"nome": "Apartamento em Mogi", "mercado": 950000,             // mercado soma em initialBens
+               "saldoDevedor": 368000, "credito": 560000, "parcelas": 360,  // com saldo devedor, o detalhe do financiamento
+               "parcela": 4870, "juros": 9.5, "situacao": "em_dia",         // juros em % ao ano; situacao: em_dia | inadimplente
+               "renda": "ent123"} ],                                        // id da linha de renda passiva do Fluxo, se o bem rende
+    "dividas": [ {"nome": "Consignado", "saldoDevedor": 20000, "credito": 30000, "parcelas": 48, "parcela": 850, "juros": 22, "situacao": "em_dia"} ]
   },
   "capacityOverride": null,    // capacidade de poupança informada pelo cliente; null = salário − despesas
   "mode": "perp",              // liberdade financeira por "perp" (perpetuidade) ou "cons" (consumo até a expectativa de vida); a visão do cliente abre nela

@@ -379,6 +379,92 @@ circle.pv-hit{cursor:ns-resize}
 .cronog{max-height:240px;overflow:auto;margin-top:6px;border:1px solid #efeeea;border-radius:8px}
 .cronog table{width:100%;font-size:12px}
 .cronog th{position:sticky;top:0;background:#f7f5f1}
+
+/* ---------- revisão de UX (02/10/2026) ----------
+   Cada página é uma folha sem moldura: um título com o passo, uma frase do que se faz ali e blocos-cartão, um por
+   assunto. Explicações longas ficam recolhidas em "?" (details.ajuda). Cor só para o que pede ação ou dá status. */
+main{padding:26px 40px 80px}
+.pagehead{margin:0} .pagehead[hidden]{display:none}
+.pagehead .chips{margin:0 0 6px auto}
+section.page{background:transparent;box-shadow:none;padding:0;margin:0 0 10px;border-radius:0}
+section.page>.kicker{font:600 11px 'DM Sans',sans-serif;color:var(--nl-orange-600);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px}
+section.page>h2{font:700 26px Sora,sans-serif;color:var(--nl-navy-900);margin-bottom:6px}
+section.page>.hint{font-size:13.5px;color:#7d7d7d;line-height:1.5;max-width:780px;margin-bottom:20px}
+.bloco{border:0;box-shadow:var(--shadow-card);border-radius:14px;padding:20px 22px;margin-bottom:16px}
+.bloco h3{font:600 14.5px Sora,sans-serif;color:var(--nl-navy-900);margin-bottom:14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.bloco h3 .dir{margin-left:auto;font:500 12.5px 'DM Sans',sans-serif;color:#8a8a8a}
+.bloco .sub{font-size:12.5px;color:#8a8a8a;margin:-8px 0 14px;line-height:1.5}
+details.ajuda{margin-top:12px;font-size:12.5px;color:#666;line-height:1.55}
+details.ajuda>summary{cursor:pointer;font:600 12px 'DM Sans',sans-serif;color:var(--nl-orange-600);list-style:none;display:inline-flex;align-items:center;gap:6px}
+details.ajuda>summary::-webkit-details-marker{display:none}
+details.ajuda>summary::before{content:'?';display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:var(--nl-peach-100);font-size:10px}
+details.ajuda[open]{background:var(--nl-cream-50);border-radius:10px;padding:10px 13px}
+details.ajuda[open]>summary{margin-bottom:6px}
+details.ajuda.solta{margin:-10px 0 18px}
+.nav-g{font:600 10px 'DM Sans',sans-serif;text-transform:uppercase;letter-spacing:.09em;color:rgba(255,255,255,.36);padding:14px 12px 5px}
+aside nav{overflow-y:auto}
+.linkfoot{display:block;text-align:center;margin-top:11px;color:rgba(255,255,255,.65);font:500 12.5px 'DM Sans',sans-serif;text-decoration:none}
+.linkfoot:hover{color:#fff}
+.pagenav{margin-top:6px}
+.g2 .wide2,.g3 .wide2{grid-column:span 2}
+/* fluxo de caixa num cartão */
+.fxbloco{padding:16px}
+label.fxhoriz{display:inline-flex;align-items:center;gap:6px;margin:0 0 0 auto;font:500 12px 'DM Sans',sans-serif;color:#8a8a8a}
+label.fxhoriz select{width:auto;padding:5px 8px;font-size:12.5px}
+.fxpe{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-top:10px;flex-wrap:wrap}
+.fxpe details.ajuda{margin:0;max-width:640px}
+#fxResumo{margin-top:6px}
+/* liberdade: explicação do modo de saque */
+.modo-exp{font-size:12.5px;color:#666;line-height:1.5;background:var(--nl-cream-50);border-radius:10px;padding:10px 13px;height:100%}
+/* patrimônio: resumo e itens */
+.pc-resumo{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:16px}
+.pc-tile{background:#fff;border-radius:12px;box-shadow:var(--shadow-card);padding:12px 14px;display:flex;flex-direction:column;gap:3px}
+.pc-tile span{display:flex;align-items:center;gap:6px;font:500 11.5px 'DM Sans',sans-serif;color:#8d8d8d}
+.pc-tile span i{width:8px;height:8px;border-radius:2px}
+.pc-tile b{font:600 17px Sora,sans-serif;color:var(--nl-navy-900);white-space:nowrap}
+.pc-tile.total{background:var(--nl-navy-900)} .pc-tile.total span{color:rgba(255,255,255,.6)} .pc-tile.total b{color:#fff}
+.pc-lista{display:flex;flex-direction:column;gap:8px}
+.pc-item{border:1px solid #efeeea;border-radius:12px;padding:12px 14px;background:#fff}
+.pc-item.inad{border-color:#F2C4C4;background:#FFFBFB}
+.pc-linha{display:grid;grid-template-columns:1.6fr 1fr 1fr auto;gap:10px;align-items:end}
+.pc-linha.dois{grid-template-columns:2fr 1fr auto}
+.pc-linha .btn-icon{margin-bottom:6px}
+.pc-fin{margin-top:10px;padding-top:10px;border-top:1px dashed #eceae5}
+.pc-fin h4{font:600 11.5px Sora,sans-serif;color:var(--nl-navy-900);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.pc-fin .grid{grid-template-columns:repeat(5,1fr);gap:8px 10px}
+.pc-fin input,.pc-fin select,.pc-linha input{padding:7px 9px;font-size:13px}
+.pc-renda{display:flex;align-items:center;gap:10px;margin-top:10px;font:500 12px 'DM Sans',sans-serif;color:#8a8a8a;flex-wrap:wrap}
+.pc-renda select{width:auto;min-width:240px;padding:6px 8px;font-size:12.5px}
+.pc-renda b{color:var(--nl-navy-900);font-weight:600}
+.pc-tot{display:flex;justify-content:space-between;align-items:center;margin-top:10px;font:600 13px Sora,sans-serif;color:var(--nl-navy-900)}
+.pc-vazio{font-size:12.5px;color:#a9a59d;font-style:italic;padding:2px 0 4px}
+.pc-dois{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.pc-dois .bloco{margin-bottom:16px}
+.pill-st{font:600 10.5px 'DM Sans',sans-serif;padding:2px 8px;border-radius:9999px}
+.pill-st.ok{background:#E7F5EC;color:#22794a} .pill-st.critico{background:#FDECEC;color:#B83A3A}
+/* cliente: dependentes */
+.dep-sn input{width:auto;box-shadow:none;margin:0} .dep-sn label.rad{display:inline-flex;align-items:center;gap:6px;margin:0;font:500 13px 'DM Sans',sans-serif;color:var(--nl-navy-900);cursor:pointer}
+.dep-sn{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:10px;font:500 13px 'DM Sans',sans-serif;color:var(--nl-navy-900)}
+/* gestão de riscos: uma ameaça por vez */
+.rkc-topo{display:flex;align-items:center;gap:22px;flex-wrap:wrap}
+.rkc-abas{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:16px}
+.rkc-aba{display:flex;align-items:center;gap:9px;border:1px solid #efeeea;background:#fff;border-radius:11px;padding:9px 11px;cursor:pointer;text-align:left;font:600 12.5px 'DM Sans',sans-serif;color:var(--nl-navy-900);line-height:1.25}
+.rkc-aba i{width:10px;height:10px;border-radius:50%;flex:0 0 10px}
+.rkc-aba small{display:block;font:500 11px 'DM Sans',sans-serif;color:#9a9a9a}
+.rkc-aba:hover{border-color:#F6C8AC}
+.rkc-aba.on{border-color:var(--nl-orange-500);box-shadow:0 0 0 3px var(--nl-peach-100)}
+.rkc-nav{display:flex;justify-content:space-between;gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid #f1efea}
+details.pesos{margin-top:14px}
+/* apresentação: as páginas do cliente */
+.ap-pg{display:grid;grid-template-columns:auto 1fr minmax(260px,1.1fr) auto;gap:14px;align-items:center;padding:14px 0;border-bottom:1px solid #f1efea}
+.ap-pg:last-child{border-bottom:0}
+.ap-num{width:30px;height:30px;border-radius:50%;background:var(--nl-peach-100);color:var(--nl-orange-600);font:700 12px Sora,sans-serif;display:flex;align-items:center;justify-content:center}
+.ap-pg b{font:600 14px Sora,sans-serif;color:var(--nl-navy-900)} .ap-pg small{display:block;font:500 12px 'DM Sans',sans-serif;color:#8a8a8a;margin-top:3px}
+.ap-pg small.falta{color:var(--nl-orange-600)}
+.ap-pg input{padding:7px 9px;font-size:12.5px}
+.ap-bts{display:flex;gap:10px;flex-wrap:wrap}
+.ap-bts .btn-primary{width:auto}
+@media (max-width:1180px){ .pc-resumo{grid-template-columns:repeat(3,1fr)} .rkc-abas{grid-template-columns:repeat(2,1fr)} .pc-fin .grid{grid-template-columns:repeat(3,1fr)} .pc-dois{grid-template-columns:1fr} .ap-pg{grid-template-columns:auto 1fr} }
 </style>
 </head>
 <body>
@@ -388,124 +474,160 @@ circle.pv-hit{cursor:ns-resize}
   <div class="who"><b id="sbName">Ana Ribeiro</b><span id="sbMeta">35 anos · plano ativo</span>
     <div class="whoact"><button class="btn btn-new" id="btnNovo">+ Novo cliente</button><button class="linkw" id="btnExemplo" title="Carrega o plano de demonstração da Ana Ribeiro">ver exemplo</button></div></div>
   <nav id="nav">
+    <div class="nav-g">Dados do cliente</div>
     <a data-nav="cliente" role="button" tabindex="0"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg>Cliente<i>1</i></a>
     <a data-nav="fluxo" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M3 5h18M3 12h18M3 19h18M8 3v18M16 3v18"/></svg>Fluxo de caixa<i>2</i></a>
-    <a data-nav="patrimonio" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M3 21h18M5 21V10l7-5 7 5v11M9 21v-6h6v6"/></svg>Patrimônio e premissas<i>3</i></a>
+    <a data-nav="patrimonio" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M3 21h18M5 21V10l7-5 7 5v11M9 21v-6h6v6"/></svg>Patrimônio<i>3</i></a>
+    <div class="nav-g">Planejamento</div>
     <a data-nav="riscos" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Gestão de riscos<i>4</i></a>
     <a data-nav="objetivos" role="button" tabindex="0"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1"/></svg>Objetivos<i>5</i></a>
     <a data-nav="liberdade" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M18.2 8.5c2 0 3.8 1.6 3.8 3.5s-1.8 3.5-3.8 3.5c-3.8 0-8.6-7-12.4-7C3.8 8.5 2 10.1 2 12s1.8 3.5 3.8 3.5c3.8 0 8.6-7 12.4-7z"/></svg>Liberdade financeira<i>6</i></a>
-    <div class="sep-nav"></div>
+    <a data-nav="premissas" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg>Premissas<i>7</i></a>
+    <div class="nav-g">Com o cliente</div>
+    <a data-nav="apresentacao" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M3 4h18v12H3zM8 20h8M12 16v4M10 8l4 2-4 2z"/></svg>Apresentação<i>8</i></a>
     <a data-nav="propostas" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M22 12h-6l-2 3h-4l-2-3H2M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/></svg>Propostas do cliente<i class="contador" id="navProp"></i></a>
   </nav>
   <div class="foot">
-    <button class="btn btn-primary" id="btnOpen"><svg viewBox="0 0 24 24"><path d="M15 3h6v6M10 14L21 3M18 13v8H3V6h8"/></svg>Abrir visão do cliente</button>
-    <a class="btn btn-secondary" id="btnComoCliente" href="evolucao-patrimonial.html?fase=riscos" target="_blank" style="width:100%;margin-top:9px;text-decoration:none">Ver como o cliente vê</a>
-    <div class="muted" id="notaArmazem" style="color:rgba(255,255,255,.45);font-size:11px;margin-top:9px;line-height:1.45">O plano é gravado e chega sozinho à área do cliente. O que ele propuser aparece em Propostas do cliente.</div>
+    <button class="btn btn-primary" id="btnOpen"><svg viewBox="0 0 24 24"><path d="M15 3h6v6M10 14L21 3M18 13v8H3V6h8"/></svg>Apresentar ao cliente</button>
+    <a class="linkfoot" id="btnComoCliente" href="evolucao-patrimonial.html?fase=patrimonio" target="_blank">Ver como o cliente vê ↗</a>
   </div>
 </aside>
 
 <main>
-  <div class="pagehead">
-    <div>
-      <h1>Plano de <span id="hdName">Ana Ribeiro</span></h1>
-      <p>Configuração do plano. Tudo o que você define aqui alimenta a tela de Evolução Patrimonial do cliente.</p>
-    </div>
-    <div class="chips" id="chips"></div>
-  </div>
+  <div class="pagehead"><div class="chips" id="chips"></div></div>
 
   <section class="page" data-page="cliente">
-    <h2><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg>Cliente</h2>
-    <div class="hint">Comece por aqui. A idade de hoje é o ponto de partida da linha do tempo; a renda desejada e a idade para parar de trabalhar definem a Liberdade Financeira.</div>
-    <div class="grid g3">
-      <div class="field"><label>Nome do cliente <em>obrigatório</em></label><input id="f-name" type="text" placeholder="ex.: Camila e Rafael Souza"></div>
-      <div class="field"><label>Idade hoje <em>obrigatório</em></label><input id="f-age" type="number" min="18" max="90" placeholder="anos"></div>
-      <div class="field"><label>Renda mensal desejada na aposentadoria <em>obrigatório</em></label><input id="f-desired" data-money type="text" inputmode="decimal" placeholder="R$ por mês, em valores de hoje"></div>
-      <div class="field"><label>Idade para parar de trabalhar (dessa pessoa)</label><input id="f-retire" type="number" min="30" max="90" placeholder="vazio: assim que o patrimônio permitir"></div>
-      <div class="field"><label>Expectativa de vida (anos)</label><input id="f-lifeExp" type="number" min="70" max="110"></div>
-      <div class="field"><label>Idade do cônjuge (se houver)</label><input id="f-spouse" type="number" min="18" max="90" placeholder="usada no INSS do cônjuge"></div>
+    <div class="kicker">Dados do cliente · passo 1 de 8</div>
+    <h2>Cliente</h2>
+    <div class="hint">Quem é o cliente, quem depende dele e quando ele quer parar de trabalhar. É o ponto de partida do plano.</div>
+    <div class="bloco"><h3>Quem é</h3>
+      <div class="grid g3">
+        <div class="field"><label>Nome do cliente <em>obrigatório</em></label><input id="f-name" type="text" placeholder="ex.: Camila e Rafael Souza"></div>
+        <div class="field"><label>Idade hoje <em>obrigatório</em></label><input id="f-age" type="number" min="18" max="90" placeholder="anos"></div>
+        <div class="field"><label>O plano é de</label><select id="f-tipo"><option value="individual">Uma pessoa</option><option value="familia">Um casal ou uma família</option></select></div>
+        <div class="field"><label>Idade do cônjuge</label><input id="f-spouse" type="number" min="18" max="90" placeholder="anos"></div>
+      </div>
+      <details class="ajuda" id="notaCasal"><summary>Casal: de quem é a "Idade hoje"?</summary>Use a idade de quem é a referência da aposentadoria (quem vai parar primeiro; se o casal vai parar junto, a do mais velho) e informe a do outro em "Idade do cônjuge". A renda de cada um entra como uma linha própria no Fluxo de caixa, e o INSS de cada um como uma renda na página Liberdade financeira.</details>
     </div>
+    <div class="bloco"><h3>Trabalho e aposentadoria</h3>
+      <div class="grid g4">
+        <div class="field"><label>Começou a trabalhar aos <span class="tip" tabindex="0" data-tip="Com esta idade e a de parar de trabalhar, a página de patrimônio do cliente mostra as fases da vida financeira e o patrimônio esperado para a idade.">?</span></label><input id="f-comecou" data-r="patrimonio.comecou" data-rt="num" type="number" min="10" max="70" placeholder="anos"></div>
+        <div class="field"><label>Quer parar de trabalhar aos</label><input id="f-retire" type="number" min="30" max="90" placeholder="vazio: quando puder"></div>
+        <div class="field"><label>Renda mensal desejada <em>obrigatório</em></label><input id="f-desired" data-money type="text" inputmode="decimal" placeholder="R$ por mês, valores de hoje"></div>
+        <div class="field"><label>Expectativa de vida</label><input id="f-lifeExp" type="number" min="70" max="110"></div>
+      </div>
+    </div>
+    <div class="bloco"><h3>Dependentes financeiros</h3><div id="depC"></div></div>
     <div id="faltaCliente"></div>
-    <div class="note" id="notaCasal">Casal: em "Idade hoje" use a idade de quem é a referência da aposentadoria (quem vai parar primeiro; se o casal vai parar junto, a do mais velho) e informe a do outro em "Idade do cônjuge". A renda de cada um entra como uma linha própria no Fluxo de caixa, e o INSS de cada um como uma renda na página Liberdade financeira.</div>
     <div class="pagenav"><button class="btn btn-tertiary" data-ir="fluxo">Próximo: Fluxo de caixa →</button></div>
   </section>
 
   <section class="page wide" data-page="fluxo">
-    <h2><svg viewBox="0 0 24 24"><path d="M3 5h18M3 12h18M3 19h18M8 3v18M16 3v18"/></svg>Fluxo de caixa</h2>
-    <div class="hint">Cadastre cada renda com o <b>+</b> ao lado de Entradas e cada despesa com o <b>+</b> ao lado de Fixas ou Ajustáveis. Segure <b>Ctrl</b> e role a rodinha sobre a planilha para aproximar ou afastar no tempo, de décadas até semanas; <b>Shift</b> e a rodinha (ou arrastar) andam no tempo. A rodinha sozinha rola a página. Clique numa célula para mudar o valor dali em diante. Linhas sem valor no período à vista ficam escondidas, e o grupo avisa quantas há antes ou depois. Aportes aos objetivos e compras de bens aparecem em Movimentações no patrimônio; eles vêm da página Objetivos.</div>
+    <div class="kicker">Dados do cliente · passo 2 de 8</div>
+    <h2>Fluxo de caixa</h2>
+    <div class="hint">Entradas e despesas do cliente, mês a mês. O <b>+</b> de cada grupo cadastra uma linha; um clique numa célula muda o valor dali em diante.</div>
     <div id="fxCap"></div>
-    <div class="fxbar">
-      <span class="fxnivel" id="fxNivel">Mês</span>
-      <span class="muted" id="fxJanela"></span>
-      <button class="btn btn-secondary" id="fxHoje">Voltar para hoje</button>
-      <div class="budlegend"><span><i class="c-step"></i>valor muda aqui</span><span><i class="c-inh"></i>repetido do anterior</span><span><i class="c-exc"></i>ajuste de uma ocorrência</span><span><i class="c-ff"></i>liberdade financeira</span><span title="Assim todo mês tem exatamente um salário. Uma despesa semanal cai 4 ou 5 vezes, conforme as semanas daquele mês.">mês = do salário do dia 5 ao seguinte, em semanas inteiras</span></div>
+    <div class="bloco fxbloco">
+      <div class="fxbar">
+        <span class="fxnivel" id="fxNivel">Mês</span>
+        <span class="muted" id="fxJanela"></span>
+        <label class="fxhoriz">Abrir em <select id="f-horiz"><option value="month">meses</option><option value="quarter">trimestres</option><option value="semester">semestres</option><option value="year">anos</option></select></label>
+        <button class="btn btn-secondary" id="fxHoje">Voltar para hoje</button>
+      </div>
+      <div class="fx">
+        <div class="fx-l" id="fxL"></div>
+        <div class="fx-r" id="fxR"></div>
+      </div>
+      <div class="fxpe">
+        <div class="budlegend"><span><i class="c-step"></i>valor muda aqui</span><span><i class="c-inh"></i>repetido do anterior</span><span><i class="c-exc"></i>ajuste de uma ocorrência</span><span><i class="c-ff"></i>liberdade financeira</span></div>
+        <details class="ajuda"><summary>Como usar a planilha</summary>Segure <b>Ctrl</b> e role a rodinha sobre a planilha para aproximar ou afastar no tempo, de décadas até semanas; <b>Shift</b> e a rodinha (ou arrastar) andam no tempo. A rodinha sozinha rola a página. Numa coluna de mês ou de semana, o clique abre a edição: a partir daqui, só nesta ocorrência ou encerrar aqui. Linhas sem valor no período à vista ficam escondidas, e o grupo avisa quantas há antes ou depois. O mês vai do salário do dia 5 ao seguinte, em semanas inteiras: assim todo mês tem exatamente um salário, e uma despesa semanal cai 4 ou 5 vezes. Aportes aos objetivos e compras de bens aparecem em Movimentações no patrimônio; eles vêm da página Objetivos.</details>
+      </div>
+      <div class="muted" id="fxResumo"></div>
     </div>
-    <div class="fx">
-      <div class="fx-l" id="fxL"></div>
-      <div class="fx-r" id="fxR"></div>
+    <div class="bloco">
+      <h3>Capacidade de poupança</h3>
+      <div class="grid g3"><div class="field"><label>Capacidade informada pelo cliente (R$/mês) <span class="tip" tabindex="0" data-tip="Quanto o cliente consegue guardar por mês. Vazio: o portal calcula pela média de entradas menos saídas dos próximos 12 meses. Preencha só se o cliente informar outro valor.">?</span></label><input id="f-cap" data-money-opt type="text" inputmode="decimal" placeholder="vazio: calculada pelo Fluxo de caixa"></div></div>
     </div>
-    <div class="rowend"><div class="muted" id="fxResumo"></div></div>
-    <div class="bloco" style="margin-top:16px">
-      <h3>Capacidade de poupança <span class="tip" tabindex="0" data-tip="Quanto o cliente consegue guardar por mês. Vazio: o portal calcula pela média de entradas menos saídas dos próximos 12 meses. Preencha só se o cliente informar outro valor.">?</span></h3>
-      <div class="grid g3"><div class="field"><label>Capacidade informada (R$/mês)</label><input id="f-cap" data-money-opt type="text" inputmode="decimal" placeholder="vazio: calculada pelo Fluxo de caixa"></div></div>
-    </div>
-    <div class="pagenav"><button class="btn btn-tertiary" data-ir="patrimonio">Próximo: Patrimônio e premissas →</button></div>
+    <div class="pagenav"><button class="btn btn-tertiary" data-ir="patrimonio">Próximo: Patrimônio →</button></div>
   </section>
 
   <section class="page" data-page="patrimonio">
-    <h2><svg viewBox="0 0 24 24"><path d="M3 21h18M5 21V10l7-5 7 5v11M9 21v-6h6v6"/></svg>Patrimônio e premissas</h2>
+    <div class="kicker">Dados do cliente · passo 3 de 8</div>
+    <h2>Patrimônio</h2>
+    <div class="hint">O que o cliente tem e o que ele deve hoje, item a item. As somas alimentam a simulação, a gestão de riscos e a página de patrimônio do cliente.</div>
     <div id="patrC"></div>
-    <div class="bloco">
-      <h3>Premissas do planejamento</h3>
-      <div class="grid g3">
-        <div class="field"><label>Plano de <span class="tip" tabindex="0" data-tip="Uma pessoa: só o titular. Família: o cônjuge entra no plano (idade e rendas próprias, como o INSS).">?</span></label><select id="f-tipo"><option value="individual">Uma pessoa</option><option value="familia">Uma família</option></select></div>
-        <div class="field"><label>Saques na liberdade financeira <span class="tip" tabindex="0" data-tip="Como sacar do patrimônio na liberdade. Perpetuidade: saca só o rendimento; o patrimônio fica estável e o padrão de vida acompanha o que ele rende. Consumo: saca o que esgota o patrimônio na expectativa de vida. Renda desejada: saca só o que falta para a renda desejada; o patrimônio pode acabar antes ou sobrar. A visão do cliente abre nesta opção.">?</span></label><select id="f-modo"><option value="perp">Saques da perpetuidade</option><option value="cons">Consumo até a expectativa de vida</option><option value="desej">Saques da renda desejada</option></select></div>
-        <div class="field"><label>Entradas e saídas em horizonte <span class="tip" tabindex="0" data-tip="Como o Fluxo de caixa abre: colunas de mês, trimestre, semestre ou ano. Dá para aproximar e afastar depois.">?</span></label><select id="f-horiz"><option value="month">Mensal</option><option value="quarter">Trimestral</option><option value="semester">Semestral</option><option value="year">Anual</option></select></div>
-      </div>
-      <div class="grid g4" style="margin-top:14px">
-        <div class="field"><label>Retorno da reserva (% ao mês) <span class="tip" tabindex="0" data-tip="Retorno real líquido, já descontada a inflação. Vale para o patrimônio que não está reservado para objetivos. Na dúvida, mantenha o valor sugerido.">?</span></label><input id="f-rate" type="number" step="0.05"></div>
-        <div class="field"><label>Perfil conservador (% ao mês) <span class="tip" tabindex="0" data-tip="Retorno real líquido usado no dinheiro dos objetivos com este perfil.">?</span></label><input id="f-pc" type="number" step="0.05"></div>
-        <div class="field"><label>Perfil moderado (% ao mês)</label><input id="f-pm" type="number" step="0.05"></div>
-        <div class="field"><label>Perfil agressivo (% ao mês)</label><input id="f-pa" type="number" step="0.05"></div>
-      </div>
-    </div>
-    <div class="pagenav"><button class="btn btn-tertiary" data-ir="objetivos">Próximo: Objetivos →</button></div>
-  </section>
-
-  <section class="page" data-page="objetivos">
-    <h2><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1"/></svg>Objetivos</h2>
-    <div class="hint">Clique num objetivo para abrir os detalhes. Objetivo é algo para juntar dinheiro até uma data (entrada da casa, viagem, troca do carro); mensalidades que começam no futuro, como a escola do filho, entram no Fluxo de caixa. <span class="tip" tabindex="0" data-tip="Em cada objetivo, preencha nome, data e custo. O aporte necessário aparece sozinho; o aporte definido pode ser ajustado depois de conferir quanto cabe no orçamento.">?</span></div>
-    <div id="goals"></div>
-    <div class="rowend"><button class="btn btn-tertiary" id="btnAddGoal">+ Adicionar objetivo</button><div class="muted" id="goalSum" style="margin-left:auto"></div></div>
-    <div class="pagenav"><button class="btn btn-tertiary" data-ir="fluxo">Próximo: Fluxo de caixa →</button></div>
-  </section>
-
-  <section class="page" data-page="liberdade">
-    <h2><svg viewBox="0 0 24 24"><path d="M18.2 8.5c2 0 3.8 1.6 3.8 3.5s-1.8 3.5-3.8 3.5c-3.8 0-8.6-7-12.4-7C3.8 8.5 2 10.1 2 12s1.8 3.5 3.8 3.5c3.8 0 8.6-7 12.4-7z"/></svg>Liberdade financeira</h2>
-    <div class="hint">Rendas contratadas no momento da aposentadoria. O cliente vê a renda líquida. O custo é a parte do patrimônio financeiro convertida para contratar a renda — o INSS, por exemplo, não tem custo aqui porque já foi pago em contribuições. Estas rendas também aparecem como linhas de Entradas no fluxo de caixa. Clique numa renda para editar. Quem paga a renda desejada é o patrimônio financeiro: imóveis e participações societárias não entram nessa conta (um aluguel recebido entra, como renda passiva do fluxo).</div>
-    <div class="tablewrap"><table class="pr-tab">
-      <thead><tr><th style="width:24%">Renda</th><th>Valor</th><th>Começa</th><th>Dura</th><th>Custo de contratação</th><th></th></tr></thead>
-      <tbody id="tbPas"></tbody>
-      <tbody id="tbPasTotals"></tbody>
-    </table></div>
-    <div class="rowend">
-      <button class="btn btn-tertiary" id="btnAddPas">+ Adicionar renda</button>
-      <div class="muted" style="margin-left:auto" id="ffQuando"></div>
-    </div>
-    <div id="ffProg" style="margin-top:16px"></div>
-    <div id="ffNote" style="margin-top:14px"></div>
-    <div id="fimPlano"></div>
+    <div class="pagenav"><button class="btn btn-tertiary" data-ir="riscos">Próximo: Gestão de riscos →</button></div>
   </section>
 
   <section class="page" data-page="riscos">
-    <h2><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Gestão de riscos</h2>
-    <div class="hint">Avalie as oito ameaças ao padrão de vida da família. O status de cada uma sai das regras abaixo, a partir do que você registrar (e do fluxo de caixa e do patrimônio já preenchidos); a nota da família é a média ponderada pelos pesos. O cliente vê o resultado na fase Gestão de riscos da área dele.</div>
+    <div class="kicker">Planejamento · passo 4 de 8</div>
+    <h2>Gestão de riscos</h2>
+    <div class="hint">Avalie, uma a uma, as oito ameaças ao padrão de vida da família. O status de cada uma sai da regra que aparece embaixo dela.</div>
     <div id="riscosC"></div>
     <div class="pagenav"><button class="btn btn-tertiary" data-ir="objetivos">Próximo</button></div>
   </section>
 
+  <section class="page" data-page="objetivos">
+    <div class="kicker">Planejamento · passo 5 de 8</div>
+    <h2>Objetivos</h2>
+    <div class="hint">Os sonhos com data: juntar dinheiro até uma data para comprar ou gastar algo. Clique num objetivo para abrir o detalhe.</div>
+    <details class="ajuda solta"><summary>Objetivo ou despesa futura?</summary>Objetivo é algo para juntar dinheiro até uma data (entrada da casa, viagem, troca do carro). Mensalidades que começam no futuro, como a escola do filho, entram no Fluxo de caixa. Em cada objetivo, preencha nome, data e valor: o quanto guardar por mês aparece sozinho, e o aporte definido pode ser ajustado depois de conferir quanto cabe no orçamento.</details>
+    <div id="goals"></div>
+    <div class="rowend"><button class="btn btn-tertiary" id="btnAddGoal">+ Adicionar objetivo</button><div class="muted" id="goalSum" style="margin-left:auto"></div></div>
+    <div class="pagenav"><button class="btn btn-tertiary" data-ir="liberdade">Próximo: Liberdade financeira →</button></div>
+  </section>
+
+  <section class="page" data-page="liberdade">
+    <div class="kicker">Planejamento · passo 6 de 8</div>
+    <h2>Liberdade financeira</h2>
+    <div class="hint">As rendas da aposentadoria (INSS, previdências) e como o patrimônio completa a renda desejada.</div>
+    <div class="bloco"><h3>Rendas da aposentadoria</h3>
+      <div class="tablewrap"><table class="pr-tab">
+        <thead><tr><th style="width:24%">Renda</th><th>Valor</th><th>Começa</th><th>Dura</th><th>Custo de contratação</th><th></th></tr></thead>
+        <tbody id="tbPas"></tbody>
+        <tbody id="tbPasTotals"></tbody>
+      </table></div>
+      <div class="rowend"><button class="btn btn-tertiary" id="btnAddPas">+ Adicionar renda</button><div class="muted" style="margin-left:auto" id="ffQuando"></div></div>
+      <details class="ajuda"><summary>Valor líquido e custo de contratação</summary>O cliente vê a renda líquida. O custo é a parte do patrimônio financeiro convertida para contratar a renda; o INSS não tem custo aqui porque já foi pago em contribuições. Estas rendas também aparecem como linhas de Entradas no Fluxo de caixa. Quem paga a renda desejada é o patrimônio financeiro: imóveis e participações societárias não entram nessa conta (um aluguel recebido entra, como renda passiva do fluxo).</details>
+    </div>
+    <div class="bloco"><h3>Como sacar do patrimônio</h3>
+      <div class="grid g3"><div class="field"><label>Saques na liberdade financeira</label><select id="f-modo"><option value="perp">Perpetuidade: só o rendimento</option><option value="cons">Consumo até a expectativa de vida</option><option value="desej">Só o que falta para a renda desejada</option></select></div>
+        <div class="field wide2"><div class="modo-exp" id="modoExp"></div></div></div>
+    </div>
+    <div id="ffProg"></div>
+    <div id="ffNote"></div>
+    <div id="fimPlano"></div>
+    <div class="pagenav"><button class="btn btn-tertiary" data-ir="premissas">Próximo: Premissas →</button></div>
+  </section>
+
+  <section class="page" data-page="premissas">
+    <div class="kicker">Planejamento · passo 7 de 8</div>
+    <h2>Premissas</h2>
+    <div class="hint">As rentabilidades que a simulação usa, já descontada a inflação. Os valores sugeridos servem para a maioria dos clientes.</div>
+    <div class="bloco"><h3>Rentabilidade real líquida (% ao mês)</h3>
+      <div class="grid g4">
+        <div class="field"><label>Reserva (patrimônio livre) <span class="tip" tabindex="0" data-tip="Retorno real líquido do patrimônio que não está reservado para objetivos. Na dúvida, mantenha o valor sugerido.">?</span></label><input id="f-rate" type="number" step="0.05"></div>
+        <div class="field"><label>Perfil conservador <span class="tip" tabindex="0" data-tip="Retorno real líquido do dinheiro guardado para os objetivos com este perfil.">?</span></label><input id="f-pc" type="number" step="0.05"></div>
+        <div class="field"><label>Perfil moderado</label><input id="f-pm" type="number" step="0.05"></div>
+        <div class="field"><label>Perfil agressivo</label><input id="f-pa" type="number" step="0.05"></div>
+      </div>
+      <div class="sub" id="premAno"></div>
+    </div>
+    <div class="pagenav"><button class="btn btn-tertiary" data-ir="apresentacao">Próximo: Apresentação →</button></div>
+  </section>
+
+  <section class="page" data-page="apresentacao">
+    <div class="kicker">Com o cliente · passo 8 de 8</div>
+    <h2>Apresentação</h2>
+    <div class="hint">O cliente vê o plano como um livro, em capítulos. Confira o que cada página vai mostrar, coloque o vídeo de cada uma e abra a área do cliente.</div>
+    <div id="apresC"></div>
+    <div class="note" id="notaArmazem">O plano é gravado e chega sozinho à área do cliente. O que ele propuser aparece em Propostas do cliente.</div>
+  </section>
+
   <section class="page" data-page="propostas">
-    <h2><svg viewBox="0 0 24 24"><path d="M22 12h-6l-2 3h-4l-2-3H2M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/></svg>Propostas do cliente</h2>
-    <div class="hint">Na área dele, o cliente pode propor outros valores no fluxo de caixa, linhas novas ou a remoção de uma linha, outro custo ou outra data para um objetivo, e outra idade para parar de trabalhar. Nada disso muda o plano: cada alteração só entra quando você aprovar. Aprove ou recuse uma a uma e conclua a resposta; o cliente vê o resultado na tela dele.</div>
+    <div class="kicker">Com o cliente</div>
+    <h2>Propostas do cliente</h2>
+    <div class="hint">O que o cliente propôs na área dele. Nada muda no plano até você aprovar: aprove ou recuse uma a uma e conclua a resposta.</div>
     <div id="propC"></div>
   </section>
 </main>
@@ -1156,6 +1278,10 @@ const ENGINE = (() => {
   // O detalhe do patrimônio fica em plan.patrimonio: financeiro por instituição, participações por empresa e bens com
   // valor de mercado e saldo devedor. Quando uma lista existe, ela é a fonte do total que o resto do plano usa:
   // initialWealth (financeiro), partValue (participações) e initialBens (valor de mercado dos bens).
+  // Toda dívida (o financiamento de um bem ou uma dívida avulsa, em patrimonio.dividas) tem o mesmo detalhe:
+  //   saldoDevedor, credito (valor contratado), parcelas (número contratado), parcela (valor da parcela atual),
+  //   juros (% ao ano contratado), situacao ('em_dia' | 'inadimplente').
+  // Um bem pode gerar renda passiva: bem.renda é o id da linha de entrada do Fluxo de caixa (um aluguel, por exemplo).
   const somaDe = (l, k) => (l || []).reduce((a, x) => a + (+x[k] || 0), 0);
   function sincronizaPatrimonio(plan) {
     const P = plan && plan.patrimonio; if (!P) return plan;
@@ -1180,7 +1306,7 @@ const ENGINE = (() => {
     const P = plan.patrimonio || {}, idade = +plan.age > 0 ? +plan.age : CURRENT_AGE;
     const fin = Array.isArray(P.financeiro) ? somaDe(P.financeiro, 'valor') : +plan.initialWealth || 0;
     const part = Array.isArray(P.participacoes) ? somaDe(P.participacoes, 'valor') : +plan.partValue || 0;
-    const bens = Array.isArray(P.bens) ? somaDe(P.bens, 'mercado') : +plan.initialBens || 0, dividas = somaDe(P.bens, 'saldoDevedor');
+    const bens = Array.isArray(P.bens) ? somaDe(P.bens, 'mercado') : +plan.initialBens || 0, dividas = somaDe(P.bens, 'saldoDevedor') + somaDe(P.dividas, 'saldoDevedor');
     const out = { idade, fin, part, bens, dividas, total: fin + part + bens - dividas, liquidezIdeal: num(P.liquidezIdeal), padrao: padraoDeVida(plan), fase: null };
     const comecou = num(P.comecou), alvoPlano = num(plan.retireAge), alvo = alvoPlano != null ? alvoPlano : IDADE_ALVO_PADRAO;
     Object.assign(out, { comecou, alvo, alvoDoPlano: alvoPlano != null });
@@ -1199,7 +1325,8 @@ const ENGINE = (() => {
     financeiro: [{ nome: 'Nubank', valor: 60000 }, { nome: 'Itaú', valor: 150000 }, { nome: 'BTG Pactual', valor: 650000 }],
     participacoes: [{ nome: 'Papelaria Canetinha', valor: 50000 }],
     bens: [{ nome: 'Hyundai Creta', mercado: 160000, saldoDevedor: 0 }, { nome: 'Terreno em São Sebastião', mercado: 100000, saldoDevedor: 0 },
-      { nome: 'Apartamento em Mogi (moradia)', mercado: 950000, saldoDevedor: 368000 }],
+      { nome: 'Apartamento em Mogi (moradia)', mercado: 950000, saldoDevedor: 368000, credito: 560000, parcelas: 360, parcela: 4870, juros: 9.5, situacao: 'em_dia' }],
+    dividas: [],
   };
   const ORIGENS_OUT = ORIGENS;
   const config = () => ({ age: CURRENT_AGE, retireAge: RETIRE_AGE, initialBens: INITIAL_BENS, desired: DESIRED, desiredSteps: DESIRED_STEPS, lifeExp: LIFE_EXP, salary: SALARY, salaryGrowth: SAL_G, partValue: PART_VALUE, initialWealth: INITIAL_WEALTH, capacityOverride: CAP_OVERRIDE, rate: R_M, profiles: PROFILES, incomes: INCOMES, expenses: EXPENSES, objectives: OBJ, passive: PASSIVE });
@@ -1491,7 +1618,7 @@ function renderAll() {
   // o campo em edição volta com o foco e com o texto exatamente como estava sendo digitado
   const foco = document.activeElement, fg = foco && foco.dataset ? foco.dataset.g : null, fk = foco && foco.dataset ? foco.dataset.k : null;
   const oid = fg != null && plano.objectives[+fg] ? plano.objectives[+fg].id : null, txt = foco ? foco.value : null;
-  recompute(); renderTop(); renderFluxo(); renderGoals(); renderLiberdade(); renderPatrimonioC(); renderRiscosC(); renderPropostas(); save();
+  recompute(); renderTop(); renderFluxo(); renderGoals(); renderLiberdade(); renderClienteC(); renderPatrimonioC(); renderRiscosC(); renderPremissas(); renderApresentacaoC(); renderPropostas(); save();
   if (oid && fk) {
     const i = plano.objectives.findIndex(o => o.id === oid), el = document.querySelector('[data-g="' + i + '"][data-k="' + fk + '"]');
     if (el) { el.focus(); if (el.type === 'text' || el.tagName === 'TEXTAREA') { el.value = txt; try { el.setSelectionRange(txt.length, txt.length); } catch (e) { } } }
@@ -1501,7 +1628,6 @@ function renderAll() {
 
 function renderTop() {
   const nome = plano.name || 'Novo cliente';
-  document.getElementById('hdName').textContent = nome;
   document.getElementById('sbName').textContent = nome;
   document.getElementById('sbMeta').textContent = (plano.age ? plano.age + ' anos · ' : 'idade não informada · ') + plano.objectives.length + ' objetivo' + (plano.objectives.length === 1 ? '' : 's');
   const cap = capacity(), pl = plannedTotal(), livre = cap - pl, informada = plano.capacityOverride != null && plano.capacityOverride !== '';
@@ -1519,7 +1645,7 @@ function renderTop() {
   const feito = { cliente: !!(plano.name && plano.age && plano.desired > 0),
     patrimonio: !!(vistas.patrimonio || plano.initialWealth > 0 || plano.initialBens > 0 || plano.partValue > 0),
     objetivos: !!(vistas.objetivos || (plano.objectives.length && plano.objectives.every(o => o.name && o.amount > 0))),
-    fluxo: temFluxo(), liberdade: !!vistas.liberdade, riscos: !!vistas.riscos };
+    fluxo: temFluxo(), liberdade: !!vistas.liberdade, riscos: !!vistas.riscos, premissas: !!vistas.premissas, apresentacao: !!vistas.apresentacao };
   document.querySelectorAll('#nav a').forEach(a => a.classList.toggle('feito', !!feito[a.dataset.nav]));
   // "Próximo" leva à página seguinte, na ordem da barra lateral
   document.querySelectorAll('.pagenav [data-ir]').forEach(b => {
@@ -2283,8 +2409,13 @@ document.addEventListener('click', e => {
   const d = e.target.closest('[data-pas-det]'); if (d) { abrirGaveta('pas', +d.dataset.pasDet); return; }
   const r = e.target.closest('[data-del-pas]'); if (r) armar(r, () => plano.passive.splice(+r.dataset.delPas, 1));
 });
+const MODO_EXP = {
+  perp: '<b>Perpetuidade:</b> saca só o rendimento. O patrimônio fica estável e o padrão de vida acompanha o que ele rende.',
+  cons: '<b>Consumo:</b> saca o que esgota o patrimônio na expectativa de vida.',
+  desej: '<b>Renda desejada:</b> saca só o que falta para a renda desejada. O patrimônio pode acabar antes da expectativa de vida, ou sobrar.' };
 function renderLiberdade() {
   const tb = document.getElementById('tbPas'), f = ffInfo();
+  document.getElementById('modoExp').innerHTML = MODO_EXP[['perp', 'cons', 'desej'].includes(plano.mode) ? plano.mode : 'perp'] + ' A visão do cliente abre nesta opção.';
   document.getElementById('ffProg').innerHTML = htmlProgramacao();
   tb.innerHTML = plano.passive.length ? plano.passive.map(htmlLinhaRenda).join('')
     : '<tr><td colspan="6" class="txt" style="color:#8d8d8d;font-weight:500;padding:16px 10px">Nenhuma renda de aposentadoria ainda. Cadastre o INSS e as previdências em <b>+ Adicionar renda</b>: nome, valor, quando começa e quanto dura.</td></tr>';
@@ -2886,46 +3017,131 @@ document.addEventListener('click', e => {
 // pré-visualização usa o Font Awesome quando o consultor cola uma classe
 (function () { const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css'; document.head.appendChild(l); })();
 
-// ===================== PATRIMÔNIO DE HOJE E FASE DA VIDA =====================
-// O patrimônio detalhado (plano.patrimonio): financeiro por instituição, participações por empresa e bens com valor de
-// mercado e saldo devedor. As listas somam nos totais do plano (ENGINE.sincronizaPatrimonio). Com a idade em que o
-// cliente começou a trabalhar e a liquidez ideal, a página Patrimônio do cliente mostra a fase da vida financeira e o
-// patrimônio mínimo, esperado e máximo para a idade (ENGINE.faseDaVida).
+// ===================== CLIENTE: DEPENDENTES FINANCEIROS =====================
+// Quem depende do cliente é dado do cliente, e por isso é perguntado aqui, logo no começo. A lista fica em
+// plano.riscos.dependentes (o caminho de antes) e decide a reserva de emergência e o seguro de vida.
+function renderClienteC() {
+  const el = document.getElementById('depC'); if (!el) return;
+  const R = plano.riscos = plano.riscos || {}, deps = R.dependentes, tem = Array.isArray(deps) ? (deps.length ? 'sim' : 'nao') : '';
+  const ate = d => { const lim = d.relacao === 'filho' ? ENGINE.SEGURO.independencia : ENGINE.SEGURO.vidaAdulto, m = ENGINE.mesesAteIdade(d.nasc, lim);
+    return m == null ? 'informe o nascimento' : m <= 0 ? 'já não depende (' + lim + ' anos)' : 'até os ' + lim + ' anos, daqui a ' + (m / 12).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + ' anos'; };
+  el.innerHTML = `<div class="dep-sn">Alguém depende financeiramente do cliente?
+      <label class="rad"><input type="radio" name="depsn" value="sim"${tem === 'sim' ? ' checked' : ''}> Sim</label><label class="rad"><input type="radio" name="depsn" value="nao"${tem === 'nao' ? ' checked' : ''}> Não</label></div>
+    ${tem === 'sim' ? `<table class="rkc-tab" style="min-width:0"><thead><tr><th>Nome</th><th>Relação</th><th>Nascimento (mês e ano)</th><th>Depende</th><th></th></tr></thead><tbody>${deps.map((d, i) => `<tr><td>${campoR(`riscos.dependentes.${i}.nome`, 'texto', ' placeholder="nome"')}</td><td>${selR(`riscos.dependentes.${i}.relacao`, ENGINE.RELACOES)}</td><td>${campoR(`riscos.dependentes.${i}.nasc`, 'texto', ' type="month"')}</td><td class="muted">${ate(d)}</td><td><button class="btn btn-icon" data-rrm="riscos.dependentes.${i}" title="Remover">×</button></td></tr>`).join('')}</tbody></table>
+    <button class="btn btn-step" data-radd="riscos.dependentes">+ dependente</button>` : ''}
+    <details class="ajuda"><summary>Até quando alguém depende?</summary>Filhos e crianças dependem até os 25 anos; cônjuge, pais e outros adultos, até os 95. A lista entra na reserva de emergência (com dependentes, mais 3 meses) e no prazo do seguro de vida, na Gestão de riscos.</details>`;
+}
+document.addEventListener('change', e => {
+  const t = e.target; if (t.name !== 'depsn') return;
+  const R = plano.riscos = plano.riscos || {}, deps = Array.isArray(R.dependentes) ? R.dependentes : [];
+  if (t.value === 'sim') R.dependentes = deps.length ? deps : [{ nome: '', relacao: 'filho', nasc: '' }];
+  else if (!deps.some(d => d.nome || d.nasc) || confirm('Remover os ' + deps.length + ' dependentes da lista?')) R.dependentes = [];
+  renderAll();
+});
+
+// ===================== PATRIMÔNIO =====================
+// O patrimônio detalhado (plano.patrimonio): financeiro por instituição, participações por empresa, bens com valor de
+// mercado e, quando financiados, o detalhe do financiamento, e as dívidas avulsas. As listas somam nos totais do
+// plano (ENGINE.sincronizaPatrimonio). Um bem pode gerar renda passiva: ele aponta para uma linha de entrada do Fluxo.
+const SITUACOES = [['', 'situação…'], ['em_dia', 'Em dia'], ['inadimplente', 'Inadimplente']];
+function resumoPatrimonioC() {
+  const f = ENGINE.faseDaVida(plano), t = (n, v, cor, cls) => `<div class="pc-tile ${cls || ''}"><span>${cor ? `<i style="background:${cor}"></i>` : ''}${n}</span><b>${v}</b></div>`;
+  return t('Mercado financeiro', fmt(f.fin), '#2E9E5B') + t('Participações', fmt(f.part), '#D9952A') + t('Bens', fmt(f.bens), '#3B6FCB') + t('Dívidas', f.dividas ? '− ' + fmt(f.dividas) : fmt(0), '#D64545') + t('Patrimônio total', fmt(f.total), '', 'total');
+}
+// o detalhe de uma dívida: o mesmo para o financiamento de um bem e para uma dívida avulsa
+function camposDivida(c, d, titulo) {
+  const st = { em_dia: '<span class="pill-st ok">em dia</span>', inadimplente: '<span class="pill-st critico">inadimplente</span>' }[d.situacao] || '';
+  const aviso = +d.credito > 0 && +d.saldoDevedor > +d.credito ? '<div class="sub" style="margin:8px 0 0;color:var(--nl-orange-600)">O saldo devedor está maior que o crédito contratado: confira os valores.</div>' : '';
+  const cp = (n, h) => `<div class="field"><label>${n}</label>${h}</div>`;
+  return `<div class="pc-fin"><h4>${titulo}${st}</h4><div class="grid">
+    ${cp('Crédito contratado', campoR(c + 'credito', 'reais'))}${cp('Parcelas contratadas', campoR(c + 'parcelas', 'num', ' min="1" step="1" placeholder="ex.: 360"'))}
+    ${cp('Parcela atual (por mês)', campoR(c + 'parcela', 'reais'))}${cp('Juros contratados (% ao ano)', campoR(c + 'juros', 'num', ' min="0" step="0.01" placeholder="ex.: 9,5"'))}
+    ${cp('Situação', selR(c + 'situacao', SITUACOES))}</div>${aviso}</div>`;
+}
+const passivasDoFluxo = () => plano.incomes.filter(it => !ENGINE.ativo(it));
+const mensalDe = it => ENGINE.mensalizado(Object.assign({}, it, { steps: (it.steps || []).slice().sort((a, b) => a.from - b.from) }), 0);
+function rendaDoBemC(b, i) {
+  const ps = passivasDoFluxo(), ligada = ps.find(it => it.id === b.renda);
+  return `<div class="pc-renda">Gera renda passiva? <select data-bem-renda="${i}"><option value="">Não gera renda</option>
+    ${ps.map(it => `<option value="${esc(it.id)}"${ligada === it ? ' selected' : ''}>${esc(it.label || 'Renda sem nome')} · ${fmt(mensalDe(it))}/mês</option>`).join('')}
+    <option value="__novo">+ Cadastrar a renda no Fluxo de caixa…</option></select>
+    ${ligada ? `<span><b>${fmt(mensalDe(ligada))}/mês</b>, da linha "${esc(ligada.label || 'sem nome')}" do Fluxo de caixa</span>` : ''}</div>`;
+}
 function renderPatrimonioC() {
   const el = document.getElementById('patrC'); if (!el) return;
+  const D = plano.patrimonio = plano.patrimonio || {};
   // plano antigo, só com os totais: cada total vira a primeira linha da sua lista
-  if (!plano.patrimonio) plano.patrimonio = { comecou: null, liquidezIdeal: null,
-    financeiro: plano.initialWealth ? [{ nome: '', valor: +plano.initialWealth }] : [], participacoes: plano.partValue ? [{ nome: '', valor: +plano.partValue }] : [],
-    bens: plano.initialBens ? [{ nome: '', mercado: +plano.initialBens, saldoDevedor: 0 }] : [] };
-  const D = plano.patrimonio, f = ENGINE.faseDaVida(plano), rm = c => `<td><button class="btn btn-icon" data-rrm="${c}" title="Remover">×</button></td>`;
-  const lista = (c, cab, its, colunas, total) => `<table class="rkc-tab" style="min-width:0"><thead><tr>${cab.map(h => `<th>${h}</th>`).join('')}<th></th></tr></thead><tbody>
-    ${its.map((x, i) => `<tr>${colunas.map(([k, t, ph]) => `<td>${campoR(`${c}.${i}.${k}`, t, ph ? ` placeholder="${ph}"` : '')}</td>`).join('')}${rm(`${c}.${i}`)}</tr>`).join('')}
-    <tr class="total"><td>Total</td>${total.map(v => `<td>${fmt(v)}</td>`).join('')}<td></td></tr></tbody></table>`;
-  el.innerHTML = `<div class="bloco"><h3>Patrimônio de hoje</h3>
-    <div class="hint" style="margin-bottom:10px">Cada lista soma no plano. O patrimônio financeiro é o ponto de partida do gráfico e o que paga a renda da Liberdade Financeira; bens (pelo valor de mercado) e participações contam no patrimônio total, mas não pagam a renda desejada (um aluguel recebido entra como renda passiva no Fluxo de caixa). O saldo devedor dos bens desconta no patrimônio total que o cliente vê.</div>
-    <div class="grid g2" style="align-items:start">
-      <div><div class="pt-tit">Patrimônio financeiro, por instituição</div>${lista('patrimonio.financeiro', ['Instituição', 'Valor'], D.financeiro || [], [['nome', 'texto', 'ex.: Itaú'], ['valor', 'reais']], [f.fin])}<button class="btn btn-step" data-radd="patrimonio.financeiro">+ instituição</button></div>
-      <div><div class="pt-tit">Participações societárias, por empresa</div>${lista('patrimonio.participacoes', ['Empresa', 'Valor da parte do cliente'], D.participacoes || [], [['nome', 'texto', 'nome da empresa'], ['valor', 'reais']], [f.part])}<button class="btn btn-step" data-radd="patrimonio.participacoes">+ empresa</button></div>
+  if (!Array.isArray(D.financeiro)) D.financeiro = plano.initialWealth ? [{ nome: '', valor: +plano.initialWealth }] : [];
+  if (!Array.isArray(D.participacoes)) D.participacoes = plano.partValue ? [{ nome: '', valor: +plano.partValue }] : [];
+  if (!Array.isArray(D.bens)) D.bens = plano.initialBens ? [{ nome: '', mercado: +plano.initialBens, saldoDevedor: 0 }] : [];
+  if (!Array.isArray(D.dividas)) D.dividas = [];
+  const f = ENGINE.faseDaVida(plano), rm = c => `<td><button class="btn btn-icon" data-rrm="${c}" title="Remover">×</button></td>`;
+  const tabela = (c, cab, its, col, vazio) => its.length ? `<table class="rkc-tab" style="min-width:0"><thead><tr><th>${cab[0]}</th><th>${cab[1]}</th><th></th></tr></thead><tbody>
+    ${its.map((x, i) => `<tr><td>${campoR(`${c}.${i}.nome`, 'texto', ` placeholder="${col}"`)}</td><td>${campoR(`${c}.${i}.valor`, 'reais')}</td>${rm(`${c}.${i}`)}</tr>`).join('')}</tbody></table>` : `<div class="pc-vazio">${vazio}</div>`;
+  const bem = (b, i) => { const c = `patrimonio.bens.${i}.`, deve = +b.saldoDevedor > 0;
+    return `<div class="pc-item${deve && b.situacao === 'inadimplente' ? ' inad' : ''}"><div class="pc-linha">
+      <div class="field"><label>Bem</label>${campoR(c + 'nome', 'texto', ' placeholder="ex.: apartamento onde mora"')}</div>
+      <div class="field"><label>Valor de mercado hoje</label>${campoR(c + 'mercado', 'reais')}</div>
+      <div class="field"><label>Saldo devedor</label>${campoR(c + 'saldoDevedor', 'reais0', ' placeholder="quitado"')}</div>
+      <button class="btn btn-icon" data-rrm="patrimonio.bens.${i}" title="Remover">×</button></div>
+      ${deve ? camposDivida(c, b, 'Financiamento') : ''}${rendaDoBemC(b, i)}</div>`; };
+  const divida = (d, i) => { const c = `patrimonio.dividas.${i}.`;
+    return `<div class="pc-item${d.situacao === 'inadimplente' ? ' inad' : ''}"><div class="pc-linha dois">
+      <div class="field"><label>Dívida</label>${campoR(c + 'nome', 'texto', ' placeholder="ex.: empréstimo pessoal, consignado"')}</div>
+      <div class="field"><label>Saldo devedor</label>${campoR(c + 'saldoDevedor', 'reais')}</div>
+      <button class="btn btn-icon" data-rrm="patrimonio.dividas.${i}" title="Remover">×</button></div>${camposDivida(c, d, 'Detalhe da dívida')}</div>`; };
+  const dBens = somaLista(D.bens, 'saldoDevedor'), dAvulsas = somaLista(D.dividas, 'saldoDevedor');
+  el.innerHTML = `<div class="pc-resumo" id="ptcResumo">${resumoPatrimonioC()}</div>
+    <div class="pc-dois">
+      <div class="bloco"><h3>Mercado financeiro<span class="dir">${fmt(f.fin)}</span></h3><div class="sub">Investimentos, poupança e conta, por instituição. É o ponto de partida da evolução patrimonial e o que paga a renda da liberdade.</div>
+        ${tabela('patrimonio.financeiro', ['Instituição', 'Valor'], D.financeiro, 'ex.: Itaú', 'Nenhuma instituição ainda.')}<button class="btn btn-step" data-radd="patrimonio.financeiro">+ instituição</button>
+        <div class="grid g2" style="margin-top:14px"><div class="field"><label>Liquidez ideal ${tip('Quanto do patrimônio deveria estar no mercado financeiro, pela sua avaliação. O cliente vê o patrimônio financeiro comparado a este valor.')}</label>${campoR('patrimonio.liquidezIdeal', 'reais', ' placeholder="defina pela sua avaliação"')}</div>
+          <div class="field"><label>&nbsp;</label><div class="muted" style="padding-top:8px">${f.liquidezIdeal > 0 ? 'O financeiro é ' + Math.round(f.fin / f.liquidezIdeal * 100) + '% da liquidez ideal.' : ''}</div></div></div></div>
+      <div class="bloco"><h3>Participações societárias<span class="dir">${fmt(f.part)}</span></h3><div class="sub">A parte do cliente em cada empresa. Fica constante no tempo e não paga a renda desejada.</div>
+        ${tabela('patrimonio.participacoes', ['Empresa', 'Valor da parte do cliente'], D.participacoes, 'nome da empresa', 'Nenhuma participação.')}<button class="btn btn-step" data-radd="patrimonio.participacoes">+ empresa</button></div>
     </div>
-    <div class="pt-tit" style="margin-top:14px">Bens</div>${lista('patrimonio.bens', ['Bem', 'Valor de mercado hoje', 'Saldo devedor atual'], D.bens || [], [['nome', 'texto', 'ex.: apartamento onde mora'], ['mercado', 'reais'], ['saldoDevedor', 'reais']], [f.bens, f.dividas])}<button class="btn btn-step" data-radd="patrimonio.bens">+ bem</button></div>
-    <div class="bloco"><h3>Fase da vida e patrimônio ideal</h3><div class="grid g3">
-      <div class="field"><label>Idade em que começou a trabalhar</label>${campoR('patrimonio.comecou', 'num', ' min="10" max="70" placeholder="anos"')}</div>
-      <div class="field"><label>Liquidez ideal ${tip('Quanto do patrimônio deveria estar em dinheiro (no mercado financeiro). O cliente vê o patrimônio financeiro comparado a este valor.')}</label>${campoR('patrimonio.liquidezIdeal', 'reais')}</div>
-      <div class="field"><label>Vídeo da página (YouTube, Vimeo ou arquivo)</label>${campoR('videos.patrimonio', 'texto', ' placeholder="vazio: o espaço do vídeo fica reservado"')}</div></div>
-      <div class="rkc-calc" id="ptcResumo">${resumoPatrimonioC(f)}</div>
-      <div class="pc-acoes"><button class="btn btn-secondary" data-abrir-cliente>Ver na tela do cliente</button></div></div>`;
+    <div class="bloco"><h3>Imóveis e outros bens<span class="dir">${fmt(f.bens)} de mercado${dBens ? ' · ' + fmt(dBens) + ' financiados' : ''}</span></h3><div class="sub">Pelo valor de mercado de hoje. Um bem com saldo devedor pede o detalhe do financiamento; um bem que rende (um aluguel) aponta para a renda no Fluxo de caixa.</div>
+      <div class="pc-lista">${D.bens.map(bem).join('') || '<div class="pc-vazio">Nenhum bem ainda.</div>'}</div><button class="btn btn-step" data-radd="patrimonio.bens">+ bem</button></div>
+    <div class="bloco"><h3>Outras dívidas<span class="dir">${dAvulsas ? fmt(dAvulsas) : ''}</span></h3><div class="sub">Empréstimos e dívidas que não são o financiamento de um bem: pessoal, consignado, cheque especial, cartão parcelado.</div>
+      <div class="pc-lista">${D.dividas.map(divida).join('') || '<div class="pc-vazio">Nenhuma outra dívida.</div>'}</div><button class="btn btn-step" data-radd="patrimonio.dividas">+ dívida</button></div>
+    <div class="pc-acoes"><button class="btn btn-secondary" data-abrir-cliente data-fase="patrimonio">Ver na tela do cliente</button></div>`;
 }
-function resumoPatrimonioC(f) {
-  f = f || ENGINE.faseDaVida(plano);
-  const x = m => (m < 10 ? Math.round(m * 10) / 10 : Math.round(m)).toLocaleString('pt-BR') + '×', a = v => Math.round(v);
-  let h = `Patrimônio total ${fmt(f.total)} = financeiro ${fmt(f.fin)} + participações ${fmt(f.part)} + bens ${fmt(f.bens)} − dívidas ${fmt(f.dividas)}.`;
-  if (f.fase == null) return h + '<br>Informe a idade em que o cliente começou a trabalhar para calcular a fase da vida financeira.';
-  const fs = f.fases, fa = fs[f.fase];
-  h += `<br>Fases (de ${f.comecou} até ${f.alvo} anos${f.alvoDoPlano ? ', a idade para parar de trabalhar da página Cliente' : `: sem idade para parar de trabalhar na página Cliente, vale ${f.alvo}`}): ${fs.slice(1, 4).map(z => `${z.nome} ${a(z.de)} a ${a(z.ate)}`).join(' · ')} · Liberdade após ${f.alvo}.`;
-  h += `<br>Aos ${f.idade} anos: <b>${fa.nome}</b>${f.fase > 0 && f.fase < 4 ? ` (${Math.round(f.progresso * 100)}% da fase)` : ''}. Padrão de vida ${fmt(f.padrao)} (o custo de vida da reserva, em Gestão de riscos) × ${x(f.multMin)} a ${x(f.multMax)}: mínimo ${fmt(f.minimo)}, esperado ${fmt(f.esperado)} (${x(f.mult)}), máximo ${fmt(f.maximo)}.`;
-  if (f.liquidezIdeal > 0) h += `<br>Patrimônio financeiro = ${Math.round(f.fin / f.liquidezIdeal * 100)}% da liquidez ideal.`;
-  return h;
+const somaLista = (l, k) => (l || []).reduce((a, x) => a + (+x[k] || 0), 0);
+// renda passiva do bem: escolhe uma linha de entrada passiva do fluxo, ou cadastra uma nova (abre a gaveta)
+document.addEventListener('change', e => {
+  const t = e.target; if (!t.dataset || t.dataset.bemRenda == null) return;
+  const b = plano.patrimonio.bens[+t.dataset.bemRenda]; if (!b) return;
+  if (t.value !== '__novo') { if (t.value) b.renda = t.value; else delete b.renda; renderAll(); return; }
+  const it = { id: novoId('ent'), label: 'Aluguel' + (b.nome ? ': ' + b.nome : ''), kind: 'passiva', origin: 'Aluguéis', gross: 0, taxable: true, frequency: 'mensal', days: [5], description: '', steps: [{ from: 0, value: 0 }] };
+  plano.incomes.push(it); b.renda = it.id; fx.aberto.add('in');
+  abrirGaveta('inc', it.id, true);
+});
+
+// ===================== PREMISSAS =====================
+const aoAno = m => ((Math.pow(1 + m, 12) - 1) * 100).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + '% ao ano';
+function renderPremissas() {
+  const el = document.getElementById('premAno'); if (!el) return;
+  el.style.margin = '14px 0 0';
+  el.textContent = 'Equivalem a ' + [['reserva', plano.rate], ['conservador', plano.profiles.conservador], ['moderado', plano.profiles.moderado], ['agressivo', plano.profiles.agressivo]].map(([n, v]) => n + ' ' + aoAno(+v || 0)).join(' · ') + ', acima da inflação.';
 }
+
+// ===================== APRESENTAÇÃO =====================
+// As páginas que o cliente vê, na ordem da jornada dele, com o que cada uma vai mostrar, o vídeo e o atalho.
+function renderApresentacaoC() {
+  const el = document.getElementById('apresC'); if (!el) return;
+  const f = ENGINE.faseDaVida(plano), a = ENGINE.avaliaRiscos(plano), ff = SIM && SIM.ff;
+  const pgs = [
+    ['patrimonio', 4, 'Fase da vida e patrimônio', f.fases ? 'Fase: ' + f.fases[f.fase].nome.toLowerCase() + ' · patrimônio total ' + fmt(f.total) : null, 'Falta a idade em que o cliente começou a trabalhar (página Cliente).', 'cliente'],
+    ['riscos', 5, 'Gestão de riscos', a.avaliados ? a.avaliados + ' de 8 ameaças avaliadas · nota da família ' + Math.round((a.nota || 0) * 100) + '%' : null, 'Nenhuma ameaça avaliada ainda.', 'riscos'],
+    ['evolucao', 6, 'Evolução patrimonial', ff && temFluxo() && plano.desired > 0 ? 'Liberdade financeira aos ' + Math.floor(ff.age) + ' anos' + (ff.forced ? ' (renda parcial)' : '') : null, 'Faltam o fluxo de caixa e a renda desejada.', 'fluxo']];
+  el.innerHTML = `<div class="bloco"><h3>As páginas do cliente</h3><div class="sub">Os capítulos 1 a 3 ainda vão ser construídos. Sem vídeo, o espaço dele fica reservado na página.</div>
+    ${pgs.map(([id, cap, nome, ok, falta, ir]) => `<div class="ap-pg"><span class="ap-num">${cap}</span><div><b>${nome}</b>${ok ? `<small>${ok}</small>` : `<small class="falta">${falta} <button class="link" data-ir="${ir}">Resolver</button></small>`}</div>
+      <div class="field" style="margin:0">${campoR('videos.' + id, 'texto', ' placeholder="link do vídeo (YouTube, Vimeo ou arquivo)"')}</div>
+      <button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="${id}">Abrir</button></div>`).join('')}</div>
+    <div class="bloco"><h3>Abrir a área do cliente</h3><div class="ap-bts"><button class="btn btn-primary" data-abrir-cliente data-fase="patrimonio">Apresentar desde o começo</button><a class="btn btn-secondary" href="evolucao-patrimonial.html?fase=patrimonio" target="_blank" style="text-decoration:none" data-como-cliente>Ver como o cliente vê ↗</a></div>
+      <div class="sub" style="margin:12px 0 0">Apresentar abre a área do cliente sem as ferramentas de proposta. "Ver como o cliente vê" abre exatamente o que o cliente tem.</div></div>`;
+}
+document.addEventListener('click', e => { if (e.target.closest('[data-como-cliente]')) gravarNuvem(true); });
 
 // ===================== GESTÃO DE RISCOS =====================
 // O consultor registra a situação de cada uma das oito ameaças em plano.riscos; o motor (avaliaRiscos) dá o status de
@@ -2933,8 +3149,8 @@ function resumoPatrimonioC(f) {
 const NOME_STC = { ok: 'Protegido', atencao: 'Atenção', critico: 'Crítico', pendente: 'Não avaliado' }, COR_STC = { ok: '#2E9E5B', atencao: '#FA7A35', critico: '#D64545', pendente: '#cfcbc3' };
 const lerR = c => ENGINE.lerCaminho(plano, c);
 function campoR(c, tipo, extra) {
-  const v = lerR(c), val = v == null ? '' : tipo === 'reais' ? money(v) : tipo === 'lista' ? [].concat(v).join(', ') : v;
-  return `<input data-r="${c}" data-rt="${tipo}"${tipo === 'reais' ? ' data-money-opt inputmode="decimal"' : tipo === 'num' ? ' type="number"' : ''} value="${esc(val)}"${extra || ''}>`;
+  const v = lerR(c), val = v == null || (tipo === 'reais0' && !+v) ? '' : tipo === 'reais' || tipo === 'reais0' ? money(v) : tipo === 'lista' ? [].concat(v).join(', ') : v;
+  return `<input data-r="${c}" data-rt="${tipo}"${tipo === 'reais' || tipo === 'reais0' ? ' data-money-opt inputmode="decimal"' : tipo === 'num' ? ' type="number"' : ''} value="${esc(val)}"${extra || ''}>`;
 }
 function selR(c, ops, tipo) { const v = lerR(c), atual = v == null ? '' : tipo === 'bool' ? (v ? 'sim' : 'nao') : String(v); return `<select data-r="${c}" data-rt="${tipo || 'texto'}">${ops.map(([k, n]) => `<option value="${esc(k)}"${String(k) === atual ? ' selected' : ''}>${esc(n)}</option>`).join('')}</select>`; }
 const stC = st => `<span class="st-c ${st}">${NOME_STC[st]}</span>`;
@@ -2944,15 +3160,11 @@ function renderRiscosC() {
   const a = ENGINE.avaliaRiscos(plano), it = a.itens, R = plano.riscos, f = n => fmt(n || 0);
   const vazio = !Object.keys(R).some(k => k !== 'pesos');
   const blocos = [];
-  blocos.push(`<div class="bloco"><div class="rkc-resumo" id="rkcResumo">${resumoRiscosC(a)}</div>
-    ${vazio ? `<div class="note">Nada registrado ainda. <button class="btn btn-tertiary btn-small" data-rexemplo>Usar o exemplo como ponto de partida</button></div>` : ''}
-    <div class="pc-acoes"><button class="btn btn-secondary" data-abrir-cliente>Ver na tela do cliente</button></div></div>`);
-  blocos.push(`<div class="bloco"><h3>Vídeos para o cliente</h3><div class="grid g2">
-    <div class="field"><label>Fase Gestão de riscos (link do YouTube, do Vimeo ou do arquivo)</label>${campoR('videos.riscos', 'texto', ' placeholder="vazio: o espaço do vídeo fica reservado"')}</div>
-    <div class="field"><label>Fase Evolução patrimonial</label>${campoR('videos.evolucao', 'texto', ' placeholder="vazio: o espaço do vídeo fica reservado"')}</div></div></div>`);
+  blocos.push(`<div class="bloco"><div id="rkcResumo">${resumoRiscosC(a)}</div>
+    ${vazio ? `<div class="note">Nada registrado ainda. <button class="btn btn-tertiary btn-small" data-rexemplo>Usar o exemplo como ponto de partida</button></div>` : ''}</div>`);
   const r = it.reserva, sn = [['', 'não informado'], ['sim', 'Sim'], ['nao', 'Não']];
   blocos.push(`<div class="bloco" id="rkc-reserva"><h3>1. Desemprego e emergência${stC(r.status)}</h3><div class="grid g3">
-    <div class="field"><label>Dependentes financeiros (d = 3)</label>${Array.isArray(R.dependentes) ? `<input disabled value="${R.dependentes.length ? 'Sim: ' + R.dependentes.length + ' na lista do item 8' : 'Não: lista do item 8 vazia'}">` : selR('riscos.reserva.dependentes', sn, 'bool')}</div>
+    <div class="field"><label>Dependentes financeiros (d = 3)</label>${Array.isArray(R.dependentes) ? `<input disabled value="${R.dependentes.length ? 'Sim: ' + R.dependentes.length + ', na página Cliente' : 'Não, pela página Cliente'}">` : selR('riscos.reserva.dependentes', sn, 'bool')}</div>
     <div class="field"><label>Natureza do trabalho (t)</label>${selR('riscos.reserva.natureza', [['', 'escolha']].concat(ENGINE.NATUREZAS.map(([n, t]) => [n, n + ' · ' + t])))}</div>
     <div class="field"><label>Custo de vida mensal</label>${campoR('riscos.reserva.custoVida', 'reais', ` placeholder="vazio: ${f(ENGINE.custoDeVida(plano))} do fluxo"`)}</div>
     <div class="field"><label>Reserva atual</label>${campoR('riscos.reserva.atual', 'reais', ` placeholder="vazio: D+0 da liquidez"`)}</div>
@@ -2987,11 +3199,16 @@ function renderRiscosC() {
     <button class="btn btn-step" data-radd="riscos.bens.itens">+ bem</button><div class="rkc-calc">Em dia se todos estão protegidos; atenção se algum tem proteção insuficiente; crítico se algum está sem proteção.</div></div>`);
   blocos.push(...blocosSeguro(it, R));
   const P = Object.assign({}, a.pesos);
-  blocos.push(`<div class="bloco"><h3>Pesos na nota da família</h3><div class="hint" style="margin-bottom:10px">Quanto cada ameaça pesa na nota. Em dia vale 1, atenção 0,5 e crítico 0; as não avaliadas ficam de fora.</div>
-    <div class="rkc-pesos">${ENGINE.RISCOS.map(x => `<div class="field"><label>${x.nome}</label>${campoR('riscos.pesos.' + x.id, 'num', ' min="0" step="0.5"')}</div>`).join('')}</div></div>`);
+  // uma ameaça por vez: o resumo, a ameaça escolhida (com anterior e próxima) e os pesos, recolhidos
+  const ids = ENGINE.RISCOS.map(x => x.id), k = Math.max(0, ids.indexOf(abaRiscoC)), ant = ENGINE.RISCOS[k - 1], prox = ENGINE.RISCOS[k + 1];
+  const nav = `<div class="rkc-nav">${ant ? `<button class="btn btn-secondary btn-small" data-rir="${ant.id}">‹ ${ant.nome}</button>` : '<span></span>'}${prox ? `<button class="btn btn-tertiary btn-small" data-rir="${prox.id}">${prox.nome} ›</button>` : '<span></span>'}</div>`;
+  const atual = blocos.find(b => b.includes('id="rkc-' + ids[k] + '"')).replace(/<\/div>\s*$/, nav + '</div>');
   if (!R.pesos) R.pesos = P;
-  el.innerHTML = blocos.join('');
+  el.innerHTML = blocos[0] + atual + `<details class="bloco pesos ajuda"${pesosAbertos ? ' open' : ''}><summary>Pesos de cada ameaça na nota da família</summary><div class="sub" style="margin:4px 0 12px">Em dia vale 1, atenção 0,5 e crítico 0; as não avaliadas ficam de fora. Todos valem 1 por padrão.</div>
+    <div class="rkc-pesos">${ENGINE.RISCOS.map(x => `<div class="field"><label>${x.nome}</label>${campoR('riscos.pesos.' + x.id, 'num', ' min="0" step="0.5"')}</div>`).join('')}</div></details>`;
 }
+let abaRiscoC = 'reserva', pesosAbertos = false;
+document.addEventListener('toggle', e => { if (e.target.classList && e.target.classList.contains('pesos')) pesosAbertos = e.target.open; }, true);
 const novoGerador = (pessoa, pct) => ({ nome: '', pessoa, nasc: '', participacao: pct, passivaPct: 100, patrimonioPct: pct, inssInvalidez: 0, inssMorte: 0, coberturaInvalidez: 0, coberturaVida: 0 });
 // casal: titular e cônjuge, metade cada um, para o consultor ajustar
 const novoSeguro = () => ({ renda: null, passiva: null, sucessaoPct: 10, geradores: conjuge() ? [novoGerador('titular', 50), novoGerador('conjuge', 50)] : [novoGerador('titular', 100)] });
@@ -3019,8 +3236,7 @@ function blocosSeguro(it, R) {
     ${G.length && Math.abs(soma - 100) > 0.05 ? `<div class="note">As participações na renda somam ${soma.toLocaleString('pt-BR')}%, e não 100%.</div>` : ''}
     <div class="rkc-calc">${memoria('acidentes')}<br>Prazo até os 95 anos da pessoa, desconto de 0,4% ao mês. Em dia se não precisa ou tem o necessário; atenção se tem menos; crítico se não tem. A ameaça fica com o pior status entre as pessoas.</div></div>`;
   const b8 = `<div class="bloco" id="rkc-familia"><h3>8. Proteção da família (seguro de vida)${stC(it.familia.status)}</h3>
-    <table class="rkc-tab" style="min-width:0"><thead><tr><th>Dependente financeiro</th><th>Relação</th><th>Nascimento (mês e ano)</th><th>Depende até</th><th></th></tr></thead><tbody>${(R.dependentes || []).map((d, i) => { const x = s.deps[i] || {}; return `<tr><td>${campoR(`riscos.dependentes.${i}.nome`, 'texto', ' placeholder="nome"')}</td><td>${selR(`riscos.dependentes.${i}.relacao`, ENGINE.RELACOES)}</td><td>${campoR(`riscos.dependentes.${i}.nasc`, 'texto', ' type="month"')}</td><td class="muted">${x.meses == null ? '—' : x.limite + ' anos' + (x.meses ? ', daqui a ' + (x.meses / 12).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + ' anos' : ' (já não depende)')}</td><td><button class="btn btn-icon" data-rrm="riscos.dependentes.${i}" title="Remover">×</button></td></tr>`; }).join('')}</tbody></table>
-    <button class="btn btn-step" data-radd="riscos.dependentes">+ dependente</button>
+    <div class="rkc-calc" style="margin:0 0 4px">Dependentes financeiros, da página Cliente: ${s.deps.length ? s.deps.map(d => `<b>${esc(d.nome || 'sem nome')}</b>${d.meses == null ? ' (sem nascimento)' : d.meses ? ', depende até os ' + d.limite + ' anos (daqui a ' + (d.meses / 12).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + ')' : ', já não depende'}`).join('; ') : 'nenhum'}. <button class="link" data-ir="cliente">Editar na página Cliente</button></div>
     <div class="grid g3" style="margin-top:12px"><div class="field"><label>Sucessão (% do patrimônio, de 5 a 20)</label>${campoR('riscos.seguro.sucessaoPct', 'num', ' min="5" max="20" step="0.5" placeholder="10"')}</div></div>
     <table class="rkc-tab" style="min-width:0;margin-top:6px"><thead><tr><th>Gerador de renda</th><th>Pensão do INSS por morte</th><th>Seguro de vida atual</th></tr></thead><tbody>${G.map((g, i) => `<tr><td>${esc(s.pessoas[i] ? s.pessoas[i].nome : '')}</td><td>${campoR(`riscos.seguro.geradores.${i}.inssMorte`, 'reais')}</td><td>${campoR(`riscos.seguro.geradores.${i}.coberturaVida`, 'reais')}</td></tr>`).join('')}</tbody></table>
     <div class="rkc-calc">${memoria('vida')}<br>Prazo até o último dependente deixar de depender (criança até os 25 anos, adulto até os 95). H = ${s.sucessaoPct.toLocaleString('pt-BR')}% × (financeiro + bens + participações) × a parte da pessoa no patrimônio.</div></div>`;
@@ -3028,13 +3244,14 @@ function blocosSeguro(it, R) {
 }
 function resumoRiscosC(a) {
   const nota = a.nota == null ? '—' : Math.round(a.nota * 100) + '%';
-  return `<div class="rkc-nota">${nota}<small>nota da família · ${a.avaliados} de 8 avaliados</small></div><div class="rkc-chips">${ENGINE.RISCOS.map(x => `<button class="rkc-chip" data-rir="${x.id}"><i style="background:${COR_STC[a.itens[x.id].status]}"></i>${x.nome}</button>`).join('')}</div>`;
+  return `<div class="rkc-topo"><div class="rkc-nota">${nota}<small>nota da família · ${a.avaliados} de 8 avaliados</small></div><button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="riscos" style="margin-left:auto">Ver na tela do cliente</button></div>
+    <div class="rkc-abas">${ENGINE.RISCOS.map((x, i) => { const st = a.itens[x.id].status; return `<button class="rkc-aba${x.id === abaRiscoC ? ' on' : ''}" data-rir="${x.id}"><i style="background:${COR_STC[st]}"></i><span>${i + 1}. ${x.nome}<small>${NOME_STC[st]}</small></span></button>`; }).join('')}</div>`;
 }
 function valorDoCampoR(t) {
   const tp = t.dataset.rt;
   if (tp === 'chk') return t.checked;
   if (tp === 'bool') return t.value === '' ? null : t.value === 'sim';
-  if (tp === 'reais') return t.value.replace(/\D/g, '') === '' ? null : unmoney(t.value);
+  if (tp === 'reais' || tp === 'reais0') return t.value.replace(/\D/g, '') === '' ? null : unmoney(t.value);
   if (tp === 'num') return t.value === '' ? null : +t.value;
   if (tp === 'lista') return t.value.split(',').map(x => x.trim()).filter(Boolean);
   return t.value;
@@ -3045,10 +3262,10 @@ document.addEventListener('change', e => { const t = e.target; if (!t.dataset ||
 document.addEventListener('click', e => {
   const add = e.target.closest('[data-radd]'), rm = e.target.closest('[data-rrm]'), ex = e.target.closest('[data-rexemplo]'), ir = e.target.closest('[data-rir]');
   if (e.target.closest('[data-rseguro]')) { plano.riscos.seguro = novoSeguro(); if (!Array.isArray(plano.riscos.dependentes)) plano.riscos.dependentes = []; renderAll(); return; }
-  if (add) { const c = add.dataset.radd, lista = lerR(c) || []; lista.push(c.endsWith('vidas') ? { nome: '', idade: null, premio: 0 } : c.endsWith('bens.itens') ? { nome: '', valor: 0, protecao: '' } : c.endsWith('dependentes') ? { nome: '', relacao: 'filho', nasc: '' } : c.endsWith('geradores') ? novoGerador(lista.length ? 'outro' : 'titular', 0) : c === 'patrimonio.bens' ? { nome: '', mercado: 0, saldoDevedor: 0 } : c.startsWith('patrimonio.') ? { nome: '', valor: 0 } : { nome: '', ideal: 0, atual: 0 }); ENGINE.gravaCaminho(plano, c, lista); if (c.includes('terceiros')) plano.riscos.terceiros.avaliado = true; renderAll(); }
+  if (add) { const c = add.dataset.radd, lista = lerR(c) || []; lista.push(c.endsWith('vidas') ? { nome: '', idade: null, premio: 0 } : c.endsWith('bens.itens') ? { nome: '', valor: 0, protecao: '' } : c.endsWith('dependentes') ? { nome: '', relacao: 'filho', nasc: '' } : c.endsWith('geradores') ? novoGerador(lista.length ? 'outro' : 'titular', 0) : c === 'patrimonio.bens' ? { nome: '', mercado: 0, saldoDevedor: 0 } : c === 'patrimonio.dividas' ? { nome: '', saldoDevedor: 0, situacao: '' } : c.startsWith('patrimonio.') ? { nome: '', valor: 0 } : { nome: '', ideal: 0, atual: 0 }); ENGINE.gravaCaminho(plano, c, lista); if (c.includes('terceiros')) plano.riscos.terceiros.avaliado = true; renderAll(); }
   else if (rm) { const ks = rm.dataset.rrm.split('.'), i = +ks.pop(), lista = lerR(ks.join('.')); lista.splice(i, 1); renderAll(); }
   else if (ex) { plano.riscos = JSON.parse(JSON.stringify(ENGINE.RISCOS_EXEMPLO)); renderAll(); }
-  else if (ir) { const b = document.getElementById('rkc-' + ir.dataset.rir); if (b) b.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+  else if (ir) { abaRiscoC = ir.dataset.rir; renderRiscosC(); const r = document.getElementById('riscosC'); if (r && r.getBoundingClientRect().top < 0) r.scrollIntoView({ block: 'start' }); }
 });
 
 // ===================== PROPOSTAS DO CLIENTE =====================
@@ -3109,14 +3326,18 @@ function concluirResposta() {
 ARMAZEM.ouvir('proposta', () => renderPropostas());
 
 // páginas do portal: cada assunto numa página, na ordem em que o plano é montado
-const PAGINAS = ['cliente', 'fluxo', 'patrimonio', 'riscos', 'objetivos', 'liberdade', 'propostas'];
-const NOMES_PAGINA = { cliente: 'Cliente', patrimonio: 'Patrimônio e premissas', objetivos: 'Objetivos', fluxo: 'Fluxo de caixa', liberdade: 'Liberdade financeira', riscos: 'Gestão de riscos', propostas: 'Propostas do cliente' };
+// (dados do cliente: Cliente, Fluxo, Patrimônio; planejamento: Riscos, Objetivos, Liberdade, Premissas; com o cliente)
+const PAGINAS = ['cliente', 'fluxo', 'patrimonio', 'riscos', 'objetivos', 'liberdade', 'premissas', 'apresentacao', 'propostas'];
+const NOMES_PAGINA = { cliente: 'Cliente', patrimonio: 'Patrimônio', objetivos: 'Objetivos', fluxo: 'Fluxo de caixa', liberdade: 'Liberdade financeira', riscos: 'Gestão de riscos', premissas: 'Premissas', apresentacao: 'Apresentação', propostas: 'Propostas do cliente' };
+// os indicadores do topo só aparecem onde ajudam a decidir: orçamento, objetivos e liberdade
+const COM_INDICADORES = ['fluxo', 'objetivos', 'liberdade'];
 let paginaAtual = null;
 function irPara(p) {
   if (!PAGINAS.includes(p)) p = 'cliente';
   document.querySelectorAll('.page').forEach(s => { s.hidden = s.dataset.page !== p; });
   document.querySelectorAll('#nav a').forEach(a => a.classList.toggle('on', a.dataset.nav === p));
   document.querySelector('main').classList.toggle('wide', p === 'fluxo');
+  document.querySelector('.pagehead').hidden = !COM_INDICADORES.includes(p);
   const antes = paginaAtual; paginaAtual = p; if (antes && antes !== p) { plano.vistas = Object.assign({}, plano.vistas, { [antes]: true }); }
   if (gaveta) fecharGaveta(false);
   fecharPop(); window.scrollTo(0, 0);
@@ -3142,17 +3363,20 @@ function trocarPlano(b, novo, rotulo) {
   if (!temConteudo() || b.dataset.armed) { delete b.dataset.armed; b.classList.remove('armed'); b.textContent = rotulo; aplicar(); return; }
   b.dataset.rotulo = rotulo; b.dataset.armed = '1'; b.classList.add('armed'); b.textContent = 'Apagar o plano atual? Clique de novo';
 }
-document.addEventListener('click', e => { if (e.target.closest('[data-abrir-cliente]')) document.getElementById('btnOpen').click(); });
+document.addEventListener('click', e => { const b = e.target.closest('[data-abrir-cliente]'); if (b) abrirCliente(b.dataset.fase); });
 document.getElementById('btnNovo').onclick = e => trocarPlano(e.currentTarget, planoVazio, '+ Novo cliente');
 document.getElementById('btnExemplo').onclick = e => trocarPlano(e.currentTarget, () => structuredClone(PLANO_PADRAO), 'ver exemplo');
 
 // abrir a visão do cliente para apresentar: o plano vai gravado e também no endereço, e as ferramentas de proposta ficam de fora
-document.getElementById('btnOpen').onclick = () => {
+// a página do cliente que corresponde à página do portal à vista (ou a pedida pelo botão)
+const FASE_CLIENTE = { cliente: 'patrimonio', patrimonio: 'patrimonio', riscos: 'riscos' };
+document.getElementById('btnOpen').onclick = () => abrirCliente();
+function abrirCliente(fase) {
   const json = JSON.stringify(plano);
   const b64 = btoa(String.fromCharCode(...new TextEncoder().encode(json))).replace(/\+/g, '-').replace(/\//g, '_');
   save(); gravarNuvem(true);
-  window.open('evolucao-patrimonial.html?apresentar&fase=' + (paginaAtual === 'riscos' || paginaAtual === 'patrimonio' ? paginaAtual : 'evolucao') + '#plano=' + b64, '_blank');
-};
+  window.open('evolucao-patrimonial.html?apresentar&fase=' + (fase || FASE_CLIENTE[paginaAtual] || 'evolucao') + '#plano=' + b64, '_blank');
+}
 
 // "Ver como o cliente vê": a mesma tela que o cliente tem na área logada, com as ferramentas de proposta
 document.getElementById('btnComoCliente').addEventListener('click', () => gravarNuvem(true));
@@ -3161,7 +3385,7 @@ document.getElementById('btnComoCliente').addEventListener('click', () => gravar
 // plano de uma pessoa: o campo e a orientação do cônjuge saem da página Cliente
 const conjuge = () => plano.tipo !== 'individual' && +plano.spouseAge > 0;
 function aplicaTipo() {
-  const so = plano.tipo === 'individual';
+  const so = (plano.tipo || (+plano.spouseAge > 0 ? 'familia' : 'individual')) === 'individual';
   document.getElementById('f-spouse').closest('.field').hidden = so;
   document.getElementById('notaCasal').hidden = so;
 }
@@ -3173,6 +3397,7 @@ function fillFields() {
   document.getElementById('f-name').value = plano.name;
   document.getElementById('f-age').value = plano.age;
   document.getElementById('f-retire').value = plano.retireAge == null ? '' : plano.retireAge;
+  document.getElementById('f-comecou').value = plano.patrimonio && plano.patrimonio.comecou != null ? plano.patrimonio.comecou : '';
   document.getElementById('f-spouse').value = plano.spouseAge == null ? '' : plano.spouseAge;
   document.getElementById('f-lifeExp').value = plano.lifeExp;
   document.getElementById('f-desired').value = plano.desired ? money(plano.desired) : '';

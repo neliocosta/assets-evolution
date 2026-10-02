@@ -328,6 +328,7 @@ console.log('\n10. Patrimônio de hoje e fase da vida financeira');
   ok('aos 35: Consolidação, esperado interpolado', f.fase === 2 && f.minimo === 180000 && f.maximo === 600000 && Math.abs(f.esperado - 10000 * (18 + 42 * (35 - 23 - 28 / 3) / (28 - 28 / 3))) < 0.01, Math.round(f.esperado));
   ok('antes de começar: Preparação, esperado zero', Ef.faseDaVida(Object.assign({}, pl, { age: 20 })).esperado === 0);
   ok('depois da idade alvo: Liberdade, 200×', Ef.faseDaVida(Object.assign({}, pl, { age: 70 })).esperado === 2000000);
+  ok('dívida avulsa também desconta do total', Ef.faseDaVida(Object.assign({}, pl, { patrimonio: Object.assign(P(), { dividas: [{ nome: 'Consignado', saldoDevedor: 20000 }] }) })).total === f.total - 20000);
   ok('sem a idade em que começou: sem fase', Ef.faseDaVida({ age: 35, patrimonio: {} }).fase === null);
   const alt = Ef.aplicaAlteracoes(Object.assign({}, pl, { patrimonio: P() }), [{ tipo: 'campo', caminho: 'patrimonio.financeiro.2.valor', para: 700000 }]);
   ok('proposta num valor do detalhe atualiza o total', alt.initialWealth === 910000);
