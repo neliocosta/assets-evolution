@@ -1367,7 +1367,7 @@ function buildRows() {
       { id: 'out_rendas', label: 'Contratação de rendas (fundos de pensão)', keys: ['out_rendas'], icon: 'convert' },
     ] },
     { id: 'mov', label: 'Movimentações no patrimônio', color: C.mov, keys: keysWith('mov_'), children: [
-      { id: 'mov_cofre', label: 'Cofre genérico (reserva)', keys: ['mov_cofre'], icon: 'convert' },
+      { id: 'mov_cofre', label: 'Reserva (patrimônio livre)', keys: ['mov_cofre'], icon: 'convert' },
       ...OBJ.map(o => ({ id: 'mov_obj_' + o.id, label: 'Objetivo: ' + o.name, keys: ['mov_obj_' + o.id] })),
       { id: 'mov_bens', label: 'Bens (entrada e amortização)', keys: ['mov_bens'] },
     ] },
@@ -1720,7 +1720,7 @@ function chartTip(i) {
   h += `<div class="row"><span><i class="sw" style="background:${C.bens}"></i>Bens</span><b>${fmt(v('bens'))}</b></div>`;
   h += `<div class="row"><span><i class="sw" style="background:${C.part}"></i>Participações societárias</span><b>${fmt(v('part'))}</b></div>`;
   h += `<div class="sec">Alocação do patrimônio financeiro</div>`;
-  h += `<div class="row"><span>Cofre genérico (reserva)</span><b>${fmt(v('cofre'))}</b></div>`;
+  h += `<div class="row"><span>Reserva (patrimônio livre)</span><b>${fmt(v('cofre'))}</b></div>`;
   OBJ.forEach((o, k) => { const dn = done(o.id); h += `<div class="row"><span>${o.name}</span>` + (dn ? (o.naoComprado ? `<b class="muted" style="color:#D64545">não comprado</b>` : `<b class="muted">realizado ✓</b>`) : `<b>${fmt(v('obj' + k))}</b>`) + `</div>`; });
   return h;
 }

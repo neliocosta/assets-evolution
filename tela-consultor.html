@@ -1594,6 +1594,8 @@ document.addEventListener('click', e => {
   pendente = null; document.getElementById('estouro').hidden = true;
   renderAll();   // confere de novo: se ainda faltar em outro mês, o orçamento daquele mês abre em seguida
 });
+// objetivos sem aporte definido que ainda precisam de aporte (um objetivo já coberto pelo patrimônio reservado não entra)
+const semAporte = () => plano.objectives.filter(o => !(o.planned > 0) && o.required > 0.5);
 const plannedTotal = () => plano.objectives.reduce((a, o) => a + (+o.planned || 0), 0);
 
 // Por que um objetivo não recebe o aporte definido: o primeiro mês em que o orçamento entrega menos e a
@@ -1668,7 +1670,7 @@ function renderTop() {
       : plano.objectives.some(o => o.truncado) ? `<div class="warn">Hoje os aportes cabem (${fmt(pl)} de ${fmt(cap)} por mês), mas mais adiante o orçamento não comporta todos: ${plano.objectives.filter(o => o.truncado).map(o => '<b>' + esc(o.name) + '</b>').join(', ')}. O aviso no cartão diz a partir de quando e por quê.</div>`
       : `<div class="ok-note">Os aportes definidos somam ${fmt(pl)}, dentro da capacidade de ${fmt(cap)}.</div>`) +
     (temFluxo() && (pl > cap || plano.objectives.some(o => o.status !== 'ok')) && livreParaReservar() > 1000 ? `<div class="note">O cliente tem ${fmt(livreParaReservar())} de patrimônio financeiro livre. Reservar parte dele num objetivo (campo "Patrimônio já reservado para ele") reduz o aporte necessário; se o aporte estiver em "usar o necessário", ele se ajusta sozinho.</div>` : '') +
-    (temFluxo() && plano.objectives.some(o => !(o.planned > 0)) ? `<div class="fxcap vazio" style="margin-top:10px">Falta definir quanto guardar por mês em ${plano.objectives.filter(o => !(o.planned > 0)).length} objetivo(s). Use o valor de cada cartão ou <button class="btn btn-tertiary btn-small" data-usar-todos>usar o necessário em todos</button></div>` : '');
+    (temFluxo() && semAporte().length ? `<div class="fxcap vazio" style="margin-top:10px">Falta definir quanto guardar por mês em ${semAporte().map(o => '<b>' + esc(o.name || 'objetivo sem nome') + '</b>').join(', ')}. Use o valor de cada cartão ou <button class="btn btn-tertiary btn-small" data-usar-todos>usar o necessário em todos</button></div>` : '');
 }
 
 // ===================== FLUXO DE CAIXA =====================
@@ -1823,7 +1825,7 @@ function linhasFluxo() {
   const grp = (id, label, o) => L.push(Object.assign({ id, label, t: 'grp' }, o));
   grp('mov', 'Movimentações no patrimônio', { pref: 'mov_', depth: 0, cls: 'grp mov', filhos: true });
   if (ab('mov')) {
-    L.push({ id: 'mov_cofre', label: 'Cofre genérico (reserva)', t: 'ro', keys: ['mov_cofre'], depth: 1, pai: 'mov' });
+    L.push({ id: 'mov_cofre', label: 'Reserva (patrimônio livre)', t: 'ro', keys: ['mov_cofre'], depth: 1, pai: 'mov' });
     plano.objectives.forEach(o => L.push({ id: 'mov_obj_' + o.id, label: 'Objetivo: ' + o.name, t: 'ro', keys: ['mov_obj_' + o.id], depth: 1, obj: o, pai: 'mov' }));
     L.push({ id: 'mov_bens', label: 'Bens (entrada e amortização)', t: 'ro', keys: ['mov_bens'], depth: 1, pai: 'mov' });
   }
@@ -1954,7 +1956,7 @@ function renderFluxo() {
     ? '<div class="fxcap vazio">Comece pelas <b>Entradas</b>: clique no <b>+</b> ao lado de Entradas e cadastre cada renda do cliente. Depois cadastre as despesas em Fixas e Ajustáveis.</div>'
     : !plano.expenses.some(comValorLinha) ? '<div class="fxcap vazio">Entradas cadastradas. Agora cadastre as <b>despesas</b>: clique no <b>+</b> ao lado de Fixas ou de Ajustáveis. Os aportes dos objetivos vêm depois.</div>'
     : `<div class="fxcap${pl > cap ? ' warn' : ''}">Capacidade de poupança: <b>${fmt(cap)}/mês</b> (entradas menos saídas, média dos próximos 12 meses). Aportes definidos nos objetivos: <b>${fmt(pl)}/mês</b>.${pl > cap ? ' Os aportes não cabem no orçamento.' : ''}` +
-      (plano.objectives.some(o => !(o.planned > 0)) ? ' Próximo passo: definir quanto guardar para cada objetivo (botão no fim da página).' : '') + '</div>';
+      (semAporte().length ? ' Próximo passo: definir quanto guardar nos Objetivos.' : '') + '</div>';
   const ent = incomeTotal(0), sai = livingTotal(0);
   document.getElementById('fxResumo').innerHTML = 'Depois da liberdade financeira, a renda do trabalho para e as despesas se ajustam à renda disponível.';
 }
@@ -2164,7 +2166,7 @@ addEventListener('pointerup', () => { if (!planDrag) return; delete planEsc[plan
 function renderGoals() {
   const wrap = document.getElementById('goals');
   const ordem = plano.objectives.map((o, i) => i).sort((a, b) => ((plano.objectives[a].criado || 0) - (plano.objectives[b].criado || 0)) || (plano.objectives[a].months - plano.objectives[b].months));
-  if (!ordem.length) { wrap.innerHTML = '<div class="goal-empty">Nenhum objetivo ainda. Clique em <b>+ Adicionar objetivo</b> para cadastrar o primeiro, ou siga para o Fluxo de caixa se o cliente não tem objetivos.</div>'; return; }
+  if (!ordem.length) { wrap.innerHTML = '<div class="goal-empty">Nenhum objetivo ainda. Clique em <b>+ Adicionar objetivo</b> para cadastrar o primeiro, ou siga para a Liberdade financeira se o cliente não tem objetivos.</div>'; return; }
   wrap.innerHTML = ordem.map(i => {
     const o = plano.objectives[i], aberto = goalAbertos.has(o.id), cs = o.costs || [];
     const col = o.status === 'ok' ? 'var(--nl-score-good)' : o.status === 'adj' ? 'var(--nl-score-medium)' : 'var(--nl-score-low)';
@@ -2812,7 +2814,7 @@ function htmlLinha(it) {
     else {
       const dias = diasDe(it);
       h += dias.length <= 1
-        ? campo('Dia do mês', `<div class="chipset"><input type="number" data-gv="dia1" min="1" max="31" value="${dias[0] || ''}" placeholder="dia" style="width:80px"><span class="muted">Recebe em mais de um dia?</span><input type="number" id="gvDia" min="1" max="31" placeholder="outro dia" style="width:90px"><button class="btn btn-secondary btn-small" data-gv-adddia>+ outro dia</button></div>`)
+        ? campo('Dia do mês', `<div class="chipset"><input type="number" data-gv="dia1" min="1" max="31" value="${dias[0] || ''}" placeholder="dia" style="width:80px"><span class="muted">${inc ? 'Recebe' : 'Paga'} em mais de um dia?</span><input type="number" id="gvDia" min="1" max="31" placeholder="outro dia" style="width:90px"><button class="btn btn-secondary btn-small" data-gv-adddia>+ outro dia</button></div>`)
         : campo('Dias do mês <em>cada dia recebe o valor inteiro</em>', `<div class="chipset">${dias.map((d, j) => `<span class="chipd">dia ${d}<button data-gv-rmdia="${j}" title="Remover este dia">×</button></span>`).join('')}
         <input type="number" id="gvDia" min="1" max="31" placeholder="outro dia" style="width:90px"><button class="btn btn-secondary btn-small" data-gv-adddia>+ outro dia</button></div>`);
       h += '<div class="deriv" style="margin:-4px 0 10px">Anual, semestral, trimestral ou em parcelas? Use "Em datas do ano" e marque cada data (ex.: lucros em 30/jun e 30/dez). Valores diferentes em dias diferentes, como adiantamento no dia 20 e saldo no dia 5? Cadastre uma linha para cada.</div>';

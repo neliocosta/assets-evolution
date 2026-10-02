@@ -152,9 +152,8 @@ que fica sem aporte é o calendário, não o consultor.
 O plano vive no `localStorage` de um navegador e viaja por arquivo `.json`. Não existe lista de clientes
 nem histórico de versões do plano.
 
-### 23. Aviso "Falta definir quanto guardar" que não some (rodada 7)
-No Marcos, com a faculdade toda coberta pelo patrimônio reservado (necessário R$ 0, "Alcançável"), a caixa
-continua com "Falta definir quanto guardar por mês em 1 objetivo(s)" e não diz qual.
+### 23. Aviso "Falta definir quanto guardar" que não some (rodada 7) — resolvido
+O aviso conta só os objetivos sem aporte que ainda precisam de aporte (o necessário acima de zero) e diz quais são.
 
 ### 24. Diálogo do orçamento (rodada 7)
 Não oferece reservar patrimônio livre, que era a saída natural do Marcos (R$ 1,8 mi), e a tabela e o topo atrás
@@ -217,11 +216,9 @@ mostra 99% e a visão do cliente 100% do necessário.
 Plantões semanais às sextas somam 52 em 2027, que tem 53 (01/01 e 31/12). Conferir a regra das semanas do ano.
 
 ### 30. Textos (rodada 7)
-Problemas encontrados:
-- A legenda "mês = do salário do dia 5" aparece para quem não recebe salário no dia 5.
-- A página Objetivos vazia diz "siga para o Fluxo de caixa", mas o Fluxo agora vem antes.
-- A gaveta de despesa pergunta "Recebe em mais de um dia?".
-- "Cofre genérico (reserva)" aparece na planilha sem ter sido criado.
+Resolvidos em 02/10/2026: a página Objetivos vazia aponta para a Liberdade financeira; a gaveta de despesa pergunta
+"Paga em mais de um dia?"; a linha "Cofre genérico (reserva)" virou "Reserva (patrimônio livre)", nas duas telas. Continuam:
+- A explicação do mês de salário a salário (agora em "Como usar a planilha") fala do dia 5 para quem não recebe nele.
 - Um objetivo sem nome e sem valor aparece como "Alcançável".
 - Price e SAC pedem o valor financiado quando o cliente só sabe a parcela.
 - O cartão da casa não oferece encerrar o aluguel. Isso só se faz pela linha do aluguel, com "Até um objetivo
