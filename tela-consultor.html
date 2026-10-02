@@ -3151,7 +3151,7 @@ document.getElementById('btnOpen').onclick = () => {
   const json = JSON.stringify(plano);
   const b64 = btoa(String.fromCharCode(...new TextEncoder().encode(json))).replace(/\+/g, '-').replace(/\//g, '_');
   save(); gravarNuvem(true);
-  window.open('evolucao-patrimonial.html?apresentar&fase=' + (paginaAtual === 'riscos' ? 'riscos' : 'evolucao') + '#plano=' + b64, '_blank');
+  window.open('evolucao-patrimonial.html?apresentar&fase=' + (paginaAtual === 'riscos' || paginaAtual === 'patrimonio' ? paginaAtual : 'evolucao') + '#plano=' + b64, '_blank');
 };
 
 // "Ver como o cliente vê": a mesma tela que o cliente tem na área logada, com as ferramentas de proposta
