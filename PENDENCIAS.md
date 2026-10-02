@@ -329,3 +329,6 @@ Registradas aqui porque não são óbvias no código:
 - **Gestão de riscos em painel (01/10/2026).** Referências do usuário: dashboards do Dribbble (InTeam, QClay, Virtual
   Sports): um número ou uma marca dominante por cartão, cor só onde informa, detalhe num cartão largo. A teia mostra
   quanto de cada ameaça está resolvido; as oito sanfonas viraram um detalhe único, da ameaça clicada.
+- **Carrossel das ameaças (01/10/2026).** Pedido do usuário: o cliente deve passar por todas. Um slide por ameaça
+  (essencial no alto, detalhe embaixo), começando pela primeira, com os vizinhos à mostra nas bordas. O status verde
+  passou a se chamar "Protegido".

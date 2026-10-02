@@ -2840,7 +2840,7 @@ document.addEventListener('click', e => {
 // ===================== GESTÃO DE RISCOS =====================
 // O consultor registra a situação de cada uma das oito ameaças em plano.riscos; o motor (avaliaRiscos) dá o status de
 // cada uma pela regra combinada e a nota da família. Campos com data-r="caminho" gravam direto no plano.
-const NOME_STC = { ok: 'Em dia', atencao: 'Atenção', critico: 'Crítico', pendente: 'Não avaliado' }, COR_STC = { ok: '#2E9E5B', atencao: '#FA7A35', critico: '#D64545', pendente: '#cfcbc3' };
+const NOME_STC = { ok: 'Protegido', atencao: 'Atenção', critico: 'Crítico', pendente: 'Não avaliado' }, COR_STC = { ok: '#2E9E5B', atencao: '#FA7A35', critico: '#D64545', pendente: '#cfcbc3' };
 const lerR = c => ENGINE.lerCaminho(plano, c);
 function campoR(c, tipo, extra) {
   const v = lerR(c), val = v == null ? '' : tipo === 'reais' ? money(v) : tipo === 'lista' ? [].concat(v).join(', ') : v;

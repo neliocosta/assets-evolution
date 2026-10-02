@@ -44,10 +44,12 @@ está resolvido (`pct`: a parte coberta quando há um valor a cobrir, como reser
 status, em dia 100%, atenção 50%, crítico 0%). Embaixo, um cartão por ameaça com o essencial (reserva em % do ideal;
 saúde "plano atual é o ideal" ou "possível melhorar"; terceiros, investimentos e bens como lista com a marca de
 protegido, parcial ou desprotegido; liquidez em D+0, D+30 e 1 ano, em vezes o padrão de vida; renda e família, quanto
-falta de cobertura ou "proteção adequada"). Um clique no cartão (ou no nome na teia) abre o detalhe da ameaça num
-cartão largo, abaixo; sem clique, abre a primeira crítica. A regra de cada status:
+falta de cobertura ou "proteção adequada"). As ameaças vêm num **carrossel**, uma por vez, com o essencial no
+alto e o detalhe embaixo; os vizinhos aparecem nas bordas. Passa-se com as setas, arrastando, pelo teclado ou pelos
+pontos de progresso, e o clique num nome da teia leva à ameaça. O status verde se chama **Protegido**. A regra de cada
+status:
 
-| Ameaça | Em dia | Atenção | Crítico |
+| Ameaça | Protegido | Atenção | Crítico |
 |---|---|---|---|
 | Desemprego e emergência | reserva atual ≥ ideal | entre a mínima (40%) e o ideal | abaixo da mínima |
 | Problema de saúde | plano adequado | pode ser otimizado | sem plano |

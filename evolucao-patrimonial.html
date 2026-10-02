@@ -114,17 +114,26 @@ body.sem-grafico .legend,body.sem-grafico .stats,body.sem-grafico #segView,body.
 .teia-l:hover text{text-decoration:underline}
 .contagem{display:flex;flex-direction:column;gap:6px;font-size:12.5px;color:var(--nl-gray-700)}
 .contagem span{display:flex;align-items:center;gap:8px} .contagem i{width:10px;height:10px;border-radius:50%;display:inline-block}
-/* um cartão por ameaça: rótulo, status discreto e o essencial */
-.rk-grade{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
-.rk-k{background:#fff;border-radius:14px;box-shadow:var(--shadow-card);padding:14px 16px 16px;border:1.5px solid transparent;cursor:pointer;text-align:left;font:inherit;display:flex;flex-direction:column;gap:10px;min-height:150px;transition:transform .12s,box-shadow .12s}
-.rk-k:hover{transform:translateY(-2px);box-shadow:var(--shadow-card-module)}
-.rk-k.sel{border-color:var(--nl-orange-500)}
-.rk-k-t{display:flex;align-items:center;gap:8px;font:600 12.5px Sora,sans-serif;color:var(--nl-navy-900)}
-.rk-k-t svg{width:17px;height:17px;flex:0 0 17px;fill:none;stroke:#9a978f;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.rk-k-t span{flex:1;min-width:0}
-.rk-k-t em{font:600 10.5px 'DM Sans',sans-serif;font-style:normal;color:#8a8a8a;display:flex;align-items:center;gap:5px;white-space:nowrap}
-.rk-k-t em i{width:7px;height:7px;border-radius:50%;background:#cfcbc3}
-.rk-k-t em.ok i{background:var(--nl-score-good)} .rk-k-t em.atencao i{background:var(--nl-score-medium)} .rk-k-t em.critico i{background:var(--nl-score-low)}
+/* carrossel das ameaças: o slide do meio inteiro e um pedaço dos vizinhos */
+.rk-pontos{display:flex;align-items:center;gap:7px;margin:4px 0 12px}
+.rk-ponto{width:10px;height:10px;border-radius:50%;border:0;padding:0;cursor:pointer;background:#cfcbc3;opacity:.55;transition:all .2s}
+.rk-ponto.ok{background:var(--nl-score-good)} .rk-ponto.atencao{background:var(--nl-score-medium)} .rk-ponto.critico{background:var(--nl-score-low)}
+.rk-ponto.on{opacity:1;width:26px;border-radius:5px}
+.rk-seta-p{border:0;background:transparent;font:600 18px 'DM Sans',sans-serif;color:var(--nl-navy-900);cursor:pointer;padding:0 4px;line-height:1}
+.rk-seta-p:disabled{color:#d3cfc7;cursor:default}
+#rkPos{margin-left:8px;font:600 12.5px 'DM Sans',sans-serif;color:#8a8a8a}
+.rk-car{position:relative;overflow:hidden;margin:0 -24px;transition:height .3s ease}
+.rk-trilha{display:flex;align-items:flex-start;gap:20px;will-change:transform;touch-action:pan-y}
+.rk-slide{flex:0 0 min(860px,76%);margin:0;opacity:.4;transform:scale(.97);transition:opacity .3s,transform .3s;cursor:pointer;user-select:none}
+.rk-slide.atual{opacity:1;transform:none;cursor:default;user-select:auto}
+.rk-slide.atual .corpo{cursor:auto}
+body.arrastando-car,body.arrastando-car *{cursor:grabbing!important;user-select:none!important}
+.rk-num{margin-left:auto;font:500 11.5px 'DM Sans',sans-serif;color:#a9a59d}
+.rk-resumo{margin:0 20px 4px;background:var(--nl-cream-50);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:10px;max-width:420px}
+.rk-seta{position:absolute;top:110px;width:44px;height:44px;border-radius:50%;border:0;background:#fff;box-shadow:var(--shadow-card-module);font:600 22px 'DM Sans',sans-serif;color:var(--nl-navy-900);cursor:pointer;z-index:3}
+.rk-seta.ant{left:calc(12% - 22px)} .rk-seta.prox{right:calc(12% - 22px)}
+.rk-seta:disabled{opacity:0;pointer-events:none}
+.rk-seta:hover{background:var(--nl-peach-100);color:var(--nl-orange-600)}
 .rk-big{font:600 28px Sora,sans-serif;color:var(--nl-navy-900);line-height:1.05}
 .rk-big small{display:block;font:500 11.5px 'DM Sans',sans-serif;color:#8d8d8d;margin-top:5px}
 .rk-sub{font-size:11.5px;color:#8d8d8d;line-height:1.4}
@@ -149,7 +158,7 @@ body.sem-grafico .legend,body.sem-grafico .stats,body.sem-grafico #segView,body.
 .rk-det-h{display:flex;align-items:center;gap:10px;padding:16px 20px}
 .rk-det-h h3{font:600 15px Sora,sans-serif;color:var(--nl-navy-900);flex:0 1 auto}
 .rk-det-h svg{width:18px;height:18px;fill:none;stroke:var(--nl-orange-500);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-@media (max-width:1100px){ .rk-grade{grid-template-columns:repeat(2,1fr)} .rk-hero{flex-direction:column;align-items:stretch} .rk-hero-t{flex:none} }
+@media (max-width:1100px){ .rk-hero{flex-direction:column;align-items:stretch} .rk-hero-t{flex:none} }
 .st{display:inline-flex;align-items:center;gap:5px;font:600 11px 'DM Sans',sans-serif;padding:3px 9px;border-radius:9999px;align-self:flex-start;white-space:nowrap}
 .st.ok{background:#E7F5EC;color:#22794a} .st.atencao{background:#FFF1E6;color:#C25A12} .st.critico{background:#FDECEC;color:#B83A3A} .st.pendente{background:#F0EEE9;color:#8a8a8a}
 .rk-card{background:#fff;border-radius:14px;box-shadow:var(--shadow-card);margin-bottom:14px;overflow:hidden;scroll-margin-top:12px}
@@ -212,7 +221,7 @@ body.sem-grafico .legend,body.sem-grafico .stats,body.sem-grafico #segView,body.
 .seg-l.sub{background:#fcfbf9}
 .seg-nao{background:#F1F8F3;border-radius:10px;padding:11px 13px;font-size:12.5px;color:#2b6e45;line-height:1.5}
 .seg-nota{font-size:11px;color:#9a9a9a;text-align:center;margin-top:10px;line-height:1.5}
-@media (max-width:900px){ .rk-topo{grid-template-columns:1fr} .rk-grade{grid-template-columns:repeat(2,1fr)} }
+@media (max-width:900px){ .rk-topo{grid-template-columns:1fr} }
 /* propostas do cliente: nada muda no plano até o consultor aprovar */
 #propBar{display:flex;align-items:center;gap:10px 14px;flex-wrap:wrap;padding:8px 24px;background:var(--nl-peach-100);color:var(--nl-orange-600);font:500 12.5px 'DM Sans',sans-serif;border-bottom:1px solid #f6dcc8;position:relative;z-index:1}
 #propBar.pendente{background:#EEF2F7;color:var(--nl-navy-900);border-color:#dde4ee}
@@ -2109,7 +2118,7 @@ document.getElementById('btnVideo').addEventListener('click', () => {
 
 // ===================== FASE: GESTÃO DE RISCOS =====================
 const COR_ST = { ok: '#2E9E5B', atencao: '#FA7A35', critico: '#D64545', pendente: '#cfcbc3' };
-const NOME_ST = { ok: 'Em dia', atencao: 'Atenção', critico: 'Crítico', pendente: 'Não avaliado' };
+const NOME_ST = { ok: 'Protegido', atencao: 'Atenção', critico: 'Crítico', pendente: 'Não avaliado' };
 const ICONE_RISCO = {
   reserva: 'M12 2a10 10 0 100 20 10 10 0 000-20zM12 8a4 4 0 100 8 4 4 0 000-8zM4.9 4.9l4.3 4.3M14.8 14.8l4.3 4.3M14.8 9.2l4.3-4.3M4.9 19.1l4.3-4.3',
   saude: 'M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 00-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 000-7.8zM3.5 12h4l2-3 3 6 2-3h6',
@@ -2165,27 +2174,67 @@ function corpoCartao(id, a, R) {
   return x.status === 'ok' ? `<div class="rk-frase">${MARCA.ok}Proteção adequada</div>` : `<div class="rk-big">${fmtK(x.falta)}<small>falta de cobertura</small></div>
     <div class="rk-trilho"><i style="width:${x.pct * 100}%;background:${COR_ST[x.status]}"></i></div>`;
 }
-let riscoSel = null;   // ameaça aberta no detalhe; vazia, a primeira crítica (ou em atenção)
+// Carrossel: um slide por ameaça (o essencial no alto, o detalhe embaixo), na ordem, para o cliente passar por todas.
+// O slide do meio fica inteiro e os vizinhos aparecem pela metade nos lados; setas, arraste, teclado ou os pontos.
+let riscoSel = 0;   // índice do slide à vista
 function renderRiscos() {
   const el = document.getElementById('riscos'); if (!el || FASE !== 'riscos') return;
   const P = planoVista(), R = P.riscos || {}, a = ENGINE.avaliaRiscos(P), cont = { ok: 0, atencao: 0, critico: 0, pendente: 0 };
   ENGINE.RISCOS.forEach(x => cont[a.itens[x.id].status]++);
-  const nota = a.nota == null ? null : Math.round(a.nota * 100);
-  const sel = riscoSel || (ENGINE.RISCOS.find(x => a.itens[x.id].status === 'critico') || ENGINE.RISCOS.find(x => a.itens[x.id].status === 'atencao') || ENGINE.RISCOS[0]).id;
+  const nota = a.nota == null ? null : Math.round(a.nota * 100), n = ENGINE.RISCOS.length;
+  riscoSel = Math.max(0, Math.min(n - 1, riscoSel));
   const rolagem = el.scrollTop;
   let h = `<div class="rc"><div class="rk-topo">
     <div class="nota-card rk-hero"><div class="rk-hero-t"><h2>Gestão de riscos da família</h2><div class="sub">Quanto de cada uma das oito ameaças ao padrão de vida já está resolvido.</div>
       <div class="rk-nota">${nota == null ? '—' : nota + '%'}<small>nota da família</small></div>
-      <div class="contagem"><span><i style="background:${COR_ST.ok}"></i>${cont.ok} em dia</span><span><i style="background:${COR_ST.atencao}"></i>${cont.atencao} pedem atenção</span><span><i style="background:${COR_ST.critico}"></i>${cont.critico} críticos</span>${cont.pendente ? `<span><i style="background:${COR_ST.pendente}"></i>${cont.pendente} não avaliados</span>` : ''}</div></div>
+      <div class="contagem"><span><i style="background:${COR_ST.ok}"></i>${cont.ok} ${cont.ok === 1 ? 'protegida' : 'protegidas'}</span><span><i style="background:${COR_ST.atencao}"></i>${cont.atencao} pedem atenção</span><span><i style="background:${COR_ST.critico}"></i>${cont.critico} críticas</span>${cont.pendente ? `<span><i style="background:${COR_ST.pendente}"></i>${cont.pendente} não avaliadas</span>` : ''}</div></div>
       ${teiaSvg(a)}</div>
     ${videoHtml('riscos', 'Por que proteger o seu padrão de vida', 'Aqui vai entrar o vídeo do seu consultor explicando os riscos e como você pode simular outros valores.')}</div>
-    <div class="rk-grade">${ENGINE.RISCOS.map(x => { const st = a.itens[x.id].status; return `<button class="rk-k${x.id === sel ? ' sel' : ''}" data-risco="${x.id}"><div class="rk-k-t"><svg viewBox="0 0 24 24"><path d="${ICONE_RISCO[x.id]}"/></svg><span>${x.nome}</span><em class="${st}"><i></i>${NOME_ST[st]}</em></div>${corpoCartao(x.id, a, R)}</button>`; }).join('')}</div>`;
-  const xs = ENGINE.RISCOS.find(x => x.id === sel);
-  h += `<section class="rk-card rk-det" id="rk-detalhe"><div class="rk-det-h"><svg viewBox="0 0 24 24"><path d="${ICONE_RISCO[sel]}"/></svg><h3>${xs.nome}</h3>${stHtml(a.itens[sel].status)}</div><div class="corpo">${corpoRisco(sel, P, a)}</div></section>`;
+    <div class="rk-pontos"><button class="rk-seta-p" data-car="-1" title="Ameaça anterior">‹</button>${ENGINE.RISCOS.map((x, k) => `<button class="rk-ponto ${a.itens[x.id].status}" data-car-ir="${k}" title="${escH(x.nome)}"></button>`).join('')}<button class="rk-seta-p" data-car="1" title="Próxima ameaça">›</button><span id="rkPos"></span></div>
+    <div class="rk-car" id="rkCar"><div class="rk-trilha" id="rkTrilha">${ENGINE.RISCOS.map((x, k) => { const st = a.itens[x.id].status;
+      return `<section class="rk-card rk-slide" data-slide="${k}"><div class="rk-det-h"><svg viewBox="0 0 24 24"><path d="${ICONE_RISCO[x.id]}"/></svg><h3>${x.nome}</h3>${stHtml(st)}<span class="rk-num">${k + 1} de ${n}</span></div>
+        <div class="rk-resumo">${corpoCartao(x.id, a, R)}</div><div class="corpo">${corpoRisco(x.id, P, a)}</div></section>`; }).join('')}</div>
+      <button class="rk-seta ant" data-car="-1" title="Ameaça anterior">‹</button><button class="rk-seta prox" data-car="1" title="Próxima ameaça">›</button></div>`;
   el.innerHTML = h + '</div>'; el.scrollTop = rolagem;
-  if (sel === 'reserva') desenhaReserva();
-  desenhaSeguros();
+  desenhaReserva(); desenhaSeguros();
+  posicionaCarrossel(false);
 }
+// leva o slide riscoSel ao meio; a altura do carrossel acompanha a do slide à vista
+function posicionaCarrossel(anima, arraste) {
+  const car = document.getElementById('rkCar'), tr = document.getElementById('rkTrilha'); if (!car || !tr) return;
+  const sl = tr.children, s = sl[riscoSel]; if (!s) return;
+  const x = (car.clientWidth - s.offsetWidth) / 2 - s.offsetLeft + (arraste || 0);
+  tr.style.transition = anima ? 'transform .35s ease' : 'none'; tr.style.transform = `translateX(${x}px)`;
+  [...sl].forEach((e, k) => e.classList.toggle('atual', k === riscoSel));
+  car.style.height = s.offsetHeight + 'px';
+  document.querySelectorAll('[data-car-ir]').forEach(b => b.classList.toggle('on', +b.dataset.carIr === riscoSel));
+  document.querySelectorAll('[data-car="-1"]').forEach(b => { b.disabled = riscoSel === 0; });
+  document.querySelectorAll('[data-car="1"]').forEach(b => { b.disabled = riscoSel === sl.length - 1; });
+  const pos = document.getElementById('rkPos'); if (pos) pos.textContent = (riscoSel + 1) + ' de ' + sl.length + ' · ' + ENGINE.RISCOS[riscoSel].nome;
+}
+const vaiPara = k => { riscoSel = Math.max(0, Math.min(ENGINE.RISCOS.length - 1, k)); posicionaCarrossel(true); };
+// arrastar o carrossel para os lados (fora dos campos e botões)
+let carArr = null;
+document.getElementById('riscos').addEventListener('pointerdown', e => {
+  if (!e.target.closest('#rkTrilha') || e.target.closest('input,textarea,select,button,a,iframe,video') || e.button !== 0) return;
+  carArr = { x: e.clientX, y: e.clientY, dx: 0, ativo: false };
+});
+addEventListener('pointermove', e => {
+  if (!carArr) return;
+  carArr.dx = e.clientX - carArr.x;
+  if (!carArr.ativo && Math.abs(carArr.dx) > 8 && Math.abs(carArr.dx) > Math.abs(e.clientY - carArr.y)) { carArr.ativo = true; document.body.classList.add('arrastando-car'); }
+  if (carArr.ativo) posicionaCarrossel(false, carArr.dx);
+});
+addEventListener('pointerup', () => {
+  if (!carArr) return;
+  const { dx, ativo } = carArr; carArr = null; document.body.classList.remove('arrastando-car');
+  if (ativo) vaiPara(riscoSel + (dx < -60 ? 1 : dx > 60 ? -1 : 0));
+});
+addEventListener('keydown', e => {
+  if (FASE !== 'riscos' || e.target.closest && e.target.closest('input,textarea,select')) return;
+  if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); e.stopImmediatePropagation(); vaiPara(riscoSel + (e.key === 'ArrowRight' ? 1 : -1)); }
+}, true);
+addEventListener('resize', () => { if (FASE === 'riscos') posicionaCarrossel(false); });
 const podeProp = () => PAPEL === 'cliente' && !(PROP && PROP.status === 'pendente');
 const avisoPend = () => PAPEL === 'cliente' && PROP && PROP.status === 'pendente' ? '<div class="muted" style="font-size:12px;color:#8d8d8d;margin-top:10px">Sua proposta está com o consultor. Para propor algo novo, cancele o envio.</div>' : '';
 function corpoRisco(id, P, a) {
@@ -2289,7 +2338,10 @@ function desenhaReserva() {
 }
 document.getElementById('riscos').addEventListener('click', e => {
   const t = e.target.closest('[data-risco]');
-  if (t) { riscoSel = t.dataset.risco; renderRiscos(); document.getElementById('rk-detalhe').scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
+  if (t) { vaiPara(ENGINE.RISCOS.findIndex(x => x.id === t.dataset.risco)); document.getElementById('rkCar').scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
+  const cs = e.target.closest('[data-car]'); if (cs) { vaiPara(riscoSel + +cs.dataset.car); return; }
+  const ci = e.target.closest('[data-car-ir]'); if (ci) { vaiPara(+ci.dataset.carIr); return; }
+  const vz = e.target.closest('.rk-slide:not(.atual)'); if (vz) { vaiPara(+vz.dataset.slide); return; }
   const ap = e.target.closest('[data-apolice]'); if (ap) { const r = document.getElementById('ap-' + ap.dataset.apolice); r.hidden = !r.hidden; return; }
   const b = e.target.closest('[data-sim]'); if (!b) return;
   const P = BASE.riscos || {};
