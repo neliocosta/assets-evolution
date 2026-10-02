@@ -37,7 +37,15 @@ páginas que ainda vão entrar. A página pode vir no endereço (`?fase=riscos`,
 última vista.
 
 **Gestão de riscos** avalia oito ameaças ao padrão de vida (`plano.riscos`, preenchido no portal, na página Gestão de
-riscos). O status de cada uma sai de `ENGINE.avaliaRiscos`, no motor, igual nas duas telas:
+riscos). O status de cada uma sai de `ENGINE.avaliaRiscos`, no motor, igual nas duas telas.
+
+Na tela do cliente, o alto mostra a nota da família e uma **teia** com as oito ameaças: cada ponta é quanto da ameaça
+está resolvido (`pct`: a parte coberta quando há um valor a cobrir, como reserva, terceiros, bens e seguros; senão o
+status, em dia 100%, atenção 50%, crítico 0%). Embaixo, um cartão por ameaça com o essencial (reserva em % do ideal;
+saúde "plano atual é o ideal" ou "possível melhorar"; terceiros, investimentos e bens como lista com a marca de
+protegido, parcial ou desprotegido; liquidez em D+0, D+30 e 1 ano, em vezes o padrão de vida; renda e família, quanto
+falta de cobertura ou "proteção adequada"). Um clique no cartão (ou no nome na teia) abre o detalhe da ameaça num
+cartão largo, abaixo; sem clique, abre a primeira crítica. A regra de cada status:
 
 | Ameaça | Em dia | Atenção | Crítico |
 |---|---|---|---|

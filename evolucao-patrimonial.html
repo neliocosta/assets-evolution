@@ -101,22 +101,57 @@ body.sem-grafico .legend,body.sem-grafico .stats,body.sem-grafico #segView,body.
 .nota-card{background:#fff;border-radius:14px;box-shadow:var(--shadow-card);padding:20px 22px;display:flex;flex-direction:column;gap:12px}
 .nota-card h2{font:600 18px Sora,sans-serif;color:var(--nl-navy-900);line-height:1.25}
 .nota-card .sub{font-size:12.5px;color:#8a8a8a;line-height:1.5}
-.nota-linha{display:flex;align-items:center;gap:18px}
-.anel{width:118px;height:118px;flex:0 0 118px;position:relative}
-.anel svg{width:100%;height:100%;transform:rotate(-90deg)}
-.anel b{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:700 28px Sora,sans-serif;color:var(--nl-navy-900)}
+/* resumo: nota da família e a teia das oito ameaças */
+.rk-hero{flex-direction:row;align-items:center;gap:8px}
+.rk-hero-t{flex:0 0 200px;display:flex;flex-direction:column;gap:10px}
+.rk-nota{font:600 40px Sora,sans-serif;color:var(--nl-navy-900);line-height:1;margin-top:4px}
+.rk-nota small{display:block;font:500 11.5px 'DM Sans',sans-serif;color:#8d8d8d;margin-top:6px}
+.teia{flex:1;min-width:0;width:100%;height:auto;overflow:visible}
+.teia-g{fill:none;stroke:#ECE9E3;stroke-width:1}
+.teia-a{fill:rgba(250,122,53,.16);stroke:var(--nl-orange-500);stroke-width:2;stroke-linejoin:round}
+.teia-l{cursor:pointer} .teia-l text{font:600 10.5px 'DM Sans',sans-serif;fill:var(--nl-navy-900)}
+.teia-l text.v{font-weight:500;fill:#8d8d8d} .teia-l text.v.critico{fill:var(--nl-score-low)} .teia-l text.v.atencao{fill:#C25A12} .teia-l text.v.ok{fill:#22794a}
+.teia-l:hover text{text-decoration:underline}
 .contagem{display:flex;flex-direction:column;gap:6px;font-size:12.5px;color:var(--nl-gray-700)}
 .contagem span{display:flex;align-items:center;gap:8px} .contagem i{width:10px;height:10px;border-radius:50%;display:inline-block}
-.rk-grade{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px}
-.rk-tile{background:#fff;border-radius:12px;box-shadow:var(--shadow-card);padding:14px 14px 12px;border-top:4px solid #d9d6cf;cursor:pointer;text-align:left;border-left:0;border-right:0;border-bottom:0;font:inherit;display:flex;flex-direction:column;gap:6px;transition:transform .12s,box-shadow .12s}
-.rk-tile:hover{transform:translateY(-2px);box-shadow:var(--shadow-card-module)}
-.rk-tile .t{display:flex;align-items:center;gap:8px;font:600 13px Sora,sans-serif;color:var(--nl-navy-900)}
-.rk-tile svg{width:18px;height:18px;flex:0 0 18px;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.rk-tile .r{font-size:11.5px;color:#8a8a8a;line-height:1.4}
+/* um cartão por ameaça: rótulo, status discreto e o essencial */
+.rk-grade{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.rk-k{background:#fff;border-radius:14px;box-shadow:var(--shadow-card);padding:14px 16px 16px;border:1.5px solid transparent;cursor:pointer;text-align:left;font:inherit;display:flex;flex-direction:column;gap:10px;min-height:150px;transition:transform .12s,box-shadow .12s}
+.rk-k:hover{transform:translateY(-2px);box-shadow:var(--shadow-card-module)}
+.rk-k.sel{border-color:var(--nl-orange-500)}
+.rk-k-t{display:flex;align-items:center;gap:8px;font:600 12.5px Sora,sans-serif;color:var(--nl-navy-900)}
+.rk-k-t svg{width:17px;height:17px;flex:0 0 17px;fill:none;stroke:#9a978f;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.rk-k-t span{flex:1;min-width:0}
+.rk-k-t em{font:600 10.5px 'DM Sans',sans-serif;font-style:normal;color:#8a8a8a;display:flex;align-items:center;gap:5px;white-space:nowrap}
+.rk-k-t em i{width:7px;height:7px;border-radius:50%;background:#cfcbc3}
+.rk-k-t em.ok i{background:var(--nl-score-good)} .rk-k-t em.atencao i{background:var(--nl-score-medium)} .rk-k-t em.critico i{background:var(--nl-score-low)}
+.rk-big{font:600 28px Sora,sans-serif;color:var(--nl-navy-900);line-height:1.05}
+.rk-big small{display:block;font:500 11.5px 'DM Sans',sans-serif;color:#8d8d8d;margin-top:5px}
+.rk-sub{font-size:11.5px;color:#8d8d8d;line-height:1.4}
+.rk-nao{font-size:12px;color:#a9a59d;font-style:italic}
+.rk-frase{display:flex;align-items:center;gap:8px;font:600 14px Sora,sans-serif;color:var(--nl-navy-900);line-height:1.3}
+.rk-trilho{position:relative;height:8px;border-radius:4px;background:#F0EEE9;margin-top:auto}
+.rk-trilho i{position:absolute;left:0;top:0;bottom:0;border-radius:4px}
+.rk-trilho b{position:absolute;top:-3px;bottom:-3px;width:0;border-left:1.5px dashed #b9b6af}
+.rk-trilho-l{position:relative;height:12px;font-size:10px;color:#a9a59d} .rk-trilho-l span{position:absolute;transform:translateX(-50%);white-space:nowrap}
+.rk-lista{list-style:none;display:flex;flex-direction:column;gap:7px;margin:0;padding:0}
+.rk-lista li{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--nl-gray-700);min-width:0}
+.rk-lista li span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rk-lista li.mais{color:#a9a59d;font-size:11.5px;padding-left:26px}
+.mk{width:18px;height:18px;flex:0 0 18px}
+.mk.ok circle{fill:var(--nl-score-good)} .mk.ok path{fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.mk.critico circle{fill:var(--nl-score-low)} .mk.critico path{stroke:#fff;stroke-width:2;stroke-linecap:round}
+.mk.atencao circle{fill:#fff;stroke:var(--nl-score-medium);stroke-width:1.6} .mk.atencao path{fill:var(--nl-score-medium)}
+.mk.pendente circle{fill:none;stroke:#cfcbc3;stroke-width:1.6;stroke-dasharray:2.5 2}
+.rk-trio{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.rk-trio div{display:flex;flex-direction:column;gap:2px} .rk-trio b{font:600 20px Sora,sans-serif;color:var(--nl-navy-900)} .rk-trio span{font-size:10.5px;color:#8d8d8d}
+/* o detalhe da ameaça escolhida */
+.rk-det-h{display:flex;align-items:center;gap:10px;padding:16px 20px}
+.rk-det-h h3{font:600 15px Sora,sans-serif;color:var(--nl-navy-900);flex:0 1 auto}
+.rk-det-h svg{width:18px;height:18px;fill:none;stroke:var(--nl-orange-500);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+@media (max-width:1100px){ .rk-grade{grid-template-columns:repeat(2,1fr)} .rk-hero{flex-direction:column;align-items:stretch} .rk-hero-t{flex:none} }
 .st{display:inline-flex;align-items:center;gap:5px;font:600 11px 'DM Sans',sans-serif;padding:3px 9px;border-radius:9999px;align-self:flex-start;white-space:nowrap}
 .st.ok{background:#E7F5EC;color:#22794a} .st.atencao{background:#FFF1E6;color:#C25A12} .st.critico{background:#FDECEC;color:#B83A3A} .st.pendente{background:#F0EEE9;color:#8a8a8a}
-.rk-tile.ok{border-top-color:var(--nl-score-good)} .rk-tile.atencao{border-top-color:var(--nl-score-medium)} .rk-tile.critico{border-top-color:var(--nl-score-low)}
-.rk-tile.ok svg{stroke:var(--nl-score-good)} .rk-tile.atencao svg{stroke:var(--nl-score-medium)} .rk-tile.critico svg{stroke:var(--nl-score-low)} .rk-tile.pendente svg{stroke:#b5b3ae}
 .rk-card{background:#fff;border-radius:14px;box-shadow:var(--shadow-card);margin-bottom:14px;overflow:hidden;scroll-margin-top:12px}
 .rk-card>summary{list-style:none;display:flex;align-items:center;gap:12px;padding:16px 20px;cursor:pointer}
 .rk-card>summary::-webkit-details-marker{display:none}
@@ -921,6 +956,18 @@ const ENGINE = (() => {
       const status = !ps.length ? 'pendente' : ['critico', 'atencao', 'ok'].find(s => ps.some(x => x.status === s));
       out[k] = { status, seg, necessario: ps.reduce((a, x) => a + Math.max(0, x.necessidade), 0), atual: ps.reduce((a, x) => a + x.atual, 0), falta: ps.reduce((a, x) => a + x.falta, 0) };
     }
+    // Quanto cada ameaça está resolvida, de 0 a 1 (a teia do resumo): a parte coberta quando há um valor a cobrir,
+    // senão o status (em dia 1, atenção 0,5, crítico 0). Não avaliada: null.
+    { const cob = (tem, ideal) => ideal > 0 ? Math.min(1, tem / ideal) : 1, PESO = { ok: 1, atencao: 0.5, risco: 0, critico: 0, total: 1, insuficiente: 0.5, nenhuma: 0 };
+      const rv = out.reserva; rv.pct = rv.ideal > 0 && rv.atual != null ? cob(rv.atual, rv.ideal) : null;
+      const ti = ((R.terceiros || {}).itens || []).filter(i => num(i.ideal) > 0);
+      out.terceiros.pct = ti.length ? cob(ti.reduce((a, i) => a + Math.min(+i.atual || 0, +i.ideal), 0), ti.reduce((a, i) => a + +i.ideal, 0)) : null;
+      const ri = ITENS_RUINA.map(([k]) => ((R.ruina || {}).itens || {})[k]).filter(v => v in PESO);
+      out.ruina.pct = ri.length ? ri.reduce((a, v) => a + PESO[v], 0) / ri.length : null;
+      const bi = ((R.bens || {}).itens || []).filter(b => b.protecao in PESO), bv = bi.reduce((a, b) => a + (+b.valor || 0), 0);
+      out.bens.pct = !bi.length ? null : bv > 0 ? bi.reduce((a, b) => a + PESO[b.protecao] * (+b.valor || 0), 0) / bv : bi.reduce((a, b) => a + PESO[b.protecao], 0) / bi.length;
+      for (const k of ['renda', 'familia']) out[k].pct = cob(out[k].atual, out[k].necessario);
+      RISCOS.forEach(x => { const it = out[x.id]; if (it.status === 'pendente') it.pct = null; else if (it.pct == null) it.pct = NOTA[it.status]; }); }
     const pesos = Object.assign({}, ...RISCOS.map(x => ({ [x.id]: 1 })), R.pesos || {});
     let soma = 0, peso = 0; RISCOS.forEach(x => { const st = out[x.id].status; if (st === 'pendente') return; soma += (+pesos[x.id] || 0) * NOTA[st]; peso += +pesos[x.id] || 0; });
     return { itens: out, nota: peso ? soma / peso : null, avaliados: RISCOS.filter(x => out[x.id].status !== 'pendente').length, pesos };
@@ -2079,32 +2126,64 @@ const vezes = m => (m < 10 ? Math.round(m * 10) / 10 : Math.round(m)).toLocaleSt
 // plano à vista (com as alterações da proposta, quando é o caso) e a simulação local do cliente, que não grava nada
 const planoVista = () => { const p = structuredClone(BASE); if (VER === 'proposta' && temAlteracoes()) ENGINE.aplicaAlteracoes(p, PROP.ops); return p; };
 const SIMR = { custo: null, alvo: null };
-const abertos = new Set(['reserva']);
-function resumoRisco(id, a, R) {
-  const x = a.itens[id];
-  if (x.status === 'pendente') return 'Ainda não avaliado pelo seu consultor.';
-  if (id === 'reserva') return 'Reserva de ' + fmt(x.atual) + ' para um ideal de ' + fmt(x.ideal) + '.';
-  if (id === 'saude') return x.status === 'critico' ? 'A família está sem plano de saúde.' : x.economia > 0 ? 'Dá para economizar ' + fmt(x.economia) + ' por mês.' : x.status === 'ok' ? 'O plano atual está adequado.' : 'O plano pode ser otimizado.';
-  if (id === 'terceiros') return x.falta > 0 ? 'Faltam ' + fmt(x.falta) + ' em coberturas.' : 'As coberturas necessárias estão contratadas.';
-  if (id === 'ruina') return x.status === 'ok' ? 'Nenhum sinal de ruína nos investimentos.' : x.status === 'critico' ? 'Há um risco identificado nos investimentos.' : 'Há pontos de atenção nos investimentos.';
-  if (id === 'liquidez') { const [, d0, m0] = x.escada[0] || []; return m0 != null ? vezes(m0) + ' o padrão de vida mensal disponível no mesmo dia.' : d0 != null ? fmt(d0) + ' disponíveis no mesmo dia.' : 'Liquidez avaliada pelo consultor.'; }
-  if (id === 'bens') return pct(x.protegido, x.total) + ' do valor dos bens está protegido.';
-  return x.status === 'ok' ? 'A proteção necessária está garantida.' : 'Faltam ' + fmt(x.falta) + ' de proteção.';
+// Resumo no alto: a nota da família e a teia das oito ameaças (quanto de cada uma está resolvido). Embaixo, um cartão
+// por ameaça com o essencial e, por último, o detalhe da ameaça escolhida (a primeira crítica, até o cliente clicar).
+const ROTULO_TEIA = { reserva: 'Reserva', saude: 'Saúde', terceiros: 'Terceiros', ruina: 'Investimentos', liquidez: 'Liquidez', bens: 'Bens', renda: 'Renda', familia: 'Família' };
+function teiaSvg(a) {
+  const n = ENGINE.RISCOS.length, cx = 170, cy = 128, r = 92, ang = k => -Math.PI / 2 + k * 2 * Math.PI / n;
+  const pt = (k, f) => [cx + Math.cos(ang(k)) * r * f, cy + Math.sin(ang(k)) * r * f];
+  let s = [0.25, 0.5, 0.75, 1].map(f => `<polygon points="${ENGINE.RISCOS.map((x, k) => pt(k, f).join(',')).join(' ')}" class="teia-g"/>`).join('');
+  s += ENGINE.RISCOS.map((x, k) => `<line x1="${cx}" y1="${cy}" x2="${pt(k, 1)[0]}" y2="${pt(k, 1)[1]}" class="teia-g"/>`).join('');
+  const v = ENGINE.RISCOS.map(x => a.itens[x.id].pct);
+  s += `<polygon points="${v.map((p, k) => pt(k, Math.max(0.02, p || 0)).join(',')).join(' ')}" class="teia-a"/>`;
+  s += ENGINE.RISCOS.map((x, k) => { const it = a.itens[x.id], [px, py] = pt(k, Math.max(0.02, it.pct || 0)), [lx, ly] = pt(k, 1.24), anc = Math.abs(lx - cx) < 8 ? 'middle' : lx > cx ? 'start' : 'end';
+    return `<circle cx="${px}" cy="${py}" r="4.5" fill="${COR_ST[it.status]}" stroke="#fff" stroke-width="1.5"/>
+      <g class="teia-l" data-risco="${x.id}"><text x="${lx}" y="${ly - 2}" text-anchor="${anc}">${ROTULO_TEIA[x.id]}</text><text x="${lx}" y="${ly + 11}" text-anchor="${anc}" class="v ${it.status}">${it.pct == null ? 'não avaliado' : Math.round(it.pct * 100) + '%'}</text></g>`; }).join('');
+  return `<svg viewBox="0 0 340 256" class="teia">${s}</svg>`;
 }
+// marca de proteção: protegido, parcial, desprotegido ou não avaliado
+const MARCA = { ok: '<svg viewBox="0 0 20 20" class="mk ok"><circle cx="10" cy="10" r="9"/><path d="M6 10.3l2.7 2.7L14 7.5"/></svg>', atencao: '<svg viewBox="0 0 20 20" class="mk atencao"><circle cx="10" cy="10" r="8.2"/><path d="M10 1.8a8.2 8.2 0 010 16.4z"/></svg>', critico: '<svg viewBox="0 0 20 20" class="mk critico"><circle cx="10" cy="10" r="9"/><path d="M7 7l6 6M13 7l-6 6"/></svg>', pendente: '<svg viewBox="0 0 20 20" class="mk pendente"><circle cx="10" cy="10" r="8"/></svg>' };
+const listaMarcas = (itens, max) => `<ul class="rk-lista">${itens.slice(0, max || 4).map(([st, nome]) => `<li>${MARCA[st]}<span>${escH(nome)}</span></li>`).join('')}${itens.length > (max || 4) ? `<li class="mais">+ ${itens.length - (max || 4)}</li>` : ''}</ul>`;
+const fmtK = v => 'R$ ' + fmtC(v);
+function corpoCartao(id, a, R) {
+  const x = a.itens[id];
+  if (x.status === 'pendente' && !['terceiros', 'ruina', 'bens'].includes(id)) return '<div class="rk-nao">Ainda não avaliado pelo seu consultor.</div>';
+  if (id === 'reserva') return `<div class="rk-big">${Math.round(x.pct * 100)}%<small>do ideal de ${fmtK(x.ideal)}</small></div>
+    <div class="rk-trilho"><i style="width:${x.pct * 100}%;background:${COR_ST[x.status]}"></i><b style="left:40%"></b><b style="left:70%"></b></div><div class="rk-trilho-l"><span style="left:40%">mínima</span><span style="left:70%">aceitável</span></div>`;
+  if (id === 'saude') return `<div class="rk-frase">${MARCA[x.status]}${x.status === 'ok' ? 'Plano atual é o ideal' : x.status === 'critico' ? 'Sem plano de saúde' : 'Possível melhorar'}</div>
+    ${x.status === 'atencao' ? `<div class="rk-sub">${x.economia > 0 ? 'Economia de até ' + fmt(x.economia) + ' por mês' : 'Melhor atendimento pelo que você paga'}</div>` : ''}`;
+  if (id === 'terceiros') { const its = (R.terceiros || {}).itens || [];
+    if (!its.length) return `<div class="rk-frase">${MARCA[x.status]}${x.status === 'pendente' ? 'Ainda não avaliado' : 'Sem necessidade de cobertura'}</div>`;
+    return listaMarcas(its.map(i => [+i.atual >= +i.ideal ? 'ok' : +i.atual > 0 ? 'atencao' : 'critico', String(i.nome || 'Cobertura').replace(/^Responsabilidade civil\s*/i, '').replace(/^./, c => c.toUpperCase())])); }
+  if (id === 'ruina') { const it = (R.ruina || {}).itens || {}, ST = { ok: 'ok', atencao: 'atencao', risco: 'critico' }, CURTO = { fraude: 'Investimento fraudulento', classe: 'Concentração em classe', ativo: 'Concentração em ativo', corrosao: 'Corrosão do poder de compra' };
+    return listaMarcas(ENGINE.ITENS_RUINA.map(([k]) => [ST[it[k]] || 'pendente', CURTO[k]])); }
+  if (id === 'liquidez') { const e = x.escada, mostra = [e[0], e[1], e[4]];
+    return `<div class="rk-trio">${mostra.map(([n, v, m]) => `<div><b>${m != null ? vezes(m) : v != null ? fmtK(v) : '—'}</b><span>${n}</span></div>`).join('')}</div><div class="rk-sub">vezes o padrão de vida mensal</div>`; }
+  if (id === 'bens') { const its = (R.bens || {}).itens || [], ST = { total: 'ok', insuficiente: 'atencao', nenhuma: 'critico' };
+    return its.length ? listaMarcas(its.map(b => [ST[b.protecao] || 'pendente', b.nome || 'Bem sem nome'])) : '<div class="rk-nao">Nenhum bem cadastrado.</div>'; }
+  // renda e família: quanto falta de cobertura, ou a marca de que a proteção está adequada
+  return x.status === 'ok' ? `<div class="rk-frase">${MARCA.ok}Proteção adequada</div>` : `<div class="rk-big">${fmtK(x.falta)}<small>falta de cobertura</small></div>
+    <div class="rk-trilho"><i style="width:${x.pct * 100}%;background:${COR_ST[x.status]}"></i></div>`;
+}
+let riscoSel = null;   // ameaça aberta no detalhe; vazia, a primeira crítica (ou em atenção)
 function renderRiscos() {
   const el = document.getElementById('riscos'); if (!el || FASE !== 'riscos') return;
   const P = planoVista(), R = P.riscos || {}, a = ENGINE.avaliaRiscos(P), cont = { ok: 0, atencao: 0, critico: 0, pendente: 0 };
   ENGINE.RISCOS.forEach(x => cont[a.itens[x.id].status]++);
-  const nota = a.nota == null ? null : Math.round(a.nota * 100), circ = 2 * Math.PI * 50, corNota = nota == null ? '#cfcbc3' : nota >= 75 ? COR_ST.ok : nota >= 45 ? COR_ST.atencao : COR_ST.critico;
+  const nota = a.nota == null ? null : Math.round(a.nota * 100);
+  const sel = riscoSel || (ENGINE.RISCOS.find(x => a.itens[x.id].status === 'critico') || ENGINE.RISCOS.find(x => a.itens[x.id].status === 'atencao') || ENGINE.RISCOS[0]).id;
   const rolagem = el.scrollTop;
-  let h = `<div class="rc"><div class="rk-topo">${videoHtml('riscos', 'Por que proteger o seu padrão de vida', 'Aqui vai entrar o vídeo do seu consultor explicando os riscos e como você pode simular outros valores.')}
-    <div class="nota-card"><h2>Gestão de riscos da família</h2><div class="sub">Avaliamos as oito principais ameaças ao padrão de vida da sua família. Cada uma está em dia, pede atenção ou é crítica; a nota mostra quanto dos riscos já está bem resolvido.</div>
-      <div class="nota-linha"><div class="anel"><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="50" fill="none" stroke="#F0EEE9" stroke-width="12"/><circle cx="60" cy="60" r="50" fill="none" stroke="${corNota}" stroke-width="12" stroke-linecap="round" stroke-dasharray="${circ}" stroke-dashoffset="${circ * (1 - (nota || 0) / 100)}"/></svg><b>${nota == null ? '—' : nota + '%'}</b></div>
-        <div class="contagem"><span><i style="background:${COR_ST.ok}"></i>${cont.ok} em dia</span><span><i style="background:${COR_ST.atencao}"></i>${cont.atencao} pedem atenção</span><span><i style="background:${COR_ST.critico}"></i>${cont.critico} críticos</span>${cont.pendente ? `<span><i style="background:${COR_ST.pendente}"></i>${cont.pendente} ainda não avaliados</span>` : ''}</div></div></div></div>
-    <div class="rk-grade">${ENGINE.RISCOS.map(x => { const st = a.itens[x.id].status; return `<button class="rk-tile ${st}" data-risco="${x.id}"><div class="t"><svg viewBox="0 0 24 24"><path d="${ICONE_RISCO[x.id]}"/></svg>${x.nome}</div>${stHtml(st)}<div class="r">${escH(resumoRisco(x.id, a, R))}</div></button>`; }).join('')}</div>`;
-  h += ENGINE.RISCOS.map(x => `<details class="rk-card" id="rk-${x.id}"${abertos.has(x.id) ? ' open' : ''}><summary>${stHtml(a.itens[x.id].status)}<h3>${x.nome}</h3><span class="chev">▶</span></summary><div class="corpo">${corpoRisco(x.id, P, a)}</div></details>`).join('');
+  let h = `<div class="rc"><div class="rk-topo">
+    <div class="nota-card rk-hero"><div class="rk-hero-t"><h2>Gestão de riscos da família</h2><div class="sub">Quanto de cada uma das oito ameaças ao padrão de vida já está resolvido.</div>
+      <div class="rk-nota">${nota == null ? '—' : nota + '%'}<small>nota da família</small></div>
+      <div class="contagem"><span><i style="background:${COR_ST.ok}"></i>${cont.ok} em dia</span><span><i style="background:${COR_ST.atencao}"></i>${cont.atencao} pedem atenção</span><span><i style="background:${COR_ST.critico}"></i>${cont.critico} críticos</span>${cont.pendente ? `<span><i style="background:${COR_ST.pendente}"></i>${cont.pendente} não avaliados</span>` : ''}</div></div>
+      ${teiaSvg(a)}</div>
+    ${videoHtml('riscos', 'Por que proteger o seu padrão de vida', 'Aqui vai entrar o vídeo do seu consultor explicando os riscos e como você pode simular outros valores.')}</div>
+    <div class="rk-grade">${ENGINE.RISCOS.map(x => { const st = a.itens[x.id].status; return `<button class="rk-k${x.id === sel ? ' sel' : ''}" data-risco="${x.id}"><div class="rk-k-t"><svg viewBox="0 0 24 24"><path d="${ICONE_RISCO[x.id]}"/></svg><span>${x.nome}</span><em class="${st}"><i></i>${NOME_ST[st]}</em></div>${corpoCartao(x.id, a, R)}</button>`; }).join('')}</div>`;
+  const xs = ENGINE.RISCOS.find(x => x.id === sel);
+  h += `<section class="rk-card rk-det" id="rk-detalhe"><div class="rk-det-h"><svg viewBox="0 0 24 24"><path d="${ICONE_RISCO[sel]}"/></svg><h3>${xs.nome}</h3>${stHtml(a.itens[sel].status)}</div><div class="corpo">${corpoRisco(sel, P, a)}</div></section>`;
   el.innerHTML = h + '</div>'; el.scrollTop = rolagem;
-  if (abertos.has('reserva')) desenhaReserva();
+  if (sel === 'reserva') desenhaReserva();
   desenhaSeguros();
 }
 const podeProp = () => PAPEL === 'cliente' && !(PROP && PROP.status === 'pendente');
@@ -2210,7 +2289,7 @@ function desenhaReserva() {
 }
 document.getElementById('riscos').addEventListener('click', e => {
   const t = e.target.closest('[data-risco]');
-  if (t) { abertos.add(t.dataset.risco); renderRiscos(); document.getElementById('rk-' + t.dataset.risco).scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
+  if (t) { riscoSel = t.dataset.risco; renderRiscos(); document.getElementById('rk-detalhe').scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
   const ap = e.target.closest('[data-apolice]'); if (ap) { const r = document.getElementById('ap-' + ap.dataset.apolice); r.hidden = !r.hidden; return; }
   const b = e.target.closest('[data-sim]'); if (!b) return;
   const P = BASE.riscos || {};
@@ -2254,7 +2333,6 @@ document.getElementById('riscos').addEventListener('input', e => {
   if (e.target.id === 'simAlvo') { const v = lerReais(e.target.value); SIMR.alvo = isNaN(v) || !v ? null : v; desenhaReserva(); }
   if (e.target.dataset.sg) { const v = lerReais(e.target.value); if (isNaN(v)) delete SIMS[e.target.dataset.sg]; else SIMS[e.target.dataset.sg] = v; desenhaSeguros(); }
 });
-document.getElementById('riscos').addEventListener('toggle', e => { const d = e.target; if (!d.id || !d.id.startsWith('rk-')) return; const id = d.id.slice(3); if (d.open) { abertos.add(id); if (id === 'reserva') desenhaReserva(); } else abertos.delete(id); }, true);
 
 BASE = baseDe(PLANO); PROP = lerProposta(); respostaNoPlano();
 mostraFase(FASE);

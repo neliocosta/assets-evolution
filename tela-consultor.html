@@ -1120,6 +1120,18 @@ const ENGINE = (() => {
       const status = !ps.length ? 'pendente' : ['critico', 'atencao', 'ok'].find(s => ps.some(x => x.status === s));
       out[k] = { status, seg, necessario: ps.reduce((a, x) => a + Math.max(0, x.necessidade), 0), atual: ps.reduce((a, x) => a + x.atual, 0), falta: ps.reduce((a, x) => a + x.falta, 0) };
     }
+    // Quanto cada ameaça está resolvida, de 0 a 1 (a teia do resumo): a parte coberta quando há um valor a cobrir,
+    // senão o status (em dia 1, atenção 0,5, crítico 0). Não avaliada: null.
+    { const cob = (tem, ideal) => ideal > 0 ? Math.min(1, tem / ideal) : 1, PESO = { ok: 1, atencao: 0.5, risco: 0, critico: 0, total: 1, insuficiente: 0.5, nenhuma: 0 };
+      const rv = out.reserva; rv.pct = rv.ideal > 0 && rv.atual != null ? cob(rv.atual, rv.ideal) : null;
+      const ti = ((R.terceiros || {}).itens || []).filter(i => num(i.ideal) > 0);
+      out.terceiros.pct = ti.length ? cob(ti.reduce((a, i) => a + Math.min(+i.atual || 0, +i.ideal), 0), ti.reduce((a, i) => a + +i.ideal, 0)) : null;
+      const ri = ITENS_RUINA.map(([k]) => ((R.ruina || {}).itens || {})[k]).filter(v => v in PESO);
+      out.ruina.pct = ri.length ? ri.reduce((a, v) => a + PESO[v], 0) / ri.length : null;
+      const bi = ((R.bens || {}).itens || []).filter(b => b.protecao in PESO), bv = bi.reduce((a, b) => a + (+b.valor || 0), 0);
+      out.bens.pct = !bi.length ? null : bv > 0 ? bi.reduce((a, b) => a + PESO[b.protecao] * (+b.valor || 0), 0) / bv : bi.reduce((a, b) => a + PESO[b.protecao], 0) / bi.length;
+      for (const k of ['renda', 'familia']) out[k].pct = cob(out[k].atual, out[k].necessario);
+      RISCOS.forEach(x => { const it = out[x.id]; if (it.status === 'pendente') it.pct = null; else if (it.pct == null) it.pct = NOTA[it.status]; }); }
     const pesos = Object.assign({}, ...RISCOS.map(x => ({ [x.id]: 1 })), R.pesos || {});
     let soma = 0, peso = 0; RISCOS.forEach(x => { const st = out[x.id].status; if (st === 'pendente') return; soma += (+pesos[x.id] || 0) * NOTA[st]; peso += +pesos[x.id] || 0; });
     return { itens: out, nota: peso ? soma / peso : null, avaliados: RISCOS.filter(x => out[x.id].status !== 'pendente').length, pesos };

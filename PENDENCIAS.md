@@ -326,3 +326,6 @@ Registradas aqui porque não são óbvias no código:
 - **Jornada em capítulos (01/10/2026).** Com 20 a 25 páginas previstas, os passos lado a lado não cabiam. O cabeçalho
   mostra só a página atual, com anterior e próxima, e o sumário lista capítulos e páginas. Os capítulos 1 a 4 são um
   esqueleto (5 páginas cada, "em breve"): troque os títulos e o conteúdo em `CAPITULOS` quando as páginas existirem.
+- **Gestão de riscos em painel (01/10/2026).** Referências do usuário: dashboards do Dribbble (InTeam, QClay, Virtual
+  Sports): um número ou uma marca dominante por cartão, cor só onde informa, detalhe num cartão largo. A teia mostra
+  quanto de cada ameaça está resolvido; as oito sanfonas viraram um detalhe único, da ameaça clicada.
