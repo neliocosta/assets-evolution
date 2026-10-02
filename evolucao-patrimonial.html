@@ -112,24 +112,10 @@ body.sem-grafico .legend,body.sem-grafico .stats,body.sem-grafico #segView,body.
 .pf-card{background:#fff;border-radius:14px;box-shadow:var(--shadow-card);padding:18px 20px;display:flex;flex-direction:column;gap:12px;min-width:0}
 .pf-big{font:600 30px Sora,sans-serif;color:var(--nl-navy-900);line-height:1.05;white-space:nowrap}
 .pf-big small{display:block;font:500 11.5px 'DM Sans',sans-serif;color:#8d8d8d;margin-top:6px;white-space:normal;line-height:1.4}
-.pf-txt{font-size:12.5px;line-height:1.5;color:var(--nl-gray-700)} .pf-txt b{color:var(--nl-navy-900)}
-.pf-txt .ok{color:#22794a} .pf-txt .atencao{color:#C25A12} .pf-txt .critico{color:var(--nl-score-low)}
-.pf-barra{display:flex;height:12px;border-radius:6px;overflow:hidden;background:#F0EEE9;position:relative}
-.pf-barra i{display:block;height:100%}
-.pf-barra s{position:absolute;top:0;bottom:0;right:0;background:repeating-linear-gradient(135deg,rgba(214,69,69,.85) 0 3px,rgba(255,255,255,.9) 3px 6px)}
-.pf-leg{display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--nl-gray-700)}
-.pf-leg div{display:flex;align-items:center;gap:8px} .pf-leg div span{flex:1} .pf-leg b{font-weight:600;color:var(--nl-navy-900);white-space:nowrap}
-.pf-leg i{width:9px;height:9px;border-radius:3px;flex:0 0 9px}
-/* régua do esperado: mínimo, esperado e máximo para a idade, e onde a família está */
-/* patrimônio ideal para a idade: barras na mesma escala, a liquidez ideal como faixa ao fundo e o total tracejado */
-.pf-dois{display:grid;grid-template-columns:1.15fr 1fr;gap:20px}
-.pf-big.ok{color:#22794a} .pf-big.atencao{color:#C25A12}
-.pf-cmp{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.pf-cmp div{background:var(--nl-cream-50);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:3px}
-.pf-cmp span{font-size:11.5px;color:#8d8d8d;line-height:1.3} .pf-cmp b{font:600 18px Sora,sans-serif;color:var(--nl-navy-900)}
 .pf-ideal{background:#fff;border-radius:14px;box-shadow:var(--shadow-card);padding:20px 22px}
 .pi-cab{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap}
 .pi-cab .pf-big{margin-top:10px}
+.pi-nums{display:flex;gap:56px;flex-wrap:wrap}
 .pi-veredito{border-radius:12px;padding:11px 16px;font-size:13.5px;line-height:1.4}
 .pi-veredito.ok{background:#E7F5EC;color:#22794a} .pi-veredito.atencao{background:#FFF1E6;color:#C25A12} .pi-veredito.critico{background:#FDECEC;color:#B83A3A}
 .pi-graf{position:relative;margin-top:22px;padding-top:24px}
@@ -142,6 +128,10 @@ body.sem-grafico .legend,body.sem-grafico .stats,body.sem-grafico #segView,body.
 .pi-rot.forte{font-weight:600;color:var(--nl-navy-900)}
 .pi-tr{position:relative;height:30px;margin-right:110px}
 .pi-b{position:absolute;left:0;top:3px;bottom:3px;border-radius:7px;min-width:3px}
+/* escada: cada classe começa onde a anterior terminou; o tracinho liga o fim de uma ao começo da outra */
+.pi-b.div{background:repeating-linear-gradient(135deg,rgba(214,69,69,.85) 0 4px,rgba(255,255,255,.9) 4px 8px)!important;box-shadow:inset 0 0 0 1.5px rgba(214,69,69,.85)}
+.pi-b.liga::before{content:'';position:absolute;top:-14px;height:14px;left:-1px;border-left:1.5px dashed rgba(32,52,76,.6)}
+.pi-b.liga.dir::before{left:auto;right:-1px}
 .pi-v{position:absolute;top:50%;transform:translateY(-50%);margin-left:9px;font:600 12.5px Sora,sans-serif;color:var(--nl-navy-900);white-space:nowrap}
 .pi-sep{height:6px;border-bottom:1px solid #F0EEE9;margin-bottom:6px}
 .pi-leg{display:flex;gap:18px;flex-wrap:wrap;margin-top:14px;font-size:11.5px;color:#8d8d8d}
@@ -179,7 +169,7 @@ body.sem-grafico .legend,body.sem-grafico .stats,body.sem-grafico #segView,body.
 .pf-tab td{padding:8px;border-bottom:1px solid #F3F1EC;color:var(--nl-gray-700)} .pf-tab td.n,.pf-tab th.n{text-align:right}
 .pf-tab tr.on td{background:var(--nl-peach-100);color:var(--nl-navy-900);font-weight:600}
 .pf-nao{font-size:13px;color:#8d8d8d;line-height:1.5}
-@media (max-width:1080px){.pf-dois{grid-template-columns:1fr}.pi-linhas{grid-template-columns:150px 1fr}.pi-fundo{left:150px}.pf-cols{grid-template-columns:repeat(2,1fr)}.pf-seg b{font-size:10.5px}}
+@media (max-width:1080px){.pi-linhas{grid-template-columns:150px 1fr}.pi-fundo{left:150px}.pf-cols{grid-template-columns:repeat(2,1fr)}.pf-seg b{font-size:10.5px}}
 /* gestão de riscos */
 #riscos{flex:1;min-height:0;overflow:auto;background:var(--nl-cream-50)}
 #riscos .rc{max-width:1120px;margin:0 auto;padding:24px 24px 60px}
@@ -2269,8 +2259,8 @@ document.getElementById('btnVideo').addEventListener('click', () => {
 
 /// ===================== PÁGINA: FASE DA VIDA E PATRIMÔNIO =====================
 // Em que fase da vida financeira o cliente está (e as idades de cada fase) e o patrimônio de hoje num só lugar: o
-// total e a sua composição, o mínimo, o esperado e o máximo para a idade (ENGINE.faseDaVida) e o financeiro
-// comparado à liquidez ideal do consultor. Embaixo, uma coluna por classe (instituições, empresas, bens, dívidas);
+// total montado classe a classe e comparado ao mínimo, ao esperado e ao máximo para a idade (ENGINE.faseDaVida), com a
+// liquidez ideal do consultor ao fundo. Embaixo, uma coluna por classe (instituições, empresas, bens, dívidas);
 // cada bem e cada dívida abrem o detalhe: financiamento, situação e a renda que o bem gera.
 const PT_ABERTO = new Set();   // colunas com a lista inteira à vista ('col:bens') e itens abertos ('bem:2', 'div:0')
 const SITUACAO = { em_dia: ['ok', 'Em dia'], inadimplente: ['critico', 'Inadimplente'] };
@@ -2289,23 +2279,32 @@ function ondeEsta(f) {
   if (f.maximo === f.minimo) return t >= f.maximo ? ['ok', 'no esperado ou acima'] : ['critico', 'abaixo do esperado'];
   return t < f.minimo ? ['critico', 'abaixo do mínimo'] : t < f.esperado ? ['atencao', 'entre o mínimo e o esperado'] : t <= f.maximo ? ['ok', 'entre o esperado e o máximo'] : ['ok', 'acima do máximo'];
 }
-// O patrimônio ideal para a idade, em barras na mesma escala: o financeiro e o total da família contra o mínimo, o
-// esperado e o máximo desta fase. A faixa escura ao fundo é a liquidez ideal do consultor (o financeiro dentro ou além
-// dela se vê de relance), e a linha tracejada leva o total até as barras da fase.
+// O patrimônio e o ideal para a idade, em barras na mesma escala. Em cima, a escada: cada classe começa onde a anterior
+// terminou e as dívidas voltam até o total, para ler soma e não proporção. Embaixo, o mínimo, o esperado e o máximo desta
+// fase, com a linha tracejada levando o total até eles. A faixa escura ao fundo é a liquidez ideal do consultor.
 function idealHtml(f, fase, onde) {
-  const liq = f.liquidezIdeal > 0 ? f.liquidezIdeal : 0, prep = f.fase === 0;
-  const daFase = prep ? [] : f.maximo === f.minimo ? [['Esperado na liberdade financeira', f.esperado, '#EDB98A']]
+  const liq = f.liquidezIdeal > 0 ? f.liquidezIdeal : 0, prep = fase && f.fase === 0, bruto = f.fin + f.part + f.bens;
+  const daFase = !fase || prep ? [] : f.maximo === f.minimo ? [['Esperado na liberdade financeira', f.esperado, '#EDB98A']]
     : [['Mínimo desta fase', f.minimo, '#F8DDC9'], ['Esperado para a sua idade', f.esperado, '#EDB98A'], ['Máximo desta fase', f.maximo, C.orange]];
-  const topo = Math.max(1, f.total, f.fin, liq, ...daFase.map(x => x[1])), x = v => Math.max(0, v) / topo * 100;
-  const linha = (rot, v, cor, forte) => `<div class="pi-rot${forte ? ' forte' : ''}">${rot}</div><div class="pi-tr"><i class="pi-b" style="width:${x(v)}%;background:${cor}"></i><span class="pi-v" style="left:${x(v)}%">${fmt(v)}</span></div>`;
-  return `<div class="pf-ideal"><div class="pi-cab"><div><div class="pf-rot">Patrimônio ideal para a sua idade</div>
-      ${prep ? `<div class="pf-big">—<small>Na preparação ainda não há patrimônio esperado: qualquer valor acima de zero é um ótimo começo.</small></div>`
-        : `<div class="pf-big">${fmt(f.esperado)}<small>esperado para quem tem ${f.idade} anos e está na ${fase.nome.toLowerCase()} · padrão de vida de ${fmt(f.padrao)} por mês × ${vezes(f.mult)}</small></div>`}</div>
+  const topo = Math.max(1, bruto, liq, ...daFase.map(x => x[1])), x = v => Math.max(0, v) / topo * 100;
+  // a escada do patrimônio: as classes se somam uma depois da outra, as dívidas voltam e o que sobra é o total
+  const passos = [['Mercado financeiro', 0, f.fin, C.fin], ['Participações societárias', f.fin, f.fin + f.part, C.part], ['Imóveis e outros bens', f.fin + f.part, bruto, C.bens]]
+    .filter((p, i) => i === 0 || p[2] > p[1]);
+  const barra = (rot, de, ate, cor, cls, txt, forte) => `<div class="pi-rot${forte ? ' forte' : ''}">${rot}</div><div class="pi-tr"><i class="pi-b ${cls}" style="left:${x(Math.min(de, ate))}%;width:${Math.abs(x(ate) - x(de))}%;background:${cor}"></i><span class="pi-v" style="left:${x(Math.max(de, ate))}%">${txt}</span></div>`;
+  const escada = passos.map(([n, de, ate, c], i) => barra(n, de, ate, c, i ? 'liga' : '', (i ? '+ ' : '') + fmt(ate - de))).join('')
+    + (f.dividas ? barra('Dívidas e financiamentos', bruto, f.total, C.out, 'div liga dir', '− ' + fmt(f.dividas)) : '')
+    + barra('Patrimônio total', 0, f.total, C.navy, passos.length > 1 || f.dividas ? 'liga dir' : '', fmt(f.total), true);
+  const linhaTot = 24 + (passos.length + (f.dividas ? 1 : 0)) * 38;   // onde começa a linha do total: 30 px de barra e 8 de vão por linha
+  const liqTxt = liq ? 'liquidez ideal · ' + fmt(liq) + (f.fin < liq ? ' · faltam ' + fmt(liq - f.fin) : '') : '';
+  return `<div class="pf-ideal"><div class="pi-cab"><div class="pi-nums">
+      <div><div class="pf-rot">Patrimônio total</div><div class="pf-big">${fmt(f.total)}<small>${f.dividas ? 'o que a família tem, menos o que deve' : 'tudo o que a família tem hoje'}</small></div></div>
+      ${!fase ? '' : prep ? `<div><div class="pf-rot">Esperado para a sua idade</div><div class="pf-big">—<small>Na preparação ainda não há patrimônio esperado: qualquer valor acima de zero é um ótimo começo.</small></div></div>`
+        : `<div><div class="pf-rot">Esperado para a sua idade</div><div class="pf-big">${fmt(f.esperado)}<small>para quem tem ${f.idade} anos e está na ${fase.nome.toLowerCase()} · padrão de vida de ${fmt(f.padrao)} por mês × ${vezes(f.mult)}</small></div></div>`}</div>
       ${onde ? `<div class="pi-veredito ${onde[0]}">O seu patrimônio total está <b>${onde[1]}</b>${f.maximo === f.minimo ? '' : ' desta fase'}.</div>` : ''}</div>
-    <div class="pi-graf"><div class="pi-fundo">${liq ? `<div class="pi-liq" style="width:${x(liq)}%"><span>liquidez ideal · ${fmt(liq)}</span></div>` : ''}<div class="pi-tot" style="left:${x(f.total)}%"></div></div>
-      <div class="pi-linhas">${linha('Patrimônio financeiro', f.fin, C.fin)}${linha('Patrimônio total', f.total, C.navy, true)}
-        ${daFase.length ? '<div class="pi-sep"></div><div class="pi-sep"></div>' + daFase.map(([n, v, c]) => linha(n, v, c)).join('') : ''}</div></div>
-    <div class="pi-leg">${liq ? '<span><i style="background:rgba(32,52,76,.16);border-right:1.5px dashed rgba(32,52,76,.5)"></i>liquidez ideal, definida pelo seu consultor</span>' : ''}<span><i style="border-left:1.5px dashed var(--nl-navy-900);width:0;height:12px;border-radius:0"></i>o seu patrimônio total</span></div></div>`;
+    <div class="pi-graf"><div class="pi-fundo">${liq ? `<div class="pi-liq" style="width:${x(liq)}%"><span>${liqTxt}</span></div>` : ''}${daFase.length ? `<div class="pi-tot" style="left:${x(f.total)}%;top:${linhaTot}px"></div>` : ''}</div>
+      <div class="pi-linhas">${escada}
+        ${daFase.length ? '<div class="pi-sep"></div><div class="pi-sep"></div>' + daFase.map(([n, v, c]) => barra(n, 0, v, c, '', fmt(v))).join('') : ''}</div></div>
+    <div class="pi-leg">${liq ? '<span><i style="background:rgba(32,52,76,.16);border-right:1.5px dashed rgba(32,52,76,.5)"></i>liquidez ideal, definida pelo seu consultor</span>' : ''}${daFase.length ? '<span><i style="border-left:1.5px dashed var(--nl-navy-900);width:0;height:12px;border-radius:0"></i>o seu patrimônio total, comparado com a fase</span>' : ''}</div></div>`;
 }
 // a trilha das cinco fases: o nome em cima, a faixa de idade embaixo, e o cliente na fase em que está
 function trilhaHtml(f) {
@@ -2316,10 +2315,10 @@ function trilhaHtml(f) {
   }).join('')}</div>`;
 }
 // uma coluna da composição: o total da classe e os itens, com a parte de cada um
-function colunaHtml(id, nome, total, bruto, itens, vazio) {
+function colunaHtml(id, nome, total, itens, vazio) {
   const todos = PT_ABERTO.has('col:' + id), vis = todos ? itens : itens.slice(0, 4), max = Math.max(1, ...itens.map(x => x.v));
   return `<div class="pf-col"><h4><i style="background:${COR_CLASSE[id]}"></i>${nome}</h4>
-    <div class="v">${id === 'div' && total ? '− ' : ''}${fmtK(total)}${bruto > 0 && id !== 'div' ? `<small>${Math.round(total / bruto * 100)}%</small>` : ''}</div>
+    <div class="v">${id === 'div' && total ? '− ' : ''}${fmtK(total)}</div>
     ${itens.length ? vis.map(x => `<button class="pf-it${x.det ? ' clic' : ''}"${x.det ? ` data-pt-abre="${x.chave}"` : ''}><div class="l"><span title="${escH(x.nome)}">${escH(x.nome)}</span><b>${fmtK(x.v)}</b></div>
       <div class="pb"><i style="width:${x.v / max * 100}%;background:${COR_CLASSE[id]};opacity:.55"></i></div>${x.tags ? `<div class="pf-tags">${x.tags}</div>` : ''}
       ${x.det && PT_ABERTO.has(x.chave) ? `<div class="pf-det">${x.det}</div>` : ''}</button>`).join('') : `<div class="pf-vazio">${vazio}</div>`}
@@ -2334,21 +2333,11 @@ function dividaDet(d) {
 function renderPatrimonio() {
   const el = document.getElementById('patrimonio'); if (!el || FASE !== 'patrimonio') return;
   const P = planoVista(), D = P.patrimonio || {}, f = ENGINE.faseDaVida(P), fase = f.fases ? f.fases[f.fase] : null, rolagem = el.scrollTop;
-  const bruto = f.fin + f.part + f.bens, onde = fase ? ondeEsta(f) : null;
+  const onde = fase ? ondeEsta(f) : null;
   // topo: a fase e as idades de cada fase, ao lado do vídeo
   const hero = `<div class="nota-card" style="justify-content:center;gap:16px"><div class="pf-rot">A sua fase da vida financeira</div>
     ${fase ? `<div class="pf-fase">${fase.nome}<small><b>${f.idade} anos</b>${f.fase > 0 && f.fase < 4 ? ' · ' + Math.round(f.progresso * 100) + '% desta fase' : ''} · liberdade financeira aos <b>${f.alvo} anos</b>${f.alvoDoPlano ? '' : ' (idade de referência)'}</small></div>${trilhaHtml(f)}`
       : `<div class="pf-nao">O seu consultor ainda não informou a idade em que você começou a trabalhar. Com ela, esta página mostra a sua fase da vida financeira e o patrimônio esperado para a sua idade.</div>`}</div>`;
-  // os três números
-  const seg = [[f.fin, C.fin, 'Financeiro'], [f.part, C.part, 'Participações'], [f.bens, C.bens, 'Bens']].filter(x => x[0] > 0);
-  const cTotal = `<div class="pf-card"><div class="pf-rot">Patrimônio total</div><div class="pf-big">${fmt(f.total)}<small>${f.dividas ? 'o que a família tem, menos o que deve' : 'tudo o que a família tem hoje'}</small></div>
-    <div class="pf-barra">${seg.map(([v, c]) => `<i style="width:${v / Math.max(1, bruto) * 100}%;background:${c}"></i>`).join('')}${f.dividas ? `<s style="width:${Math.min(100, f.dividas / Math.max(1, bruto) * 100)}%" title="dívidas"></s>` : ''}</div>
-    <div class="pf-leg">${seg.map(([v, c, n]) => `<div><i style="background:${c}"></i><span>${n}</span><b>${fmt(v)}</b></div>`).join('')}${f.dividas ? `<div><i style="background:${C.out}"></i><span>Dívidas</span><b>− ${fmt(f.dividas)}</b></div>` : ''}</div></div>`;
-  const liq = f.liquidezIdeal, bom = liq > 0 && f.fin >= liq;
-  const cLiq = `<div class="pf-card"><div class="pf-rot">Dinheiro disponível</div>
-    ${liq > 0 ? `<div class="pf-big ${bom ? 'ok' : 'atencao'}">${bom ? 'Está bom' : 'Abaixo do ideal'}<small>${bom ? 'você tem pelo menos o que o seu consultor considera ideal em dinheiro' : 'faltam ' + fmt(liq - f.fin) + ' para o que o seu consultor considera ideal'}</small></div>
-      <div class="pf-cmp"><div><span>O seu consultor projeta como ideal</span><b>${fmt(liq)}</b></div><div><span>Você tem no mercado financeiro</span><b>${fmt(f.fin)}</b></div></div>`
-      : `<div class="pf-big">${fmt(f.fin)}<small>no mercado financeiro</small></div><div class="pf-nao">O seu consultor ainda não definiu quanto seria o ideal.</div>`}</div>`;
   // a composição, classe a classe
   const its = (l, k, pref, extra) => (l || []).map((x, i) => Object.assign({ nome: x.nome || 'Sem nome', v: +x[k] || 0, chave: pref + i }, extra ? extra(x, i) : {})).sort((a, b) => b.v - a.v);
   const bensIt = its(D.bens, 'mercado', 'bem:', b => {
@@ -2362,17 +2351,17 @@ function renderPatrimonio() {
     .map(([d, nome, chave, tipo]) => { const st = SITUACAO[d.situacao]; return { nome, v: +d.saldoDevedor || 0, chave, det: dividaDet(d), tags: (tipo ? `<span class="pf-tag">${tipo}</span>` : '') + (+d.parcela ? `<span class="pf-tag">parcela ${fmt(+d.parcela)}</span>` : '') + (st ? `<span class="pf-tag ${st[0]}">${st[1]}</span>` : '') }; })
     .sort((a, b) => b.v - a.v);
   const comp = `<div class="pf-comp"><h3>De onde vem o seu patrimônio</h3><div class="sub">Clique num bem ou numa dívida para ver o detalhe.</div><div class="pf-cols">
-    ${colunaHtml('fin', 'Mercado financeiro', f.fin, bruto, its(D.financeiro, 'valor', 'fin:'), 'Nenhuma instituição informada.')}
-    ${colunaHtml('part', 'Participações societárias', f.part, bruto, its(D.participacoes, 'valor', 'part:'), 'Nenhuma participação.')}
-    ${colunaHtml('bens', 'Imóveis e outros bens', f.bens, bruto, bensIt, 'Nenhum bem informado.')}
-    ${colunaHtml('div', 'Dívidas e financiamentos', f.dividas, bruto, divIt, 'Nenhuma dívida.')}</div></div>`;
+    ${colunaHtml('fin', 'Mercado financeiro', f.fin, its(D.financeiro, 'valor', 'fin:'), 'Nenhuma instituição informada.')}
+    ${colunaHtml('part', 'Participações societárias', f.part, its(D.participacoes, 'valor', 'part:'), 'Nenhuma participação.')}
+    ${colunaHtml('bens', 'Imóveis e outros bens', f.bens, bensIt, 'Nenhum bem informado.')}
+    ${colunaHtml('div', 'Dívidas e financiamentos', f.dividas, divIt, 'Nenhuma dívida.')}</div></div>`;
   // como o esperado é calculado: as fases com as idades e os valores deste cliente
   const como = !fase ? '' : `<details class="pf-como"${PT_ABERTO.has('como') ? ' open' : ''} data-pt-como><summary>Como o patrimônio esperado é calculado</summary>
     <div class="txt">A vida de trabalho, dos ${f.comecou} aos ${f.alvo} anos, é dividida em nove partes: dois nonos de início de carreira, quatro de consolidação e três de plenitude. Em cada fase, o patrimônio esperado é o padrão de vida mensal (${fmt(f.padrao)}) multiplicado por um fator que cresce ao longo dela.</div>
     <table class="pf-tab"><thead><tr><th>Fase</th><th>Idades</th><th class="n">Fator</th><th class="n">Patrimônio esperado</th></tr></thead><tbody>
     ${f.fases.map((x, i) => `<tr class="${i === f.fase ? 'on' : ''}"><td>${x.nome}</td><td>${i === 0 ? 'até ' + anosTxt(x.ate) : i === 4 ? 'a partir de ' + anosTxt(x.de) : anosTxt(x.de) + ' a ' + anosTxt(x.ate)} anos</td><td class="n">${x.max ? (x.min === x.max ? vezes(x.min) : vezes(x.min) + ' a ' + vezes(x.max)) : '—'}</td><td class="n">${x.max ? (x.min === x.max ? fmt(f.padrao * x.min) : fmt(f.padrao * x.min) + ' a ' + fmt(f.padrao * x.max)) : '—'}</td></tr>`).join('')}</tbody></table></details>`;
   el.innerHTML = `<div class="rc"><div class="rk-topo">${hero}${videoHtml('patrimonio', 'A sua fase da vida e o seu patrimônio', 'Aqui vai entrar o vídeo do seu consultor explicando a sua fase da vida financeira e o seu patrimônio.')}</div>
-    <div class="pf-dois">${cTotal}${cLiq}</div>${fase ? idealHtml(f, fase, onde) : ""}${comp}${como}</div>`;
+    ${idealHtml(f, fase, onde)}${comp}${como}</div>`;
   el.scrollTop = rolagem;
 }
 document.getElementById('patrimonio').addEventListener('click', e => {

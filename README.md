@@ -55,11 +55,12 @@ página Patrimônio tem:
 - um bem que gera renda passiva aponta para a linha de entrada do Fluxo de caixa (`bem.renda`, o id da linha): o
   consultor escolhe uma renda passiva que já existe ou cadastra uma nova dali mesmo. O valor fica num lugar só, o fluxo.
 
-Na tela do cliente: no alto, a fase atual e as cinco fases com as idades de cada uma, ao lado do vídeo. Depois, o
-patrimônio total (com a barra da composição e as dívidas hachuradas) e o dinheiro disponível (o ideal que o consultor
-projeta, o que o cliente tem e se está bom). Em largura total, o patrimônio ideal para a idade: barras na mesma escala
-para o financeiro, o total e o mínimo, o esperado e o máximo da fase, com a liquidez ideal como faixa escura ao fundo
-(o financeiro dentro ou além dela) e o total tracejado até as barras da fase. Embaixo, "De onde vem o seu patrimônio": uma coluna por classe (mercado financeiro,
+Na tela do cliente: no alto, a fase atual e as cinco fases com as idades de cada uma, ao lado do vídeo. Depois, em
+largura total, o patrimônio total e o esperado para a idade, com barras na mesma escala. Em cima, a escada: o mercado
+financeiro, mais as participações, mais os bens, menos as dívidas (hachuradas), chegando ao total; cada barra começa onde
+a anterior terminou, para ler soma e não proporção. Embaixo, o mínimo, o esperado e o máximo da fase, com o total
+tracejado até elas. A liquidez ideal é a faixa escura ao fundo (o financeiro dentro ou além dela; quando falta, a faixa
+diz quanto). Embaixo, "De onde vem o seu patrimônio": uma coluna por classe (mercado financeiro,
 participações, bens, dívidas), com os itens; um bem ou uma dívida abre o detalhe (financiamento, situação, renda que o
 bem gera). Por último, recolhido, "Como o patrimônio esperado é calculado", com a tabela das fases deste cliente.
 

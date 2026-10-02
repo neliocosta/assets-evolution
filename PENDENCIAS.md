@@ -397,3 +397,11 @@ Registradas aqui porque não são óbvias no código:
   percentual, também no portal). A parcela da dívida entra no Fluxo de caixa como a renda do bem já entrava. A página
   Liberdade financeira abre com o que o patrimônio sustenta (perpetuidade e consumo, já com as rendas na fase de menor
   renda), para o consultor decidir a renda desejada com esses números.
+- **Cartões sempre alinhados e o patrimônio em escada (02/10/2026).** Regra do usuário, para qualquer página: cartões
+  lado a lado em linhas diferentes têm as mesmas larguras (as bordas batem de uma linha para a outra); se não der, um vai
+  em cima e o outro embaixo. Os cartões de patrimônio total e de dinheiro disponível usavam colunas diferentes das do topo
+  (fase e vídeo) e saíram. A barra da composição parecia mostrar proporção, e o usuário quer mostrar soma: o patrimônio
+  total foi para o gráfico do patrimônio ideal, como uma escada (financeiro, mais participações, mais bens, menos
+  dívidas, igual ao total), na mesma escala do mínimo, do esperado e do máximo da fase. O dinheiro disponível ficou só na
+  faixa da liquidez ideal, que diz quanto falta quando o financeiro está abaixo dela. As colunas de "De onde vem o seu
+  patrimônio" também perderam o percentual.
