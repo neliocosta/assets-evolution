@@ -217,7 +217,8 @@ input.pede{border-color:var(--nl-orange-500);box-shadow:0 0 0 3px var(--nl-peach
 .drawer .blk{border-top:1px dashed #eceae5;padding-top:14px;margin-top:14px}
 .drawer .blk h4{font:600 11.5px Sora,sans-serif;color:var(--nl-navy-900);margin-bottom:10px}
 .drawer .field{margin-bottom:11px}
-.drawer .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.drawer .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:end}
+.drawer .blk + .field{margin-top:14px}
 .deriv{font:500 11.5px 'DM Sans',sans-serif;color:#8d8d8d;margin-top:4px}
 .drawer .foot{display:flex;gap:10px;align-items:center;margin-top:20px;border-top:1px solid #f0efec;padding-top:16px}
 details.opc{margin-bottom:12px} details.opc summary{cursor:pointer;font:600 12px 'DM Sans',sans-serif;color:var(--nl-orange-600);margin-bottom:8px}
@@ -414,6 +415,16 @@ label.fxhoriz select{width:auto;padding:5px 8px;font-size:12.5px}
 .fxpe{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-top:10px;flex-wrap:wrap}
 .fxpe details.ajuda{margin:0;max-width:640px}
 #fxResumo{margin-top:6px}
+/* liberdade: o que o patrimônio sustenta */
+.sus-p{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px}
+.sus-p>div{background:var(--nl-cream-50);border-radius:11px;padding:11px 14px;display:flex;flex-direction:column;gap:3px}
+.sus-p span,.sus-c>span{font:500 11.5px 'DM Sans',sans-serif;color:#8d8d8d}
+.sus-p b{font:600 18px Sora,sans-serif;color:var(--nl-navy-900)} .sus-p small{font-size:11.5px;color:#8d8d8d}
+.sus-cs{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.sus-c{border:1px solid #efeeea;border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.sus-c b{font:600 24px Sora,sans-serif;color:var(--nl-navy-900)} .sus-c b small{font:500 12px 'DM Sans',sans-serif;color:#8d8d8d;margin-left:3px}
+.sus-d{font-size:12px;color:#777;line-height:1.45}
+.sus-st{font:600 11.5px 'DM Sans',sans-serif;padding:3px 9px;border-radius:9999px} .sus-st.ok{background:#E7F5EC;color:#22794a} .sus-st.falta{background:#FFF1E6;color:#C25A12}
 /* liberdade: explicação do modo de saque */
 .modo-exp{font-size:12.5px;color:#666;line-height:1.5;background:var(--nl-cream-50);border-radius:10px;padding:10px 13px;height:100%}
 /* patrimônio: resumo e itens */
@@ -431,10 +442,11 @@ label.fxhoriz select{width:auto;padding:5px 8px;font-size:12.5px}
 .pc-linha .btn-icon{margin-bottom:6px}
 .pc-fin{margin-top:10px;padding-top:10px;border-top:1px dashed #eceae5}
 .pc-fin h4{font:600 11.5px Sora,sans-serif;color:var(--nl-navy-900);margin-bottom:8px;display:flex;align-items:center;gap:8px}
-.pc-fin .grid{grid-template-columns:repeat(5,1fr);gap:8px 10px}
+.pc-fin .grid{grid-template-columns:repeat(3,1fr);gap:8px 12px}
 .pc-fin input,.pc-fin select,.pc-linha input{padding:7px 9px;font-size:13px}
 .pc-renda{display:flex;align-items:center;gap:10px;margin-top:10px;font:500 12px 'DM Sans',sans-serif;color:#8a8a8a;flex-wrap:wrap}
-.pc-renda select{width:auto;min-width:240px;padding:6px 8px;font-size:12.5px}
+.pc-renda .link{margin-left:2px}
+.pc-renda select{width:auto;min-width:240px;max-width:420px;padding:6px 8px;font-size:12.5px}
 .pc-renda b{color:var(--nl-navy-900);font-weight:600}
 .pc-tot{display:flex;justify-content:space-between;align-items:center;margin-top:10px;font:600 13px Sora,sans-serif;color:var(--nl-navy-900)}
 .pc-vazio{font-size:12.5px;color:#a9a59d;font-style:italic;padding:2px 0 4px}
@@ -580,7 +592,8 @@ details.pesos{margin-top:14px}
   <section class="page" data-page="liberdade">
     <div class="kicker">Planejamento · passo 6 de 8</div>
     <h2>Liberdade financeira</h2>
-    <div class="hint">As rendas da aposentadoria (INSS, previdências) e como o patrimônio completa a renda desejada.</div>
+    <div class="hint">O que o patrimônio vai sustentar, as rendas da aposentadoria (INSS, previdências) e como o patrimônio completa a renda desejada.</div>
+    <div id="ffSustenta"></div>
     <div class="bloco"><h3>Rendas da aposentadoria</h3>
       <div class="tablewrap"><table class="pr-tab">
         <thead><tr><th style="width:24%">Renda</th><th>Valor</th><th>Começa</th><th>Dura</th><th>Custo de contratação</th><th></th></tr></thead>
@@ -2411,12 +2424,34 @@ document.addEventListener('click', e => {
   const d = e.target.closest('[data-pas-det]'); if (d) { abrirGaveta('pas', +d.dataset.pasDet); return; }
   const r = e.target.closest('[data-del-pas]'); if (r) armar(r, () => plano.passive.splice(+r.dataset.delPas, 1));
 });
+// O que o patrimônio sustenta na liberdade: o patrimônio que o cliente terá e a renda possível em cada forma de sacar,
+// somada às rendas que já entram (aposentadoria e rendas passivas do fluxo). É a base para decidir a renda desejada.
+function htmlSustenta() {
+  const f = ffInfo();
+  if (!f || !temFluxo()) return '<div class="bloco"><h3>O que o patrimônio sustenta</h3><div class="sub" style="margin:0">Aparece quando houver entradas no Fluxo de caixa: a simulação diz quanto o cliente terá na liberdade.</div></div>';
+  const ff = f.ff, w = SIM.weeks[ff.week], rendaEm = m => plano.passive.reduce((a, p) => a + (ENGINE.rendaAtiva(p, m, f.mi) ? +p.net || 0 : 0), 0) + passivaDoFluxo(m);
+  // as rendas mudam com o tempo (um fundo de 5 anos acaba, o INSS começa): vale a fase em que elas são menores
+  const meses = Math.max(12, Math.round((+plano.lifeExp - ff.age) * 12)), rs = Array.from({ length: meses }, (_, k) => rendaEm(f.mi + k)), rendas = Math.min(...rs), rMax = Math.max(...rs);
+  const perp = ff.finAfter * plano.rate, cons = ff.pmt, des = +plano.desired || 0, cem = v => Math.floor(v / 100) * 100;
+  const cen = (nome, saque, nota) => { const tot = saque + rendas, cabe = des > 0 && tot >= des - 0.5;
+    return `<div class="sus-c"><span>${nome}</span><b>${fmt(tot)}<small>/mês</small></b><div class="sus-d">${fmt(saque)} do patrimônio${rendas ? ' + ' + fmt(rendas) + ' de rendas' : ''}${rMax > rendas + 0.5 ? ' na fase de menor renda (em outras, até ' + fmt(saque + rMax) + ')' : ''} · ${nota}</div>
+      ${des > 0 ? `<div class="sus-st ${cabe ? 'ok' : 'falta'}">${cabe ? 'cobre a renda desejada' : 'faltam ' + fmt(des - tot) + ' para a renda desejada'}</div>` : ''}
+      ${Math.abs(cem(tot) - des) >= 100 ? `<button class="btn btn-secondary btn-small" data-usar-renda="${cem(tot)}">Usar ${fmt(cem(tot))} como renda desejada</button>` : ''}</div>`; };
+  return `<div class="bloco"><h3>O que o patrimônio sustenta<span class="dir">liberdade aos ${Math.floor(ff.age)} anos, em ${monthsLabel(f.mi)}</span></h3>
+    <div class="sus-p"><div><span>Patrimônio financeiro na liberdade</span><b>${fmt(ff.finBefore)}</b>${ff.cost ? `<small>${fmt(ff.finAfter)} depois de contratar as rendas (${fmt(ff.cost)})</small>` : ''}</div>
+      <div><span>Bens e participações</span><b>${fmt((w.bens || 0) + (w.part || 0))}</b><small>não pagam a renda (um aluguel entra como renda)</small></div>
+      <div><span>Renda desejada hoje</span><b>${des > 0 ? fmt(des) : '—'}</b><small><button class="link" data-ir="cliente">mudar na página Cliente</button></small></div></div>
+    <div class="sus-cs">${cen('Perpetuidade', perp, 'só o rendimento; o patrimônio não acaba')}${cen('Consumo até os ' + plano.lifeExp + ' anos', cons, 'o patrimônio acaba aos ' + plano.lifeExp)}</div>
+    ${plano.retireAge == null || plano.retireAge === '' ? '<div class="sub" style="margin:12px 0 0">Sem idade para parar de trabalhar, a liberdade acontece quando o patrimônio sustenta a renda desejada: mudar a renda desejada muda essa data. Para comparar com uma data fixa, informe a idade na página Cliente.</div>' : ''}</div>`;
+}
+document.addEventListener('click', e => { const b = e.target.closest('[data-usar-renda]'); if (!b) return; plano.desired = +b.dataset.usarRenda; plano.desiredSteps = []; fillFields(); renderAll(); });
 const MODO_EXP = {
   perp: '<b>Perpetuidade:</b> saca só o rendimento. O patrimônio fica estável e o padrão de vida acompanha o que ele rende.',
   cons: '<b>Consumo:</b> saca o que esgota o patrimônio na expectativa de vida.',
   desej: '<b>Renda desejada:</b> saca só o que falta para a renda desejada. O patrimônio pode acabar antes da expectativa de vida, ou sobrar.' };
 function renderLiberdade() {
   const tb = document.getElementById('tbPas'), f = ffInfo();
+  document.getElementById('ffSustenta').innerHTML = htmlSustenta();
   document.getElementById('modoExp').innerHTML = MODO_EXP[['perp', 'cons', 'desej'].includes(plano.mode) ? plano.mode : 'perp'] + ' A visão do cliente abre nesta opção.';
   document.getElementById('ffProg').innerHTML = htmlProgramacao();
   tb.innerHTML = plano.passive.length ? plano.passive.map(htmlLinhaRenda).join('')
@@ -2833,7 +2868,7 @@ function htmlLinha(it) {
   }
   const exc = it.exc ? Object.keys(it.exc).sort((a, b) => parseFloat(a.replace(':', '.')) - parseFloat(b.replace(':', '.'))) : [];
   if (exc.length) h += `<div class="blk"><h4>Ajustes de uma só ocorrência</h4><div class="chipset">${exc.map(k => `<span class="chipd">${k.includes(':') ? 'semana de ' + semanaDaChave(parseInt(k, 10), +k.split(':')[1]) : monthsLabel(parseInt(k, 10))}: ${money(it.exc[k])}<button data-gvx-rm="${k}" title="Remover">×</button></span>`).join('')}</div></div>`;
-  if (inc) h += `<div class="blk"><div class="row2">${campo('Valor bruto por recebimento (opcional)', `<input data-gv="gross" data-money type="text" inputmode="decimal" value="${money(it.gross || 0)}">`)}${campo('Renda tributável (opcional)', `<select data-gv="taxable">${opt('1', 'Sim', it.taxable !== false ? '1' : '0')}${opt('0', 'Não', it.taxable !== false ? '1' : '0')}</select>`)}</div><div class="deriv">O fluxo de caixa usa sempre o valor líquido, que é o da planilha.</div></div>`;
+  if (inc) h += `<div class="blk"><div class="row2">${campo('Bruto por recebimento (opcional)', `<input data-gv="gross" data-money type="text" inputmode="decimal" value="${money(it.gross || 0)}">`)}${campo('Tributável (opcional)', `<select data-gv="taxable">${opt('1', 'Sim', it.taxable !== false ? '1' : '0')}${opt('0', 'Não', it.taxable !== false ? '1' : '0')}</select>`)}</div><div class="deriv" style="margin-bottom:4px">O fluxo de caixa usa sempre o valor líquido, que é o da planilha.</div></div>`;
   h += campo('Descrição', `<textarea data-gv="description" placeholder="Observações que ajudam a explicar esta linha ao cliente.">${esc(it.description || '')}</textarea>`);
   return h + rodape();
 }
@@ -3056,10 +3091,59 @@ function camposDivida(c, d, titulo) {
   const aviso = +d.credito > 0 && +d.saldoDevedor > +d.credito ? '<div class="sub" style="margin:8px 0 0;color:var(--nl-orange-600)">O saldo devedor está maior que o crédito contratado: confira os valores.</div>' : '';
   const cp = (n, h) => `<div class="field"><label>${n}</label>${h}</div>`;
   return `<div class="pc-fin"><h4>${titulo}${st}</h4><div class="grid">
-    ${cp('Crédito contratado', campoR(c + 'credito', 'reais'))}${cp('Parcelas contratadas', campoR(c + 'parcelas', 'num', ' min="1" step="1" placeholder="ex.: 360"'))}
-    ${cp('Parcela atual (por mês)', campoR(c + 'parcela', 'reais'))}${cp('Juros contratados (% ao ano)', campoR(c + 'juros', 'num', ' min="0" step="0.01" placeholder="ex.: 9,5"'))}
-    ${cp('Situação', selR(c + 'situacao', SITUACOES))}</div>${aviso}</div>`;
+    ${cp('Crédito contratado', campoR(c + 'credito', 'reais'))}${cp('Juros contratados (% ao ano)', campoR(c + 'juros', 'num', ' min="0" step="0.01" placeholder="ex.: 9,5"'))}${cp('Situação', selR(c + 'situacao', SITUACOES))}
+    ${cp('Parcelas contratadas', campoR(c + 'parcelas', 'num', ' min="1" step="1" placeholder="ex.: 360"'))}${cp('Parcelas que faltam', campoR(c + 'restantes', 'num', ' min="1" step="1" placeholder="até quando paga"'))}${cp('Parcela atual (por mês)', campoR(c + 'parcela', 'reais'))}</div>${aviso}${fluxoDaDivida(c, d)}</div>`;
 }
+// A parcela da dívida entra no Fluxo de caixa como uma despesa fixa. Por padrão, numa linha própria ("Parcela: nome"),
+// criada quando o consultor informa a parcela e mantida igual a ela (valor e, com as parcelas que faltam, o fim). O
+// consultor pode, em vez disso, apontar uma despesa fixa que já existe, ou dizer que a parcela não entra no fluxo.
+// d.linha é o id da despesa; d.linhaPropria diz se ela foi criada aqui; d.semFluxo, que não entra.
+const linhaDaDivida = d => d && d.linha ? plano.expenses.find(x => x.id === d.linha) || null : null;
+function fluxoDaDivida(c, d) {
+  const it = linhaDaDivida(d), fixas = plano.expenses.filter(x => x.group === 'fix' && x !== it || (x === it && !d.linhaPropria));
+  const fim = it ? fimDe(it) : null, sit = d.semFluxo ? 'nao' : it ? (d.linhaPropria ? '__propria' : it.id) : '__pend';
+  const opt = (v, t) => `<option value="${esc(v)}"${v === sit ? ' selected' : ''}>${t}</option>`;
+  return `<div class="pc-renda">Parcela no Fluxo de caixa: <select data-div-linha="${c}">
+    ${sit === '__pend' ? opt('__pend', 'Ainda não lançada') : ''}${opt('__propria', it && d.linhaPropria ? 'Linha própria: ' + esc(it.label) : 'Lançar numa linha própria')}
+    ${fixas.map(x => opt(x.id, 'Já está na linha ' + esc(x.label || 'sem nome') + ' · ' + fmt(mensalDe(x)) + '/mês')).join('')}${opt('nao', 'Não entra no fluxo')}</select>
+    ${it ? `<span><b>${fmt(mensalDe(it))}/mês</b>${fim != null ? ' até ' + monthsLabel(fim) : ', sem data para terminar'}</span><button class="link" data-div-abrir="${esc(it.id)}">ver no Fluxo de caixa</button>`
+      : sit === '__pend' && +d.parcela > 0 ? `<span style="color:var(--nl-orange-600)">A parcela de ${fmt(+d.parcela)} ainda não está no fluxo.</span><button class="link" data-div-lancar="${c}">Lançar agora</button>` : ''}</div>`;
+}
+// cria ou acerta a linha da parcela: valor a partir de hoje e, numa linha própria, o nome e o fim
+function lancaParcela(d, criar) {
+  if (!d || d.semFluxo) return;
+  let it = linhaDaDivida(d);
+  if (!it) {
+    if (!criar) return;
+    it = { id: novoId('cat'), label: '', group: 'fix', frequency: 'mensal', days: [10], description: 'Parcela de dívida, lançada pela página Patrimônio', steps: [{ from: 0, value: 0 }] };
+    plano.expenses.push(it); d.linha = it.id; d.linhaPropria = true;
+  }
+  if (d.linhaPropria) it.label = 'Parcela: ' + (d.nome || 'dívida');
+  if (+d.parcela > 0 || d.linhaPropria) setStep(it, 0, +d.parcela || 0);
+  if (d.linhaPropria) setFim(it, +d.restantes > 0 ? Math.round(+d.restantes) - 1 : null);
+}
+const dividaDoCaminho = c => { const m = /^patrimonio\.(bens|dividas)\.(\d+)\.?/.exec(c || ''); return m ? (plano.patrimonio[m[1]] || [])[+m[2]] : null; };
+function soltaLinhaPropria(d) { if (d && d.linhaPropria) { const i = plano.expenses.findIndex(x => x.id === d.linha); if (i >= 0) plano.expenses.splice(i, 1); } if (d) { delete d.linha; delete d.linhaPropria; } }
+// a parcela, as parcelas que faltam ou o nome mudaram: a linha do fluxo acompanha (cria a linha na primeira parcela)
+document.addEventListener('change', e => {
+  const t = e.target, c = t.dataset && t.dataset.r; if (!c || !/^patrimonio\.(bens|dividas)\.\d+\.(parcela|restantes|nome)$/.test(c)) return;
+  ENGINE.gravaCaminho(plano, c, valorDoCampoR(t));
+  const d = dividaDoCaminho(c); if (d && (+d.saldoDevedor > 0 || c.startsWith('patrimonio.dividas'))) lancaParcela(d, c.endsWith('.parcela') && +d.parcela > 0);
+});
+document.addEventListener('change', e => {
+  const t = e.target; if (!t.dataset || t.dataset.divLinha == null) return;
+  const d = dividaDoCaminho(t.dataset.divLinha); if (!d) return;
+  if (t.value === 'nao') { soltaLinhaPropria(d); d.semFluxo = true; }
+  else if (t.value === '__propria') { if (!d.linhaPropria) delete d.linha; d.semFluxo = false; lancaParcela(d, true); }
+  else if (t.value !== '__pend') { soltaLinhaPropria(d); d.semFluxo = false; d.linha = t.value; lancaParcela(d, false); }
+  renderAll();
+});
+document.addEventListener('click', e => {
+  const l = e.target.closest('[data-div-lancar]'); if (l) { const d = dividaDoCaminho(l.dataset.divLancar); if (d) { d.semFluxo = false; lancaParcela(d, true); renderAll(); } return; }
+  const a = e.target.closest('[data-div-abrir]'); if (a) { fx.aberto.add('out'); fx.aberto.add('out_fix'); abrirGaveta('exp', a.dataset.divAbrir); return; }
+  // remover um bem ou uma dívida leva junto a linha própria da parcela
+  const rm = e.target.closest('[data-rrm]'); if (rm && /^patrimonio\.(bens|dividas)\.\d+$/.test(rm.dataset.rrm)) soltaLinhaPropria(dividaDoCaminho(rm.dataset.rrm));
+});
 const passivasDoFluxo = () => plano.incomes.filter(it => !ENGINE.ativo(it));
 const mensalDe = it => ENGINE.mensalizado(Object.assign({}, it, { steps: (it.steps || []).slice().sort((a, b) => a.from - b.from) }), 0);
 function rendaDoBemC(b, i) {
@@ -3098,7 +3182,7 @@ function renderPatrimonioC() {
       <div class="bloco"><h3>Mercado financeiro<span class="dir">${fmt(f.fin)}</span></h3><div class="sub">Investimentos, poupança e conta, por instituição. É o ponto de partida da evolução patrimonial e o que paga a renda da liberdade.</div>
         ${tabela('patrimonio.financeiro', ['Instituição', 'Valor'], D.financeiro, 'ex.: Itaú', 'Nenhuma instituição ainda.')}<button class="btn btn-step" data-radd="patrimonio.financeiro">+ instituição</button>
         <div class="grid g2" style="margin-top:14px"><div class="field"><label>Liquidez ideal ${tip('Quanto do patrimônio deveria estar no mercado financeiro, pela sua avaliação. O cliente vê o patrimônio financeiro comparado a este valor.')}</label>${campoR('patrimonio.liquidezIdeal', 'reais', ' placeholder="defina pela sua avaliação"')}</div>
-          <div class="field"><label>&nbsp;</label><div class="muted" style="padding-top:8px">${f.liquidezIdeal > 0 ? 'O financeiro é ' + Math.round(f.fin / f.liquidezIdeal * 100) + '% da liquidez ideal.' : ''}</div></div></div></div>
+          <div class="field"><label>&nbsp;</label><div class="muted" style="padding-top:8px">${f.liquidezIdeal > 0 ? 'Hoje há ' + fmt(f.fin) + ' no financeiro: ' + (f.fin >= f.liquidezIdeal ? 'está bom.' : 'faltam ' + fmt(f.liquidezIdeal - f.fin) + ' para o ideal.') : ''}</div></div></div></div>
       <div class="bloco"><h3>Participações societárias<span class="dir">${fmt(f.part)}</span></h3><div class="sub">A parte do cliente em cada empresa. Fica constante no tempo e não paga a renda desejada.</div>
         ${tabela('patrimonio.participacoes', ['Empresa', 'Valor da parte do cliente'], D.participacoes, 'nome da empresa', 'Nenhuma participação.')}<button class="btn btn-step" data-radd="patrimonio.participacoes">+ empresa</button></div>
     </div>

@@ -43,10 +43,9 @@ Em aberto:
    (0,5× a 18×, 18× a 60×, 60× a 200×, 200×), que são os do protótipo (`ENGINE.FASES_VIDA`). As fases (2/9 e 6/9) e o
    total (bens + financeiro − dívidas) batem com a calculadora; ela não conta participações societárias, o protótipo
    conta.
-2. **A dívida não entra na simulação.** O detalhe de cada dívida (crédito, parcelas, parcela atual, juros, situação)
-   é informativo: o gráfico da evolução patrimonial usa os bens pelo valor de mercado, e a parcela continua sendo uma
-   saída que o consultor lança no Fluxo de caixa. Falta decidir se a parcela da dívida vira, ela mesma, a linha do
-   fluxo (como a renda do bem já faz) e se o saldo devedor desconta na evolução patrimonial.
+2. **O saldo devedor não entra na evolução patrimonial.** A parcela já vai para o Fluxo de caixa (02/10/2026), mas o
+   gráfico da evolução usa os bens pelo valor de mercado, sem descontar o saldo devedor nem a amortização. No exemplo
+   da Ana, a parcela do apartamento começa "ainda não lançada" porque o fluxo antigo do exemplo paga aluguel.
 3. **O cliente não propõe nada na página de patrimônio.** Na Gestão de riscos, ele simula e propõe; aqui só vê. Se ele puder corrigir
    valores (do bem, de uma instituição), a proposta é do tipo `campo` (por exemplo `patrimonio.bens.2.mercado`), e o
    total do plano já acompanha (`sincronizaPatrimonio` roda ao aplicar as propostas).
@@ -392,3 +391,9 @@ Registradas aqui porque não são óbvias no código:
   - Gestão de riscos: uma ameaça por vez, escolhida em abas com o status de cada uma, com anterior e próxima no pé; os
     pesos ficam recolhidos.
   - A barra lateral tem um botão só ("Apresentar ao cliente") e o "Ver como o cliente vê" como link.
+- **Patrimônio ideal em largura total e tudo mais conectado (02/10/2026).** Retorno do usuário: o cartão do esperado
+  era pequeno; ele queria comparar o total com o mínimo e o máximo da fase e ver o financeiro contra a liquidez ideal
+  pintada ao fundo. O dinheiro disponível passou a dizer só o ideal, o que o cliente tem e se está bom (sem
+  percentual, também no portal). A parcela da dívida entra no Fluxo de caixa como a renda do bem já entrava. A página
+  Liberdade financeira abre com o que o patrimônio sustenta (perpetuidade e consumo, já com as rendas na fase de menor
+  renda), para o consultor decidir a renda desejada com esses números.

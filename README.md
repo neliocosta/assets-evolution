@@ -46,15 +46,20 @@ página Patrimônio tem:
   dos bens), somados em `ENGINE.sincronizaPatrimonio`, que roda ao configurar o motor e ao aplicar as propostas do
   cliente. Um plano antigo, só com os totais, ganha uma linha por total na primeira vez que a página abre;
 - toda dívida, o financiamento de um bem (quando ele tem saldo devedor) ou uma dívida avulsa, tem o mesmo detalhe:
-  crédito contratado, parcelas contratadas, parcela atual, juros contratados (% ao ano) e situação (em dia ou
-  inadimplente);
+  crédito contratado, juros contratados (% ao ano), situação (em dia ou inadimplente), parcelas contratadas, parcelas
+  que faltam e parcela atual;
+- a parcela entra no Fluxo de caixa como despesa fixa: ao informar a parcela, o portal cria a linha "Parcela: nome" e a
+  mantém igual (valor a partir de hoje e, com as parcelas que faltam, o fim). O consultor pode apontar uma despesa fixa
+  que já existe ou dizer que a parcela não entra no fluxo (`divida.linha`, `linhaPropria`, `semFluxo`). Remover a
+  dívida ou o bem remove a linha própria;
 - um bem que gera renda passiva aponta para a linha de entrada do Fluxo de caixa (`bem.renda`, o id da linha): o
   consultor escolhe uma renda passiva que já existe ou cadastra uma nova dali mesmo. O valor fica num lugar só, o fluxo.
 
-Na tela do cliente: no alto, a fase atual e as cinco fases com as idades de cada uma, ao lado do vídeo. Depois, três
-números: o patrimônio total (com a barra da composição e as dívidas hachuradas), o esperado para a idade (numa régua
-com mínimo, esperado e máximo, e o cliente nela) e o dinheiro disponível (o financeiro em % da liquidez ideal e em
-vezes o padrão de vida). Embaixo, "De onde vem o seu patrimônio": uma coluna por classe (mercado financeiro,
+Na tela do cliente: no alto, a fase atual e as cinco fases com as idades de cada uma, ao lado do vídeo. Depois, o
+patrimônio total (com a barra da composição e as dívidas hachuradas) e o dinheiro disponível (o ideal que o consultor
+projeta, o que o cliente tem e se está bom). Em largura total, o patrimônio ideal para a idade: barras na mesma escala
+para o financeiro, o total e o mínimo, o esperado e o máximo da fase, com a liquidez ideal como faixa escura ao fundo
+(o financeiro dentro ou além dela) e o total tracejado até as barras da fase. Embaixo, "De onde vem o seu patrimônio": uma coluna por classe (mercado financeiro,
 participações, bens, dívidas), com os itens; um bem ou uma dívida abre o detalhe (financiamento, situação, renda que o
 bem gera). Por último, recolhido, "Como o patrimônio esperado é calculado", com a tabela das fases deste cliente.
 
@@ -266,6 +271,11 @@ desejada e as rendas passivas ativas. Não depende da ordem dos objetivos: adiar
 aposentadoria junto. Se aos 68 anos o patrimônio ainda não sustentar a renda desejada, o marco aparece
 mesmo assim, mas sem celebração: o card informa quanto o patrimônio de fato sustenta por mês e aponta os
 três caminhos para fechar a diferença.
+
+**O que o patrimônio sustenta.** No alto da página Liberdade financeira do portal: o patrimônio financeiro na
+liberdade (antes e depois de contratar as rendas), os bens e participações, e a renda possível por mês na perpetuidade
+(o rendimento) e no consumo até a expectativa de vida, cada uma somada às rendas que entram na fase em que elas são
+menores. Cada cenário diz se cobre a renda desejada e oferece usá-lo como renda desejada.
 
 **Programação da renda.** No portal, a página Liberdade financeira mostra a renda desejada como uma barra e,
 em cada janela de tempo (uma renda que começa ou termina abre uma janela nova), as rendas que entram: rendas de

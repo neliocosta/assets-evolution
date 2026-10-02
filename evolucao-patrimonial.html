@@ -109,7 +109,6 @@ body.sem-grafico .legend,body.sem-grafico .stats,body.sem-grafico #segView,body.
 .pf-seg.on b{color:var(--nl-navy-900)} .pf-seg.on span{color:var(--nl-orange-600);font-weight:600}
 .pf-seg.on i em{background:var(--nl-orange-500)}
 /* três números: o total, o esperado para a idade e a liquidez */
-.pf-tres{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
 .pf-card{background:#fff;border-radius:14px;box-shadow:var(--shadow-card);padding:18px 20px;display:flex;flex-direction:column;gap:12px;min-width:0}
 .pf-big{font:600 30px Sora,sans-serif;color:var(--nl-navy-900);line-height:1.05;white-space:nowrap}
 .pf-big small{display:block;font:500 11.5px 'DM Sans',sans-serif;color:#8d8d8d;margin-top:6px;white-space:normal;line-height:1.4}
@@ -122,18 +121,31 @@ body.sem-grafico .legend,body.sem-grafico .stats,body.sem-grafico #segView,body.
 .pf-leg div{display:flex;align-items:center;gap:8px} .pf-leg div span{flex:1} .pf-leg b{font-weight:600;color:var(--nl-navy-900);white-space:nowrap}
 .pf-leg i{width:9px;height:9px;border-radius:3px;flex:0 0 9px}
 /* régua do esperado: mínimo, esperado e máximo para a idade, e onde a família está */
-.pf-regua{position:relative;margin:30px 4px 4px}
-.pf-regua .t{height:10px;border-radius:5px;background:linear-gradient(90deg,#FBE3E3 0 20%,#FFEBDD 20% 50%,#E3F3E9 50% 100%)}
-.pf-regua .m{position:absolute;top:-3px;width:0;height:16px;border-left:1.5px solid #fff;box-shadow:0 0 0 .5px #cfcbc3}
-.pf-regua .ml{display:flex;position:relative;height:30px;margin-top:6px}
-.pf-regua .ml span{position:absolute;transform:translateX(-50%);text-align:center;font-size:10.5px;color:#8d8d8d;white-space:nowrap;line-height:1.3}
-.pf-regua .ml span b{display:block;font:600 11px 'DM Sans',sans-serif;color:var(--nl-navy-900)}
-.pf-regua .voce{position:absolute;top:-30px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;font:600 10.5px 'DM Sans',sans-serif;color:var(--nl-navy-900);white-space:nowrap}
-.pf-regua .voce i{width:14px;height:14px;border-radius:50%;background:var(--nl-navy-900);border:3px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.25);margin-top:5px}
-.pf-liq{position:relative;height:12px;border-radius:6px;background:#F0EEE9;margin-top:4px}
-.pf-liq i{position:absolute;left:0;top:0;bottom:0;border-radius:6px;background:#9BD3B0}
-.pf-liq b{position:absolute;top:-5px;bottom:-5px;width:0;border-left:2px solid var(--nl-navy-900)}
-.pf-liq-l{position:relative;height:14px;font-size:10.5px;color:#8d8d8d} .pf-liq-l span{position:absolute;transform:translateX(-50%);white-space:nowrap}
+/* patrimônio ideal para a idade: barras na mesma escala, a liquidez ideal como faixa ao fundo e o total tracejado */
+.pf-dois{display:grid;grid-template-columns:1.15fr 1fr;gap:20px}
+.pf-big.ok{color:#22794a} .pf-big.atencao{color:#C25A12}
+.pf-cmp{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pf-cmp div{background:var(--nl-cream-50);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:3px}
+.pf-cmp span{font-size:11.5px;color:#8d8d8d;line-height:1.3} .pf-cmp b{font:600 18px Sora,sans-serif;color:var(--nl-navy-900)}
+.pf-ideal{background:#fff;border-radius:14px;box-shadow:var(--shadow-card);padding:20px 22px}
+.pi-cab{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.pi-cab .pf-big{margin-top:10px}
+.pi-veredito{border-radius:12px;padding:11px 16px;font-size:13.5px;line-height:1.4}
+.pi-veredito.ok{background:#E7F5EC;color:#22794a} .pi-veredito.atencao{background:#FFF1E6;color:#C25A12} .pi-veredito.critico{background:#FDECEC;color:#B83A3A}
+.pi-graf{position:relative;margin-top:22px;padding-top:24px}
+.pi-fundo{position:absolute;left:210px;right:110px;top:0;bottom:0;pointer-events:none}
+.pi-liq{position:absolute;left:0;top:0;bottom:0;background:rgba(32,52,76,.11);border-right:1.5px dashed rgba(32,52,76,.45);border-radius:8px 0 0 8px}
+.pi-liq span{position:absolute;top:4px;right:8px;font:600 10.5px 'DM Sans',sans-serif;color:#56677a;white-space:nowrap}
+.pi-tot{position:absolute;top:24px;bottom:0;border-left:1.5px dashed var(--nl-navy-900);opacity:.4}
+.pi-linhas{display:grid;grid-template-columns:210px 1fr;row-gap:8px;position:relative}
+.pi-rot{font-size:12.5px;color:var(--nl-gray-700);text-align:right;padding-right:14px;align-self:center;line-height:1.25}
+.pi-rot.forte{font-weight:600;color:var(--nl-navy-900)}
+.pi-tr{position:relative;height:30px;margin-right:110px}
+.pi-b{position:absolute;left:0;top:3px;bottom:3px;border-radius:7px;min-width:3px}
+.pi-v{position:absolute;top:50%;transform:translateY(-50%);margin-left:9px;font:600 12.5px Sora,sans-serif;color:var(--nl-navy-900);white-space:nowrap}
+.pi-sep{height:6px;border-bottom:1px solid #F0EEE9;margin-bottom:6px}
+.pi-leg{display:flex;gap:18px;flex-wrap:wrap;margin-top:14px;font-size:11.5px;color:#8d8d8d}
+.pi-leg span{display:inline-flex;align-items:center;gap:6px} .pi-leg i{display:inline-block;width:18px;height:10px;border-radius:3px}
 /* de onde vem o patrimônio: uma coluna por classe */
 .pf-comp{background:#fff;border-radius:14px;box-shadow:var(--shadow-card);padding:20px 22px}
 .pf-comp>h3{font:600 15px Sora,sans-serif;color:var(--nl-navy-900);margin-bottom:4px}
@@ -167,7 +179,7 @@ body.sem-grafico .legend,body.sem-grafico .stats,body.sem-grafico #segView,body.
 .pf-tab td{padding:8px;border-bottom:1px solid #F3F1EC;color:var(--nl-gray-700)} .pf-tab td.n,.pf-tab th.n{text-align:right}
 .pf-tab tr.on td{background:var(--nl-peach-100);color:var(--nl-navy-900);font-weight:600}
 .pf-nao{font-size:13px;color:#8d8d8d;line-height:1.5}
-@media (max-width:1080px){.pf-tres{grid-template-columns:1fr}.pf-cols{grid-template-columns:repeat(2,1fr)}.pf-seg b{font-size:10.5px}}
+@media (max-width:1080px){.pf-dois{grid-template-columns:1fr}.pi-linhas{grid-template-columns:150px 1fr}.pi-fundo{left:150px}.pf-cols{grid-template-columns:repeat(2,1fr)}.pf-seg b{font-size:10.5px}}
 /* gestão de riscos */
 #riscos{flex:1;min-height:0;overflow:auto;background:var(--nl-cream-50)}
 #riscos .rc{max-width:1120px;margin:0 auto;padding:24px 24px 60px}
@@ -2277,20 +2289,23 @@ function ondeEsta(f) {
   if (f.maximo === f.minimo) return t >= f.maximo ? ['ok', 'no esperado ou acima'] : ['critico', 'abaixo do esperado'];
   return t < f.minimo ? ['critico', 'abaixo do mínimo'] : t < f.esperado ? ['atencao', 'entre o mínimo e o esperado'] : t <= f.maximo ? ['ok', 'entre o esperado e o máximo'] : ['ok', 'acima do máximo'];
 }
-// régua com posições fixas para mínimo (20%), esperado (50%) e máximo (80%); fora delas, a família se aproxima das pontas
-function posRegua(f) {
-  const t = Math.max(0, f.total), lo = f.minimo, mid = f.esperado, hi = f.maximo;
-  if (hi <= lo) return t >= hi ? Math.min(96, 50 + 46 * (1 - hi / Math.max(t, 1))) : Math.max(3, 50 * t / Math.max(hi, 1));
-  if (t < lo) return Math.max(3, 20 * t / Math.max(lo, 1));
-  if (t <= mid) return 20 + 30 * (t - lo) / Math.max(mid - lo, 1);
-  if (t <= hi) return 50 + 30 * (t - mid) / Math.max(hi - mid, 1);
-  return Math.min(97, 80 + 17 * (1 - hi / t));
-}
-function reguaHtml(f) {
-  const unica = f.maximo === f.minimo, marcas = unica ? [[50, 'esperado', f.esperado]] : [[20, 'mínimo', f.minimo], [50, 'esperado', f.esperado], [80, 'máximo', f.maximo]];
-  return `<div class="pf-regua"><div class="voce" style="left:${posRegua(f)}%">você · ${fmtK(f.total)}<i></i></div><div class="t"${unica ? ' style="background:linear-gradient(90deg,#FBE3E3 0 50%,#E3F3E9 50% 100%)"' : ''}></div>
-    ${marcas.map(([p]) => `<div class="m" style="left:${p}%"></div>`).join('')}
-    <div class="ml">${marcas.map(([p, n, v]) => `<span style="left:${p}%"><b>${fmtK(v)}</b>${n}</span>`).join('')}</div></div>`;
+// O patrimônio ideal para a idade, em barras na mesma escala: o financeiro e o total da família contra o mínimo, o
+// esperado e o máximo desta fase. A faixa escura ao fundo é a liquidez ideal do consultor (o financeiro dentro ou além
+// dela se vê de relance), e a linha tracejada leva o total até as barras da fase.
+function idealHtml(f, fase, onde) {
+  const liq = f.liquidezIdeal > 0 ? f.liquidezIdeal : 0, prep = f.fase === 0;
+  const daFase = prep ? [] : f.maximo === f.minimo ? [['Esperado na liberdade financeira', f.esperado, '#EDB98A']]
+    : [['Mínimo desta fase', f.minimo, '#F8DDC9'], ['Esperado para a sua idade', f.esperado, '#EDB98A'], ['Máximo desta fase', f.maximo, C.orange]];
+  const topo = Math.max(1, f.total, f.fin, liq, ...daFase.map(x => x[1])), x = v => Math.max(0, v) / topo * 100;
+  const linha = (rot, v, cor, forte) => `<div class="pi-rot${forte ? ' forte' : ''}">${rot}</div><div class="pi-tr"><i class="pi-b" style="width:${x(v)}%;background:${cor}"></i><span class="pi-v" style="left:${x(v)}%">${fmt(v)}</span></div>`;
+  return `<div class="pf-ideal"><div class="pi-cab"><div><div class="pf-rot">Patrimônio ideal para a sua idade</div>
+      ${prep ? `<div class="pf-big">—<small>Na preparação ainda não há patrimônio esperado: qualquer valor acima de zero é um ótimo começo.</small></div>`
+        : `<div class="pf-big">${fmt(f.esperado)}<small>esperado para quem tem ${f.idade} anos e está na ${fase.nome.toLowerCase()} · padrão de vida de ${fmt(f.padrao)} por mês × ${vezes(f.mult)}</small></div>`}</div>
+      ${onde ? `<div class="pi-veredito ${onde[0]}">O seu patrimônio total está <b>${onde[1]}</b>${f.maximo === f.minimo ? '' : ' desta fase'}.</div>` : ''}</div>
+    <div class="pi-graf"><div class="pi-fundo">${liq ? `<div class="pi-liq" style="width:${x(liq)}%"><span>liquidez ideal · ${fmt(liq)}</span></div>` : ''}<div class="pi-tot" style="left:${x(f.total)}%"></div></div>
+      <div class="pi-linhas">${linha('Patrimônio financeiro', f.fin, C.fin)}${linha('Patrimônio total', f.total, C.navy, true)}
+        ${daFase.length ? '<div class="pi-sep"></div><div class="pi-sep"></div>' + daFase.map(([n, v, c]) => linha(n, v, c)).join('') : ''}</div></div>
+    <div class="pi-leg">${liq ? '<span><i style="background:rgba(32,52,76,.16);border-right:1.5px dashed rgba(32,52,76,.5)"></i>liquidez ideal, definida pelo seu consultor</span>' : ''}<span><i style="border-left:1.5px dashed var(--nl-navy-900);width:0;height:12px;border-radius:0"></i>o seu patrimônio total</span></div></div>`;
 }
 // a trilha das cinco fases: o nome em cima, a faixa de idade embaixo, e o cliente na fase em que está
 function trilhaHtml(f) {
@@ -2329,16 +2344,11 @@ function renderPatrimonio() {
   const cTotal = `<div class="pf-card"><div class="pf-rot">Patrimônio total</div><div class="pf-big">${fmt(f.total)}<small>${f.dividas ? 'o que a família tem, menos o que deve' : 'tudo o que a família tem hoje'}</small></div>
     <div class="pf-barra">${seg.map(([v, c]) => `<i style="width:${v / Math.max(1, bruto) * 100}%;background:${c}"></i>`).join('')}${f.dividas ? `<s style="width:${Math.min(100, f.dividas / Math.max(1, bruto) * 100)}%" title="dívidas"></s>` : ''}</div>
     <div class="pf-leg">${seg.map(([v, c, n]) => `<div><i style="background:${c}"></i><span>${n}</span><b>${fmt(v)}</b></div>`).join('')}${f.dividas ? `<div><i style="background:${C.out}"></i><span>Dívidas</span><b>− ${fmt(f.dividas)}</b></div>` : ''}</div></div>`;
-  const cEsperado = !fase ? '' : `<div class="pf-card"><div class="pf-rot">Esperado para a sua idade</div>
-    ${f.fase === 0 ? `<div class="pf-big">—<small>Na preparação ainda não há patrimônio esperado: qualquer valor acima de zero é um ótimo começo.</small></div>`
-      : `<div class="pf-big">${fmt(f.esperado)}<small>padrão de vida de ${fmt(f.padrao)} por mês × ${vezes(f.mult)}</small></div>${reguaHtml(f)}
-      <div class="pf-txt">O seu patrimônio está <b class="${onde[0]}">${onde[1]}</b> para quem tem ${f.idade} anos e está na ${fase.nome.toLowerCase()}.</div>`}</div>`;
-  const liq = f.liquidezIdeal, escL = Math.max(f.fin, liq || 0) * 1.1 || 1;
+  const liq = f.liquidezIdeal, bom = liq > 0 && f.fin >= liq;
   const cLiq = `<div class="pf-card"><div class="pf-rot">Dinheiro disponível</div>
-    ${liq > 0 ? `<div class="pf-big">${Math.round(f.fin / liq * 100)}%<small>da liquidez ideal que o seu consultor definiu</small></div>
-      <div><div class="pf-liq"><i style="width:${f.fin / escL * 100}%"></i><b style="left:${liq / escL * 100}%"></b></div><div class="pf-liq-l"><span style="left:${liq / escL * 100}%">ideal ${fmtK(liq)}</span></div></div>
-      <div class="pf-txt">Você tem <b>${fmt(f.fin)}</b> no mercado financeiro${f.padrao > 0 ? `, ou <b>${vezes(f.fin / f.padrao).replace('×', ' vezes')}</b> o seu padrão de vida mensal` : ''}.</div>`
-      : `<div class="pf-big">${fmt(f.fin)}<small>no mercado financeiro${f.padrao > 0 ? ': ' + vezes(f.fin / f.padrao).replace('×', ' vezes') + ' o seu padrão de vida mensal' : ''}</small></div><div class="pf-nao">O seu consultor ainda não definiu a liquidez ideal.</div>`}</div>`;
+    ${liq > 0 ? `<div class="pf-big ${bom ? 'ok' : 'atencao'}">${bom ? 'Está bom' : 'Abaixo do ideal'}<small>${bom ? 'você tem pelo menos o que o seu consultor considera ideal em dinheiro' : 'faltam ' + fmt(liq - f.fin) + ' para o que o seu consultor considera ideal'}</small></div>
+      <div class="pf-cmp"><div><span>O seu consultor projeta como ideal</span><b>${fmt(liq)}</b></div><div><span>Você tem no mercado financeiro</span><b>${fmt(f.fin)}</b></div></div>`
+      : `<div class="pf-big">${fmt(f.fin)}<small>no mercado financeiro</small></div><div class="pf-nao">O seu consultor ainda não definiu quanto seria o ideal.</div>`}</div>`;
   // a composição, classe a classe
   const its = (l, k, pref, extra) => (l || []).map((x, i) => Object.assign({ nome: x.nome || 'Sem nome', v: +x[k] || 0, chave: pref + i }, extra ? extra(x, i) : {})).sort((a, b) => b.v - a.v);
   const bensIt = its(D.bens, 'mercado', 'bem:', b => {
@@ -2362,7 +2372,7 @@ function renderPatrimonio() {
     <table class="pf-tab"><thead><tr><th>Fase</th><th>Idades</th><th class="n">Fator</th><th class="n">Patrimônio esperado</th></tr></thead><tbody>
     ${f.fases.map((x, i) => `<tr class="${i === f.fase ? 'on' : ''}"><td>${x.nome}</td><td>${i === 0 ? 'até ' + anosTxt(x.ate) : i === 4 ? 'a partir de ' + anosTxt(x.de) : anosTxt(x.de) + ' a ' + anosTxt(x.ate)} anos</td><td class="n">${x.max ? (x.min === x.max ? vezes(x.min) : vezes(x.min) + ' a ' + vezes(x.max)) : '—'}</td><td class="n">${x.max ? (x.min === x.max ? fmt(f.padrao * x.min) : fmt(f.padrao * x.min) + ' a ' + fmt(f.padrao * x.max)) : '—'}</td></tr>`).join('')}</tbody></table></details>`;
   el.innerHTML = `<div class="rc"><div class="rk-topo">${hero}${videoHtml('patrimonio', 'A sua fase da vida e o seu patrimônio', 'Aqui vai entrar o vídeo do seu consultor explicando a sua fase da vida financeira e o seu patrimônio.')}</div>
-    <div class="pf-tres">${cTotal}${cEsperado}${cLiq}</div>${comp}${como}</div>`;
+    <div class="pf-dois">${cTotal}${cLiq}</div>${fase ? idealHtml(f, fase, onde) : ""}${comp}${como}</div>`;
   el.scrollTop = rolagem;
 }
 document.getElementById('patrimonio').addEventListener('click', e => {
