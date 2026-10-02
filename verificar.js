@@ -315,5 +315,23 @@ console.log('\n9. Seguro de vida e de acidentes pessoais (calculadora da Nord)')
   ok('plano sem o cálculo de seguro: não avaliado', Es.avaliaRiscos({ riscos: {} }).itens.renda.status === 'pendente');
 }
 
+console.log('\n10. Patrimônio de hoje e fase da vida financeira');
+{
+  const Ef = carregar(srcCliente), P = () => JSON.parse(JSON.stringify(Ef.PATRIMONIO_EXEMPLO));
+  const pl = { age: 35, retireAge: 65, riscos: { reserva: { custoVida: 10000 } }, patrimonio: P() };
+  Ef.sincronizaPatrimonio(pl);
+  ok('as listas viram os totais do plano', pl.initialWealth === 860000 && pl.partValue === 50000 && pl.initialBens === 1210000);
+  const f = Ef.faseDaVida(pl);
+  ok('total = financeiro + participações + bens − saldo devedor', f.total === 860000 + 50000 + 1210000 - 368000, f.total);
+  // começou aos 23, para aos 65: marcos em 23 / 32,3 / 51 / 65; aos 35, 14% da Consolidação (18× a 60×)
+  ok('marcos das fases em 2/9 e 6/9 da vida de trabalho', Math.abs(f.fases[2].de - (23 + 42 * 2 / 9)) < 1e-9 && f.fases[3].de === 51 && f.fases[4].de === 65);
+  ok('aos 35: Consolidação, esperado interpolado', f.fase === 2 && f.minimo === 180000 && f.maximo === 600000 && Math.abs(f.esperado - 10000 * (18 + 42 * (35 - 23 - 28 / 3) / (28 - 28 / 3))) < 0.01, Math.round(f.esperado));
+  ok('antes de começar: Preparação, esperado zero', Ef.faseDaVida(Object.assign({}, pl, { age: 20 })).esperado === 0);
+  ok('depois da idade alvo: Liberdade, 200×', Ef.faseDaVida(Object.assign({}, pl, { age: 70 })).esperado === 2000000);
+  ok('sem a idade em que começou: sem fase', Ef.faseDaVida({ age: 35, patrimonio: {} }).fase === null);
+  const alt = Ef.aplicaAlteracoes(Object.assign({}, pl, { patrimonio: P() }), [{ tipo: 'campo', caminho: 'patrimonio.financeiro.2.valor', para: 700000 }]);
+  ok('proposta num valor do detalhe atualiza o total', alt.initialWealth === 910000);
+}
+
 console.log('\n' + (falhas ? falhas + ' verificação(ões) falharam.' : 'Tudo certo.') + '\n');
 process.exit(falhas ? 1 : 0);

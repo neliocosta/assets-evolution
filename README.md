@@ -31,10 +31,36 @@ A área do cliente é organizada como um livro: capítulos com páginas (`CAPITU
 mostra um resultado do planejamento e tem um espaço para o vídeo do consultor (link do YouTube, do Vimeo ou do
 arquivo, em `plano.videos[id da página]`; vazio, o espaço fica reservado). O cabeçalho mostra só a página atual
 ("Capítulo 5 · 21 de 22 / Gestão de riscos"), com anterior e próxima; um clique nela abre o sumário com todos os
-capítulos. Assim a navegação cabe igual com 2 ou 25 páginas. Hoje existem **Gestão de riscos** (capítulo 5) e
-**Evolução patrimonial** (capítulo 6, a última); os capítulos 1 a 4, com 5 páginas cada, são um esqueleto (mock) das
-páginas que ainda vão entrar. A página pode vir no endereço (`?fase=riscos`, `?fase=c2p3`); senão, a tela abre na
-última vista.
+capítulos. Assim a navegação cabe igual com 2 ou 25 páginas. Hoje existem **Patrimônio** (capítulo 4, página "Fase
+da vida e patrimônio"), **Gestão de riscos** (capítulo 5) e **Evolução patrimonial** (capítulo 6, a última); os
+capítulos 1 a 3, com 5 páginas cada, são um esqueleto (mock) das páginas que ainda vão entrar. A página pode vir no
+endereço (`?fase=patrimonio`, `?fase=riscos`, `?fase=c2p3`); senão, a tela abre na última vista.
+
+**Fase da vida e patrimônio** junta num só lugar o patrimônio de hoje e o compara com o esperado para a idade
+(`ENGINE.faseDaVida`, no motor). O consultor preenche, na página Patrimônio e premissas do portal:
+
+- o patrimônio financeiro por instituição, as participações societárias por empresa e os bens com valor de mercado e
+  saldo devedor (`plano.patrimonio`). As listas são a fonte dos totais que o resto do plano usa: `initialWealth`
+  (financeiro), `partValue` (participações) e `initialBens` (valor de mercado dos bens), somados em
+  `ENGINE.sincronizaPatrimonio`, que roda ao configurar o motor e ao aplicar as propostas do cliente. Um plano antigo,
+  só com os totais, ganha uma linha por total na primeira vez que a página abre;
+- a idade em que o cliente começou a trabalhar e a liquidez ideal (em reais).
+
+Na tela do cliente, no alto, a fase atual com o patrimônio total e o esperado; embaixo, a curva da vida financeira
+com as cinco fases e o "você" na idade de hoje, e as barras na mesma escala: liquidez ideal, financeiro,
+participações e bens empilhados, as dívidas descontando, o patrimônio total e o mínimo, o esperado e o máximo para a
+idade. Financeiro, participações, bens e dívidas abrem o detalhe (instituições, empresas, bens, saldo devedor de cada
+bem). Uma leitura em palavras fecha a página: onde o total está entre o mínimo e o máximo, de onde vem o esperado, e o
+financeiro comparado à liquidez ideal (também em vezes o padrão de vida mensal).
+
+- Patrimônio total = financeiro + participações + bens (valor de mercado) − saldo devedor dos bens.
+- Fases: a vida de trabalho (de quando começou até a idade para parar de trabalhar, da página Cliente; vazia, 65
+  anos) dividida em nonos. Preparação antes de começar; Início de carreira até 2/9; Consolidação até 6/9; Plenitude
+  até 9/9; Liberdade financeira depois. Começou aos 23, para aos 65: marcos em 23, 32, 51 e 65.
+- Patrimônio esperado = padrão de vida mensal (o custo de vida da reserva) × um fator que vai do mínimo ao máximo da
+  fase, na proporção do quanto da fase já passou: Início de carreira 0,5× a 18×, Consolidação 18× a 60×, Plenitude
+  60× a 200×, Liberdade 200×. Na Preparação, não há patrimônio esperado (zero). Os fatores ficam em
+  `ENGINE.FASES_VIDA`.
 
 **Gestão de riscos** avalia oito ameaças ao padrão de vida (`plano.riscos`, preenchido no portal, na página Gestão de
 riscos). O status de cada uma sai de `ENGINE.avaliaRiscos`, no motor, igual nas duas telas.
@@ -124,7 +150,13 @@ cada tela ouve o que a outra gravou.
 ```jsonc
 {
   "name": "Ana Ribeiro", "age": 35, "lifeExp": 95,
-  "initialWealth": 500000,     // patrimônio financeiro do cliente hoje: ponto de partida do gráfico
+  "initialWealth": 860000,     // patrimônio financeiro do cliente hoje: ponto de partida do gráfico (com plano.patrimonio, a soma do detalhe)
+  "patrimonio": {              // o detalhe do patrimônio de hoje e a fase da vida (página Fase da vida e patrimônio)
+    "comecou": 23, "liquidezIdeal": 400000,
+    "financeiro": [ {"nome": "Itaú", "valor": 150000} ],                     // soma em initialWealth
+    "participacoes": [ {"nome": "Papelaria Canetinha", "valor": 50000} ],     // soma em partValue
+    "bens": [ {"nome": "Apartamento em Mogi", "mercado": 950000, "saldoDevedor": 368000} ]   // mercado soma em initialBens
+  },
   "capacityOverride": null,    // capacidade de poupança informada pelo cliente; null = salário − despesas
   "mode": "perp",              // liberdade financeira por "perp" (perpetuidade) ou "cons" (consumo até a expectativa de vida); a visão do cliente abre nela
   "tipo": "familia",           // "individual" ou "familia": sem família, o cônjuge some do cadastro
@@ -132,7 +164,7 @@ cada tela ouve o que a outra gravou.
   "desired": 25000,
   "desiredSteps": [ {"from": 480, "value": 20000} ],   // a renda desejada muda a partir de um mês (0 = set/2026)            // renda familiar desejada na aposentadoria (R$/mês)
   "rate": 0.004,               // retorno real líquido da reserva (ao mês)
-  "partValue": 150000,         // planos antigos traziam "rent": vira a linha de despesa "moradia"
+  "partValue": 50000,          // planos antigos traziam "rent": vira a linha de despesa "moradia"
   "profiles": { "conservador": 0.004, "moderado": 0.005, "agressivo": 0.006 },
 
   // Entradas e saídas são linhas do tempo em degraus. Cada degrau vale a partir do mês

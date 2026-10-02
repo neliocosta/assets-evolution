@@ -109,6 +109,7 @@ aside nav .sep-nav{height:1px;background:rgba(255,255,255,.1);margin:8px 10px}
 .st-c{display:inline-block;font:600 11px 'DM Sans',sans-serif;padding:3px 9px;border-radius:9999px;margin-left:8px;vertical-align:1px}
 .st-c.ok{background:#E7F5EC;color:#22794a} .st-c.atencao{background:#FFF1E6;color:#C25A12} .st-c.critico{background:#FDECEC;color:#B83A3A} .st-c.pendente{background:#F0EEE9;color:#8a8a8a}
 .rkc-calc{background:var(--nl-cream-50);border-radius:10px;padding:10px 13px;font-size:12.5px;color:var(--nl-navy-900);margin-top:12px;line-height:1.55}
+.pt-tit{font:600 12.5px Sora,sans-serif;color:var(--nl-navy-900);margin-bottom:6px}
 .rkc-tab td{padding:4px 6px} .rkc-tab input,.rkc-tab select{padding:6px 8px;font-size:12.5px}
 .rkc-ap{display:grid;grid-template-columns:1.2fr 1fr 1.6fr .9fr 1fr;gap:6px;padding:2px 6px 10px}
 .rkc-ap input{padding:5px 8px;font-size:12px}
@@ -452,14 +453,7 @@ circle.pv-hit{cursor:ns-resize}
 
   <section class="page" data-page="patrimonio">
     <h2><svg viewBox="0 0 24 24"><path d="M3 21h18M5 21V10l7-5 7 5v11M9 21v-6h6v6"/></svg>Patrimônio e premissas</h2>
-    <div class="bloco">
-      <h3>Patrimônio de hoje</h3>
-      <div class="grid g3">
-        <div class="field"><label>Patrimônio financeiro <span class="tip" tabindex="0" data-tip="Investimentos, poupança e conta. É o ponto de partida do gráfico e o que paga a renda da Liberdade Financeira.">?</span></label><input id="f-wealth" data-money type="text" inputmode="decimal" placeholder="R$ 0,00"></div>
-        <div class="field"><label>Imóveis e outros bens <span class="tip" tabindex="0" data-tip="Casa, apartamentos alugados, carro. Contam no patrimônio total, mas não pagam a renda desejada (um aluguel recebido entra como renda passiva no Fluxo de caixa).">?</span></label><input id="f-bens" data-money type="text" inputmode="decimal" placeholder="R$ 0,00"></div>
-        <div class="field"><label>Participações societárias <span class="tip" tabindex="0" data-tip="Valor da empresa que é do cliente. Fica constante ao longo do tempo e não paga a renda desejada.">?</span></label><input id="f-part" data-money type="text" inputmode="decimal" placeholder="R$ 0,00"></div>
-      </div>
-    </div>
+    <div id="patrC"></div>
     <div class="bloco">
       <h3>Premissas do planejamento</h3>
       <div class="grid g3">
@@ -532,13 +526,13 @@ const ENGINE = (() => {
   // ---- Configuração: tudo o que a tela do consultor define. Os valores abaixo são o padrão do mock. ----
   let PLAN_MODE = 'perp';
   let R_M = 0.004, GW = Math.pow(1 + R_M, 7 / 30.4375);
-  let PART_VALUE = 150000; // participação societária: valor constante (sem remuneração modelada)
+  let PART_VALUE = 50000;   // participação societária: valor constante (sem remuneração modelada)
   let LIFE_EXP = 95, DESIRED = 25000, SALARY = 15000, SAL_G = 0.045;
   let DESIRED_STEPS = [];      // mudanças da renda desejada a partir de um mês: [{ from, value }]
   const desiredAt = mi => { let v = DESIRED; for (const s of DESIRED_STEPS) if (mi >= s.from) v = +s.value || 0; return v; };
-  let INITIAL_WEALTH = 500000; // patrimônio financeiro do cliente hoje, informado pelo consultor
+  let INITIAL_WEALTH = 860000; // patrimônio financeiro do cliente hoje, informado pelo consultor
   let CAP_OVERRIDE = null;     // capacidade de poupança informada pelo cliente, se ele disser um valor próprio
-  let INITIAL_BENS = 0;        // imóveis e outros bens de hoje (não financeiros)
+  let INITIAL_BENS = 1210000;  // imóveis e outros bens de hoje (não financeiros)
   let RETIRE_AGE = null;       // idade em que o cliente quer parar; vazio = assim que o patrimônio sustentar a renda
 
   // Perfis de investimento do dinheiro dedicado a cada objetivo (retorno real líquido ao mês)
@@ -894,6 +888,7 @@ const ENGINE = (() => {
   // Plano antigo: o aluguel era um campo solto (plan.rent), que parava quando a casa própria era comprada.
   // Vira uma despesa fixa comum, que termina quando o objetivo 'casa' é realizado.
   function normaliza(plan) {
+    sincronizaPatrimonio(plan);
     if (plan.rent == null) return plan;
     const linha = { id: 'moradia', label: 'Moradia (aluguel)', group: 'fix', week: 1, steps: [{ from: 0, value: +plan.rent }] };
     if ((plan.objectives || OBJ).some(o => o.id === 'casa')) linha.endObj = 'casa';
@@ -986,7 +981,7 @@ const ENGINE = (() => {
       if (a.modo === 'mes') { it.exc = Object.assign({}, it.exc, { [a.mi]: +a.para }); return; }
       degrauEm(it, +a.mi, +a.para);
     });
-    return plan;
+    return sincronizaPatrimonio(plan);
   }
   // texto da alteração para as duas telas: o que muda, o valor proposto e o valor de antes
   function descreveAlteracao(plan, a) {
@@ -1081,10 +1076,12 @@ const ENGINE = (() => {
     return { renda, passiva, doFluxo, fin, bens, part, sucessaoPct, deps, prazoVida, taxa: SEGURO.taxa, pessoas,
       somaParticipacao: geradores.reduce((a, g) => a + (num(g.participacao) != null ? +g.participacao : 100 / geradores.length), 0) };
   }
+  // padrão de vida mensal: o custo de vida da reserva (informado pelo consultor, ou o do fluxo de caixa)
+  const padraoDeVida = plan => { const r = (plan.riscos || {}).reserva || {}; return num(r.custoVida) != null ? +r.custoVida : custoDeVida(plan); };
   function avaliaRiscos(plan) {
     const R = plan.riscos || {}, out = {};
     // Desemprego e emergência: ideal = custo de vida × (d + t); mínima 40%, aceitável 70%
-    { const r = R.reserva || {}, custo = num(r.custoVida) != null ? +r.custoVida : custoDeVida(plan);
+    { const r = R.reserva || {}, custo = padraoDeVida(plan);
       const temDep = Array.isArray(R.dependentes) ? R.dependentes.length > 0 : !!r.dependentes;   // a lista de dependentes, quando existe, decide
       const nat = NATUREZAS.find(n => n[0] === r.natureza), d = temDep ? 3 : 0, t = nat ? nat[1] : null;
       const calculado = t != null ? custo * (d + t) : null, ideal = num(r.alvo) != null ? +r.alvo : calculado;
@@ -1147,16 +1144,66 @@ const ENGINE = (() => {
     ruina: { itens: { fraude: 'ok', classe: 'atencao', ativo: 'ok', corrosao: '' } },
     liquidez: { avaliacao: 'ok', d0: 60000, d30: 150000, d60: 250000, d180: 380000, d360: 500000 },
     bens: { itens: [
-      { nome: 'Carro da família', valor: 120000, protecao: 'total', apolice: { seguradora: 'Porto Seguro', numero: '0531.22.118790', cobertura: '100% da tabela FIPE, terceiros R$ 200 mil', premio: 4200, vigencia: 'até mar/2027' } },
-      { nome: 'Carro (2º veículo)', valor: 60000, protecao: 'nenhuma', apolice: null }] },
+      { nome: 'Hyundai Creta', valor: 160000, protecao: 'total', apolice: { seguradora: 'Porto Seguro', numero: '0531.22.118790', cobertura: '100% da tabela FIPE, terceiros R$ 200 mil', premio: 4200, vigencia: 'até mar/2027' } },
+      { nome: 'Terreno em São Sebastião', valor: 100000, protecao: 'total', apolice: null },
+      { nome: 'Apartamento em Mogi (moradia)', valor: 950000, protecao: 'insuficiente', apolice: { seguradora: 'Caixa Seguradora', numero: '', cobertura: 'só o seguro habitacional do financiamento (saldo devedor)', premio: 0, vigencia: '' } }] },
     dependentes: [{ nome: 'Luiza', relacao: 'filho', nasc: '2025-06' }],
     seguro: { renda: null, passiva: null, sucessaoPct: 10, geradores: [
       { nome: 'Ana', pessoa: 'titular', nasc: '', participacao: 60, passivaPct: 100, patrimonioPct: 50, inssInvalidez: 3000, inssMorte: 3000, coberturaInvalidez: 300000, coberturaVida: 500000 },
       { nome: 'Marcos', pessoa: 'conjuge', nasc: '1988-03', participacao: 40, passivaPct: 100, patrimonioPct: 50, inssInvalidez: 2500, inssMorte: 2500, coberturaInvalidez: 0, coberturaVida: 0 }] },
   };
+  // ---- Patrimônio de hoje e fase da vida financeira ----
+  // O detalhe do patrimônio fica em plan.patrimonio: financeiro por instituição, participações por empresa e bens com
+  // valor de mercado e saldo devedor. Quando uma lista existe, ela é a fonte do total que o resto do plano usa:
+  // initialWealth (financeiro), partValue (participações) e initialBens (valor de mercado dos bens).
+  const somaDe = (l, k) => (l || []).reduce((a, x) => a + (+x[k] || 0), 0);
+  function sincronizaPatrimonio(plan) {
+    const P = plan && plan.patrimonio; if (!P) return plan;
+    if (Array.isArray(P.financeiro)) plan.initialWealth = somaDe(P.financeiro, 'valor');
+    if (Array.isArray(P.participacoes)) plan.partValue = somaDe(P.participacoes, 'valor');
+    if (Array.isArray(P.bens)) plan.initialBens = somaDe(P.bens, 'mercado');
+    return plan;
+  }
+  // Fases da vida financeira: a vida de trabalho (de quando começou até a idade de parar) dividida em nonos.
+  // Início de carreira 2/9, Consolidação 4/9, Plenitude 3/9; antes, Preparação; depois, Liberdade financeira.
+  // O patrimônio esperado é o padrão de vida mensal × um múltiplo que vai do mínimo ao máximo da fase, na proporção
+  // do quanto da fase já passou. Os múltiplos são os definidos pela Nord para o planejamento.
+  const FASES_VIDA = [
+    { id: 'preparacao', nome: 'Preparação', min: 0, max: 0 },
+    { id: 'inicio', nome: 'Início de carreira', min: 0.5, max: 18, nonos: 2 },
+    { id: 'consolidacao', nome: 'Consolidação', min: 18, max: 60, nonos: 4 },
+    { id: 'plenitude', nome: 'Plenitude', min: 60, max: 200, nonos: 3 },
+    { id: 'liberdade', nome: 'Liberdade financeira', min: 200, max: 200 },
+  ];
+  const IDADE_ALVO_PADRAO = 65;
+  function faseDaVida(plan) {
+    const P = plan.patrimonio || {}, idade = +plan.age > 0 ? +plan.age : CURRENT_AGE;
+    const fin = Array.isArray(P.financeiro) ? somaDe(P.financeiro, 'valor') : +plan.initialWealth || 0;
+    const part = Array.isArray(P.participacoes) ? somaDe(P.participacoes, 'valor') : +plan.partValue || 0;
+    const bens = Array.isArray(P.bens) ? somaDe(P.bens, 'mercado') : +plan.initialBens || 0, dividas = somaDe(P.bens, 'saldoDevedor');
+    const out = { idade, fin, part, bens, dividas, total: fin + part + bens - dividas, liquidezIdeal: num(P.liquidezIdeal), padrao: padraoDeVida(plan), fase: null };
+    const comecou = num(P.comecou), alvoPlano = num(plan.retireAge), alvo = alvoPlano != null ? alvoPlano : IDADE_ALVO_PADRAO;
+    Object.assign(out, { comecou, alvo, alvoDoPlano: alvoPlano != null });
+    if (comecou == null || !(alvo > comecou)) return out;   // sem a idade em que começou a trabalhar, não há fase
+    const dur = alvo - comecou, lim = [0, comecou, comecou + 2 / 9 * dur, comecou + 6 / 9 * dur, alvo, null];
+    out.fases = FASES_VIDA.map((f, k) => Object.assign({}, f, { de: lim[k], ate: lim[k + 1] }));
+    const k = out.fases.findIndex(f => f.ate == null || idade < f.ate), f = out.fases[k];
+    const prog = f.ate == null ? 1 : Math.max(0, Math.min(1, (idade - f.de) / (f.ate - f.de)));
+    Object.assign(out, { fase: k, progresso: prog, multMin: f.min, multMax: f.max, mult: f.min + prog * (f.max - f.min) });
+    Object.assign(out, { minimo: out.padrao * f.min, esperado: out.padrao * out.mult, maximo: out.padrao * f.max });
+    return out;
+  }
+  // Patrimônio de exemplo (família da Ana Ribeiro)
+  const PATRIMONIO_EXEMPLO = {
+    comecou: 23, liquidezIdeal: 400000,
+    financeiro: [{ nome: 'Nubank', valor: 60000 }, { nome: 'Itaú', valor: 150000 }, { nome: 'BTG Pactual', valor: 650000 }],
+    participacoes: [{ nome: 'Papelaria Canetinha', valor: 50000 }],
+    bens: [{ nome: 'Hyundai Creta', mercado: 160000, saldoDevedor: 0 }, { nome: 'Terreno em São Sebastião', mercado: 100000, saldoDevedor: 0 },
+      { nome: 'Apartamento em Mogi (moradia)', mercado: 950000, saldoDevedor: 368000 }],
+  };
   const ORIGENS_OUT = ORIGENS;
   const config = () => ({ age: CURRENT_AGE, retireAge: RETIRE_AGE, initialBens: INITIAL_BENS, desired: DESIRED, desiredSteps: DESIRED_STEPS, lifeExp: LIFE_EXP, salary: SALARY, salaryGrowth: SAL_G, partValue: PART_VALUE, initialWealth: INITIAL_WEALTH, capacityOverride: CAP_OVERRIDE, rate: R_M, profiles: PROFILES, incomes: INCOMES, expenses: EXPENSES, objectives: OBJ, passive: PASSIVE });
-  return { TODAY, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, PASSIVE, PROFILES, STATUS, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, serieCusto, desiredAt, aplicaAlteracoes, descreveAlteracao, valorAtual, mesDoPlano, RISCOS, NATUREZAS, ITENS_RUINA, RISCOS_EXEMPLO, avaliaRiscos, custoDeVida, SEGURO, RELACOES, calculaSeguros, mesesAteIdade, lerCaminho, gravaCaminho, setRetireAge: a => { RETIRE_AGE = a == null ? null : Math.max(CURRENT_AGE, +a); }, financiamentoValido, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
+  return { TODAY, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, PASSIVE, PROFILES, STATUS, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, serieCusto, desiredAt, aplicaAlteracoes, descreveAlteracao, valorAtual, mesDoPlano, RISCOS, NATUREZAS, ITENS_RUINA, RISCOS_EXEMPLO, avaliaRiscos, custoDeVida, SEGURO, RELACOES, calculaSeguros, mesesAteIdade, FASES_VIDA, faseDaVida, sincronizaPatrimonio, PATRIMONIO_EXEMPLO, padraoDeVida, lerCaminho, gravaCaminho, setRetireAge: a => { RETIRE_AGE = a == null ? null : Math.max(CURRENT_AGE, +a); }, financiamentoValido, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
 })();
 if (typeof module !== 'undefined') module.exports = ENGINE;
 </script>
@@ -1241,13 +1288,15 @@ const STATUS = { ok: 'Alcançável', adj: 'Alcançável com ajustes', risk: 'Req
 
 // O plano padrão vem do próprio motor: uma só fonte de verdade para os dois lados.
 const PLANO_PADRAO = Object.assign(
-  { name: 'Ana Ribeiro', age: 35, riscos: JSON.parse(JSON.stringify(ENGINE.RISCOS_EXEMPLO)), videos: {} },
+  { name: 'Ana Ribeiro', age: 35, riscos: JSON.parse(JSON.stringify(ENGINE.RISCOS_EXEMPLO)), patrimonio: JSON.parse(JSON.stringify(ENGINE.PATRIMONIO_EXEMPLO)), videos: {} },
   JSON.parse(JSON.stringify(ENGINE.config()))
 );
 
+// plano salvo completado com o padrão; o patrimônio detalhado não vem do exemplo (um plano antigo só tem os totais)
+const doSalvo = p => Object.assign(structuredClone(PLANO_PADRAO), { patrimonio: null }, p);
 let plano = load();
 function load() {
-  try { const raw = localStorage.getItem('nl-plano'); if (raw) return Object.assign(structuredClone(PLANO_PADRAO), JSON.parse(raw)); } catch (e) { }
+  try { const raw = localStorage.getItem('nl-plano'); if (raw) return doSalvo(JSON.parse(raw)); } catch (e) { }
   return structuredClone(PLANO_PADRAO);
 }
 function save() { try { localStorage.setItem('nl-plano', JSON.stringify(plano)); } catch (e) { } gravarNuvem(false); }
@@ -1442,7 +1491,7 @@ function renderAll() {
   // o campo em edição volta com o foco e com o texto exatamente como estava sendo digitado
   const foco = document.activeElement, fg = foco && foco.dataset ? foco.dataset.g : null, fk = foco && foco.dataset ? foco.dataset.k : null;
   const oid = fg != null && plano.objectives[+fg] ? plano.objectives[+fg].id : null, txt = foco ? foco.value : null;
-  recompute(); renderTop(); renderFluxo(); renderGoals(); renderLiberdade(); renderRiscosC(); renderPropostas(); save();
+  recompute(); renderTop(); renderFluxo(); renderGoals(); renderLiberdade(); renderPatrimonioC(); renderRiscosC(); renderPropostas(); save();
   if (oid && fk) {
     const i = plano.objectives.findIndex(o => o.id === oid), el = document.querySelector('[data-g="' + i + '"][data-k="' + fk + '"]');
     if (el) { el.focus(); if (el.type === 'text' || el.tagName === 'TEXTAREA') { el.value = txt; try { el.setSelectionRange(txt.length, txt.length); } catch (e) { } } }
@@ -2285,7 +2334,7 @@ document.addEventListener('input', e => {
     campoObjetivo(t, val); return;
   }
   // parâmetros gerais
-  const map = { 'f-name': 'name', 'f-lifeExp': 'lifeExp', 'f-desired': 'desired', 'f-part': 'partValue', 'f-wealth': 'initialWealth', 'f-bens': 'initialBens' };
+  const map = { 'f-name': 'name', 'f-lifeExp': 'lifeExp', 'f-desired': 'desired' };
   if (t.id === 'f-age') { plano.age = t.value === '' ? '' : Math.min(90, Math.max(18, +t.value || 0)); if (t.value === '' || +t.value >= 18) { fx.t0 = null; renderAll(); } else renderTop(); return; }
   if (t.id === 'f-spouse') { plano.spouseAge = t.value === '' ? null : +t.value; save(); return; }
   if (t.id === 'f-retire') { plano.retireAge = t.value === '' ? null : +t.value; if (t.value === '' || +t.value >= 30) renderAll(); return; }
@@ -2837,6 +2886,47 @@ document.addEventListener('click', e => {
 // pré-visualização usa o Font Awesome quando o consultor cola uma classe
 (function () { const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css'; document.head.appendChild(l); })();
 
+// ===================== PATRIMÔNIO DE HOJE E FASE DA VIDA =====================
+// O patrimônio detalhado (plano.patrimonio): financeiro por instituição, participações por empresa e bens com valor de
+// mercado e saldo devedor. As listas somam nos totais do plano (ENGINE.sincronizaPatrimonio). Com a idade em que o
+// cliente começou a trabalhar e a liquidez ideal, a página Patrimônio do cliente mostra a fase da vida financeira e o
+// patrimônio mínimo, esperado e máximo para a idade (ENGINE.faseDaVida).
+function renderPatrimonioC() {
+  const el = document.getElementById('patrC'); if (!el) return;
+  // plano antigo, só com os totais: cada total vira a primeira linha da sua lista
+  if (!plano.patrimonio) plano.patrimonio = { comecou: null, liquidezIdeal: null,
+    financeiro: plano.initialWealth ? [{ nome: '', valor: +plano.initialWealth }] : [], participacoes: plano.partValue ? [{ nome: '', valor: +plano.partValue }] : [],
+    bens: plano.initialBens ? [{ nome: '', mercado: +plano.initialBens, saldoDevedor: 0 }] : [] };
+  const D = plano.patrimonio, f = ENGINE.faseDaVida(plano), rm = c => `<td><button class="btn btn-icon" data-rrm="${c}" title="Remover">×</button></td>`;
+  const lista = (c, cab, its, colunas, total) => `<table class="rkc-tab" style="min-width:0"><thead><tr>${cab.map(h => `<th>${h}</th>`).join('')}<th></th></tr></thead><tbody>
+    ${its.map((x, i) => `<tr>${colunas.map(([k, t, ph]) => `<td>${campoR(`${c}.${i}.${k}`, t, ph ? ` placeholder="${ph}"` : '')}</td>`).join('')}${rm(`${c}.${i}`)}</tr>`).join('')}
+    <tr class="total"><td>Total</td>${total.map(v => `<td>${fmt(v)}</td>`).join('')}<td></td></tr></tbody></table>`;
+  el.innerHTML = `<div class="bloco"><h3>Patrimônio de hoje</h3>
+    <div class="hint" style="margin-bottom:10px">Cada lista soma no plano. O patrimônio financeiro é o ponto de partida do gráfico e o que paga a renda da Liberdade Financeira; bens (pelo valor de mercado) e participações contam no patrimônio total, mas não pagam a renda desejada (um aluguel recebido entra como renda passiva no Fluxo de caixa). O saldo devedor dos bens desconta no patrimônio total que o cliente vê.</div>
+    <div class="grid g2" style="align-items:start">
+      <div><div class="pt-tit">Patrimônio financeiro, por instituição</div>${lista('patrimonio.financeiro', ['Instituição', 'Valor'], D.financeiro || [], [['nome', 'texto', 'ex.: Itaú'], ['valor', 'reais']], [f.fin])}<button class="btn btn-step" data-radd="patrimonio.financeiro">+ instituição</button></div>
+      <div><div class="pt-tit">Participações societárias, por empresa</div>${lista('patrimonio.participacoes', ['Empresa', 'Valor da parte do cliente'], D.participacoes || [], [['nome', 'texto', 'nome da empresa'], ['valor', 'reais']], [f.part])}<button class="btn btn-step" data-radd="patrimonio.participacoes">+ empresa</button></div>
+    </div>
+    <div class="pt-tit" style="margin-top:14px">Bens</div>${lista('patrimonio.bens', ['Bem', 'Valor de mercado hoje', 'Saldo devedor atual'], D.bens || [], [['nome', 'texto', 'ex.: apartamento onde mora'], ['mercado', 'reais'], ['saldoDevedor', 'reais']], [f.bens, f.dividas])}<button class="btn btn-step" data-radd="patrimonio.bens">+ bem</button></div>
+    <div class="bloco"><h3>Fase da vida e patrimônio ideal</h3><div class="grid g3">
+      <div class="field"><label>Idade em que começou a trabalhar</label>${campoR('patrimonio.comecou', 'num', ' min="10" max="70" placeholder="anos"')}</div>
+      <div class="field"><label>Liquidez ideal ${tip('Quanto do patrimônio deveria estar em dinheiro (no mercado financeiro). O cliente vê o patrimônio financeiro comparado a este valor.')}</label>${campoR('patrimonio.liquidezIdeal', 'reais')}</div>
+      <div class="field"><label>Vídeo da página (YouTube, Vimeo ou arquivo)</label>${campoR('videos.patrimonio', 'texto', ' placeholder="vazio: o espaço do vídeo fica reservado"')}</div></div>
+      <div class="rkc-calc" id="ptcResumo">${resumoPatrimonioC(f)}</div>
+      <div class="pc-acoes"><button class="btn btn-secondary" data-abrir-cliente>Ver na tela do cliente</button></div></div>`;
+}
+function resumoPatrimonioC(f) {
+  f = f || ENGINE.faseDaVida(plano);
+  const x = m => (m < 10 ? Math.round(m * 10) / 10 : Math.round(m)).toLocaleString('pt-BR') + '×', a = v => Math.round(v);
+  let h = `Patrimônio total ${fmt(f.total)} = financeiro ${fmt(f.fin)} + participações ${fmt(f.part)} + bens ${fmt(f.bens)} − dívidas ${fmt(f.dividas)}.`;
+  if (f.fase == null) return h + '<br>Informe a idade em que o cliente começou a trabalhar para calcular a fase da vida financeira.';
+  const fs = f.fases, fa = fs[f.fase];
+  h += `<br>Fases (de ${f.comecou} até ${f.alvo} anos${f.alvoDoPlano ? ', a idade para parar de trabalhar da página Cliente' : `: sem idade para parar de trabalhar na página Cliente, vale ${f.alvo}`}): ${fs.slice(1, 4).map(z => `${z.nome} ${a(z.de)} a ${a(z.ate)}`).join(' · ')} · Liberdade após ${f.alvo}.`;
+  h += `<br>Aos ${f.idade} anos: <b>${fa.nome}</b>${f.fase > 0 && f.fase < 4 ? ` (${Math.round(f.progresso * 100)}% da fase)` : ''}. Padrão de vida ${fmt(f.padrao)} (o custo de vida da reserva, em Gestão de riscos) × ${x(f.multMin)} a ${x(f.multMax)}: mínimo ${fmt(f.minimo)}, esperado ${fmt(f.esperado)} (${x(f.mult)}), máximo ${fmt(f.maximo)}.`;
+  if (f.liquidezIdeal > 0) h += `<br>Patrimônio financeiro = ${Math.round(f.fin / f.liquidezIdeal * 100)}% da liquidez ideal.`;
+  return h;
+}
+
 // ===================== GESTÃO DE RISCOS =====================
 // O consultor registra a situação de cada uma das oito ameaças em plano.riscos; o motor (avaliaRiscos) dá o status de
 // cada uma pela regra combinada e a nota da família. Campos com data-r="caminho" gravam direto no plano.
@@ -2950,12 +3040,12 @@ function valorDoCampoR(t) {
   return t.value;
 }
 // digitando: grava e atualiza só o resumo (o formulário não é redesenhado, para não perder o foco); ao sair do campo ou escolher numa lista, redesenha
-document.addEventListener('input', e => { const t = e.target; if (!t.dataset || t.dataset.r == null || t.tagName === 'SELECT' || t.type === 'checkbox') return; ENGINE.gravaCaminho(plano, t.dataset.r, valorDoCampoR(t)); save(); const r = document.getElementById('rkcResumo'); if (r) r.innerHTML = resumoRiscosC(ENGINE.avaliaRiscos(plano)); });
+document.addEventListener('input', e => { const t = e.target; if (!t.dataset || t.dataset.r == null || t.tagName === 'SELECT' || t.type === 'checkbox') return; ENGINE.gravaCaminho(plano, t.dataset.r, valorDoCampoR(t)); ENGINE.sincronizaPatrimonio(plano); save(); const r = document.getElementById('rkcResumo'); if (r) r.innerHTML = resumoRiscosC(ENGINE.avaliaRiscos(plano)); const p = document.getElementById('ptcResumo'); if (p) p.innerHTML = resumoPatrimonioC(); });
 document.addEventListener('change', e => { const t = e.target; if (!t.dataset || t.dataset.r == null) return; ENGINE.gravaCaminho(plano, t.dataset.r, valorDoCampoR(t)); setTimeout(renderAll, 0); });
 document.addEventListener('click', e => {
   const add = e.target.closest('[data-radd]'), rm = e.target.closest('[data-rrm]'), ex = e.target.closest('[data-rexemplo]'), ir = e.target.closest('[data-rir]');
   if (e.target.closest('[data-rseguro]')) { plano.riscos.seguro = novoSeguro(); if (!Array.isArray(plano.riscos.dependentes)) plano.riscos.dependentes = []; renderAll(); return; }
-  if (add) { const c = add.dataset.radd, lista = lerR(c) || []; lista.push(c.endsWith('vidas') ? { nome: '', idade: null, premio: 0 } : c.endsWith('bens.itens') ? { nome: '', valor: 0, protecao: '' } : c.endsWith('dependentes') ? { nome: '', relacao: 'filho', nasc: '' } : c.endsWith('geradores') ? novoGerador(lista.length ? 'outro' : 'titular', 0) : { nome: '', ideal: 0, atual: 0 }); ENGINE.gravaCaminho(plano, c, lista); if (c.includes('terceiros')) plano.riscos.terceiros.avaliado = true; renderAll(); }
+  if (add) { const c = add.dataset.radd, lista = lerR(c) || []; lista.push(c.endsWith('vidas') ? { nome: '', idade: null, premio: 0 } : c.endsWith('bens.itens') ? { nome: '', valor: 0, protecao: '' } : c.endsWith('dependentes') ? { nome: '', relacao: 'filho', nasc: '' } : c.endsWith('geradores') ? novoGerador(lista.length ? 'outro' : 'titular', 0) : c === 'patrimonio.bens' ? { nome: '', mercado: 0, saldoDevedor: 0 } : c.startsWith('patrimonio.') ? { nome: '', valor: 0 } : { nome: '', ideal: 0, atual: 0 }); ENGINE.gravaCaminho(plano, c, lista); if (c.includes('terceiros')) plano.riscos.terceiros.avaliado = true; renderAll(); }
   else if (rm) { const ks = rm.dataset.rrm.split('.'), i = +ks.pop(), lista = lerR(ks.join('.')); lista.splice(i, 1); renderAll(); }
   else if (ex) { plano.riscos = JSON.parse(JSON.stringify(ENGINE.RISCOS_EXEMPLO)); renderAll(); }
   else if (ir) { const b = document.getElementById('rkc-' + ir.dataset.rir); if (b) b.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
@@ -3044,7 +3134,8 @@ document.getElementById('nav').addEventListener('keydown', e => { const a = e.ta
 
 // Novo cliente: plano em branco, sem nada do exemplo. Com um plano em andamento, pede confirmação no próprio botão.
 const planoVazio = () => ({ name: '', age: '', lifeExp: 95, desired: 0, retireAge: null, initialWealth: 0, initialBens: 0, partValue: 0, capacityOverride: null,
-  rate: PLANO_PADRAO.rate, profiles: Object.assign({}, PLANO_PADRAO.profiles), incomes: [], expenses: [], objectives: [], passive: [], riscos: {}, videos: {} });
+  rate: PLANO_PADRAO.rate, profiles: Object.assign({}, PLANO_PADRAO.profiles), incomes: [], expenses: [], objectives: [], passive: [], riscos: {}, videos: {},
+  patrimonio: { comecou: null, liquidezIdeal: null, financeiro: [], participacoes: [], bens: [] } });
 const temConteudo = () => !!(plano.name || plano.incomes.length || plano.expenses.length || plano.objectives.length);
 function trocarPlano(b, novo, rotulo) {
   const aplicar = () => { if (gaveta) { gaveta = null; renderGaveta(); } aceito = null; pendente = null; document.getElementById('estouro').hidden = true; plano = novo(); fx.t0 = null; save(); fillFields(); renderAll(); irPara('cliente'); document.getElementById('f-name').focus(); };
@@ -3083,15 +3174,12 @@ function fillFields() {
   document.getElementById('f-age').value = plano.age;
   document.getElementById('f-retire').value = plano.retireAge == null ? '' : plano.retireAge;
   document.getElementById('f-spouse').value = plano.spouseAge == null ? '' : plano.spouseAge;
-  document.getElementById('f-bens').value = plano.initialBens ? money(plano.initialBens) : '';
   document.getElementById('f-lifeExp').value = plano.lifeExp;
   document.getElementById('f-desired').value = plano.desired ? money(plano.desired) : '';
   document.getElementById('f-rate').value = (plano.rate * 100).toFixed(2);
   document.getElementById('f-pc').value = (plano.profiles.conservador * 100).toFixed(2);
   document.getElementById('f-pm').value = (plano.profiles.moderado * 100).toFixed(2);
   document.getElementById('f-pa').value = (plano.profiles.agressivo * 100).toFixed(2);
-  document.getElementById('f-part').value = plano.partValue ? money(plano.partValue) : '';
-  document.getElementById('f-wealth').value = plano.initialWealth ? money(plano.initialWealth) : '';
   document.getElementById('f-cap').value = plano.capacityOverride == null ? '' : money(plano.capacityOverride);
 }
 fillFields(); renderAll(); irPara(location.hash.slice(1));
@@ -3100,7 +3188,7 @@ fillFields(); renderAll(); irPara(location.hash.slice(1));
 ARMAZEM.iniciar().then(info => {
   if (!info.dono) { location.replace('evolucao-patrimonial.html'); return; }
   const doArmazem = ARMAZEM.ler('plano');
-  if (info.modo === 'nuvem' && doArmazem && JSON.stringify(doArmazem) !== JSON.stringify(plano)) { plano = Object.assign(structuredClone(PLANO_PADRAO), doArmazem); fx.t0 = null; fillFields(); }
+  if (info.modo === 'nuvem' && doArmazem && JSON.stringify(doArmazem) !== JSON.stringify(plano)) { plano = doSalvo(doArmazem); fx.t0 = null; fillFields(); }
   nuvemPronta = true; renderAll();
   if (info.modo === 'nuvem') gravarNuvem(true);   // banco ainda vazio: o plano deste navegador passa a ser o do cliente
   else document.getElementById('notaArmazem').textContent = 'Neste computador, o plano e as propostas ficam no navegador: abra a área do cliente aqui mesmo para testar. No link publicado, cada um usa o seu computador.';

@@ -17,8 +17,11 @@ os ajustes do usuário: renda que deseja proteger dividida entre os geradores de
 até 25, sucessão de 5% a 20%, 0,4% ao mês) e o vetor da natureza do trabalho (o da calculadora de reserva da Nord,
 conferido simulando no site). Falta:
 
-1. **Cadastro de bens.** Hoje a lista de bens é cadastrada na página Gestão de riscos. O usuário vai mandar o material
-   de coleta da Nord; os bens devem passar a vir de um cadastro anterior, com as informações desse material.
+1. **Cadastro de bens.** O cadastro anterior já existe: a página Patrimônio e premissas lista os bens com valor de
+   mercado e saldo devedor (`plano.patrimonio.bens`, veja "Fase da vida e patrimônio" abaixo). Mas a Gestão de riscos
+   ainda tem a sua própria lista (`plano.riscos.bens.itens`, com nome, valor e proteção), e as duas não se falam: no
+   exemplo, os nomes e valores foram igualados à mão. Falta a proteção de cada bem ser marcada sobre a lista do
+   Patrimônio. O usuário vai mandar o material de coleta da Nord, com as demais informações de cada bem.
 2. **Dependentes e geradores de renda vindos do cadastro.** Hoje são cadastrados na página Gestão de riscos (itens 7
    e 8). Vão ser perguntados numa etapa anterior; aqui, só lidos.
 3. **Apólices enviadas pelo cliente.** O usuário quer que o cliente, ao responder, possa enviar as apólices atuais
@@ -28,6 +31,26 @@ conferido simulando no site). Falta:
    que também é a base do ITCMD.
 
 O usuário ainda vai avaliar as telas de gestão de riscos e pode pedir ajustes.
+
+## Fase da vida e patrimônio (em aberto)
+
+A página existe (capítulo 4 da área do cliente; cadastro na página Patrimônio e premissas do portal; veja o README).
+Em aberto:
+
+1. **Fatores do patrimônio esperado diferentes da calculadora no ar.** A calculadora da Nord
+   (liberta.nordinvestimentos.com.br/patrimonioideal), conferida em 02/10/2026 com 16 casos, usa 0 a 9× no Início de
+   carreira, 9× a 70× na Consolidação, 70× a 250× na Plenitude e 250× na Liberdade. O usuário pediu os fatores novos
+   (0,5× a 18×, 18× a 60×, 60× a 200×, 200×), que são os do protótipo (`ENGINE.FASES_VIDA`). As fases (2/9 e 6/9) e o
+   total (bens + financeiro − dívidas) batem com a calculadora; ela não conta participações societárias, o protótipo
+   conta.
+2. **Dívidas só como saldo devedor de um bem.** Um empréstimo sem bem (pessoal, consignado) não tem onde entrar. E a
+   dívida não entra na simulação: o gráfico da evolução patrimonial usa os bens pelo valor de mercado, e a parcela do
+   financiamento é uma saída do fluxo de caixa.
+3. **O cliente não propõe nada nesta página.** Na Gestão de riscos, ele simula e propõe; aqui só vê. Se ele puder corrigir
+   valores (do bem, de uma instituição), a proposta é do tipo `campo` (por exemplo `patrimonio.bens.2.mercado`), e o
+   total do plano já acompanha (`sincronizaPatrimonio` roda ao aplicar as propostas).
+4. **Idade de quem?** A fase usa a idade do titular (`plan.age`) e a idade para parar de trabalhar dele. Num casal, cada
+   um tem a sua fase; hoje há uma só.
 
 **Link publicado** (para o usuário testar de outra máquina): https://claude.ai/artifact/LRmPxMYFK7TcoUkjYXatLX.
 É uma cópia ajustada dos dois HTML: abre as telas na mesma aba (o visualizador bloqueia janelas novas), usa o
@@ -332,3 +355,14 @@ Registradas aqui porque não são óbvias no código:
 - **Carrossel das ameaças (01/10/2026).** Pedido do usuário: o cliente deve passar por todas. Um slide por ameaça
   (essencial no alto, detalhe embaixo), começando pela primeira, com os vizinhos à mostra nas bordas. O status verde
   passou a se chamar "Protegido".
+- **Fase da vida e patrimônio (02/10/2026).** Pedido do usuário, com duas telas de referência (curva da vida, cinco
+  fases e barras de liquidez ideal, financeiro, bens, dívidas, total, mínimo, esperado e máximo). Entrou como capítulo 4
+  (o esqueleto ficou nos capítulos 1 a 3), antes da Gestão de riscos e da Evolução patrimonial, que usam o mesmo
+  patrimônio. O detalhe do patrimônio (`plano.patrimonio`) passou a ser a única fonte dos totais do plano: os três
+  campos de valor da página Patrimônio viraram listas (instituições, empresas, bens com valor de mercado e saldo
+  devedor). O exemplo da Ana usa os dados do usuário (R$ 860 mil no financeiro, R$ 50 mil em participações, R$ 1,21 mi
+  em bens com R$ 368 mil de saldo devedor), e os bens da Gestão de riscos foram igualados a eles; com isso a simulação
+  de exemplo mudou (antes, R$ 500 mil no financeiro, R$ 150 mil em participações e nenhum bem). O padrão de vida é o
+  custo de vida da reserva, o mesmo da liquidez em vezes o padrão. Sem a idade em que começou a trabalhar, a página
+  mostra o patrimônio sem a fase. O status protegido, atenção e crítico é só das ameaças: aqui a leitura é em
+  palavras ("abaixo do mínimo", "entre o esperado e o máximo").

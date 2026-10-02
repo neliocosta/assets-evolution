@@ -89,6 +89,42 @@ body.fluxo #fases{display:none}
 /* "Hoje" só na janela do fluxo de caixa; no gráfico, a tecla Home volta para hoje */
 body:not(.fluxo) #btnHome{display:none}
 body.sem-grafico .legend,body.sem-grafico .stats,body.sem-grafico #segView,body.sem-grafico #segMode,body.sem-grafico #btnHome,body.sem-grafico #btnFluxo,body.sem-grafico #btnPlay,body.sem-grafico #btnSkip,body.sem-grafico #ajuda,body.sem-grafico #btnVideo{display:none!important}
+/* fase da vida e patrimônio */
+#patrimonio{flex:1;min-height:0;overflow:auto;background:var(--nl-cream-50)}
+#patrimonio .rc{max-width:1120px;margin:0 auto;padding:24px 24px 60px}
+.pt-hero{justify-content:center}
+.pt-fase{font:600 30px Sora,sans-serif;color:var(--nl-navy-900);line-height:1.1}
+.pt-fase small{display:block;font:500 12px 'DM Sans',sans-serif;color:#8d8d8d;margin-top:6px}
+.pt-kpis{display:flex;gap:10px;flex-wrap:wrap}
+.pt-kpis div{flex:1 1 140px;background:var(--nl-cream-50);border-radius:11px;padding:9px 12px;display:flex;flex-direction:column;gap:3px}
+.pt-kpis span{font-size:11px;color:#8d8d8d} .pt-kpis b{font:600 16px Sora,sans-serif;color:var(--nl-navy-900)}
+.pt-card h3{font:600 16px Sora,sans-serif;color:var(--nl-navy-900);padding-bottom:6px;border-bottom:2px solid var(--nl-orange-500);align-self:flex-start}
+.pt-vida{position:relative;margin:4px 0 2px}
+.pt-curva{display:block;width:100%;height:96px}
+.pt-curva path.a{fill:#f1efea} .pt-curva path.l{fill:none;stroke:#2A6478;stroke-width:2.2;vector-effect:non-scaling-stroke}
+.pt-voce{position:absolute;bottom:2px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;font:600 10.5px 'DM Sans',sans-serif;color:var(--nl-orange-600);white-space:nowrap}
+.pt-voce svg{width:16px;height:16px;fill:var(--nl-orange-500)}
+.pt-pills{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.pt-pills div{border:1px dashed #c9c5bd;border-radius:9999px;padding:6px 8px;text-align:center;font:500 12.5px Sora,sans-serif;color:var(--nl-navy-900);line-height:1.25}
+.pt-pills div small{display:block;font:500 10.5px 'DM Sans',sans-serif;color:#8d8d8d}
+.pt-pills div.on{border:1.5px solid var(--nl-orange-500);background:var(--nl-peach-100)} .pt-pills div.on small{color:var(--nl-orange-600)}
+.pt-barras{display:grid;grid-template-columns:230px 1fr;row-gap:8px;column-gap:14px;align-items:center;margin-top:14px}
+.pt-rot{font-size:12.5px;color:var(--nl-gray-700);text-align:right;line-height:1.25}
+.pt-rot button{border:0;background:transparent;font:inherit;color:var(--nl-navy-900);font-weight:600;cursor:pointer;padding:0}
+.pt-rot button:hover{color:var(--nl-orange-600)}
+.pt-rot button i{display:inline-block;font-style:normal;color:#9a9a9a;width:12px;transition:transform .15s} .pt-rot button.aberto i{transform:rotate(90deg)}
+.pt-rot.sub{font-size:11.5px;color:#8d8d8d} .pt-rot small{display:block;font-size:10.5px;color:#a3a3a3}
+.pt-trilho{position:relative;height:30px;border-radius:8px}
+.pt-trilho.sub{height:22px}
+.pt-trilho.linha::after{content:'';position:absolute;left:var(--tot);top:-5px;bottom:-5px;border-left:1.5px dashed #9aa3ad;pointer-events:none}
+.pt-b{position:absolute;top:0;bottom:0;border-radius:8px;display:flex;align-items:center;padding:0 10px;font:600 13.5px Sora,sans-serif;color:var(--nl-navy-900);white-space:nowrap;min-width:3px}
+.pt-trilho.sub .pt-b{font:600 11.5px Sora,sans-serif;border-radius:6px}
+.pt-b.dir{justify-content:flex-end}
+.pt-b .fora{position:absolute;left:calc(100% + 8px)} .pt-b .fora.esq{left:auto;right:calc(100% + 8px)}
+.pt-leitura{display:flex;flex-direction:column;gap:6px;margin-top:16px;padding-top:14px;border-top:1px solid #f0ede7;font-size:13px;line-height:1.5}
+.pt-leitura b{color:var(--nl-navy-900)} .pt-leitura .ok{color:#22794a} .pt-leitura .atencao{color:#C25A12} .pt-leitura .critico{color:var(--nl-score-low)}
+.pt-nao{font-size:13px;color:#8d8d8d}
+@media (max-width:1080px){.pt-barras{grid-template-columns:150px 1fr}.pt-pills div{font-size:11px}}
 /* gestão de riscos */
 #riscos{flex:1;min-height:0;overflow:auto;background:var(--nl-cream-50)}
 #riscos .rc{max-width:1120px;margin:0 auto;padding:24px 24px 60px}
@@ -342,6 +378,7 @@ body.fluxo .stats{margin-left:auto}
 </header>
 <div id="propBar" hidden></div>
 <div id="riscos" hidden></div>
+<div id="patrimonio" hidden></div>
 <div id="pagina" hidden></div>
 <div id="wrap">
   <canvas id="main"></canvas>
@@ -377,13 +414,13 @@ const ENGINE = (() => {
   // ---- Configuração: tudo o que a tela do consultor define. Os valores abaixo são o padrão do mock. ----
   let PLAN_MODE = 'perp';
   let R_M = 0.004, GW = Math.pow(1 + R_M, 7 / 30.4375);
-  let PART_VALUE = 150000; // participação societária: valor constante (sem remuneração modelada)
+  let PART_VALUE = 50000;   // participação societária: valor constante (sem remuneração modelada)
   let LIFE_EXP = 95, DESIRED = 25000, SALARY = 15000, SAL_G = 0.045;
   let DESIRED_STEPS = [];      // mudanças da renda desejada a partir de um mês: [{ from, value }]
   const desiredAt = mi => { let v = DESIRED; for (const s of DESIRED_STEPS) if (mi >= s.from) v = +s.value || 0; return v; };
-  let INITIAL_WEALTH = 500000; // patrimônio financeiro do cliente hoje, informado pelo consultor
+  let INITIAL_WEALTH = 860000; // patrimônio financeiro do cliente hoje, informado pelo consultor
   let CAP_OVERRIDE = null;     // capacidade de poupança informada pelo cliente, se ele disser um valor próprio
-  let INITIAL_BENS = 0;        // imóveis e outros bens de hoje (não financeiros)
+  let INITIAL_BENS = 1210000;  // imóveis e outros bens de hoje (não financeiros)
   let RETIRE_AGE = null;       // idade em que o cliente quer parar; vazio = assim que o patrimônio sustentar a renda
 
   // Perfis de investimento do dinheiro dedicado a cada objetivo (retorno real líquido ao mês)
@@ -739,6 +776,7 @@ const ENGINE = (() => {
   // Plano antigo: o aluguel era um campo solto (plan.rent), que parava quando a casa própria era comprada.
   // Vira uma despesa fixa comum, que termina quando o objetivo 'casa' é realizado.
   function normaliza(plan) {
+    sincronizaPatrimonio(plan);
     if (plan.rent == null) return plan;
     const linha = { id: 'moradia', label: 'Moradia (aluguel)', group: 'fix', week: 1, steps: [{ from: 0, value: +plan.rent }] };
     if ((plan.objectives || OBJ).some(o => o.id === 'casa')) linha.endObj = 'casa';
@@ -831,7 +869,7 @@ const ENGINE = (() => {
       if (a.modo === 'mes') { it.exc = Object.assign({}, it.exc, { [a.mi]: +a.para }); return; }
       degrauEm(it, +a.mi, +a.para);
     });
-    return plan;
+    return sincronizaPatrimonio(plan);
   }
   // texto da alteração para as duas telas: o que muda, o valor proposto e o valor de antes
   function descreveAlteracao(plan, a) {
@@ -926,10 +964,12 @@ const ENGINE = (() => {
     return { renda, passiva, doFluxo, fin, bens, part, sucessaoPct, deps, prazoVida, taxa: SEGURO.taxa, pessoas,
       somaParticipacao: geradores.reduce((a, g) => a + (num(g.participacao) != null ? +g.participacao : 100 / geradores.length), 0) };
   }
+  // padrão de vida mensal: o custo de vida da reserva (informado pelo consultor, ou o do fluxo de caixa)
+  const padraoDeVida = plan => { const r = (plan.riscos || {}).reserva || {}; return num(r.custoVida) != null ? +r.custoVida : custoDeVida(plan); };
   function avaliaRiscos(plan) {
     const R = plan.riscos || {}, out = {};
     // Desemprego e emergência: ideal = custo de vida × (d + t); mínima 40%, aceitável 70%
-    { const r = R.reserva || {}, custo = num(r.custoVida) != null ? +r.custoVida : custoDeVida(plan);
+    { const r = R.reserva || {}, custo = padraoDeVida(plan);
       const temDep = Array.isArray(R.dependentes) ? R.dependentes.length > 0 : !!r.dependentes;   // a lista de dependentes, quando existe, decide
       const nat = NATUREZAS.find(n => n[0] === r.natureza), d = temDep ? 3 : 0, t = nat ? nat[1] : null;
       const calculado = t != null ? custo * (d + t) : null, ideal = num(r.alvo) != null ? +r.alvo : calculado;
@@ -992,16 +1032,66 @@ const ENGINE = (() => {
     ruina: { itens: { fraude: 'ok', classe: 'atencao', ativo: 'ok', corrosao: '' } },
     liquidez: { avaliacao: 'ok', d0: 60000, d30: 150000, d60: 250000, d180: 380000, d360: 500000 },
     bens: { itens: [
-      { nome: 'Carro da família', valor: 120000, protecao: 'total', apolice: { seguradora: 'Porto Seguro', numero: '0531.22.118790', cobertura: '100% da tabela FIPE, terceiros R$ 200 mil', premio: 4200, vigencia: 'até mar/2027' } },
-      { nome: 'Carro (2º veículo)', valor: 60000, protecao: 'nenhuma', apolice: null }] },
+      { nome: 'Hyundai Creta', valor: 160000, protecao: 'total', apolice: { seguradora: 'Porto Seguro', numero: '0531.22.118790', cobertura: '100% da tabela FIPE, terceiros R$ 200 mil', premio: 4200, vigencia: 'até mar/2027' } },
+      { nome: 'Terreno em São Sebastião', valor: 100000, protecao: 'total', apolice: null },
+      { nome: 'Apartamento em Mogi (moradia)', valor: 950000, protecao: 'insuficiente', apolice: { seguradora: 'Caixa Seguradora', numero: '', cobertura: 'só o seguro habitacional do financiamento (saldo devedor)', premio: 0, vigencia: '' } }] },
     dependentes: [{ nome: 'Luiza', relacao: 'filho', nasc: '2025-06' }],
     seguro: { renda: null, passiva: null, sucessaoPct: 10, geradores: [
       { nome: 'Ana', pessoa: 'titular', nasc: '', participacao: 60, passivaPct: 100, patrimonioPct: 50, inssInvalidez: 3000, inssMorte: 3000, coberturaInvalidez: 300000, coberturaVida: 500000 },
       { nome: 'Marcos', pessoa: 'conjuge', nasc: '1988-03', participacao: 40, passivaPct: 100, patrimonioPct: 50, inssInvalidez: 2500, inssMorte: 2500, coberturaInvalidez: 0, coberturaVida: 0 }] },
   };
+  // ---- Patrimônio de hoje e fase da vida financeira ----
+  // O detalhe do patrimônio fica em plan.patrimonio: financeiro por instituição, participações por empresa e bens com
+  // valor de mercado e saldo devedor. Quando uma lista existe, ela é a fonte do total que o resto do plano usa:
+  // initialWealth (financeiro), partValue (participações) e initialBens (valor de mercado dos bens).
+  const somaDe = (l, k) => (l || []).reduce((a, x) => a + (+x[k] || 0), 0);
+  function sincronizaPatrimonio(plan) {
+    const P = plan && plan.patrimonio; if (!P) return plan;
+    if (Array.isArray(P.financeiro)) plan.initialWealth = somaDe(P.financeiro, 'valor');
+    if (Array.isArray(P.participacoes)) plan.partValue = somaDe(P.participacoes, 'valor');
+    if (Array.isArray(P.bens)) plan.initialBens = somaDe(P.bens, 'mercado');
+    return plan;
+  }
+  // Fases da vida financeira: a vida de trabalho (de quando começou até a idade de parar) dividida em nonos.
+  // Início de carreira 2/9, Consolidação 4/9, Plenitude 3/9; antes, Preparação; depois, Liberdade financeira.
+  // O patrimônio esperado é o padrão de vida mensal × um múltiplo que vai do mínimo ao máximo da fase, na proporção
+  // do quanto da fase já passou. Os múltiplos são os definidos pela Nord para o planejamento.
+  const FASES_VIDA = [
+    { id: 'preparacao', nome: 'Preparação', min: 0, max: 0 },
+    { id: 'inicio', nome: 'Início de carreira', min: 0.5, max: 18, nonos: 2 },
+    { id: 'consolidacao', nome: 'Consolidação', min: 18, max: 60, nonos: 4 },
+    { id: 'plenitude', nome: 'Plenitude', min: 60, max: 200, nonos: 3 },
+    { id: 'liberdade', nome: 'Liberdade financeira', min: 200, max: 200 },
+  ];
+  const IDADE_ALVO_PADRAO = 65;
+  function faseDaVida(plan) {
+    const P = plan.patrimonio || {}, idade = +plan.age > 0 ? +plan.age : CURRENT_AGE;
+    const fin = Array.isArray(P.financeiro) ? somaDe(P.financeiro, 'valor') : +plan.initialWealth || 0;
+    const part = Array.isArray(P.participacoes) ? somaDe(P.participacoes, 'valor') : +plan.partValue || 0;
+    const bens = Array.isArray(P.bens) ? somaDe(P.bens, 'mercado') : +plan.initialBens || 0, dividas = somaDe(P.bens, 'saldoDevedor');
+    const out = { idade, fin, part, bens, dividas, total: fin + part + bens - dividas, liquidezIdeal: num(P.liquidezIdeal), padrao: padraoDeVida(plan), fase: null };
+    const comecou = num(P.comecou), alvoPlano = num(plan.retireAge), alvo = alvoPlano != null ? alvoPlano : IDADE_ALVO_PADRAO;
+    Object.assign(out, { comecou, alvo, alvoDoPlano: alvoPlano != null });
+    if (comecou == null || !(alvo > comecou)) return out;   // sem a idade em que começou a trabalhar, não há fase
+    const dur = alvo - comecou, lim = [0, comecou, comecou + 2 / 9 * dur, comecou + 6 / 9 * dur, alvo, null];
+    out.fases = FASES_VIDA.map((f, k) => Object.assign({}, f, { de: lim[k], ate: lim[k + 1] }));
+    const k = out.fases.findIndex(f => f.ate == null || idade < f.ate), f = out.fases[k];
+    const prog = f.ate == null ? 1 : Math.max(0, Math.min(1, (idade - f.de) / (f.ate - f.de)));
+    Object.assign(out, { fase: k, progresso: prog, multMin: f.min, multMax: f.max, mult: f.min + prog * (f.max - f.min) });
+    Object.assign(out, { minimo: out.padrao * f.min, esperado: out.padrao * out.mult, maximo: out.padrao * f.max });
+    return out;
+  }
+  // Patrimônio de exemplo (família da Ana Ribeiro)
+  const PATRIMONIO_EXEMPLO = {
+    comecou: 23, liquidezIdeal: 400000,
+    financeiro: [{ nome: 'Nubank', valor: 60000 }, { nome: 'Itaú', valor: 150000 }, { nome: 'BTG Pactual', valor: 650000 }],
+    participacoes: [{ nome: 'Papelaria Canetinha', valor: 50000 }],
+    bens: [{ nome: 'Hyundai Creta', mercado: 160000, saldoDevedor: 0 }, { nome: 'Terreno em São Sebastião', mercado: 100000, saldoDevedor: 0 },
+      { nome: 'Apartamento em Mogi (moradia)', mercado: 950000, saldoDevedor: 368000 }],
+  };
   const ORIGENS_OUT = ORIGENS;
   const config = () => ({ age: CURRENT_AGE, retireAge: RETIRE_AGE, initialBens: INITIAL_BENS, desired: DESIRED, desiredSteps: DESIRED_STEPS, lifeExp: LIFE_EXP, salary: SALARY, salaryGrowth: SAL_G, partValue: PART_VALUE, initialWealth: INITIAL_WEALTH, capacityOverride: CAP_OVERRIDE, rate: R_M, profiles: PROFILES, incomes: INCOMES, expenses: EXPENSES, objectives: OBJ, passive: PASSIVE });
-  return { TODAY, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, PASSIVE, PROFILES, STATUS, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, serieCusto, desiredAt, aplicaAlteracoes, descreveAlteracao, valorAtual, mesDoPlano, RISCOS, NATUREZAS, ITENS_RUINA, RISCOS_EXEMPLO, avaliaRiscos, custoDeVida, SEGURO, RELACOES, calculaSeguros, mesesAteIdade, lerCaminho, gravaCaminho, setRetireAge: a => { RETIRE_AGE = a == null ? null : Math.max(CURRENT_AGE, +a); }, financiamentoValido, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
+  return { TODAY, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, PASSIVE, PROFILES, STATUS, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, serieCusto, desiredAt, aplicaAlteracoes, descreveAlteracao, valorAtual, mesDoPlano, RISCOS, NATUREZAS, ITENS_RUINA, RISCOS_EXEMPLO, avaliaRiscos, custoDeVida, SEGURO, RELACOES, calculaSeguros, mesesAteIdade, FASES_VIDA, faseDaVida, sincronizaPatrimonio, PATRIMONIO_EXEMPLO, padraoDeVida, lerCaminho, gravaCaminho, setRetireAge: a => { RETIRE_AGE = a == null ? null : Math.max(CURRENT_AGE, +a); }, financiamentoValido, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
 })();
 if (typeof module !== 'undefined') module.exports = ENGINE;
 </script>
@@ -1838,7 +1928,7 @@ function frame(now) {
 // objetivos, idade de parar) vira uma proposta: a tela mostra o efeito, mas o plano só muda quando o consultor
 // aprovar. A proposta fica no navegador ('nl-proposta') ou vai em arquivo; a resposta volta no próprio plano
 // (plan.propostas), para chegar ao cliente também quando o plano vier por link ou arquivo.
-const baseDe = plan => structuredClone(Object.assign({ riscos: plan ? undefined : ENGINE.RISCOS_EXEMPLO }, plan || {}, ENGINE.config(), { mode: ENGINE.MODE, name: (plan && plan.name) || '' }));   // sem plano: os riscos do exemplo
+const baseDe = plan => structuredClone(Object.assign({ riscos: plan ? undefined : ENGINE.RISCOS_EXEMPLO, patrimonio: plan ? undefined : ENGINE.PATRIMONIO_EXEMPLO }, plan || {}, ENGINE.config(), { mode: ENGINE.MODE, name: (plan && plan.name) || '' }));   // sem plano: os riscos e o patrimônio do exemplo
 let BASE = null, PROP = null, VER = 'proposta';
 const escH = t => String(t == null ? '' : t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const lerReais = t => { const v = parseFloat(String(t).replace(/[^\d,-]/g, '').replace(',', '.')); return isFinite(v) ? Math.max(0, v) : NaN; };
@@ -1859,7 +1949,7 @@ function respostaNoPlano() {
 function aplicaVista() {
   const plan = structuredClone(BASE);
   if (VER === 'proposta' && temAlteracoes()) ENGINE.aplicaAlteracoes(plan, PROP.ops);
-  ENGINE.configure(plan); rerun(); rebuildRows(); desenhaPropBar(); renderRiscos();
+  ENGINE.configure(plan); rerun(); rebuildRows(); desenhaPropBar(); renderRiscos(); renderPatrimonio();
 }
 // inclui alterações na proposta; a mesma alteração substitui a anterior, e voltar ao valor do plano a desfaz
 function proporAlteracao(alts) {
@@ -2057,10 +2147,11 @@ ARMAZEM.iniciar().then(info => { if (PAPEL === 'apresentar' && !info.dono) locat
 // ===================== JORNADA DO CLIENTE: CAPÍTULOS E PÁGINAS =====================
 // As telas finais do cliente, como um livro: capítulos com páginas, cada página com um resultado do planejamento e o
 // vídeo do consultor (plan.videos[id da página]). O cabeçalho mostra só a página atual, com anterior e próxima; o
-// sumário lista todas. Só Gestão de riscos e Evolução patrimonial (a última) existem: os capítulos 1 a 4 são o
-// esqueleto das páginas que ainda vão entrar. O consultor apresentando vê as mesmas páginas.
-const CAPITULOS = [1, 2, 3, 4].map(c => ({ titulo: 'Capítulo ' + c, mock: true, paginas: [1, 2, 3, 4, 5].map(k => ({ id: 'c' + c + 'p' + k, titulo: 'Página ' + c + '.' + k, mock: true })) }))
-  .concat({ titulo: 'Gestão de riscos', paginas: [{ id: 'riscos', titulo: 'Gestão de riscos' }] }, { titulo: 'Evolução patrimonial', paginas: [{ id: 'evolucao', titulo: 'Evolução patrimonial' }] });
+// sumário lista todas. Existem Patrimônio (capítulo 4), Gestão de riscos e Evolução patrimonial (a última): os capítulos
+// 1 a 3 são o esqueleto das páginas que ainda vão entrar. O consultor apresentando vê as mesmas páginas.
+const CAPITULOS = [1, 2, 3].map(c => ({ titulo: 'Capítulo ' + c, mock: true, paginas: [1, 2, 3, 4, 5].map(k => ({ id: 'c' + c + 'p' + k, titulo: 'Página ' + c + '.' + k, mock: true })) }))
+  .concat({ titulo: 'Patrimônio', paginas: [{ id: 'patrimonio', titulo: 'Fase da vida e patrimônio' }] },
+    { titulo: 'Gestão de riscos', paginas: [{ id: 'riscos', titulo: 'Gestão de riscos' }] }, { titulo: 'Evolução patrimonial', paginas: [{ id: 'evolucao', titulo: 'Evolução patrimonial' }] });
 const PAGINAS = CAPITULOS.flatMap((c, ci) => c.paginas.map(p => Object.assign({ cap: ci + 1, capTitulo: c.titulo }, p)));
 const paginaDe = id => PAGINAS.find(p => p.id === id);
 let FASE = (() => { const q = new URLSearchParams(location.search).get('fase'); if (paginaDe(q)) return q; try { const f = localStorage.getItem('nl-fase'); if (paginaDe(f)) return f; } catch (e) { } return 'riscos'; })();
@@ -2069,7 +2160,7 @@ function mostraFase(f) {
   const pg = paginaDe(f) || paginaDe('riscos'); f = pg.id;
   FASE = f; try { localStorage.setItem('nl-fase', f); } catch (e) { }
   document.body.classList.toggle('sem-grafico', f !== 'evolucao');
-  document.getElementById('riscos').hidden = f !== 'riscos'; document.getElementById('wrap').hidden = f !== 'evolucao'; document.getElementById('pagina').hidden = !pg.mock;
+  document.getElementById('riscos').hidden = f !== 'riscos'; document.getElementById('patrimonio').hidden = f !== 'patrimonio'; document.getElementById('wrap').hidden = f !== 'evolucao'; document.getElementById('pagina').hidden = !pg.mock;
   const k = PAGINAS.indexOf(pg);
   document.getElementById('pgCap').textContent = 'Capítulo ' + pg.cap + ' · ' + (k + 1) + ' de ' + PAGINAS.length;
   document.getElementById('pgTit').textContent = pg.titulo;
@@ -2077,7 +2168,7 @@ function mostraFase(f) {
   document.querySelector('#fases [data-pg="prox"]').disabled = k === PAGINAS.length - 1;
   document.getElementById('sumario').hidden = true;
   fecharCelula();
-  if (f === 'riscos') renderRiscos(); else if (pg.mock) renderPaginaMock(pg); else requestAnimationFrame(resize);
+  if (f === 'riscos') renderRiscos(); else if (f === 'patrimonio') renderPatrimonio(); else if (pg.mock) renderPaginaMock(pg); else requestAnimationFrame(resize);
 }
 const passaPagina = d => { const k = PAGINAS.findIndex(p => p.id === FASE) + d; if (PAGINAS[k]) mostraFase(PAGINAS[k].id); };
 function renderSumario() {
@@ -2114,6 +2205,80 @@ function videoHtml(chave, titulo, texto) {
 document.getElementById('btnVideo').addEventListener('click', () => {
   document.getElementById('propModalC').innerHTML = videoHtml('evolucao', 'Como ler a sua evolução patrimonial', 'Aqui vai entrar o vídeo do seu consultor explicando esta tela.') + '<div class="bts"><button class="btn btn-secondary btn-small" data-prop="fechar">Fechar</button></div>';
   document.getElementById('propModal').hidden = false;
+});
+
+// ===================== PÁGINA: FASE DA VIDA E PATRIMÔNIO =====================
+// Em que fase da vida financeira o cliente está e o patrimônio de hoje num só lugar: financeiro, participações e bens
+// somam, as dívidas (saldo devedor dos bens) descontam, e o total se compara com a liquidez ideal (do consultor) e com
+// o patrimônio mínimo, esperado e máximo para a idade (ENGINE.faseDaVida). Cada grupo abre o seu detalhe.
+const PT_ABERTO = new Set();
+// a curva da vida financeira: sobe com o múltiplo esperado de cada fase e desce depois da liberdade (o patrimônio é usado)
+function curvaVidaSvg() {
+  const m = [0, 0.5, 18, 60, 200, 40], y = v => 92 - Math.sqrt(v / 200) * 84, p = m.map((v, k) => [k * 200, y(v)]);
+  let d = `M${p[0][0]},${p[0][1]}`;
+  for (let k = 0; k < p.length - 1; k++) {   // Catmull-Rom em cúbicas
+    const a = p[Math.max(0, k - 1)], b = p[k], c = p[k + 1], e = p[Math.min(p.length - 1, k + 2)];
+    d += ` C${b[0] + (c[0] - a[0]) / 6},${b[1] + (c[1] - a[1]) / 6} ${c[0] - (e[0] - b[0]) / 6},${c[1] - (e[1] - b[1]) / 6} ${c[0]},${c[1]}`;
+  }
+  return `<svg class="pt-curva" viewBox="0 0 1000 96" preserveAspectRatio="none"><path class="a" d="${d} L1000,96 L0,96Z"/><path class="l" d="${d}"/></svg>`;
+}
+function renderPatrimonio() {
+  const el = document.getElementById('patrimonio'); if (!el || FASE !== 'patrimonio') return;
+  const P = planoVista(), D = P.patrimonio || {}, f = ENGINE.faseDaVida(P), fs = f.fases;
+  const anos = v => Math.round(v), fase = fs ? fs[f.fase] : null, rolagem = el.scrollTop;
+  // escala comum a todas as barras
+  const bruto = f.fin + f.part + f.bens, topo = Math.max(1, bruto, f.liquidezIdeal || 0, fase ? f.maximo : 0) * 1.03, x = v => v / topo * 100;
+  const fundo = f.liquidezIdeal > 0 ? `background:linear-gradient(90deg,rgba(32,52,76,.05) ${x(f.liquidezIdeal)}%,transparent ${x(f.liquidezIdeal)}%)` : '';
+  // uma barra de a até b; o valor vai dentro quando cabe, senão do lado de fora
+  const barra = (a, b, cor, txt, o) => { const w = x(b - a), cabe = w >= 15, fora = x(b) > 80 ? 'esq' : '';
+    return `<div class="pt-b${o.dir ? ' dir' : ''}" style="left:${x(a)}%;width:${w}%;background:${cor};${o.borda ? 'border:1.5px dashed ' + o.borda + ';' : ''}${o.claro ? 'color:#fff;' : ''}">${cabe ? txt : `<span class="fora ${fora}" style="color:var(--nl-navy-900)">${txt}</span>`}</div>`; };
+  const linha = (rot, a, b, cor, o) => `<div class="pt-rot${o.sub ? ' sub' : ''}">${rot}</div><div class="pt-trilho${o.sub ? ' sub' : ''}${o.linha && fase ? ' linha' : ''}" style="--tot:${x(Math.max(0, f.total))}%;${o.fundo ? fundo : ''}">${b > a || o.sempre ? barra(a, b, cor, o.txt || fmt(b - a), o) : ''}</div>`;
+  const grupo = (id, nome, n) => n ? `<button data-pt-abre="${id}" class="${PT_ABERTO.has(id) ? 'aberto' : ''}"><i>▸</i> ${nome}</button>` : nome;
+  // detalhe de um grupo: cada item na sua posição, a partir de onde o grupo começa
+  const detalhe = (id, itens, ini, cor, rot, val) => { if (!PT_ABERTO.has(id)) return ''; let a = ini;
+    return itens.map(it => { const v = val(it), h = linha(rot(it), a, a + v, cor, { sub: true, dir: true, fundo: true, linha: true }); a += v; return h; }).join(''); };
+  const fin = D.financeiro || [], par = D.participacoes || [], bens = D.bens || [], comDivida = bens.filter(b => +b.saldoDevedor > 0);
+  let rows = '';
+  if (f.liquidezIdeal > 0) rows += linha('Liquidez ideal', 0, f.liquidezIdeal, 'rgba(46,158,91,.16)', {});
+  rows += linha(grupo('fin', 'Patrimônio financeiro', fin.length), 0, f.fin, 'rgba(46,158,91,.24)', { borda: C.fin, dir: true, fundo: true, linha: true, sempre: true });
+  rows += detalhe('fin', fin, 0, 'rgba(46,158,91,.14)', it => escH(it.nome || 'Instituição'), it => +it.valor || 0);
+  if (f.part || par.length) { rows += linha(grupo('part', 'Participações societárias', par.length), f.fin, f.fin + f.part, 'rgba(217,149,42,.22)', { borda: C.part, dir: true, fundo: true, linha: true, sempre: true });
+    rows += detalhe('part', par, f.fin, 'rgba(217,149,42,.13)', it => escH(it.nome || 'Empresa'), it => +it.valor || 0); }
+  rows += linha(grupo('bens', 'Bens', bens.length), f.fin + f.part, bruto, 'rgba(59,111,203,.22)', { borda: C.bens, dir: true, fundo: true, linha: true, sempre: true });
+  rows += detalhe('bens', bens, f.fin + f.part, 'rgba(59,111,203,.13)', it => escH(it.nome || 'Bem') + (+it.saldoDevedor > 0 ? `<small>saldo devedor ${fmt(+it.saldoDevedor)}</small>` : ''), it => +it.mercado || 0);
+  rows += linha(grupo('div', 'Dívidas e financiamentos', comDivida.length), bruto - f.dividas, bruto, 'rgba(214,69,69,.2)', { borda: C.out, fundo: true, linha: true, sempre: true, txt: f.dividas ? '− ' + fmt(f.dividas) : fmt(0) });
+  if (PT_ABERTO.has('div')) { let a = bruto - f.dividas; rows += comDivida.map(b => { const v = +b.saldoDevedor, h = linha(escH(b.nome || 'Bem'), a, a + v, 'rgba(214,69,69,.12)', { sub: true, fundo: true, linha: true, txt: '− ' + fmt(v) }); a += v; return h; }).join(''); }
+  rows += linha('<b style="color:var(--nl-navy-900)">Patrimônio total</b>', 0, Math.max(0, f.total), C.navy, { claro: true, linha: true, sempre: true, txt: fmt(f.total) });
+  if (fase) rows += [['Mínimo esperado', f.minimo, '#FBE0CC'], ['Esperado para a sua idade', f.esperado, '#EDB98A'], ['Máximo esperado', f.maximo, C.orange]]
+    .map(([n, v, cor], k) => linha(n, 0, v, cor, { linha: true, sempre: true, claro: k === 2 })).join('');
+  // leitura em palavras
+  const ler = [];
+  if (fase) {
+    const t = f.total, onde = f.fase === 0 ? null : t < f.minimo ? ['critico', 'abaixo do mínimo esperado'] : f.maximo === f.minimo ? ['ok', 'acima do esperado'] : t < f.esperado ? ['atencao', 'entre o mínimo e o esperado'] : t <= f.maximo ? ['ok', 'entre o esperado e o máximo'] : ['ok', 'acima do máximo esperado'];
+    ler.push(f.fase === 0 ? `Na <b>Preparação</b> ainda não há patrimônio esperado: qualquer valor acima de zero é um ótimo começo.`
+      : `O seu patrimônio total, <b>${fmt(t)}</b>, está <b class="${onde[0]}">${onde[1]}</b> para quem está ${f.fase === 4 ? 'na' : 'com ' + f.idade + ' anos na'} fase de <b>${fase.nome}</b>.`);
+    if (f.fase > 0) ler.push(f.fase === 4 ? `Na Liberdade financeira, o esperado é o padrão de vida mensal (<b>${fmt(f.padrao)}</b>) × ${vezes(f.mult)}.`
+      : `O esperado é o padrão de vida mensal (<b>${fmt(f.padrao)}</b>) multiplicado por um fator que vai de ${vezes(f.multMin)} a ${vezes(f.multMax)} nesta fase. Você já passou por ${Math.round(f.progresso * 100)}% dela, então o fator hoje é <b>${vezes(f.mult)}</b>.`);
+  }
+  if (f.liquidezIdeal > 0) ler.push(`O patrimônio financeiro, <b>${fmt(f.fin)}</b>${f.padrao > 0 ? ' (' + vezes(f.fin / f.padrao).replace('×', ' vezes') + ' o padrão de vida mensal)' : ''}, é <b class="${f.fin >= f.liquidezIdeal ? 'ok' : 'atencao'}">${Math.round(f.fin / f.liquidezIdeal * 100)}% da liquidez ideal</b> de ${fmt(f.liquidezIdeal)} que o seu consultor definiu.`);
+  // a curva, as fases e onde você está
+  const posX = fase ? (f.fase + (f.fase === 4 ? 0.5 * Math.min(1, (f.idade - fase.de) / 15) : f.progresso)) * 20 : 0;
+  const vida = fs ? `<div class="pt-vida">${curvaVidaSvg()}<div class="pt-voce" style="left:${posX}%">você, ${f.idade} anos<svg viewBox="0 0 16 16"><path d="M3 4h10l-5 8z"/></svg></div></div>
+    <div class="pt-pills">${fs.map((x, k) => `<div class="${k === f.fase ? 'on' : ''}">${x.nome}<small>${k === 0 ? '0 a ' + anos(x.ate) + ' anos' : k === 4 ? 'após ' + anos(x.de) + ' anos' : anos(x.de) + ' a ' + anos(x.ate) + ' anos'}</small></div>`).join('')}</div>`
+    : '<div class="pt-nao">O seu consultor ainda não informou a idade em que você começou a trabalhar: sem ela, não dá para mostrar a fase da vida financeira.</div>';
+  el.innerHTML = `<div class="rc"><div class="rk-topo">
+    <div class="nota-card pt-hero"><h2>A sua fase da vida financeira</h2><div class="sub">A vida financeira tem cinco fases, da preparação até a liberdade. Em cada uma, há um patrimônio esperado para a idade.</div>
+      ${fase ? `<div class="pt-fase">${fase.nome}<small>${f.idade} anos${f.fase > 0 && f.fase < 4 ? ' · ' + Math.round(f.progresso * 100) + '% da fase' : ''} · liberdade financeira aos ${f.alvo} anos${f.alvoDoPlano ? '' : ' (referência)'}</small></div>` : ''}
+      <div class="pt-kpis"><div><span>Patrimônio total</span><b>${fmt(f.total)}</b></div>${fase ? `<div><span>Esperado para a sua idade</span><b>${fmt(f.esperado)}</b></div>` : ''}</div></div>
+    ${videoHtml('patrimonio', 'A sua fase da vida e o seu patrimônio', 'Aqui vai entrar o vídeo do seu consultor explicando a sua fase da vida financeira e o seu patrimônio.')}</div>
+    <div class="nota-card pt-card"><h3>Patrimônio</h3>${vida}
+      <div class="pt-barras">${rows}</div>
+      ${ler.length ? `<div class="pt-leitura">${ler.map(t => `<div>${t}</div>`).join('')}</div>` : ''}</div></div>`;
+  el.scrollTop = rolagem;
+}
+document.getElementById('patrimonio').addEventListener('click', e => {
+  const b = e.target.closest('[data-pt-abre]'); if (!b) return;
+  const id = b.dataset.ptAbre; PT_ABERTO.has(id) ? PT_ABERTO.delete(id) : PT_ABERTO.add(id); renderPatrimonio();
 });
 
 // ===================== FASE: GESTÃO DE RISCOS =====================
