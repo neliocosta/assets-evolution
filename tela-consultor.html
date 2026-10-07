@@ -1335,15 +1335,156 @@ const ENGINE = (() => {
   // Patrimônio de exemplo (família da Ana Ribeiro)
   const PATRIMONIO_EXEMPLO = {
     comecou: 23, liquidezIdeal: 400000,
-    financeiro: [{ nome: 'Nubank', valor: 60000 }, { nome: 'Itaú', valor: 150000 }, { nome: 'BTG Pactual', valor: 650000 }],
+    financeiro: [{ nome: 'Nubank', valor: 60000 }, { nome: 'Itaú', valor: 150000 }, { nome: 'BTG Pactual', valor: 530000 }, { nome: 'Icatu Seguros (VGBL)', valor: 120000, tipo: 'vgbl' }],
     participacoes: [{ nome: 'Papelaria Canetinha', valor: 50000 }],
     bens: [{ nome: 'Hyundai Creta', mercado: 160000, saldoDevedor: 0 }, { nome: 'Terreno em São Sebastião', mercado: 100000, saldoDevedor: 0 },
       { nome: 'Apartamento em Mogi (moradia)', mercado: 950000, saldoDevedor: 368000, credito: 560000, parcelas: 360, parcela: 4870, juros: 9.5, situacao: 'em_dia' }],
     dividas: [],
   };
+  // ---- Otimização tributária (capítulo 3 da área do cliente) ----
+  // Regras de 2026 (declaração de 2027). A tabela anual é a mensal × 12 (R$ 2.428,80 isento por mês). A Lei 15.270/2025
+  // criou a redução: o imposto zera até R$ 60 mil de rendimentos tributáveis no ano (R$ 5 mil por mês) e a redução cai em
+  // linha reta até R$ 88.200 (R$ 7.350 por mês). Desconto simplificado de 20% com limite; dedução por dependente; limite de
+  // instrução por pessoa; PGBL até 12% da renda tributável, só para quem contribui ao INSS ou a regime próprio.
+  // Confira os valores a cada ano: a Receita publica o limite do desconto simplificado da declaração de 2027.
+  const IR = {
+    ano: 2026,
+    anual: [[29145.60, 0, 0], [33919.80, 0.075, 2185.92], [45012.60, 0.15, 4729.92], [55976.16, 0.225, 8105.88], [Infinity, 0.275, 10904.76]],
+    mensal: [[2428.80, 0, 0], [2826.65, 0.075, 182.16], [3751.05, 0.15, 394.16], [4664.68, 0.225, 675.49], [Infinity, 0.275, 908.73]],
+    reducaoAnual: r => r <= 60000 ? Infinity : r < 88200 ? Math.max(0, 8429.73 - 0.095575 * r) : 0,
+    reducaoMensal: r => r <= 5000 ? Infinity : r < 7350 ? Math.max(0, 978.62 - 0.133145 * r) : 0,
+    simplificado: 0.2, simplificadoLimite: 17640, simplificadoMensal: 607.20, dependente: 2275.08, instrucao: 3561.50, pgbl: 0.12,
+    salarioMinimo: 1621, tetoINSS: 8475.55, inssSocio: 0.11, cpp: 0.20, dividendosIsentoMes: 50000, dividendosRetencao: 0.10,
+    minimoDe: 600000, minimoAte: 1200000, minimoMax: 0.10,
+  };
+  const faixaIR = (t, b) => { const f = t.find(x => b <= x[0]); return Math.max(0, b * f[1] - f[2]); };
+  const pos = v => Math.max(0, +v || 0);
+  // Imposto de renda anual de uma pessoa. p: rend (rendimentos tributáveis, bruto), inss (previdência oficial), deps (número
+  // de dependentes que ela declara), instr, med, pgbl, outras (pensão alimentícia, livro-caixa). Faz a declaração completa e a
+  // simplificada e fica com a de menor imposto, como o programa da Receita.
+  function calculaIR(p) {
+    const rend = pos(p.rend), inss = pos(p.inss), deps = Math.round(pos(p.deps));
+    const lim = { pgbl: inss > 0 ? IR.pgbl * rend : 0, instr: IR.instrucao * (1 + deps) };
+    const ded = { inss, dependentes: deps * IR.dependente, instrucao: Math.min(pos(p.instr), lim.instr), medicas: pos(p.med), pgbl: Math.min(pos(p.pgbl), lim.pgbl), outras: pos(p.outras) };
+    const totDed = ded.inss + ded.dependentes + ded.instrucao + ded.medicas + ded.pgbl + ded.outras;
+    const imposto = base => { const bruto = faixaIR(IR.anual, base); return { bruto, reducao: Math.min(bruto, IR.reducaoAnual(rend)), devido: bruto - Math.min(bruto, IR.reducaoAnual(rend)) }; };
+    const desconto = Math.min(IR.simplificado * rend, IR.simplificadoLimite), baseC = Math.max(0, rend - totDed), baseS = Math.max(0, rend - desconto);
+    const c = imposto(baseC), s = imposto(baseS), completa = c.devido < s.devido - 0.005, e = completa ? c : s;
+    return { rend, inss, deps, ded, totDed, lim, desconto, baseC, baseS, completa: c.devido, simplificada: s.devido, modelo: completa ? 'completa' : 'simplificada',
+      base: completa ? baseC : baseS, bruto: e.bruto, reducao: e.reducao, devido: e.devido, aliq: rend ? e.devido / rend : 0, sobraPgbl: Math.max(0, pos(p.pgbl) - lim.pgbl), sobraInstr: Math.max(0, pos(p.instr) - lim.instr) };
+  }
+  // O imposto de renda da família nas duas estratégias (plan.tributario.ir): os rendimentos de cada pessoa são os mesmos, e
+  // cada estratégia diz quem declara os dependentes (depsCom: o índice da pessoa) e os lançamentos de cada um (instrução,
+  // médicas, PGBL). O número de dependentes vem da página Cliente (riscos.dependentes); sem a lista, do campo dependentes.
+  //   pessoas: [{ nome, rend, inss, outras }], atual e recomendada: { depsCom, lanc: [{ instr, med, pgbl }] }
+  function irDaFamilia(plan) {
+    const T = ((plan || {}).tributario || {}).ir; if (!T || !(T.pessoas || []).length) return null;
+    const lista = ((plan.riscos || {}).dependentes), nDeps = Array.isArray(lista) ? lista.length : Math.round(pos(T.dependentes));
+    const cen = c => { c = c || {}; const ps = T.pessoas.map((p, i) => { const l = (c.lanc || [])[i] || {};
+        return Object.assign({ nome: p.nome || 'Pessoa ' + (i + 1), pgbl: pos(l.pgbl) }, calculaIR({ rend: p.rend, inss: p.inss, outras: p.outras, deps: +c.depsCom === i ? nDeps : 0, instr: l.instr, med: l.med, pgbl: l.pgbl })); });
+      return { pessoas: ps, total: ps.reduce((a, x) => a + x.devido, 0), rend: ps.reduce((a, x) => a + x.rend, 0), depsCom: +c.depsCom }; };
+    const atual = cen(T.atual), recomendada = cen(T.recomendada);
+    return { nDeps, atual, recomendada, economia: atual.total - recomendada.total };
+  }
+  // Retirada de um sócio, por mês. O pró-labore paga INSS (11% até o teto) e IR na fonte pela tabela mensal, com a redução
+  // de 2026; fora do Simples Nacional (e no Anexo IV), a empresa paga 20% de INSS patronal sobre ele. Os dividendos são
+  // isentos até R$ 50 mil por mês da mesma empresa; acima disso, 10% retidos sobre o total do mês. No ano, quem recebe mais
+  // de R$ 600 mil paga o imposto mínimo (de 0% a 10% até R$ 1,2 milhão), descontado o que já pagou.
+  const REGIMES = [['simples', 'Simples Nacional (Anexos I a III ou V)'], ['simplesR', 'Simples Nacional com fator R (Anexo III ou V)'], ['simples4', 'Simples Nacional, Anexo IV'], ['presumido', 'Lucro presumido ou real']];
+  function calculaRetirada(pro, div, regime) {
+    pro = pos(pro); div = pos(div);
+    const inss = Math.min(pro, IR.tetoINSS) * IR.inssSocio, base = Math.max(0, pro - Math.max(inss, pro > 0 ? IR.simplificadoMensal : 0));
+    const bruto = faixaIR(IR.mensal, base), irrf = bruto - Math.min(bruto, IR.reducaoMensal(pro));
+    const patronal = regime === 'presumido' || regime === 'simples4' ? IR.cpp * pro : 0, divIR = div > IR.dividendosIsentoMes ? IR.dividendosRetencao * div : 0;
+    const ano = 12 * (pro + div), aliqMin = ano <= IR.minimoDe ? 0 : Math.min(IR.minimoMax, (ano / 60000 - 10) / 100);
+    const minimo = Math.max(0, aliqMin * ano - 12 * (irrf + divIR));
+    const pessoa = inss + irrf + divIR, mes = pessoa + patronal;
+    return { pro, div, total: pro + div, inss, irrf, divIR, patronal, pessoa, mes, liquido: pro + div - pessoa, minimo, ano: 12 * mes + minimo };
+  }
+  // As duas formas de retirar o mesmo valor (plan.tributario.prolabore): socios: [{ nome, empresa, regime, pro, div, proRec,
+  // faturamento }]. A recomendada mantém o total e muda só a divisão: o pró-labore recomendado e o resto em dividendos.
+  function retiradaDosSocios(plan) {
+    const S = (((plan || {}).tributario || {}).prolabore || {}).socios; if (!Array.isArray(S) || !S.length) return null;
+    const socios = S.map((s, i) => { const total = pos(s.pro) + pos(s.div), proRec = Math.min(total, s.proRec == null || s.proRec === '' ? IR.salarioMinimo : pos(s.proRec));
+      const atual = calculaRetirada(s.pro, s.div, s.regime), rec = calculaRetirada(proRec, total - proRec, s.regime);
+      // fator R: no Simples, a folha (o pró-labore) precisa ser 28% do faturamento para a empresa ficar no Anexo III
+      const fat = pos(s.faturamento), fr = v => fat ? v / fat : null;
+      return { nome: s.nome || 'Sócio ' + (i + 1), empresa: s.empresa || '', regime: s.regime || 'simples', atual, rec, economia: atual.ano - rec.ano,
+        fatorR: s.regime === 'simplesR' && fat ? { atual: fr(pos(s.pro)), rec: fr(proRec), cai: fr(pos(s.pro)) >= 0.28 && fr(proRec) < 0.28 } : null };
+    });
+    return { socios, economia: socios.reduce((a, s) => a + s.economia, 0) };
+  }
+  // Custo da sucessão: o que entra no inventário (bens, participações e investimentos, menos as dívidas) paga o ITCMD e os
+  // custos do inventário (advogado, custas, cartório); a previdência (PGBL e VGBL) vai direto aos beneficiários, fora do
+  // inventário. Os valores vêm da página Patrimônio: o financeiro marcado como previdência e o resto como investimentos.
+  // A recomendação (plan.tributario.sucessao.paraPrevidencia) leva parte dos investimentos para a previdência.
+  const PREVIDENCIA = ['pgbl', 'vgbl'];
+  function sucessao(plan) {
+    const P = (plan || {}).patrimonio || {}, S = ((plan || {}).tributario || {}).sucessao || {}, fin = P.financeiro || [];
+    const prev = fin.filter(x => PREVIDENCIA.includes(x.tipo)).reduce((a, x) => a + pos(x.valor), 0), inv = fin.filter(x => !PREVIDENCIA.includes(x.tipo)).reduce((a, x) => a + pos(x.valor), 0);
+    const part = somaDe(P.participacoes, 'valor'), bens = somaDe(P.bens, 'mercado'), dividas = somaDe(P.bens, 'saldoDevedor') + somaDe(P.dividas, 'saldoDevedor');
+    const itcmd = num(S.itcmd) != null ? num(S.itcmd) : 4, custos = num(S.custos) != null ? num(S.custos) : 8, pct = (itcmd + custos) / 100;
+    const mover = Math.min(inv, pos(S.paraPrevidencia));
+    const cen = (prev, inv) => { const inventario = Math.max(0, bens + part + inv - dividas); return { bens, part, prev, inv, dividas, total: bens + part + prev + inv - dividas, inventario, custo: inventario * pct }; };
+    const atual = cen(prev, inv), recomendada = cen(prev + mover, inv - mover);
+    return { itcmd, custos, pct, mover, atual, recomendada, economia: atual.custo - recomendada.custo };
+  }
+  // Previdência × investimento comum no longo prazo, mês a mês. o: inicial, aporte (por mês), anos, rent (% ao ano, antes da
+  // taxa), trocas (mudanças de estratégia no período), aliqComum (% no resgate), comeCotas (sim/não), taxaComum e taxaPrev
+  // (% ao ano). No investimento comum o come-cotas leva a alíquota sobre o rendimento a cada seis meses, e cada troca de
+  // estratégia é um resgate que paga o imposto do rendimento ainda não tributado. Na previdência (VGBL, tabela regressiva)
+  // não há come-cotas, a troca é uma portabilidade sem imposto e cada aporte paga no resgate pela idade dele: 35% até
+  // 2 anos, caindo 5 pontos a cada 2 anos, até 10% depois de 10 anos. O imposto do VGBL é só sobre o rendimento.
+  const REGRESSIVA = [[2, 0.35], [4, 0.30], [6, 0.25], [8, 0.20], [10, 0.15], [Infinity, 0.10]];
+  const aliqRegressiva = anos => REGRESSIVA.find(f => anos <= f[0] + 1e-9)[1];
+  function simulaPrevidencia(o) {
+    const N = Math.max(12, Math.round(pos(o.anos) * 12)), ini = pos(o.inicial), ap = pos(o.aporte), aliq = pos(o.aliqComum != null ? o.aliqComum : 15) / 100, trocas = Math.round(pos(o.trocas));
+    const g = taxa => Math.pow((1 + pos(o.rent) / 100) * (1 - pos(taxa) / 100), 1 / 12) - 1;
+    const aporteEm = m => (m === 0 ? ini : 0) + ap, aportado = ini + ap * N;
+    // fundo com come-cotas: a alíquota do resgate depende do prazo desde a entrada (22,5% até 6 meses, 20% até 1 ano, 17,5%
+    // até 2 anos, depois a de longo prazo), e o resgate paga o que falta além do come-cotas. Sem come-cotas (fundo de ações),
+    // a alíquota é uma só. A troca de estratégia é um resgate: paga e recomeça a contar o prazo.
+    const taxaPrazo = (come, anos) => !come ? aliq : anos <= 0.5 ? Math.max(aliq, 0.225) : anos <= 1 ? Math.max(aliq, 0.20) : anos <= 2 ? Math.max(aliq, 0.175) : aliq;
+    const comum = (nTrocas, come, taxa) => {
+      const r = g(taxa), em = new Set(Array.from({ length: nTrocas }, (_, k) => Math.round((k + 1) * N / (nTrocas + 1))));
+      let B = 0, Gtot = 0, Gcc = 0, CC = 0, ent = 0, imp = 0; const serie = [];
+      const devido = m => Math.max(0, taxaPrazo(come, (m - ent) / 12) * Gtot - CC);
+      for (let m = 0; m < N; m++) {
+        B += aporteEm(m); const ganho = B * r; B += ganho; Gtot += ganho; Gcc += ganho;
+        if (come && m % 6 === 5) { const t = aliq * Math.max(0, Gcc); B -= t; imp += t; CC += t; Gcc = 0; }
+        if (em.has(m + 1) && m + 1 < N) { const t = devido(m + 1); B -= t; imp += t; Gtot = Gcc = CC = 0; ent = m + 1; }
+        serie.push(B - devido(m + 1));
+      }
+      const t = devido(N); imp += t;
+      return { final: B - t, imposto: imp, serie };
+    };
+    const prev = taxa => {
+      const r = g(taxa), F = [1]; for (let m = 1; m <= N; m++) F.push(F[m - 1] * (1 + r));
+      const liquido = M => { let v = 0, t = 0; for (let m = 0; m < M; m++) { const c = aporteEm(m), val = c * F[M] / F[m]; v += val; t += aliqRegressiva((M - m) / 12) * (val - c); } return [v - t, t]; };
+      const serie = []; for (let M = 1; M <= N; M++) serie.push(liquido(M)[0]);
+      const [final, imposto] = liquido(N);
+      return { final, imposto, serie };
+    };
+    const A = comum(trocas, o.comeCotas !== false, o.taxaComum), B = comum(trocas, false, o.taxaComum), C = comum(0, false, o.taxaComum), D1 = prev(o.taxaComum), D = prev(o.taxaPrev);
+    const passos = [['Sem come-cotas: o imposto continua rendendo', B.final - A.final], ['Trocas de estratégia sem imposto (portabilidade)', C.final - B.final],
+      ['Alíquota menor no resgate (tabela regressiva)', D1.final - C.final], ['Diferença de taxa de administração', D.final - D1.final]].filter(p => Math.abs(p[1]) >= 1);
+    const aliqMedia = x => { const ganho = x.final + x.imposto - aportado; return ganho > 0 ? x.imposto / ganho : 0; };
+    return { N, aportado, comum: Object.assign(A, { aliqMedia: aliqMedia(A) }), prev: Object.assign(D, { aliqMedia: aliqMedia(D) }), passos, ganho: D.final - A.final };
+  }
+  // Tributação de exemplo (família da Ana Ribeiro): valores fictícios. Hoje a Luiza e as despesas médicas estão na declaração
+  // do Marcos, que ganha menos; a recomendação leva a Luiza para a Ana e faz um PGBL de 12% para ela. As médicas ficam com o
+  // Marcos, titular do plano de saúde. O Marcos é sócio da papelaria e tira parte da renda como pró-labore.
+  const TRIBUTARIO_EXEMPLO = {
+    ir: { pessoas: [{ nome: 'Ana', rend: 152100, inss: 12845, outras: 0 }, { nome: 'Marcos', rend: 84000, inss: 9240, outras: 0 }],
+      atual: { depsCom: 1, lanc: [{ instr: 0, med: 0, pgbl: 0 }, { instr: 0, med: 14800, pgbl: 0 }] },
+      recomendada: { depsCom: 0, lanc: [{ instr: 0, med: 0, pgbl: 18252 }, { instr: 0, med: 14800, pgbl: 0 }] } },
+    prolabore: { socios: [{ nome: 'Marcos', empresa: 'Papelaria Canetinha', regime: 'presumido', pro: 7000, div: 3000, proRec: 1621, faturamento: null }] },
+    sucessao: { itcmd: 4, custos: 8, paraPrevidencia: 300000 },
+    previdencia: { inicial: 120000, aporte: 1521, anos: 20, rent: 10, trocas: 4, aliqComum: 15, comeCotas: true, taxaComum: 0.8, taxaPrev: 0.8 },
+  };
   const ORIGENS_OUT = ORIGENS;
   const config = () => ({ age: CURRENT_AGE, retireAge: RETIRE_AGE, initialBens: INITIAL_BENS, desired: DESIRED, desiredSteps: DESIRED_STEPS, lifeExp: LIFE_EXP, salary: SALARY, salaryGrowth: SAL_G, partValue: PART_VALUE, initialWealth: INITIAL_WEALTH, capacityOverride: CAP_OVERRIDE, rate: R_M, profiles: PROFILES, incomes: INCOMES, expenses: EXPENSES, objectives: OBJ, passive: PASSIVE });
-  return { TODAY, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, PASSIVE, PROFILES, STATUS, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, serieCusto, desiredAt, aplicaAlteracoes, descreveAlteracao, valorAtual, mesDoPlano, RISCOS, NATUREZAS, ITENS_RUINA, RISCOS_EXEMPLO, avaliaRiscos, custoDeVida, SEGURO, RELACOES, calculaSeguros, mesesAteIdade, FASES_VIDA, faseDaVida, sincronizaPatrimonio, PATRIMONIO_EXEMPLO, padraoDeVida, lerCaminho, gravaCaminho, setRetireAge: a => { RETIRE_AGE = a == null ? null : Math.max(CURRENT_AGE, +a); }, financiamentoValido, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
+  return { TODAY, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, PASSIVE, PROFILES, STATUS, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, serieCusto, desiredAt, aplicaAlteracoes, descreveAlteracao, valorAtual, mesDoPlano, RISCOS, NATUREZAS, ITENS_RUINA, RISCOS_EXEMPLO, avaliaRiscos, custoDeVida, SEGURO, RELACOES, calculaSeguros, mesesAteIdade, FASES_VIDA, faseDaVida, sincronizaPatrimonio, PATRIMONIO_EXEMPLO, padraoDeVida, lerCaminho, gravaCaminho, IR, calculaIR, irDaFamilia, REGIMES, calculaRetirada, retiradaDosSocios, PREVIDENCIA, sucessao, simulaPrevidencia, aliqRegressiva, TRIBUTARIO_EXEMPLO, setRetireAge: a => { RETIRE_AGE = a == null ? null : Math.max(CURRENT_AGE, +a); }, financiamentoValido, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
 })();
 if (typeof module !== 'undefined') module.exports = ENGINE;
 </script>

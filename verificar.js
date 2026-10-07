@@ -331,7 +331,36 @@ console.log('\n10. Patrimônio de hoje e fase da vida financeira');
   ok('dívida avulsa também desconta do total', Ef.faseDaVida(Object.assign({}, pl, { patrimonio: Object.assign(P(), { dividas: [{ nome: 'Consignado', saldoDevedor: 20000 }] }) })).total === f.total - 20000);
   ok('sem a idade em que começou: sem fase', Ef.faseDaVida({ age: 35, patrimonio: {} }).fase === null);
   const alt = Ef.aplicaAlteracoes(Object.assign({}, pl, { patrimonio: P() }), [{ tipo: 'campo', caminho: 'patrimonio.financeiro.2.valor', para: 700000 }]);
-  ok('proposta num valor do detalhe atualiza o total', alt.initialWealth === 910000);
+  ok('proposta num valor do detalhe atualiza o total', alt.initialWealth === 860000 - P().financeiro[2].valor + 700000, alt.initialWealth);
+}
+
+console.log('\n11. Otimização tributária (regras de 2026)');
+{
+  const Et = carregar(srcCliente), ir = Et.calculaIR;
+  ok('até R$ 60 mil por ano o imposto zera (redução da Lei 15.270)', ir({ rend: 60000 }).devido === 0 && ir({ rend: 59000, inss: 6000 }).devido === 0);
+  // 70 mil, simplificada: base 56 mil → 27,5% − 10.904,76 = 4.495,24; redução 8.429,73 − 0,095575 × 70 mil = 1.739,48
+  ok('entre R$ 60 mil e R$ 88.200 a redução cai em linha reta', Math.abs(ir({ rend: 70000 }).devido - (56000 * 0.275 - 10904.76 - (8429.73 - 0.095575 * 70000))) < 0.01, ir({ rend: 70000 }).devido.toFixed(2));
+  ok('desconto simplificado limitado a R$ 17.640', ir({ rend: 200000 }).desconto === 17640 && ir({ rend: 50000 }).desconto === 10000);
+  const pg = ir({ rend: 200000, inss: 12000, pgbl: 50000 });
+  ok('PGBL deduz até 12% da renda tributável, e só com INSS', pg.ded.pgbl === 24000 && pg.sobraPgbl === 26000 && ir({ rend: 200000, pgbl: 50000 }).ded.pgbl === 0);
+  ok('fica com a declaração de menor imposto', pg.modelo === 'completa' && ir({ rend: 200000, inss: 12000 }).modelo === 'simplificada' && pg.devido === Math.min(pg.completa, pg.simplificada));
+  const plan = { tributario: JSON.parse(JSON.stringify(Et.TRIBUTARIO_EXEMPLO)), riscos: { dependentes: [{ nome: 'Luiza' }] }, patrimonio: JSON.parse(JSON.stringify(Et.PATRIMONIO_EXEMPLO)) };
+  const f = Et.irDaFamilia(plan);
+  ok('os dependentes da página Cliente vão para quem os declara', f.nDeps === 1 && f.atual.pessoas[1].deps === 1 && f.recomendada.pessoas[0].deps === 1 && f.recomendada.pessoas[1].deps === 0);
+  ok('economia = imposto atual − imposto recomendado', Math.abs(f.economia - (f.atual.total - f.recomendada.total)) < 1e-9 && f.economia > 0, Math.round(f.economia));
+  const r = Et.calculaRetirada(7000, 3000, 'presumido');
+  ok('pró-labore: INSS de 11% e 20% patronal fora do Simples', r.inss === 770 && Math.abs(r.patronal - 1400) < 1e-9 && Et.calculaRetirada(7000, 0, 'simples').patronal === 0);
+  ok('pró-labore: INSS limitado ao teto', Math.abs(Et.calculaRetirada(20000, 0, 'simples').inss - 8475.55 * 0.11) < 1e-9);
+  ok('dividendos: isentos até R$ 50 mil no mês, 10% do total acima', Et.calculaRetirada(0, 50000).divIR === 0 && Et.calculaRetirada(0, 60000).divIR === 6000);
+  ok('imposto mínimo acima de R$ 600 mil no ano', Et.calculaRetirada(0, 50000).minimo === 0 && Math.abs(Et.calculaRetirada(5000, 50000).minimo - 0.01 * 660000) < 0.01);
+  const su = Et.sucessao(plan);
+  ok('sucessão: a previdência fica fora do inventário', su.atual.prev === 120000 && su.atual.inventario === su.atual.total - su.atual.prev && Math.abs(su.economia - 300000 * 0.12) < 1e-6);
+  ok('sucessão: o total não muda com a recomendação', su.atual.total === su.recomendada.total);
+  const p = Et.simulaPrevidencia(plan.tributario.previdencia), soma = p.passos.reduce((a, x) => a + x[1], 0);
+  ok('previdência: a escada soma do investimento comum à previdência', Math.abs(p.comum.final + soma - p.prev.final) < 0.01);
+  ok('previdência: tabela regressiva de 35% a 10%', Et.aliqRegressiva(1) === 0.35 && Et.aliqRegressiva(10) === 0.15 && Et.aliqRegressiva(10.1) === 0.10);
+  const sem = Et.simulaPrevidencia({ inicial: 100000, aporte: 0, anos: 10, rent: 0, trocas: 3 });
+  ok('previdência: sem rendimento, sem imposto', Math.abs(sem.comum.final - 100000) < 0.01 && Math.abs(sem.prev.final - 100000) < 0.01);
 }
 
 console.log('\n' + (falhas ? falhas + ' verificação(ões) falharam.' : 'Tudo certo.') + '\n');
