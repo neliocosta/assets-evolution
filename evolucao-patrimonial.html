@@ -1219,6 +1219,9 @@ const FLUXO = new URLSearchParams(location.search).has('fluxo');
 const PAPEL = new URLSearchParams(location.search).has('apresentar') ? 'apresentar' : 'cliente';
 let PLANO = null;   // plano recebido, para repassar à janela do fluxo com o que o cliente mudou aqui
 // Plano vindo da tela do consultor: #plano=<base64 do JSON>, ou o último salvo no navegador
+// plano da família: nascimento do cônjuge, para o eixo do tempo mostrar a idade de cada um
+let CONJ_BIRTH = null;
+const definirConjuge = plan => { CONJ_BIRTH = plan.tipo !== 'individual' && +plan.spouseAge > 0 ? new Date(2026 - +plan.spouseAge, 8, 19) : null; };
 (function loadPlan() {
   try {
     // o consultor apresentando pode trazer o plano no endereço; o cliente sempre lê o plano gravado pelo consultor
@@ -1226,7 +1229,7 @@ let PLANO = null;   // plano recebido, para repassar à janela do fluxo com o qu
     let json = null;
     if (m) json = new TextDecoder().decode(Uint8Array.from(atob(decodeURIComponent(m[1]).replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0)));
     else { const p = ARMAZEM.ler('plano'); json = p ? JSON.stringify(p) : null; }
-    if (json) { const plan = JSON.parse(json); PLANO = plan; ENGINE.configure(plan); saudar(plan); }
+    if (json) { const plan = JSON.parse(json); PLANO = plan; ENGINE.configure(plan); definirConjuge(plan); saudar(plan); }
   } catch (e) { console.warn('Plano não aplicado:', e.message); }
 })();
 // "Camila e Rafael Souza" vira "Camila e Rafael"; um nome só vira o primeiro nome
@@ -1284,7 +1287,7 @@ function applyPlan(plan) {
   state.expanded = abertosPorPadrao(); state.rowScroll = 0; state.milestonesShown.clear();
   state.started = false; state.done = false; state.playing = false; state.cursor = W0; state.seg = null;
   state.view = DEFAULT_VIEW(); state.target = null; cv.classList.remove('locked'); setPlayLabel();
-  saudar(plan);
+  definirConjuge(plan); saudar(plan);
   BASE = baseDe(plan); PROP = lerProposta(); respostaNoPlano(); if (temAlteracoes()) aplicaVista(); else desenhaPropBar();
 }
 const STATUS_COLOR = { ok: '#2E9E5B', adj: '#FA7A35', risk: '#D64545' };
@@ -1555,6 +1558,9 @@ function draw() {
   }
 }
 
+// uma pessoa: a idade em todo ano; família: a idade de cada um, entre parênteses, só nos anos de 5 em 5
+const idadeEm = (yr, nasc) => Math.floor((new Date(yr, 0, 1) - nasc) / 864e5 / 365.25);
+const idadesNoAno = (yr, marco) => !CONJ_BIRTH ? idadeEm(yr, ENGINE.BIRTH) + ' anos' : marco ? '(' + idadeEm(yr, ENGINE.BIRTH) + ' e ' + idadeEm(yr, CONJ_BIRTH) + ' anos)' : null;
 function drawTimeAxis(bot) {
   const y = bot + 1; ctx.strokeStyle = 'rgba(32,52,76,.2)'; ctx.beginPath(); ctx.moveTo(PL, y); ctx.lineTo(W - PR, y); ctx.stroke();
   const tL = tOfX(PL), tR = tOfX(W - PR), pxPerU = PW / (state.view.uR - state.view.uL);
@@ -1564,7 +1570,7 @@ function drawTimeAxis(bot) {
   ctx.textBaseline = 'middle';
   const yearT = yr => (new Date(yr, 0, 1) - ENGINE.TODAY) / 864e5 / 365.25;
   const y0 = Math.floor(2026 + tL) - 1, y1 = Math.ceil(2026 + tR) + 1;
-  [10, 5, 1].forEach(stepY => { for (let yr = Math.ceil(y0 / stepY) * stepY; yr <= y1; yr += stepY) { const t = yearT(yr); if (t < tL || t > tR) continue; put(xOfT(t), String(yr), Math.floor((new Date(yr, 0, 1) - ENGINE.BIRTH) / 864e5 / 365.25) + ' anos', t, stepY, stepY >= 5); } });
+  [10, 5, 1].forEach(stepY => { for (let yr = Math.ceil(y0 / stepY) * stepY; yr <= y1; yr += stepY) { const t = yearT(yr); if (t < tL || t > tR) continue; put(xOfT(t), String(yr), idadesNoAno(yr, stepY >= 5), t, stepY, stepY >= 5); } });
   // meses
   if (localPx(Math.max(Math.abs(tL), Math.abs(tR)) < 200 ? 0 : tL, 1 / 12) > 20) {
     const d0 = new Date(2026, 8, 1); d0.setMonth(d0.getMonth() + Math.floor(tL * 12) - 1);
