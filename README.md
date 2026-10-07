@@ -35,7 +35,7 @@ abre com duas páginas, um vídeo em cada:
 - a **capa**: o assunto em uma frase, o vídeo **teórico**, que explica o tema e é o mesmo para todos os clientes, e a lista
   das páginas do capítulo;
 - o **resumo do caso**: o vídeo **do caso**, em que o consultor explica o planejamento daquele cliente, os principais
-  números ao lado (o ganho de cada página no capítulo 3; o patrimônio, a fase e o dinheiro disponível; a nota e as ameaças
+  números ao lado (o ganho de cada página no capítulo 3; o patrimônio, a fase e o dinheiro disponível; o percentual de proteção e as ameaças
   críticas; a idade da liberdade e os objetivos alcançáveis) e, embaixo, o que fazer, página a página, com o caminho para o
   detalhe (`destaques`, na tela do cliente).
 
@@ -119,7 +119,7 @@ bem gera). Por último, recolhido, "Como o patrimônio esperado é calculado", c
 **Gestão de riscos** avalia oito ameaças ao padrão de vida (`plano.riscos`, preenchido no portal, na página Gestão de
 riscos). O status de cada uma sai de `ENGINE.avaliaRiscos`, no motor, igual nas duas telas.
 
-Na tela do cliente, o alto mostra a nota da família e uma **teia** com as oito ameaças: cada ponta é quanto da ameaça
+Na tela do cliente, o alto mostra o percentual de proteção da família e uma **teia** com as oito ameaças: cada ponta é quanto da ameaça
 está resolvido (`pct`: a parte coberta quando há um valor a cobrir, como reserva, terceiros, bens e seguros; senão o
 status, em dia 100%, atenção 50%, crítico 0%). Embaixo, um cartão por ameaça com o essencial (reserva em % do ideal;
 saúde "plano atual é o ideal" ou "possível melhorar"; terceiros, investimentos e bens como lista com a marca de
@@ -161,7 +161,7 @@ status:
   dependentes, não é essencial. A cobertura atual de cada pessoa decide o status; a ameaça fica com o pior.
   O card do cliente segue a apresentação da Nord: a necessidade em destaque e a memória de cálculo de A a H.
   A doença grave, que a Nord pergunta, não entra na conta.
-- Nota da família (0 a 100%): média ponderada dos status (em dia 1, atenção 0,5, crítico 0; não avaliados ficam de
+- Percentual de proteção (0 a 100%, no código `nota`): média ponderada dos status (em dia 1, atenção 0,5, crítico 0; não avaliados ficam de
   fora), com pesos editáveis em `plano.riscos.pesos` (todos 1 por padrão).
 - O cliente simula à vontade (por exemplo, o custo de vida de 8.000 para 7.500 refaz a reserva na hora) e pode propor
   ao consultor, com justificativa, o custo de vida, o alvo de reserva, as idades e os prêmios do plano de saúde, os

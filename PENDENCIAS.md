@@ -470,6 +470,10 @@ Registradas aqui porque não são óbvias no código:
   pró-labore, quando o recomendado é o de hoje).
 - **Ponta da dívida mais discreta (07/10/2026).** O triângulo vermelho das escadas (dívidas no patrimônio, negativos no
   capítulo 3) ficou com cerca de dois terços do tamanho (no patrimônio, de 16 para 10 px de altura).
+- **Percentual de proteção (07/10/2026).** A "nota da família" passou a se chamar percentual de proteção, nas duas telas, e
+  vem com quantas ameaças estão totalmente protegidas ("4 de 8 ameaças totalmente protegidas"). O "7 de 8 ameaças avaliadas"
+  saiu: na prática o consultor avalia todas. No link publicado, a contagem dava 7 porque o bem "Carro" da página Patrimônio
+  estava sem proteção marcada (a lista antiga da gestão de riscos tinha "Carro da família", e o nome não bateu).
 - **Hoje e recomendado sempre na mesma linha (07/10/2026).** O usuário achou o imposto de cada pessoa desalinhado entre
   as duas colunas (uma marca a mais quebrava a linha e empurrava a barra e o total da família) e pediu a tabela de
   lançamentos centralizada. O IR virou uma grade só, pessoa por pessoa (nome e imposto, a barra, as marcas embaixo); no

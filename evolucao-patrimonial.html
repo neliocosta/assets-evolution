@@ -2607,8 +2607,8 @@ function destaques(id, P) {
   if (id === 'riscos') { const a = ENGINE.avaliaRiscos(P); if (a.nota == null) return null;
     const de = st => ENGINE.RISCOS.filter(x => a.itens[x.id].status === st).map(x => x.nome.toLowerCase()), crit = de('critico'), aten = de('atencao');
     const faz = [crit.length ? 'Resolver primeiro: ' + nomes(crit) + '.' : '', aten.length ? 'Depois, rever: ' + nomes(aten) + '.' : ''].filter(Boolean).join(' ');
-    return { nums: [{ rot: 'Nota da família', valor: Math.round(a.nota * 100) + '%', txt: a.avaliados + ' de ' + ENGINE.RISCOS.length + ' ameaças avaliadas' },
-      { rot: 'Protegidas', valor: String(de('ok').length), txt: 'ameaças já resolvidas' }, { rot: 'Críticas', valor: String(crit.length), txt: crit.length ? 'pedem ação agora' : 'nenhuma ameaça crítica', tom: crit.length ? 'risco' : '' }],
+    return { nums: [{ rot: 'Percentual de proteção', valor: Math.round(a.nota * 100) + '%', txt: de('ok').length + ' de ' + ENGINE.RISCOS.length + ' ameaças totalmente protegidas' },
+      { rot: 'Críticas', valor: String(crit.length), txt: crit.length ? 'pedem ação agora' : 'nenhuma ameaça crítica', tom: crit.length ? 'risco' : '' }],
       faz: faz || 'Todas as ameaças avaliadas estão protegidas.' }; }
   if (id === 'evolucao') { const ff = sim().ff, obj = ENGINE.OBJ.filter(o => o.amount > 0), de = st => obj.filter(o => o.status === st), adj = de('adj'), rever = de('risk'), nums = [];
     if (ff) nums.push({ rot: 'Liberdade financeira', valor: Math.floor(ff.age) + ' anos', txt: 'em ' + weekDate(ff.week).getFullYear() + (ff.forced ? ', com renda parcial' : ''), tom: ff.forced ? 'risco' : 'ok' });
@@ -2841,7 +2841,7 @@ function renderRiscos() {
   const rolagem = el.scrollTop;
   let h = `<div class="rc"><div class="rk-topo um">
     <div class="nota-card rk-hero"><div class="rk-hero-t"><h2>Gestão de riscos da família</h2><div class="sub">Quanto de cada uma das oito ameaças ao padrão de vida já está resolvido.</div>
-      <div class="rk-nota">${nota == null ? '—' : nota + '%'}<small>nota da família</small></div>
+      <div class="rk-nota">${nota == null ? '—' : nota + '%'}<small>percentual de proteção</small></div>
       <div class="contagem"><span><i style="background:${COR_ST.ok}"></i>${cont.ok} ${cont.ok === 1 ? 'protegida' : 'protegidas'}</span><span><i style="background:${COR_ST.atencao}"></i>${cont.atencao} pedem atenção</span><span><i style="background:${COR_ST.critico}"></i>${cont.critico} críticas</span>${cont.pendente ? `<span><i style="background:${COR_ST.pendente}"></i>${cont.pendente} não avaliadas</span>` : ''}</div></div>
       ${teiaSvg(a)}</div>
     </div>

@@ -3560,7 +3560,7 @@ function renderApresentacaoC() {
     ['sucessao', 3, 'Sucessão e ITCMD', T && su.atual.total > 0 ? eco(su.economia) + ' na sucessão' : null, T ? 'Falta o patrimônio na página Patrimônio.' : 'Falta preencher a página Otimização tributária.', T ? 'patrimonio' : 'tributario'],
     ['previdencia', 3, 'Previdência no longo prazo', T && T.previdencia && (+T.previdencia.inicial > 0 || +T.previdencia.aporte > 0) ? 'ganho de ' + fmt(ENGINE.simulaPrevidencia(T.previdencia).ganho) + ' em ' + T.previdencia.anos + ' anos' : null, 'Faltam o valor inicial ou o aporte do simulador.', 'tributario'],
     ['patrimonio', 4, 'Fase da vida e patrimônio', f.fases ? 'Fase: ' + f.fases[f.fase].nome.toLowerCase() + ' · patrimônio total ' + fmt(f.total) : null, 'Falta a idade em que o cliente começou a trabalhar (página Cliente).', 'cliente'],
-    ['riscos', 5, 'Gestão de riscos', a.avaliados ? a.avaliados + ' de 8 ameaças avaliadas · nota da família ' + Math.round((a.nota || 0) * 100) + '%' : null, 'Nenhuma ameaça avaliada ainda.', 'riscos'],
+    ['riscos', 5, 'Gestão de riscos', a.avaliados ? 'Percentual de proteção ' + Math.round((a.nota || 0) * 100) + '% · ' + ENGINE.RISCOS.filter(x => a.itens[x.id].status === 'ok').length + ' de 8 ameaças totalmente protegidas' : null, 'Nenhuma ameaça avaliada ainda.', 'riscos'],
     ['evolucao', 6, 'Evolução patrimonial', ff && temFluxo() && plano.desired > 0 ? 'Liberdade financeira aos ' + Math.floor(ff.age) + ' anos' + (ff.forced ? ' (renda parcial)' : '') : null, 'Faltam o fluxo de caixa e a renda desejada.', 'fluxo']];
   // um capítulo por bloco: os dois vídeos (o teórico, o mesmo para todos os clientes, na capa; o do caso deste cliente, no
   // resumo) e as páginas, com o que cada uma vai mostrar. Um vídeo antigo de página vira o vídeo do caso do capítulo.
@@ -3643,7 +3643,7 @@ function renderRiscosC() {
   const nav = `<div class="rkc-nav">${ant ? `<button class="btn btn-secondary btn-small" data-rir="${ant.id}">‹ ${ant.nome}</button>` : '<span></span>'}${prox ? `<button class="btn btn-tertiary btn-small" data-rir="${prox.id}">${prox.nome} ›</button>` : '<span></span>'}</div>`;
   const atual = blocos.find(b => b.includes('id="rkc-' + ids[k] + '"')).replace(/<\/div>\s*$/, nav + '</div>');
   if (!R.pesos) R.pesos = P;
-  el.innerHTML = blocos[0] + atual + `<details class="bloco pesos ajuda"${pesosAbertos ? ' open' : ''}><summary>Pesos de cada ameaça na nota da família</summary><div class="sub" style="margin:4px 0 12px">Em dia vale 1, atenção 0,5 e crítico 0; as não avaliadas ficam de fora. Todos valem 1 por padrão.</div>
+  el.innerHTML = blocos[0] + atual + `<details class="bloco pesos ajuda"${pesosAbertos ? ' open' : ''}><summary>Pesos de cada ameaça no percentual de proteção</summary><div class="sub" style="margin:4px 0 12px">Em dia vale 1, atenção 0,5 e crítico 0; as não avaliadas ficam de fora. Todos valem 1 por padrão.</div>
     <div class="rkc-pesos">${ENGINE.RISCOS.map(x => `<div class="field"><label>${x.nome}</label>${campoR('riscos.pesos.' + x.id, 'num', ' min="0" step="0.5"')}</div>`).join('')}</div></details>`;
 }
 let abaRiscoC = 'reserva', pesosAbertos = false;
@@ -3723,7 +3723,7 @@ document.addEventListener('click', e => {
 });
 function resumoRiscosC(a) {
   const nota = a.nota == null ? '—' : Math.round(a.nota * 100) + '%';
-  return `<div class="rkc-topo"><div class="rkc-nota">${nota}<small>nota da família · ${a.avaliados} de 8 avaliados</small></div><button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="riscos" style="margin-left:auto">Ver na tela do cliente</button></div>
+  return `<div class="rkc-topo"><div class="rkc-nota">${nota}<small>percentual de proteção · ${ENGINE.RISCOS.filter(x => a.itens[x.id].status === 'ok').length + ' de 8 ameaças totalmente protegidas'}</small></div><button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="riscos" style="margin-left:auto">Ver na tela do cliente</button></div>
     <div class="rkc-abas">${ENGINE.RISCOS.map((x, i) => { const st = a.itens[x.id].status; return `<button class="rkc-aba${x.id === abaRiscoC ? ' on' : ''}" data-rir="${x.id}"><i style="background:${COR_STC[st]}"></i><span>${i + 1}. ${x.nome}<small>${NOME_STC[st]}</small></span></button>`; }).join('')}</div>`;
 }
 function valorDoCampoR(t) {
