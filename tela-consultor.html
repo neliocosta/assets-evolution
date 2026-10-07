@@ -442,6 +442,7 @@ label.fxhoriz select{width:auto;padding:5px 8px;font-size:12.5px}
 .pc-item{border:1px solid #efeeea;border-radius:12px;padding:12px 14px;background:#fff}
 .pc-item.inad{border-color:#F2C4C4;background:#FFFBFB}
 .pc-linha{display:grid;grid-template-columns:1.6fr 1fr 1fr auto;gap:10px;align-items:end}
+.pc-linha.cinco{grid-template-columns:1.5fr 1fr 1fr 1.1fr auto}
 .pc-linha.dois{grid-template-columns:2fr 1fr auto}
 .pc-linha .btn-icon{margin-bottom:6px}
 .pc-fin{margin-top:10px;padding-top:10px;border-top:1px dashed #eceae5}
@@ -1207,6 +1208,13 @@ const ENGINE = (() => {
     const doNome = n => velhos.find(v => String(v.nome || '').trim().toLowerCase() === String(n || '').trim().toLowerCase()) || {};
     return P.bens.map((b, i) => ({ i, nome: b.nome, valor: +b.mercado || 0, protecao: b.protecao != null ? b.protecao : doNome(b.nome).protecao || '', apolice: b.apolice !== undefined ? b.apolice : doNome(b.nome).apolice || null }));
   }
+  // De quem é um bem (patrimonio.bens[].titularidade): do titular, do cônjuge ou do casal (titularPct: a parte do titular,
+  // 50% sem informar). Base futura do % do patrimônio dos seguros e do ITCMD.
+  function titularidadeDoBem(plan, b) {
+    const t = (b || {}).titularidade, n = nomesDaFamilia(plan); if (!t) return null;
+    if (t === 'casal') { const p = num(b.titularPct) != null ? Math.min(100, Math.max(0, +b.titularPct)) : 50; return { texto: p === 50 ? 'do casal' : 'do casal (' + p + '% de ' + n.titular + ')', titular: p / 100 }; }
+    return { texto: 'de ' + n[t === 'conjuge' ? 'conjuge' : 'titular'], titular: t === 'conjuge' ? 0 : 1 };
+  }
   const statusSeguro = (nec, atual) => nec <= 0 || atual >= nec ? 'ok' : atual > 0 ? 'atencao' : 'critico';
   function calculaSeguros(plan) {
     const S = (plan.riscos || {}).seguro; if (!S) return null;
@@ -1223,8 +1231,9 @@ const ENGINE = (() => {
     const geradores = S.geradores && S.geradores.length ? S.geradores : [{ pessoa: 'titular', participacao: 100 }];
     const pessoas = geradores.map(g => {
       // idade: do nascimento informado (mês e ano); sem ele, a do plano (titular ou cônjuge)
-      const idade = mesesAteIdade(g.nasc, 0) != null ? Math.floor(-mesesAteIdade(g.nasc, 0) / 12) : g.pessoa === 'outro' ? null
-        : g.pessoa === 'conjuge' ? (+plan.spouseAge > 0 ? +plan.spouseAge : null) : (+plan.age > 0 ? +plan.age : CURRENT_AGE);
+      // a idade do titular e a do cônjuge são as da página Cliente; o nascimento só vale para outra pessoa (ou um plano antigo)
+      const doPlano = g.pessoa === 'outro' ? null : g.pessoa === 'conjuge' ? (+plan.spouseAge > 0 ? +plan.spouseAge : null) : (+plan.age > 0 ? +plan.age : CURRENT_AGE);
+      const idade = doPlano != null ? doPlano : mesesAteIdade(g.nasc, 0) != null ? Math.floor(-mesesAteIdade(g.nasc, 0) / 12) : null;
       const fatia = pc(g.participacao, 100 / geradores.length), patr = pc(g.patrimonioPct, 100 / geradores.length);
       const A = renda * fatia, B = passiva * pc(g.passivaPct, 100), E = fin * patr;
       const conta = (C, meses, H, atual) => {
@@ -1252,10 +1261,12 @@ const ENGINE = (() => {
       const atual = num(r.atual) != null ? +r.atual : num((R.liquidez || {}).d0);
       const status = ideal == null || !(ideal > 0) || atual == null ? 'pendente' : atual >= ideal ? 'ok' : atual >= ideal * 0.4 ? 'atencao' : 'critico';
       out.reserva = { status, custo, dependentes: temDep, d, t, meses: t != null ? d + t : null, calculado, ideal, minima: ideal != null ? ideal * 0.4 : null, aceitavel: ideal != null ? ideal * 0.7 : null, atual, alvoProprio: num(r.alvo) != null }; }
-    // Saúde: a avaliação do consultor decide
+    // Saúde: a avaliação do consultor decide. O custo é a soma dos prêmios de cada vida; o que a empresa ou outra pessoa
+    // paga (vida.pagador = 'terceiros') não sai do bolso da família e não entra no Fluxo de caixa (doBolso).
     { const r = R.saude || {}, vidas = r.vidas || [], total = vidas.reduce((a, v) => a + (+v.premio || 0), 0), alt = r.alternativa || {};
+      const terceiros = vidas.filter(v => v.pagador === 'terceiros').reduce((a, v) => a + (+v.premio || 0), 0);
       const status = { adequado: 'ok', otimizavel: 'atencao', sem_plano: 'critico' }[r.avaliacao] || 'pendente';
-      out.saude = { status, total, economia: num(alt.preco) != null && total ? total - alt.preco : null }; }
+      out.saude = { status, total, terceiros, doBolso: total - terceiros, economia: num(alt.preco) != null && total ? total - alt.preco : null }; }
     // Danos a terceiros: coberturas necessárias × atuais
     { const itens = ((R.terceiros || {}).itens || []).filter(i => num(i.ideal) > 0);
       const status = !(R.terceiros || {}).avaliado ? 'pendente' : !itens.length || itens.every(i => +i.atual >= +i.ideal) ? 'ok' : itens.some(i => !(+i.atual > 0)) ? 'critico' : 'atencao';
@@ -1302,7 +1313,8 @@ const ENGINE = (() => {
     pesos: { reserva: 1, saude: 1, terceiros: 1, ruina: 1, liquidez: 1, bens: 1, renda: 1, familia: 1 },
     reserva: { dependentes: true, natureza: 'CLT (empresa privada)', custoVida: null, atual: null, alvo: null },
     saude: { avaliacao: 'otimizavel', tipo: 'Adesão', hospitais: ['Hospital Alemão Oswaldo Cruz', 'Beneficência Portuguesa', 'Hospital Samaritano'],
-      vidas: [{ nome: 'Ana', idade: 35, premio: 1150 }, { nome: 'Marcos', idade: 38, premio: 1350 }, { nome: 'Luiza', idade: 1, premio: 290 }],
+      vidas: [{ nome: 'Ana', idade: 35, premio: 1150, pagador: 'terceiros' }, { nome: 'Marcos', idade: 38, premio: 1210 }, { nome: 'Luiza', idade: 1, premio: 290 }],
+      linha: 'saude',   // a despesa "Plano de saúde" do Fluxo recebe o que sai do bolso (R$ 1.500; o da Ana a empresa paga)
       alternativa: { tipo: 'PME', hospitais: ['Hospital Alemão Oswaldo Cruz', 'Beneficência Portuguesa', 'Hospital Samaritano'], preco: 2280 } },
     terceiros: { avaliado: true, itens: [{ nome: 'Responsabilidade civil profissional', ideal: 400000, atual: 0 }, { nome: 'Responsabilidade civil familiar', ideal: 500000, atual: 0 }] },
     ruina: { itens: { fraude: 'ok', classe: 'atencao', ativo: 'ok', corrosao: '' } },
@@ -1310,7 +1322,7 @@ const ENGINE = (() => {
     dependentes: [{ nome: 'Luiza', relacao: 'filho', nasc: '2025-06' }],
     seguro: { renda: null, passiva: null, sucessaoPct: 10, geradores: [
       { nome: 'Ana', pessoa: 'titular', nasc: '', participacao: 60, passivaPct: 100, patrimonioPct: 50, inssInvalidez: 3000, inssMorte: 3000, coberturaInvalidez: 300000, coberturaVida: 500000 },
-      { nome: 'Marcos', pessoa: 'conjuge', nasc: '1988-03', participacao: 40, passivaPct: 100, patrimonioPct: 50, inssInvalidez: 2500, inssMorte: 2500, coberturaInvalidez: 0, coberturaVida: 0 }] },
+      { nome: 'Marcos', pessoa: 'conjuge', nasc: '', participacao: 40, passivaPct: 100, patrimonioPct: 50, inssInvalidez: 2500, inssMorte: 2500, coberturaInvalidez: 0, coberturaVida: 0 }] },
   };
   // ---- Patrimônio de hoje e fase da vida financeira ----
   // O detalhe do patrimônio fica em plan.patrimonio: financeiro por instituição, participações por empresa e bens com
@@ -1362,9 +1374,9 @@ const ENGINE = (() => {
     comecou: 23, liquidezIdeal: 400000,
     financeiro: [{ nome: 'Nubank', valor: 60000 }, { nome: 'Itaú', valor: 150000 }, { nome: 'BTG Pactual', valor: 530000 }, { nome: 'Icatu Seguros (VGBL)', valor: 120000, tipo: 'vgbl' }],
     participacoes: [{ nome: 'Papelaria Canetinha', valor: 50000 }],
-    bens: [{ nome: 'Hyundai Creta', mercado: 160000, saldoDevedor: 0, protecao: 'total', apolice: { seguradora: 'Porto Seguro', numero: '0531.22.118790', cobertura: '100% da tabela FIPE, terceiros R$ 200 mil', premio: 4200, vigencia: 'até mar/2027' } },
-      { nome: 'Terreno em São Sebastião', mercado: 100000, saldoDevedor: 0, protecao: 'total' },
-      { nome: 'Apartamento em Mogi (moradia)', mercado: 950000, saldoDevedor: 368000, credito: 560000, parcelas: 360, parcela: 4870, juros: 9.5, situacao: 'em_dia',
+    bens: [{ nome: 'Hyundai Creta', mercado: 160000, saldoDevedor: 0, titularidade: 'titular', protecao: 'total', apolice: { seguradora: 'Porto Seguro', numero: '0531.22.118790', cobertura: '100% da tabela FIPE, terceiros R$ 200 mil', premio: 4200, vigencia: 'até mar/2027' } },
+      { nome: 'Terreno em São Sebastião', mercado: 100000, saldoDevedor: 0, titularidade: 'conjuge', protecao: 'total' },
+      { nome: 'Apartamento em Mogi (moradia)', mercado: 950000, saldoDevedor: 368000, credito: 560000, parcelas: 360, parcela: 4870, juros: 9.5, situacao: 'em_dia', titularidade: 'casal',
         protecao: 'insuficiente', apolice: { seguradora: 'Caixa Seguradora', numero: '', cobertura: 'só o seguro habitacional do financiamento (saldo devedor)', premio: 0, vigencia: '' } }],
     dividas: [],
   };
@@ -1552,7 +1564,7 @@ const ENGINE = (() => {
   const FAMILIA_EXEMPLO = { tipo: 'familia', spouseAge: 38, conjugeNome: 'Marcos' };
   const ORIGENS_OUT = ORIGENS;
   const config = () => ({ age: CURRENT_AGE, retireAge: RETIRE_AGE, initialBens: INITIAL_BENS, desired: DESIRED, desiredSteps: DESIRED_STEPS, lifeExp: LIFE_EXP, salary: SALARY, salaryGrowth: SAL_G, partValue: PART_VALUE, initialWealth: INITIAL_WEALTH, capacityOverride: CAP_OVERRIDE, rate: R_M, profiles: PROFILES, incomes: INCOMES, expenses: EXPENSES, objectives: OBJ, passive: PASSIVE });
-  return { TODAY, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, PASSIVE, PROFILES, STATUS, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, serieCusto, desiredAt, aplicaAlteracoes, descreveAlteracao, valorAtual, mesDoPlano, RISCOS, NATUREZAS, ITENS_RUINA, RISCOS_EXEMPLO, avaliaRiscos, custoDeVida, SEGURO, RELACOES, calculaSeguros, mesesAteIdade, FASES_VIDA, faseDaVida, sincronizaPatrimonio, PATRIMONIO_EXEMPLO, padraoDeVida, lerCaminho, gravaCaminho, IR, calculaIR, irDaFamilia, REGIMES, calculaRetirada, retiradaDosSocios, PREVIDENCIA, sucessao, simulaPrevidencia, aliqRegressiva, TRIBUTARIO_EXEMPLO, FAMILIA_EXEMPLO, casalDe, nomesDaFamilia, pessoasDaFamilia, rendaDaPessoa, bensDoRisco, setRetireAge: a => { RETIRE_AGE = a == null ? null : Math.max(CURRENT_AGE, +a); }, financiamentoValido, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
+  return { TODAY, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, PASSIVE, PROFILES, STATUS, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, serieCusto, desiredAt, aplicaAlteracoes, descreveAlteracao, valorAtual, mesDoPlano, RISCOS, NATUREZAS, ITENS_RUINA, RISCOS_EXEMPLO, avaliaRiscos, custoDeVida, SEGURO, RELACOES, calculaSeguros, mesesAteIdade, FASES_VIDA, faseDaVida, sincronizaPatrimonio, PATRIMONIO_EXEMPLO, padraoDeVida, lerCaminho, gravaCaminho, IR, calculaIR, irDaFamilia, REGIMES, calculaRetirada, retiradaDosSocios, PREVIDENCIA, sucessao, simulaPrevidencia, aliqRegressiva, TRIBUTARIO_EXEMPLO, FAMILIA_EXEMPLO, casalDe, nomesDaFamilia, pessoasDaFamilia, rendaDaPessoa, bensDoRisco, titularidadeDoBem, setRetireAge: a => { RETIRE_AGE = a == null ? null : Math.max(CURRENT_AGE, +a); }, financiamentoValido, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
 })();
 if (typeof module !== 'undefined') module.exports = ENGINE;
 </script>
@@ -3377,10 +3389,12 @@ function renderPatrimonioC() {
   const tabela = (c, cab, its, col, vazio, tipo) => its.length ? `<table class="rkc-tab" style="min-width:0"><thead><tr><th>${cab[0]}</th><th>${cab[1]}</th>${tipo ? `<th>Tipo ${tip('A previdência (PGBL e VGBL) fica fora do inventário na sucessão, na página Otimização tributária.')}</th>` : ''}<th></th></tr></thead><tbody>
     ${its.map((x, i) => `<tr><td>${campoR(`${c}.${i}.nome`, 'texto', ` placeholder="${col}"`)}</td><td>${campoR(`${c}.${i}.valor`, 'reais')}</td>${tipo ? `<td>${selR(`${c}.${i}.tipo`, TIPOS_FIN)}</td>` : ''}${rm(`${c}.${i}`)}</tr>`).join('')}</tbody></table>` : `<div class="pc-vazio">${vazio}</div>`;
   const bem = (b, i) => { const c = `patrimonio.bens.${i}.`, deve = +b.saldoDevedor > 0;
-    return `<div class="pc-item${deve && b.situacao === 'inadimplente' ? ' inad' : ''}"><div class="pc-linha">
+    const nm = ENGINE.nomesDaFamilia(plano), tits = [['', 'não informada'], ['titular', nm.titular]].concat(conjuge() ? [['conjuge', nm.conjuge], ['casal', 'Do casal']] : []);
+    return `<div class="pc-item${deve && b.situacao === 'inadimplente' ? ' inad' : ''}"><div class="pc-linha cinco">
       <div class="field"><label>Bem</label>${campoR(c + 'nome', 'texto', ' placeholder="ex.: apartamento onde mora"')}</div>
       <div class="field"><label>Valor de mercado hoje</label>${campoR(c + 'mercado', 'reais')}</div>
       <div class="field"><label>Saldo devedor</label>${campoR(c + 'saldoDevedor', 'reais0', ' placeholder="quitado"')}</div>
+      <div class="field"><label>Titularidade ${tip('De quem é o bem. Do casal: a parte de cada um (metade, se não informar). Vai ser a base do patrimônio de cada pessoa nos seguros e do ITCMD.')}</label>${selR(c + 'titularidade', tits)}${b.titularidade === 'casal' ? campoR(c + 'titularPct', 'num', ` min="0" max="100" step="5" placeholder="% de ${esc(nm.titular)}: 50" style="margin-top:6px"`) : ''}</div>
       <button class="btn btn-icon" data-rrm="patrimonio.bens.${i}" title="Remover">×</button></div>
       ${deve ? camposDivida(c, b, 'Financiamento') : ''}${rendaDoBemC(b, i)}</div>`; };
   const divida = (d, i) => { const c = `patrimonio.dividas.${i}.`;
@@ -3596,9 +3610,9 @@ function renderRiscosC() {
     <div class="field"><label>Avaliação</label>${selR('riscos.saude.avaliacao', [['', 'não avaliado'], ['adequado', 'Plano adequado (em dia)'], ['otimizavel', 'Pode ser otimizado (atenção)'], ['sem_plano', 'Sem plano de saúde (crítico)']])}</div>
     <div class="field"><label>Tipo do plano atual</label>${selR('riscos.saude.tipo', [['', '—'], ['Individual', 'Individual'], ['Familiar', 'Familiar'], ['Adesão', 'Adesão'], ['PME', 'PME'], ['PJ', 'PJ']])}</div>
     <div class="field"><label>Hospitais desejados (vírgula)</label>${campoR('riscos.saude.hospitais', 'lista')}</div></div>
-    <table class="rkc-tab" style="min-width:0;margin-top:12px"><thead><tr><th>Vida</th><th>Idade</th><th>Prêmio mensal</th><th></th></tr></thead><tbody>${(S.vidas || []).map((v, i) => `<tr><td>${campoR(`riscos.saude.vidas.${i}.nome`, 'texto')}</td><td>${campoR(`riscos.saude.vidas.${i}.idade`, 'num')}</td><td>${campoR(`riscos.saude.vidas.${i}.premio`, 'reais')}</td><td><button class="btn btn-icon" data-rrm="riscos.saude.vidas.${i}" title="Remover">×</button></td></tr>`).join('')}
-    <tr class="total"><td>Total</td><td></td><td>${f(it.saude.total)}</td><td></td></tr></tbody></table>
-    <button class="btn btn-step" data-radd="riscos.saude.vidas">+ vida</button>
+    <table class="rkc-tab" style="min-width:0;margin-top:12px"><thead><tr><th>Vida</th><th>Idade</th><th>Prêmio mensal</th><th>Quem paga ${tip('Um plano pago pela empresa (benefício) ou por outra pessoa não sai do bolso da família: conta no custo do plano, mas não entra no Fluxo de caixa.')}</th><th></th></tr></thead><tbody>${(S.vidas || []).map((v, i) => `<tr><td>${campoR(`riscos.saude.vidas.${i}.nome`, 'texto')}</td><td>${campoR(`riscos.saude.vidas.${i}.idade`, 'num')}</td><td>${campoR(`riscos.saude.vidas.${i}.premio`, 'reais')}</td><td>${selR(`riscos.saude.vidas.${i}.pagador`, PAGADORES)}</td><td><button class="btn btn-icon" data-rrm="riscos.saude.vidas.${i}" title="Remover">×</button></td></tr>`).join('')}
+    <tr class="total"><td>Total do plano</td><td></td><td>${f(it.saude.total)}</td><td>${it.saude.terceiros ? 'do bolso da família: ' + f(it.saude.doBolso) : ''}</td><td></td></tr></tbody></table>
+    <button class="btn btn-step" data-radd="riscos.saude.vidas">+ vida</button>${saudeNoFluxo(S, it.saude)}
     <div class="grid g3" style="margin-top:12px"><div class="field"><label>Alternativa: tipo</label>${selR('riscos.saude.alternativa.tipo', [['', '—'], ['Individual', 'Individual'], ['Familiar', 'Familiar'], ['Adesão', 'Adesão'], ['PME', 'PME'], ['PJ', 'PJ']])}</div>
     <div class="field"><label>Alternativa: hospitais (vírgula)</label>${campoR('riscos.saude.alternativa.hospitais', 'lista')}</div><div class="field"><label>Alternativa: preço mensal</label>${campoR('riscos.saude.alternativa.preco', 'reais')}</div></div>
     ${it.saude.economia != null ? `<div class="rkc-calc">Economia estimada: ${f(it.saude.economia)} por mês (${f(it.saude.economia * 12)} no ano).</div>` : ''}</div>`);
@@ -3653,7 +3667,7 @@ function blocosSeguro(it, R) {
     <div class="grid g3"><div class="field"><label>Renda que deseja proteger (família, por mês)</label>${campoR('riscos.seguro.renda', 'reais', ` placeholder="vazio: ${f(s.doFluxo.renda)}, a renda do trabalho no fluxo"`)}</div>
       <div class="field"><label>Renda passiva (aluguéis e negócios, por mês)</label>${campoR('riscos.seguro.passiva', 'reais', ` placeholder="vazio: ${f(s.doFluxo.passiva)}, a renda passiva no fluxo"`)}</div></div>
     ${G.map((g, i) => { const c = `riscos.seguro.geradores.${i}.`, cp = (n, h) => `<div class="field"><label>${n}</label>${h}</div>`; return `<div class="rkc-ger">
-      ${cp('Gerador de renda', campoR(c + 'nome', 'texto', ` placeholder="${g.pessoa === 'outro' ? 'nome' : 'vazio: ' + esc(ENGINE.nomesDaFamilia(plano)[g.pessoa === 'conjuge' ? 'conjuge' : 'titular'])}"`))}${cp('Quem', selR(c + 'pessoa', quem))}${cp('Nascimento (vazio: idade do plano)', campoR(c + 'nasc', 'texto', ' type="month"'))}
+      ${cp('Gerador de renda', campoR(c + 'nome', 'texto', ` placeholder="${g.pessoa === 'outro' ? 'nome' : 'vazio: ' + esc(ENGINE.nomesDaFamilia(plano)[g.pessoa === 'conjuge' ? 'conjuge' : 'titular'])}"`))}${cp('Quem', selR(c + 'pessoa', quem))}${g.pessoa === 'outro' ? cp('Nascimento', campoR(c + 'nasc', 'texto', ' type="month"')) : cp('Idade (página Cliente)', `<input disabled value="${g.pessoa === 'conjuge' ? (+plano.spouseAge > 0 ? plano.spouseAge + ' anos' : 'informe na página Cliente') : (plano.age ? plano.age + ' anos' : 'informe na página Cliente')}">`)}
       ${cp('% da renda da família', pct(c + 'participacao'))}${cp('% da renda passiva', pct(c + 'passivaPct'))}${cp('% do patrimônio', pct(c + 'patrimonioPct'))}
       ${cp('INSS por invalidez', campoR(c + 'inssInvalidez', 'reais'))}${cp('Cobertura atual de invalidez por acidente', campoR(c + 'coberturaInvalidez', 'reais'))}
       <button class="btn btn-icon" data-rrm="riscos.seguro.geradores.${i}" title="Remover">×</button></div>`; }).join('')}
@@ -3667,6 +3681,46 @@ function blocosSeguro(it, R) {
     <div class="rkc-calc">${memoria('vida')}<br>Prazo até o último dependente deixar de depender (criança até os 25 anos, adulto até os 95). H = ${s.sucessaoPct.toLocaleString('pt-BR')}% × (financeiro + bens + participações) × a parte da pessoa no patrimônio.</div></div>`;
   return [b7, b8];
 }
+// O plano de saúde no Fluxo de caixa: a despesa fixa recebe o que sai do bolso da família (os prêmios, menos os pagos pela
+// empresa ou por terceiros). Como a parcela de uma dívida: numa linha própria, numa despesa que já existe (a do exemplo) ou
+// fora do fluxo. S.linha é o id da despesa; S.linhaPropria, se foi criada aqui; S.semFluxo, que não entra.
+const PAGADORES = [['', 'A família'], ['terceiros', 'Empresa ou terceiros']];
+function lancaSaude(criar) {
+  const S = (plano.riscos || {}).saude; if (!S || S.semFluxo) return;
+  let it = S.linha ? plano.expenses.find(x => x.id === S.linha) : null;
+  if (!it) {
+    if (!criar) return;
+    it = { id: novoId('cat'), label: 'Plano de saúde', group: 'fix', frequency: 'mensal', days: [10], description: 'Prêmios do plano de saúde pagos pela família, lançados pela Gestão de riscos', steps: [{ from: 0, value: 0 }] };
+    plano.expenses.push(it); S.linha = it.id; S.linhaPropria = true;
+  }
+  setStep(it, 0, ENGINE.avaliaRiscos(plano).itens.saude.doBolso);
+}
+function saudeNoFluxo(S, x) {
+  const it = S.linha ? plano.expenses.find(e => e.id === S.linha) : null, sit = S.semFluxo ? 'nao' : it ? (S.linhaPropria ? '__propria' : it.id) : '__pend';
+  const opt = (v, t) => `<option value="${esc(v)}"${v === sit ? ' selected' : ''}>${t}</option>`, fixas = plano.expenses.filter(e => e.group === 'fix' && (e !== it || !S.linhaPropria));
+  const difere = it && Math.abs(mensalDe(it) - x.doBolso) > 0.5;
+  return `<div class="pc-renda">No Fluxo de caixa: <select data-saude-linha>${sit === '__pend' ? opt('__pend', 'Ainda não lançado') : ''}${opt('__propria', it && S.linhaPropria ? 'Linha própria: ' + esc(it.label) : 'Lançar numa linha própria')}
+    ${fixas.map(e => opt(e.id, 'Na linha ' + esc(e.label || 'sem nome') + ' · ' + fmt(mensalDe(e)) + '/mês')).join('')}${opt('nao', 'Não entra no fluxo')}</select>
+    ${it ? `<span><b>${fmt(mensalDe(it))}/mês</b> hoje${difere ? ` · <span style="color:var(--nl-orange-600)">o bolso da família é ${fmt(x.doBolso)}</span> <button class="link" data-saude-acerta>acertar</button>` : ''}</span><button class="link" data-div-abrir="${esc(it.id)}">ver no Fluxo de caixa</button>`
+      : sit === '__pend' && x.doBolso > 0 ? `<span style="color:var(--nl-orange-600)">${fmt(x.doBolso)} por mês ainda não estão no fluxo.</span>` : ''}</div>`;
+}
+// um prêmio, quem paga ou uma vida mudou: a despesa do fluxo acompanha
+document.addEventListener('change', e => {
+  const t = e.target, c = t.dataset && t.dataset.r; if (!c || !/^riscos\.saude\.vidas\.\d+\.(premio|pagador)$/.test(c)) return;
+  ENGINE.gravaCaminho(plano, c, valorDoCampoR(t)); lancaSaude(false);
+});
+document.addEventListener('change', e => {
+  const t = e.target; if (!t.dataset || t.dataset.saudeLinha == null) return;
+  const S = plano.riscos.saude, soltaPropria = () => { if (S.linhaPropria) { const i = plano.expenses.findIndex(x => x.id === S.linha); if (i >= 0) plano.expenses.splice(i, 1); } delete S.linha; delete S.linhaPropria; };
+  if (t.value === 'nao') { soltaPropria(); S.semFluxo = true; }
+  else if (t.value === '__propria') { if (!S.linhaPropria) delete S.linha; S.semFluxo = false; lancaSaude(true); }
+  else if (t.value !== '__pend') { soltaPropria(); S.semFluxo = false; S.linha = t.value; lancaSaude(false); }
+  renderAll();
+});
+document.addEventListener('click', e => {
+  if (e.target.closest('[data-saude-acerta]')) { lancaSaude(false); renderAll(); return; }
+  const rm = e.target.closest('[data-rrm]'); if (rm && /^riscos\.saude\.vidas\.\d+$/.test(rm.dataset.rrm)) setTimeout(() => { lancaSaude(false); renderAll(); }, 0);
+});
 function resumoRiscosC(a) {
   const nota = a.nota == null ? '—' : Math.round(a.nota * 100) + '%';
   return `<div class="rkc-topo"><div class="rkc-nota">${nota}<small>nota da família · ${a.avaliados} de 8 avaliados</small></div><button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="riscos" style="margin-left:auto">Ver na tela do cliente</button></div>

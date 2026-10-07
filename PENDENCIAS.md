@@ -472,3 +472,12 @@ Registradas aqui porque não são óbvias no código:
   pelas linhas do Fluxo; os bens da gestão de riscos pelos do Patrimônio. O exemplo da Ana virou um casal coerente
   (salário da Ana e pró-labore do Marcos no lugar do "salário da família", com o mesmo total; o bônus é PLR, isento no
   ajuste), e a simulação não mudou. As repetições que faltam estão no fim do `VARIAVEIS.md`, em ordem.
+- **O portal monta o relatório; a coleta vem depois (07/10/2026).** O usuário explicou que a ferramenta de montagem do
+  relatório (o portal) não é a de coleta: os dados são levantados numa reunião com o cliente e devem chegar pré-preenchidos.
+  O projeto está sendo construído de trás para frente, da apresentação ao cliente até a coleta. Decisões sobre as variáveis
+  repetidas: o plano de saúde soma o prêmio de cada vida, e a vida paga pela empresa ou por terceiros não entra no Fluxo de
+  caixa (a despesa do Fluxo fica ligada ao que sai do bolso); despesas médicas e instrução do IR continuam informadas pelo
+  consultor (nem tudo é dedutível, e a instrução tem teto); a idade de quem gera renda nos seguros é a da página Cliente; a
+  liquidez de D+0 a 1 ano continua digitada até a carteira do cliente chegar; cada bem tem titularidade (titular, cônjuge
+  ou casal, com a parte de cada um). O usuário vai reorganizar, numa sessão própria, o fluxo de caixa e as rendas: quais são
+  as rendas ativas da família, quais são certas e quais são estimativas, e a participação de cada responsável nas despesas.

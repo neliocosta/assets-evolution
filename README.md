@@ -204,6 +204,8 @@ cada tela ouve o que a outra gravou.
     "financeiro": [ {"nome": "Itaú", "valor": 150000, "tipo": ""} ],         // soma em initialWealth; tipo: "" (investimentos), "pgbl" ou "vgbl"
     "participacoes": [ {"nome": "Papelaria Canetinha", "valor": 50000} ],     // soma em partValue
     "bens": [ {"nome": "Apartamento em Mogi", "mercado": 950000,             // mercado soma em initialBens
+               "titularidade": "casal", "titularPct": 50,                   // titular, conjuge ou casal (a parte do titular)
+               "protecao": "insuficiente", "apolice": {"seguradora": "…"},  // marcada na Gestão de riscos
                "saldoDevedor": 368000, "credito": 560000, "parcelas": 360,  // com saldo devedor, o detalhe do financiamento
                "parcela": 4870, "juros": 9.5, "situacao": "em_dia",         // juros em % ao ano; situacao: em_dia | inadimplente
                "renda": "ent123"} ],                                        // id da linha de renda passiva do Fluxo, se o bem rende

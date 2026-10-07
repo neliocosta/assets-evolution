@@ -363,6 +363,14 @@ console.log('\n11. Otimização tributária (regras de 2026)');
   ok('bens da gestão de riscos são os do patrimônio, com a proteção no próprio bem', br.length === 3 && br[2].protecao === 'insuficiente' && br[0].valor === 160000);
   const antigo = Object.assign({}, plan, { patrimonio: { bens: [{ nome: 'Carro', mercado: 50000 }] }, riscos: { bens: { itens: [{ nome: 'carro', valor: 40000, protecao: 'total' }] } } });
   ok('plano antigo: a proteção da lista dos riscos passa para o bem de mesmo nome', Et.bensDoRisco(antigo)[0].protecao === 'total' && Et.bensDoRisco(antigo)[0].valor === 50000);
+  const sa = Et.avaliaRiscos(Object.assign({}, plan, { riscos: copia(Et.RISCOS_EXEMPLO) })).itens.saude;
+  ok('plano de saúde: o que a empresa paga não sai do bolso (exemplo: R$ 1.500 no fluxo)', sa.total === 2650 && sa.terceiros === 1150 && sa.doBolso === 1500
+    && Et.config().expenses.find(e => e.id === 'saude').steps[0].value === sa.doBolso);
+  const seg = Et.calculaSeguros(Object.assign({}, plan, { riscos: copia(Et.RISCOS_EXEMPLO) }));
+  ok('seguros: a idade do titular e do cônjuge é a da página Cliente', seg.pessoas[0].idade === 35 && seg.pessoas[1].idade === 38);
+  const tb = b => Et.titularidadeDoBem(plan, b);
+  ok('titularidade: de uma pessoa ou do casal (metade, sem informar)', tb({ titularidade: 'conjuge' }).texto === 'de Marcos' && tb({ titularidade: 'casal' }).titular === 0.5
+    && tb({ titularidade: 'casal', titularPct: 70 }).texto === 'do casal (70% de Ana)' && tb({}) === null);
   const r = Et.calculaRetirada(7000, 3000, 'presumido');
   ok('pró-labore: INSS de 11% e 20% patronal fora do Simples', r.inss === 770 && Math.abs(r.patronal - 1400) < 1e-9 && Et.calculaRetirada(7000, 0, 'simples').patronal === 0);
   ok('pró-labore: INSS limitado ao teto', Math.abs(Et.calculaRetirada(20000, 0, 'simples').inss - 8475.55 * 0.11) < 1e-9);
