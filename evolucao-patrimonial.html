@@ -656,11 +656,14 @@ const ENGINE = (() => {
   // meses entre ocorrências; semanal e anual com datas têm regra própria em ocorrencias()
   const FREQ = { semanal: 1, mensal: 1, trimestral: 3, semestral: 6, anual: 12, pontual: 0 };
   let INCOMES = [
-    { id: 'salario', label: 'Salário da família', kind: 'ativa', origin: 'Salário', gross: 19500, frequency: 'mensal',
-      day: 5, description: 'Salário líquido somado do casal.', taxable: true,
-      steps: [{ from: 0, value: 15000 }, { from: 24, value: 18000 }, { from: 60, value: 23000 }, { from: 120, value: 28000 }] },
-    { id: 'bonus', label: 'Bônus anual', kind: 'ativa', origin: 'Bônus', gross: 18000, frequency: 'anual',
-      day: 20, description: 'Participação nos resultados, paga em março.', taxable: true,
+    { id: 'salario', label: 'Salário da Ana', kind: 'ativa', origin: 'Salário', gross: 11700, frequency: 'mensal', pessoa: 'titular',
+      day: 5, description: 'Salário líquido da Ana (CLT).', taxable: true,
+      steps: [{ from: 0, value: 9000 }, { from: 24, value: 10800 }, { from: 60, value: 13800 }, { from: 120, value: 16800 }] },
+    { id: 'prolabore', label: 'Pró-labore do Marcos', kind: 'ativa', origin: 'Pró-labore', gross: 7800, frequency: 'mensal', pessoa: 'conjuge',
+      day: 5, description: 'Pró-labore líquido do Marcos na papelaria.', taxable: true,
+      steps: [{ from: 0, value: 6000 }, { from: 24, value: 7200 }, { from: 60, value: 9200 }, { from: 120, value: 11200 }] },
+    { id: 'bonus', label: 'Bônus anual', kind: 'ativa', origin: 'Bônus', gross: 18000, frequency: 'anual', pessoa: 'titular',
+      day: 20, description: 'Participação nos resultados da Ana, paga em março (tributação exclusiva na fonte).', taxable: false,
       steps: [{ from: 6, value: 12000 }] },
   ];
   let EXPENSES = [
@@ -1089,6 +1092,15 @@ const ENGINE = (() => {
     let t = 0; for (let mm = 0; mm < 12; mm++) its.forEach(it => { t += mensalizado(it, mm); });
     return t / 12;
   }
+  // Os bens da proteção dos bens (ameaça 6) são os da página Patrimônio, com a proteção gravada no próprio bem. Um plano
+  // antigo, com a lista própria da gestão de riscos (riscos.bens.itens), aproveita a proteção do bem de mesmo nome; sem
+  // bens no patrimônio, vale a lista antiga.
+  function bensDoRisco(plan) {
+    const P = (plan || {}).patrimonio || {}, velhos = (((plan || {}).riscos || {}).bens || {}).itens || [];
+    if (!Array.isArray(P.bens) || !P.bens.length) return velhos;
+    const doNome = n => velhos.find(v => String(v.nome || '').trim().toLowerCase() === String(n || '').trim().toLowerCase()) || {};
+    return P.bens.map((b, i) => ({ i, nome: b.nome, valor: +b.mercado || 0, protecao: b.protecao != null ? b.protecao : doNome(b.nome).protecao || '', apolice: b.apolice !== undefined ? b.apolice : doNome(b.nome).apolice || null }));
+  }
   const statusSeguro = (nec, atual) => nec <= 0 || atual >= nec ? 'ok' : atual > 0 ? 'atencao' : 'critico';
   function calculaSeguros(plan) {
     const S = (plan.riscos || {}).seguro; if (!S) return null;
@@ -1117,7 +1129,7 @@ const ENGINE = (() => {
       if (idade == null) acidentes.status = 'pendente';
       const vida = conta(+g.inssMorte || 0, prazoVida, deps.length ? sucessaoPct / 100 * (fin + bens + part) * patr : 0, +g.coberturaVida || 0);
       if (!deps.length) Object.assign(vida, { necessidade: 0, falta: 0, status: 'ok', semDependentes: true });
-      return { nome: g.nome || (g.pessoa === 'conjuge' ? 'Cônjuge' : g.pessoa === 'outro' ? 'Outra pessoa' : 'Titular'), pessoa: g.pessoa || 'titular', idade, participacao: fatia, acidentes, vida };
+      return { nome: g.nome || (g.pessoa === 'outro' ? 'Outra pessoa' : nomesDaFamilia(plan)[g.pessoa === 'conjuge' ? 'conjuge' : 'titular']), pessoa: g.pessoa || 'titular', idade, participacao: fatia, acidentes, vida };
     });
     return { renda, passiva, doFluxo, fin, bens, part, sucessaoPct, deps, prazoVida, taxa: SEGURO.taxa, pessoas,
       somaParticipacao: geradores.reduce((a, g) => a + (num(g.participacao) != null ? +g.participacao : 100 / geradores.length), 0) };
@@ -1152,7 +1164,7 @@ const ENGINE = (() => {
       out.liquidez = { status: { ok: 'ok', atencao: 'atencao', critico: 'critico' }[r.avaliacao] || 'pendente', fin, ben, par, tot, padrao,
         escada: [['D+0', num(r.d0)], ['D+30', num(r.d30)], ['D+60', num(r.d60)], ['D+180', num(r.d180)], ['1 ano', num(r.d360)]].map(([n, v]) => [n, v, v != null && padrao > 0 ? v / padrao : null]) }; }
     // Bens: algum sem proteção, vermelho; algum com proteção insuficiente, atenção; todos protegidos, ok
-    { const itens = (R.bens || {}).itens || [], p = itens.map(b => b.protecao || '');
+    { const itens = bensDoRisco(plan), p = itens.map(b => b.protecao || '');
       const status = !itens.length ? 'pendente' : p.includes('nenhuma') ? 'critico' : p.includes('insuficiente') ? 'atencao' : p.every(x => x === 'total') ? 'ok' : 'pendente';
       out.bens = { status, total: itens.reduce((a, b) => a + (+b.valor || 0), 0), protegido: itens.filter(b => b.protecao === 'total').reduce((a, b) => a + (+b.valor || 0), 0) }; }
     // Renda (seguro de acidentes pessoais) e família (seguro de vida): um cálculo para cada gerador de renda.
@@ -1171,7 +1183,7 @@ const ENGINE = (() => {
       out.terceiros.pct = ti.length ? cob(ti.reduce((a, i) => a + Math.min(+i.atual || 0, +i.ideal), 0), ti.reduce((a, i) => a + +i.ideal, 0)) : null;
       const ri = ITENS_RUINA.map(([k]) => ((R.ruina || {}).itens || {})[k]).filter(v => v in PESO);
       out.ruina.pct = ri.length ? ri.reduce((a, v) => a + PESO[v], 0) / ri.length : null;
-      const bi = ((R.bens || {}).itens || []).filter(b => b.protecao in PESO), bv = bi.reduce((a, b) => a + (+b.valor || 0), 0);
+      const bi = bensDoRisco(plan).filter(b => b.protecao in PESO), bv = bi.reduce((a, b) => a + (+b.valor || 0), 0);
       out.bens.pct = !bi.length ? null : bv > 0 ? bi.reduce((a, b) => a + PESO[b.protecao] * (+b.valor || 0), 0) / bv : bi.reduce((a, b) => a + PESO[b.protecao], 0) / bi.length;
       for (const k of ['renda', 'familia']) out[k].pct = cob(out[k].atual, out[k].necessario);
       RISCOS.forEach(x => { const it = out[x.id]; if (it.status === 'pendente') it.pct = null; else if (it.pct == null) it.pct = NOTA[it.status]; }); }
@@ -1189,10 +1201,6 @@ const ENGINE = (() => {
     terceiros: { avaliado: true, itens: [{ nome: 'Responsabilidade civil profissional', ideal: 400000, atual: 0 }, { nome: 'Responsabilidade civil familiar', ideal: 500000, atual: 0 }] },
     ruina: { itens: { fraude: 'ok', classe: 'atencao', ativo: 'ok', corrosao: '' } },
     liquidez: { avaliacao: 'ok', d0: 60000, d30: 150000, d60: 250000, d180: 380000, d360: 500000 },
-    bens: { itens: [
-      { nome: 'Hyundai Creta', valor: 160000, protecao: 'total', apolice: { seguradora: 'Porto Seguro', numero: '0531.22.118790', cobertura: '100% da tabela FIPE, terceiros R$ 200 mil', premio: 4200, vigencia: 'até mar/2027' } },
-      { nome: 'Terreno em São Sebastião', valor: 100000, protecao: 'total', apolice: null },
-      { nome: 'Apartamento em Mogi (moradia)', valor: 950000, protecao: 'insuficiente', apolice: { seguradora: 'Caixa Seguradora', numero: '', cobertura: 'só o seguro habitacional do financiamento (saldo devedor)', premio: 0, vigencia: '' } }] },
     dependentes: [{ nome: 'Luiza', relacao: 'filho', nasc: '2025-06' }],
     seguro: { renda: null, passiva: null, sucessaoPct: 10, geradores: [
       { nome: 'Ana', pessoa: 'titular', nasc: '', participacao: 60, passivaPct: 100, patrimonioPct: 50, inssInvalidez: 3000, inssMorte: 3000, coberturaInvalidez: 300000, coberturaVida: 500000 },
@@ -1248,8 +1256,10 @@ const ENGINE = (() => {
     comecou: 23, liquidezIdeal: 400000,
     financeiro: [{ nome: 'Nubank', valor: 60000 }, { nome: 'Itaú', valor: 150000 }, { nome: 'BTG Pactual', valor: 530000 }, { nome: 'Icatu Seguros (VGBL)', valor: 120000, tipo: 'vgbl' }],
     participacoes: [{ nome: 'Papelaria Canetinha', valor: 50000 }],
-    bens: [{ nome: 'Hyundai Creta', mercado: 160000, saldoDevedor: 0 }, { nome: 'Terreno em São Sebastião', mercado: 100000, saldoDevedor: 0 },
-      { nome: 'Apartamento em Mogi (moradia)', mercado: 950000, saldoDevedor: 368000, credito: 560000, parcelas: 360, parcela: 4870, juros: 9.5, situacao: 'em_dia' }],
+    bens: [{ nome: 'Hyundai Creta', mercado: 160000, saldoDevedor: 0, protecao: 'total', apolice: { seguradora: 'Porto Seguro', numero: '0531.22.118790', cobertura: '100% da tabela FIPE, terceiros R$ 200 mil', premio: 4200, vigencia: 'até mar/2027' } },
+      { nome: 'Terreno em São Sebastião', mercado: 100000, saldoDevedor: 0, protecao: 'total' },
+      { nome: 'Apartamento em Mogi (moradia)', mercado: 950000, saldoDevedor: 368000, credito: 560000, parcelas: 360, parcela: 4870, juros: 9.5, situacao: 'em_dia',
+        protecao: 'insuficiente', apolice: { seguradora: 'Caixa Seguradora', numero: '', cobertura: 'só o seguro habitacional do financiamento (saldo devedor)', premio: 0, vigencia: '' } }],
     dividas: [],
   };
   // ---- Otimização tributária (capítulo 3 da área do cliente) ----
@@ -1265,6 +1275,7 @@ const ENGINE = (() => {
     reducaoAnual: r => r <= 60000 ? Infinity : r < 88200 ? Math.max(0, 8429.73 - 0.095575 * r) : 0,
     reducaoMensal: r => r <= 5000 ? Infinity : r < 7350 ? Math.max(0, 978.62 - 0.133145 * r) : 0,
     simplificado: 0.2, simplificadoLimite: 17640, simplificadoMensal: 607.20, dependente: 2275.08, instrucao: 3561.50, pgbl: 0.12,
+    inssCLT: [[1621, 0.075], [2902.84, 0.09], [4354.27, 0.12], [8475.55, 0.14]],
     salarioMinimo: 1621, tetoINSS: 8475.55, inssSocio: 0.11, cpp: 0.20, dividendosIsentoMes: 50000, dividendosRetencao: 0.10,
     minimoDe: 600000, minimoAte: 1200000, minimoMax: 0.10,
   };
@@ -1284,15 +1295,48 @@ const ENGINE = (() => {
     return { rend, inss, deps, ded, totDed, lim, desconto, baseC, baseS, completa: c.devido, simplificada: s.devido, modelo: completa ? 'completa' : 'simplificada',
       base: completa ? baseC : baseS, bruto: e.bruto, reducao: e.reducao, devido: e.devido, aliq: rend ? e.devido / rend : 0, sobraPgbl: Math.max(0, pos(p.pgbl) - lim.pgbl), sobraInstr: Math.max(0, pos(p.instr) - lim.instr) };
   }
-  // O imposto de renda da família nas duas estratégias (plan.tributario.ir): os rendimentos de cada pessoa são os mesmos, e
-  // cada estratégia diz quem declara os dependentes (depsCom: o índice da pessoa) e os lançamentos de cada um (instrução,
-  // médicas, PGBL). O número de dependentes vem da página Cliente (riscos.dependentes); sem a lista, do campo dependentes.
-  //   pessoas: [{ nome, rend, inss, outras }], atual e recomendada: { depsCom, lanc: [{ instr, med, pgbl }] }
+  // ---- As pessoas da família e o que cada uma recebe ----
+  // Os nomes vêm da página Cliente: o titular é o primeiro nome do cliente ("Ana Ribeiro", ou "Camila" em "Camila e Rafael
+  // Souza"); o cônjuge, o nome informado ou o segundo nome antes do sobrenome. Casal: plano de família com a idade do cônjuge.
+  const casalDe = plan => (plan || {}).tipo !== 'individual' && +(plan || {}).spouseAge > 0;
+  function nomesDaFamilia(plan) {
+    const partes = String((plan || {}).name || '').split(/\s+e\s+/i).map(n => n.trim().split(/\s+/)[0]).filter(Boolean);
+    return { titular: partes[0] || 'Titular', conjuge: String((plan || {}).conjugeNome || '').trim() || partes[1] || 'Cônjuge' };
+  }
+  const pessoasDaFamilia = plan => ['titular'].concat(casalDe(plan) ? ['conjuge'] : []);
+  const inssCLT = v => { let t = 0, ant = 0; for (const [lim, a] of IR.inssCLT) { if (v > ant) t += (Math.min(v, lim) - ant) * a; ant = lim; } return t; };
+  // O que uma pessoa recebe nos próximos 12 meses, pelas linhas de entrada do Fluxo de caixa que são dela (it.pessoa; sem
+  // pessoa, do titular). Rendimentos tributáveis: as linhas tributáveis, pelo bruto de cada recebimento (sem o bruto, pelo
+  // líquido, e a linha fica em semBruto). INSS: o do salário pela tabela do empregado, o do pró-labore 11%, ambos até o teto.
+  // Pró-labore e dividendos (por mês): as linhas com essas categorias.
+  function rendaDaPessoa(plan, quem) {
+    const out = { trib: 0, inss: 0, linhas: [], semBruto: [], pro: 0, div: 0, linhasPro: [], linhasDiv: [] };
+    (plan.incomes || []).filter(it => (it.pessoa || 'titular') === quem).forEach(it0 => {
+      const it = sortSteps(Object.assign({}, it0)), oc = []; for (let mm = 0; mm < 12; mm++) oc.push(...ocorrencias(it, mm, false));
+      if (!oc.length) return;
+      const bruto = +it.gross > 0 ? +it.gross : null, nome = it.label || 'sem nome', ano = oc.reduce((a, o) => a + (bruto != null ? bruto : o.v), 0);
+      if (it.origin === 'Distribuição de lucros') { out.div += oc.reduce((a, o) => a + o.v, 0) / 12; out.linhasDiv.push(nome); return; }
+      if (it.origin === 'Pró-labore') { out.pro += ano / 12; out.linhasPro.push(nome); }
+      if (it.taxable === false) return;
+      out.trib += ano; out.linhas.push(nome); if (bruto == null) out.semBruto.push(nome);
+      if (bruto != null && it.origin === 'Salário') out.inss += oc.length * inssCLT(bruto);
+      if (bruto != null && it.origin === 'Pró-labore') out.inss += oc.length * Math.min(bruto, IR.tetoINSS) * IR.inssSocio;
+    });
+    return out;
+  }
+  // O imposto de renda da família nas duas estratégias (plan.tributario.ir). As pessoas são as da família (o titular e, num
+  // casal, o cônjuge); os rendimentos tributáveis e o INSS vêm do Fluxo de caixa quando a pessoa tem linhas tributáveis lá, e
+  // só sem elas valem os digitados aqui. Cada estratégia diz quem declara os dependentes (depsCom: o índice da pessoa) e os
+  // lançamentos de cada um (instrução, médicas, PGBL). O número de dependentes vem da página Cliente (riscos.dependentes).
+  //   pessoas: [{ quem, rend, inss, outras }], atual e recomendada: { depsCom, lanc: [{ instr, med, pgbl }] }
+  const dadosIR = (T, quem, i) => (T.pessoas || []).find(p => p.quem === quem) || ((T.pessoas || [])[i] && !(T.pessoas[i] || {}).quem ? T.pessoas[i] : {});
   function irDaFamilia(plan) {
-    const T = ((plan || {}).tributario || {}).ir; if (!T || !(T.pessoas || []).length) return null;
-    const lista = ((plan.riscos || {}).dependentes), nDeps = Array.isArray(lista) ? lista.length : Math.round(pos(T.dependentes));
-    const cen = c => { c = c || {}; const ps = T.pessoas.map((p, i) => { const l = (c.lanc || [])[i] || {};
-        return Object.assign({ nome: p.nome || 'Pessoa ' + (i + 1), pgbl: pos(l.pgbl) }, calculaIR({ rend: p.rend, inss: p.inss, outras: p.outras, deps: +c.depsCom === i ? nDeps : 0, instr: l.instr, med: l.med, pgbl: l.pgbl })); });
+    const T = ((plan || {}).tributario || {}).ir; if (!T) return null;
+    const lista = ((plan.riscos || {}).dependentes), nDeps = Array.isArray(lista) ? lista.length : Math.round(pos(T.dependentes)), nomes = nomesDaFamilia(plan);
+    const base = pessoasDaFamilia(plan).map((quem, i) => { const d = dadosIR(T, quem, i), fx = rendaDaPessoa(plan, quem), doFluxo = fx.linhas.length > 0;
+      return { quem, nome: nomes[quem], doFluxo, linhas: fx.linhas, semBruto: fx.semBruto, rend: doFluxo ? fx.trib : pos(d.rend), inss: doFluxo ? fx.inss : pos(d.inss), outras: pos(d.outras) }; });
+    const cen = c => { c = c || {}; const ps = base.map((p, i) => { const l = (c.lanc || [])[i] || {};
+        return Object.assign({ quem: p.quem, nome: p.nome, doFluxo: p.doFluxo, linhas: p.linhas, semBruto: p.semBruto, pgbl: pos(l.pgbl) }, calculaIR({ rend: p.rend, inss: p.inss, outras: p.outras, deps: +c.depsCom === i ? nDeps : 0, instr: l.instr, med: l.med, pgbl: l.pgbl })); });
       return { pessoas: ps, total: ps.reduce((a, x) => a + x.devido, 0), rend: ps.reduce((a, x) => a + x.rend, 0), depsCom: +c.depsCom }; };
     const atual = cen(T.atual), recomendada = cen(T.recomendada);
     return { nDeps, atual, recomendada, economia: atual.total - recomendada.total };
@@ -1312,15 +1356,19 @@ const ENGINE = (() => {
     const pessoa = inss + irrf + divIR, mes = pessoa + patronal;
     return { pro, div, total: pro + div, inss, irrf, divIR, patronal, pessoa, mes, liquido: pro + div - pessoa, minimo, ano: 12 * mes + minimo };
   }
-  // As duas formas de retirar o mesmo valor (plan.tributario.prolabore): socios: [{ nome, empresa, regime, pro, div, proRec,
-  // faturamento }]. A recomendada mantém o total e muda só a divisão: o pró-labore recomendado e o resto em dividendos.
+  // As duas formas de retirar o mesmo valor (plan.tributario.prolabore): socios: [{ quem, empresa, regime, pro, div, proRec,
+  // faturamento }]. O pró-labore e os dividendos de hoje vêm das linhas do Fluxo de caixa da pessoa (categorias Pró-labore e
+  // Distribuição de lucros); só sem elas valem os digitados aqui. A recomendada mantém o total e muda só a divisão.
   function retiradaDosSocios(plan) {
     const S = (((plan || {}).tributario || {}).prolabore || {}).socios; if (!Array.isArray(S) || !S.length) return null;
-    const socios = S.map((s, i) => { const total = pos(s.pro) + pos(s.div), proRec = Math.min(total, s.proRec == null || s.proRec === '' ? IR.salarioMinimo : pos(s.proRec));
+    const nomes = nomesDaFamilia(plan);
+    const socios = S.map((s0, i) => { const quem = s0.quem || null, fx = quem ? rendaDaPessoa(plan, quem) : null, doFluxo = !!fx && (fx.linhasPro.length + fx.linhasDiv.length) > 0;
+      const s = Object.assign({}, s0, doFluxo ? { pro: fx.pro, div: fx.div } : {});
+      const total = pos(s.pro) + pos(s.div), proRec = Math.min(total, s.proRec == null || s.proRec === '' ? IR.salarioMinimo : pos(s.proRec));
       const atual = calculaRetirada(s.pro, s.div, s.regime), rec = calculaRetirada(proRec, total - proRec, s.regime);
       // fator R: no Simples, a folha (o pró-labore) precisa ser 28% do faturamento para a empresa ficar no Anexo III
       const fat = pos(s.faturamento), fr = v => fat ? v / fat : null;
-      return { nome: s.nome || 'Sócio ' + (i + 1), empresa: s.empresa || '', regime: s.regime || 'simples', atual, rec, economia: atual.ano - rec.ano,
+      return { nome: quem ? nomes[quem] : s.nome || 'Sócio ' + (i + 1), quem, doFluxo, linhas: doFluxo ? fx.linhasPro.concat(fx.linhasDiv) : [], empresa: s.empresa || '', regime: s.regime || 'simples', atual, rec, economia: atual.ano - rec.ano,
         fatorR: s.regime === 'simplesR' && fat ? { atual: fr(pos(s.pro)), rec: fr(proRec), cai: fr(pos(s.pro)) >= 0.28 && fr(proRec) < 0.28 } : null };
     });
     return { socios, economia: socios.reduce((a, s) => a + s.economia, 0) };
@@ -1385,17 +1433,20 @@ const ENGINE = (() => {
   // Tributação de exemplo (família da Ana Ribeiro): valores fictícios. Hoje a Luiza e as despesas médicas estão na declaração
   // do Marcos, que ganha menos; a recomendação leva a Luiza para a Ana e faz um PGBL de 12% para ela. As médicas ficam com o
   // Marcos, titular do plano de saúde. O Marcos é sócio da papelaria e tira parte da renda como pró-labore.
+  // Os rendimentos, o INSS e o pró-labore vêm do Fluxo de caixa do exemplo (salário da Ana, pró-labore do Marcos).
   const TRIBUTARIO_EXEMPLO = {
-    ir: { pessoas: [{ nome: 'Ana', rend: 152100, inss: 12845, outras: 0 }, { nome: 'Marcos', rend: 84000, inss: 9240, outras: 0 }],
+    ir: { pessoas: [{ quem: 'titular', outras: 0 }, { quem: 'conjuge', outras: 0 }],
       atual: { depsCom: 1, lanc: [{ instr: 0, med: 0, pgbl: 0 }, { instr: 0, med: 14800, pgbl: 0 }] },
-      recomendada: { depsCom: 0, lanc: [{ instr: 0, med: 0, pgbl: 18252 }, { instr: 0, med: 14800, pgbl: 0 }] } },
-    prolabore: { socios: [{ nome: 'Marcos', empresa: 'Papelaria Canetinha', regime: 'presumido', pro: 7000, div: 3000, proRec: 1621, faturamento: null }] },
+      recomendada: { depsCom: 0, lanc: [{ instr: 0, med: 0, pgbl: 16848 }, { instr: 0, med: 14800, pgbl: 0 }] } },
+    prolabore: { socios: [{ quem: 'conjuge', empresa: 'Papelaria Canetinha', regime: 'presumido', proRec: 1621, faturamento: null }] },
     sucessao: { itcmd: 4, custos: 8, paraPrevidencia: 300000 },
-    previdencia: { inicial: 120000, aporte: 1521, anos: 20, rent: 10, trocas: 4, aliqComum: 15, comeCotas: true, taxaComum: 0.8, taxaPrev: 0.8 },
+    previdencia: { inicial: 120000, aporte: 1404, anos: 20, rent: 10, trocas: 4, aliqComum: 15, comeCotas: true, taxaComum: 0.8, taxaPrev: 0.8 },
   };
+  // A família do exemplo: um casal, com o nome e a idade do cônjuge (página Cliente)
+  const FAMILIA_EXEMPLO = { tipo: 'familia', spouseAge: 38, conjugeNome: 'Marcos' };
   const ORIGENS_OUT = ORIGENS;
   const config = () => ({ age: CURRENT_AGE, retireAge: RETIRE_AGE, initialBens: INITIAL_BENS, desired: DESIRED, desiredSteps: DESIRED_STEPS, lifeExp: LIFE_EXP, salary: SALARY, salaryGrowth: SAL_G, partValue: PART_VALUE, initialWealth: INITIAL_WEALTH, capacityOverride: CAP_OVERRIDE, rate: R_M, profiles: PROFILES, incomes: INCOMES, expenses: EXPENSES, objectives: OBJ, passive: PASSIVE });
-  return { TODAY, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, PASSIVE, PROFILES, STATUS, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, serieCusto, desiredAt, aplicaAlteracoes, descreveAlteracao, valorAtual, mesDoPlano, RISCOS, NATUREZAS, ITENS_RUINA, RISCOS_EXEMPLO, avaliaRiscos, custoDeVida, SEGURO, RELACOES, calculaSeguros, mesesAteIdade, FASES_VIDA, faseDaVida, sincronizaPatrimonio, PATRIMONIO_EXEMPLO, padraoDeVida, lerCaminho, gravaCaminho, IR, calculaIR, irDaFamilia, REGIMES, calculaRetirada, retiradaDosSocios, PREVIDENCIA, sucessao, simulaPrevidencia, aliqRegressiva, TRIBUTARIO_EXEMPLO, setRetireAge: a => { RETIRE_AGE = a == null ? null : Math.max(CURRENT_AGE, +a); }, financiamentoValido, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
+  return { TODAY, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, PASSIVE, PROFILES, STATUS, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, serieCusto, desiredAt, aplicaAlteracoes, descreveAlteracao, valorAtual, mesDoPlano, RISCOS, NATUREZAS, ITENS_RUINA, RISCOS_EXEMPLO, avaliaRiscos, custoDeVida, SEGURO, RELACOES, calculaSeguros, mesesAteIdade, FASES_VIDA, faseDaVida, sincronizaPatrimonio, PATRIMONIO_EXEMPLO, padraoDeVida, lerCaminho, gravaCaminho, IR, calculaIR, irDaFamilia, REGIMES, calculaRetirada, retiradaDosSocios, PREVIDENCIA, sucessao, simulaPrevidencia, aliqRegressiva, TRIBUTARIO_EXEMPLO, FAMILIA_EXEMPLO, casalDe, nomesDaFamilia, pessoasDaFamilia, rendaDaPessoa, bensDoRisco, setRetireAge: a => { RETIRE_AGE = a == null ? null : Math.max(CURRENT_AGE, +a); }, financiamentoValido, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
 })();
 if (typeof module !== 'undefined') module.exports = ENGINE;
 </script>
@@ -2238,7 +2289,7 @@ function frame(now) {
 // objetivos, idade de parar) vira uma proposta: a tela mostra o efeito, mas o plano só muda quando o consultor
 // aprovar. A proposta fica no navegador ('nl-proposta') ou vai em arquivo; a resposta volta no próprio plano
 // (plan.propostas), para chegar ao cliente também quando o plano vier por link ou arquivo.
-const baseDe = plan => structuredClone(Object.assign({ riscos: plan ? undefined : ENGINE.RISCOS_EXEMPLO, patrimonio: plan ? undefined : ENGINE.PATRIMONIO_EXEMPLO, tributario: plan ? undefined : ENGINE.TRIBUTARIO_EXEMPLO }, plan || {}, ENGINE.config(), { mode: ENGINE.MODE, name: (plan && plan.name) || '' }));   // sem plano: os riscos e o patrimônio do exemplo
+const baseDe = plan => structuredClone(Object.assign({}, plan ? {} : ENGINE.FAMILIA_EXEMPLO, { riscos: plan ? undefined : ENGINE.RISCOS_EXEMPLO, patrimonio: plan ? undefined : ENGINE.PATRIMONIO_EXEMPLO, tributario: plan ? undefined : ENGINE.TRIBUTARIO_EXEMPLO }, plan || {}, ENGINE.config(), { mode: ENGINE.MODE, name: (plan && plan.name) || '' }));   // sem plano: os riscos e o patrimônio do exemplo
 let BASE = null, PROP = null, VER = 'proposta';
 const escH = t => String(t == null ? '' : t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const lerReais = t => { const v = parseFloat(String(t).replace(/[^\d,-]/g, '').replace(',', '.')); return isFinite(v) ? Math.max(0, v) : NaN; };
@@ -2710,7 +2761,7 @@ function corpoCartao(id, a, R) {
     return listaMarcas(ENGINE.ITENS_RUINA.map(([k]) => [ST[it[k]] || 'pendente', CURTO[k]])); }
   if (id === 'liquidez') { const e = x.escada, mostra = [e[0], e[1], e[4]];
     return `<div class="rk-trio">${mostra.map(([n, v, m]) => `<div><b>${m != null ? vezes(m) : v != null ? fmtK(v) : '—'}</b><span>${n}</span></div>`).join('')}</div><div class="rk-sub">vezes o padrão de vida mensal</div>`; }
-  if (id === 'bens') { const its = (R.bens || {}).itens || [], ST = { total: 'ok', insuficiente: 'atencao', nenhuma: 'critico' };
+  if (id === 'bens') { const its = ENGINE.bensDoRisco(planoVista()), ST = { total: 'ok', insuficiente: 'atencao', nenhuma: 'critico' };
     return its.length ? listaMarcas(its.map(b => [ST[b.protecao] || 'pendente', b.nome || 'Bem sem nome'])) : '<div class="rk-nao">Nenhum bem cadastrado.</div>'; }
   // renda e família: quanto falta de cobertura, ou a marca de que a proteção está adequada
   return x.status === 'ok' ? `<div class="rk-frase">${MARCA.ok}Proteção adequada</div>` : `<div class="rk-big">${fmtK(x.falta)}<small>falta de cobertura</small></div>
@@ -2820,7 +2871,7 @@ function corpoRisco(id, P, a) {
       <div class="escada">${x.escada.map(([n, v, m]) => `<div><b>${m != null ? vezes(m) : v != null ? 'R$ ' + fmtC(v) : '—'}</b>${m != null ? `<small>R$ ${fmtC(v)}</small>` : ''}<i style="height:${v != null ? Math.max(2, v / mx * 100) : 2}%"></i>${n}</div>`).join('')}</div>`;
   }
   if (id === 'bens') {
-    const its = (R.bens || {}).itens || [], txt = { total: ['ok', 'Protegido'], insuficiente: ['atencao', 'Proteção insuficiente'], nenhuma: ['critico', 'Sem proteção'] };
+    const its = ENGINE.bensDoRisco(P), txt = { total: ['ok', 'Protegido'], insuficiente: ['atencao', 'Proteção insuficiente'], nenhuma: ['critico', 'Sem proteção'] };
     return `<div class="expl">Os bens da família e se estão protegidos. Clique num bem protegido para ver a apólice.</div>` + (its.length ? `<table class="rk-tab"><thead><tr><th>Bem</th><th class="n">Valor</th><th>Proteção</th></tr></thead><tbody>${its.map((b, i) => { const [st, t] = txt[b.protecao] || ['pendente', 'Não avaliado'], ap = b.apolice; return `<tr${ap ? ` class="clic" data-apolice="${i}"` : ''}><td><b>${escH(b.nome)}</b>${ap ? ' <span style="color:#9a9a9a;font-size:11px">ver apólice ▾</span>' : ''}</td><td class="n">${fmt(+b.valor || 0)}</td><td><span class="st ${st}">${t}</span></td></tr>` + (ap ? `<tr class="apolice" id="ap-${i}" hidden><td colspan="3"><b>${escH(ap.seguradora || 'Seguradora')}</b>${ap.numero ? ' · apólice ' + escH(ap.numero) : ''}<br>${ap.cobertura ? 'Cobertura: ' + escH(ap.cobertura) + '<br>' : ''}${ap.premio ? 'Prêmio: ' + fmt(+ap.premio) + ' por ano' : ''}${ap.vigencia ? ' · vigência ' + escH(ap.vigencia) : ''}</td></tr>` : ''); }).join('')}</tbody></table>` : '<div class="expl">Nenhum bem cadastrado.</div>');
   }
   // renda e família: o seguro de cada gerador de renda, como na calculadora de seguros da Nord

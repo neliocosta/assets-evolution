@@ -438,6 +438,7 @@ label.fxhoriz select{width:auto;padding:5px 8px;font-size:12.5px}
 /* otimização tributária: hoje e recomendado lado a lado */
 .tbc-lanc{min-width:0} .tbc-lanc th.tbc-est{text-align:center;color:var(--nl-orange-600);border-left:1px solid #efeeea} .tbc-lanc .link{display:block;margin-top:3px;font-size:11.5px}
 .tbc-lanc tr.total td{font-weight:600;color:var(--nl-navy-900);padding:8px 6px}
+.tbc-fx b{display:block;font:600 13px 'DM Sans',sans-serif;color:var(--nl-navy-900);padding-top:6px} .tbc-fx small{display:block;font-size:11.5px;color:#8a8a8a;line-height:1.4}
 .pc-item{border:1px solid #efeeea;border-radius:12px;padding:12px 14px;background:#fff}
 .pc-item.inad{border-color:#F2C4C4;background:#FFFBFB}
 .pc-linha{display:grid;grid-template-columns:1.6fr 1fr 1fr auto;gap:10px;align-items:end}
@@ -524,6 +525,7 @@ details.pesos{margin-top:14px}
         <div class="field"><label>Nome do cliente <em>obrigatório</em></label><input id="f-name" type="text" placeholder="ex.: Camila e Rafael Souza"></div>
         <div class="field"><label>Idade hoje <em>obrigatório</em></label><input id="f-age" type="number" min="18" max="90" placeholder="anos"></div>
         <div class="field"><label>O plano é de</label><select id="f-tipo"><option value="individual">Uma pessoa</option><option value="familia">Um casal ou uma família</option></select></div>
+        <div class="field"><label>Nome do cônjuge <span class="tip" tabindex="0" data-tip="Aparece nas páginas que tratam de cada um: imposto de renda, sócios, seguros. Vazio: o segundo nome do cliente, em nomes como Camila e Rafael Souza.">?</span></label><input id="f-conjugeNome" data-r="conjugeNome" data-rt="texto" type="text" placeholder="ex.: Rafael"></div>
         <div class="field"><label>Idade do cônjuge</label><input id="f-spouse" type="number" min="18" max="90" placeholder="anos"></div>
       </div>
       <details class="ajuda" id="notaCasal"><summary>Casal: de quem é a "Idade hoje"?</summary>Use a idade de quem é a referência da aposentadoria (quem vai parar primeiro; se o casal vai parar junto, a do mais velho) e informe a do outro em "Idade do cônjuge". A renda de cada um entra como uma linha própria no Fluxo de caixa, e o INSS de cada um como uma renda na página Liberdade financeira.</details>
@@ -760,11 +762,14 @@ const ENGINE = (() => {
   // meses entre ocorrências; semanal e anual com datas têm regra própria em ocorrencias()
   const FREQ = { semanal: 1, mensal: 1, trimestral: 3, semestral: 6, anual: 12, pontual: 0 };
   let INCOMES = [
-    { id: 'salario', label: 'Salário da família', kind: 'ativa', origin: 'Salário', gross: 19500, frequency: 'mensal',
-      day: 5, description: 'Salário líquido somado do casal.', taxable: true,
-      steps: [{ from: 0, value: 15000 }, { from: 24, value: 18000 }, { from: 60, value: 23000 }, { from: 120, value: 28000 }] },
-    { id: 'bonus', label: 'Bônus anual', kind: 'ativa', origin: 'Bônus', gross: 18000, frequency: 'anual',
-      day: 20, description: 'Participação nos resultados, paga em março.', taxable: true,
+    { id: 'salario', label: 'Salário da Ana', kind: 'ativa', origin: 'Salário', gross: 11700, frequency: 'mensal', pessoa: 'titular',
+      day: 5, description: 'Salário líquido da Ana (CLT).', taxable: true,
+      steps: [{ from: 0, value: 9000 }, { from: 24, value: 10800 }, { from: 60, value: 13800 }, { from: 120, value: 16800 }] },
+    { id: 'prolabore', label: 'Pró-labore do Marcos', kind: 'ativa', origin: 'Pró-labore', gross: 7800, frequency: 'mensal', pessoa: 'conjuge',
+      day: 5, description: 'Pró-labore líquido do Marcos na papelaria.', taxable: true,
+      steps: [{ from: 0, value: 6000 }, { from: 24, value: 7200 }, { from: 60, value: 9200 }, { from: 120, value: 11200 }] },
+    { id: 'bonus', label: 'Bônus anual', kind: 'ativa', origin: 'Bônus', gross: 18000, frequency: 'anual', pessoa: 'titular',
+      day: 20, description: 'Participação nos resultados da Ana, paga em março (tributação exclusiva na fonte).', taxable: false,
       steps: [{ from: 6, value: 12000 }] },
   ];
   let EXPENSES = [
@@ -1193,6 +1198,15 @@ const ENGINE = (() => {
     let t = 0; for (let mm = 0; mm < 12; mm++) its.forEach(it => { t += mensalizado(it, mm); });
     return t / 12;
   }
+  // Os bens da proteção dos bens (ameaça 6) são os da página Patrimônio, com a proteção gravada no próprio bem. Um plano
+  // antigo, com a lista própria da gestão de riscos (riscos.bens.itens), aproveita a proteção do bem de mesmo nome; sem
+  // bens no patrimônio, vale a lista antiga.
+  function bensDoRisco(plan) {
+    const P = (plan || {}).patrimonio || {}, velhos = (((plan || {}).riscos || {}).bens || {}).itens || [];
+    if (!Array.isArray(P.bens) || !P.bens.length) return velhos;
+    const doNome = n => velhos.find(v => String(v.nome || '').trim().toLowerCase() === String(n || '').trim().toLowerCase()) || {};
+    return P.bens.map((b, i) => ({ i, nome: b.nome, valor: +b.mercado || 0, protecao: b.protecao != null ? b.protecao : doNome(b.nome).protecao || '', apolice: b.apolice !== undefined ? b.apolice : doNome(b.nome).apolice || null }));
+  }
   const statusSeguro = (nec, atual) => nec <= 0 || atual >= nec ? 'ok' : atual > 0 ? 'atencao' : 'critico';
   function calculaSeguros(plan) {
     const S = (plan.riscos || {}).seguro; if (!S) return null;
@@ -1221,7 +1235,7 @@ const ENGINE = (() => {
       if (idade == null) acidentes.status = 'pendente';
       const vida = conta(+g.inssMorte || 0, prazoVida, deps.length ? sucessaoPct / 100 * (fin + bens + part) * patr : 0, +g.coberturaVida || 0);
       if (!deps.length) Object.assign(vida, { necessidade: 0, falta: 0, status: 'ok', semDependentes: true });
-      return { nome: g.nome || (g.pessoa === 'conjuge' ? 'Cônjuge' : g.pessoa === 'outro' ? 'Outra pessoa' : 'Titular'), pessoa: g.pessoa || 'titular', idade, participacao: fatia, acidentes, vida };
+      return { nome: g.nome || (g.pessoa === 'outro' ? 'Outra pessoa' : nomesDaFamilia(plan)[g.pessoa === 'conjuge' ? 'conjuge' : 'titular']), pessoa: g.pessoa || 'titular', idade, participacao: fatia, acidentes, vida };
     });
     return { renda, passiva, doFluxo, fin, bens, part, sucessaoPct, deps, prazoVida, taxa: SEGURO.taxa, pessoas,
       somaParticipacao: geradores.reduce((a, g) => a + (num(g.participacao) != null ? +g.participacao : 100 / geradores.length), 0) };
@@ -1256,7 +1270,7 @@ const ENGINE = (() => {
       out.liquidez = { status: { ok: 'ok', atencao: 'atencao', critico: 'critico' }[r.avaliacao] || 'pendente', fin, ben, par, tot, padrao,
         escada: [['D+0', num(r.d0)], ['D+30', num(r.d30)], ['D+60', num(r.d60)], ['D+180', num(r.d180)], ['1 ano', num(r.d360)]].map(([n, v]) => [n, v, v != null && padrao > 0 ? v / padrao : null]) }; }
     // Bens: algum sem proteção, vermelho; algum com proteção insuficiente, atenção; todos protegidos, ok
-    { const itens = (R.bens || {}).itens || [], p = itens.map(b => b.protecao || '');
+    { const itens = bensDoRisco(plan), p = itens.map(b => b.protecao || '');
       const status = !itens.length ? 'pendente' : p.includes('nenhuma') ? 'critico' : p.includes('insuficiente') ? 'atencao' : p.every(x => x === 'total') ? 'ok' : 'pendente';
       out.bens = { status, total: itens.reduce((a, b) => a + (+b.valor || 0), 0), protegido: itens.filter(b => b.protecao === 'total').reduce((a, b) => a + (+b.valor || 0), 0) }; }
     // Renda (seguro de acidentes pessoais) e família (seguro de vida): um cálculo para cada gerador de renda.
@@ -1275,7 +1289,7 @@ const ENGINE = (() => {
       out.terceiros.pct = ti.length ? cob(ti.reduce((a, i) => a + Math.min(+i.atual || 0, +i.ideal), 0), ti.reduce((a, i) => a + +i.ideal, 0)) : null;
       const ri = ITENS_RUINA.map(([k]) => ((R.ruina || {}).itens || {})[k]).filter(v => v in PESO);
       out.ruina.pct = ri.length ? ri.reduce((a, v) => a + PESO[v], 0) / ri.length : null;
-      const bi = ((R.bens || {}).itens || []).filter(b => b.protecao in PESO), bv = bi.reduce((a, b) => a + (+b.valor || 0), 0);
+      const bi = bensDoRisco(plan).filter(b => b.protecao in PESO), bv = bi.reduce((a, b) => a + (+b.valor || 0), 0);
       out.bens.pct = !bi.length ? null : bv > 0 ? bi.reduce((a, b) => a + PESO[b.protecao] * (+b.valor || 0), 0) / bv : bi.reduce((a, b) => a + PESO[b.protecao], 0) / bi.length;
       for (const k of ['renda', 'familia']) out[k].pct = cob(out[k].atual, out[k].necessario);
       RISCOS.forEach(x => { const it = out[x.id]; if (it.status === 'pendente') it.pct = null; else if (it.pct == null) it.pct = NOTA[it.status]; }); }
@@ -1293,10 +1307,6 @@ const ENGINE = (() => {
     terceiros: { avaliado: true, itens: [{ nome: 'Responsabilidade civil profissional', ideal: 400000, atual: 0 }, { nome: 'Responsabilidade civil familiar', ideal: 500000, atual: 0 }] },
     ruina: { itens: { fraude: 'ok', classe: 'atencao', ativo: 'ok', corrosao: '' } },
     liquidez: { avaliacao: 'ok', d0: 60000, d30: 150000, d60: 250000, d180: 380000, d360: 500000 },
-    bens: { itens: [
-      { nome: 'Hyundai Creta', valor: 160000, protecao: 'total', apolice: { seguradora: 'Porto Seguro', numero: '0531.22.118790', cobertura: '100% da tabela FIPE, terceiros R$ 200 mil', premio: 4200, vigencia: 'até mar/2027' } },
-      { nome: 'Terreno em São Sebastião', valor: 100000, protecao: 'total', apolice: null },
-      { nome: 'Apartamento em Mogi (moradia)', valor: 950000, protecao: 'insuficiente', apolice: { seguradora: 'Caixa Seguradora', numero: '', cobertura: 'só o seguro habitacional do financiamento (saldo devedor)', premio: 0, vigencia: '' } }] },
     dependentes: [{ nome: 'Luiza', relacao: 'filho', nasc: '2025-06' }],
     seguro: { renda: null, passiva: null, sucessaoPct: 10, geradores: [
       { nome: 'Ana', pessoa: 'titular', nasc: '', participacao: 60, passivaPct: 100, patrimonioPct: 50, inssInvalidez: 3000, inssMorte: 3000, coberturaInvalidez: 300000, coberturaVida: 500000 },
@@ -1352,8 +1362,10 @@ const ENGINE = (() => {
     comecou: 23, liquidezIdeal: 400000,
     financeiro: [{ nome: 'Nubank', valor: 60000 }, { nome: 'Itaú', valor: 150000 }, { nome: 'BTG Pactual', valor: 530000 }, { nome: 'Icatu Seguros (VGBL)', valor: 120000, tipo: 'vgbl' }],
     participacoes: [{ nome: 'Papelaria Canetinha', valor: 50000 }],
-    bens: [{ nome: 'Hyundai Creta', mercado: 160000, saldoDevedor: 0 }, { nome: 'Terreno em São Sebastião', mercado: 100000, saldoDevedor: 0 },
-      { nome: 'Apartamento em Mogi (moradia)', mercado: 950000, saldoDevedor: 368000, credito: 560000, parcelas: 360, parcela: 4870, juros: 9.5, situacao: 'em_dia' }],
+    bens: [{ nome: 'Hyundai Creta', mercado: 160000, saldoDevedor: 0, protecao: 'total', apolice: { seguradora: 'Porto Seguro', numero: '0531.22.118790', cobertura: '100% da tabela FIPE, terceiros R$ 200 mil', premio: 4200, vigencia: 'até mar/2027' } },
+      { nome: 'Terreno em São Sebastião', mercado: 100000, saldoDevedor: 0, protecao: 'total' },
+      { nome: 'Apartamento em Mogi (moradia)', mercado: 950000, saldoDevedor: 368000, credito: 560000, parcelas: 360, parcela: 4870, juros: 9.5, situacao: 'em_dia',
+        protecao: 'insuficiente', apolice: { seguradora: 'Caixa Seguradora', numero: '', cobertura: 'só o seguro habitacional do financiamento (saldo devedor)', premio: 0, vigencia: '' } }],
     dividas: [],
   };
   // ---- Otimização tributária (capítulo 3 da área do cliente) ----
@@ -1369,6 +1381,7 @@ const ENGINE = (() => {
     reducaoAnual: r => r <= 60000 ? Infinity : r < 88200 ? Math.max(0, 8429.73 - 0.095575 * r) : 0,
     reducaoMensal: r => r <= 5000 ? Infinity : r < 7350 ? Math.max(0, 978.62 - 0.133145 * r) : 0,
     simplificado: 0.2, simplificadoLimite: 17640, simplificadoMensal: 607.20, dependente: 2275.08, instrucao: 3561.50, pgbl: 0.12,
+    inssCLT: [[1621, 0.075], [2902.84, 0.09], [4354.27, 0.12], [8475.55, 0.14]],
     salarioMinimo: 1621, tetoINSS: 8475.55, inssSocio: 0.11, cpp: 0.20, dividendosIsentoMes: 50000, dividendosRetencao: 0.10,
     minimoDe: 600000, minimoAte: 1200000, minimoMax: 0.10,
   };
@@ -1388,15 +1401,48 @@ const ENGINE = (() => {
     return { rend, inss, deps, ded, totDed, lim, desconto, baseC, baseS, completa: c.devido, simplificada: s.devido, modelo: completa ? 'completa' : 'simplificada',
       base: completa ? baseC : baseS, bruto: e.bruto, reducao: e.reducao, devido: e.devido, aliq: rend ? e.devido / rend : 0, sobraPgbl: Math.max(0, pos(p.pgbl) - lim.pgbl), sobraInstr: Math.max(0, pos(p.instr) - lim.instr) };
   }
-  // O imposto de renda da família nas duas estratégias (plan.tributario.ir): os rendimentos de cada pessoa são os mesmos, e
-  // cada estratégia diz quem declara os dependentes (depsCom: o índice da pessoa) e os lançamentos de cada um (instrução,
-  // médicas, PGBL). O número de dependentes vem da página Cliente (riscos.dependentes); sem a lista, do campo dependentes.
-  //   pessoas: [{ nome, rend, inss, outras }], atual e recomendada: { depsCom, lanc: [{ instr, med, pgbl }] }
+  // ---- As pessoas da família e o que cada uma recebe ----
+  // Os nomes vêm da página Cliente: o titular é o primeiro nome do cliente ("Ana Ribeiro", ou "Camila" em "Camila e Rafael
+  // Souza"); o cônjuge, o nome informado ou o segundo nome antes do sobrenome. Casal: plano de família com a idade do cônjuge.
+  const casalDe = plan => (plan || {}).tipo !== 'individual' && +(plan || {}).spouseAge > 0;
+  function nomesDaFamilia(plan) {
+    const partes = String((plan || {}).name || '').split(/\s+e\s+/i).map(n => n.trim().split(/\s+/)[0]).filter(Boolean);
+    return { titular: partes[0] || 'Titular', conjuge: String((plan || {}).conjugeNome || '').trim() || partes[1] || 'Cônjuge' };
+  }
+  const pessoasDaFamilia = plan => ['titular'].concat(casalDe(plan) ? ['conjuge'] : []);
+  const inssCLT = v => { let t = 0, ant = 0; for (const [lim, a] of IR.inssCLT) { if (v > ant) t += (Math.min(v, lim) - ant) * a; ant = lim; } return t; };
+  // O que uma pessoa recebe nos próximos 12 meses, pelas linhas de entrada do Fluxo de caixa que são dela (it.pessoa; sem
+  // pessoa, do titular). Rendimentos tributáveis: as linhas tributáveis, pelo bruto de cada recebimento (sem o bruto, pelo
+  // líquido, e a linha fica em semBruto). INSS: o do salário pela tabela do empregado, o do pró-labore 11%, ambos até o teto.
+  // Pró-labore e dividendos (por mês): as linhas com essas categorias.
+  function rendaDaPessoa(plan, quem) {
+    const out = { trib: 0, inss: 0, linhas: [], semBruto: [], pro: 0, div: 0, linhasPro: [], linhasDiv: [] };
+    (plan.incomes || []).filter(it => (it.pessoa || 'titular') === quem).forEach(it0 => {
+      const it = sortSteps(Object.assign({}, it0)), oc = []; for (let mm = 0; mm < 12; mm++) oc.push(...ocorrencias(it, mm, false));
+      if (!oc.length) return;
+      const bruto = +it.gross > 0 ? +it.gross : null, nome = it.label || 'sem nome', ano = oc.reduce((a, o) => a + (bruto != null ? bruto : o.v), 0);
+      if (it.origin === 'Distribuição de lucros') { out.div += oc.reduce((a, o) => a + o.v, 0) / 12; out.linhasDiv.push(nome); return; }
+      if (it.origin === 'Pró-labore') { out.pro += ano / 12; out.linhasPro.push(nome); }
+      if (it.taxable === false) return;
+      out.trib += ano; out.linhas.push(nome); if (bruto == null) out.semBruto.push(nome);
+      if (bruto != null && it.origin === 'Salário') out.inss += oc.length * inssCLT(bruto);
+      if (bruto != null && it.origin === 'Pró-labore') out.inss += oc.length * Math.min(bruto, IR.tetoINSS) * IR.inssSocio;
+    });
+    return out;
+  }
+  // O imposto de renda da família nas duas estratégias (plan.tributario.ir). As pessoas são as da família (o titular e, num
+  // casal, o cônjuge); os rendimentos tributáveis e o INSS vêm do Fluxo de caixa quando a pessoa tem linhas tributáveis lá, e
+  // só sem elas valem os digitados aqui. Cada estratégia diz quem declara os dependentes (depsCom: o índice da pessoa) e os
+  // lançamentos de cada um (instrução, médicas, PGBL). O número de dependentes vem da página Cliente (riscos.dependentes).
+  //   pessoas: [{ quem, rend, inss, outras }], atual e recomendada: { depsCom, lanc: [{ instr, med, pgbl }] }
+  const dadosIR = (T, quem, i) => (T.pessoas || []).find(p => p.quem === quem) || ((T.pessoas || [])[i] && !(T.pessoas[i] || {}).quem ? T.pessoas[i] : {});
   function irDaFamilia(plan) {
-    const T = ((plan || {}).tributario || {}).ir; if (!T || !(T.pessoas || []).length) return null;
-    const lista = ((plan.riscos || {}).dependentes), nDeps = Array.isArray(lista) ? lista.length : Math.round(pos(T.dependentes));
-    const cen = c => { c = c || {}; const ps = T.pessoas.map((p, i) => { const l = (c.lanc || [])[i] || {};
-        return Object.assign({ nome: p.nome || 'Pessoa ' + (i + 1), pgbl: pos(l.pgbl) }, calculaIR({ rend: p.rend, inss: p.inss, outras: p.outras, deps: +c.depsCom === i ? nDeps : 0, instr: l.instr, med: l.med, pgbl: l.pgbl })); });
+    const T = ((plan || {}).tributario || {}).ir; if (!T) return null;
+    const lista = ((plan.riscos || {}).dependentes), nDeps = Array.isArray(lista) ? lista.length : Math.round(pos(T.dependentes)), nomes = nomesDaFamilia(plan);
+    const base = pessoasDaFamilia(plan).map((quem, i) => { const d = dadosIR(T, quem, i), fx = rendaDaPessoa(plan, quem), doFluxo = fx.linhas.length > 0;
+      return { quem, nome: nomes[quem], doFluxo, linhas: fx.linhas, semBruto: fx.semBruto, rend: doFluxo ? fx.trib : pos(d.rend), inss: doFluxo ? fx.inss : pos(d.inss), outras: pos(d.outras) }; });
+    const cen = c => { c = c || {}; const ps = base.map((p, i) => { const l = (c.lanc || [])[i] || {};
+        return Object.assign({ quem: p.quem, nome: p.nome, doFluxo: p.doFluxo, linhas: p.linhas, semBruto: p.semBruto, pgbl: pos(l.pgbl) }, calculaIR({ rend: p.rend, inss: p.inss, outras: p.outras, deps: +c.depsCom === i ? nDeps : 0, instr: l.instr, med: l.med, pgbl: l.pgbl })); });
       return { pessoas: ps, total: ps.reduce((a, x) => a + x.devido, 0), rend: ps.reduce((a, x) => a + x.rend, 0), depsCom: +c.depsCom }; };
     const atual = cen(T.atual), recomendada = cen(T.recomendada);
     return { nDeps, atual, recomendada, economia: atual.total - recomendada.total };
@@ -1416,15 +1462,19 @@ const ENGINE = (() => {
     const pessoa = inss + irrf + divIR, mes = pessoa + patronal;
     return { pro, div, total: pro + div, inss, irrf, divIR, patronal, pessoa, mes, liquido: pro + div - pessoa, minimo, ano: 12 * mes + minimo };
   }
-  // As duas formas de retirar o mesmo valor (plan.tributario.prolabore): socios: [{ nome, empresa, regime, pro, div, proRec,
-  // faturamento }]. A recomendada mantém o total e muda só a divisão: o pró-labore recomendado e o resto em dividendos.
+  // As duas formas de retirar o mesmo valor (plan.tributario.prolabore): socios: [{ quem, empresa, regime, pro, div, proRec,
+  // faturamento }]. O pró-labore e os dividendos de hoje vêm das linhas do Fluxo de caixa da pessoa (categorias Pró-labore e
+  // Distribuição de lucros); só sem elas valem os digitados aqui. A recomendada mantém o total e muda só a divisão.
   function retiradaDosSocios(plan) {
     const S = (((plan || {}).tributario || {}).prolabore || {}).socios; if (!Array.isArray(S) || !S.length) return null;
-    const socios = S.map((s, i) => { const total = pos(s.pro) + pos(s.div), proRec = Math.min(total, s.proRec == null || s.proRec === '' ? IR.salarioMinimo : pos(s.proRec));
+    const nomes = nomesDaFamilia(plan);
+    const socios = S.map((s0, i) => { const quem = s0.quem || null, fx = quem ? rendaDaPessoa(plan, quem) : null, doFluxo = !!fx && (fx.linhasPro.length + fx.linhasDiv.length) > 0;
+      const s = Object.assign({}, s0, doFluxo ? { pro: fx.pro, div: fx.div } : {});
+      const total = pos(s.pro) + pos(s.div), proRec = Math.min(total, s.proRec == null || s.proRec === '' ? IR.salarioMinimo : pos(s.proRec));
       const atual = calculaRetirada(s.pro, s.div, s.regime), rec = calculaRetirada(proRec, total - proRec, s.regime);
       // fator R: no Simples, a folha (o pró-labore) precisa ser 28% do faturamento para a empresa ficar no Anexo III
       const fat = pos(s.faturamento), fr = v => fat ? v / fat : null;
-      return { nome: s.nome || 'Sócio ' + (i + 1), empresa: s.empresa || '', regime: s.regime || 'simples', atual, rec, economia: atual.ano - rec.ano,
+      return { nome: quem ? nomes[quem] : s.nome || 'Sócio ' + (i + 1), quem, doFluxo, linhas: doFluxo ? fx.linhasPro.concat(fx.linhasDiv) : [], empresa: s.empresa || '', regime: s.regime || 'simples', atual, rec, economia: atual.ano - rec.ano,
         fatorR: s.regime === 'simplesR' && fat ? { atual: fr(pos(s.pro)), rec: fr(proRec), cai: fr(pos(s.pro)) >= 0.28 && fr(proRec) < 0.28 } : null };
     });
     return { socios, economia: socios.reduce((a, s) => a + s.economia, 0) };
@@ -1489,17 +1539,20 @@ const ENGINE = (() => {
   // Tributação de exemplo (família da Ana Ribeiro): valores fictícios. Hoje a Luiza e as despesas médicas estão na declaração
   // do Marcos, que ganha menos; a recomendação leva a Luiza para a Ana e faz um PGBL de 12% para ela. As médicas ficam com o
   // Marcos, titular do plano de saúde. O Marcos é sócio da papelaria e tira parte da renda como pró-labore.
+  // Os rendimentos, o INSS e o pró-labore vêm do Fluxo de caixa do exemplo (salário da Ana, pró-labore do Marcos).
   const TRIBUTARIO_EXEMPLO = {
-    ir: { pessoas: [{ nome: 'Ana', rend: 152100, inss: 12845, outras: 0 }, { nome: 'Marcos', rend: 84000, inss: 9240, outras: 0 }],
+    ir: { pessoas: [{ quem: 'titular', outras: 0 }, { quem: 'conjuge', outras: 0 }],
       atual: { depsCom: 1, lanc: [{ instr: 0, med: 0, pgbl: 0 }, { instr: 0, med: 14800, pgbl: 0 }] },
-      recomendada: { depsCom: 0, lanc: [{ instr: 0, med: 0, pgbl: 18252 }, { instr: 0, med: 14800, pgbl: 0 }] } },
-    prolabore: { socios: [{ nome: 'Marcos', empresa: 'Papelaria Canetinha', regime: 'presumido', pro: 7000, div: 3000, proRec: 1621, faturamento: null }] },
+      recomendada: { depsCom: 0, lanc: [{ instr: 0, med: 0, pgbl: 16848 }, { instr: 0, med: 14800, pgbl: 0 }] } },
+    prolabore: { socios: [{ quem: 'conjuge', empresa: 'Papelaria Canetinha', regime: 'presumido', proRec: 1621, faturamento: null }] },
     sucessao: { itcmd: 4, custos: 8, paraPrevidencia: 300000 },
-    previdencia: { inicial: 120000, aporte: 1521, anos: 20, rent: 10, trocas: 4, aliqComum: 15, comeCotas: true, taxaComum: 0.8, taxaPrev: 0.8 },
+    previdencia: { inicial: 120000, aporte: 1404, anos: 20, rent: 10, trocas: 4, aliqComum: 15, comeCotas: true, taxaComum: 0.8, taxaPrev: 0.8 },
   };
+  // A família do exemplo: um casal, com o nome e a idade do cônjuge (página Cliente)
+  const FAMILIA_EXEMPLO = { tipo: 'familia', spouseAge: 38, conjugeNome: 'Marcos' };
   const ORIGENS_OUT = ORIGENS;
   const config = () => ({ age: CURRENT_AGE, retireAge: RETIRE_AGE, initialBens: INITIAL_BENS, desired: DESIRED, desiredSteps: DESIRED_STEPS, lifeExp: LIFE_EXP, salary: SALARY, salaryGrowth: SAL_G, partValue: PART_VALUE, initialWealth: INITIAL_WEALTH, capacityOverride: CAP_OVERRIDE, rate: R_M, profiles: PROFILES, incomes: INCOMES, expenses: EXPENSES, objectives: OBJ, passive: PASSIVE });
-  return { TODAY, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, PASSIVE, PROFILES, STATUS, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, serieCusto, desiredAt, aplicaAlteracoes, descreveAlteracao, valorAtual, mesDoPlano, RISCOS, NATUREZAS, ITENS_RUINA, RISCOS_EXEMPLO, avaliaRiscos, custoDeVida, SEGURO, RELACOES, calculaSeguros, mesesAteIdade, FASES_VIDA, faseDaVida, sincronizaPatrimonio, PATRIMONIO_EXEMPLO, padraoDeVida, lerCaminho, gravaCaminho, IR, calculaIR, irDaFamilia, REGIMES, calculaRetirada, retiradaDosSocios, PREVIDENCIA, sucessao, simulaPrevidencia, aliqRegressiva, TRIBUTARIO_EXEMPLO, setRetireAge: a => { RETIRE_AGE = a == null ? null : Math.max(CURRENT_AGE, +a); }, financiamentoValido, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
+  return { TODAY, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, PASSIVE, PROFILES, STATUS, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, serieCusto, desiredAt, aplicaAlteracoes, descreveAlteracao, valorAtual, mesDoPlano, RISCOS, NATUREZAS, ITENS_RUINA, RISCOS_EXEMPLO, avaliaRiscos, custoDeVida, SEGURO, RELACOES, calculaSeguros, mesesAteIdade, FASES_VIDA, faseDaVida, sincronizaPatrimonio, PATRIMONIO_EXEMPLO, padraoDeVida, lerCaminho, gravaCaminho, IR, calculaIR, irDaFamilia, REGIMES, calculaRetirada, retiradaDosSocios, PREVIDENCIA, sucessao, simulaPrevidencia, aliqRegressiva, TRIBUTARIO_EXEMPLO, FAMILIA_EXEMPLO, casalDe, nomesDaFamilia, pessoasDaFamilia, rendaDaPessoa, bensDoRisco, setRetireAge: a => { RETIRE_AGE = a == null ? null : Math.max(CURRENT_AGE, +a); }, financiamentoValido, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
 })();
 if (typeof module !== 'undefined') module.exports = ENGINE;
 </script>
@@ -1584,12 +1637,12 @@ const STATUS = { ok: 'Alcançável', adj: 'Alcançável com ajustes', risk: 'Req
 
 // O plano padrão vem do próprio motor: uma só fonte de verdade para os dois lados.
 const PLANO_PADRAO = Object.assign(
-  { name: 'Ana Ribeiro', age: 35, riscos: JSON.parse(JSON.stringify(ENGINE.RISCOS_EXEMPLO)), patrimonio: JSON.parse(JSON.stringify(ENGINE.PATRIMONIO_EXEMPLO)), tributario: JSON.parse(JSON.stringify(ENGINE.TRIBUTARIO_EXEMPLO)), videos: {} },
+  { name: 'Ana Ribeiro', age: 35, tipo: ENGINE.FAMILIA_EXEMPLO.tipo, spouseAge: ENGINE.FAMILIA_EXEMPLO.spouseAge, conjugeNome: ENGINE.FAMILIA_EXEMPLO.conjugeNome, riscos: JSON.parse(JSON.stringify(ENGINE.RISCOS_EXEMPLO)), patrimonio: JSON.parse(JSON.stringify(ENGINE.PATRIMONIO_EXEMPLO)), tributario: JSON.parse(JSON.stringify(ENGINE.TRIBUTARIO_EXEMPLO)), videos: {} },
   JSON.parse(JSON.stringify(ENGINE.config()))
 );
 
 // plano salvo completado com o padrão; o patrimônio detalhado e a tributação não vêm do exemplo (um plano antigo só tem os totais)
-const doSalvo = p => Object.assign(structuredClone(PLANO_PADRAO), { patrimonio: null, tributario: null }, p);
+const doSalvo = p => Object.assign(structuredClone(PLANO_PADRAO), { patrimonio: null, tributario: null, tipo: null, spouseAge: null, conjugeNome: '' }, p);
 let plano = load();
 function load() {
   try { const raw = localStorage.getItem('nl-plano'); if (raw) return doSalvo(JSON.parse(raw)); } catch (e) { }
@@ -2989,6 +3042,7 @@ function htmlLinha(it) {
   let h = `<div class="dh"><h3><span class="kind">${inc ? 'Entrada' : 'Saída ' + (it.group === 'fix' ? 'fixa' : 'ajustável')}${gaveta.novo ? ' · nova' : ''}</span>${esc(it.label || 'Nova linha')}</h3><button class="btn btn-icon" data-gv-fechar title="Fechar">×</button></div>`;
   h += `<div class="frase" id="gvFrase">${fraseItem(it)}</div><div id="gvAviso"></div>`;
   if (inc) h += `<div class="row2">${campo('Categoria', `<select data-gv="origin">${ENGINE.ORIGENS.map(o => opt(o, o, it.origin)).join('')}${gaveta.novo ? opt('__pas', 'Renda contratada na aposentadoria', '') : ''}</select>`)}${campo('Tipo', `<select data-gv="kind">${opt('ativa', 'Ativa (trabalho)', it.kind || 'ativa')}${opt('passiva', 'Passiva (patrimônio)', it.kind)}</select>`)}</div>`;
+  if (inc && conjuge()) { const nm = ENGINE.nomesDaFamilia(plano); h += campo('De quem é a renda', `<select data-gv="pessoa">${opt('titular', nm.titular, it.pessoa || 'titular')}${opt('conjuge', nm.conjuge, it.pessoa)}</select>`); }
   if (inc) h += '<div class="deriv" style="margin:-6px 0 12px">Ativa depende do trabalho do cliente e para quando ele se aposenta (salário, pró-labore, lucros da empresa onde trabalha). Passiva vem do patrimônio e continua depois (aluguéis, dividendos).</div>';
   else h += campo('Tipo', `<select data-gv="group">${opt('fix', 'Fixa', it.group)}${opt('adj', 'Ajustável', it.group || 'adj')}</select>`) +
     '<div class="deriv" style="margin:-6px 0 12px">Fixa: compromisso que não dá para cortar sem mudar de vida (aluguel, escola, plano de saúde, impostos). Ajustável: pode ser reduzida se faltar dinheiro (mercado, lazer, assinaturas).</div>';
@@ -3024,7 +3078,7 @@ function htmlLinha(it) {
   }
   const exc = it.exc ? Object.keys(it.exc).sort((a, b) => parseFloat(a.replace(':', '.')) - parseFloat(b.replace(':', '.'))) : [];
   if (exc.length) h += `<div class="blk"><h4>Ajustes de uma só ocorrência</h4><div class="chipset">${exc.map(k => `<span class="chipd">${k.includes(':') ? 'semana de ' + semanaDaChave(parseInt(k, 10), +k.split(':')[1]) : monthsLabel(parseInt(k, 10))}: ${money(it.exc[k])}<button data-gvx-rm="${k}" title="Remover">×</button></span>`).join('')}</div></div>`;
-  if (inc) h += `<div class="blk"><div class="row2">${campo('Bruto por recebimento (opcional)', `<input data-gv="gross" data-money type="text" inputmode="decimal" value="${money(it.gross || 0)}">`)}${campo('Tributável (opcional)', `<select data-gv="taxable">${opt('1', 'Sim', it.taxable !== false ? '1' : '0')}${opt('0', 'Não', it.taxable !== false ? '1' : '0')}</select>`)}</div><div class="deriv" style="margin-bottom:4px">O fluxo de caixa usa sempre o valor líquido, que é o da planilha.</div></div>`;
+  if (inc) h += `<div class="blk"><div class="row2">${campo('Bruto por recebimento', `<input data-gv="gross" data-money type="text" inputmode="decimal" value="${money(it.gross || 0)}">`)}${campo('Tributável no imposto de renda', `<select data-gv="taxable">${opt('1', 'Sim', it.taxable !== false ? '1' : '0')}${opt('0', 'Não', it.taxable !== false ? '1' : '0')}</select>`)}</div><div class="deriv" style="margin-bottom:4px">O fluxo de caixa usa o valor líquido, o da planilha. O bruto e "tributável" vão para a Otimização tributária: os rendimentos tributáveis e o INSS de cada pessoa saem daqui, e o pró-labore e a distribuição de lucros alimentam a página dos sócios.</div></div>`;
   h += campo('Descrição', `<textarea data-gv="description" placeholder="Observações que ajudam a explicar esta linha ao cliente.">${esc(it.description || '')}</textarea>`);
   return h + rodape();
 }
@@ -3095,6 +3149,7 @@ function campoGaveta(e) {
   if (k === 'origin' && t.value !== '__pas') {                 // a categoria já diz se a renda é do trabalho ou do patrimônio
     it.origin = t.value;
     if (['Aluguéis', 'Rendimentos recorrentes'].includes(t.value)) it.kind = 'passiva';
+    if (t.value === 'Distribuição de lucros') it.taxable = false;   // lucros e dividendos são isentos no ajuste anual
     else if (t.value !== 'Outras receitas') it.kind = 'ativa';
     renderAll(); renderGaveta(); return;
   }
@@ -3367,10 +3422,19 @@ document.addEventListener('change', e => {
 // data-r gravam direto no plano. O patrimônio da sucessão vem da página Patrimônio, e os dependentes, da página Cliente.
 const PREV_PADRAO = { inicial: 0, aporte: 0, anos: 20, rent: 10, trocas: 4, aliqComum: 15, comeCotas: true, taxaComum: 0.8, taxaPrev: 0.8 };
 const novoTributario = () => {
-  const nomes = [(plano.name || '').trim().split(/\s+/)[0] || 'Titular'].concat(conjuge() ? ['Cônjuge'] : []), lanc = () => nomes.map(() => ({ instr: 0, med: 0, pgbl: 0 }));
-  return { ir: { pessoas: nomes.map(nome => ({ nome, rend: 0, inss: 0, outras: 0 })), atual: { depsCom: 0, lanc: lanc() }, recomendada: { depsCom: 0, lanc: lanc() } },
+  const ps = ENGINE.pessoasDaFamilia(plano), lanc = () => ps.map(() => ({ instr: 0, med: 0, pgbl: 0 }));
+  return { ir: { pessoas: ps.map(quem => ({ quem, rend: 0, inss: 0, outras: 0 })), atual: { depsCom: 0, lanc: lanc() }, recomendada: { depsCom: 0, lanc: lanc() } },
     prolabore: { socios: [] }, sucessao: { itcmd: 4, custos: 8, paraPrevidencia: 0 }, previdencia: Object.assign({}, PREV_PADRAO) };
 };
+// As pessoas do imposto de renda são as da família (página Cliente): a lista gravada acompanha, uma entrada por pessoa
+// (quem: titular ou cônjuge), para os lançamentos de cada uma ficarem no mesmo índice.
+function alinhaPessoasIR(ir) {
+  const velhas = ir.pessoas || [];
+  ir.pessoas = ENGINE.pessoasDaFamilia(plano).map((quem, i) => Object.assign({ outras: 0 }, velhas.find(p => p.quem === quem) || (velhas[i] && !velhas[i].quem ? velhas[i] : {}), { quem }));
+  ESTRATEGIAS.forEach(([c]) => { const x = ir[c] = ir[c] || { depsCom: 0, lanc: [] }; x.lanc = x.lanc || []; ir.pessoas.forEach((p, i) => { x.lanc[i] = x.lanc[i] || { instr: 0, med: 0, pgbl: 0 }; }); x.lanc.length = ir.pessoas.length; if (+x.depsCom >= ir.pessoas.length) x.depsCom = 0; });
+}
+// o valor que vem do Fluxo de caixa aparece como texto, com o caminho para mudá-lo lá
+const doFluxoC = (v, linhas, falta) => `<div class="tbc-fx"><b>${fmt(v)}</b><small>do Fluxo de caixa: ${esc(linhas.join(', '))}${falta && falta.length ? ` · <span style="color:var(--nl-orange-600)">sem o bruto em ${esc(falta.join(', '))} (usei o líquido)</span>` : ''} · <button class="link" data-ir="fluxo">mudar no Fluxo</button></small></div>`;
 const ESTRATEGIAS = [['atual', 'Hoje'], ['recomendada', 'Recomendado']];
 function resumoIRC() {
   const r = ENGINE.irDaFamilia(plano); if (!r) return 'Cadastre as pessoas que declaram imposto de renda.';
@@ -3392,36 +3456,40 @@ function renderTributarioC() {
   const el = document.getElementById('tribC'); if (!el) return;
   const T = plano.tributario;
   if (!T) { el.innerHTML = `<div class="bloco"><div class="note">Nada registrado ainda. <button class="btn btn-tertiary btn-small" data-texemplo>Usar o exemplo como ponto de partida</button> <button class="btn btn-tertiary btn-small" data-tnovo>Começar do zero</button></div></div>`; return; }
-  const ir = T.ir = T.ir || { pessoas: [], atual: { depsCom: 0, lanc: [] }, recomendada: { depsCom: 0, lanc: [] } }, ps = ir.pessoas = ir.pessoas || [];
-  const r = ENGINE.irDaFamilia(plano), quem = ps.map((p, i) => [i, p.nome || 'Pessoa ' + (i + 1)]), cp = (n, h) => `<div class="field"><label>${n}</label>${h}</div>`;
+  const ir = T.ir = T.ir || { pessoas: [], atual: { depsCom: 0, lanc: [] }, recomendada: { depsCom: 0, lanc: [] } }; alinhaPessoasIR(ir);
+  const ps = ir.pessoas, r = ENGINE.irDaFamilia(plano), nomes = ENGINE.nomesDaFamilia(plano), quem = ps.map((p, i) => [i, nomes[p.quem]]), cp = (n, h) => `<div class="field"><label>${n}</label>${h}</div>`;
   const deps = ((plano.riscos || {}).dependentes || []), depsTxt = Array.isArray(plano.riscos && plano.riscos.dependentes) ? (deps.length ? deps.length + ' (' + deps.map(d => esc(d.nome || 'sem nome')).join(', ') + ')' : 'nenhum') : 'a lista ainda não foi preenchida';
-  const pessoas = ps.length ? `<table class="rkc-tab" style="min-width:0"><thead><tr><th>Quem declara</th><th>Rendimentos tributáveis no ano</th><th>INSS ou regime próprio no ano</th><th>Outras deduções no ano ${tip('Pensão alimentícia judicial e livro-caixa. Valem igual nas duas estratégias.')}</th><th></th></tr></thead><tbody>
-    ${ps.map((p, i) => `<tr><td>${campoR(`tributario.ir.pessoas.${i}.nome`, 'texto', ' placeholder="nome"')}</td><td>${campoR(`tributario.ir.pessoas.${i}.rend`, 'reais')}</td><td>${campoR(`tributario.ir.pessoas.${i}.inss`, 'reais0', ' placeholder="sem contribuição"')}</td><td>${campoR(`tributario.ir.pessoas.${i}.outras`, 'reais0', ' placeholder="nenhuma"')}</td><td><button class="btn btn-icon" data-trm="pessoa:${i}" title="Remover">×</button></td></tr>`).join('')}</tbody></table>` : '<div class="pc-vazio">Ninguém cadastrado ainda.</div>';
+  const pessoas = ps.length ? `<table class="rkc-tab" style="min-width:0"><thead><tr><th>Quem declara ${tip('O titular e, num casal, o cônjuge, com os nomes da página Cliente.')}</th><th>Rendimentos tributáveis no ano</th><th>INSS ou regime próprio no ano</th><th>Outras deduções no ano ${tip('Pensão alimentícia judicial e livro-caixa. Valem igual nas duas estratégias.')}</th></tr></thead><tbody>
+    ${ps.map((p, i) => { const x = r.atual.pessoas[i]; return `<tr><td class="txt">${esc(nomes[p.quem])}</td>
+      <td>${x.doFluxo ? doFluxoC(x.rend, x.linhas, x.semBruto) : campoR(`tributario.ir.pessoas.${i}.rend`, 'reais', ' placeholder="ou cadastre a renda no Fluxo de caixa"')}</td>
+      <td>${x.doFluxo ? doFluxoC(x.inss, x.linhas) : campoR(`tributario.ir.pessoas.${i}.inss`, 'reais0', ' placeholder="sem contribuição"')}</td><td>${campoR(`tributario.ir.pessoas.${i}.outras`, 'reais0', ' placeholder="nenhuma"')}</td></tr>`; }).join('')}</tbody></table>` : '<div class="pc-vazio">Ninguém cadastrado ainda.</div>';
   // os lançamentos de cada estratégia: uma coluna por pessoa, hoje e recomendado lado a lado
-  const lanc = (n, k, dica) => `<tr><td>${n}${dica ? ' ' + tip(dica) : ''}</td>${ESTRATEGIAS.map(([c]) => ps.map((p, i) => `<td>${campoR(`tributario.ir.${c}.lanc.${i}.${k}`, 'reais0', ' placeholder="—"')}${k === 'pgbl' && c === 'recomendada' && +p.inss > 0 && Math.abs(+lerR(`tributario.ir.recomendada.lanc.${i}.pgbl`) - 0.12 * (+p.rend || 0)) > 1 ? `<button class="link" data-tpgbl="${i}" title="12% da renda tributável">usar 12%: ${fmt(0.12 * (+p.rend || 0))}</button>` : ''}</td>`).join('')).join('')}</tr>`;
+  const lanc = (n, k, dica) => `<tr><td>${n}${dica ? ' ' + tip(dica) : ''}</td>${ESTRATEGIAS.map(([c]) => ps.map((p, i) => `<td>${campoR(`tributario.ir.${c}.lanc.${i}.${k}`, 'reais0', ' placeholder="—"')}${k === 'pgbl' && c === 'recomendada' && r.atual.pessoas[i].inss > 0 && Math.abs(+lerR(`tributario.ir.recomendada.lanc.${i}.pgbl`) - 0.12 * r.atual.pessoas[i].rend) > 1 ? `<button class="link" data-tpgbl="${i}" title="12% da renda tributável">usar 12%: ${fmt(0.12 * r.atual.pessoas[i].rend)}</button>` : ''}</td>`).join('')).join('')}</tr>`;
   const calc = (n, f) => `<tr class="total"><td>${n}</td>${ESTRATEGIAS.map(([c]) => ps.map((p, i) => `<td>${r ? f(r[c].pessoas[i]) : '—'}</td>`).join('')).join('')}</tr>`;
   const estrategias = ps.length ? `<div class="tablewrap"><table class="rkc-tab tbc-lanc"><thead><tr><th></th>${ESTRATEGIAS.map(([, n]) => `<th colspan="${ps.length}" class="tbc-est">${n}</th>`).join('')}</tr>
-      <tr><th>Lançamento</th>${ESTRATEGIAS.map(() => ps.map((p, i) => `<th>${esc(p.nome || 'Pessoa ' + (i + 1))}</th>`).join('')).join('')}</tr></thead><tbody>
+      <tr><th>Lançamento</th>${ESTRATEGIAS.map(() => ps.map(p => `<th>${esc(nomes[p.quem])}</th>`).join('')).join('')}</tr></thead><tbody>
       <tr><td>Dependentes ${tip('Os dependentes da página Cliente entram na declaração de uma pessoa só. Na recomendada, normalmente na de quem paga a maior alíquota.')}</td>${ESTRATEGIAS.map(([c]) => `<td colspan="${ps.length}">${selR(`tributario.ir.${c}.depsCom`, quem, 'num')}</td>`).join('')}</tr>
       ${lanc('Despesas médicas', 'med', 'Sem limite. Só deduz quem pagou: a do titular do plano de saúde fica com ele.')}${lanc('Instrução', 'instr', 'Até ' + fmt(ENGINE.IR.instrucao) + ' por pessoa (o declarante e cada dependente).')}${lanc('PGBL no ano', 'pgbl', 'Até 12% da renda tributável, para quem contribui ao INSS ou a regime próprio.')}
       ${calc('Modelo', p => p.modelo)}${calc('Imposto devido', p => fmt(p.devido))}</tbody></table></div>` : '';
   // pró-labore e dividendos
   const socios = (T.prolabore = T.prolabore || { socios: [] }).socios = T.prolabore.socios || [];
-  const socio = (s, i) => { const c = `tributario.prolabore.socios.${i}.`;
-    return `<div class="pc-item"><div class="grid g4">${cp('Sócio', campoR(c + 'nome', 'texto', ' placeholder="nome"'))}${cp('Empresa', campoR(c + 'empresa', 'texto', ' placeholder="nome da empresa"'))}${cp('Regime', selR(c + 'regime', ENGINE.REGIMES))}
+  const rs = ENGINE.retiradaDosSocios(plano), nomesS = ENGINE.nomesDaFamilia(plano), quemS = ENGINE.pessoasDaFamilia(plano).map(q => [q, nomesS[q]]);
+  const socio = (s, i) => { const c = `tributario.prolabore.socios.${i}.`, x = rs && rs.socios[i];
+    if (!s.quem && !s.nome) s.quem = 'titular';
+    return `<div class="pc-item"><div class="grid g4">${cp('Sócio', s.quem || !s.nome ? selR(c + 'quem', quemS) : campoR(c + 'nome', 'texto', ' placeholder="nome"'))}${cp('Empresa', campoR(c + 'empresa', 'texto', ' placeholder="nome da empresa"'))}${cp('Regime', selR(c + 'regime', ENGINE.REGIMES))}
       ${s.regime === 'simplesR' ? cp('Faturamento por mês ' + tip('Para o fator R: no Simples, a folha (o pró-labore) precisa ser 28% do faturamento para a empresa ficar no Anexo III.'), campoR(c + 'faturamento', 'reais')) : '<div></div>'}
-      ${cp('Pró-labore hoje (por mês)', campoR(c + 'pro', 'reais'))}${cp('Dividendos hoje (por mês)', campoR(c + 'div', 'reais0', ' placeholder="nenhum"'))}${cp('Pró-labore recomendado', campoR(c + 'proRec', 'reais0', ' placeholder="vazio: salário mínimo, ' + fmt(ENGINE.IR.salarioMinimo) + '"'))}
+      ${x && x.doFluxo ? cp('Pró-labore hoje (por mês)', doFluxoC(x.atual.pro, x.linhas)) + cp('Dividendos hoje (por mês)', doFluxoC(x.atual.div, x.linhas)) : cp('Pró-labore hoje (por mês)', campoR(c + 'pro', 'reais', ' placeholder="ou cadastre no Fluxo de caixa"')) + cp('Dividendos hoje (por mês)', campoR(c + 'div', 'reais0', ' placeholder="nenhum"'))}${cp('Pró-labore recomendado', campoR(c + 'proRec', 'reais0', ' placeholder="vazio: salário mínimo, ' + fmt(ENGINE.IR.salarioMinimo) + '"'))}
       <div class="field"><label>&nbsp;</label><button class="btn btn-icon" data-trm="socio:${i}" title="Remover">×</button></div></div></div>`; };
   // sucessão: o patrimônio vem da página Patrimônio
   const S = T.sucessao = T.sucessao || { itcmd: 4, custos: 8, paraPrevidencia: 0 }, su = ENGINE.sucessao(plano);
   const prevFin = ((plano.patrimonio || {}).financeiro || []).filter(x => ENGINE.PREVIDENCIA.includes(x.tipo));
   const V = T.previdencia = T.previdencia || Object.assign({}, PREV_PADRAO), pv = (k, n, extra, tipo) => cp(n, campoR('tributario.previdencia.' + k, tipo || 'num', extra));
-  el.innerHTML = `<div class="bloco"><h3>Imposto de renda da família</h3><div class="sub">Os rendimentos e o INSS de cada pessoa, da declaração. Abaixo, os lançamentos hoje e na estratégia recomendada: quem declara os dependentes, as despesas e o PGBL. Regras de ${ENGINE.IR.ano} (declaração de ${ENGINE.IR.ano + 1}).</div>
-      ${pessoas}<button class="btn btn-step" data-tadd="pessoa">+ pessoa</button>
+  el.innerHTML = `<div class="bloco"><h3>Imposto de renda da família</h3><div class="sub">Os rendimentos tributáveis e o INSS de cada pessoa vêm do Fluxo de caixa (o bruto das rendas dela); sem rendas lá, informe aqui. Abaixo, os lançamentos hoje e na estratégia recomendada: quem declara os dependentes, as despesas e o PGBL. Regras de ${ENGINE.IR.ano} (declaração de ${ENGINE.IR.ano + 1}).</div>
+      ${pessoas}
       <div class="rkc-calc" style="margin:12px 0">Dependentes, da página Cliente: ${depsTxt}. <button class="link" data-ir="cliente">Editar na página Cliente</button></div>
       ${estrategias}<div class="rkc-calc" id="tbcIR">${resumoIRC()}</div>
       <div class="pc-acoes"><button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="ir">Ver na tela do cliente</button></div></div>
-    <div class="bloco"><h3>Pró-labore e dividendos</h3><div class="sub">Para cada sócio, a retirada de hoje e o pró-labore recomendado; o resto da mesma retirada vem como dividendos.</div>
+    <div class="bloco"><h3>Pró-labore e dividendos</h3><div class="sub">Para cada sócio, a retirada de hoje e o pró-labore recomendado; o resto da mesma retirada vem como dividendos. A retirada de hoje vem das linhas de pró-labore e de distribuição de lucros da pessoa no Fluxo de caixa.</div>
       <div class="pc-lista">${socios.map(socio).join('') || '<div class="pc-vazio">Nenhum sócio cadastrado.</div>'}</div><button class="btn btn-step" data-tadd="socio">+ sócio</button>
       <div class="rkc-calc" id="tbcPro">${resumoProC()}</div>
       <div class="pc-acoes"><button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="prolabore">Ver na tela do cliente</button></div></div>
@@ -3451,14 +3519,9 @@ document.addEventListener('click', e => {
   const T = plano.tributario, b = e.target.closest('[data-tadd],[data-trm],[data-texemplo],[data-tnovo],[data-tpgbl],[data-tprev-aporte]'); if (!b) return;
   if (b.dataset.texemplo != null) plano.tributario = structuredClone(ENGINE.TRIBUTARIO_EXEMPLO);
   else if (b.dataset.tnovo != null) plano.tributario = novoTributario();
-  else if (b.dataset.tadd === 'pessoa') { const ir = T.ir; ir.pessoas.push({ nome: '', rend: 0, inss: 0, outras: 0 }); ESTRATEGIAS.forEach(([c]) => { ir[c] = ir[c] || { depsCom: 0, lanc: [] }; ir[c].lanc = ir[c].lanc || []; ir[c].lanc[ir.pessoas.length - 1] = { instr: 0, med: 0, pgbl: 0 }; }); }
-  else if (b.dataset.tadd === 'socio') T.prolabore.socios.push({ nome: '', empresa: '', regime: 'simples', pro: 0, div: 0, proRec: null, faturamento: null });
-  else if (b.dataset.trm) {
-    const [o, k] = b.dataset.trm.split(':'), i = +k;
-    if (o === 'socio') T.prolabore.socios.splice(i, 1);
-    else { T.ir.pessoas.splice(i, 1); ESTRATEGIAS.forEach(([c]) => { const x = T.ir[c]; if (!x) return; (x.lanc || []).splice(i, 1); if (+x.depsCom === i) x.depsCom = 0; else if (+x.depsCom > i) x.depsCom = +x.depsCom - 1; }); }
-  }
-  else if (b.dataset.tpgbl != null) { const i = +b.dataset.tpgbl; ENGINE.gravaCaminho(plano, `tributario.ir.recomendada.lanc.${i}.pgbl`, Math.round(0.12 * (+T.ir.pessoas[i].rend || 0) * 100) / 100); }
+  else if (b.dataset.tadd === 'socio') T.prolabore.socios.push({ quem: 'titular', empresa: '', regime: 'simples', pro: 0, div: 0, proRec: null, faturamento: null });
+  else if (b.dataset.trm) T.prolabore.socios.splice(+b.dataset.trm.split(':')[1], 1);
+  else if (b.dataset.tpgbl != null) { const i = +b.dataset.tpgbl, rend = ENGINE.irDaFamilia(plano).atual.pessoas[i].rend; ENGINE.gravaCaminho(plano, `tributario.ir.recomendada.lanc.${i}.pgbl`, Math.round(0.12 * rend * 100) / 100); }
   else if (b.dataset.tprevAporte != null) T.previdencia.aporte = +b.dataset.tprevAporte;
   renderAll();
 });
@@ -3551,10 +3614,14 @@ function renderRiscosC() {
     <div class="grid g3"><div class="field"><label>Avaliação</label>${selR('riscos.liquidez.avaliacao', [['', 'não avaliado'], ['ok', 'Liquidez em dia'], ['atencao', 'Neutra (atenção)'], ['critico', 'Preocupante (crítico)']])}</div></div>
     <div class="grid" style="grid-template-columns:repeat(5,1fr);margin-top:12px">${[['d0', 'D+0'], ['d30', 'D+30'], ['d60', 'D+60'], ['d180', 'D+180'], ['d360', '1 ano']].map(([k, n], j) => { const m = L.escada[j][2]; return `<div class="field"><label>Acessível em ${n}${m != null ? ` <b style="color:var(--nl-navy-900)">· ${(m < 10 ? Math.round(m * 10) / 10 : Math.round(m)).toLocaleString('pt-BR')}×</b>` : ''}</label>${campoR('riscos.liquidez.' + k, 'reais')}</div>`; }).join('')}</div>
     <div class="rkc-calc">O cliente vê cada valor em vezes o padrão de vida mensal: ${L.padrao > 0 ? f(L.padrao) + ', o custo de vida da reserva (item 1)' : 'preencha o custo de vida no item 1'}.</div></div>`);
+  // os bens são os da página Patrimônio; a proteção e a apólice ficam gravadas no próprio bem (um plano antigo traz a
+  // proteção da lista que a gestão de riscos tinha, pelo nome do bem)
+  const pb = (plano.patrimonio || {}).bens || [];
+  ENGINE.bensDoRisco(plano).forEach(b => { const x = pb[b.i]; if (!x) return; if (x.protecao == null && b.protecao) x.protecao = b.protecao; if (x.apolice === undefined && b.apolice) x.apolice = b.apolice; });
   blocos.push(`<div class="bloco" id="rkc-bens"><h3>6. Proteção dos bens${stC(it.bens.status)}</h3>
-    <table class="rkc-tab" style="min-width:0"><thead><tr><th>Bem</th><th>Valor</th><th>Proteção</th><th></th></tr></thead><tbody>${((R.bens || {}).itens || []).map((b, i) => `<tr><td>${campoR(`riscos.bens.itens.${i}.nome`, 'texto')}</td><td>${campoR(`riscos.bens.itens.${i}.valor`, 'reais')}</td><td>${selR(`riscos.bens.itens.${i}.protecao`, [['', 'não avaliado'], ['total', 'Protegido'], ['insuficiente', 'Proteção insuficiente'], ['nenhuma', 'Sem proteção']])}</td><td><button class="btn btn-icon" data-rrm="riscos.bens.itens.${i}">×</button></td></tr>
-      ${b.protecao && b.protecao !== 'nenhuma' ? `<tr><td colspan="4"><div class="rkc-ap">${campoR(`riscos.bens.itens.${i}.apolice.seguradora`, 'texto', ' placeholder="seguradora"')}${campoR(`riscos.bens.itens.${i}.apolice.numero`, 'texto', ' placeholder="nº da apólice"')}${campoR(`riscos.bens.itens.${i}.apolice.cobertura`, 'texto', ' placeholder="cobertura"')}${campoR(`riscos.bens.itens.${i}.apolice.premio`, 'reais', ' placeholder="prêmio anual"')}${campoR(`riscos.bens.itens.${i}.apolice.vigencia`, 'texto', ' placeholder="vigência"')}</div></td></tr>` : ''}`).join('')}</tbody></table>
-    <button class="btn btn-step" data-radd="riscos.bens.itens">+ bem</button><div class="rkc-calc">Em dia se todos estão protegidos; atenção se algum tem proteção insuficiente; crítico se algum está sem proteção.</div></div>`);
+    ${pb.length ? `<table class="rkc-tab" style="min-width:0"><thead><tr><th>Bem</th><th>Valor de mercado</th><th>Proteção</th></tr></thead><tbody>${pb.map((b, i) => `<tr><td class="txt">${esc(b.nome || 'Bem sem nome')}</td><td class="txt">${fmt(+b.mercado || 0)}</td><td>${selR(`patrimonio.bens.${i}.protecao`, [['', 'não avaliado'], ['total', 'Protegido'], ['insuficiente', 'Proteção insuficiente'], ['nenhuma', 'Sem proteção']])}</td></tr>
+      ${b.protecao && b.protecao !== 'nenhuma' ? `<tr><td colspan="3"><div class="rkc-ap">${campoR(`patrimonio.bens.${i}.apolice.seguradora`, 'texto', ' placeholder="seguradora"')}${campoR(`patrimonio.bens.${i}.apolice.numero`, 'texto', ' placeholder="nº da apólice"')}${campoR(`patrimonio.bens.${i}.apolice.cobertura`, 'texto', ' placeholder="cobertura"')}${campoR(`patrimonio.bens.${i}.apolice.premio`, 'reais', ' placeholder="prêmio anual"')}${campoR(`patrimonio.bens.${i}.apolice.vigencia`, 'texto', ' placeholder="vigência"')}</div></td></tr>` : ''}`).join('')}</tbody></table>` : '<div class="pc-vazio">Nenhum bem na página Patrimônio.</div>'}
+    <div class="rkc-calc" style="margin-top:10px">Os bens, com o valor de mercado, vêm da página Patrimônio. <button class="link" data-ir="patrimonio">Cadastrar ou mudar um bem</button></div><div class="rkc-calc">Em dia se todos estão protegidos; atenção se algum tem proteção insuficiente; crítico se algum está sem proteção.</div></div>`);
   blocos.push(...blocosSeguro(it, R));
   const P = Object.assign({}, a.pesos);
   // uma ameaça por vez: o resumo, a ameaça escolhida (com anterior e próxima) e os pesos, recolhidos
@@ -3586,7 +3653,7 @@ function blocosSeguro(it, R) {
     <div class="grid g3"><div class="field"><label>Renda que deseja proteger (família, por mês)</label>${campoR('riscos.seguro.renda', 'reais', ` placeholder="vazio: ${f(s.doFluxo.renda)}, a renda do trabalho no fluxo"`)}</div>
       <div class="field"><label>Renda passiva (aluguéis e negócios, por mês)</label>${campoR('riscos.seguro.passiva', 'reais', ` placeholder="vazio: ${f(s.doFluxo.passiva)}, a renda passiva no fluxo"`)}</div></div>
     ${G.map((g, i) => { const c = `riscos.seguro.geradores.${i}.`, cp = (n, h) => `<div class="field"><label>${n}</label>${h}</div>`; return `<div class="rkc-ger">
-      ${cp('Gerador de renda', campoR(c + 'nome', 'texto', ' placeholder="nome"'))}${cp('Quem', selR(c + 'pessoa', quem))}${cp('Nascimento (vazio: idade do plano)', campoR(c + 'nasc', 'texto', ' type="month"'))}
+      ${cp('Gerador de renda', campoR(c + 'nome', 'texto', ` placeholder="${g.pessoa === 'outro' ? 'nome' : 'vazio: ' + esc(ENGINE.nomesDaFamilia(plano)[g.pessoa === 'conjuge' ? 'conjuge' : 'titular'])}"`))}${cp('Quem', selR(c + 'pessoa', quem))}${cp('Nascimento (vazio: idade do plano)', campoR(c + 'nasc', 'texto', ' type="month"'))}
       ${cp('% da renda da família', pct(c + 'participacao'))}${cp('% da renda passiva', pct(c + 'passivaPct'))}${cp('% do patrimônio', pct(c + 'patrimonioPct'))}
       ${cp('INSS por invalidez', campoR(c + 'inssInvalidez', 'reais'))}${cp('Cobertura atual de invalidez por acidente', campoR(c + 'coberturaInvalidez', 'reais'))}
       <button class="btn btn-icon" data-rrm="riscos.seguro.geradores.${i}" title="Remover">×</button></div>`; }).join('')}
@@ -3744,7 +3811,7 @@ document.getElementById('btnComoCliente').addEventListener('click', () => gravar
 const conjuge = () => plano.tipo !== 'individual' && +plano.spouseAge > 0;
 function aplicaTipo() {
   const so = (plano.tipo || (+plano.spouseAge > 0 ? 'familia' : 'individual')) === 'individual';
-  document.getElementById('f-spouse').closest('.field').hidden = so;
+  document.getElementById('f-spouse').closest('.field').hidden = so; document.getElementById('f-conjugeNome').closest('.field').hidden = so;
   document.getElementById('notaCasal').hidden = so;
 }
 function fillFields() {
@@ -3757,6 +3824,7 @@ function fillFields() {
   document.getElementById('f-retire').value = plano.retireAge == null ? '' : plano.retireAge;
   document.getElementById('f-comecou').value = plano.patrimonio && plano.patrimonio.comecou != null ? plano.patrimonio.comecou : '';
   document.getElementById('f-spouse').value = plano.spouseAge == null ? '' : plano.spouseAge;
+  document.getElementById('f-conjugeNome').value = plano.conjugeNome || '';
   document.getElementById('f-lifeExp').value = plano.lifeExp;
   document.getElementById('f-desired').value = plano.desired ? money(plano.desired) : '';
   document.getElementById('f-rate').value = (plano.rate * 100).toFixed(2);

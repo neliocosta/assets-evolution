@@ -11,6 +11,8 @@ além das fontes do Google, e abrem direto no navegador.
 ## Por onde começar
 
 - `node verificar.js` confere as invariantes do motor sem abrir o navegador.
+- `VARIAVEIS.md` é o inventário das variáveis do plano: onde cada uma é informada (um lugar só) e quem a usa. Consulte
+  antes de criar um campo novo.
 - `PENDENCIAS.md` lista o que falta, em ordem de prioridade, com o contexto dos testes com usuários.
 - `node sync-motor.js` copia o motor da tela do cliente para a do consultor. **Rode sempre que mexer no motor**:
   as duas telas são autocontidas e por isso carregam uma cópia cada.
@@ -46,8 +48,10 @@ a comparação de quanto para quanto ao lado; depois, hoje e o recomendado lado 
 a conta. No portal, a página Otimização tributária (passo 7) cadastra tudo em `plano.tributario`; as contas ficam no
 motor e valem para 2026 (declaração de 2027), com os parâmetros em `ENGINE.IR`:
 
-- **Imposto de renda da família** (`ENGINE.irDaFamilia`): os rendimentos tributáveis, o INSS e as outras deduções de cada
-  pessoa, e, em cada estratégia (hoje e recomendada), quem declara os dependentes (a lista da página Cliente) e as
+- **Imposto de renda da família** (`ENGINE.irDaFamilia`): as pessoas são as da família (titular e, num casal, o cônjuge,
+  com os nomes da página Cliente). Os rendimentos tributáveis e o INSS de cada uma vêm do Fluxo de caixa
+  (`ENGINE.rendaDaPessoa`: o bruto das rendas tributáveis dela nos próximos 12 meses; INSS do salário pela tabela do
+  empregado e do pró-labore a 11%); só sem rendas lá valem os digitados. As outras deduções são de cada pessoa, e, em cada estratégia (hoje e recomendada), quem declara os dependentes (a lista da página Cliente) e as
   despesas médicas, a instrução e o PGBL de cada um. `ENGINE.calculaIR` faz a declaração completa e a simplificada e fica
   com a de menor imposto: tabela anual (a mensal × 12), redução da Lei 15.270 (zera até R$ 60 mil por ano e cai em linha
   reta até R$ 88.200), desconto simplificado de 20% até R$ 17.640, R$ 2.275,08 por dependente, instrução até R$ 3.561,50
@@ -193,6 +197,7 @@ cada tela ouve o que a outra gravou.
 ```jsonc
 {
   "name": "Ana Ribeiro", "age": 35, "lifeExp": 95,
+  "tipo": "familia", "spouseAge": 38, "conjugeNome": "Marcos",   // casal: o cônjuge entra no IR, nos sócios e nos seguros
   "initialWealth": 860000,     // patrimônio financeiro do cliente hoje: ponto de partida do gráfico (com plano.patrimonio, a soma do detalhe)
   "patrimonio": {              // o detalhe do patrimônio de hoje e a fase da vida (página Fase da vida e patrimônio)
     "comecou": 23, "liquidezIdeal": 400000,
@@ -225,11 +230,11 @@ cada tela ouve o que a outra gravou.
   // Entradas e saídas são linhas do tempo em degraus. Cada degrau vale a partir do mês
   // indicado (0 = set/2026) e o último vale indefinidamente.
   "incomes": [
-    { "id": "salario", "label": "Salário da família",
+    { "id": "salario", "label": "Salário da Ana", "pessoa": "titular",   // pessoa: titular ou conjuge (de quem é a renda)
       "kind": "ativa",                      // ativa (trabalho) ou passiva (patrimônio)
       "origin": "Salário",                  // Salário, Pró-labore, Distribuição de lucros, Bônus,
                                             // Comissões, Rendimentos recorrentes, Outras receitas
-      "gross": 19500,                       // bruto; o fluxo de caixa usa sempre o líquido dos degraus
+      "gross": 11700,                       // bruto de cada recebimento: rendimentos tributáveis e INSS do IR; o fluxo usa o líquido
       "frequency": "mensal",                // pontual, semanal, mensal, anual (trimestral e semestral ainda são lidos)
       "days": [5, 20],                      // mensal: dias do mês; o valor do degrau vale para cada dia
       "taxable": true, "description": "",
@@ -426,3 +431,4 @@ A planilha do fluxo de caixa foi feita para mouse e trackpad; não há gesto de 
 | `sync-motor.js` | Copia o motor de uma tela para a outra. |
 | `verificar.js` | Roda a simulação em Node e confere as invariantes. |
 | `PENDENCIAS.md` | O que falta fazer e o contexto dos testes com usuários. |
+| `VARIAVEIS.md` | Inventário das variáveis: onde cada uma nasce, quem a usa e as repetições a resolver. |

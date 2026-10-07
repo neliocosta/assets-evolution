@@ -17,11 +17,9 @@ os ajustes do usuário: renda que deseja proteger dividida entre os geradores de
 até 25, sucessão de 5% a 20%, 0,4% ao mês) e o vetor da natureza do trabalho (o da calculadora de reserva da Nord,
 conferido simulando no site). Falta:
 
-1. **Cadastro de bens.** O cadastro anterior já existe: a página Patrimônio e premissas lista os bens com valor de
-   mercado e saldo devedor (`plano.patrimonio.bens`, veja "Fase da vida e patrimônio" abaixo). Mas a Gestão de riscos
-   ainda tem a sua própria lista (`plano.riscos.bens.itens`, com nome, valor e proteção), e as duas não se falam: no
-   exemplo, os nomes e valores foram igualados à mão. Falta a proteção de cada bem ser marcada sobre a lista do
-   Patrimônio. O usuário vai mandar o material de coleta da Nord, com as demais informações de cada bem.
+1. **Cadastro de bens — resolvido (07/10/2026).** A proteção dos bens lista os bens da página Patrimônio e grava a proteção e
+   a apólice no próprio bem (`ENGINE.bensDoRisco`); um plano antigo aproveita a lista `riscos.bens.itens` pelo nome do bem.
+   Falta o material de coleta da Nord, com as demais informações de cada bem.
 2. **Geradores de renda vindos do cadastro.** Os dependentes já são perguntados na página Cliente (02/10/2026) e só
    lidos no item 8. Os geradores de renda (quem é, a participação na renda, o INSS) continuam no item 7.
 3. **Apólices enviadas pelo cliente.** O usuário quer que o cliente, ao responder, possa enviar as apólices atuais
@@ -57,12 +55,12 @@ Em aberto:
 O capítulo 3 da área do cliente e a página Otimização tributária do portal existem desde 07/10/2026 (veja o README). Foram
 feitos sem o usuário por perto, a partir do pedido dele: confira as escolhas abaixo antes de levar a um cliente.
 
-1. **Rendimentos do IR digitados, não ligados ao Fluxo de caixa.** O fluxo guarda o valor líquido e não diz de quem é cada
-   renda, então os rendimentos tributáveis e o INSS de cada pessoa vêm da declaração. Falta ligar (uma linha do fluxo por
-   pessoa, com o bruto) para o valor não ficar em dois lugares.
-2. **IR e pró-labore são contas separadas.** No exemplo, o Marcos declara R$ 84 mil (o pró-labore de hoje × 12); se ele
-   seguir a recomendação do pró-labore, a renda tributável dele no IR cai e a economia das duas páginas não soma
-   exatamente. Decidir se a estratégia do IR usa o pró-labore recomendado.
+1. **Rendimentos do IR — resolvido (07/10/2026).** Cada renda do Fluxo diz de quem é; os rendimentos tributáveis e o INSS
+   de cada pessoa saem do bruto dessas linhas, e o pró-labore e os dividendos dos sócios, das linhas com essas categorias.
+   O 13º salário só entra se for uma linha do Fluxo (no exemplo, não há).
+2. **IR e pró-labore são contas separadas.** Os dois leem o mesmo Fluxo agora, mas, se o Marcos seguir a recomendação do
+   pró-labore, a renda tributável dele no IR cai e a economia das duas páginas não soma exatamente. Decidir se a estratégia
+   do IR usa o pró-labore recomendado.
 3. **Parâmetros de 2026 a confirmar.** A tabela anual é a mensal × 12 (R$ 2.428,80 isento por mês). O limite do desconto
    simplificado (R$ 17.640) é o da declaração de 2026; a Receita ainda publica o da declaração de 2027. Tudo está em
    `ENGINE.IR`.
@@ -466,3 +464,11 @@ Registradas aqui porque não são óbvias no código:
   lançamentos centralizada. O IR virou uma grade só, pessoa por pessoa (nome e imposto, a barra, as marcas embaixo); no
   pró-labore, os dois lados mostram as mesmas linhas, com R$ 0 quando um imposto some; os números das tabelas ficam
   centralizados. A auditoria (`ux/auditar-alinhamento.js`) passa em todas as páginas.
+- **Uma variável num lugar só (07/10/2026).** Pedido do usuário: acompanhar todas as variáveis do planejamento para não
+  pedir a mesma informação duas vezes (o exemplo dele: a renda tributável, pedida no Fluxo de caixa e na Otimização
+  tributária). Ficou o inventário `VARIAVEIS.md` (onde cada variável nasce, quem a usa e as repetições que faltam) e foram
+  ligadas: o nome do cônjuge na página Cliente, usado no IR, nos sócios e nos seguros; "de quem é a renda" no cadastro do
+  Fluxo; rendimentos tributáveis e INSS do IR pelo bruto das rendas de cada pessoa; pró-labore e dividendos dos sócios
+  pelas linhas do Fluxo; os bens da gestão de riscos pelos do Patrimônio. O exemplo da Ana virou um casal coerente
+  (salário da Ana e pró-labore do Marcos no lugar do "salário da família", com o mesmo total; o bônus é PLR, isento no
+  ajuste), e a simulação não mudou. As repetições que faltam estão no fim do `VARIAVEIS.md`, em ordem.
