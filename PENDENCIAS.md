@@ -86,7 +86,8 @@ feitos sem o usuário por perto, a partir do pedido dele: confira as escolhas ab
 É uma cópia ajustada dos dois HTML: abre as telas na mesma aba (o visualizador bloqueia janelas novas), usa o
 Font Awesome publicado junto (o visualizador bloqueia o cdnjs) e tem o banco compartilhado (capacidades `db` e
 `user`, regras: `plano` só o dono grava, `propostas` grava quem é Contribuidor). Para republicar, gere a cópia a
-partir dos arquivos do repositório com essas três trocas e publique no mesmo link, mantendo as capacidades.
+partir dos arquivos do repositório com essas três trocas (`node gerar-publicacao.js . <pasta>` faz as três) e publique no
+mesmo link, mantendo as capacidades. Versão 26 no ar, gerada do commit 60e7c2e.
 
 ## Armadilhas deste repositório
 
