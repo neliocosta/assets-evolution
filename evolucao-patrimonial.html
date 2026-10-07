@@ -172,6 +172,75 @@ body.sem-grafico .legend,body.sem-grafico .stats,body.sem-grafico #segView,body.
 .pf-tab tr.on td{background:var(--nl-peach-100);color:var(--nl-navy-900);font-weight:600}
 .pf-nao{font-size:13px;color:#8d8d8d;line-height:1.5}
 @media (max-width:1080px){.pi-linhas{grid-template-columns:150px 1fr}.pi-fundo{left:150px}.pf-cols{grid-template-columns:repeat(2,1fr)}.pf-seg b{font-size:10.5px}}
+/* capítulo 3: otimização tributária. Cada página: a economia e o vídeo no alto; hoje e o recomendado lado a lado,
+   na mesma escala; o que muda; a conta recolhida */
+#tributos{flex:1;min-height:0;overflow:auto;background:var(--nl-cream-50)}
+#tributos .rc{max-width:1120px;margin:0 auto;padding:24px 24px 60px;display:flex;flex-direction:column;gap:20px}
+#tributos .rk-topo{margin:0}
+.tb-hero{justify-content:center;gap:14px}
+.tb-eco{font:600 40px Sora,sans-serif;color:#22794a;line-height:1.05;white-space:nowrap}
+.tb-eco.neutro{color:var(--nl-navy-900);font-size:28px}
+.tb-eco small{display:block;font:500 12.5px 'DM Sans',sans-serif;color:#8d8d8d;margin-top:8px;white-space:normal;line-height:1.45}
+.tb-de{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px;color:var(--nl-gray-700)}
+.tb-de b{color:var(--nl-navy-900)}
+.tb-menos{font:600 11px 'DM Sans',sans-serif;padding:3px 9px;border-radius:9999px;background:#E7F5EC;color:#22794a}
+.tb-extra{font-size:12px;color:#8d8d8d}
+.tb-card{background:#fff;border-radius:14px;box-shadow:var(--shadow-card);padding:20px 22px;min-width:0}
+.tb-card>h3{font:600 15px Sora,sans-serif;color:var(--nl-navy-900);margin-bottom:4px}
+.tb-card>.sub{font-size:12.5px;color:#8a8a8a;margin-bottom:16px;line-height:1.5}
+.tb-dois{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+.tb-col{display:flex;flex-direction:column;gap:12px;min-width:0}
+.tb-col+.tb-col{border-left:1px solid #F0EEE9;padding-left:28px}
+.tb-col h4{font:600 12px 'DM Sans',sans-serif;color:#8a8a8a;text-transform:uppercase;letter-spacing:.06em}
+/* o imposto de cada pessoa */
+.tb-pes{display:grid;grid-template-columns:1fr 210px;grid-template-rows:auto auto;gap:6px 14px;align-items:center}
+.tb-pes .l{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:13px;color:var(--nl-navy-900)}
+.tb-pes .v{grid-row:1/3;grid-column:2;font:600 17px Sora,sans-serif;color:var(--nl-navy-900);text-align:right;line-height:1.1}
+.tb-pes .v small{display:block;font:500 11px 'DM Sans',sans-serif;color:#8d8d8d;margin-top:3px;line-height:1.3}
+.tb-barra{height:10px;border-radius:5px;background:#F0EEE9;overflow:hidden} .tb-barra i{display:block;height:100%;border-radius:5px;background:#E08A4F}
+.tb-pes.total{border-top:1px solid #F0EEE9;padding-top:12px} .tb-pes.total .v{font-size:22px}
+/* a escada: cada passo começa onde o anterior terminou; o negativo volta em vermelho, com a ponta para trás */
+.tb-esc{display:grid;grid-template-columns:150px 1fr;row-gap:7px} .tb-esc.largo{grid-template-columns:260px 1fr}
+.tb-rot{font-size:12px;color:var(--nl-gray-700);text-align:right;padding-right:12px;align-self:center;line-height:1.25}
+.tb-rot.forte{font-weight:600;color:var(--nl-navy-900)}
+.tb-tr{position:relative;height:26px;margin-right:92px}
+.tb-b{position:absolute;top:3px;bottom:3px;border-radius:6px;min-width:3px}
+.tb-b.menos{background:linear-gradient(90deg,#DA5B5B,#F2B3B0);border-radius:0 6px 6px 0}
+.tb-b.menos::after{content:'';position:absolute;left:-7px;top:50%;margin-top:-7px;border:7px solid transparent;border-left:0;border-right:7px solid #DA5B5B}
+.tb-b.liga::before{content:'';position:absolute;top:-10px;height:10px;left:-1px;border-left:1.5px dashed rgba(32,52,76,.5)}
+.tb-b.liga.dir::before{left:auto;right:-1px}
+.tb-v{position:absolute;top:50%;transform:translateY(-50%);margin-left:8px;font:600 12px Sora,sans-serif;color:var(--nl-navy-900);white-space:nowrap}
+.tb-sep{height:1px;background:#F0EEE9;margin:2px 0}
+.tb-rodape{display:flex;justify-content:space-between;gap:12px;font-size:12.5px;color:var(--nl-gray-700);border-top:1px solid #F0EEE9;padding-top:10px}
+.tb-rodape b{font:600 14px Sora,sans-serif;color:var(--nl-navy-900);white-space:nowrap}
+.tb-rodape.leve{border-top:0;padding-top:0;font-size:11.5px;color:#8d8d8d} .tb-rodape.leve b{font:600 12px 'DM Sans',sans-serif;color:var(--nl-gray-700)}
+.tb-custo{display:flex;justify-content:space-between;gap:12px;align-items:center;background:#FDECEC;border-radius:10px;padding:10px 14px;font-size:12.5px;color:#B83A3A}
+.tb-custo b{font:600 16px Sora,sans-serif;white-space:nowrap}
+/* o que muda */
+.tb-notas{list-style:none;margin:16px 0 0;padding:0;display:flex;flex-direction:column;gap:9px}
+.tb-notas li{position:relative;padding-left:18px;font-size:12.5px;line-height:1.55;color:var(--nl-gray-700)}
+.tb-notas li::before{content:'';position:absolute;left:2px;top:7px;width:7px;height:7px;border-radius:50%;background:var(--nl-orange-500)}
+.tb-notas li b{color:var(--nl-navy-900)}
+.tb-lanc{margin:18px 0 0} .tb-lanc td.mudou{background:var(--nl-peach-100);color:var(--nl-navy-900);font-weight:600}
+.tb-lanc td.p1,.tb-lanc th.p1{border-left:1px solid #ECE9E3}
+.tb-lanc tr.tot td{font-weight:600;color:var(--nl-navy-900);border-bottom:0}
+.pf-tab tr.cab td{font:600 11px 'DM Sans',sans-serif;color:var(--nl-orange-600);text-transform:uppercase;letter-spacing:.06em;padding-top:14px}
+/* o simulador da previdência */
+.tb-sim{display:flex;flex-direction:column;gap:12px}
+.tb-sim>.sub{margin-bottom:2px}
+.tb-campo{display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--nl-gray-700)}
+.tb-campo span{display:flex;justify-content:space-between;gap:10px} .tb-campo span b{font:600 12.5px Sora,sans-serif;color:var(--nl-navy-900)}
+.tb-campo input[type=range]{width:100%;accent-color:var(--nl-orange-500)}
+.tb-campo select{font:500 12.5px 'DM Sans',sans-serif;padding:7px 9px;border:1px solid #E4E1DA;border-radius:8px;background:#fff;color:var(--nl-navy-900)}
+.tb-sim .btn{align-self:flex-start}
+.tb-leg{display:flex;gap:16px;flex-wrap:wrap;font-size:11.5px;color:#8d8d8d;margin-bottom:6px}
+.tb-leg span{display:inline-flex;align-items:center;gap:6px} .tb-leg i{width:16px;height:4px;border-radius:2px}
+.tb-graf{width:100%;height:auto;display:block}
+.tb-g{stroke:#F0EEE9;stroke-width:1} .tb-g.forte{stroke:#E4E1DA}
+.tb-gt{font:500 10.5px 'DM Sans',sans-serif;fill:#a9a59d}
+.tb-l{fill:none;stroke-width:2.5;stroke-linejoin:round} .tb-l.prev{stroke:#7C5CBF} .tb-l.comum{stroke:#8C9AAB}
+.tb-fim{font:600 11.5px Sora,sans-serif;fill:#56677a} .tb-fim.prev{fill:#6246A8}
+@media (max-width:1080px){.tb-dois{grid-template-columns:1fr}.tb-col+.tb-col{border-left:0;padding-left:0;border-top:1px solid #F0EEE9;padding-top:18px}.tb-esc{grid-template-columns:120px 1fr}}
 /* gestão de riscos */
 #riscos{flex:1;min-height:0;overflow:auto;background:var(--nl-cream-50)}
 #riscos .rc{max-width:1120px;margin:0 auto;padding:24px 24px 60px}
@@ -427,6 +496,7 @@ body.fluxo .stats{margin-left:auto}
 <div id="propBar" hidden></div>
 <div id="riscos" hidden></div>
 <div id="patrimonio" hidden></div>
+<div id="tributos" hidden></div>
 <div id="pagina" hidden></div>
 <div id="wrap">
   <canvas id="main"></canvas>
@@ -2128,7 +2198,7 @@ function frame(now) {
 // objetivos, idade de parar) vira uma proposta: a tela mostra o efeito, mas o plano só muda quando o consultor
 // aprovar. A proposta fica no navegador ('nl-proposta') ou vai em arquivo; a resposta volta no próprio plano
 // (plan.propostas), para chegar ao cliente também quando o plano vier por link ou arquivo.
-const baseDe = plan => structuredClone(Object.assign({ riscos: plan ? undefined : ENGINE.RISCOS_EXEMPLO, patrimonio: plan ? undefined : ENGINE.PATRIMONIO_EXEMPLO }, plan || {}, ENGINE.config(), { mode: ENGINE.MODE, name: (plan && plan.name) || '' }));   // sem plano: os riscos e o patrimônio do exemplo
+const baseDe = plan => structuredClone(Object.assign({ riscos: plan ? undefined : ENGINE.RISCOS_EXEMPLO, patrimonio: plan ? undefined : ENGINE.PATRIMONIO_EXEMPLO, tributario: plan ? undefined : ENGINE.TRIBUTARIO_EXEMPLO }, plan || {}, ENGINE.config(), { mode: ENGINE.MODE, name: (plan && plan.name) || '' }));   // sem plano: os riscos e o patrimônio do exemplo
 let BASE = null, PROP = null, VER = 'proposta';
 const escH = t => String(t == null ? '' : t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const lerReais = t => { const v = parseFloat(String(t).replace(/[^\d,-]/g, '').replace(',', '.')); return isFinite(v) ? Math.max(0, v) : NaN; };
@@ -2149,7 +2219,7 @@ function respostaNoPlano() {
 function aplicaVista() {
   const plan = structuredClone(BASE);
   if (VER === 'proposta' && temAlteracoes()) ENGINE.aplicaAlteracoes(plan, PROP.ops);
-  ENGINE.configure(plan); rerun(); rebuildRows(); desenhaPropBar(); renderRiscos(); renderPatrimonio();
+  ENGINE.configure(plan); rerun(); rebuildRows(); desenhaPropBar(); renderRiscos(); renderPatrimonio(); renderTributos();
 }
 // inclui alterações na proposta; a mesma alteração substitui a anterior, e voltar ao valor do plano a desfaz
 function proporAlteracao(alts) {
@@ -2347,11 +2417,13 @@ ARMAZEM.iniciar().then(info => { if (PAPEL === 'apresentar' && !info.dono) locat
 // ===================== JORNADA DO CLIENTE: CAPÍTULOS E PÁGINAS =====================
 // As telas finais do cliente, como um livro: capítulos com páginas, cada página com um resultado do planejamento e o
 // vídeo do consultor (plan.videos[id da página]). O cabeçalho mostra só a página atual, com anterior e próxima; o
-// sumário lista todas. Existem Patrimônio (capítulo 4), Gestão de riscos e Evolução patrimonial (a última): os capítulos
-// 1 a 3 são o esqueleto das páginas que ainda vão entrar. O consultor apresentando vê as mesmas páginas.
-const CAPITULOS = [1, 2, 3].map(c => ({ titulo: 'Capítulo ' + c, mock: true, paginas: [1, 2, 3, 4, 5].map(k => ({ id: 'c' + c + 'p' + k, titulo: 'Página ' + c + '.' + k, mock: true })) }))
-  .concat({ titulo: 'Patrimônio', paginas: [{ id: 'patrimonio', titulo: 'Fase da vida e patrimônio' }] },
+// sumário lista todas. Existem Otimização tributária (capítulo 3), Patrimônio (4), Gestão de riscos e Evolução patrimonial (a
+// última): os capítulos 1 e 2 são o esqueleto das páginas que ainda vão entrar. O consultor apresentando vê as mesmas páginas.
+const CAPITULOS = [1, 2].map(c => ({ titulo: 'Capítulo ' + c, mock: true, paginas: [1, 2, 3, 4, 5].map(k => ({ id: 'c' + c + 'p' + k, titulo: 'Página ' + c + '.' + k, mock: true })) }))
+  .concat({ titulo: 'Otimização tributária', paginas: [{ id: 'ir', titulo: 'Imposto de renda da família' }, { id: 'prolabore', titulo: 'Pró-labore e dividendos' }, { id: 'sucessao', titulo: 'Sucessão e ITCMD' }, { id: 'previdencia', titulo: 'Previdência no longo prazo' }] },
+    { titulo: 'Patrimônio', paginas: [{ id: 'patrimonio', titulo: 'Fase da vida e patrimônio' }] },
     { titulo: 'Gestão de riscos', paginas: [{ id: 'riscos', titulo: 'Gestão de riscos' }] }, { titulo: 'Evolução patrimonial', paginas: [{ id: 'evolucao', titulo: 'Evolução patrimonial' }] });
+var PAGINAS_TRIB = ['ir', 'prolabore', 'sucessao', 'previdencia'];   // as páginas do capítulo 3, que dividem o mesmo painel
 const PAGINAS = CAPITULOS.flatMap((c, ci) => c.paginas.map(p => Object.assign({ cap: ci + 1, capTitulo: c.titulo }, p)));
 const paginaDe = id => PAGINAS.find(p => p.id === id);
 let FASE = (() => { const q = new URLSearchParams(location.search).get('fase'); if (paginaDe(q)) return q; try { const f = localStorage.getItem('nl-fase'); if (paginaDe(f)) return f; } catch (e) { } return 'riscos'; })();
@@ -2360,7 +2432,7 @@ function mostraFase(f) {
   const pg = paginaDe(f) || paginaDe('riscos'); f = pg.id;
   FASE = f; try { localStorage.setItem('nl-fase', f); } catch (e) { }
   document.body.classList.toggle('sem-grafico', f !== 'evolucao');
-  document.getElementById('riscos').hidden = f !== 'riscos'; document.getElementById('patrimonio').hidden = f !== 'patrimonio'; document.getElementById('wrap').hidden = f !== 'evolucao'; document.getElementById('pagina').hidden = !pg.mock;
+  document.getElementById('riscos').hidden = f !== 'riscos'; document.getElementById('patrimonio').hidden = f !== 'patrimonio'; document.getElementById('wrap').hidden = f !== 'evolucao'; document.getElementById('pagina').hidden = !pg.mock; document.getElementById('tributos').hidden = !PAGINAS_TRIB.includes(f);
   const k = PAGINAS.indexOf(pg);
   document.getElementById('pgCap').textContent = 'Capítulo ' + pg.cap + ' · ' + (k + 1) + ' de ' + PAGINAS.length;
   document.getElementById('pgTit').textContent = pg.titulo;
@@ -2368,7 +2440,7 @@ function mostraFase(f) {
   document.querySelector('#fases [data-pg="prox"]').disabled = k === PAGINAS.length - 1;
   document.getElementById('sumario').hidden = true;
   fecharCelula();
-  if (f === 'riscos') renderRiscos(); else if (f === 'patrimonio') renderPatrimonio(); else if (pg.mock) renderPaginaMock(pg); else requestAnimationFrame(resize);
+  if (f === 'riscos') renderRiscos(); else if (f === 'patrimonio') renderPatrimonio(); else if (PAGINAS_TRIB.includes(f)) renderTributos(); else if (pg.mock) renderPaginaMock(pg); else requestAnimationFrame(resize);
 }
 const passaPagina = d => { const k = PAGINAS.findIndex(p => p.id === FASE) + d; if (PAGINAS[k]) mostraFase(PAGINAS[k].id); };
 function renderSumario() {
@@ -2788,6 +2860,187 @@ document.getElementById('riscos').addEventListener('input', e => {
   if (e.target.id === 'simAlvo') { const v = lerReais(e.target.value); SIMR.alvo = isNaN(v) || !v ? null : v; desenhaReserva(); }
   if (e.target.dataset.sg) { const v = lerReais(e.target.value); if (isNaN(v)) delete SIMS[e.target.dataset.sg]; else SIMS[e.target.dataset.sg] = v; desenhaSeguros(); }
 });
+
+// ===================== CAPÍTULO 3: OTIMIZAÇÃO TRIBUTÁRIA =====================
+// Quatro páginas, cada uma com o mesmo roteiro: no alto, quanto o cliente economiza e o vídeo do consultor; depois, hoje
+// e o recomendado lado a lado, na mesma escala; o que muda; e, recolhida, a conta. As contas são do motor
+// (irDaFamilia, retiradaDosSocios, sucessao, simulaPrevidencia) e os dados, do consultor (plan.tributario).
+// A previdência tem um simulador: o cliente mexe nos valores à vontade, sem gravar nada (SIMP).
+var SIMP = null, TB_ABERTO = {};
+const fmtS = v => (v < -0.5 ? '− ' : '') + fmt(Math.abs(v));
+const pctTxt = (v, d) => (v * 100).toLocaleString('pt-BR', { maximumFractionDigits: d == null ? 1 : d }) + '%';
+const nomes = l => l.length <= 1 ? (l[0] || '') : l.slice(0, -1).join(', ') + ' e ' + l[l.length - 1];
+// A escada (a mesma ideia do patrimônio): cada passo começa onde o anterior terminou e o negativo volta, em vermelho;
+// o total começa do zero. topo é o fim da escala, igual nas duas colunas para comparar hoje e o recomendado.
+function escadaTb(passos, topo, cls) {
+  let acc = 0; const x = v => Math.max(0, v) / (topo || 1) * 100;
+  return `<div class="tb-esc${cls ? ' ' + cls : ''}">${passos.map((p, i) => {
+    let de, ate, menos = false;
+    if (p.total) { de = 0; ate = p.v; } else if (p.v >= 0) { de = acc; ate = acc + p.v; acc = ate; } else { de = acc + p.v; ate = acc; acc = de; menos = true; }
+    const txt = p.total || i === 0 ? fmt(p.v) : (menos ? '− ' : '+ ') + fmt(Math.abs(p.v));
+    return `<div class="tb-rot${p.total ? ' forte' : ''}">${p.rot}</div><div class="tb-tr"><i class="tb-b${menos ? ' menos' : ''}${i && !p.total ? ' liga' + (menos ? ' dir' : '') : ''}" style="left:${x(de)}%;width:${x(ate) - x(de)}%${menos ? '' : ';background:' + p.cor}"></i><span class="tb-v" style="left:${x(Math.max(de, ate))}%">${txt}</span></div>`;
+  }).join('')}</div>`;
+}
+const notasTb = l => l.length ? `<ul class="tb-notas">${l.map(t => `<li>${t}</li>`).join('')}</ul>` : '';
+const semDadosTb = (pg, texto) => `<div class="rk-topo">${heroTb(pg, null, null, texto)}${videoHtml(pg.id, pg.titulo, 'Aqui vai entrar o vídeo do seu consultor sobre esta página.')}</div>`;
+// o cartão do alto: o tema, a economia em destaque e de quanto para quanto
+function heroTb(pg, eco, de, vazio, sub) {
+  return `<div class="nota-card tb-hero"><div class="pf-rot">${escH(pg.capTitulo)}</div><h2>${escH(pg.titulo)}</h2>
+    ${vazio ? `<div class="pf-nao">${vazio}</div>` : eco > 0.5 ? `<div class="tb-eco">${fmt(eco)}<small>${sub}</small></div>${de || ''}` : `<div class="tb-eco neutro">Sem economia<small>${sub}</small></div>${de || ''}`}</div>`;
+}
+const deParaTb = (a, b, extra) => `<div class="tb-de">de <b>${fmt(a)}</b> para <b>${fmt(b)}</b>${a > 0 && b < a ? `<span class="tb-menos">−${pctTxt((a - b) / a, 0)}</span>` : ''}${extra ? `<span class="tb-extra">${extra}</span>` : ''}</div>`;
+const comoTb = (id, titulo, corpo) => `<details class="pf-como"${TB_ABERTO[id] ? ' open' : ''} data-tb-como="${id}"><summary>${titulo}</summary>${corpo}</details>`;
+
+// ---- Imposto de renda da família ----
+function paginaIR(P, pg) {
+  const r = ENGINE.irDaFamilia(P);
+  if (!r) return semDadosTb(pg, 'O seu consultor ainda está preparando esta página: aqui vai aparecer o imposto de renda da família hoje e com a estratégia recomendada.');
+  const a = r.atual, b = r.recomendada, ano = ENGINE.IR.ano;
+  const deps = ((P.riscos || {}).dependentes || []).map(d => d.nome || 'dependente'), depsTxt = nomes(deps.length ? deps : [r.nDeps + ' dependentes']);
+  const topo = Math.max(1, ...a.pessoas.map(x => x.devido), ...b.pessoas.map(x => x.devido));
+  const col = (tit, c, outro) => `<div class="tb-col"><h4>${tit}</h4>${c.pessoas.map((p, i) => `<div class="tb-pes"><div class="l"><b>${escH(p.nome)}</b><span class="pf-tag${outro && outro.pessoas[i].modelo !== p.modelo ? ' renda' : ''}">declaração ${p.modelo}</span>${p.deps ? `<span class="pf-tag">${p.deps === 1 ? '1 dependente' : p.deps + ' dependentes'}</span>` : ''}${p.pgbl ? '<span class="pf-tag ok">PGBL</span>' : ''}</div>
+      <div class="tb-barra"><i style="width:${p.devido / topo * 100}%"></i></div><div class="v">${fmt(p.devido)}<small>${pctTxt(p.aliq)} da renda tributável de ${fmt(p.rend)}</small></div></div>`).join('')}
+    <div class="tb-pes total"><div class="l"><b>Família</b></div><div class="v">${fmt(c.total)}<small>imposto devido no ano · ${pctTxt(c.rend ? c.total / c.rend : 0)} da renda</small></div></div></div>`;
+  // o que muda nos lançamentos de cada pessoa
+  const muda = [];
+  if (r.nDeps && a.depsCom !== b.depsCom && b.pessoas[b.depsCom]) muda.push(`<b>${escH(depsTxt)}</b> ${deps.length > 1 ? 'passam' : 'passa'} a ser dependente${deps.length > 1 ? 's' : ''} na declaração de <b>${escH(b.pessoas[b.depsCom].nome)}</b>, que paga uma alíquota maior: cada dependente deduz ${fmt(ENGINE.IR.dependente)} da base de cálculo.`);
+  b.pessoas.forEach((p, i) => {
+    const q = a.pessoas[i];
+    if (p.pgbl > q.pgbl) muda.push(`Um <b>PGBL de ${fmt(p.pgbl)} no ano</b> para <b>${escH(p.nome)}</b> (${fmt(p.pgbl / 12)} por mês)${Math.abs(p.pgbl - p.lim.pgbl) < 12 ? ', o limite de 12% da renda tributável' : ''}. O dinheiro continua seu: é um investimento de longo prazo que deduz da base hoje.`);
+    if (p.ded.medicas !== q.ded.medicas) muda.push(`As despesas médicas de <b>${escH(p.nome)}</b> vão de ${fmt(q.ded.medicas)} para ${fmt(p.ded.medicas)}.`);
+    if (p.ded.instrucao !== q.ded.instrucao) muda.push(`As despesas com instrução de <b>${escH(p.nome)}</b> vão de ${fmt(q.ded.instrucao)} para ${fmt(p.ded.instrucao)}.`);
+    if (p.modelo !== q.modelo) muda.push(`A declaração de <b>${escH(p.nome)}</b> passa de ${q.modelo} para ${p.modelo}${p.modelo === 'completa' ? ': as deduções passam a valer mais que o desconto de 20%' : ''}.`);
+    if (p.sobraPgbl > 0) muda.push(`${fmt(p.sobraPgbl)} do PGBL de ${escH(p.nome)} passam do limite de 12% e não deduzem.`);
+  });
+  // a tabela dos lançamentos: hoje e recomendado, por pessoa; o que muda fica destacado
+  const linhas = [['Dependentes', p => p.deps || '—', true], ['Despesas médicas', p => p.ded.medicas ? fmt(p.ded.medicas) : '—'], ['Instrução', p => p.ded.instrucao ? fmt(p.ded.instrucao) : '—'],
+    ['PGBL no ano', p => p.pgbl ? fmt(p.pgbl) : '—'], ['Modelo da declaração', p => p.modelo], ['Imposto devido', p => fmt(p.devido)]]
+    .filter(([n, f, sempre]) => sempre && r.nDeps || n === 'Modelo da declaração' || n === 'Imposto devido' || a.pessoas.concat(b.pessoas).some(p => f(p) !== '—'));
+  const tabela = `<table class="pf-tab tb-lanc"><thead><tr><th></th>${a.pessoas.map((p, i) => `<th class="n${i ? ' p1' : ''}" colspan="2">${escH(p.nome)}</th>`).join('')}</tr>
+    <tr><th>Lançamento</th>${a.pessoas.map((p, i) => `<th class="n${i ? ' p1' : ''}">Hoje</th><th class="n">Recomendado</th>`).join('')}</tr></thead><tbody>
+    ${linhas.map(([n, f]) => `<tr${n === 'Imposto devido' ? ' class="tot"' : ''}><td>${n}</td>${a.pessoas.map((p, i) => { const x = f(p), y = f(b.pessoas[i]); return `<td class="n${i ? ' p1' : ''}">${x}</td><td class="n${x !== y ? ' mudou' : ''}">${y}</td>`; }).join('')}</tr>`).join('')}</tbody></table>`;
+  const conta = (c, t) => `<tr class="cab"><td colspan="${c.pessoas.length + 1}">${t}</td></tr>` + [['Rendimentos tributáveis', p => fmt(p.rend)], ['Deduções (completa) ou desconto de 20% (simplificada)', p => '− ' + fmt(p.modelo === 'completa' ? p.totDed : p.desconto)],
+    ['Base de cálculo', p => fmt(p.base)], ['Imposto pela tabela', p => fmt(p.bruto)], ['Redução de ' + ano + ' (Lei 15.270)', p => p.reducao ? '− ' + fmt(p.reducao) : '—'], ['Imposto devido', p => fmt(p.devido)]]
+    .map(([n, f]) => `<tr><td>${n}</td>${c.pessoas.map(p => `<td class="n">${f(p)}</td>`).join('')}</tr>`).join('');
+  const como = comoTb('ir', 'Como o imposto é calculado', `<div class="txt">O imposto sai da tabela progressiva de ${ano} sobre a base de cálculo, e a redução da Lei 15.270 zera o imposto de quem tem até R$ 60 mil de rendimentos tributáveis no ano, diminuindo até R$ 88.200. Cada pessoa fica com o modelo de menor imposto: o simplificado desconta 20% da renda (até ${fmt(ENGINE.IR.simplificadoLimite)}); o completo desconta o INSS, ${fmt(ENGINE.IR.dependente)} por dependente, a instrução (até ${fmt(ENGINE.IR.instrucao)} por pessoa), as despesas médicas (sem limite) e o PGBL (até 12% da renda tributável, para quem contribui ao INSS). O PGBL adia o imposto: no resgate, ele paga imposto de renda sobre o valor total, a 10% depois de 10 anos na tabela regressiva.</div>
+    <table class="pf-tab"><thead><tr><th></th>${a.pessoas.map(p => `<th class="n">${escH(p.nome)}</th>`).join('')}</tr></thead><tbody>${conta(a, 'Hoje')}${conta(b, 'Recomendado')}</tbody></table>`);
+  return `<div class="rk-topo">${heroTb(pg, r.economia, deParaTb(a.total, b.total), null, 'por ano a menos de imposto de renda, com a estratégia recomendada')}${videoHtml(pg.id, pg.titulo, 'Aqui vai entrar o vídeo do seu consultor explicando a estratégia do imposto de renda.')}</div>
+    <div class="tb-card"><h3>O imposto de cada um, hoje e com a estratégia recomendada</h3><div class="sub">Imposto devido no ano de ${ano}, na declaração de ${ano + 1}, com os mesmos rendimentos de hoje. As barras estão na mesma escala.</div>
+      <div class="tb-dois">${col('Hoje', a)}${col('Recomendado', b, a)}</div></div>
+    <div class="tb-card"><h3>O que muda nos lançamentos</h3>${notasTb(muda) || '<div class="sub">Nada muda: a estratégia recomendada é a de hoje.</div>'}${tabela}</div>${como}`;
+}
+
+// ---- Pró-labore e dividendos ----
+const NOME_REGIME = Object.fromEntries(ENGINE.REGIMES);
+function paginaProlabore(P, pg) {
+  const r = ENGINE.retiradaDosSocios(P);
+  if (!r) return semDadosTb(pg, 'O seu consultor ainda está preparando esta página: aqui vai aparecer a melhor forma de retirar dinheiro da sua empresa.');
+  const s0 = r.socios[0], extra = r.socios.length === 1 ? 'retirando os mesmos ' + fmt(s0.atual.total) + ' por mês' : '';
+  const anoA = r.socios.reduce((a, s) => a + s.atual.ano, 0), anoB = r.socios.reduce((a, s) => a + s.rec.ano, 0);
+  const socio = s => {
+    const topo = Math.max(1, s.atual.total), lado = (tit, x) => `<div class="tb-col"><h4>${tit}</h4>${escadaTb([
+      { rot: 'Pró-labore', v: x.pro, cor: '#5B7BA6' }, { rot: 'Dividendos', v: x.div, cor: C.fin },
+      { rot: 'INSS (11%)', v: -x.inss }, { rot: 'IR na fonte', v: -x.irrf }].concat(x.divIR ? [{ rot: 'IR sobre dividendos', v: -x.divIR }] : [])
+      .concat([{ rot: 'No seu bolso', v: x.liquido, cor: C.navy, total: true }]).filter((p, i) => i < 2 || p.total || Math.abs(p.v) >= 0.5), topo)}
+      <div class="tb-rodape"><span>Impostos e INSS no ano</span><b>${fmt(x.ano)}</b></div>${x.patronal ? `<div class="tb-rodape leve"><span>dos quais a empresa paga de INSS patronal</span><b>${fmt(12 * x.patronal)}</b></div>` : ''}${x.minimo ? `<div class="tb-rodape leve"><span>imposto mínimo de quem recebe mais de R$ 600 mil no ano</span><b>${fmt(x.minimo)}</b></div>` : ''}</div>`;
+    const notas = [`A retirada é a mesma, ${fmt(s.atual.total)} por mês: muda só quanto vem como pró-labore (${fmt(s.atual.pro)} → ${fmt(s.rec.pro)}) e quanto vem como dividendos (${fmt(s.atual.div)} → ${fmt(s.rec.div)}).`,
+      `No seu bolso, ${fmtS(s.rec.liquido - s.atual.liquido).replace('R$', 'são R$')} a mais por mês${s.rec.patronal < s.atual.patronal ? `, e a empresa deixa de pagar ${fmt(12 * (s.atual.patronal - s.rec.patronal))} de INSS patronal no ano` : ''}.`,
+      `A contribuição ao INSS cai de ${fmt(s.atual.inss)} para ${fmt(s.rec.inss)} por mês. A aposentadoria do INSS é calculada sobre o que você contribui: o seu consultor considera isso no plano da sua liberdade financeira.`];
+    if (s.rec.pro <= ENGINE.IR.salarioMinimo + 0.5) notas.push(`O pró-labore recomendado é o salário mínimo (${fmt(ENGINE.IR.salarioMinimo)}), o menor valor aceito para o sócio que trabalha na empresa.`);
+    if (s.fatorR && s.fatorR.cai) notas.push(`<b>Atenção ao fator R:</b> com o pró-labore menor, a folha cai de ${pctTxt(s.fatorR.atual, 0)} para ${pctTxt(s.fatorR.rec, 0)} do faturamento, abaixo de 28%, e a empresa pode passar do Anexo III para o Anexo V do Simples, com imposto maior.`);
+    if (s.rec.div > ENGINE.IR.dividendosIsentoMes) notas.push(`Dividendos acima de ${fmt(ENGINE.IR.dividendosIsentoMes)} por mês da mesma empresa têm 10% de imposto retido sobre o total.`);
+    return `<div class="tb-card"><h3>${escH(s.nome)}${s.empresa ? ' · ' + escH(s.empresa) : ''}</h3><div class="sub">Retirada de ${fmt(s.atual.total)} por mês · ${escH(NOME_REGIME[s.regime] || '')}. Por mês, na mesma escala.</div>
+      <div class="tb-dois">${lado('Hoje', s.atual)}${lado('Recomendado', s.rec)}</div>${notasTb(notas)}</div>`;
+  };
+  const como = comoTb('prolabore', 'Como a conta é feita', `<div class="txt">O pró-labore paga INSS de 11%, até o teto de ${fmt(ENGINE.IR.tetoINSS)}, e imposto de renda na fonte pela tabela mensal de ${ENGINE.IR.ano}, que zera até R$ 5 mil por mês. Fora do Simples Nacional (e no Anexo IV do Simples), a empresa paga ainda 20% de INSS patronal sobre ele. Os dividendos são isentos até ${fmt(ENGINE.IR.dividendosIsentoMes)} por mês da mesma empresa; acima disso, 10% ficam retidos. Quem recebe mais de R$ 600 mil no ano paga um imposto mínimo, de até 10%, descontado o que já pagou. A empresa precisa ter lucro apurado para distribuir os dividendos.</div>`);
+  return `<div class="rk-topo">${heroTb(pg, r.economia, deParaTb(anoA, anoB, extra), null, 'por ano a menos de impostos e INSS, mudando como você retira o dinheiro da empresa')}${videoHtml(pg.id, pg.titulo, 'Aqui vai entrar o vídeo do seu consultor explicando pró-labore e dividendos.')}</div>
+    ${r.socios.map(socio).join('')}${como}`;
+}
+
+// ---- Sucessão e ITCMD ----
+function paginaSucessao(P, pg) {
+  const s = ENGINE.sucessao(P), a = s.atual, b = s.recomendada;
+  if (!(a.total > 0)) return semDadosTb(pg, 'O seu consultor ainda está preparando esta página: aqui vai aparecer quanto custa passar o patrimônio para a próxima geração.');
+  const topo = Math.max(1, a.bens + a.part + a.inv, b.bens + b.part + b.inv, a.prev, b.prev);
+  const lado = (tit, c) => `<div class="tb-col"><h4>${tit}</h4>${escadaTb([{ rot: 'Imóveis e outros bens', v: c.bens, cor: C.bens }].concat(c.part ? [{ rot: 'Participações', v: c.part, cor: C.part }] : [])
+      .concat([{ rot: 'Investimentos', v: c.inv, cor: C.fin }]).concat(c.dividas ? [{ rot: 'Dívidas', v: -c.dividas }] : []).concat([{ rot: 'Entra no inventário', v: c.inventario, cor: C.navy, total: true }]), topo)}
+    <div class="tb-sep"></div>${escadaTb([{ rot: 'Previdência', v: c.prev, cor: C.mov, total: true }], topo)}
+    <div class="tb-custo"><span>ITCMD e custos do inventário (${pctTxt(s.pct, 1)})</span><b>${fmt(c.custo)}</b></div>
+    <div class="tb-rodape leve"><span>vai direto aos beneficiários, sem inventário</span><b>${fmt(c.prev)}</b></div></div>`;
+  const notas = [`O patrimônio é o mesmo nos dois casos, ${fmt(a.total)}: muda só onde estão ${fmt(s.mover)} dos investimentos, que vão para a previdência.`,
+    'A previdência (PGBL e VGBL) não entra no inventário: vai para os beneficiários que você indicar, em geral em poucas semanas, enquanto um inventário leva meses ou anos. Em 2024 o STF decidiu que o ITCMD não incide sobre ela.',
+    `O custo da sucessão aqui é o ITCMD (${pctTxt(s.itcmd / 100, 1)}) mais os custos do inventário, como advogado, custas e cartório (${pctTxt(s.custos / 100, 1)}), sobre o que entra no inventário.`];
+  const como = comoTb('sucessao', 'Como a conta é feita', `<div class="txt">Entram no inventário os imóveis e outros bens (pelo valor de mercado), as participações nas empresas e os investimentos, menos as dívidas. Sobre esse valor incidem o ITCMD, o imposto estadual sobre heranças, e os custos do inventário. A previdência fica de fora. A conta considera o patrimônio inteiro sendo transmitido: num casal, a meação do cônjuge e o regime de bens mudam a base, e cada estado tem a sua alíquota (a reforma tributária torna o ITCMD progressivo, até 8%). O seu consultor confere os números com o advogado da família.</div>`);
+  return `<div class="rk-topo">${heroTb(pg, s.economia, deParaTb(a.custo, b.custo, s.mover ? 'levando ' + fmt(s.mover) + ' para a previdência' : ''), null, 'a menos de custos na sucessão do seu patrimônio')}${videoHtml(pg.id, pg.titulo, 'Aqui vai entrar o vídeo do seu consultor explicando a sucessão do patrimônio.')}</div>
+    <div class="tb-card"><h3>Como o patrimônio passa para a próxima geração</h3><div class="sub">O que entra no inventário paga o ITCMD e os custos; a previdência vai direto aos beneficiários. Hoje e com a recomendação, na mesma escala.</div>
+      <div class="tb-dois">${lado('Hoje', a)}${lado('Recomendado', b)}</div>${notasTb(notas)}</div>${como}`;
+}
+
+// ---- Previdência no longo prazo: o simulador ----
+const CAMPOS_PREV = [['inicial', 'Valor inicial', 0, 3000000, 10000, 'reais'], ['aporte', 'Aporte por mês', 0, 30000, 100, 'reais'], ['anos', 'Prazo', 5, 40, 1, 'anos'],
+  ['rent', 'Rentabilidade ao ano', 4, 16, 0.5, 'pct'], ['trocas', 'Trocas de estratégia no período', 0, 10, 1, 'vezes']];
+const valCampoPrev = (t, v) => t === 'reais' ? fmt(v) : t === 'anos' ? v + ' anos' : t === 'pct' ? String(v).replace('.', ',') + '%' : v === 1 ? '1 vez' : v + ' vezes';
+function graficoPrev(r) {
+  const W = 560, H = 230, L = 64, R = 92, T = 14, B = 26, N = r.N, max = Math.max(1, ...r.prev.serie, ...r.comum.serie);
+  const x = m => L + m / N * (W - L - R), y = v => T + (1 - v / max) * (H - T - B);
+  const linha = s => s.map((v, m) => (m ? 'L' : 'M') + x(m + 1).toFixed(1) + ' ' + y(v).toFixed(1)).join('');
+  const passo = N / 12 > 20 ? 10 : 5, anos = []; for (let a = passo; a * 12 <= N; a += passo) anos.push(a);
+  const grade = [0.5, 1].map(f => `<line x1="${L}" x2="${W - R}" y1="${y(max * f)}" y2="${y(max * f)}" class="tb-g"/><text x="${L - 8}" y="${y(max * f) + 4}" text-anchor="end" class="tb-gt">${fmtK(max * f)}</text>`).join('');
+  const fimP = r.prev.serie[N - 1], fimC = r.comum.serie[N - 1], afast = Math.abs(y(fimP) - y(fimC)) < 16 ? 8 : 0;
+  return `<svg viewBox="0 0 ${W} ${H}" class="tb-graf">${grade}<line x1="${L}" x2="${W - R}" y1="${y(0)}" y2="${y(0)}" class="tb-g forte"/>
+    ${anos.map(a => `<text x="${x(a * 12)}" y="${H - 6}" text-anchor="middle" class="tb-gt">${a} anos</text>`).join('')}
+    <path d="${linha(r.comum.serie)}" class="tb-l comum"/><path d="${linha(r.prev.serie)}" class="tb-l prev"/>
+    <text x="${W - R + 8}" y="${y(fimP) + 4 - afast}" class="tb-fim prev">${fmtK(fimP)}</text><text x="${W - R + 8}" y="${y(fimC) + 4 + afast}" class="tb-fim">${fmtK(fimC)}</text></svg>`;
+}
+function resultadoPrev(r, o) {
+  const passos = [{ rot: 'Investimento comum', v: r.comum.final, cor: '#8C9AAB' }].concat(r.passos.map(([n, v]) => ({ rot: n, v, cor: C.orange }))).concat([{ rot: 'Previdência', v: r.prev.final, cor: C.mov, total: true }]);
+  let acc = r.comum.final, mx = acc; r.passos.forEach(p => { acc += p[1]; mx = Math.max(mx, acc); });
+  const topo = Math.max(1, mx, r.prev.final);
+  return { graf: graficoPrev(r), esc: escadaTb(passos, topo, 'largo'), num: { ganho: r.ganho, comum: r.comum.aliqMedia, prev: r.prev.aliqMedia, aportado: r.aportado } };
+}
+function paginaPrevidencia(P, pg) {
+  const base = (P.tributario || {}).previdencia;
+  if (!base) return semDadosTb(pg, 'O seu consultor ainda está preparando esta página: aqui vai aparecer quanto a previdência rende a mais que um investimento comum no longo prazo.');
+  const o = Object.assign({ aliqComum: 15, comeCotas: true, taxaComum: 0.8, taxaPrev: 0.8 }, base, SIMP || {}), r = ENGINE.simulaPrevidencia(o), z = resultadoPrev(r, o), anos = Math.round(r.N / 12);
+  const campos = CAMPOS_PREV.map(([k, n, mi, ma, st, t]) => `<label class="tb-campo"><span>${n}<b data-prev-v="${k}">${valCampoPrev(t, +o[k] || 0)}</b></span><input type="range" min="${mi}" max="${ma}" step="${st}" value="${+o[k] || 0}" data-prev="${k}"></label>`).join('');
+  return `<div class="rk-topo"><div class="nota-card tb-hero"><div class="pf-rot">${escH(pg.capTitulo)}</div><h2>${escH(pg.titulo)}</h2>
+      <div class="tb-eco${r.ganho > 0.5 ? '' : ' neutro'}" id="prevEco">${r.ganho > 0.5 ? fmt(r.ganho) : 'Sem ganho'}<small id="prevEcoT">a mais na previdência em ${anos} anos, já descontado o imposto, comparada a um investimento comum</small></div>
+      <div class="tb-de" id="prevDe">imposto médio de <b>${pctTxt(z.num.comum)}</b> no investimento comum e de <b>${pctTxt(z.num.prev)}</b> na previdência</div></div>
+      ${videoHtml(pg.id, pg.titulo, 'Aqui vai entrar o vídeo do seu consultor explicando a previdência no longo prazo.')}</div>
+    <div class="rk-topo"><div class="tb-card tb-sim"><h3>Simule</h3><div class="sub">Mude os valores e veja o efeito. Nada aqui muda o seu plano.</div>${campos}
+        <label class="tb-campo"><span>Investimento comum</span><select data-prev="comeCotas"><option value="sim"${o.comeCotas !== false ? ' selected' : ''}>Fundo com come-cotas (renda fixa, multimercado)</option><option value="nao"${o.comeCotas === false ? ' selected' : ''}>Fundo de ações (sem come-cotas)</option></select></label>
+        <button class="btn btn-secondary btn-small" data-prev-limpar${SIMP ? "" : " hidden"}>Voltar aos valores do plano</button></div>
+      <div class="tb-card"><h3>Quanto você teria, já descontado o imposto</h3><div class="sub">Se resgatasse tudo em cada momento, pagando o imposto que falta.</div>
+        <div class="tb-leg"><span><i style="background:${C.mov}"></i>Previdência (VGBL, tabela regressiva)</span><span><i style="background:#8C9AAB"></i>Investimento comum</span></div><div id="prevGraf">${z.graf}</div></div></div>
+    <div class="tb-card"><h3>De onde vem a diferença</h3><div class="sub">Do valor do investimento comum ao da previdência, ao fim de <span id="prevAnos">${anos}</span> anos, com <span id="prevAport">${fmt(r.aportado)}</span> aportados.</div><div id="prevEsc">${z.esc}</div>
+      ${notasTb(['<b>Sem come-cotas:</b> nos fundos comuns, o imposto é cobrado a cada seis meses e deixa de render; na previdência, ele só é pago no resgate.',
+        '<b>Trocas de estratégia:</b> mudar de renda fixa para multimercado ou ações, num investimento comum, é resgatar e pagar o imposto; na previdência é uma portabilidade, sem imposto.',
+        '<b>Alíquota menor:</b> na tabela regressiva, o imposto cai de 35% (até 2 anos) para 10% depois de 10 anos. Para prazos curtos, a previdência pode pagar mais: ela vale para o longo prazo.'])}</div>
+    ${comoTb('previdencia', 'Como a conta é feita', `<div class="txt">A simulação é mês a mês, com a mesma rentabilidade nos dois (${String(o.rent).replace('.', ',')}% ao ano, menos a taxa de administração de ${String(o.taxaComum).replace('.', ',')}% no investimento comum e de ${String(o.taxaPrev).replace('.', ',')}% na previdência). No investimento comum, o come-cotas leva ${o.aliqComum}% do rendimento em maio e novembro, o resgate cobra de 22,5% (até seis meses) a ${o.aliqComum}% (depois de dois anos), e cada troca de estratégia é um resgate que recomeça a contar o prazo. Na previdência (VGBL), cada aporte paga no resgate pela tabela regressiva, conforme o tempo que ficou investido, e só sobre o rendimento. No PGBL, o imposto do resgate é sobre o valor total, em troca da dedução de até 12% da renda no imposto de renda de hoje.</div>`)}`;
+}
+// o simulador: só o resultado é redesenhado, para o controle não perder o foco
+function atualizaPrev() {
+  const P = planoVista(), o = Object.assign({ aliqComum: 15, comeCotas: true, taxaComum: 0.8, taxaPrev: 0.8 }, (P.tributario || {}).previdencia, SIMP || {}), r = ENGINE.simulaPrevidencia(o), z = resultadoPrev(r, o), g = id => document.getElementById(id);
+  if (!g('prevGraf')) return;
+  g('prevGraf').innerHTML = z.graf; g('prevEsc').innerHTML = z.esc; g('prevAnos').textContent = Math.round(r.N / 12); g('prevAport').textContent = fmt(r.aportado);
+  g('prevEco').firstChild.textContent = r.ganho > 0.5 ? fmt(r.ganho) : 'Sem ganho'; g('prevEco').classList.toggle('neutro', !(r.ganho > 0.5));
+  g('prevEcoT').textContent = 'a mais na previdência em ' + Math.round(r.N / 12) + ' anos, já descontado o imposto, comparada a um investimento comum';
+  g('prevDe').innerHTML = `imposto médio de <b>${pctTxt(z.num.comum)}</b> no investimento comum e de <b>${pctTxt(z.num.prev)}</b> na previdência`;
+  CAMPOS_PREV.forEach(([k, , , , , t]) => { const b = document.querySelector(`[data-prev-v="${k}"]`); if (b) b.textContent = valCampoPrev(t, +o[k] || 0); });
+}
+function renderTributos() {
+  const el = document.getElementById('tributos'); if (!el || !PAGINAS_TRIB.includes(FASE)) return;
+  const pg = paginaDe(FASE), P = planoVista(), rolagem = el.scrollTop;
+  const corpo = FASE === 'ir' ? paginaIR(P, pg) : FASE === 'prolabore' ? paginaProlabore(P, pg) : FASE === 'sucessao' ? paginaSucessao(P, pg) : paginaPrevidencia(P, pg);
+  el.innerHTML = `<div class="rc">${corpo}</div>`; el.scrollTop = rolagem;
+}
+document.getElementById('tributos').addEventListener('input', e => {
+  const k = e.target.dataset.prev; if (!k) return;
+  SIMP = Object.assign({}, SIMP, { [k]: k === 'comeCotas' ? e.target.value === 'sim' : +e.target.value });
+  const l = document.querySelector('[data-prev-limpar]'); if (l) l.hidden = false; atualizaPrev();
+});
+document.getElementById('tributos').addEventListener('click', e => { if (e.target.closest('[data-prev-limpar]')) { SIMP = null; renderTributos(); } });
+document.getElementById('tributos').addEventListener('toggle', e => { const d = e.target.dataset && e.target.dataset.tbComo; if (d) TB_ABERTO[d] = e.target.open; }, true);
 
 BASE = baseDe(PLANO); PROP = lerProposta(); respostaNoPlano();
 mostraFase(FASE);
