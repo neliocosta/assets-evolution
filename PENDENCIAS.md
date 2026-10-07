@@ -100,6 +100,9 @@ partir dos arquivos do repositório com essas três trocas e publique no mesmo l
 - **O painel de preview do Claude Code carrega os arquivos como `data:`**, o que descarta o `#plano=` da URL,
   bloqueia `confirm()` e bloqueia o seletor de arquivos. Testes de integração ali dão falso negativo.
   Para testar de verdade, abra no navegador ou sirva a pasta por HTTP.
+- **Cartões e comparações alinhados.** Depois de mexer na área do cliente, rode `ux/auditar-alinhamento.js` no console
+  (as instruções estão no arquivo), em 1366 e em 1100 px. Ele confere as linhas de Hoje × Recomendado, as alturas e as
+  bordas dos cartões e os textos cortados.
 - **Cuidado ao apagar blocos grandes de JS por script.** Uma vez isso levou junto a função `renderGoals`.
   Prefira âncoras curtas e confira com `grep -c` depois.
 
@@ -458,3 +461,8 @@ Registradas aqui porque não são óbvias no código:
   capítulo; um vídeo antigo de página vira o vídeo do caso do capítulo. Em aberto: o vídeo teórico é o mesmo para todos,
   mas ainda fica gravado em cada plano (o ideal é uma biblioteca do escritório), e falta testar a capa com a persona da
   cliente (ela assiste aos dois vídeos ou pula para as páginas?).
+- **Hoje e recomendado sempre na mesma linha (07/10/2026).** O usuário achou o imposto de cada pessoa desalinhado entre
+  as duas colunas (uma marca a mais quebrava a linha e empurrava a barra e o total da família) e pediu a tabela de
+  lançamentos centralizada. O IR virou uma grade só, pessoa por pessoa (nome e imposto, a barra, as marcas embaixo); no
+  pró-labore, os dois lados mostram as mesmas linhas, com R$ 0 quando um imposto some; os números das tabelas ficam
+  centralizados. A auditoria (`ux/auditar-alinhamento.js`) passa em todas as páginas.

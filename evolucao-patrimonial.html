@@ -195,7 +195,7 @@ body.sem-grafico .legend,body.sem-grafico .stats,body.sem-grafico #segView,body.
 .pf-como .txt{font-size:12.5px;line-height:1.55;color:var(--nl-gray-700);margin-bottom:12px}
 .pf-tab{width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:18px}
 .pf-tab th{font:600 11px 'DM Sans',sans-serif;color:#8a8a8a;text-align:left;padding:6px 8px;border-bottom:1px solid #ECE9E3}
-.pf-tab td{padding:8px;border-bottom:1px solid #F3F1EC;color:var(--nl-gray-700)} .pf-tab td.n,.pf-tab th.n{text-align:right}
+.pf-tab td{padding:8px;border-bottom:1px solid #F3F1EC;color:var(--nl-gray-700)} .pf-tab td.n,.pf-tab th.n{text-align:center}
 .pf-tab tr.on td{background:var(--nl-peach-100);color:var(--nl-navy-900);font-weight:600}
 .pf-nao{font-size:13px;color:#8d8d8d;line-height:1.5}
 @media (max-width:1080px){.pi-linhas{grid-template-columns:150px 1fr}.pi-fundo{left:150px}.pf-cols{grid-template-columns:repeat(2,1fr)}.pf-seg b{font-size:10.5px}}
@@ -222,14 +222,23 @@ body.sem-grafico .legend,body.sem-grafico .stats,body.sem-grafico #segView,body.
 .tb-col+.tb-col{border-left:1px solid #F0EEE9;padding-left:28px}
 .tb-col h4{font:600 12px 'DM Sans',sans-serif;color:#8a8a8a;text-transform:uppercase;letter-spacing:.06em}
 /* o imposto de cada pessoa */
-.tb-pes{display:grid;grid-template-columns:1fr 210px;grid-template-rows:auto auto;gap:6px 14px;align-items:center}
-.tb-pes .l{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:13px;color:var(--nl-navy-900)}
-.tb-pes .v{grid-row:1/3;grid-column:2;font:600 17px Sora,sans-serif;color:var(--nl-navy-900);text-align:right;line-height:1.1}
-.tb-pes .v small{display:block;font:500 11px 'DM Sans',sans-serif;color:#8d8d8d;margin-top:3px;line-height:1.3}
+/* hoje e recomendado numa grade só: cada pessoa ocupa a mesma linha dos dois lados, e as linhas sempre batem */
+.tb-grade{display:grid;grid-template-columns:1fr 1fr;column-gap:56px;row-gap:18px}
+.tb-grade>*{min-width:0}
+.tb-grade>:nth-child(even){position:relative}
+.tb-grade>:nth-child(even)::before{content:'';position:absolute;left:-28px;top:-9px;bottom:-9px;border-left:1px solid #F0EEE9}
+.tb-grade h4{font:600 12px 'DM Sans',sans-serif;color:#8a8a8a;text-transform:uppercase;letter-spacing:.06em}
+.tb-pes{display:flex;flex-direction:column;gap:7px}
+.tb-pes .l{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.tb-pes .l b{font:600 13.5px 'DM Sans',sans-serif;color:var(--nl-navy-900)}
+.tb-pes .v{font:600 18px Sora,sans-serif;color:var(--nl-navy-900);white-space:nowrap}
+.tb-pes .d{display:flex;align-items:flex-start;justify-content:space-between;gap:6px 12px;flex-wrap:wrap}
+.tb-pes .tg{display:flex;gap:5px;flex-wrap:wrap}
+.tb-pes .d small{font-size:11.5px;color:#8d8d8d;margin-left:auto;text-align:right;line-height:1.35}
 .tb-barra{height:10px;border-radius:5px;background:#F0EEE9;overflow:hidden} .tb-barra i{display:block;height:100%;border-radius:5px;background:#E08A4F}
 .tb-pes.total{border-top:1px solid #F0EEE9;padding-top:12px} .tb-pes.total .v{font-size:22px}
 /* a escada: cada passo começa onde o anterior terminou; o negativo volta em vermelho, com a ponta para trás */
-.tb-esc{display:grid;grid-template-columns:150px 1fr;row-gap:7px} .tb-esc.largo{grid-template-columns:260px 1fr}
+.tb-esc{display:grid;grid-template-columns:150px 1fr;row-gap:7px} .tb-esc.largo{grid-template-columns:310px 1fr}
 .tb-rot{font-size:12px;color:var(--nl-gray-700);text-align:right;padding-right:12px;align-self:center;line-height:1.25}
 .tb-rot.forte{font-weight:600;color:var(--nl-navy-900)}
 .tb-tr{position:relative;height:26px;margin-right:92px}
@@ -269,7 +278,7 @@ body.sem-grafico .legend,body.sem-grafico .stats,body.sem-grafico #segView,body.
 .tb-gt{font:500 10.5px 'DM Sans',sans-serif;fill:#a9a59d}
 .tb-l{fill:none;stroke-width:2.5;stroke-linejoin:round} .tb-l.prev{stroke:#7C5CBF} .tb-l.comum{stroke:#8C9AAB}
 .tb-fim{font:600 11.5px Sora,sans-serif;fill:#56677a} .tb-fim.prev{fill:#6246A8}
-@media (max-width:1080px){.tb-dois{grid-template-columns:1fr}.tb-col+.tb-col{border-left:0;padding-left:0;border-top:1px solid #F0EEE9;padding-top:18px}.tb-esc{grid-template-columns:120px 1fr}}
+@media (max-width:1080px){.tb-grade{column-gap:40px}.tb-grade>:nth-child(even)::before{left:-20px}.tb-dois{grid-template-columns:1fr}.tb-col+.tb-col{border-left:0;padding-left:0;border-top:1px solid #F0EEE9;padding-top:18px}.tb-esc{grid-template-columns:120px 1fr}}
 /* gestão de riscos */
 #riscos{flex:1;min-height:0;overflow:auto;background:var(--nl-cream-50)}
 #riscos .rc{max-width:1120px;margin:0 auto;padding:24px 24px 60px}
@@ -2933,7 +2942,7 @@ function escadaTb(passos, topo, cls) {
   let acc = 0; const x = v => Math.max(0, v) / (topo || 1) * 100;
   return `<div class="tb-esc${cls ? ' ' + cls : ''}">${passos.map((p, i) => {
     let de, ate, menos = false;
-    if (p.total) { de = 0; ate = p.v; } else if (p.v >= 0) { de = acc; ate = acc + p.v; acc = ate; } else { de = acc + p.v; ate = acc; acc = de; menos = true; }
+    if (p.total) { de = 0; ate = p.v; } else if (p.v >= 0 && !p.menos) { de = acc; ate = acc + p.v; acc = ate; } else { de = acc - Math.abs(p.v); ate = acc; acc = de; menos = true; }
     const txt = p.total || i === 0 ? fmt(p.v) : (menos ? '− ' : '+ ') + fmt(Math.abs(p.v));
     return `<div class="tb-rot${p.total ? ' forte' : ''}">${p.rot}</div><div class="tb-tr"><i class="tb-b${menos ? ' menos' : ''}${i && !p.total ? ' liga' + (menos ? ' dir' : '') : ''}" style="left:${x(de)}%;width:${x(ate) - x(de)}%${menos ? '' : ';background:' + p.cor}"></i><span class="tb-v" style="left:${x(Math.max(de, ate))}%">${txt}</span></div>`;
   }).join('')}</div>`;
@@ -2955,9 +2964,10 @@ function paginaIR(P, pg) {
   const a = r.atual, b = r.recomendada, ano = ENGINE.IR.ano;
   const deps = ((P.riscos || {}).dependentes || []).map(d => d.nome || 'dependente'), depsTxt = nomes(deps.length ? deps : [r.nDeps + ' dependentes']);
   const topo = Math.max(1, ...a.pessoas.map(x => x.devido), ...b.pessoas.map(x => x.devido));
-  const col = (tit, c, outro) => `<div class="tb-col"><h4>${tit}</h4>${c.pessoas.map((p, i) => `<div class="tb-pes"><div class="l"><b>${escH(p.nome)}</b><span class="pf-tag${outro && outro.pessoas[i].modelo !== p.modelo ? ' renda' : ''}">declaração ${p.modelo}</span>${p.deps ? `<span class="pf-tag">${p.deps === 1 ? '1 dependente' : p.deps + ' dependentes'}</span>` : ''}${p.pgbl ? '<span class="pf-tag ok">PGBL</span>' : ''}</div>
-      <div class="tb-barra"><i style="width:${p.devido / topo * 100}%"></i></div><div class="v">${fmt(p.devido)}<small>${pctTxt(p.aliq)} da renda tributável de ${fmt(p.rend)}</small></div></div>`).join('')}
-    <div class="tb-pes total"><div class="l"><b>Família</b></div><div class="v">${fmt(c.total)}<small>imposto devido no ano · ${pctTxt(c.rend ? c.total / c.rend : 0)} da renda</small></div></div></div>`;
+  // nome e imposto na primeira linha, a barra na segunda, as marcas e a alíquota na terceira: as barras ficam na mesma altura
+  const pes = (p, antes) => `<div class="tb-pes"><div class="l"><b>${escH(p.nome)}</b><span class="v">${fmt(p.devido)}</span></div><div class="tb-barra"><i style="width:${p.devido / topo * 100}%"></i></div>
+      <div class="d"><span class="tg"><span class="pf-tag${antes && antes.modelo !== p.modelo ? ' renda' : ''}">declaração ${p.modelo}</span>${p.deps ? `<span class="pf-tag">${p.deps === 1 ? '1 dependente' : p.deps + ' dependentes'}</span>` : ''}${p.pgbl ? '<span class="pf-tag ok">PGBL</span>' : ''}</span><small>${pctTxt(p.aliq)} da renda tributável de ${fmt(p.rend)}</small></div></div>`;
+  const tot = c => `<div class="tb-pes total"><div class="l"><b>Família</b><span class="v">${fmt(c.total)}</span></div><div class="d"><small>imposto devido no ano · ${pctTxt(c.rend ? c.total / c.rend : 0)} da renda</small></div></div>`;
   // o que muda nos lançamentos de cada pessoa
   const muda = [];
   if (r.nDeps && a.depsCom !== b.depsCom && b.pessoas[b.depsCom]) muda.push(`<b>${escH(depsTxt)}</b> ${deps.length > 1 ? 'passam' : 'passa'} a ser dependente${deps.length > 1 ? 's' : ''} na declaração de <b>${escH(b.pessoas[b.depsCom].nome)}</b>, que paga uma alíquota maior: cada dependente deduz ${fmt(ENGINE.IR.dependente)} da base de cálculo.`);
@@ -2983,7 +2993,7 @@ function paginaIR(P, pg) {
     <table class="pf-tab"><thead><tr><th></th>${a.pessoas.map(p => `<th class="n">${escH(p.nome)}</th>`).join('')}</tr></thead><tbody>${conta(a, 'Hoje')}${conta(b, 'Recomendado')}</tbody></table>`);
   return `<div class="rk-topo um">${heroTb(pg, r.economia, deParaTb(a.total, b.total), null, 'por ano a menos de imposto de renda, com a estratégia recomendada')}</div>
     <div class="tb-card"><h3>O imposto de cada um, hoje e com a estratégia recomendada</h3><div class="sub">Imposto devido no ano de ${ano}, na declaração de ${ano + 1}, com os mesmos rendimentos de hoje. As barras estão na mesma escala.</div>
-      <div class="tb-dois">${col('Hoje', a)}${col('Recomendado', b, a)}</div></div>
+      <div class="tb-grade"><h4>Hoje</h4><h4>Recomendado</h4>${a.pessoas.map((p, i) => pes(p) + pes(b.pessoas[i], p)).join('')}${tot(a)}${tot(b)}</div></div>
     <div class="tb-card"><h3>O que muda nos lançamentos</h3>${notasTb(muda) || '<div class="sub">Nada muda: a estratégia recomendada é a de hoje.</div>'}${tabela}</div>${como}`;
 }
 
@@ -2995,11 +3005,12 @@ function paginaProlabore(P, pg) {
   const s0 = r.socios[0], extra = r.socios.length === 1 ? 'retirando os mesmos ' + fmt(s0.atual.total) + ' por mês' : '';
   const anoA = r.socios.reduce((a, s) => a + s.atual.ano, 0), anoB = r.socios.reduce((a, s) => a + s.rec.ano, 0);
   const socio = s => {
+    const ambos = k => s.atual[k] > 0.5 || s.rec[k] > 0.5;
     const topo = Math.max(1, s.atual.total), lado = (tit, x) => `<div class="tb-col"><h4>${tit}</h4>${escadaTb([
       { rot: 'Pró-labore', v: x.pro, cor: '#5B7BA6' }, { rot: 'Dividendos', v: x.div, cor: C.fin },
-      { rot: 'INSS (11%)', v: -x.inss }, { rot: 'IR na fonte', v: -x.irrf }].concat(x.divIR ? [{ rot: 'IR sobre dividendos', v: -x.divIR }] : [])
-      .concat([{ rot: 'No seu bolso', v: x.liquido, cor: C.navy, total: true }]).filter((p, i) => i < 2 || p.total || Math.abs(p.v) >= 0.5), topo)}
-      <div class="tb-rodape"><span>Impostos e INSS no ano</span><b>${fmt(x.ano)}</b></div>${x.patronal ? `<div class="tb-rodape leve"><span>dos quais a empresa paga de INSS patronal</span><b>${fmt(12 * x.patronal)}</b></div>` : ''}${x.minimo ? `<div class="tb-rodape leve"><span>imposto mínimo de quem recebe mais de R$ 600 mil no ano</span><b>${fmt(x.minimo)}</b></div>` : ''}</div>`;
+      { rot: 'INSS (11%)', v: -x.inss, menos: true }].concat(ambos('irrf') ? [{ rot: 'IR na fonte', v: -x.irrf, menos: true }] : []).concat(ambos('divIR') ? [{ rot: 'IR sobre dividendos', v: -x.divIR, menos: true }] : [])
+      .concat([{ rot: 'No seu bolso', v: x.liquido, cor: C.navy, total: true }]), topo)}
+      <div class="tb-rodape"><span>Impostos e INSS no ano</span><b>${fmt(x.ano)}</b></div>${ambos('patronal') ? `<div class="tb-rodape leve"><span>dos quais a empresa paga de INSS patronal</span><b>${fmt(12 * x.patronal)}</b></div>` : ''}${ambos('minimo') ? `<div class="tb-rodape leve"><span>imposto mínimo de quem recebe mais de R$ 600 mil no ano</span><b>${fmt(x.minimo)}</b></div>` : ''}</div>`;
     const notas = [`A retirada é a mesma, ${fmt(s.atual.total)} por mês: muda só quanto vem como pró-labore (${fmt(s.atual.pro)} → ${fmt(s.rec.pro)}) e quanto vem como dividendos (${fmt(s.atual.div)} → ${fmt(s.rec.div)}).`,
       `No seu bolso, ${fmtS(s.rec.liquido - s.atual.liquido).replace('R$', 'são R$')} a mais por mês${s.rec.patronal < s.atual.patronal ? `, e a empresa deixa de pagar ${fmt(12 * (s.atual.patronal - s.rec.patronal))} de INSS patronal no ano` : ''}.`,
       `A contribuição ao INSS cai de ${fmt(s.atual.inss)} para ${fmt(s.rec.inss)} por mês. A aposentadoria do INSS é calculada sobre o que você contribui: o seu consultor considera isso no plano da sua liberdade financeira.`];
