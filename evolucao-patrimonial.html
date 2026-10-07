@@ -97,22 +97,29 @@ body.fluxo #fases{display:none}
 @keyframes entra{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 .entra>.rc{animation:entra .22s ease-out}
 @media (prefers-reduced-motion:reduce){.entra>.rc{animation:none}}
-/* capa do capítulo: o assunto, os dois vídeos e o que vem em cada página */
+/* abertura do capítulo em duas páginas: a capa (o assunto, o vídeo teórico e as páginas) e o resumo (o vídeo do caso, os
+   principais números e o que fazer) */
 .capa .cp-cab{padding:8px 4px 0}
 .capa .cp-cab h1{font:600 32px Sora,sans-serif;color:var(--nl-navy-900);line-height:1.15;margin:6px 0 8px}
 .capa .cp-cab p{font-size:14.5px;color:var(--nl-gray-700);line-height:1.55;max-width:720px}
-.cp-videos{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.cp-um{display:grid;grid-template-columns:3fr 2fr;gap:20px}
 .cp-v{background:#fff;border-radius:14px;box-shadow:var(--shadow-card);padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
 .cp-vt{display:flex;flex-direction:column;gap:3px} .cp-vt b{font:600 14px Sora,sans-serif;color:var(--nl-navy-900)} .cp-vt span{font-size:12.5px;color:#8a857c}
 .cp-v .video{box-shadow:none}
-.cp-pags{background:#fff;border-radius:14px;box-shadow:var(--shadow-card);padding:20px 22px}
+.cp-pags{background:#fff;border-radius:14px;box-shadow:var(--shadow-card);padding:20px 22px;min-width:0}
 .cp-pags h3{font:600 15px Sora,sans-serif;color:var(--nl-navy-900);margin-bottom:10px}
 .cp-p{display:flex;align-items:center;gap:14px;width:100%;border:0;background:transparent;text-align:left;padding:12px 10px;border-radius:10px;cursor:pointer;font:inherit;border-top:1px solid #F3F1EC}
 .cp-p:first-of-type{border-top:0} .cp-p:hover{background:var(--nl-peach-100)}
 .cp-p i{flex:0 0 28px;height:28px;border-radius:50%;background:#F0EEE9;color:var(--nl-navy-900);font:700 12px Sora,sans-serif;font-style:normal;display:flex;align-items:center;justify-content:center}
-.cp-p span{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px} .cp-p b{font:600 14px Sora,sans-serif;color:var(--nl-navy-900)} .cp-p small{font-size:12.5px;color:#22794a}
+.cp-p span{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px} .cp-p b{font:600 14px Sora,sans-serif;color:var(--nl-navy-900)} .cp-p small{font-size:12.5px;color:var(--nl-gray-700);line-height:1.5}
 .cp-p em{font-style:normal;font-size:20px;color:var(--nl-orange-500)}
-@media (max-width:900px){.cp-videos{grid-template-columns:1fr}}
+/* os principais números do caso, ao lado do vídeo */
+.cp-n{display:flex;flex-direction:column;gap:3px;padding:12px 0;border-top:1px solid #F3F1EC}
+.cp-n:first-of-type{border-top:0;padding-top:2px}
+.cp-n span{font:600 10.5px 'DM Sans',sans-serif;color:#8d8d8d;text-transform:uppercase;letter-spacing:.06em}
+.cp-n b{font:600 24px Sora,sans-serif;color:var(--nl-navy-900);line-height:1.15} .cp-n b.ok{color:#22794a} .cp-n b.risco{color:#B83A3A}
+.cp-n small{font-size:12px;color:#8a857c;line-height:1.4}
+@media (max-width:900px){.cp-um{grid-template-columns:1fr}}
 /* "Hoje" só na janela do fluxo de caixa; no gráfico, a tecla Home volta para hoje */
 body:not(.fluxo) #btnHome{display:none}
 body.sem-grafico .legend,body.sem-grafico .stats,body.sem-grafico #segView,body.sem-grafico #segMode,body.sem-grafico #btnHome,body.sem-grafico #btnFluxo,body.sem-grafico #btnPlay,body.sem-grafico #btnSkip,body.sem-grafico #ajuda{display:none!important}
@@ -158,7 +165,7 @@ body.sem-grafico .legend,body.sem-grafico .stats,body.sem-grafico #segView,body.
 /* escada: cada classe começa onde a anterior terminou; o tracinho liga o fim de uma ao começo da outra */
 /* a dívida volta do topo dos bens até o total: vermelho que clareia para a direita, com a ponta apontando para trás */
 .pi-b.div{background:linear-gradient(90deg,#DA5B5B,#F2B3B0)!important;border-radius:0 7px 7px 0}
-.pi-b.div::after{content:'';position:absolute;left:-8px;top:50%;margin-top:-8px;border:8px solid transparent;border-left:0;border-right:8px solid #DA5B5B}
+.pi-b.div::after{content:'';position:absolute;left:-5px;top:50%;margin-top:-5px;border:5px solid transparent;border-left:0;border-right:5px solid #DA5B5B}
 .pi-b.liga::before{content:'';position:absolute;top:-14px;height:14px;left:-1px;border-left:1.5px dashed rgba(32,52,76,.6)}
 .pi-b.liga.dir::before{left:auto;right:-1px}
 .pi-v{position:absolute;top:50%;transform:translateY(-50%);margin-left:9px;font:600 12.5px Sora,sans-serif;color:var(--nl-navy-900);white-space:nowrap}
@@ -208,7 +215,7 @@ body.sem-grafico .legend,body.sem-grafico .stats,body.sem-grafico #segView,body.
 .tb-hero-a{display:flex;flex-direction:column;gap:12px;min-width:0;flex:1 1 360px}
 .tb-hero .tb-de{background:var(--nl-cream-50);border-radius:12px;padding:12px 16px;flex:0 1 400px}
 .tb-eco{font:600 40px Sora,sans-serif;color:#22794a;line-height:1.05;white-space:nowrap}
-.tb-eco.neutro{color:var(--nl-navy-900);font-size:28px}
+.tb-eco.neutro{color:var(--nl-navy-900);font-size:28px;white-space:normal}
 .tb-eco small{display:block;font:500 12.5px 'DM Sans',sans-serif;color:#8d8d8d;margin-top:8px;white-space:normal;line-height:1.45}
 .tb-de{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px;color:var(--nl-gray-700)}
 .tb-de b{color:var(--nl-navy-900)}
@@ -229,6 +236,7 @@ body.sem-grafico .legend,body.sem-grafico .stats,body.sem-grafico #segView,body.
 .tb-grade>:nth-child(even)::before{content:'';position:absolute;left:-28px;top:-9px;bottom:-9px;border-left:1px solid #F0EEE9}
 .tb-grade h4{font:600 12px 'DM Sans',sans-serif;color:#8a8a8a;text-transform:uppercase;letter-spacing:.06em}
 .tb-pes{display:flex;flex-direction:column;gap:7px}
+.tb-um{display:grid;column-gap:56px;row-gap:18px} .tb-um>.total{grid-column:1/-1}
 .tb-pes .l{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
 .tb-pes .l b{font:600 13.5px 'DM Sans',sans-serif;color:var(--nl-navy-900)}
 .tb-pes .v{font:600 18px Sora,sans-serif;color:var(--nl-navy-900);white-space:nowrap}
@@ -244,7 +252,7 @@ body.sem-grafico .legend,body.sem-grafico .stats,body.sem-grafico #segView,body.
 .tb-tr{position:relative;height:26px;margin-right:92px}
 .tb-b{position:absolute;top:3px;bottom:3px;border-radius:6px;min-width:3px}
 .tb-b.menos{background:linear-gradient(90deg,#DA5B5B,#F2B3B0);border-radius:0 6px 6px 0}
-.tb-b.menos::after{content:'';position:absolute;left:-7px;top:50%;margin-top:-7px;border:7px solid transparent;border-left:0;border-right:7px solid #DA5B5B}
+.tb-b.menos::after{content:'';position:absolute;left:-4px;top:50%;margin-top:-4px;border:4px solid transparent;border-left:0;border-right:4px solid #DA5B5B}
 .tb-b.liga::before{content:'';position:absolute;top:-10px;height:10px;left:-1px;border-left:1.5px dashed rgba(32,52,76,.5)}
 .tb-b.liga.dir::before{left:auto;right:-1px}
 .tb-v{position:absolute;top:50%;transform:translateY(-50%);margin-left:8px;font:600 12px Sora,sans-serif;color:var(--nl-navy-900);white-space:nowrap}
@@ -2518,9 +2526,10 @@ function trocaBase(plan) {
 ARMAZEM.iniciar().then(info => { if (PAPEL === 'apresentar' && !info.dono) location.replace(location.pathname + (FLUXO ? '?fluxo' : '')); });
 
 // ===================== JORNADA DO CLIENTE: CAPÍTULOS E PÁGINAS =====================
-// As telas finais do cliente, como um livro: capítulos com páginas. Cada capítulo abre com uma capa: o assunto, os dois
-// vídeos (o teórico, o mesmo para todos os clientes, e o do caso deste cliente, em plan.videos['cap-<capítulo>-teoria'] e
-// ['cap-<capítulo>-caso']) e o que vem em cada página. As páginas mostram só os resultados. O cabeçalho mostra a página
+// As telas finais do cliente, como um livro: capítulos com páginas. Cada capítulo abre com duas páginas: a capa, com o
+// assunto, o vídeo teórico (o mesmo para todos os clientes, em plan.videos['cap-<capítulo>-teoria']) e as páginas; e o
+// resumo do caso, com o vídeo do consultor sobre este cliente (['cap-<capítulo>-caso']), os principais números e o que
+// fazer. Depois vêm as páginas de detalhe, só com os resultados. O cabeçalho mostra a página
 // atual, com anterior, próxima e o progresso; o sumário lista todas. Os capítulos 1 e 2 ainda vão ser construídos:
 // aparecem só no sumário, como "em breve", fora da sequência. O consultor apresentando vê as mesmas páginas.
 const CAPITULOS = [1, 2].map(c => ({ id: 'c' + c, titulo: 'Capítulo ' + c, mock: true, paginas: [] }))
@@ -2530,8 +2539,9 @@ const CAPITULOS = [1, 2].map(c => ({ id: 'c' + c, titulo: 'Capítulo ' + c, mock
     { id: 'riscos', titulo: 'Gestão de riscos', sub: 'As oito ameaças ao padrão de vida da família e quanto de cada uma já está protegido.', paginas: [{ id: 'riscos', titulo: 'Gestão de riscos' }] },
     { id: 'evolucao', titulo: 'Evolução patrimonial', sub: 'A trajetória do seu patrimônio ao longo da vida, com os seus objetivos e a liberdade financeira.', paginas: [{ id: 'evolucao', titulo: 'Evolução patrimonial' }] });
 var PAGINAS_TRIB = ['ir', 'prolabore', 'sucessao', 'previdencia'];   // as páginas do capítulo 3, que dividem o mesmo painel
-const PAGINAS = CAPITULOS.flatMap((c, ci) => c.mock ? [] : [{ id: 'capa-' + c.id, titulo: c.titulo, capa: true }].concat(c.paginas).map(p => Object.assign({ cap: ci + 1, capTitulo: c.titulo, capId: c.id }, p)));
+const PAGINAS = CAPITULOS.flatMap((c, ci) => c.mock ? [] : [{ id: 'capa-' + c.id, titulo: c.titulo, capa: true }, { id: 'resumo-' + c.id, titulo: 'Resumo do seu caso', resumo: true }].concat(c.paginas).map(p => Object.assign({ cap: ci + 1, capTitulo: c.titulo, capId: c.id }, p)));
 const paginaDe = id => PAGINAS.find(p => p.id === id);
+const abertura = pg => pg.capa || pg.resumo;   // as duas páginas que abrem o capítulo, no painel #pagina
 // páginas já vistas, para o sumário marcar
 const VISTAS = (() => { try { return new Set(JSON.parse(localStorage.getItem('nl-vistas') || '[]')); } catch (e) { return new Set(); } })();
 let FASE = (() => { const q = new URLSearchParams(location.search).get('fase'); if (paginaDe(q)) return q; try { const f = localStorage.getItem('nl-fase'); if (paginaDe(f)) return f; } catch (e) { } return PAGINAS[0].id; })();
@@ -2541,7 +2551,7 @@ function mostraFase(f) {
   const pg = paginaDe(f) || PAGINAS[0]; f = pg.id;
   FASE = f; VISTAS.add(f); try { localStorage.setItem('nl-fase', f); localStorage.setItem('nl-vistas', JSON.stringify([...VISTAS])); } catch (e) { }
   document.body.classList.toggle('sem-grafico', f !== 'evolucao');
-  document.getElementById('riscos').hidden = f !== 'riscos'; document.getElementById('patrimonio').hidden = f !== 'patrimonio'; document.getElementById('wrap').hidden = f !== 'evolucao'; document.getElementById('pagina').hidden = !pg.capa; document.getElementById('tributos').hidden = !PAGINAS_TRIB.includes(f);
+  document.getElementById('riscos').hidden = f !== 'riscos'; document.getElementById('patrimonio').hidden = f !== 'patrimonio'; document.getElementById('wrap').hidden = f !== 'evolucao'; document.getElementById('pagina').hidden = !abertura(pg); document.getElementById('tributos').hidden = !PAGINAS_TRIB.includes(f);
   const k = PAGINAS.indexOf(pg);
   document.getElementById('pgCap').textContent = 'Capítulo ' + pg.cap + (pg.capa || pg.titulo === pg.capTitulo ? '' : ' · ' + pg.capTitulo);
   document.getElementById('pgTit').textContent = pg.titulo;
@@ -2552,15 +2562,15 @@ function mostraFase(f) {
   document.querySelector('#fases [data-pg="prox"]').disabled = k === PAGINAS.length - 1;
   document.getElementById('sumario').hidden = true;
   fecharCelula();
-  const el = document.getElementById(f === 'riscos' || f === 'patrimonio' ? f : pg.capa ? 'pagina' : PAGINAS_TRIB.includes(f) ? 'tributos' : 'wrap'), mudou = f !== FASE_ANT;
+  const el = document.getElementById(f === 'riscos' || f === 'patrimonio' ? f : abertura(pg) ? 'pagina' : PAGINAS_TRIB.includes(f) ? 'tributos' : 'wrap'), mudou = f !== FASE_ANT;
   FASE_ANT = f; if (mudou && el.id !== 'wrap') el.scrollTop = 0;
-  if (f === 'riscos') renderRiscos(); else if (f === 'patrimonio') renderPatrimonio(); else if (PAGINAS_TRIB.includes(f)) renderTributos(); else if (pg.capa) renderCapa(pg); else requestAnimationFrame(resize);
+  if (f === 'riscos') renderRiscos(); else if (f === 'patrimonio') renderPatrimonio(); else if (PAGINAS_TRIB.includes(f)) renderTributos(); else if (pg.capa) renderCapa(pg); else if (pg.resumo) renderResumo(pg); else requestAnimationFrame(resize);
   if (mudou && el.id !== 'wrap') { el.classList.add('entra'); setTimeout(() => el.classList.remove('entra'), 300); }
 }
 const passaPagina = d => { const k = PAGINAS.findIndex(p => p.id === FASE) + d; if (PAGINAS[k]) mostraFase(PAGINAS[k].id); };
 function renderSumario() {
   document.getElementById('sumario').innerHTML = CAPITULOS.map((c, ci) => c.mock ? `<div class="cap mock"><h5><i>${ci + 1}</i>${escH(c.titulo)}<em>em breve</em></h5></div>`
-    : `<div class="cap"><h5><i>${ci + 1}</i>${escH(c.titulo)}</h5>` + PAGINAS.filter(p => p.capId === c.id).map(p => `<button data-ir-pg="${p.id}" class="${p.id === FASE ? 'on' : ''}${VISTAS.has(p.id) ? ' vista' : ''}">${p.capa ? 'Capa e vídeos' : escH(p.titulo)}</button>`).join('') + '</div>').join('');
+    : `<div class="cap"><h5><i>${ci + 1}</i>${escH(c.titulo)}</h5>` + PAGINAS.filter(p => p.capId === c.id).map(p => `<button data-ir-pg="${p.id}" class="${p.id === FASE ? 'on' : ''}${VISTAS.has(p.id) ? ' vista' : ''}">${p.capa ? 'Entenda o tema' : escH(p.titulo)}</button>`).join('') + '</div>').join('');
 }
 // o fim de toda página: voltar e seguir, sem precisar subir até o cabeçalho
 function rodapeNav(pg) {
@@ -2568,23 +2578,63 @@ function rodapeNav(pg) {
   return `<div class="pg-nav">${a ? `<button class="btn btn-secondary" data-pg="ant" title="${escH(a.titulo)}">‹ ${a.capa ? 'Capítulo ' + a.cap + ': ' : ''}${escH(a.titulo)}</button>` : '<span></span>'}`
     + (b ? `<button class="btn btn-primary" data-pg="prox" title="${escH(b.titulo)}">${b.capa ? 'Próximo capítulo: ' : pg.capa ? 'Começar: ' : 'Próximo: '}${escH(b.titulo)} ›</button>` : '') + '</div>';
 }
-// o resultado principal de cada página, para a capa dizer o que vem nela
-function resumoDaPagina(id, P) {
-  if (id === 'ir') { const r = ENGINE.irDaFamilia(P); return r ? (r.economia > 0.5 ? fmt(r.economia) + ' a menos de imposto de renda por ano' : 'A estratégia de hoje já é a de menor imposto') : null; }
-  if (id === 'prolabore') { const r = ENGINE.retiradaDosSocios(P); return r ? fmt(r.economia) + ' a menos de impostos e INSS por ano' : null; }
-  if (id === 'sucessao') { const s = ENGINE.sucessao(P); return P.tributario && s.atual.total > 0 ? fmt(s.economia) + ' a menos de custos na sucessão' : null; }
-  if (id === 'previdencia') { const b = (P.tributario || {}).previdencia; if (!b) return null; const r = ENGINE.simulaPrevidencia(b); return fmt(r.ganho) + ' a mais em ' + Math.round(r.N / 12) + ' anos'; }
-  if (id === 'patrimonio') { const f = ENGINE.faseDaVida(P); return (f.fases ? 'Você está na fase de ' + f.fases[f.fase].nome.toLowerCase() + ' · ' : '') + 'patrimônio total de ' + fmt(f.total); }
-  if (id === 'riscos') { const a = ENGINE.avaliaRiscos(P); return a.nota == null ? null : 'Nota da família: ' + Math.round(a.nota * 100) + '%, com ' + a.avaliados + ' de 8 ameaças avaliadas'; }
-  if (id === 'evolucao') { const t = document.getElementById('stFF').textContent; return t && t !== '—' ? 'Liberdade financeira: ' + t : null; }
+// Os principais números de cada página e o que fazer, para o resumo do caso: nums [{ rot, valor, txt, tom }] e faz (texto).
+// tom: 'ok' (ganho, em verde) ou 'risco' (em vermelho). Sem dados para a página, null.
+function destaques(id, P) {
+  const ja = 'Já otimizada';
+  if (id === 'ir') { const r = ENGINE.irDaFamilia(P); if (!r) return null; const a = r.atual, b = r.recomendada, faz = [];
+    if (!(r.economia > 0.5)) return { nums: [{ valor: ja, txt: 'a sua estratégia atual já é a de menor imposto de renda' }], faz: 'Nada a mudar na declaração: a estratégia atual já está otimizada.' };
+    if (r.nDeps && a.depsCom !== b.depsCom && b.pessoas[b.depsCom]) faz.push('declarar os dependentes com ' + b.pessoas[b.depsCom].nome);
+    b.pessoas.forEach((p, i) => { const q = a.pessoas[i];
+      if (p.pgbl > q.pgbl) faz.push('fazer um PGBL de ' + fmt(p.pgbl) + ' no ano para ' + p.nome);
+      if (p.ded.medicas !== q.ded.medicas) faz.push('rever as despesas médicas de ' + p.nome);
+      if (p.ded.instrucao !== q.ded.instrucao) faz.push('rever as despesas com instrução de ' + p.nome); });
+    return { nums: [{ valor: fmt(r.economia), txt: 'por ano a menos de imposto de renda', tom: 'ok' }], faz: faz.length ? 'Na declaração: ' + nomes(faz) + '.' : 'Ajustar a declaração como na página de detalhe.' }; }
+  if (id === 'prolabore') { const r = ENGINE.retiradaDosSocios(P); if (!r) return null;
+    if (!(r.economia > 0.5)) return { nums: [{ valor: ja, txt: 'a retirada de hoje já é a de menor imposto' }], faz: 'Manter a retirada da empresa como está.' };
+    const faz = r.socios.filter(s => s.economia > 0.5).map(s => s.nome + ': pró-labore de ' + fmt(s.rec.pro) + ' por mês (hoje ' + fmt(s.atual.pro) + '), e o resto como dividendos');
+    return { nums: [{ valor: fmt(r.economia), txt: 'por ano a menos de impostos e INSS na retirada da empresa', tom: 'ok' }], faz: faz.join('; ') + '.' }; }
+  if (id === 'sucessao') { const s = ENGINE.sucessao(P); if (!P.tributario || !(s.atual.total > 0)) return null;
+    if (!(s.economia > 0.5)) return { nums: [{ valor: fmt(s.atual.custo), txt: 'de imposto e custos estimados na sucessão' }], faz: 'Nada a mudar agora: o seu consultor confere a sucessão com o advogado.' };
+    return { nums: [{ valor: fmt(s.economia), txt: 'a menos de imposto e custos na sucessão', tom: 'ok' }], faz: 'Levar ' + fmt(s.mover) + ' dos investimentos para a previdência, que vai direto aos beneficiários, fora do inventário.' }; }
+  if (id === 'previdencia') { const b = (P.tributario || {}).previdencia; if (!b) return null; const r = ENGINE.simulaPrevidencia(b), anos = Math.round(r.N / 12);
+    return { nums: [{ valor: fmt(r.ganho), txt: 'a mais em ' + anos + ' anos, investindo pela previdência', tom: r.ganho > 0.5 ? 'ok' : '' }], faz: 'Para o longo prazo, investir pela previdência: sem come-cotas, com trocas de estratégia sem imposto e alíquota menor no resgate.' }; }
+  if (id === 'patrimonio') { const f = ENGINE.faseDaVida(P), onde = f.fase ? ondeEsta(f) : null, liq = f.liquidezIdeal, nums = [{ rot: 'Patrimônio total', valor: fmt(f.total), txt: 'o que a família tem, menos o que deve' }];
+    if (f.fases) nums.push({ rot: 'Fase da vida', valor: f.fases[f.fase].nome, txt: f.fase ? 'patrimônio esperado para a sua idade: ' + fmt(f.esperado) : 'antes de começar a trabalhar' });
+    if (liq) nums.push({ rot: 'Dinheiro disponível', valor: fmt(f.fin), txt: f.fin >= liq ? 'acima da liquidez ideal de ' + fmt(liq) : 'faltam ' + fmt(liq - f.fin) + ' para a liquidez ideal', tom: f.fin >= liq ? '' : 'risco' });
+    const faz = [onde ? 'O seu patrimônio está ' + onde[1] + ' para a sua fase.' : '', liq && f.fin < liq ? 'Formar a liquidez ideal: faltam ' + fmt(liq - f.fin) + '.' : ''].filter(Boolean).join(' ');
+    return { nums, faz: faz || null }; }
+  if (id === 'riscos') { const a = ENGINE.avaliaRiscos(P); if (a.nota == null) return null;
+    const de = st => ENGINE.RISCOS.filter(x => a.itens[x.id].status === st).map(x => x.nome.toLowerCase()), crit = de('critico'), aten = de('atencao');
+    const faz = [crit.length ? 'Resolver primeiro: ' + nomes(crit) + '.' : '', aten.length ? 'Depois, rever: ' + nomes(aten) + '.' : ''].filter(Boolean).join(' ');
+    return { nums: [{ rot: 'Nota da família', valor: Math.round(a.nota * 100) + '%', txt: a.avaliados + ' de ' + ENGINE.RISCOS.length + ' ameaças avaliadas' },
+      { rot: 'Protegidas', valor: String(de('ok').length), txt: 'ameaças já resolvidas' }, { rot: 'Críticas', valor: String(crit.length), txt: crit.length ? 'pedem ação agora' : 'nenhuma ameaça crítica', tom: crit.length ? 'risco' : '' }],
+      faz: faz || 'Todas as ameaças avaliadas estão protegidas.' }; }
+  if (id === 'evolucao') { const ff = sim().ff, obj = ENGINE.OBJ.filter(o => o.amount > 0), de = st => obj.filter(o => o.status === st), adj = de('adj'), rever = de('risk'), nums = [];
+    if (ff) nums.push({ rot: 'Liberdade financeira', valor: Math.floor(ff.age) + ' anos', txt: 'em ' + weekDate(ff.week).getFullYear() + (ff.forced ? ', com renda parcial' : ''), tom: ff.forced ? 'risco' : 'ok' });
+    if (obj.length) nums.push({ rot: 'Objetivos alcançáveis', valor: de('ok').length + ' de ' + obj.length, txt: [adj.length ? adj.length + ' com ajustes' : '', rever.length ? rever.length + ' para rever' : ''].filter(Boolean).join(', ') || 'todos cabem no plano' });
+    const faz = [rever.length ? 'Rever: ' + nomes(rever.map(o => o.name)) + '.' : '', adj.length ? 'Ajustar: ' + nomes(adj.map(o => o.name)) + '.' : ''].filter(Boolean).join(' ');
+    return nums.length ? { nums, faz: faz || 'Seguir o plano: todos os objetivos cabem nele.' } : null; }
   return null;
 }
+// a primeira página do capítulo: o assunto, o vídeo teórico e o que vem depois
 function renderCapa(pg) {
-  const c = CAPITULOS.find(x => x.id === pg.capId), P = planoVista(), pags = PAGINAS.filter(p => p.capId === c.id && !p.capa);
+  const c = CAPITULOS.find(x => x.id === pg.capId), pags = PAGINAS.filter(p => p.capId === c.id && !p.capa);
   document.getElementById('pagina').innerHTML = `<div class="rc capa"><div class="cp-cab"><div class="pf-rot">Capítulo ${pg.cap}</div><h1>${escH(c.titulo)}</h1><p>${escH(c.sub)}</p></div>
-    <div class="cp-videos"><div class="cp-v"><div class="cp-vt"><b>Entenda o tema</b><span>Os conceitos por trás deste capítulo, em linguagem simples.</span></div>${videoHtml('cap-' + c.id + '-teoria', 'Entenda: ' + c.titulo, 'Aqui vai entrar o vídeo que explica o tema deste capítulo.')}</div>
-      <div class="cp-v"><div class="cp-vt"><b>O seu caso</b><span>O seu consultor explica o que encontrou no seu planejamento.</span></div>${videoHtml('cap-' + c.id + '-caso', 'O seu caso: ' + c.titulo, 'Aqui vai entrar o vídeo do seu consultor sobre o seu planejamento.')}</div></div>
-    <div class="cp-pags"><h3>Neste capítulo</h3>${pags.map((p, i) => { const r = resumoDaPagina(p.id, P); return `<button class="cp-p" data-ir-pg="${p.id}"><i>${i + 1}</i><span><b>${escH(p.titulo)}</b>${r ? `<small>${escH(r)}</small>` : ''}</span><em>›</em></button>`; }).join('')}</div>
+    <div class="cp-um"><div class="cp-v"><div class="cp-vt"><b>Entenda o tema</b><span>Os conceitos por trás deste capítulo, em linguagem simples.</span></div>${videoHtml('cap-' + c.id + '-teoria', 'Entenda: ' + c.titulo, 'Aqui vai entrar o vídeo que explica o tema deste capítulo.')}</div>
+      <div class="cp-pags"><h3>Neste capítulo</h3>${pags.map((p, i) => `<button class="cp-p" data-ir-pg="${p.id}"><i>${i + 1}</i><span><b>${escH(p.titulo)}</b>${p.resumo ? '<small>O vídeo do seu consultor, os principais números e o que fazer</small>' : ''}</span><em>›</em></button>`).join('')}</div></div>
+    ${rodapeNav(pg)}</div>`;
+}
+// a segunda: o vídeo do caso, os principais números ao lado e, embaixo, o que fazer em cada página
+function renderResumo(pg) {
+  const c = CAPITULOS.find(x => x.id === pg.capId), P = planoVista(), varias = c.paginas.length > 1;
+  const ds = c.paginas.map(p => ({ p, d: destaques(p.id, P) })).filter(x => x.d);
+  const nums = ds.flatMap(({ p, d }) => d.nums.map(n => Object.assign({}, n, { rot: varias ? p.titulo : n.rot })));
+  const faz = ds.filter(x => x.d.faz);
+  document.getElementById('pagina').innerHTML = `<div class="rc capa"><div class="cp-cab"><div class="pf-rot">Capítulo ${pg.cap} · ${escH(c.titulo)}</div><h1>O seu caso</h1><p>O seu consultor explica o que encontrou no seu planejamento. Ao lado, os principais números; embaixo, o que fazer.</p></div>
+    <div class="cp-um"><div class="cp-v"><div class="cp-vt"><b>Vídeo do seu consultor</b><span>O que foi encontrado no seu planejamento e o que é recomendado.</span></div>${videoHtml('cap-' + c.id + '-caso', 'O seu caso: ' + c.titulo, 'Aqui vai entrar o vídeo do seu consultor sobre o seu planejamento.')}</div>
+      <div class="cp-pags"><h3>Principais números</h3>${nums.length ? nums.map(n => `<div class="cp-n"><span>${escH(n.rot)}</span><b class="${n.tom || ''}">${escH(n.valor)}</b><small>${escH(n.txt)}</small></div>`).join('') : '<div class="pf-nao">O seu consultor ainda está preparando os números deste capítulo.</div>'}</div></div>
+    ${faz.length ? `<div class="cp-pags"><h3>O que fazer</h3>${faz.map(({ p, d }, i) => `<button class="cp-p" data-ir-pg="${p.id}"><i>${i + 1}</i><span><b>${escH(p.titulo)}</b><small>${escH(d.faz)}</small></span><em>›</em></button>`).join('')}</div>` : ''}
     ${rodapeNav(pg)}</div>`;
 }
 document.addEventListener('click', e => {
@@ -3013,9 +3063,9 @@ function escadaTb(passos, topo, cls) {
 const notasTb = l => l.length ? `<ul class="tb-notas">${l.map(t => `<li>${t}</li>`).join('')}</ul>` : '';
 const semDadosTb = (pg, texto) => `<div class="rk-topo um">${heroTb(pg, null, null, texto)}</div>`;
 // o cartão do alto: o tema, a economia em destaque e de quanto para quanto
-function heroTb(pg, eco, de, vazio, sub) {
+function heroTb(pg, eco, de, vazio, sub, semEco) {
   return `<div class="nota-card tb-hero"><div class="tb-hero-a"><div class="pf-rot">${escH(pg.capTitulo)}</div><h2>${escH(pg.titulo)}</h2>
-    ${vazio ? `<div class="pf-nao">${vazio}</div>` : `<div class="tb-eco${eco > 0.5 ? '' : ' neutro'}">${eco > 0.5 ? fmt(eco) : 'Sem economia'}<small>${sub}</small></div>`}</div>${vazio ? '' : de || ''}</div>`;
+    ${vazio ? `<div class="pf-nao">${vazio}</div>` : `<div class="tb-eco${eco > 0.5 ? '' : ' neutro'}">${eco > 0.5 ? fmt(eco) : semEco || 'Sem economia'}<small>${sub}</small></div>`}</div>${vazio ? '' : de || ''}</div>`;
 }
 const deParaTb = (a, b, extra) => `<div class="tb-de">de <b>${fmt(a)}</b> para <b>${fmt(b)}</b>${a > 0 && b < a ? `<span class="tb-menos">−${pctTxt((a - b) / a, 0)}</span>` : ''}${extra ? `<span class="tb-extra">${extra}</span>` : ''}</div>`;
 const comoTb = (id, titulo, corpo) => `<details class="pf-como"${TB_ABERTO[id] ? ' open' : ''} data-tb-como="${id}"><summary>${titulo}</summary>${corpo}</details>`;
@@ -3052,8 +3102,13 @@ function paginaIR(P, pg) {
   const conta = (c, t) => `<tr class="cab"><td colspan="${c.pessoas.length + 1}">${t}</td></tr>` + [['Rendimentos tributáveis', p => fmt(p.rend)], ['Deduções (completa) ou desconto de 20% (simplificada)', p => '− ' + fmt(p.modelo === 'completa' ? p.totDed : p.desconto)],
     ['Base de cálculo', p => fmt(p.base)], ['Imposto pela tabela', p => fmt(p.bruto)], ['Redução de ' + ano + ' (Lei 15.270)', p => p.reducao ? '− ' + fmt(p.reducao) : '—'], ['Imposto devido', p => fmt(p.devido)]]
     .map(([n, f]) => `<tr><td>${n}</td>${c.pessoas.map(p => `<td class="n">${f(p)}</td>`).join('')}</tr>`).join('');
+  const otimizada = !(r.economia > 0.5);   // nenhuma mudança diminui o imposto: mostra só hoje
   const como = comoTb('ir', 'Como o imposto é calculado', `<div class="txt">O imposto sai da tabela progressiva de ${ano} sobre a base de cálculo, e a redução da Lei 15.270 zera o imposto de quem tem até R$ 60 mil de rendimentos tributáveis no ano, diminuindo até R$ 88.200. Cada pessoa fica com o modelo de menor imposto: o simplificado desconta 20% da renda (até ${fmt(ENGINE.IR.simplificadoLimite)}); o completo desconta o INSS, ${fmt(ENGINE.IR.dependente)} por dependente, a instrução (até ${fmt(ENGINE.IR.instrucao)} por pessoa), as despesas médicas (sem limite) e o PGBL (até 12% da renda tributável, para quem contribui ao INSS). O PGBL adia o imposto: no resgate, ele paga imposto de renda sobre o valor total, a 10% depois de 10 anos na tabela regressiva.</div>
-    <table class="pf-tab"><thead><tr><th></th>${a.pessoas.map(p => `<th class="n">${escH(p.nome)}</th>`).join('')}</tr></thead><tbody>${conta(a, 'Hoje')}${conta(b, 'Recomendado')}</tbody></table>`);
+    <table class="pf-tab"><thead><tr><th></th>${a.pessoas.map(p => `<th class="n">${escH(p.nome)}</th>`).join('')}</tr></thead><tbody>${conta(a, 'Hoje')}${otimizada ? '' : conta(b, 'Recomendado')}</tbody></table>`);
+  if (otimizada) return `<div class="rk-topo um">${heroTb(pg, 0, `<div class="tb-de">imposto devido em ${ano}: <b>${fmt(a.total)}</b></div>`, null, 'Nenhuma mudança nos dependentes, nas despesas dedutíveis ou no PGBL diminui o imposto de renda da família.', 'A sua estratégia atual já está otimizada')}</div>
+    <div class="tb-card"><h3>O imposto de cada um</h3><div class="sub">Imposto devido no ano de ${ano}, na declaração de ${ano + 1}. As barras estão na mesma escala.</div><div class="tb-um" style="grid-template-columns:repeat(${a.pessoas.length},1fr)">${a.pessoas.map(p => pes(p)).join('')}${tot(a)}</div></div>
+    <div class="tb-card"><h3>Os lançamentos de hoje</h3><table class="pf-tab tb-lanc"><thead><tr><th>Lançamento</th>${a.pessoas.map(p => `<th class="n">${escH(p.nome)}</th>`).join('')}</tr></thead><tbody>
+      ${linhas.map(([n, f]) => `<tr${n === 'Imposto devido' ? ' class="tot"' : ''}><td>${n}</td>${a.pessoas.map(p => `<td class="n">${f(p)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>${como}`;
   return `<div class="rk-topo um">${heroTb(pg, r.economia, deParaTb(a.total, b.total), null, 'por ano a menos de imposto de renda, com a estratégia recomendada')}</div>
     <div class="tb-card"><h3>O imposto de cada um, hoje e com a estratégia recomendada</h3><div class="sub">Imposto devido no ano de ${ano}, na declaração de ${ano + 1}, com os mesmos rendimentos de hoje. As barras estão na mesma escala.</div>
       <div class="tb-grade"><h4>Hoje</h4><h4>Recomendado</h4>${a.pessoas.map((p, i) => pes(p) + pes(b.pessoas[i], p)).join('')}${tot(a)}${tot(b)}</div></div>

@@ -30,22 +30,30 @@ detalhadas, e mostra o mesmo plano e a mesma proposta da tela principal.
 ## Jornada do cliente e gestão de riscos
 
 A área do cliente é organizada como um livro: capítulos com páginas (`CAPITULOS`, na tela do cliente). Cada capítulo
-abre com uma **capa**: o assunto em uma frase, dois vídeos lado a lado e a lista das páginas, cada uma com o seu resultado
-principal ("R$ 3.701 a menos de imposto de renda por ano"). Os vídeos são o **teórico**, que explica o tema e é o mesmo para
-todos os clientes, e o **do caso**, em que o consultor explica o planejamento daquele cliente (links do YouTube, do Vimeo
-ou do arquivo, em `plano.videos['cap-<capítulo>-teoria']` e `['cap-<capítulo>-caso']`, cadastrados na página
-Apresentação do portal; vazio, o espaço fica reservado). As páginas não têm vídeo: mostram só os resultados e terminam com
-"anterior" e "próximo". O cabeçalho mostra a página atual ("Capítulo 3 · Otimização tributária / Imposto de renda da
+abre com duas páginas, um vídeo em cada:
+
+- a **capa**: o assunto em uma frase, o vídeo **teórico**, que explica o tema e é o mesmo para todos os clientes, e a lista
+  das páginas do capítulo;
+- o **resumo do caso**: o vídeo **do caso**, em que o consultor explica o planejamento daquele cliente, os principais
+  números ao lado (o ganho de cada página no capítulo 3; o patrimônio, a fase e o dinheiro disponível; a nota e as ameaças
+  críticas; a idade da liberdade e os objetivos alcançáveis) e, embaixo, o que fazer, página a página, com o caminho para o
+  detalhe (`destaques`, na tela do cliente).
+
+Os vídeos são links do YouTube, do Vimeo ou do arquivo, em `plano.videos['cap-<capítulo>-teoria']` e
+`['cap-<capítulo>-caso']`, cadastrados na página Apresentação do portal; vazio, o espaço fica reservado. Depois vêm as
+páginas de detalhe, sem vídeo: mostram só os resultados e terminam com "anterior" e "próximo". O cabeçalho mostra a página atual ("Capítulo 3 · Otimização tributária / Imposto de renda da
 família"), com anterior, próxima e uma barra de progresso dividida por capítulo; um clique nela abre o sumário, que marca
 as páginas já vistas. Hoje existem **Otimização tributária** (capítulo 3, quatro páginas), **Patrimônio** (capítulo 4,
 página "Fase da vida e patrimônio"), **Gestão de riscos** (capítulo 5) e **Evolução patrimonial** (capítulo 6, a última);
 os capítulos 1 e 2 ainda vão ser construídos e aparecem só no sumário, como "em breve", fora da sequência. A página pode
-vir no endereço (`?fase=capa-tributario`, `?fase=ir`, `?fase=patrimonio`, `?fase=riscos`); senão, a tela abre na
+vir no endereço (`?fase=capa-tributario`, `?fase=resumo-tributario`, `?fase=ir`, `?fase=patrimonio`, `?fase=riscos`); senão, a tela abre na
 última vista, ou na capa do capítulo 3 na primeira vez.
 
 **Otimização tributária** (capítulo 3) tem quatro páginas com o mesmo roteiro: no alto, quanto o cliente economiza, com
 a comparação de quanto para quanto ao lado; depois, hoje e o recomendado lado a lado, na mesma escala; o que muda; e, recolhida,
-a conta. No portal, a página Otimização tributária (passo 7) cadastra tudo em `plano.tributario`; as contas ficam no
+a conta. Quando a estratégia recomendada não diminui o imposto de renda, a página do IR não repete hoje igual ao
+recomendado: diz que a estratégia atual já está otimizada e mostra só o imposto e os lançamentos de hoje. No portal, a
+página Otimização tributária (passo 7) cadastra tudo em `plano.tributario`; as contas ficam no
 motor e valem para 2026 (declaração de 2027), com os parâmetros em `ENGINE.IR`:
 
 - **Imposto de renda da família** (`ENGINE.irDaFamilia`): as pessoas são as da família (titular e, num casal, o cônjuge,

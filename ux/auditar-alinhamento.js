@@ -10,7 +10,7 @@ async function auditaAlinhamento() {
   const R = e => e.getBoundingClientRect(), out = {};
   for (const pg of PAGINAS.filter(p => p.id !== 'evolucao')) {
     mostraFase(pg.id); await new Promise(r => setTimeout(r, 380));
-    const box = document.getElementById(pg.capa ? 'pagina' : pg.id === 'riscos' || pg.id === 'patrimonio' ? pg.id : 'tributos'), probs = [];
+    const box = document.getElementById(pg.capa || pg.resumo ? 'pagina' : pg.id === 'riscos' || pg.id === 'patrimonio' ? pg.id : 'tributos'), probs = [];
     box.querySelectorAll('.tb-grade').forEach(g => { const k = [...g.children]; for (let i = 0; i + 1 < k.length; i += 2) {
       if (Math.abs(R(k[i]).top - R(k[i + 1]).top) > 1) probs.push('grade: linha ' + i / 2 + ' em alturas diferentes');
       const ba = k[i].querySelector('.tb-barra'), bb = k[i + 1].querySelector('.tb-barra'); if (ba && bb && Math.abs(R(ba).top - R(bb).top) > 1) probs.push('grade: barra da linha ' + i / 2 + ' desalinhada'); } });

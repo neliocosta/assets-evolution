@@ -650,7 +650,7 @@ details.pesos{margin-top:14px}
   <section class="page" data-page="apresentacao">
     <div class="kicker">Com o cliente · passo 9 de 9</div>
     <h2>Apresentação</h2>
-    <div class="hint">O cliente vê o plano como um livro, em capítulos. Cada capítulo abre com uma capa e dois vídeos. Coloque os vídeos, confira o que cada página vai mostrar e abra a área do cliente.</div>
+    <div class="hint">O cliente vê o plano como um livro, em capítulos. Cada capítulo abre com uma capa, com o vídeo teórico, e um resumo do caso, com o seu vídeo e os principais números. Coloque os vídeos, confira o que cada página vai mostrar e abra a área do cliente.</div>
     <div id="apresC"></div>
     <div class="note" id="notaArmazem">O plano é gravado e chega sozinho à área do cliente. O que ele propuser aparece em Propostas do cliente.</div>
   </section>
@@ -3562,15 +3562,15 @@ function renderApresentacaoC() {
     ['patrimonio', 4, 'Fase da vida e patrimônio', f.fases ? 'Fase: ' + f.fases[f.fase].nome.toLowerCase() + ' · patrimônio total ' + fmt(f.total) : null, 'Falta a idade em que o cliente começou a trabalhar (página Cliente).', 'cliente'],
     ['riscos', 5, 'Gestão de riscos', a.avaliados ? a.avaliados + ' de 8 ameaças avaliadas · nota da família ' + Math.round((a.nota || 0) * 100) + '%' : null, 'Nenhuma ameaça avaliada ainda.', 'riscos'],
     ['evolucao', 6, 'Evolução patrimonial', ff && temFluxo() && plano.desired > 0 ? 'Liberdade financeira aos ' + Math.floor(ff.age) + ' anos' + (ff.forced ? ' (renda parcial)' : '') : null, 'Faltam o fluxo de caixa e a renda desejada.', 'fluxo']];
-  // um capítulo por bloco: a capa com os dois vídeos (o teórico, o mesmo para todos os clientes, e o do caso deste cliente)
-  // e as páginas, com o que cada uma vai mostrar. Um vídeo antigo de página vira o vídeo do caso do capítulo.
+  // um capítulo por bloco: os dois vídeos (o teórico, o mesmo para todos os clientes, na capa; o do caso deste cliente, no
+  // resumo) e as páginas, com o que cada uma vai mostrar. Um vídeo antigo de página vira o vídeo do caso do capítulo.
   const caps = [['tributario', 3, 'Otimização tributária', ['ir', 'prolabore', 'sucessao', 'previdencia']], ['patrimonio', 4, 'Patrimônio', ['patrimonio']], ['riscos', 5, 'Gestão de riscos', ['riscos']], ['evolucao', 6, 'Evolução patrimonial', ['evolucao']]];
   plano.videos = plano.videos || {};
   caps.forEach(([cid, , , ids]) => { const k = 'cap-' + cid + '-caso', velho = ids.map(i => plano.videos[i]).find(Boolean); if (!plano.videos[k] && velho) plano.videos[k] = velho; });
   const cp = (n, h) => `<div class="field"><label>${n}</label>${h}</div>`, link = ' placeholder="link do YouTube, do Vimeo ou do arquivo"';
-  el.innerHTML = `<div class="bloco"><h3>Os capítulos do cliente</h3><div class="sub">Cada capítulo abre com uma capa e dois vídeos: o teórico, que explica o tema e é o mesmo para todos os clientes, e o do caso, em que você explica o planejamento deste cliente. As páginas mostram só os resultados. Os capítulos 1 e 2 ainda vão ser construídos.</div>
-    ${caps.map(([cid, n, nome, ids]) => `<div class="ap-cap"><div class="ap-cab"><span class="ap-num">${n}</span><b>${nome}</b><button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="capa-${cid}">Abrir a capa</button></div>
-      <div class="grid g2">${cp('Vídeo teórico (o mesmo para todos os clientes)', campoR('videos.cap-' + cid + '-teoria', 'texto', link))}${cp('Vídeo do caso deste cliente', campoR('videos.cap-' + cid + '-caso', 'texto', link))}</div>
+  el.innerHTML = `<div class="bloco"><h3>Os capítulos do cliente</h3><div class="sub">Cada capítulo abre com duas páginas: a capa, com o vídeo teórico, que explica o tema e é o mesmo para todos os clientes; e o resumo do caso, com o vídeo em que você explica o planejamento deste cliente, os principais números e o que fazer. Depois vêm as páginas de detalhe, só com os resultados. Os capítulos 1 e 2 ainda vão ser construídos.</div>
+    ${caps.map(([cid, n, nome, ids]) => `<div class="ap-cap"><div class="ap-cab"><span class="ap-num">${n}</span><b>${nome}</b><button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="capa-${cid}">Abrir a capa</button><button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="resumo-${cid}">Abrir o resumo</button></div>
+      <div class="grid g2">${cp('Vídeo teórico, na capa (o mesmo para todos os clientes)', campoR('videos.cap-' + cid + '-teoria', 'texto', link))}${cp('Vídeo do caso deste cliente, no resumo', campoR('videos.cap-' + cid + '-caso', 'texto', link))}</div>
       ${pgs.filter(p => ids.includes(p[0])).map(([id, , nomeP, ok, falta, ir]) => `<div class="ap-pg"><div><b>${nomeP}</b>${ok ? `<small>${ok}</small>` : `<small class="falta">${falta} <button class="link" data-ir="${ir}">Resolver</button></small>`}</div>
         <button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="${id}">Abrir</button></div>`).join('')}</div>`).join('')}</div>
     <div class="bloco"><h3>Abrir a área do cliente</h3><div class="ap-bts"><button class="btn btn-primary" data-abrir-cliente data-fase="capa-tributario">Apresentar desde o começo</button><a class="btn btn-secondary" href="evolucao-patrimonial.html?fase=capa-tributario" target="_blank" style="text-decoration:none" data-como-cliente>Ver como o cliente vê ↗</a></div>

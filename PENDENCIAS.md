@@ -460,6 +460,16 @@ Registradas aqui porque não são óbvias no código:
   capítulo; um vídeo antigo de página vira o vídeo do caso do capítulo. Em aberto: o vídeo teórico é o mesmo para todos,
   mas ainda fica gravado em cada plano (o ideal é uma biblioteca do escritório), e falta testar a capa com a persona da
   cliente (ela assiste aos dois vídeos ou pula para as páginas?).
+- **Um vídeo por página na abertura do capítulo (07/10/2026).** O usuário achou que dois vídeos na mesma página não fazem
+  sentido. A capa ficou com o vídeo teórico e a lista das páginas; a página seguinte, "Resumo do seu caso", tem o vídeo do
+  consultor sobre o cliente, os principais números (ganhos e indicadores) e o que fazer, página a página; depois vêm as
+  páginas de detalhe. No portal, a Apresentação abre a capa ou o resumo de cada capítulo.
+- **Estratégia do IR já otimizada (07/10/2026).** Quando nenhuma mudança diminui o imposto de renda, a página não mostra
+  hoje e o recomendado iguais lado a lado: diz que a estratégia atual já está otimizada, com o imposto e os lançamentos de
+  hoje. O resumo do capítulo diz o mesmo. As outras páginas do capítulo 3 ainda comparam lado a lado mesmo sem ganho (o
+  pró-labore, quando o recomendado é o de hoje).
+- **Ponta da dívida mais discreta (07/10/2026).** O triângulo vermelho das escadas (dívidas no patrimônio, negativos no
+  capítulo 3) ficou com cerca de dois terços do tamanho (no patrimônio, de 16 para 10 px de altura).
 - **Hoje e recomendado sempre na mesma linha (07/10/2026).** O usuário achou o imposto de cada pessoa desalinhado entre
   as duas colunas (uma marca a mais quebrava a linha e empurrava a barra e o total da família) e pediu a tabela de
   lançamentos centralizada. O IR virou uma grade só, pessoa por pessoa (nome e imposto, a barra, as marcas embaixo); no
