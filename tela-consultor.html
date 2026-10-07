@@ -435,6 +435,9 @@ label.fxhoriz select{width:auto;padding:5px 8px;font-size:12.5px}
 .pc-tile b{font:600 17px Sora,sans-serif;color:var(--nl-navy-900);white-space:nowrap}
 .pc-tile.total{background:var(--nl-navy-900)} .pc-tile.total span{color:rgba(255,255,255,.6)} .pc-tile.total b{color:#fff}
 .pc-lista{display:flex;flex-direction:column;gap:8px}
+/* otimização tributária: hoje e recomendado lado a lado */
+.tbc-lanc{min-width:0} .tbc-lanc th.tbc-est{text-align:center;color:var(--nl-orange-600);border-left:1px solid #efeeea} .tbc-lanc .link{display:block;margin-top:3px;font-size:11.5px}
+.tbc-lanc tr.total td{font-weight:600;color:var(--nl-navy-900);padding:8px 6px}
 .pc-item{border:1px solid #efeeea;border-radius:12px;padding:12px 14px;background:#fff}
 .pc-item.inad{border-color:#F2C4C4;background:#FFFBFB}
 .pc-linha{display:grid;grid-template-columns:1.6fr 1fr 1fr auto;gap:10px;align-items:end}
@@ -494,9 +497,10 @@ details.pesos{margin-top:14px}
     <a data-nav="riscos" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Gestão de riscos<i>4</i></a>
     <a data-nav="objetivos" role="button" tabindex="0"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1"/></svg>Objetivos<i>5</i></a>
     <a data-nav="liberdade" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M18.2 8.5c2 0 3.8 1.6 3.8 3.5s-1.8 3.5-3.8 3.5c-3.8 0-8.6-7-12.4-7C3.8 8.5 2 10.1 2 12s1.8 3.5 3.8 3.5c3.8 0 8.6-7 12.4-7z"/></svg>Liberdade financeira<i>6</i></a>
-    <a data-nav="premissas" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg>Premissas<i>7</i></a>
+    <a data-nav="tributario" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M6 2h9l5 5v15H6zM14 2v6h6M9 13h8M9 17h5"/></svg>Otimização tributária<i>7</i></a>
+    <a data-nav="premissas" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg>Premissas<i>8</i></a>
     <div class="nav-g">Com o cliente</div>
-    <a data-nav="apresentacao" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M3 4h18v12H3zM8 20h8M12 16v4M10 8l4 2-4 2z"/></svg>Apresentação<i>8</i></a>
+    <a data-nav="apresentacao" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M3 4h18v12H3zM8 20h8M12 16v4M10 8l4 2-4 2z"/></svg>Apresentação<i>9</i></a>
     <a data-nav="propostas" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M22 12h-6l-2 3h-4l-2-3H2M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/></svg>Propostas do cliente<i class="contador" id="navProp"></i></a>
   </nav>
   <div class="foot">
@@ -509,7 +513,7 @@ details.pesos{margin-top:14px}
   <div class="pagehead"><div class="chips" id="chips"></div></div>
 
   <section class="page" data-page="cliente">
-    <div class="kicker">Dados do cliente · passo 1 de 8</div>
+    <div class="kicker">Dados do cliente · passo 1 de 9</div>
     <h2>Cliente</h2>
     <div class="hint">Quem é o cliente, quem depende dele e quando ele quer parar de trabalhar. É o ponto de partida do plano.</div>
     <div class="bloco"><h3>Quem é</h3>
@@ -535,7 +539,7 @@ details.pesos{margin-top:14px}
   </section>
 
   <section class="page wide" data-page="fluxo">
-    <div class="kicker">Dados do cliente · passo 2 de 8</div>
+    <div class="kicker">Dados do cliente · passo 2 de 9</div>
     <h2>Fluxo de caixa</h2>
     <div class="hint">Entradas e despesas do cliente, mês a mês. O <b>+</b> de cada grupo cadastra uma linha; um clique numa célula muda o valor dali em diante.</div>
     <div id="fxCap"></div>
@@ -564,7 +568,7 @@ details.pesos{margin-top:14px}
   </section>
 
   <section class="page" data-page="patrimonio">
-    <div class="kicker">Dados do cliente · passo 3 de 8</div>
+    <div class="kicker">Dados do cliente · passo 3 de 9</div>
     <h2>Patrimônio</h2>
     <div class="hint">O que o cliente tem e o que ele deve hoje, item a item. As somas alimentam a simulação, a gestão de riscos e a página de patrimônio do cliente.</div>
     <div id="patrC"></div>
@@ -572,7 +576,7 @@ details.pesos{margin-top:14px}
   </section>
 
   <section class="page" data-page="riscos">
-    <div class="kicker">Planejamento · passo 4 de 8</div>
+    <div class="kicker">Planejamento · passo 4 de 9</div>
     <h2>Gestão de riscos</h2>
     <div class="hint">Avalie, uma a uma, as oito ameaças ao padrão de vida da família. O status de cada uma sai da regra que aparece embaixo dela.</div>
     <div id="riscosC"></div>
@@ -580,7 +584,7 @@ details.pesos{margin-top:14px}
   </section>
 
   <section class="page" data-page="objetivos">
-    <div class="kicker">Planejamento · passo 5 de 8</div>
+    <div class="kicker">Planejamento · passo 5 de 9</div>
     <h2>Objetivos</h2>
     <div class="hint">Os sonhos com data: juntar dinheiro até uma data para comprar ou gastar algo. Clique num objetivo para abrir o detalhe.</div>
     <details class="ajuda solta"><summary>Objetivo ou despesa futura?</summary>Objetivo é algo para juntar dinheiro até uma data (entrada da casa, viagem, troca do carro). Mensalidades que começam no futuro, como a escola do filho, entram no Fluxo de caixa. Em cada objetivo, preencha nome, data e valor: o quanto guardar por mês aparece sozinho, e o aporte definido pode ser ajustado depois de conferir quanto cabe no orçamento.</details>
@@ -590,7 +594,7 @@ details.pesos{margin-top:14px}
   </section>
 
   <section class="page" data-page="liberdade">
-    <div class="kicker">Planejamento · passo 6 de 8</div>
+    <div class="kicker">Planejamento · passo 6 de 9</div>
     <h2>Liberdade financeira</h2>
     <div class="hint">O que o patrimônio vai sustentar, as rendas da aposentadoria (INSS, previdências) e como o patrimônio completa a renda desejada.</div>
     <div id="ffSustenta"></div>
@@ -613,8 +617,16 @@ details.pesos{margin-top:14px}
     <div class="pagenav"><button class="btn btn-tertiary" data-ir="premissas">Próximo: Premissas →</button></div>
   </section>
 
+  <section class="page" data-page="tributario">
+    <div class="kicker">Planejamento · passo 7 de 9</div>
+    <h2>Otimização tributária</h2>
+    <div class="hint">O imposto de renda da família, a retirada dos sócios, a sucessão e a previdência: hoje e com a estratégia recomendada. O cliente vê a economia de cada uma no capítulo 3.</div>
+    <div id="tribC"></div>
+    <div class="pagenav"><button class="btn btn-tertiary" data-ir="premissas">Próximo: Premissas →</button></div>
+  </section>
+
   <section class="page" data-page="premissas">
-    <div class="kicker">Planejamento · passo 7 de 8</div>
+    <div class="kicker">Planejamento · passo 8 de 9</div>
     <h2>Premissas</h2>
     <div class="hint">As rentabilidades que a simulação usa, já descontada a inflação. Os valores sugeridos servem para a maioria dos clientes.</div>
     <div class="bloco"><h3>Rentabilidade real líquida (% ao mês)</h3>
@@ -630,7 +642,7 @@ details.pesos{margin-top:14px}
   </section>
 
   <section class="page" data-page="apresentacao">
-    <div class="kicker">Com o cliente · passo 8 de 8</div>
+    <div class="kicker">Com o cliente · passo 9 de 9</div>
     <h2>Apresentação</h2>
     <div class="hint">O cliente vê o plano como um livro, em capítulos. Confira o que cada página vai mostrar, coloque o vídeo de cada uma e abra a área do cliente.</div>
     <div id="apresC"></div>
@@ -1569,12 +1581,12 @@ const STATUS = { ok: 'Alcançável', adj: 'Alcançável com ajustes', risk: 'Req
 
 // O plano padrão vem do próprio motor: uma só fonte de verdade para os dois lados.
 const PLANO_PADRAO = Object.assign(
-  { name: 'Ana Ribeiro', age: 35, riscos: JSON.parse(JSON.stringify(ENGINE.RISCOS_EXEMPLO)), patrimonio: JSON.parse(JSON.stringify(ENGINE.PATRIMONIO_EXEMPLO)), videos: {} },
+  { name: 'Ana Ribeiro', age: 35, riscos: JSON.parse(JSON.stringify(ENGINE.RISCOS_EXEMPLO)), patrimonio: JSON.parse(JSON.stringify(ENGINE.PATRIMONIO_EXEMPLO)), tributario: JSON.parse(JSON.stringify(ENGINE.TRIBUTARIO_EXEMPLO)), videos: {} },
   JSON.parse(JSON.stringify(ENGINE.config()))
 );
 
-// plano salvo completado com o padrão; o patrimônio detalhado não vem do exemplo (um plano antigo só tem os totais)
-const doSalvo = p => Object.assign(structuredClone(PLANO_PADRAO), { patrimonio: null }, p);
+// plano salvo completado com o padrão; o patrimônio detalhado e a tributação não vêm do exemplo (um plano antigo só tem os totais)
+const doSalvo = p => Object.assign(structuredClone(PLANO_PADRAO), { patrimonio: null, tributario: null }, p);
 let plano = load();
 function load() {
   try { const raw = localStorage.getItem('nl-plano'); if (raw) return doSalvo(JSON.parse(raw)); } catch (e) { }
@@ -1774,7 +1786,7 @@ function renderAll() {
   // o campo em edição volta com o foco e com o texto exatamente como estava sendo digitado
   const foco = document.activeElement, fg = foco && foco.dataset ? foco.dataset.g : null, fk = foco && foco.dataset ? foco.dataset.k : null;
   const oid = fg != null && plano.objectives[+fg] ? plano.objectives[+fg].id : null, txt = foco ? foco.value : null;
-  recompute(); renderTop(); renderFluxo(); renderGoals(); renderLiberdade(); renderClienteC(); renderPatrimonioC(); renderRiscosC(); renderPremissas(); renderApresentacaoC(); renderPropostas(); save();
+  recompute(); renderTop(); renderFluxo(); renderGoals(); renderLiberdade(); renderClienteC(); renderPatrimonioC(); renderRiscosC(); renderTributarioC(); renderPremissas(); renderApresentacaoC(); renderPropostas(); save();
   if (oid && fk) {
     const i = plano.objectives.findIndex(o => o.id === oid), el = document.querySelector('[data-g="' + i + '"][data-k="' + fk + '"]');
     if (el) { el.focus(); if (el.type === 'text' || el.tagName === 'TEXTAREA') { el.value = txt; try { el.setSelectionRange(txt.length, txt.length); } catch (e) { } } }
@@ -1801,7 +1813,7 @@ function renderTop() {
   const feito = { cliente: !!(plano.name && plano.age && plano.desired > 0),
     patrimonio: !!(vistas.patrimonio || plano.initialWealth > 0 || plano.initialBens > 0 || plano.partValue > 0),
     objetivos: !!(vistas.objetivos || (plano.objectives.length && plano.objectives.every(o => o.name && o.amount > 0))),
-    fluxo: temFluxo(), liberdade: !!vistas.liberdade, riscos: !!vistas.riscos, premissas: !!vistas.premissas, apresentacao: !!vistas.apresentacao };
+    fluxo: temFluxo(), liberdade: !!vistas.liberdade, riscos: !!vistas.riscos, tributario: !!(vistas.tributario || plano.tributario), premissas: !!vistas.premissas, apresentacao: !!vistas.apresentacao };
   document.querySelectorAll('#nav a').forEach(a => a.classList.toggle('feito', !!feito[a.dataset.nav]));
   // "Próximo" leva à página seguinte, na ordem da barra lateral
   document.querySelectorAll('.pagenav [data-ir]').forEach(b => {
@@ -3222,6 +3234,7 @@ document.addEventListener('change', e => {
 // mercado e, quando financiados, o detalhe do financiamento, e as dívidas avulsas. As listas somam nos totais do
 // plano (ENGINE.sincronizaPatrimonio). Um bem pode gerar renda passiva: ele aponta para uma linha de entrada do Fluxo.
 const SITUACOES = [['', 'situação…'], ['em_dia', 'Em dia'], ['inadimplente', 'Inadimplente']];
+const TIPOS_FIN = [['', 'Investimentos'], ['pgbl', 'Previdência PGBL'], ['vgbl', 'Previdência VGBL']];
 function resumoPatrimonioC() {
   const f = ENGINE.faseDaVida(plano), t = (n, v, cor, cls) => `<div class="pc-tile ${cls || ''}"><span>${cor ? `<i style="background:${cor}"></i>` : ''}${n}</span><b>${v}</b></div>`;
   return t('Mercado financeiro', fmt(f.fin), '#2E9E5B') + t('Participações', fmt(f.part), '#D9952A') + t('Bens', fmt(f.bens), '#3B6FCB') + t('Dívidas', f.dividas ? '− ' + fmt(f.dividas) : fmt(0), '#D64545') + t('Patrimônio total', fmt(f.total), '', 'total');
@@ -3303,8 +3316,8 @@ function renderPatrimonioC() {
   if (!Array.isArray(D.bens)) D.bens = plano.initialBens ? [{ nome: '', mercado: +plano.initialBens, saldoDevedor: 0 }] : [];
   if (!Array.isArray(D.dividas)) D.dividas = [];
   const f = ENGINE.faseDaVida(plano), rm = c => `<td><button class="btn btn-icon" data-rrm="${c}" title="Remover">×</button></td>`;
-  const tabela = (c, cab, its, col, vazio) => its.length ? `<table class="rkc-tab" style="min-width:0"><thead><tr><th>${cab[0]}</th><th>${cab[1]}</th><th></th></tr></thead><tbody>
-    ${its.map((x, i) => `<tr><td>${campoR(`${c}.${i}.nome`, 'texto', ` placeholder="${col}"`)}</td><td>${campoR(`${c}.${i}.valor`, 'reais')}</td>${rm(`${c}.${i}`)}</tr>`).join('')}</tbody></table>` : `<div class="pc-vazio">${vazio}</div>`;
+  const tabela = (c, cab, its, col, vazio, tipo) => its.length ? `<table class="rkc-tab" style="min-width:0"><thead><tr><th>${cab[0]}</th><th>${cab[1]}</th>${tipo ? `<th>Tipo ${tip('A previdência (PGBL e VGBL) fica fora do inventário na sucessão, na página Otimização tributária.')}</th>` : ''}<th></th></tr></thead><tbody>
+    ${its.map((x, i) => `<tr><td>${campoR(`${c}.${i}.nome`, 'texto', ` placeholder="${col}"`)}</td><td>${campoR(`${c}.${i}.valor`, 'reais')}</td>${tipo ? `<td>${selR(`${c}.${i}.tipo`, TIPOS_FIN)}</td>` : ''}${rm(`${c}.${i}`)}</tr>`).join('')}</tbody></table>` : `<div class="pc-vazio">${vazio}</div>`;
   const bem = (b, i) => { const c = `patrimonio.bens.${i}.`, deve = +b.saldoDevedor > 0;
     return `<div class="pc-item${deve && b.situacao === 'inadimplente' ? ' inad' : ''}"><div class="pc-linha">
       <div class="field"><label>Bem</label>${campoR(c + 'nome', 'texto', ' placeholder="ex.: apartamento onde mora"')}</div>
@@ -3321,7 +3334,7 @@ function renderPatrimonioC() {
   el.innerHTML = `<div class="pc-resumo" id="ptcResumo">${resumoPatrimonioC()}</div>
     <div class="pc-dois">
       <div class="bloco"><h3>Mercado financeiro<span class="dir">${fmt(f.fin)}</span></h3><div class="sub">Investimentos, poupança e conta, por instituição. É o ponto de partida da evolução patrimonial e o que paga a renda da liberdade.</div>
-        ${tabela('patrimonio.financeiro', ['Instituição', 'Valor'], D.financeiro, 'ex.: Itaú', 'Nenhuma instituição ainda.')}<button class="btn btn-step" data-radd="patrimonio.financeiro">+ instituição</button>
+        ${tabela('patrimonio.financeiro', ['Instituição', 'Valor'], D.financeiro, 'ex.: Itaú', 'Nenhuma instituição ainda.', true)}<button class="btn btn-step" data-radd="patrimonio.financeiro">+ instituição</button>
         <div class="grid g2" style="margin-top:14px"><div class="field"><label>Liquidez ideal ${tip('Quanto do patrimônio deveria estar no mercado financeiro, pela sua avaliação. O cliente vê o patrimônio financeiro comparado a este valor.')}</label>${campoR('patrimonio.liquidezIdeal', 'reais', ' placeholder="defina pela sua avaliação"')}</div>
           <div class="field"><label>&nbsp;</label><div class="muted" style="padding-top:8px">${f.liquidezIdeal > 0 ? 'Hoje há ' + fmt(f.fin) + ' no financeiro: ' + (f.fin >= f.liquidezIdeal ? 'está bom.' : 'faltam ' + fmt(f.liquidezIdeal - f.fin) + ' para o ideal.') : ''}</div></div></div></div>
       <div class="bloco"><h3>Participações societárias<span class="dir">${fmt(f.part)}</span></h3><div class="sub">A parte do cliente em cada empresa. Fica constante no tempo e não paga a renda desejada.</div>
@@ -3344,6 +3357,109 @@ document.addEventListener('change', e => {
   abrirGaveta('inc', it.id, true);
 });
 
+// ===================== OTIMIZAÇÃO TRIBUTÁRIA =====================
+// O que o cliente vê no capítulo 3 (plano.tributario): o imposto de renda da família hoje e com a estratégia recomendada,
+// a retirada de cada sócio (pró-labore e dividendos), a sucessão (a previdência fica fora do inventário) e o simulador
+// da previdência. As contas são do motor (irDaFamilia, retiradaDosSocios, sucessao, simulaPrevidencia); os campos com
+// data-r gravam direto no plano. O patrimônio da sucessão vem da página Patrimônio, e os dependentes, da página Cliente.
+const PREV_PADRAO = { inicial: 0, aporte: 0, anos: 20, rent: 10, trocas: 4, aliqComum: 15, comeCotas: true, taxaComum: 0.8, taxaPrev: 0.8 };
+const novoTributario = () => {
+  const nomes = [(plano.name || '').trim().split(/\s+/)[0] || 'Titular'].concat(conjuge() ? ['Cônjuge'] : []), lanc = () => nomes.map(() => ({ instr: 0, med: 0, pgbl: 0 }));
+  return { ir: { pessoas: nomes.map(nome => ({ nome, rend: 0, inss: 0, outras: 0 })), atual: { depsCom: 0, lanc: lanc() }, recomendada: { depsCom: 0, lanc: lanc() } },
+    prolabore: { socios: [] }, sucessao: { itcmd: 4, custos: 8, paraPrevidencia: 0 }, previdencia: Object.assign({}, PREV_PADRAO) };
+};
+const ESTRATEGIAS = [['atual', 'Hoje'], ['recomendada', 'Recomendado']];
+function resumoIRC() {
+  const r = ENGINE.irDaFamilia(plano); if (!r) return 'Cadastre as pessoas que declaram imposto de renda.';
+  return `Imposto devido em ${ENGINE.IR.ano}: hoje <b>${fmt(r.atual.total)}</b> · recomendado <b>${fmt(r.recomendada.total)}</b> · <b>${r.economia >= 0 ? 'economia de ' + fmt(r.economia) : 'custo de ' + fmt(-r.economia)} por ano</b>.`;
+}
+function resumoProC() {
+  const r = ENGINE.retiradaDosSocios(plano); if (!r) return 'Sem sócios cadastrados: a página do cliente fica reservada.';
+  return r.socios.map(s => `<b>${esc(s.nome)}</b>: impostos e INSS de ${fmt(s.atual.ano)} por ano hoje e de ${fmt(s.rec.ano)} recomendado (economia de ${fmt(s.economia)})${s.fatorR && s.fatorR.cai ? ' · <span style="color:var(--nl-orange-600)">o fator R cai abaixo de 28%</span>' : ''}.`).join('<br>');
+}
+function resumoSucC() {
+  const s = ENGINE.sucessao(plano);
+  return `No inventário: hoje ${fmt(s.atual.inventario)}, custo de ${fmt(s.atual.custo)}; recomendado ${fmt(s.recomendada.inventario)}, custo de ${fmt(s.recomendada.custo)} · <b>economia de ${fmt(s.economia)}</b> (${(s.pct * 100).toLocaleString('pt-BR')}% sobre o que entra no inventário).`;
+}
+function resumoPrevC() {
+  const r = ENGINE.simulaPrevidencia(Object.assign({}, PREV_PADRAO, plano.tributario.previdencia));
+  return `Ao fim de ${Math.round(r.N / 12)} anos: investimento comum ${fmt(r.comum.final)} (imposto médio de ${(r.comum.aliqMedia * 100).toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%), previdência ${fmt(r.prev.final)} (${(r.prev.aliqMedia * 100).toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%) · <b>ganho de ${fmt(r.ganho)}</b>.`;
+}
+function renderTributarioC() {
+  const el = document.getElementById('tribC'); if (!el) return;
+  const T = plano.tributario;
+  if (!T) { el.innerHTML = `<div class="bloco"><div class="note">Nada registrado ainda. <button class="btn btn-tertiary btn-small" data-texemplo>Usar o exemplo como ponto de partida</button> <button class="btn btn-tertiary btn-small" data-tnovo>Começar do zero</button></div></div>`; return; }
+  const ir = T.ir = T.ir || { pessoas: [], atual: { depsCom: 0, lanc: [] }, recomendada: { depsCom: 0, lanc: [] } }, ps = ir.pessoas = ir.pessoas || [];
+  const r = ENGINE.irDaFamilia(plano), quem = ps.map((p, i) => [i, p.nome || 'Pessoa ' + (i + 1)]), cp = (n, h) => `<div class="field"><label>${n}</label>${h}</div>`;
+  const deps = ((plano.riscos || {}).dependentes || []), depsTxt = Array.isArray(plano.riscos && plano.riscos.dependentes) ? (deps.length ? deps.length + ' (' + deps.map(d => esc(d.nome || 'sem nome')).join(', ') + ')' : 'nenhum') : 'a lista ainda não foi preenchida';
+  const pessoas = ps.length ? `<table class="rkc-tab" style="min-width:0"><thead><tr><th>Quem declara</th><th>Rendimentos tributáveis no ano</th><th>INSS ou regime próprio no ano</th><th>Outras deduções no ano ${tip('Pensão alimentícia judicial e livro-caixa. Valem igual nas duas estratégias.')}</th><th></th></tr></thead><tbody>
+    ${ps.map((p, i) => `<tr><td>${campoR(`tributario.ir.pessoas.${i}.nome`, 'texto', ' placeholder="nome"')}</td><td>${campoR(`tributario.ir.pessoas.${i}.rend`, 'reais')}</td><td>${campoR(`tributario.ir.pessoas.${i}.inss`, 'reais0', ' placeholder="sem contribuição"')}</td><td>${campoR(`tributario.ir.pessoas.${i}.outras`, 'reais0', ' placeholder="nenhuma"')}</td><td><button class="btn btn-icon" data-trm="pessoa:${i}" title="Remover">×</button></td></tr>`).join('')}</tbody></table>` : '<div class="pc-vazio">Ninguém cadastrado ainda.</div>';
+  // os lançamentos de cada estratégia: uma coluna por pessoa, hoje e recomendado lado a lado
+  const lanc = (n, k, dica) => `<tr><td>${n}${dica ? ' ' + tip(dica) : ''}</td>${ESTRATEGIAS.map(([c]) => ps.map((p, i) => `<td>${campoR(`tributario.ir.${c}.lanc.${i}.${k}`, 'reais0', ' placeholder="—"')}${k === 'pgbl' && c === 'recomendada' && +p.inss > 0 && Math.abs(+lerR(`tributario.ir.recomendada.lanc.${i}.pgbl`) - 0.12 * (+p.rend || 0)) > 1 ? `<button class="link" data-tpgbl="${i}" title="12% da renda tributável">usar 12%: ${fmt(0.12 * (+p.rend || 0))}</button>` : ''}</td>`).join('')).join('')}</tr>`;
+  const calc = (n, f) => `<tr class="total"><td>${n}</td>${ESTRATEGIAS.map(([c]) => ps.map((p, i) => `<td>${r ? f(r[c].pessoas[i]) : '—'}</td>`).join('')).join('')}</tr>`;
+  const estrategias = ps.length ? `<div class="tablewrap"><table class="rkc-tab tbc-lanc"><thead><tr><th></th>${ESTRATEGIAS.map(([, n]) => `<th colspan="${ps.length}" class="tbc-est">${n}</th>`).join('')}</tr>
+      <tr><th>Lançamento</th>${ESTRATEGIAS.map(() => ps.map((p, i) => `<th>${esc(p.nome || 'Pessoa ' + (i + 1))}</th>`).join('')).join('')}</tr></thead><tbody>
+      <tr><td>Dependentes ${tip('Os dependentes da página Cliente entram na declaração de uma pessoa só. Na recomendada, normalmente na de quem paga a maior alíquota.')}</td>${ESTRATEGIAS.map(([c]) => `<td colspan="${ps.length}">${selR(`tributario.ir.${c}.depsCom`, quem, 'num')}</td>`).join('')}</tr>
+      ${lanc('Despesas médicas', 'med', 'Sem limite. Só deduz quem pagou: a do titular do plano de saúde fica com ele.')}${lanc('Instrução', 'instr', 'Até ' + fmt(ENGINE.IR.instrucao) + ' por pessoa (o declarante e cada dependente).')}${lanc('PGBL no ano', 'pgbl', 'Até 12% da renda tributável, para quem contribui ao INSS ou a regime próprio.')}
+      ${calc('Modelo', p => p.modelo)}${calc('Imposto devido', p => fmt(p.devido))}</tbody></table></div>` : '';
+  // pró-labore e dividendos
+  const socios = (T.prolabore = T.prolabore || { socios: [] }).socios = T.prolabore.socios || [];
+  const socio = (s, i) => { const c = `tributario.prolabore.socios.${i}.`;
+    return `<div class="pc-item"><div class="grid g4">${cp('Sócio', campoR(c + 'nome', 'texto', ' placeholder="nome"'))}${cp('Empresa', campoR(c + 'empresa', 'texto', ' placeholder="nome da empresa"'))}${cp('Regime', selR(c + 'regime', ENGINE.REGIMES))}
+      ${s.regime === 'simplesR' ? cp('Faturamento por mês ' + tip('Para o fator R: no Simples, a folha (o pró-labore) precisa ser 28% do faturamento para a empresa ficar no Anexo III.'), campoR(c + 'faturamento', 'reais')) : '<div></div>'}
+      ${cp('Pró-labore hoje (por mês)', campoR(c + 'pro', 'reais'))}${cp('Dividendos hoje (por mês)', campoR(c + 'div', 'reais0', ' placeholder="nenhum"'))}${cp('Pró-labore recomendado', campoR(c + 'proRec', 'reais0', ' placeholder="vazio: salário mínimo, ' + fmt(ENGINE.IR.salarioMinimo) + '"'))}
+      <div class="field"><label>&nbsp;</label><button class="btn btn-icon" data-trm="socio:${i}" title="Remover">×</button></div></div></div>`; };
+  // sucessão: o patrimônio vem da página Patrimônio
+  const S = T.sucessao = T.sucessao || { itcmd: 4, custos: 8, paraPrevidencia: 0 }, su = ENGINE.sucessao(plano);
+  const prevFin = ((plano.patrimonio || {}).financeiro || []).filter(x => ENGINE.PREVIDENCIA.includes(x.tipo));
+  const V = T.previdencia = T.previdencia || Object.assign({}, PREV_PADRAO), pv = (k, n, extra, tipo) => cp(n, campoR('tributario.previdencia.' + k, tipo || 'num', extra));
+  el.innerHTML = `<div class="bloco"><h3>Imposto de renda da família</h3><div class="sub">Os rendimentos e o INSS de cada pessoa, da declaração. Abaixo, os lançamentos hoje e na estratégia recomendada: quem declara os dependentes, as despesas e o PGBL. Regras de ${ENGINE.IR.ano} (declaração de ${ENGINE.IR.ano + 1}).</div>
+      ${pessoas}<button class="btn btn-step" data-tadd="pessoa">+ pessoa</button>
+      <div class="rkc-calc" style="margin:12px 0">Dependentes, da página Cliente: ${depsTxt}. <button class="link" data-ir="cliente">Editar na página Cliente</button></div>
+      ${estrategias}<div class="rkc-calc" id="tbcIR">${resumoIRC()}</div>
+      <div class="pc-acoes"><button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="ir">Ver na tela do cliente</button></div></div>
+    <div class="bloco"><h3>Pró-labore e dividendos</h3><div class="sub">Para cada sócio, a retirada de hoje e o pró-labore recomendado; o resto da mesma retirada vem como dividendos.</div>
+      <div class="pc-lista">${socios.map(socio).join('') || '<div class="pc-vazio">Nenhum sócio cadastrado.</div>'}</div><button class="btn btn-step" data-tadd="socio">+ sócio</button>
+      <div class="rkc-calc" id="tbcPro">${resumoProC()}</div>
+      <div class="pc-acoes"><button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="prolabore">Ver na tela do cliente</button></div></div>
+    <div class="bloco"><h3>Sucessão e ITCMD</h3><div class="sub">O patrimônio vem da página Patrimônio: bens, participações e investimentos entram no inventário; as aplicações marcadas como previdência ficam de fora.</div>
+      <div class="rkc-calc" style="margin:0 0 12px">Hoje: bens ${fmt(su.atual.bens)}, participações ${fmt(su.atual.part)}, investimentos ${fmt(su.atual.inv)}, dívidas ${fmt(su.atual.dividas)}, previdência ${fmt(su.atual.prev)}${prevFin.length ? ' (' + prevFin.map(x => esc(x.nome || 'sem nome')).join(', ') + ')' : ''}. ${prevFin.length ? '' : 'Para separar a previdência, use a coluna Tipo do mercado financeiro na página Patrimônio. '}<button class="link" data-ir="patrimonio">Abrir a página Patrimônio</button></div>
+      <div class="grid g3">${cp('ITCMD (%) ' + tip('A alíquota do estado. São Paulo cobra 4% hoje; com a reforma tributária, o ITCMD passa a ser progressivo, até 8%.'), campoR('tributario.sucessao.itcmd', 'num', ' min="0" max="20" step="0.5" placeholder="4"'))}
+        ${cp('Custos do inventário (%) ' + tip('Advogado, custas e cartório, sobre o que entra no inventário.'), campoR('tributario.sucessao.custos', 'num', ' min="0" max="20" step="0.5" placeholder="8"'))}
+        ${cp('Levar dos investimentos para a previdência', campoR('tributario.sucessao.paraPrevidencia', 'reais0', ' placeholder="até ' + fmt(su.atual.inv) + '"'))}</div>
+      <div class="rkc-calc" id="tbcSuc">${resumoSucC()}</div>
+      <div class="pc-acoes"><button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="sucessao">Ver na tela do cliente</button></div></div>
+    <div class="bloco"><h3>Previdência no longo prazo</h3><div class="sub">Os valores com que o simulador do cliente abre. Ele pode mudá-los na tela dele, sem gravar nada.</div>
+      <div class="grid g4">${pv('inicial', 'Valor inicial', '', 'reais0')}${pv('aporte', 'Aporte por mês', '', 'reais0')}${pv('anos', 'Prazo (anos)', ' min="1" max="50" step="1"')}${pv('rent', 'Rentabilidade (% ao ano)', ' min="0" max="30" step="0.5"')}
+        ${pv('trocas', 'Trocas de estratégia no período', ' min="0" max="20" step="1"')}${pv('aliqComum', 'Alíquota do investimento comum (%)', ' min="0" max="30" step="0.5"')}
+        ${cp('Investimento comum', selR('tributario.previdencia.comeCotas', [['sim', 'Fundo com come-cotas'], ['nao', 'Fundo de ações (sem come-cotas)']], 'bool'))}<div></div>
+        ${pv('taxaComum', 'Taxa de administração do comum (% ao ano)', ' min="0" max="5" step="0.1"')}${pv('taxaPrev', 'Taxa de administração da previdência (% ao ano)', ' min="0" max="5" step="0.1"')}</div>
+      ${(() => { const pg = r && r.recomendada.pessoas.find(p => p.pgbl > 0); return pg && Math.abs(+V.aporte - pg.pgbl / 12) > 1 ? `<div class="rkc-calc" style="margin:10px 0 0">O PGBL recomendado para ${esc(pg.nome)} é de ${fmt(pg.pgbl / 12)} por mês. <button class="link" data-tprev-aporte="${Math.round(pg.pgbl / 12)}">Usar como aporte</button></div>` : ''; })()}
+      <div class="rkc-calc" id="tbcPrev">${resumoPrevC()}</div>
+      <div class="pc-acoes"><button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="previdencia">Ver na tela do cliente</button></div></div>`;
+}
+// digitando: só os resumos mudam (o formulário não é redesenhado, para não perder o foco)
+document.addEventListener('input', e => {
+  const c = e.target.dataset && e.target.dataset.r; if (!c || !c.startsWith('tributario.') || !plano.tributario) return;
+  // depois do gravador genérico (registrado mais adiante), para ler o valor já gravado
+  setTimeout(() => [['tbcIR', resumoIRC], ['tbcPro', resumoProC], ['tbcSuc', resumoSucC], ['tbcPrev', resumoPrevC]].forEach(([id, f]) => { const x = document.getElementById(id); if (x) x.innerHTML = f(); }), 0);
+});
+document.addEventListener('click', e => {
+  const T = plano.tributario, b = e.target.closest('[data-tadd],[data-trm],[data-texemplo],[data-tnovo],[data-tpgbl],[data-tprev-aporte]'); if (!b) return;
+  if (b.dataset.texemplo != null) plano.tributario = structuredClone(ENGINE.TRIBUTARIO_EXEMPLO);
+  else if (b.dataset.tnovo != null) plano.tributario = novoTributario();
+  else if (b.dataset.tadd === 'pessoa') { const ir = T.ir; ir.pessoas.push({ nome: '', rend: 0, inss: 0, outras: 0 }); ESTRATEGIAS.forEach(([c]) => { ir[c] = ir[c] || { depsCom: 0, lanc: [] }; ir[c].lanc = ir[c].lanc || []; ir[c].lanc[ir.pessoas.length - 1] = { instr: 0, med: 0, pgbl: 0 }; }); }
+  else if (b.dataset.tadd === 'socio') T.prolabore.socios.push({ nome: '', empresa: '', regime: 'simples', pro: 0, div: 0, proRec: null, faturamento: null });
+  else if (b.dataset.trm) {
+    const [o, k] = b.dataset.trm.split(':'), i = +k;
+    if (o === 'socio') T.prolabore.socios.splice(i, 1);
+    else { T.ir.pessoas.splice(i, 1); ESTRATEGIAS.forEach(([c]) => { const x = T.ir[c]; if (!x) return; (x.lanc || []).splice(i, 1); if (+x.depsCom === i) x.depsCom = 0; else if (+x.depsCom > i) x.depsCom = +x.depsCom - 1; }); }
+  }
+  else if (b.dataset.tpgbl != null) { const i = +b.dataset.tpgbl; ENGINE.gravaCaminho(plano, `tributario.ir.recomendada.lanc.${i}.pgbl`, Math.round(0.12 * (+T.ir.pessoas[i].rend || 0) * 100) / 100); }
+  else if (b.dataset.tprevAporte != null) T.previdencia.aporte = +b.dataset.tprevAporte;
+  renderAll();
+});
+
 // ===================== PREMISSAS =====================
 const aoAno = m => ((Math.pow(1 + m, 12) - 1) * 100).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + '% ao ano';
 function renderPremissas() {
@@ -3356,12 +3472,17 @@ function renderPremissas() {
 // As páginas que o cliente vê, na ordem da jornada dele, com o que cada uma vai mostrar, o vídeo e o atalho.
 function renderApresentacaoC() {
   const el = document.getElementById('apresC'); if (!el) return;
-  const f = ENGINE.faseDaVida(plano), a = ENGINE.avaliaRiscos(plano), ff = SIM && SIM.ff;
+  const f = ENGINE.faseDaVida(plano), a = ENGINE.avaliaRiscos(plano), ff = SIM && SIM.ff, ir = ENGINE.irDaFamilia(plano), pro = ENGINE.retiradaDosSocios(plano), su = ENGINE.sucessao(plano), T = plano.tributario;
+  const eco = v => 'economia de ' + fmt(v) + (v > 0 ? '' : ' (sem ganho)');
   const pgs = [
+    ['ir', 3, 'Imposto de renda da família', ir ? eco(ir.economia) + ' por ano' : null, 'Faltam as pessoas e os lançamentos do imposto de renda.', 'tributario'],
+    ['prolabore', 3, 'Pró-labore e dividendos', pro ? eco(pro.economia) + ' por ano' : null, 'Nenhum sócio cadastrado.', 'tributario'],
+    ['sucessao', 3, 'Sucessão e ITCMD', T && su.atual.total > 0 ? eco(su.economia) + ' na sucessão' : null, T ? 'Falta o patrimônio na página Patrimônio.' : 'Falta preencher a página Otimização tributária.', T ? 'patrimonio' : 'tributario'],
+    ['previdencia', 3, 'Previdência no longo prazo', T && T.previdencia && (+T.previdencia.inicial > 0 || +T.previdencia.aporte > 0) ? 'ganho de ' + fmt(ENGINE.simulaPrevidencia(T.previdencia).ganho) + ' em ' + T.previdencia.anos + ' anos' : null, 'Faltam o valor inicial ou o aporte do simulador.', 'tributario'],
     ['patrimonio', 4, 'Fase da vida e patrimônio', f.fases ? 'Fase: ' + f.fases[f.fase].nome.toLowerCase() + ' · patrimônio total ' + fmt(f.total) : null, 'Falta a idade em que o cliente começou a trabalhar (página Cliente).', 'cliente'],
     ['riscos', 5, 'Gestão de riscos', a.avaliados ? a.avaliados + ' de 8 ameaças avaliadas · nota da família ' + Math.round((a.nota || 0) * 100) + '%' : null, 'Nenhuma ameaça avaliada ainda.', 'riscos'],
     ['evolucao', 6, 'Evolução patrimonial', ff && temFluxo() && plano.desired > 0 ? 'Liberdade financeira aos ' + Math.floor(ff.age) + ' anos' + (ff.forced ? ' (renda parcial)' : '') : null, 'Faltam o fluxo de caixa e a renda desejada.', 'fluxo']];
-  el.innerHTML = `<div class="bloco"><h3>As páginas do cliente</h3><div class="sub">Os capítulos 1 a 3 ainda vão ser construídos. Sem vídeo, o espaço dele fica reservado na página.</div>
+  el.innerHTML = `<div class="bloco"><h3>As páginas do cliente</h3><div class="sub">Os capítulos 1 e 2 ainda vão ser construídos. Sem vídeo, o espaço dele fica reservado na página.</div>
     ${pgs.map(([id, cap, nome, ok, falta, ir]) => `<div class="ap-pg"><span class="ap-num">${cap}</span><div><b>${nome}</b>${ok ? `<small>${ok}</small>` : `<small class="falta">${falta} <button class="link" data-ir="${ir}">Resolver</button></small>`}</div>
       <div class="field" style="margin:0">${campoR('videos.' + id, 'texto', ' placeholder="link do vídeo (YouTube, Vimeo ou arquivo)"')}</div>
       <button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="${id}">Abrir</button></div>`).join('')}</div>
@@ -3553,9 +3674,9 @@ function concluirResposta() {
 ARMAZEM.ouvir('proposta', () => renderPropostas());
 
 // páginas do portal: cada assunto numa página, na ordem em que o plano é montado
-// (dados do cliente: Cliente, Fluxo, Patrimônio; planejamento: Riscos, Objetivos, Liberdade, Premissas; com o cliente)
-const PAGINAS = ['cliente', 'fluxo', 'patrimonio', 'riscos', 'objetivos', 'liberdade', 'premissas', 'apresentacao', 'propostas'];
-const NOMES_PAGINA = { cliente: 'Cliente', patrimonio: 'Patrimônio', objetivos: 'Objetivos', fluxo: 'Fluxo de caixa', liberdade: 'Liberdade financeira', riscos: 'Gestão de riscos', premissas: 'Premissas', apresentacao: 'Apresentação', propostas: 'Propostas do cliente' };
+// (dados do cliente: Cliente, Fluxo, Patrimônio; planejamento: Riscos, Objetivos, Liberdade, Tributário, Premissas; com o cliente)
+const PAGINAS = ['cliente', 'fluxo', 'patrimonio', 'riscos', 'objetivos', 'liberdade', 'tributario', 'premissas', 'apresentacao', 'propostas'];
+const NOMES_PAGINA = { cliente: 'Cliente', patrimonio: 'Patrimônio', objetivos: 'Objetivos', fluxo: 'Fluxo de caixa', liberdade: 'Liberdade financeira', riscos: 'Gestão de riscos', tributario: 'Otimização tributária', premissas: 'Premissas', apresentacao: 'Apresentação', propostas: 'Propostas do cliente' };
 // os indicadores do topo só aparecem onde ajudam a decidir: orçamento, objetivos e liberdade
 const COM_INDICADORES = ['fluxo', 'objetivos', 'liberdade'];
 let paginaAtual = null;
@@ -3596,7 +3717,7 @@ document.getElementById('btnExemplo').onclick = e => trocarPlano(e.currentTarget
 
 // abrir a visão do cliente para apresentar: o plano vai gravado e também no endereço, e as ferramentas de proposta ficam de fora
 // a página do cliente que corresponde à página do portal à vista (ou a pedida pelo botão)
-const FASE_CLIENTE = { cliente: 'patrimonio', patrimonio: 'patrimonio', riscos: 'riscos' };
+const FASE_CLIENTE = { cliente: 'patrimonio', patrimonio: 'patrimonio', riscos: 'riscos', tributario: 'ir' };
 document.getElementById('btnOpen').onclick = () => abrirCliente();
 function abrirCliente(fase) {
   const json = JSON.stringify(plano);

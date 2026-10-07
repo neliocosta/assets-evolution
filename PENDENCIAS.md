@@ -52,6 +52,38 @@ Em aberto:
 4. **Idade de quem?** A fase usa a idade do titular (`plan.age`) e a idade para parar de trabalhar dele. Num casal, cada
    um tem a sua fase; hoje há uma só.
 
+## Otimização tributária (em aberto)
+
+O capítulo 3 da área do cliente e a página Otimização tributária do portal existem desde 07/10/2026 (veja o README). Foram
+feitos sem o usuário por perto, a partir do pedido dele: confira as escolhas abaixo antes de levar a um cliente.
+
+1. **Rendimentos do IR digitados, não ligados ao Fluxo de caixa.** O fluxo guarda o valor líquido e não diz de quem é cada
+   renda, então os rendimentos tributáveis e o INSS de cada pessoa vêm da declaração. Falta ligar (uma linha do fluxo por
+   pessoa, com o bruto) para o valor não ficar em dois lugares.
+2. **IR e pró-labore são contas separadas.** No exemplo, o Marcos declara R$ 84 mil (o pró-labore de hoje × 12); se ele
+   seguir a recomendação do pró-labore, a renda tributável dele no IR cai e a economia das duas páginas não soma
+   exatamente. Decidir se a estratégia do IR usa o pró-labore recomendado.
+3. **Parâmetros de 2026 a confirmar.** A tabela anual é a mensal × 12 (R$ 2.428,80 isento por mês). O limite do desconto
+   simplificado (R$ 17.640) é o da declaração de 2026; a Receita ainda publica o da declaração de 2027. Tudo está em
+   `ENGINE.IR`.
+4. **Dependentes inteiros com uma pessoa.** Cada estratégia diz quem declara todos os dependentes; não dá para dividir os
+   filhos entre os dois. As despesas médicas e de instrução são digitadas por pessoa, e a regra de quem pode deduzir (quem
+   pagou, o titular do plano de saúde) fica com o consultor.
+5. **Pró-labore simplificado.** IR na fonte mensal sem dependentes (o ajuste anual pode diferir); INSS patronal de 20% (sem
+   RAT e terceiros, que não incidem sobre o pró-labore); fator R pela razão do mês (pró-labore ÷ faturamento), e não pelos
+   12 meses. A empresa precisa ter lucro para distribuir os dividendos; a página só avisa.
+6. **Sucessão simplificada.** O patrimônio inteiro é transmitido, sem meação nem regime de bens; ITCMD com uma alíquota só
+   (a reforma torna o imposto progressivo, até 8%); bens pelo valor de mercado. O cliente vê o aviso de que o consultor
+   confere com o advogado.
+7. **Simulador da previdência.** Compara com VGBL (imposto só sobre o rendimento); o PGBL (imposto sobre o total, com a
+   dedução de hoje) não tem conta própria. No fundo comum, o prazo da tabela de 22,5% a 15% conta da entrada (ou da última
+   troca), e não aporte a aporte. Come-cotas sempre à alíquota de longo prazo.
+8. **O cliente não propõe nada no capítulo 3.** Ele só simula a previdência. Se for propor (por exemplo, o valor a levar
+   para a previdência), as propostas seriam do tipo `campo`, como na Gestão de riscos.
+9. **Exemplo fictício.** Os números da família da Ana repetem o padrão de um caso real (dependentes e despesas médicas na
+   declaração de quem ganha menos; recomendação: dependentes e PGBL de 12% para quem ganha mais), mas não vêm dele. Os
+   extratos do caso real não foram guardados em nenhum lugar.
+
 **Link publicado** (para o usuário testar de outra máquina): https://claude.ai/artifact/LRmPxMYFK7TcoUkjYXatLX.
 É uma cópia ajustada dos dois HTML: abre as telas na mesma aba (o visualizador bloqueia janelas novas), usa o
 Font Awesome publicado junto (o visualizador bloqueia o cdnjs) e tem o banco compartilhado (capacidades `db` e
@@ -405,3 +437,14 @@ Registradas aqui porque não são óbvias no código:
   dívidas, igual ao total), na mesma escala do mínimo, do esperado e do máximo da fase. O dinheiro disponível ficou só na
   faixa da liquidez ideal, que diz quanto falta quando o financeiro está abaixo dela. As colunas de "De onde vem o seu
   patrimônio" também perderam o percentual.
+- **Dívida como seta, e não listrada (07/10/2026).** O usuário achou a barra listrada parecida com uma bengala de Natal e
+  pediu outra coloração que ainda lembre dívida, sem mudar a estrutura. A dívida é uma barra vermelha que clareia para a
+  direita, com a ponta virada para trás (ela volta do topo dos bens até o total). A mesma forma vale para os negativos das
+  escadas do capítulo 3.
+- **Carrossel de riscos sem sobe e desce (07/10/2026).** Cada ameaça tinha uma altura, e a página subia e descia ao passar
+  de uma para outra. Todos os slides têm agora a altura do mais alto: a tela é sempre a mesma, mesmo que seja preciso rolar.
+- **Otimização tributária como capítulo 3 (07/10/2026).** Pedido do usuário, que vai rever a ordem depois. Quatro páginas,
+  com o roteiro das outras: a economia em destaque ao lado do vídeo, hoje e o recomendado lado a lado na mesma escala, o
+  que muda e a conta recolhida. Composições aparecem como escada (soma), como no patrimônio. No portal, um passo novo em
+  Planejamento, depois da Liberdade financeira. O patrimônio da sucessão vem da página Patrimônio (a coluna Tipo separa a
+  previdência) e os dependentes, da página Cliente, para não digitar de novo. Os dados de exemplo são fictícios.

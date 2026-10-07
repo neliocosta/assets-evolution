@@ -2573,7 +2573,7 @@ function renderPatrimonio() {
     .map(([d, nome, chave, tipo]) => { const st = SITUACAO[d.situacao]; return { nome, v: +d.saldoDevedor || 0, chave, det: dividaDet(d), tags: (tipo ? `<span class="pf-tag">${tipo}</span>` : '') + (+d.parcela ? `<span class="pf-tag">parcela ${fmt(+d.parcela)}</span>` : '') + (st ? `<span class="pf-tag ${st[0]}">${st[1]}</span>` : '') }; })
     .sort((a, b) => b.v - a.v);
   const comp = `<div class="pf-comp"><h3>De onde vem o seu patrimônio</h3><div class="sub">Clique num bem ou numa dívida para ver o detalhe.</div><div class="pf-cols">
-    ${colunaHtml('fin', 'Mercado financeiro', f.fin, its(D.financeiro, 'valor', 'fin:'), 'Nenhuma instituição informada.')}
+    ${colunaHtml('fin', 'Mercado financeiro', f.fin, its(D.financeiro, 'valor', 'fin:', x => ENGINE.PREVIDENCIA.includes(x.tipo) ? { tags: '<span class="pf-tag">previdência ' + x.tipo.toUpperCase() + '</span>' } : {}), 'Nenhuma instituição informada.')}
     ${colunaHtml('part', 'Participações societárias', f.part, its(D.participacoes, 'valor', 'part:'), 'Nenhuma participação.')}
     ${colunaHtml('bens', 'Imóveis e outros bens', f.bens, bensIt, 'Nenhum bem informado.')}
     ${colunaHtml('div', 'Dívidas e financiamentos', f.dividas, divIt, 'Nenhuma dívida.')}</div></div>`;

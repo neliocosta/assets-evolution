@@ -5,7 +5,7 @@ além das fontes do Google, e abrem direto no navegador.
 
 | Arquivo | Para quem | O que faz |
 |---|---|---|
-| `tela-consultor.html` | Consultor | Configura o plano em oito passos, em três grupos: dados do cliente (Cliente, Fluxo de caixa, Patrimônio), planejamento (Gestão de riscos, Objetivos, Liberdade financeira, Premissas) e com o cliente (Apresentação, Propostas). |
+| `tela-consultor.html` | Consultor | Configura o plano em nove passos, em três grupos: dados do cliente (Cliente, Fluxo de caixa, Patrimônio), planejamento (Gestão de riscos, Objetivos, Liberdade financeira, Otimização tributária, Premissas) e com o cliente (Apresentação, Propostas). |
 | `evolucao-patrimonial.html` | Cliente | Mostra a trajetória do patrimônio ao longo da vida, apresentada ao vivo pelo consultor. |
 
 ## Por onde começar
@@ -31,10 +31,37 @@ A área do cliente é organizada como um livro: capítulos com páginas (`CAPITU
 mostra um resultado do planejamento e tem um espaço para o vídeo do consultor (link do YouTube, do Vimeo ou do
 arquivo, em `plano.videos[id da página]`; vazio, o espaço fica reservado). O cabeçalho mostra só a página atual
 ("Capítulo 5 · 21 de 22 / Gestão de riscos"), com anterior e próxima; um clique nela abre o sumário com todos os
-capítulos. Assim a navegação cabe igual com 2 ou 25 páginas. Hoje existem **Patrimônio** (capítulo 4, página "Fase
-da vida e patrimônio"), **Gestão de riscos** (capítulo 5) e **Evolução patrimonial** (capítulo 6, a última); os
-capítulos 1 a 3, com 5 páginas cada, são um esqueleto (mock) das páginas que ainda vão entrar. A página pode vir no
-endereço (`?fase=patrimonio`, `?fase=riscos`, `?fase=c2p3`); senão, a tela abre na última vista.
+capítulos. Assim a navegação cabe igual com 2 ou 25 páginas. Hoje existem **Otimização tributária** (capítulo 3, quatro
+páginas), **Patrimônio** (capítulo 4, página "Fase da vida e patrimônio"), **Gestão de riscos** (capítulo 5) e
+**Evolução patrimonial** (capítulo 6, a última); os capítulos 1 e 2, com 5 páginas cada, são um esqueleto (mock) das
+páginas que ainda vão entrar. A página pode vir no endereço (`?fase=patrimonio`, `?fase=riscos`, `?fase=ir`,
+`?fase=c2p3`); senão, a tela abre na última vista.
+
+**Otimização tributária** (capítulo 3) tem quatro páginas com o mesmo roteiro: no alto, quanto o cliente economiza (de
+quanto para quanto) ao lado do vídeo; depois, hoje e o recomendado lado a lado, na mesma escala; o que muda; e, recolhida,
+a conta. No portal, a página Otimização tributária (passo 7) cadastra tudo em `plano.tributario`; as contas ficam no
+motor e valem para 2026 (declaração de 2027), com os parâmetros em `ENGINE.IR`:
+
+- **Imposto de renda da família** (`ENGINE.irDaFamilia`): os rendimentos tributáveis, o INSS e as outras deduções de cada
+  pessoa, e, em cada estratégia (hoje e recomendada), quem declara os dependentes (a lista da página Cliente) e as
+  despesas médicas, a instrução e o PGBL de cada um. `ENGINE.calculaIR` faz a declaração completa e a simplificada e fica
+  com a de menor imposto: tabela anual (a mensal × 12), redução da Lei 15.270 (zera até R$ 60 mil por ano e cai em linha
+  reta até R$ 88.200), desconto simplificado de 20% até R$ 17.640, R$ 2.275,08 por dependente, instrução até R$ 3.561,50
+  por pessoa, médicas sem limite e PGBL até 12% da renda tributável, só para quem contribui ao INSS.
+- **Pró-labore e dividendos** (`ENGINE.retiradaDosSocios`): para cada sócio, a mesma retirada com o pró-labore de hoje e o
+  recomendado (vazio: o salário mínimo); o resto vem como dividendos. O pró-labore paga INSS de 11% até o teto e IR na fonte
+  pela tabela mensal com a redução; fora do Simples (e no Anexo IV), 20% de INSS patronal. Dividendos isentos até R$ 50 mil
+  por mês da mesma empresa, 10% sobre o total acima disso, e o imposto mínimo de quem recebe mais de R$ 600 mil no ano. No
+  Simples com fator R, a página avisa quando o pró-labore recomendado deixa a folha abaixo de 28% do faturamento.
+- **Sucessão e ITCMD** (`ENGINE.sucessao`): o patrimônio vem da página Patrimônio; bens, participações e investimentos,
+  menos as dívidas, entram no inventário e pagam o ITCMD e os custos do inventário (4% e 8% por padrão); as aplicações
+  marcadas como previdência (coluna Tipo do mercado financeiro: PGBL ou VGBL) ficam de fora. A recomendação leva parte dos
+  investimentos para a previdência.
+- **Previdência no longo prazo** (`ENGINE.simulaPrevidencia`): mês a mês, um investimento comum (com come-cotas a cada seis
+  meses e a tabela de 22,5% a 15% pelo prazo, ou um fundo de ações sem come-cotas) contra uma previdência VGBL (tabela
+  regressiva de 35% a 10% por aporte, sem come-cotas, trocas de estratégia por portabilidade). A diferença aparece como
+  uma escada: sem come-cotas, trocas sem imposto, alíquota menor e taxa de administração. O cliente mexe nos valores à
+  vontade, sem gravar nada.
 
 **Fase da vida e patrimônio** junta num só lugar o patrimônio de hoje e o compara com o esperado para a idade
 (`ENGINE.faseDaVida`, no motor). No portal, a idade em que o cliente começou a trabalhar fica na página Cliente, e a
@@ -57,7 +84,7 @@ página Patrimônio tem:
 
 Na tela do cliente: no alto, a fase atual e as cinco fases com as idades de cada uma, ao lado do vídeo. Depois, em
 largura total, o patrimônio total e o esperado para a idade, com barras na mesma escala. Em cima, a escada: o mercado
-financeiro, mais as participações, mais os bens, menos as dívidas (hachuradas), chegando ao total; cada barra começa onde
+financeiro, mais as participações, mais os bens, menos as dívidas (uma seta vermelha que volta), chegando ao total; cada barra começa onde
 a anterior terminou, para ler soma e não proporção. Embaixo, o mínimo, o esperado e o máximo da fase, com o total
 tracejado até elas. A liquidez ideal é a faixa escura ao fundo (o financeiro dentro ou além dela; quando falta, a faixa
 diz quanto). Embaixo, "De onde vem o seu patrimônio": uma coluna por classe (mercado financeiro,
@@ -82,7 +109,8 @@ status, em dia 100%, atenção 50%, crítico 0%). Embaixo, um cartão por ameaç
 saúde "plano atual é o ideal" ou "possível melhorar"; terceiros, investimentos e bens como lista com a marca de
 protegido, parcial ou desprotegido; liquidez em D+0, D+30 e 1 ano, em vezes o padrão de vida; renda e família, quanto
 falta de cobertura ou "proteção adequada"). As ameaças vêm num **carrossel**, uma por vez, com o essencial no
-alto e o detalhe embaixo; os vizinhos aparecem nas bordas. Passa-se com as setas, arrastando, pelo teclado ou pelos
+alto e o detalhe embaixo; os vizinhos aparecem nas bordas. Todos os slides têm a altura do mais alto, para a página não
+subir e descer ao passar de uma ameaça para outra. Passa-se com as setas, arrastando, pelo teclado ou pelos
 pontos de progresso, e o clique num nome da teia leva à ameaça. O status verde se chama **Protegido**. A regra de cada
 status:
 
@@ -164,13 +192,21 @@ cada tela ouve o que a outra gravou.
   "initialWealth": 860000,     // patrimônio financeiro do cliente hoje: ponto de partida do gráfico (com plano.patrimonio, a soma do detalhe)
   "patrimonio": {              // o detalhe do patrimônio de hoje e a fase da vida (página Fase da vida e patrimônio)
     "comecou": 23, "liquidezIdeal": 400000,
-    "financeiro": [ {"nome": "Itaú", "valor": 150000} ],                     // soma em initialWealth
+    "financeiro": [ {"nome": "Itaú", "valor": 150000, "tipo": ""} ],         // soma em initialWealth; tipo: "" (investimentos), "pgbl" ou "vgbl"
     "participacoes": [ {"nome": "Papelaria Canetinha", "valor": 50000} ],     // soma em partValue
     "bens": [ {"nome": "Apartamento em Mogi", "mercado": 950000,             // mercado soma em initialBens
                "saldoDevedor": 368000, "credito": 560000, "parcelas": 360,  // com saldo devedor, o detalhe do financiamento
                "parcela": 4870, "juros": 9.5, "situacao": "em_dia",         // juros em % ao ano; situacao: em_dia | inadimplente
                "renda": "ent123"} ],                                        // id da linha de renda passiva do Fluxo, se o bem rende
     "dividas": [ {"nome": "Consignado", "saldoDevedor": 20000, "credito": 30000, "parcelas": 48, "parcela": 850, "juros": 22, "situacao": "em_dia"} ]
+  },
+  "tributario": {              // capítulo 3 (página Otimização tributária); valores anuais no IR, mensais no pró-labore
+    "ir": { "pessoas": [ {"nome": "Ana", "rend": 152100, "inss": 12845, "outras": 0} ],
+            "atual":       { "depsCom": 0, "lanc": [ {"instr": 0, "med": 0, "pgbl": 0} ] },     // depsCom: índice de quem declara os dependentes
+            "recomendada": { "depsCom": 0, "lanc": [ {"instr": 0, "med": 0, "pgbl": 18252} ] } },
+    "prolabore": { "socios": [ {"nome": "Marcos", "empresa": "Papelaria", "regime": "presumido", "pro": 7000, "div": 3000, "proRec": 1621, "faturamento": null} ] },
+    "sucessao": { "itcmd": 4, "custos": 8, "paraPrevidencia": 300000 },
+    "previdencia": { "inicial": 120000, "aporte": 1521, "anos": 20, "rent": 10, "trocas": 4, "aliqComum": 15, "comeCotas": true, "taxaComum": 0.8, "taxaPrev": 0.8 }
   },
   "capacityOverride": null,    // capacidade de poupança informada pelo cliente; null = salário − despesas
   "mode": "perp",              // liberdade financeira por "perp" (perpetuidade) ou "cons" (consumo até a expectativa de vida); a visão do cliente abre nela
