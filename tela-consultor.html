@@ -471,7 +471,10 @@ label.fxhoriz select{width:auto;padding:5px 8px;font-size:12.5px}
 .rkc-nav{display:flex;justify-content:space-between;gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid #f1efea}
 details.pesos{margin-top:14px}
 /* apresentação: as páginas do cliente */
-.ap-pg{display:grid;grid-template-columns:auto 1fr minmax(260px,1.1fr) auto;gap:14px;align-items:center;padding:14px 0;border-bottom:1px solid #f1efea}
+.ap-cap{border-top:1px solid #f1efea;padding:16px 0 4px} .ap-cap:first-of-type{border-top:0;padding-top:4px}
+.ap-cab{display:flex;align-items:center;gap:12px;margin-bottom:12px} .ap-cab b{font:600 15px Sora,sans-serif;color:var(--nl-navy-900);flex:1}
+.ap-cap .grid{margin-bottom:6px}
+.ap-pg{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;padding:10px 0 10px 42px;border-bottom:1px solid #f6f4f0}
 .ap-pg:last-child{border-bottom:0}
 .ap-num{width:30px;height:30px;border-radius:50%;background:var(--nl-peach-100);color:var(--nl-orange-600);font:700 12px Sora,sans-serif;display:flex;align-items:center;justify-content:center}
 .ap-pg b{font:600 14px Sora,sans-serif;color:var(--nl-navy-900)} .ap-pg small{display:block;font:500 12px 'DM Sans',sans-serif;color:#8a8a8a;margin-top:3px}
@@ -479,7 +482,7 @@ details.pesos{margin-top:14px}
 .ap-pg input{padding:7px 9px;font-size:12.5px}
 .ap-bts{display:flex;gap:10px;flex-wrap:wrap}
 .ap-bts .btn-primary{width:auto}
-@media (max-width:1180px){ .pc-resumo{grid-template-columns:repeat(3,1fr)} .rkc-abas{grid-template-columns:repeat(2,1fr)} .pc-fin .grid{grid-template-columns:repeat(3,1fr)} .pc-dois{grid-template-columns:1fr} .ap-pg{grid-template-columns:auto 1fr} }
+@media (max-width:1180px){ .pc-resumo{grid-template-columns:repeat(3,1fr)} .rkc-abas{grid-template-columns:repeat(2,1fr)} .pc-fin .grid{grid-template-columns:repeat(3,1fr)} .pc-dois{grid-template-columns:1fr} .ap-pg{grid-template-columns:1fr auto} }
 </style>
 </head>
 <body>
@@ -505,7 +508,7 @@ details.pesos{margin-top:14px}
   </nav>
   <div class="foot">
     <button class="btn btn-primary" id="btnOpen"><svg viewBox="0 0 24 24"><path d="M15 3h6v6M10 14L21 3M18 13v8H3V6h8"/></svg>Apresentar ao cliente</button>
-    <a class="linkfoot" id="btnComoCliente" href="evolucao-patrimonial.html?fase=patrimonio" target="_blank">Ver como o cliente vê ↗</a>
+    <a class="linkfoot" id="btnComoCliente" href="evolucao-patrimonial.html?fase=capa-tributario" target="_blank">Ver como o cliente vê ↗</a>
   </div>
 </aside>
 
@@ -644,7 +647,7 @@ details.pesos{margin-top:14px}
   <section class="page" data-page="apresentacao">
     <div class="kicker">Com o cliente · passo 9 de 9</div>
     <h2>Apresentação</h2>
-    <div class="hint">O cliente vê o plano como um livro, em capítulos. Confira o que cada página vai mostrar, coloque o vídeo de cada uma e abra a área do cliente.</div>
+    <div class="hint">O cliente vê o plano como um livro, em capítulos. Cada capítulo abre com uma capa e dois vídeos. Coloque os vídeos, confira o que cada página vai mostrar e abra a área do cliente.</div>
     <div id="apresC"></div>
     <div class="note" id="notaArmazem">O plano é gravado e chega sozinho à área do cliente. O que ele propuser aparece em Propostas do cliente.</div>
   </section>
@@ -3482,11 +3485,18 @@ function renderApresentacaoC() {
     ['patrimonio', 4, 'Fase da vida e patrimônio', f.fases ? 'Fase: ' + f.fases[f.fase].nome.toLowerCase() + ' · patrimônio total ' + fmt(f.total) : null, 'Falta a idade em que o cliente começou a trabalhar (página Cliente).', 'cliente'],
     ['riscos', 5, 'Gestão de riscos', a.avaliados ? a.avaliados + ' de 8 ameaças avaliadas · nota da família ' + Math.round((a.nota || 0) * 100) + '%' : null, 'Nenhuma ameaça avaliada ainda.', 'riscos'],
     ['evolucao', 6, 'Evolução patrimonial', ff && temFluxo() && plano.desired > 0 ? 'Liberdade financeira aos ' + Math.floor(ff.age) + ' anos' + (ff.forced ? ' (renda parcial)' : '') : null, 'Faltam o fluxo de caixa e a renda desejada.', 'fluxo']];
-  el.innerHTML = `<div class="bloco"><h3>As páginas do cliente</h3><div class="sub">Os capítulos 1 e 2 ainda vão ser construídos. Sem vídeo, o espaço dele fica reservado na página.</div>
-    ${pgs.map(([id, cap, nome, ok, falta, ir]) => `<div class="ap-pg"><span class="ap-num">${cap}</span><div><b>${nome}</b>${ok ? `<small>${ok}</small>` : `<small class="falta">${falta} <button class="link" data-ir="${ir}">Resolver</button></small>`}</div>
-      <div class="field" style="margin:0">${campoR('videos.' + id, 'texto', ' placeholder="link do vídeo (YouTube, Vimeo ou arquivo)"')}</div>
-      <button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="${id}">Abrir</button></div>`).join('')}</div>
-    <div class="bloco"><h3>Abrir a área do cliente</h3><div class="ap-bts"><button class="btn btn-primary" data-abrir-cliente data-fase="patrimonio">Apresentar desde o começo</button><a class="btn btn-secondary" href="evolucao-patrimonial.html?fase=patrimonio" target="_blank" style="text-decoration:none" data-como-cliente>Ver como o cliente vê ↗</a></div>
+  // um capítulo por bloco: a capa com os dois vídeos (o teórico, o mesmo para todos os clientes, e o do caso deste cliente)
+  // e as páginas, com o que cada uma vai mostrar. Um vídeo antigo de página vira o vídeo do caso do capítulo.
+  const caps = [['tributario', 3, 'Otimização tributária', ['ir', 'prolabore', 'sucessao', 'previdencia']], ['patrimonio', 4, 'Patrimônio', ['patrimonio']], ['riscos', 5, 'Gestão de riscos', ['riscos']], ['evolucao', 6, 'Evolução patrimonial', ['evolucao']]];
+  plano.videos = plano.videos || {};
+  caps.forEach(([cid, , , ids]) => { const k = 'cap-' + cid + '-caso', velho = ids.map(i => plano.videos[i]).find(Boolean); if (!plano.videos[k] && velho) plano.videos[k] = velho; });
+  const cp = (n, h) => `<div class="field"><label>${n}</label>${h}</div>`, link = ' placeholder="link do YouTube, do Vimeo ou do arquivo"';
+  el.innerHTML = `<div class="bloco"><h3>Os capítulos do cliente</h3><div class="sub">Cada capítulo abre com uma capa e dois vídeos: o teórico, que explica o tema e é o mesmo para todos os clientes, e o do caso, em que você explica o planejamento deste cliente. As páginas mostram só os resultados. Os capítulos 1 e 2 ainda vão ser construídos.</div>
+    ${caps.map(([cid, n, nome, ids]) => `<div class="ap-cap"><div class="ap-cab"><span class="ap-num">${n}</span><b>${nome}</b><button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="capa-${cid}">Abrir a capa</button></div>
+      <div class="grid g2">${cp('Vídeo teórico (o mesmo para todos os clientes)', campoR('videos.cap-' + cid + '-teoria', 'texto', link))}${cp('Vídeo do caso deste cliente', campoR('videos.cap-' + cid + '-caso', 'texto', link))}</div>
+      ${pgs.filter(p => ids.includes(p[0])).map(([id, , nomeP, ok, falta, ir]) => `<div class="ap-pg"><div><b>${nomeP}</b>${ok ? `<small>${ok}</small>` : `<small class="falta">${falta} <button class="link" data-ir="${ir}">Resolver</button></small>`}</div>
+        <button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="${id}">Abrir</button></div>`).join('')}</div>`).join('')}</div>
+    <div class="bloco"><h3>Abrir a área do cliente</h3><div class="ap-bts"><button class="btn btn-primary" data-abrir-cliente data-fase="capa-tributario">Apresentar desde o começo</button><a class="btn btn-secondary" href="evolucao-patrimonial.html?fase=capa-tributario" target="_blank" style="text-decoration:none" data-como-cliente>Ver como o cliente vê ↗</a></div>
       <div class="sub" style="margin:12px 0 0">Apresentar abre a área do cliente sem as ferramentas de proposta. "Ver como o cliente vê" abre exatamente o que o cliente tem.</div></div>`;
 }
 document.addEventListener('click', e => { if (e.target.closest('[data-como-cliente]')) gravarNuvem(true); });

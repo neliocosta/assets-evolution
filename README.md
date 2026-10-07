@@ -27,18 +27,22 @@ detalhadas, e mostra o mesmo plano e a mesma proposta da tela principal.
 
 ## Jornada do cliente e gestão de riscos
 
-A área do cliente é organizada como um livro: capítulos com páginas (`CAPITULOS`, na tela do cliente). Cada página
-mostra um resultado do planejamento e tem um espaço para o vídeo do consultor (link do YouTube, do Vimeo ou do
-arquivo, em `plano.videos[id da página]`; vazio, o espaço fica reservado). O cabeçalho mostra só a página atual
-("Capítulo 5 · 21 de 22 / Gestão de riscos"), com anterior e próxima; um clique nela abre o sumário com todos os
-capítulos. Assim a navegação cabe igual com 2 ou 25 páginas. Hoje existem **Otimização tributária** (capítulo 3, quatro
-páginas), **Patrimônio** (capítulo 4, página "Fase da vida e patrimônio"), **Gestão de riscos** (capítulo 5) e
-**Evolução patrimonial** (capítulo 6, a última); os capítulos 1 e 2, com 5 páginas cada, são um esqueleto (mock) das
-páginas que ainda vão entrar. A página pode vir no endereço (`?fase=patrimonio`, `?fase=riscos`, `?fase=ir`,
-`?fase=c2p3`); senão, a tela abre na última vista.
+A área do cliente é organizada como um livro: capítulos com páginas (`CAPITULOS`, na tela do cliente). Cada capítulo
+abre com uma **capa**: o assunto em uma frase, dois vídeos lado a lado e a lista das páginas, cada uma com o seu resultado
+principal ("R$ 3.701 a menos de imposto de renda por ano"). Os vídeos são o **teórico**, que explica o tema e é o mesmo para
+todos os clientes, e o **do caso**, em que o consultor explica o planejamento daquele cliente (links do YouTube, do Vimeo
+ou do arquivo, em `plano.videos['cap-<capítulo>-teoria']` e `['cap-<capítulo>-caso']`, cadastrados na página
+Apresentação do portal; vazio, o espaço fica reservado). As páginas não têm vídeo: mostram só os resultados e terminam com
+"anterior" e "próximo". O cabeçalho mostra a página atual ("Capítulo 3 · Otimização tributária / Imposto de renda da
+família"), com anterior, próxima e uma barra de progresso dividida por capítulo; um clique nela abre o sumário, que marca
+as páginas já vistas. Hoje existem **Otimização tributária** (capítulo 3, quatro páginas), **Patrimônio** (capítulo 4,
+página "Fase da vida e patrimônio"), **Gestão de riscos** (capítulo 5) e **Evolução patrimonial** (capítulo 6, a última);
+os capítulos 1 e 2 ainda vão ser construídos e aparecem só no sumário, como "em breve", fora da sequência. A página pode
+vir no endereço (`?fase=capa-tributario`, `?fase=ir`, `?fase=patrimonio`, `?fase=riscos`); senão, a tela abre na
+última vista, ou na capa do capítulo 3 na primeira vez.
 
-**Otimização tributária** (capítulo 3) tem quatro páginas com o mesmo roteiro: no alto, quanto o cliente economiza (de
-quanto para quanto) ao lado do vídeo; depois, hoje e o recomendado lado a lado, na mesma escala; o que muda; e, recolhida,
+**Otimização tributária** (capítulo 3) tem quatro páginas com o mesmo roteiro: no alto, quanto o cliente economiza, com
+a comparação de quanto para quanto ao lado; depois, hoje e o recomendado lado a lado, na mesma escala; o que muda; e, recolhida,
 a conta. No portal, a página Otimização tributária (passo 7) cadastra tudo em `plano.tributario`; as contas ficam no
 motor e valem para 2026 (declaração de 2027), com os parâmetros em `ENGINE.IR`:
 
@@ -82,7 +86,7 @@ página Patrimônio tem:
 - um bem que gera renda passiva aponta para a linha de entrada do Fluxo de caixa (`bem.renda`, o id da linha): o
   consultor escolhe uma renda passiva que já existe ou cadastra uma nova dali mesmo. O valor fica num lugar só, o fluxo.
 
-Na tela do cliente: no alto, a fase atual e as cinco fases com as idades de cada uma, ao lado do vídeo. Depois, em
+Na tela do cliente: no alto, a fase atual e as cinco fases com as idades de cada uma. Depois, em
 largura total, o patrimônio total e o esperado para a idade, com barras na mesma escala. Em cima, a escada: o mercado
 financeiro, mais as participações, mais os bens, menos as dívidas (uma seta vermelha que volta), chegando ao total; cada barra começa onde
 a anterior terminou, para ler soma e não proporção. Embaixo, o mínimo, o esperado e o máximo da fase, com o total

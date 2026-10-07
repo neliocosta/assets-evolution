@@ -448,3 +448,13 @@ Registradas aqui porque não são óbvias no código:
   que muda e a conta recolhida. Composições aparecem como escada (soma), como no patrimônio. No portal, um passo novo em
   Planejamento, depois da Liberdade financeira. O patrimônio da sucessão vem da página Patrimônio (a coluna Tipo separa a
   previdência) e os dependentes, da página Cliente, para não digitar de novo. Os dados de exemplo são fictícios.
+- **Capas de capítulo e revisão de UX da área do cliente (07/10/2026).** Pedido do usuário: em vez de um vídeo em cada
+  página, cada capítulo abre com uma capa e dois vídeos, um teórico mais longo (o mesmo para todos os clientes) e um do caso
+  deste cliente. Junto, uma revisão crítica de um especialista de UX simulado (`ux/research/revisao-ux-cliente-2026-10-07.md`)
+  levou a: páginas sem vídeo, com o destaque em largura total; "anterior" e "próximo" no fim de toda página; a página nova
+  entra suave e começa do alto; barra de progresso por capítulo na pílula do cabeçalho; sumário por capítulo, com as páginas
+  vistas marcadas; os capítulos 1 e 2, ainda vazios, só no sumário (fora de "anterior/próximo"); a área abre na capa do
+  capítulo 3; o botão "Vídeo" da evolução patrimonial saiu. No portal, a Apresentação cadastra os dois vídeos de cada
+  capítulo; um vídeo antigo de página vira o vídeo do caso do capítulo. Em aberto: o vídeo teórico é o mesmo para todos,
+  mas ainda fica gravado em cada plano (o ideal é uma biblioteca do escritório), e falta testar a capa com a persona da
+  cliente (ela assiste aos dois vídeos ou pula para as páginas?).
