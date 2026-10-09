@@ -1,14 +1,112 @@
-# Coleta de dados da Nord Liberta
+# Exame de saúde financeira e coleta de dados da Nord Liberta
 
-A coleta já existe na plataforma da Nord (`liberta.nordinvestimentos.com.br/coletadedados`). É ela que vai preencher o
-portal. Este arquivo tem:
+As variáveis do plano têm quatro origens possíveis:
 
+- **Exame**: o exame de saúde financeira, um dos primeiros contatos com o cliente;
+- **Coleta**: a coleta de dados, feita depois do exame e já com as respostas dele importadas;
+- **Consultor**: o que o consultor informa ao montar o relatório;
+- **Calculada**: o que sai de outras variáveis.
+
+O exame e a coleta já existem na plataforma da Nord. Este arquivo tem:
+
+0. as perguntas do exame e onde cada uma cai na coleta;
 1. os campos da coleta, seção por seção, com o destino de cada um no plano;
-2. a origem de cada variável do plano: coleta, consultor ou calculada;
+2. a origem de cada variável do plano;
 3. o que o plano usa e a coleta não pega (as lacunas);
 4. o que a coleta pega e o plano ainda não usa.
 
 Para as variáveis do plano (onde nascem e quem as usa), veja o `VARIAVEIS.md`.
+
+## Regra: uma mudança recalcula tudo
+
+O que o usuário espera da ferramenta completa (09/10/2026): as informações do cliente mudam ao longo do tempo, e o consultor
+pode alterá-las a qualquer momento. Quando uma variável muda, tudo o que depende dela se reajusta: o planejamento, o exame
+de saúde financeira e qualquer calculadora que use o dado.
+
+Na prática:
+
+- a resposta do exame, o campo da coleta e o campo do plano que dizem a mesma coisa são **uma variável só**, e não
+  cópias. Mudar a renda na coleta muda a resposta do exame e refaz a nota dele;
+- as notas, os status e os totais são calculados na hora a partir das variáveis, e não gravados como valor. Uma nota que
+  precisa ficar na história (a nota do exame em 16/09/2025) é uma **fotografia datada**: serve para comparar, mas não é
+  a fonte de nada;
+- cada variável guarda de onde veio (exame, coleta, consultor ou proposta do cliente) e quando mudou.
+
+## 0. Exame de saúde financeira
+
+**Onde:** `liberta.nordinvestimentos.com.br/saudefinanceira/questionario`. Lido em 09/10/2026 sem preencher nada. São 33
+campos; cada pergunta tem um trecho de vídeo explicativo.
+
+**Como grava:** não salva sozinho. "SIMULAR" só calcula (`POST /saudeFinanceiraController`, `action: simulate`). "SALVAR"
+grava as respostas (`action: insert`) e depois mostra a nota. O formulário vai como um objeto com o `name` de cada pergunta.
+
+**Resultado:** cinco pilares e um score geral, de 0 a 100%, com faixas de cor (até 20 vermelho, 40 laranja, 60 azul, 80
+verde-escuro, acima verde). A conta é feita no servidor e não aparece no código da página. O que cada pilar mede, nas
+palavras da página:
+
+| Pilar | Chave | O que mede |
+|---|---|---|
+| Patrimônio | `assetsScore` | quanto você tem de patrimônio acumulado em relação ao seu perfil e momento de vida |
+| Poupança | `savingsScore` | quanto da sua renda você guarda para o futuro |
+| Proteção | `protectionScore` | quanto do que você construiu está protegido |
+| Consciência | `conscienceScore` | se você sabe o que precisa ser feito para ter uma boa saúde financeira |
+| Atitude | `attitudeScore` | o que você está de fato fazendo para ter uma situação financeira melhor |
+| Score geral | `generalHealthScore` | o resultado final |
+
+Pelas descrições, o pilar Patrimônio parece usar a mesma ideia da página "Fase da vida e patrimônio": o patrimônio contra o
+esperado para a idade. É uma hipótese, falta confirmar com a fórmula.
+
+**Perguntas, na ordem** (★ obrigatória; "se …" = só aparece nesse caso). Todas, menos as marcadas, têm o mesmo `name` na
+coleta.
+
+| # | Pergunta | `name` | Respostas | Na coleta |
+|---|---|---|---|---|
+| 1 | ★ De 1 a 5, sente que está usando seu dinheiro da melhor forma para construir o futuro? | `selfevaluation` | 1 Nada confiante a 5 Muito confiante | 09 Perfil |
+| 2 | ★ Quanto, em média, você poupa por mês? | `declaredmonthlysavings` | R$ | 02 Orçamento |
+| 3 | ★ Quantas vezes nos últimos 12 meses poupou esse valor? | `recentsavingsfrequency` | Nenhuma, 1-3, 4-6, 7-9, 10 ou mais | 02 Orçamento |
+| 4 | ★ Tem hoje, com clareza, um ou mais objetivos financeiros? | `hasobjective` | Sim, Não | 01 Objetivos |
+| 5 | Se tem objetivo: já avaliou quanto vai precisar? | `evaluateneededmoney` | Sim, Não | 01 Objetivos |
+| 6 | Se tem objetivo: já tem um plano concreto? | `hasplanforobjective` | Sim, Não | 01 Objetivos |
+| 7 | Se tem objetivo: quanto imagina que precisa investir por mês? | `estimatedmoneyneeded` | R$ | 01 Objetivos, **com outro nome**: `estimatedmoneymonthly` |
+| 8 | Se tem objetivo: quanto está de fato investindo por mês? | `actualmoneydedicated` | R$ (não pode passar da pergunta 2) | 01 Objetivos |
+| 9 | ★ Quanto tem de ativos financeiros? | `currentfinancialassets` | R$ | 03 Ativos |
+| 10 | Quanto disso é reserva de emergência? | `currentreserve` | R$ | 03 Ativos |
+| 11 | ★ Guarda todo mês para aumentar a reserva? | `increasingreservemonthly` | Sim, Não | 03 Ativos |
+| 12 | ★ Qual seria uma reserva adequada para o seu perfil? | `estimatedreserve` | R$ | 03 Ativos |
+| 13 | Quais bens possui? | `currentassetscategories` | Veículos, Casa, Apartamento, Imóveis Comerciais, Outros, Nenhum | 03 Ativos |
+| 14 | Se tem bens: quais estão segurados? | `insuredassets` | os bens marcados na 13 | **não existe na coleta** (lá é "Protegido?" por seguro, em 04 Proteção) |
+| 15 | Se tem bens: quanto valem? | `currentassets` | R$ (sem descontar financiamento) | 03 Ativos |
+| 16 | Possui algum destes produtos de proteção pessoal? | `personalinsurances` | Plano de Saúde, Acidentes Pessoais, Vida, Outros, Não possuo | **não existe na coleta** (lá é "Protegido?" por seguro) |
+| 17 | ★ Possui dívidas ou financiamentos? | `hasdebts` | Sim, Não | 03 Ativos (lá: "outras dívidas, além dos financiamentos") |
+| 18 | Se tem dívidas: quanto precisaria para quitar tudo? | `currentliabilities` | R$ | 03 Ativos |
+| 19 | ★ Com que idade começou a trabalhar? | `startingworkingage` | anos | 05 Aposentadoria |
+| 20 | ★ Até que idade imagina que precisará trabalhar? | `retiringtargetage` | anos | 05 Aposentadoria |
+| 21 | ★ Já pensou de onde virá a renda depois dessa idade? | `hasretiringstrategies` | Sim, Não | 05 Aposentadoria |
+| 22 | Se pensou: qual seria o plano? | `currentretiringstrategies` | pensão pública, pensão privada, investimentos | 05 Aposentadoria |
+| 23 | Se pensou: já executa um plano para essa renda? | `executingretiringstrategies` | INSS, previdência da empresa, investimentos ou previdência privada | 05 Aposentadoria |
+| 24 | ★ Natureza da sua fonte de renda (a principal) | `incomenature` | CLT, Servidor, Aposentadoria/Pensão, Liberal/Autônomo, Empresário, Sem renda | 06 Financeiro |
+| 25 | ★ Renda líquida mensal | `declaredincome` | R$ | 06 Financeiro |
+| 26 | ★ Possui dependentes financeiros? | `hasdependents` | Sim, Não | 07 Cenário |
+| 27 | ★ Acompanha as despesas todo mês? | `doesbudgeting` | Sim em detalhes, Sim parcialmente, Não mas tenho ideia, Não faço ideia | 02 Orçamento |
+| 28 | ★ Custo de vida médio (se divide com outra pessoa, só a sua parte) | `declaredstandardofliving` | R$ | 02 Orçamento |
+| 29 | ★ Já teve produtos e estratégias validados por um profissional? | `hadprofessionalvalidation` | Sim, Não | 07 Cenário |
+| 30 | ★ Estado civil | `maritalstatus` | Solteiro(a), Casado(a), Divorciado(a), Separado(a), Viúvo(a) | 08 Dados pessoais |
+| 31 | ★ Gênero | `usergender` (`usergender4` = prefiro não declarar) | Feminino, Masculino, Outro, Prefiro não declarar | 08 Dados pessoais |
+| 32 | ★ Data de nascimento | `dayofbirth`, `monthofbirth`, `yearofbirth` | dia, mês, ano | 08 Dados pessoais, num campo só: `dateofbirth` |
+| 33 | ★ E-mail para receber o resultado | `useremail` | e-mail | 08 Dados pessoais |
+
+**Diferenças entre o exame e a coleta**, que a importação precisa tratar (a conferir no servidor):
+
+- a pergunta 7 tem um nome em cada lugar (`estimatedmoneyneeded` no exame, `estimatedmoneymonthly` na coleta). O script
+  da coleta ainda usa o nome do exame no preenchimento de teste, então a importação pode estar perdendo essa resposta;
+- as perguntas 14 e 16 são listas de marcar no exame e viraram, na coleta, um "Protegido?" para cada seguro (auto,
+  residencial, vida, acidentes, saúde). "Outros produtos de seguro" não tem lugar na coleta;
+- na pergunta 17, o exame pergunta por dívidas **ou financiamentos**, e a coleta por **outras** dívidas. O mesmo `name`
+  tem dois sentidos;
+- a data de nascimento vem em três campos no exame e em um na coleta;
+- a coleta permite o orçamento anual (`orcamentoModo`); o exame é sempre mensal.
+
+O exame é de uma pessoa, como a coleta. O custo de vida já pede só a parte de quem responde (pergunta 28).
 
 **Como foi levantado (09/10/2026).** Lendo a página da coleta e o script dela (`/static/js/planejamento.js`) na área
 logada, sem preencher nada. São 211 campos. O cliente de teste (Nélio Costa) não tem coleta gravada nem questionário
@@ -233,20 +331,21 @@ O nome do cliente vem do cadastro da plataforma, não da coleta.
 
 ## 2. Origem de cada variável do plano
 
-**Coleta**: vem de um campo da coleta. **Consultor**: o consultor informa ao montar o relatório. **Calculada**: sai de
-outras variáveis. **Lacuna**: o plano usa e a coleta não pega; hoje quem preenche é o consultor.
+**Exame**: nasce numa pergunta do exame de saúde financeira, e a coleta a importa com o mesmo nome. **Coleta**: vem de
+um campo que só a coleta tem. **Consultor**: o consultor informa ao montar o relatório. **Calculada**: sai de outras
+variáveis. **Lacuna**: o plano usa e a coleta não pega; hoje quem preenche é o consultor.
 
 ### Quem é a família
 
 | Variável | Caminho | Origem | De onde |
 |---|---|---|---|
 | Nome do cliente | `name` | Coleta (cadastro) | nome do cliente na plataforma |
-| Idade do titular | `age` | Calculada | `dateofbirth` |
-| Tipo de plano | `tipo` | Consultor | pista: `maritalstatus` |
+| Idade do titular | `age` | Calculada | `dateofbirth` (exame, pergunta 32) |
+| Tipo de plano | `tipo` | Consultor | pista: `maritalstatus` (exame, pergunta 30) |
 | Nome e idade do cônjuge | `conjugeNome`, `spouseAge` | Lacuna | só se o cônjuge for cadastrado como dependente (`dep_relacao` = Cônjuge) |
 | Dependentes | `riscos.dependentes` | Coleta | `depList`; a idade vira um nascimento aproximado |
-| Começou a trabalhar aos | `patrimonio.comecou` | Coleta | `startingworkingage` |
-| Quer parar aos | `retireAge` | Coleta | `retiringtargetage` |
+| Começou a trabalhar aos | `patrimonio.comecou` | Exame | `startingworkingage` (pergunta 19) |
+| Quer parar aos | `retireAge` | Exame | `retiringtargetage` (pergunta 20) |
 | Expectativa de vida | `lifeExp` | Consultor | premissa |
 | Renda desejada | `desired` | Coleta | `rendaDesejadaAposentadoria` |
 | Renda desejada por idade | `desiredSteps` | Consultor | |
@@ -255,7 +354,7 @@ outras variáveis. **Lacuna**: o plano usa e a coleta não pega; hoje quem preen
 
 | Variável | Caminho | Origem | De onde |
 |---|---|---|---|
-| Rendas: valor líquido | `incomes[].steps` | Coleta | `declaredincome` (principal), `ra_rendaLiquida[]`, `rp_rendaLiquida[]`; comissões, 13º, bônus e PLR viram linhas próprias |
+| Rendas: valor líquido | `incomes[].steps` | Exame e coleta | `declaredincome` (principal, exame pergunta 25), `ra_rendaLiquida[]`, `rp_rendaLiquida[]`; comissões, 13º, bônus e PLR viram linhas próprias |
 | Bruto de cada recebimento | `incomes[].gross` | Coleta | `ra_rendaBruta[]`, `rp_rendaBruta[]` (a renda principal não tem bruto) |
 | Categoria e tipo | `incomes[].origin`, `kind` | Calculada | `ra_regime[]` (ativa), `rp_tipo[]` (passiva) |
 | Tributável | `incomes[].taxable` | Calculada | da categoria (lucros e PLR não) |
@@ -264,8 +363,8 @@ outras variáveis. **Lacuna**: o plano usa e a coleta não pega; hoje quem preen
 | Renda certa ou estimada | (ainda não existe) | Lacuna | |
 | Despesas linha a linha | `expenses[]` | Consultor | a coleta tem o total e itens soltos: aluguel (`moradiaValorAluguel`), parcelas (`bem_parcela[]`, `moradiaParcela`), prêmios de seguros (`seg_*_premio`), custo dos dependentes (`dep_custo[]`), contribuições de previdência (`pa_contribuicao[]`, `pf_contribuicao[]`), compromissos (`comprList`) |
 | Participação de cada pessoa nas despesas | (ainda não existe) | Lacuna | pista: `declaredstandardofliving` é "somente o valor de sua responsabilidade" |
-| Custo de vida mensal | média das saídas | Calculada | com `declaredstandardofliving` como o declarado |
-| Capacidade de poupança informada | `capacityOverride` | Coleta | `declaredmonthlysavings` |
+| Custo de vida mensal | média das saídas | Calculada | com `declaredstandardofliving` (exame, pergunta 28) como o declarado |
+| Capacidade de poupança informada | `capacityOverride` | Exame | `declaredmonthlysavings` (pergunta 2) |
 | Parcela de uma dívida | linha "Parcela: nome" | Calculada | da dívida (Patrimônio) |
 | Como o Fluxo abre | `horizonte` | Consultor | |
 
@@ -274,7 +373,7 @@ outras variáveis. **Lacuna**: o plano usa e a coleta não pega; hoje quem preen
 | Variável | Caminho | Origem | De onde |
 |---|---|---|---|
 | Financeiro por instituição e tipo | `patrimonio.financeiro[]` | Coleta | `ativoFinList` (somado por instituição), `prevAbertaList` (PGBL, VGBL), `prevFechadaList` |
-| Patrimônio financeiro | `initialWealth` | Calculada | soma da lista; `currentfinancialassets` é o declarado |
+| Patrimônio financeiro | `initialWealth` | Calculada | soma da lista; `currentfinancialassets` (exame, pergunta 9) é o declarado |
 | Participações societárias | `patrimonio.participacoes[]` | Lacuna | talvez `outrosAtivosList` |
 | Bens: nome, valor, saldo devedor, parcela | `patrimonio.bens[]` | Coleta | `bensList` (e o imóvel da moradia) |
 | Bens: crédito, parcelas contratadas e restantes, juros, situação | `patrimonio.bens[]` | Lacuna | |
@@ -288,10 +387,10 @@ outras variáveis. **Lacuna**: o plano usa e a coleta não pega; hoje quem preen
 
 | Variável | Caminho | Origem | De onde |
 |---|---|---|---|
-| Natureza do trabalho | `riscos.reserva.natureza` | Coleta | `incomenature` |
-| Tem dependentes | `riscos.reserva.dependentes` | Coleta | `hasdependents` |
-| Reserva atual | `riscos.reserva.atual` | Coleta | `currentreserve` (o plano usa o D+0) |
-| Alvo de reserva | `riscos.reserva.alvo` | Coleta | `estimatedreserve` (o plano calcula a ideal) |
+| Natureza do trabalho | `riscos.reserva.natureza` | Exame | `incomenature` (pergunta 24) |
+| Tem dependentes | `riscos.reserva.dependentes` | Exame | `hasdependents` (pergunta 26) |
+| Reserva atual | `riscos.reserva.atual` | Exame | `currentreserve` (pergunta 10; o plano usa o D+0) |
+| Alvo de reserva | `riscos.reserva.alvo` | Exame | `estimatedreserve` (pergunta 12; o plano calcula a ideal) |
 | Liquidez D+0 a 1 ano | `riscos.liquidez` | Consultor | daria para calcular de `af_rf_liquidez[]`, `af_rf_prazo[]` e `af_fn_prazoResgate[]` |
 | Avaliação da liquidez e da ruína | `riscos.liquidez.avaliacao`, `riscos.ruina.itens` | Consultor | apoio: subclasse e emissor dos ativos, restrições do perfil |
 | Plano de saúde: tipo | `riscos.saude.tipo` | Coleta | `seg_saude_tipo` |
@@ -382,5 +481,7 @@ Há também repetições dentro da coleta:
   ativo da sessão, e isso foi barrado pelo controle de permissões.
 - **Relatório da coleta** (`/coleta/relatorio?id=`), que precisa de uma coleta gravada.
 - **Meu Orçamento** (`/orcamentoideal`).
-- **Questionário inicial** (`questionarioController`). Ele usa os mesmos nomes de campo da coleta (`declaredincome`,
-  `selfevaluation`…), então a coleta parece ter nascido dele.
+- **A fórmula da nota do exame**, que fica no servidor (`saudeFinanceiraController`). Dá para inferir os pesos rodando
+  "SIMULAR" com respostas de teste, sem gravar nada, ou pedir a fórmula a quem fez o exame.
+- **As respostas do exame do cliente**, que o painel interno lê em `questionarioController` (`listAnswers`), ao que
+  parece. O Nélio não tem nenhuma resposta gravada.

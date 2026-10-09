@@ -442,4 +442,4 @@ A planilha do fluxo de caixa foi feita para mouse e trackpad; não há gesto de 
 | `verificar.js` | Roda a simulação em Node e confere as invariantes. |
 | `PENDENCIAS.md` | O que falta fazer e o contexto dos testes com usuários. |
 | `VARIAVEIS.md` | Inventário das variáveis: onde cada uma nasce, quem a usa e as repetições a resolver. |
-| `COLETA.md` | Os campos da coleta de dados da Nord e a origem de cada variável do plano (coleta, consultor ou calculada). |
+| `COLETA.md` | As perguntas do exame de saúde financeira e os campos da coleta de dados da Nord, e a origem de cada variável do plano (exame, coleta, consultor ou calculada). |

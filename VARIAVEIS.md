@@ -11,8 +11,14 @@ rendas no Fluxo de caixa).
 **De onde os dados vão vir:** o portal é a ferramenta de montagem do relatório, não a de coleta. Os dados serão levantados
 numa reunião com o cliente, numa ferramenta de coleta que ainda vai ser construída (o projeto está sendo feito de trás para
 frente: primeiro a apresentação ao cliente, por último a coleta), e chegarão pré-preenchidos ao portal. O "lugar onde a
-variável nasce" aqui é, então, também o campo que a coleta vai preencher. A coleta que a Nord já usa está inventariada no
-`COLETA.md`, com o campo de origem de cada variável do plano (coleta, consultor, calculada ou lacuna).
+variável nasce" aqui é, então, também o campo que a coleta vai preencher. Antes da coleta vem o exame de saúde financeira,
+cujas respostas a coleta importa. O exame e a coleta que a Nord já usa estão inventariados no `COLETA.md`, com a origem de
+cada variável do plano (exame, coleta, consultor, calculada ou lacuna).
+
+**Uma mudança recalcula tudo** (pedido do usuário, 09/10/2026): as informações do cliente mudam ao longo do tempo, e a
+resposta do exame, o campo da coleta e o campo do plano que dizem a mesma coisa são uma variável só. Mudou a variável,
+reajustam-se o planejamento, a nota do exame e qualquer calculadora que a use. Notas e totais são calculados, não
+gravados; o que precisa ficar na história é uma fotografia datada, que não é fonte de nada.
 
 Situação: **fonte** (informada aqui, só aqui), **ligada** (lida da fonte, sem digitar de novo), **calculada** (sai de outras),
 **reserva** (digitada só quando a fonte está vazia), **parâmetro** (escolha de cenário, não fato do cliente),
