@@ -1,13 +1,26 @@
 # Exame de saúde financeira e coleta de dados da Nord Liberta
 
-As variáveis do plano têm quatro origens possíveis:
+## O que é o planejamento completo
 
-- **Exame**: o exame de saúde financeira, um dos primeiros contatos com o cliente;
-- **Coleta**: a coleta de dados, feita depois do exame e já com as respostas dele importadas;
-- **Consultor**: o que o consultor informa ao montar o relatório;
-- **Calculada**: o que sai de outras variáveis.
+O planejamento completo de um cliente é a união de quatro camadas de dados com a interface que as apresenta a ele
+(definição do usuário, 09/10/2026):
 
-O exame e a coleta já existem na plataforma da Nord. Este arquivo tem:
+| Camada | O que é | Profundidade |
+|---|---|---|
+| **Exame** | o exame de saúde financeira, num dos primeiros contatos: perguntas amplas para uma primeira visão de como está a saúde financeira da pessoa ou da família | amplo e rápido |
+| **Coleta** | a coleta de dados, feita depois do exame e já com as respostas dele importadas: aprofunda os dados de maneira bem mais extensa | profunda |
+| **Consultor** | o que o consultor manipula, inclui, decide e sugere durante a montagem do planejamento | decisão e recomendação |
+| **Calculada** | o que é fruto do processamento de todos os dados que o cliente já tem | sai das outras três |
+
+A **interface** é a área do cliente: apresenta o planejamento, deixa o cliente simular e propor mudanças, e o consultor
+aprova uma a uma.
+
+As camadas falam muitas vezes da mesma coisa em profundidades diferentes. O exame pergunta o total dos ativos
+financeiros; a coleta lista cada aplicação; o plano usa a soma da lista. Quando a camada mais funda existe, ela vale, e a
+resposta mais rasa passa a ser calculada dela. É a mesma variável, e não duas (veja a regra abaixo).
+
+O exame e a coleta já existem na plataforma da Nord, e o exame ainda vai ser reformado; os nomes das perguntas podem
+mudar, mas as camadas ficam. Este arquivo tem:
 
 0. as perguntas do exame e onde cada uma cai na coleta;
 1. os campos da coleta, seção por seção, com o destino de cada um no plano;

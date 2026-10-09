@@ -12,8 +12,10 @@ rendas no Fluxo de caixa).
 numa reunião com o cliente, numa ferramenta de coleta que ainda vai ser construída (o projeto está sendo feito de trás para
 frente: primeiro a apresentação ao cliente, por último a coleta), e chegarão pré-preenchidos ao portal. O "lugar onde a
 variável nasce" aqui é, então, também o campo que a coleta vai preencher. Antes da coleta vem o exame de saúde financeira,
-cujas respostas a coleta importa. O exame e a coleta que a Nord já usa estão inventariados no `COLETA.md`, com a origem de
-cada variável do plano (exame, coleta, consultor, calculada ou lacuna).
+cujas respostas a coleta importa. O planejamento completo é a união de quatro camadas (o exame, amplo; a coleta,
+profunda; o que o consultor inclui, decide e sugere; e o que é calculado de tudo isso) com a interface que o apresenta ao
+cliente. O exame e a coleta que a Nord já usa estão inventariados no `COLETA.md`, com a camada de origem de cada variável
+do plano (exame, coleta, consultor, calculada ou lacuna).
 
 **Uma mudança recalcula tudo** (pedido do usuário, 09/10/2026): as informações do cliente mudam ao longo do tempo, e a
 resposta do exame, o campo da coleta e o campo do plano que dizem a mesma coisa são uma variável só. Mudou a variável,
