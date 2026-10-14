@@ -123,7 +123,7 @@ participações, bens, dívidas), com os itens; um bem ou uma dívida abre o det
 bem gera). Por último, recolhido, "Como o patrimônio esperado é calculado", com a tabela das fases deste cliente.
 
 - Patrimônio total = financeiro + participações + bens (valor de mercado) − saldo devedor dos bens − outras dívidas.
-- Fases: a vida de trabalho (de quando começou até a idade para parar de trabalhar, da página Cliente; vazia, 65
+- Fases: a vida de trabalho (de quando começou, da página Cliente, até a idade para parar de trabalhar, da página Liberdade financeira; vazia, 65
   anos) dividida em nonos. Preparação antes de começar; Início de carreira até 2/9; Consolidação até 6/9; Plenitude
   até 9/9; Liberdade financeira depois. Começou aos 23, para aos 65: marcos em 23, 32, 51 e 65.
 - Patrimônio esperado = padrão de vida mensal (o custo de vida da reserva) × um fator que vai do mínimo ao máximo da
@@ -247,7 +247,7 @@ cada tela ouve o que a outra gravou.
     "previdencia": { "inicial": 120000, "aporte": 1521, "anos": 20, "rent": 10, "trocas": 4, "aliqComum": 15, "comeCotas": true, "taxaComum": 0.8, "taxaPrev": 0.8 }
   },
   "capacityOverride": null,    // capacidade de poupança informada pelo cliente; null = salário − despesas
-  "mode": "perp",              // liberdade financeira por "perp" (perpetuidade) , "cons" (consumo até a expectativa de vida) ou "desej" (renda desejada); a visão do cliente usa esta, sem trocar
+  "mode": "desej",             // como sacar na liberdade: "desej" (renda desejada), o que o portal grava; "perp" e "cons" ainda são lidos
   "tipo": "familia",           // "individual" ou "familia": sem família, o cônjuge some do cadastro
   "horizonte": "month",        // como o Fluxo de caixa abre: month, quarter, semester ou year
   "desired": 25000,
@@ -347,33 +347,32 @@ aposentadoria junto. Se aos 68 anos o patrimônio ainda não sustentar a renda d
 mesmo assim, mas sem celebração: o card informa quanto o patrimônio de fato sustenta por mês e aponta os
 três caminhos para fechar a diferença.
 
-**O que o patrimônio sustenta.** No alto da página Liberdade financeira do portal: o patrimônio financeiro na
-liberdade (antes e depois de contratar as rendas), os bens e participações, e a renda possível por mês na perpetuidade
-(o rendimento) e no consumo até a expectativa de vida, cada uma somada às rendas que entram na fase em que elas são
-menores. Cada cenário diz se cobre a renda desejada e oferece usá-lo como renda desejada.
+**Página Liberdade financeira (portal).** Lê de cima para baixo, como a conversa com o cliente:
 
-**Como sacar do patrimônio.** A forma de sacar é decidida no portal, na página Liberdade financeira (o cliente não troca).
-Embaixo da escolha, um gráfico só da liberdade em diante mostra o patrimônio financeiro nas três formas (perpetuidade,
-consumo até a expectativa de vida e renda desejada), com a escolhida em destaque e, embaixo, onde cada uma termina ("acaba
-aos 83 anos" ou "R$ 4,7 mi aos 95 anos"). Um clique numa curva ou num nome escolhe a forma. São três simulações do mesmo
-motor, feitas só com a página aberta.
+- **Quanto e a partir de quando**: a renda desejada por mês (digitada; a variável mora só aqui) e a idade em que o titular
+  para de trabalhar (vazia: quando o patrimônio permitir), com a data da liberdade e a idade de cada um nela.
+- **O patrimônio dá conta?**: o veredito do plano (o patrimônio dura até a expectativa de vida, ou até que idade, e quanto
+  seria preciso na liberdade para durar até lá), a curva do patrimônio financeiro da liberdade em diante e, lado a lado, o
+  plano e duas alternativas com a mesma renda em todos os períodos: consumir o patrimônio até a expectativa de vida (a renda
+  cujos saques valem o patrimônio da liberdade) e preservá-lo (o rendimento mais as rendas da fase em que elas são menores).
+  "Usar" troca a renda desejada pela da alternativa. As contas das alternativas descontam os saques mês a mês à taxa da
+  reserva; a curva e o veredito vêm da simulação.
+- **Renda em cada período**: uma linha por período (um período novo começa quando uma renda começa ou termina, ou quando
+  a renda desejada muda), com as datas e a idade dos dois, a renda desejada e de onde ela vem, numa barra e por escrito:
+  "Fundo de pensão vitalício R$ 5.000 + Fundo por 5 anos R$ 7.000 + saque do patrimônio R$ 28.000". O primeiro período é a
+  renda desejada do alto; nos outros, um valor digitado vale daquele período em diante (`desiredSteps`), e o × volta a seguir
+  o anterior. "Mudar a renda numa idade" cria um período novo na idade de uma das pessoas. Um aluguel diz de que bem vem, e
+  o nome do bem abre o detalhe dele numa gaveta (o mesmo cartão da página Patrimônio).
+- **Rendas programadas**: o cadastro das rendas da aposentadoria, com de quem é cada uma e a idade de começar dessa pessoa
+  ("aos 65 anos de Marcos"), e as rendas passivas do Fluxo de caixa, só para ler.
 
-**Programação da renda.** Abre com a programação em palavras: "Esta família quer ter uma renda de R$ 25.000 por mês a
-partir de jan/2048. Nessa data, Ana terá 56 anos e Marcos, 59", e, uma por linha, cada renda que entra (quando, de quem,
-quanto e por quanto tempo), as mudanças da renda desejada e o que fica para a carteira de patrimônio financeiro. Um aluguel
-diz de que bem vem, e o nome do bem abre o detalhe dele numa gaveta (o mesmo cartão da página Patrimônio). Depois, a renda
-desejada como uma linha tracejada e, em cada janela de tempo (uma renda que começa ou termina abre uma janela nova), as
-rendas programadas: rendas de aposentadoria e rendas passivas do fluxo. A tabela mostra, por janela, a retirada necessária
-(a renda desejada menos as rendas programadas), a retirada do patrimônio pela forma de sacar e a renda da família. Na renda
-desejada, a renda fica igual e a retirada muda; na perpetuidade e no consumo, a retirada fica igual (o rendimento ou a
-parcela de consumo) e a renda da família muda, acima ou abaixo da desejada (o que falta aparece hachurado). A linha
-tracejada tem um ponto fixo no início, que arrasta a renda desejada desde o primeiro mês da liberdade (o degrau que já vale
-nele, ou a renda desejada da página Cliente); dois cliques no resto da linha criam um ponto que muda a renda a partir dali.
+**Como sacar.** O plano é sempre o da renda desejada (`mode: "desej"`, o padrão do motor e o que o portal grava): a renda
+fica igual e o saque muda conforme as rendas entram e saem; o patrimônio pode acabar antes da expectativa de vida ou sobrar.
+O motor ainda simula as outras duas formas, que o portal mostra como comparação:
 
-- **Perpetuidade** (`mode: "perp"`): retirada mensal = patrimônio × taxa. O principal fica estável.
+- **Perpetuidade** (`"perp"`): retirada mensal = patrimônio × taxa. O principal fica estável.
 - **Consumo** (`"cons"`): retirada mensal = PMT até a expectativa de vida. O patrimônio chega a zero na data.
-- **Renda desejada** (`"desej"`): retirada mensal = renda desejada − rendas que entram. O patrimônio pode acabar
-  antes da expectativa de vida ou sobrar.
+- **Renda desejada** (`"desej"`): retirada mensal = renda desejada − rendas que entram.
 
 **Fluxo de caixa.** No portal, entradas e saídas aparecem como uma planilha com o tempo na horizontal,
 na mesma estrutura da tela do cliente: Movimentações no patrimônio no topo, Entradas, e Saídas dividida

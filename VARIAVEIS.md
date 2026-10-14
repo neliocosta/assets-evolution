@@ -36,8 +36,17 @@ Situação: **fonte** (informada aqui, só aqui), **ligada** (lida da fonte, sem
 | Tipo de plano e idade do cônjuge | `tipo`, `spouseAge` | fonte | casal (`ENGINE.casalDe`), eixo da evolução, seguros, IR |
 | Dependentes (nome, relação, nascimento) | `riscos.dependentes` | fonte | reserva (d), seguro de vida, IR (dependentes) |
 | Começou a trabalhar aos | `patrimonio.comecou` | fonte | fase da vida |
-| Quer parar aos, expectativa de vida | `retireAge`, `lifeExp` | fonte | simulação, fase da vida, liberdade |
-| Renda desejada | `desired`, `desiredSteps` | fonte (o ponto do início da programação da renda, na Liberdade financeira, muda o mesmo `desired`) | liberdade financeira |
+| Expectativa de vida | `lifeExp` | fonte | simulação, fase da vida, liberdade |
+
+## Liberdade financeira
+
+| Variável | Caminho | Situação | Quem usa |
+|---|---|---|---|
+| Renda desejada | `desired` (a do começo da liberdade) e `desiredSteps` (um valor a partir de um mês, digitado num período) | fonte, só na página Liberdade financeira (saiu da Cliente em 14/10/2026) | simulação, liberdade, visão do cliente |
+| Idade em que o titular para de trabalhar | `retireAge` | fonte, na página Liberdade financeira (saiu da Cliente em 14/10/2026) | simulação, fase da vida |
+| Rendas da aposentadoria e de quem é cada uma | `passive[]`, `passive[].pessoa` | fonte | simulação, liberdade |
+| Forma de sacar | `mode` | sempre `desej` (decisão do usuário); perpetuidade e consumo são só comparação | visão do cliente |
+| Patrimônio que dura até a expectativa de vida, alternativas de renda | `alternativas` (portal) | calculada | liberdade |
 
 ## Dinheiro que entra e sai (Fluxo de caixa)
 

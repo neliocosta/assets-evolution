@@ -141,7 +141,8 @@ Na visão do cliente, todo objetivo em setembro mostra um ano a menos (Viagem se
 Faculdade do Marcos set/2029 "50", esperado 51; Sala da Juliana set/2031 "42", esperado 43). Provavelmente o
 aniversário assumido é 19/09 (`BIRTH`) e o marco cai antes dele. A idade de hoje e a da liberdade estão certas.
 
-### 22. Ponto da renda desejada não é removido (rodada 7, a única dúvida bloqueante)
+### 22. Ponto da renda desejada não é removido (rodada 7, a única dúvida bloqueante) — resolvido (14/10/2026)
+O gráfico de arrastar saiu da página Liberdade financeira: a renda desejada se digita, no alto e em cada período.
 A dica diz "dois cliques removem", mas dois cliques no ponto não o removem (5 tentativas). O arraste pula de
 R$ 40.100 para R$ 39.900 e não volta ao valor exato; o ponto fica em `desiredSteps`, e a visão do cliente mostra
 "muda com a idade".
@@ -352,7 +353,8 @@ Registradas aqui porque não são óbvias no código:
   (nome, valor, começo, duração, custo; o resto na gaveta "⋯"), e a programação da renda vem no fim, com valores
   exatos até o real e cores suaves. A renda desejada pode mudar com a idade: dois cliques na linha tracejada criam
   um ponto que arrasta para cima e para baixo (`desiredSteps`); dois cliques no ponto o removem.
-- **Como sacar na liberdade é decisão do planejador** (premissa do plano, na página Liberdade financeira; desde 14/10/2026 a
+- **Como sacar na liberdade é decisão do planejador** (desde 14/10/2026 o plano é sempre o da renda desejada; veja
+  "Liberdade financeira refeita", abaixo) (premissa do plano, na página Liberdade financeira; desde 14/10/2026 a
   visão do cliente não tem mais os botões, nem o aviso do consumo, para o topo ocupar menos espaço):
   saques da perpetuidade (o rendimento; o padrão de vida acompanha), consumo até a expectativa de vida, ou
   saques da renda desejada (só o que falta; o patrimônio pode acabar antes ou sobrar).
@@ -496,21 +498,24 @@ Registradas aqui porque não são óbvias no código:
   no fluxo; ficou o desconto porque o comprador paga à família o preço menos o saldo que assume, e as parcelas param na venda); a renda e a parcela do bem terminam na venda; a valorização não passa pelo fluxo de caixa. Em
   aberto: o gráfico ainda não desconta o saldo devedor (item 2 de "Fase da vida e patrimônio"), então, num bem financiado, o
   patrimônio total cai pelo saldo transferido no mês da venda; a venda de um bem comprado por um objetivo; o cliente propor uma venda.
-- **Liberdade financeira decidida no portal (14/10/2026).** Pedido do usuário: o lugar de decidir o plano da liberdade é a
-  página Liberdade financeira do portal, não o gráfico do cliente. Ficou:
-  - um gráfico só da liberdade em diante, com o patrimônio financeiro nas três formas de sacar (a escolhida em destaque, as
-    outras tracejadas) e onde cada uma termina; um clique escolhe a forma (o mesmo campo do seletor);
-  - a programação em palavras, no formato que o usuário propôs ("essa família quer ter uma renda, a partir de 2040, de
-    R$ 20.000; nessa data a Maria teria 59 anos e o José 62; quando o José fizer 65 anos..."), com o aluguel ligado ao bem, que
-    abre o detalhe numa gaveta;
-  - na programação, a retirada necessária (renda desejada − rendas programadas) ao lado da retirada da forma escolhida e da
-    renda da família. Leitura do pedido "se os valores de renda desejada vão ser iguais e os valores de retiradas vão ser
-    iguais": na renda desejada a renda fica igual e a retirada muda; na perpetuidade e no consumo a retirada fica igual e a
-    renda muda. Antes, na perpetuidade e no consumo, a programação cortava a retirada no que faltava, e o motor sacava o
-    rendimento inteiro: agora a programação mostra o que o motor faz;
-  - o ponto do início da linha da renda desejada, que faltava ("não consigo adicionar um ponto âncora no t0"): fica sempre lá
-    e arrasta a renda desde o primeiro mês da liberdade; muda o degrau que já vale nesse mês ou, sem degrau, a renda desejada
-    da página Cliente (a mesma variável). Sem idade para parar de trabalhar, mudar a renda desejada muda a data da liberdade.
+- **Liberdade financeira refeita (14/10/2026).** Primeiro entraram, a pedido do usuário, um gráfico do patrimônio nas três
+  formas de sacar, a programação em palavras e um ponto fixo no começo da linha da renda desejada. Ele achou a página toda
+  confusa ("os elementos estão todos ali, mas são difíceis de navegar e configurar"), não conseguia travar a renda em 50 mil
+  arrastando, e a idade de começar uma renda não dizia de quem era. Combinado com ele, antes de construir:
+  - a página lê de cima para baixo: quanto e a partir de quando; o patrimônio dá conta?; a renda em cada período; as rendas
+    programadas. Saíram o bloco "O que o patrimônio sustenta", o seletor da forma de sacar, as curvas, a programação em
+    palavras e o gráfico de arrastar;
+  - a renda desejada e a idade de parar moram só nesta página (saíram da Cliente);
+  - "opção A": o plano é sempre o da renda desejada (a renda fica igual, o saque muda); perpetuidade e consumo até a
+    expectativa de vida aparecem como alternativas lado a lado, com "Usar". O motor passou a ter a renda desejada como padrão,
+    e o portal grava `mode: "desej"`; por isso a visão do cliente do exemplo mudou (antes, perpetuidade);
+  - em cada período a renda se digita, e vale daquele período em diante; "Mudar a renda numa idade" abre um período novo;
+  - cada renda programada diz de quem é, e a idade de começar é dessa pessoa ("aos 65 anos de Marcos");
+  - uma mudança da renda que cai no começo da liberdade, ou antes (sem idade para parar, a data muda com a renda), vira a
+    própria renda desejada.
+  Em aberto: o veredito usa "dura até a expectativa de vida", mas a data da liberdade sem idade para parar, o selo "renda
+  parcial" do topo do portal e o aviso "Requer revisão" da visão do cliente ainda usam o critério da perpetuidade (o
+  rendimento cobre a maior falta); com a renda desejada como plano, o critério deveria ser durar até a expectativa de vida.
 - **Hoje e recomendado sempre na mesma linha (07/10/2026).** O usuário achou o imposto de cada pessoa desalinhado entre
   as duas colunas (uma marca a mais quebrava a linha e empurrava a barra e o total da família) e pediu a tabela de
   lançamentos centralizada. O IR virou uma grade só, pessoa por pessoa (nome e imposto, a barra, as marcas embaixo); no

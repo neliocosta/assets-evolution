@@ -584,7 +584,7 @@ const ENGINE = (() => {
   const weekDate = i => new Date(BIRTH.getTime() + i * 7 * 864e5);
   const tOf = i => (i - W0) / WPY, ageOf = i => i / WPY;
   // ---- Configuração: tudo o que a tela do consultor define. Os valores abaixo são o padrão do mock. ----
-  let PLAN_MODE = 'perp';
+  let PLAN_MODE = 'desej';
   let R_M = 0.004, GW = Math.pow(1 + R_M, 7 / 30.4375);
   let PART_VALUE = 50000;   // participação societária: valor constante (sem remuneração modelada)
   let LIFE_EXP = 95, DESIRED = 25000, SALARY = 15000, SAL_G = 0.045;
@@ -1023,7 +1023,7 @@ const ENGINE = (() => {
   function configure(plan) {
     if (!plan) return;
     normaliza(plan);
-    PLAN_MODE = plan.mode === 'cons' || plan.mode === 'desej' ? plan.mode : 'perp';   // como sacar na liberdade: perpetuidade, consumo até a expectativa de vida ou a renda desejada
+    PLAN_MODE = plan.mode === 'cons' || plan.mode === 'perp' ? plan.mode : 'desej';   // como sacar na liberdade: a renda desejada (o padrão, e o que o portal grava); perpetuidade e consumo ainda são lidos
     if (plan.desired != null) DESIRED = +plan.desired;
     DESIRED_STEPS = Array.isArray(plan.desiredSteps) ? plan.desiredSteps.filter(s => s && s.from != null).slice().sort((a, b) => a.from - b.from) : [];
     if (plan.lifeExp != null) LIFE_EXP = +plan.lifeExp;
