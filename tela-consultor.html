@@ -923,10 +923,14 @@ const ENGINE = (() => {
     }
     return { serie, pontuais, venda };
   }
-  // saldo devedor do financiamento do bem daqui a k meses: o de hoje, com os juros e as parcelas pagas até lá
+  // saldo devedor do financiamento do bem daqui a k meses. Com as parcelas que faltam, o saldo de hoje cai como o valor
+  // presente das parcelas restantes e chega a zero na última (depois dela, não há o que transferir); sem elas, o de hoje
+  // com os juros e as parcelas pagas até lá.
   function saldoDevedorEm(b, k) {
     const B0 = +b.saldoDevedor || 0; if (!(B0 > 0)) return 0;
-    const p = +b.parcela || 0, i = Math.pow(1 + (+b.juros || 0) / 100, 1 / 12) - 1, g = Math.pow(1 + i, k);
+    const p = +b.parcela || 0, i = Math.pow(1 + (+b.juros || 0) / 100, 1 / 12) - 1, n = Math.round(+b.restantes || 0);
+    if (n > 0) { if (k >= n) return 0; const vp = m => i > 0 ? (1 - Math.pow(1 + i, -m)) / i : m; return B0 * vp(n - k) / vp(n); }
+    const g = Math.pow(1 + i, k);
     return Math.max(0, i > 0 ? B0 * g - p * (g - 1) / i : B0 - p * k);
   }
   // a linha termina no mês mi: um degrau zero e nenhum ajuste depois (numa cópia; o plano não muda)
@@ -3545,7 +3549,7 @@ function tempoDoBemC(b, i) {
     venda = `<div class="bt-ev"><span class="bt-tag venda">Venda</span>em ${seletorMes(`data-r="${p}em"`, V.mi)}, por ${campoR(p + 'preco', 'reais0', ` placeholder="${fmt(V.projetado)}, o valor projetado" style="width:260px"`)}<button class="btn btn-icon" data-bem-sem-venda="${i}" title="Remover a venda">×</button></div>
       <div class="bt-custos"><div class="muted" style="margin:2px 0">Custos da venda (comissões, impostos e outras despesas), em % do valor de venda ou em reais:</div>${custos}<button class="link" data-bem-custo="${i}">+ custo</button></div>
       <div class="bt-conta"><span>Valor de venda${vazioR(vd.preco) ? ' (o projetado)' : ''}</span><b>${fmt(V.preco)}</b><span>Custos da venda</span><b>− ${fmt(V.custo)}</b>
-        ${V.quitacao > 0 ? `<span>Saldo devedor transferido ao comprador (ou quitado) ${tip('As parcelas param no mês da venda. O que já foi pago está no Fluxo de caixa; o que falta é o saldo devedor de hoje, com os juros e as parcelas pagas até a venda. Com o financiamento quitado antes, não há o que descontar.')}</span><b>− ${fmt(V.quitacao)}</b>` : ''}
+        ${V.quitacao > 0 ? `<span>Saldo devedor transferido ao comprador (ou quitado) ${tip('As parcelas param no mês da venda. O que já foi pago está no Fluxo de caixa; o que falta é o saldo devedor de hoje, que cai com as parcelas pagas até a venda e chega a zero na última das parcelas que faltam. Com o financiamento quitado antes da venda, não há o que descontar.')}</span><b>− ${fmt(V.quitacao)}</b>` : ''}
         <span class="tot">Vai para o mercado financeiro</span><b class="tot">${fmt(V.liquido)}</b></div>
       ${fim.length ? `<div class="muted" style="margin:6px 0 0 18px">Na venda, ${fim.join(' e ')} ${fim.length > 1 ? 'terminam' : 'termina'} no Fluxo de caixa.</div>` : ''}`;
   }

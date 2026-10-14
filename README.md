@@ -104,8 +104,9 @@ página Patrimônio tem:
   - **venda**: a data, o valor de venda (vazio: o valor projetado naquela data) e os custos (comissões, impostos e outras
     despesas, cada um em % do valor de venda ou em reais) (`bem.venda`). A página mostra o valor de venda, os custos, o
     saldo devedor transferido ao comprador (ou quitado) e o líquido que vai para o mercado financeiro. As parcelas param no mês da venda: o
-    que já foi pago está no Fluxo de caixa, e o que falta é o saldo devedor de hoje, com os juros e as parcelas pagas até a
-    venda. Com o financiamento quitado antes, o valor entra líquido.
+    que já foi pago está no Fluxo de caixa, e o que falta é o saldo devedor de hoje, que cai com as parcelas pagas até a
+    venda e chega a zero na última das parcelas que faltam. Com o financiamento quitado antes da venda, o valor entra
+    líquido.
 
   Na simulação, a valorização muda o valor dos bens sem passar pelo fluxo de caixa. Na venda, o preço sai dos bens e entra no
   financeiro (Movimentações), e os custos e o saldo devedor transferido são saídas ("Vendas de bens"). A renda que o bem gera e a parcela dele
