@@ -386,5 +386,34 @@ console.log('\n11. Otimização tributária (regras de 2026)');
   ok('previdência: sem rendimento, sem imposto', Math.abs(sem.comum.final - 100000) < 0.01 && Math.abs(sem.prev.final - 100000) < 0.01);
 }
 
+console.log('\n12. Bens ao longo do tempo: valorização e venda');
+{
+  const Eb = carregar(srcCliente);
+  const ap = { nome: 'Apartamento', mercado: 950000, saldoDevedor: 368000, parcela: 4870, juros: 9.5, linha: 'parc', renda: 'alug',
+    valorizacao: [{ tipo: 'taxa', pct: 2, de: 0, anos: 10 }, { tipo: 'pontual', em: 24, valor: 100000, motivo: 'reforma' }],
+    venda: { em: 60, preco: null, custos: [{ nome: 'Corretagem', pct: 6 }, { nome: 'Imposto sobre o ganho', valor: 20000 }] } };
+  const alug = { id: 'alug', label: 'Aluguel do apartamento', kind: 'passiva', frequency: 'mensal', days: [10], steps: [{ from: 0, value: 3000 }] };
+  Eb.configure({ patrimonio: { bens: [ap, { nome: 'Terreno', mercado: 100000 }] }, initialBens: 1050000, objectives: [], passive: [],
+    incomes: [{ id: 'sal', label: 'Salário', kind: 'ativa', frequency: 'mensal', days: [5], steps: [{ from: 0, value: 20000 }] },
+      alug],
+    expenses: [{ id: 'parc', label: 'Parcela: Apartamento', group: 'fix', frequency: 'mensal', days: [10], steps: [{ from: 0, value: 4870 }] },
+      { id: 'vida', label: 'Vida', group: 'adj', frequency: 'mensal', days: [10], steps: [{ from: 0, value: 8000 }] }] });
+  const tr = Eb.trajetoriaDoBem(ap), esperado = (950000 * Math.pow(1.02, 2) + 100000) * Math.pow(1.02, 3);
+  ok('valor projetado: 2% ao ano mais a reforma de R$ 100 mil', Math.abs(tr.venda.projetado - esperado) < 1, Math.round(tr.venda.projetado) + ' / ' + Math.round(esperado));
+  ok('custos da venda: 6% do preço e R$ 20 mil', Math.abs(tr.venda.custo - (0.06 * tr.venda.preco + 20000)) < 0.01);
+  ok('quitação: o saldo devedor cai com as parcelas pagas até a venda', tr.venda.quitacao > 0 && tr.venda.quitacao < 368000, 'R$ ' + Math.round(tr.venda.quitacao));
+  const s = Eb.run('perp'), mes = {};
+  let erro = 0;
+  s.buckets.month.forEach(b => { if (b.w1 <= Eb.W0) return; mes[b.mi] = b.f; let i = 0, o = 0, v = 0;
+    for (const k in b.f) { if (k.startsWith('in_')) i += b.f[k]; else if (k.startsWith('out_')) o += b.f[k]; else if (k.startsWith('mov_')) v += b.f[k]; }
+    erro = Math.max(erro, Math.abs(i - o - v)); });
+  ok('com a venda, movimentações = entradas − saídas', erro < 0.01, 'erro máximo ' + erro.toFixed(6));
+  ok('na venda, o preço sai dos bens e os custos e a quitação são saídas', Math.abs(mes[60].mov_bens + tr.venda.preco) < 0.01 && Math.abs(mes[60].out_venda_0 - tr.venda.custo) < 0.01 && Math.abs(mes[60].out_quita_0 - tr.venda.quitacao) < 0.01);
+  ok('o aluguel e a parcela do bem terminam na venda', mes[59].in_alug === 3000 && !mes[60].in_alug && mes[59].out_fix_parc === 4870 && !mes[61].out_fix_parc);
+  const wv = s.events.find(e => e.type === 'venda').week, antes = s.weeks[wv - 1].bens, depois = s.weeks[wv].bens;
+  ok('depois da venda sobram só os outros bens', Math.abs(depois - 100000) < 0.01 && Math.abs(antes - (100000 + s.events.find(e => e.type === 'venda').antes)) < 0.01, 'bens de R$ ' + Math.round(antes) + ' para R$ ' + Math.round(depois));
+  ok('o plano não é alterado pela venda (as linhas são cortadas numa cópia)', alug.steps.length === 1 && Eb.INCOMES.find(x => x.id === 'alug').steps.length === 2);
+}
+
 console.log('\n' + (falhas ? falhas + ' verificação(ões) falharam.' : 'Tudo certo.') + '\n');
 process.exit(falhas ? 1 : 0);

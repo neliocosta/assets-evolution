@@ -393,6 +393,8 @@ variáveis. **Lacuna**: o plano usa e a coleta não pega; hoje quem preenche é 
 | Renda que um bem gera | `bens[].renda` | Coleta | `bem_rendaPassiva[]` vira a linha de renda passiva |
 | Titularidade de cada bem | `bens[].titularidade`, `titularPct` | Coleta | `bem_compartilhado_N`, `bem_percentual[]` (sem dizer com quem) |
 | Proteção e apólice de cada bem | `bens[].protecao`, `apolice` | Coleta | `seg_auto_*`, `seg_res_*` (um seguro de cada) |
+| Valorização de cada bem (ao ano ou pontual) | `bens[].valorizacao[]` | Consultor | é premissa do planejamento, não dado da reunião |
+| Venda planejada de um bem (data, valor, custos) | `bens[].venda` | Consultor | a coleta pode perguntar se o cliente pensa em vender algum bem; o líquido é calculado |
 | Outras dívidas | `patrimonio.dividas[]` | Lacuna | a coleta tem só o total (`currentliabilities`, com os financiamentos) |
 | Liquidez ideal | `patrimonio.liquidezIdeal` | Consultor | |
 

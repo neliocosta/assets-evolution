@@ -779,10 +779,49 @@ const ENGINE = (() => {
   };
   const cronogramaFin = f => { if (!financiamentoValido(f)) return []; const F = novoFin(f), out = []; for (let k = 0; k < F.n; k++) { const p = parcelaFin(F); F.bal = Math.max(0, F.bal - p.amort); out.push({ juros: p.juros, amort: p.amort, pay: p.pay, saldo: F.bal }); } return out; };
 
+  // ---- Bens ao longo do tempo (página Patrimônio): valorização, valorização pontual e venda ----
+  // Cada bem de plan.patrimonio.bens pode ter:
+  //   valorizacao: [{ tipo: 'taxa', pct, de, anos }]        pct % ao ano (negativo deprecia), do mês `de` (0 = hoje) por `anos`
+  //                [{ tipo: 'pontual', em, pct | valor, motivo }]   no mês `em`, um salto em % ou em reais
+  //   venda: { em, preco, custos: [{ nome, pct | valor }] }  preço vazio = o valor projetado; cada custo em % do preço ou em reais
+  // A valorização muda o patrimônio em bens sem passar pelo fluxo de caixa (não é dinheiro que entra ou sai). Na venda, o preço
+  // sai dos bens e entra no financeiro; os custos e a quitação do financiamento (o saldo devedor de hoje, com os juros e as
+  // parcelas pagas até a venda) são saídas. A renda que o bem gera e a parcela dele terminam no mês da venda.
+  let BENS = null;   // null: os bens do exemplo
+  const bensDoPlano = () => BENS || PATRIMONIO_EXEMPLO.bens;
+  function trajetoriaDoBem(b) {
+    const H = Math.round((100 - CURRENT_AGE) * 12), ev = Array.isArray(b.valorizacao) ? b.valorizacao : [], vd = b.venda && num(b.venda.em) != null ? b.venda : null;
+    const fim = vd ? Math.max(1, Math.min(H, Math.round(+vd.em))) : H, serie = new Float64Array(fim + 1), pontuais = [];
+    let v = +b.mercado || 0; serie[0] = v;
+    for (let m = 1; m <= fim; m++) {
+      ev.forEach(e => { if (e.tipo !== 'taxa' || num(e.pct) == null) return; const de = Math.max(0, Math.round(+e.de || 0)), ate = de + Math.round((num(e.anos) != null ? +e.anos : 10) * 12); if (m - 1 >= de && m - 1 < ate) v *= Math.pow(1 + e.pct / 100, 1 / 12); });
+      ev.forEach(e => { if (e.tipo !== 'pontual' || Math.round(+e.em) !== m) return; const antes = v; v = Math.max(0, num(e.pct) != null ? v * (1 + e.pct / 100) : v + (+e.valor || 0)); pontuais.push({ mi: m, delta: v - antes, motivo: e.motivo || '' }); });
+      serie[m] = v;
+    }
+    let venda = null;
+    if (vd) {
+      const projetado = serie[fim], preco = num(vd.preco) != null ? Math.max(0, +vd.preco) : projetado;
+      const custos = (vd.custos || []).map(c => ({ nome: c.nome || 'Custo', pct: num(c.pct), v: num(c.pct) != null ? preco * c.pct / 100 : Math.max(0, +c.valor || 0) }));
+      const custo = custos.reduce((a, c) => a + c.v, 0), quitacao = saldoDevedorEm(b, fim);
+      venda = { mi: fim, projetado, preco, custos, custo, quitacao, liquido: preco - custo - quitacao };
+    }
+    return { serie, pontuais, venda };
+  }
+  // saldo devedor do financiamento do bem daqui a k meses: o de hoje, com os juros e as parcelas pagas até lá
+  function saldoDevedorEm(b, k) {
+    const B0 = +b.saldoDevedor || 0; if (!(B0 > 0)) return 0;
+    const p = +b.parcela || 0, i = Math.pow(1 + (+b.juros || 0) / 100, 1 / 12) - 1, g = Math.pow(1 + i, k);
+    return Math.max(0, i > 0 ? B0 * g - p * (g - 1) / i : B0 - p * k);
+  }
+  // a linha termina no mês mi: um degrau zero e nenhum ajuste depois (numa cópia; o plano não muda)
+  const cortaLinha = (it, mi) => Object.assign({}, it, { steps: (it.steps || []).filter(s => s.from < mi).concat({ from: mi, value: 0 }),
+    exc: it.exc ? Object.fromEntries(Object.entries(it.exc).filter(([k]) => parseInt(k, 10) < mi)) : it.exc });
+
   function run(mode) {
     const weeks = new Array(NW), events = [];
     let cofre = 0, obj = OBJ.map(() => 0), done = OBJ.map(() => false), bens = 0, part = PART_VALUE;
     const saldoNaData = OBJ.map(() => 0);   // quanto cada objetivo de fato juntou até a data alvo
+    const traj = bensDoPlano().map(trajetoriaDoBem), ultimo = traj.map(x => x.serie[0]), vendido = traj.map(() => false);   // os bens da página Patrimônio
     let offset = 99, streams = [], ff = null, prevActive = '', allocated = false, ks = [];
     const recurTotal = () => streams.reduce((a, st) => a + (st.left === 0 ? 0 : st.value), 0);
     // despesa com endObj (o aluguel, por exemplo) deixa de existir quando aquele objetivo é realizado
@@ -857,6 +896,22 @@ const ENGINE = (() => {
             });
             events.push({ week: i, type: 'obj', obj: o, label: o.name, finBefore: fin() });
           }
+        });
+        // bens ao longo do tempo: a valorização muda o valor dos bens; a venda leva o preço para o financeiro
+        if (t >= 0 && mIdx >= 1) traj.forEach((tr, k) => {
+          if (vendido[k]) return;
+          const nome = bensDoPlano()[k].nome || 'bem';
+          if (tr.venda && mIdx >= tr.venda.mi) {
+            const V = tr.venda; vendido[k] = true;
+            bens -= ultimo[k]; cofre += V.preco; transfer(f, 'mov_bens', 'mov_cofre', V.preco);
+            if (V.custo > 0) add(f, 'out_venda_' + k, V.custo);
+            if (V.quitacao > 0) add(f, 'out_quita_' + k, V.quitacao);
+            events.push({ week: i, type: 'venda', label: 'Venda: ' + nome, detail: reais(V.liquido) + ' líquidos para o mercado financeiro', venda: V, antes: ultimo[k] });
+            return;
+          }
+          const v = tr.serie[Math.min(mIdx, tr.serie.length - 1)];
+          if (v !== ultimo[k]) { bens += v - ultimo[k]; ultimo[k] = v; }
+          tr.pontuais.forEach(p => { if (p.mi === mIdx) events.push({ week: i, type: 'valoriza', label: (p.delta >= 0 ? 'Valorização: ' : 'Desvalorização: ') + nome, detail: (p.delta >= 0 ? '+ ' : '− ') + reais(Math.abs(p.delta)) + (p.motivo ? ' · ' + p.motivo : ''), delta: p.delta }); });
         });
         // gatilho da Liberdade Financeira
         // sem idade-alvo, a liberdade acontece assim que o patrimônio sustenta a renda (a partir dos 50, no máximo aos 68);
@@ -977,6 +1032,12 @@ const ENGINE = (() => {
     if (Array.isArray(plan.expenses)) EXPENSES = plan.expenses.map(migra);
     if (Array.isArray(plan.objectives)) { OBJ.length = 0; plan.objectives.forEach(o => OBJ.push(o)); OBJ.forEach(migraCustos); OBJ.forEach(derive); }
     if (Array.isArray(plan.passive)) { PASSIVE.length = 0; plan.passive.forEach(p => PASSIVE.push(p)); }
+    if (plan.patrimonio) BENS = Array.isArray(plan.patrimonio.bens) ? plan.patrimonio.bens : [];
+    else if (plan.initialBens != null) BENS = [];
+    // a renda que um bem vendido gera e a parcela dele terminam no mês da venda
+    bensDoPlano().forEach(b => { const v = b.venda && num(b.venda.em) != null ? Math.max(1, Math.round(+b.venda.em)) : null; if (v == null) return;
+      if (b.renda) INCOMES = INCOMES.map(it => it.id === b.renda ? cortaLinha(it, v) : it);
+      if (b.linha && !b.semFluxo) EXPENSES = EXPENSES.map(it => it.id === b.linha ? cortaLinha(it, v) : it); });
   }
   // ---- Propostas do cliente ----
   // O cliente não altera o plano: ele propõe alterações e o consultor aprova uma a uma. Cada alteração é:
@@ -1466,7 +1527,7 @@ const ENGINE = (() => {
   const FAMILIA_EXEMPLO = { tipo: 'familia', spouseAge: 38, conjugeNome: 'Marcos' };
   const ORIGENS_OUT = ORIGENS;
   const config = () => ({ age: CURRENT_AGE, retireAge: RETIRE_AGE, initialBens: INITIAL_BENS, desired: DESIRED, desiredSteps: DESIRED_STEPS, lifeExp: LIFE_EXP, salary: SALARY, salaryGrowth: SAL_G, partValue: PART_VALUE, initialWealth: INITIAL_WEALTH, capacityOverride: CAP_OVERRIDE, rate: R_M, profiles: PROFILES, incomes: INCOMES, expenses: EXPENSES, objectives: OBJ, passive: PASSIVE });
-  return { TODAY, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, PASSIVE, PROFILES, STATUS, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, serieCusto, desiredAt, aplicaAlteracoes, descreveAlteracao, valorAtual, mesDoPlano, RISCOS, NATUREZAS, ITENS_RUINA, RISCOS_EXEMPLO, avaliaRiscos, custoDeVida, SEGURO, RELACOES, calculaSeguros, mesesAteIdade, FASES_VIDA, faseDaVida, sincronizaPatrimonio, PATRIMONIO_EXEMPLO, padraoDeVida, lerCaminho, gravaCaminho, IR, calculaIR, irDaFamilia, REGIMES, calculaRetirada, retiradaDosSocios, PREVIDENCIA, sucessao, simulaPrevidencia, aliqRegressiva, TRIBUTARIO_EXEMPLO, FAMILIA_EXEMPLO, casalDe, nomesDaFamilia, pessoasDaFamilia, rendaDaPessoa, bensDoRisco, titularidadeDoBem, setRetireAge: a => { RETIRE_AGE = a == null ? null : Math.max(CURRENT_AGE, +a); }, financiamentoValido, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
+  return { TODAY, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, PASSIVE, PROFILES, STATUS, trajetoriaDoBem, saldoDevedorEm, get BENS() { return bensDoPlano(); }, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, serieCusto, desiredAt, aplicaAlteracoes, descreveAlteracao, valorAtual, mesDoPlano, RISCOS, NATUREZAS, ITENS_RUINA, RISCOS_EXEMPLO, avaliaRiscos, custoDeVida, SEGURO, RELACOES, calculaSeguros, mesesAteIdade, FASES_VIDA, faseDaVida, sincronizaPatrimonio, PATRIMONIO_EXEMPLO, padraoDeVida, lerCaminho, gravaCaminho, IR, calculaIR, irDaFamilia, REGIMES, calculaRetirada, retiradaDosSocios, PREVIDENCIA, sucessao, simulaPrevidencia, aliqRegressiva, TRIBUTARIO_EXEMPLO, FAMILIA_EXEMPLO, casalDe, nomesDaFamilia, pessoasDaFamilia, rendaDaPessoa, bensDoRisco, titularidadeDoBem, setRetireAge: a => { RETIRE_AGE = a == null ? null : Math.max(CURRENT_AGE, +a); }, financiamentoValido, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
 })();
 if (typeof module !== 'undefined') module.exports = ENGINE;
 </script>
@@ -1572,19 +1633,23 @@ const buildSeries = () => { SERIES = ['fin', 'bens', 'part', 'cofre', 'pas'].con
 buildSeries();
 const readW = (w, key) => key.startsWith('obj') ? w.obj[+key.slice(3)] : w[key];
 // Saídas únicas (contratação das rendas, compra de um bem, gasto de um objetivo) não entram na média:
-// a curva cai inteira na semana em que acontecem. jc[i] soma essas saídas até a semana i; a média é feita
-// sobre o patrimônio com elas devolvidas e depois elas são descontadas de novo.
+// a curva cai inteira na semana em que acontecem. jc.fin[i] soma essas saídas até a semana i; a média é feita
+// sobre o patrimônio com elas devolvidas e depois elas são descontadas de novo. A venda de um bem e a valorização
+// pontual também são saltos: o financeiro sobe com o líquido da venda (jc.fin) e os bens descem ou sobem (jc.bens).
 const COM_SALTO = new Set(['fin', 'cofre']);
 function saltos(s) {
-  const j = new Float64Array(NW);
+  const j = new Float64Array(NW), jb = new Float64Array(NW);
   s.events.forEach(e => {
     if (e.type === 'ff') j[e.week] += e.ff.cost || 0;
     if (e.type === 'obj' && !e.obj.naoComprado) j[e.week] += +e.obj.amount || 0;
+    if (e.type === 'venda') { j[e.week] -= e.venda.liquido; jb[e.week] += e.antes; }
+    if (e.type === 'valoriza') jb[e.week] -= e.delta;
   });
-  const jc = new Float64Array(NW); let t = 0; for (let i = 0; i < NW; i++) { t += j[i]; jc[i] = t; }
-  return jc;
+  const acum = a => { const c = new Float64Array(NW); let t = 0; for (let i = 0; i < NW; i++) { t += a[i]; c[i] = t; } return c; };
+  return { fin: acum(j), bens: acum(jb) };
 }
-function buildPre() { for (const k in SIM) { const s = SIM[k]; s.pre = {}; s.jc = saltos(s); SERIES.forEach(key => { const a = new Float64Array(NW + 1), sal = COM_SALTO.has(key); for (let i = 0; i < NW; i++) a[i + 1] = a[i] + readW(s.weeks[i], key) + (sal ? s.jc[i] : 0); s.pre[key] = a; }); } }
+const saltoEm = (s, key, i) => key === 'bens' ? s.jc.bens[i] : COM_SALTO.has(key) ? s.jc.fin[i] : 0;
+function buildPre() { for (const k in SIM) { const s = SIM[k]; s.pre = {}; s.jc = saltos(s); SERIES.forEach(key => { const a = new Float64Array(NW + 1); for (let i = 0; i < NW; i++) a[i + 1] = a[i] + readW(s.weeks[i], key) + saltoEm(s, key, i); s.pre[key] = a; }); } }
 buildPre();
 // Refaz a projeção inteira depois que uma data alvo muda. Objetivos mais próximos têm prioridade no aporte.
 function rerun() { OBJ.sort((a, b) => a.months - b.months); SIM.perp = ENGINE.run('perp'); SIM.cons = ENGINE.run('cons'); SIM.desej = ENGINE.run('desej'); buildSeries(); buildPre(); updateStats(); }
@@ -1616,7 +1681,7 @@ function applyPlan(plan) {
   BASE = baseDe(plan); PROP = lerProposta(); respostaNoPlano(); if (temAlteracoes()) aplicaVista(); else desenhaPropBar();
 }
 const STATUS_COLOR = { ok: '#2E9E5B', adj: '#FA7A35', risk: '#D64545' };
-const smoothVal = (s, key, i, h) => { const a = Math.max(W0, i - h), b = Math.min(NW - 1, i + h); return (s.pre[key][b + 1] - s.pre[key][a]) / (b - a + 1) - (COM_SALTO.has(key) ? s.jc[Math.max(0, Math.min(NW - 1, i))] : 0); };
+const smoothVal = (s, key, i, h) => { const a = Math.max(W0, i - h), b = Math.min(NW - 1, i + h); return (s.pre[key][b + 1] - s.pre[key][a]) / (b - a + 1) - saltoEm(s, key, Math.max(0, Math.min(NW - 1, i))); };
 // janela da média móvel: no mínimo um mês, para que a entrada do salário não apareça como salto do patrimônio.
 // A mesma janela vale para o desenho e para o hover, então curva e números sempre coincidem.
 const smoothH = () => Math.round(Math.max(2, Math.min(26, tSpan(state.view) * 3)));
@@ -1694,12 +1759,14 @@ function buildRows() {
       ] },
       { id: 'out_adj', label: 'Ajustáveis', keys: keysWith('out_adj_'), novo: { lista: 'expenses', group: 'adj' }, children: ENGINE.EXPENSES.filter(c => c.group === 'adj').map(c => ({ id: 'out_adj_' + c.id, label: c.label, keys: ['out_adj_' + c.id], edit: { lista: 'expenses', id: c.id } })) },
       { id: 'out_obj', label: 'Objetivos realizados', keys: keysWith('out_obj_'), children: OBJ.map(o => ({ id: 'out_obj_' + o.id, label: o.name, keys: ['out_obj_' + o.id] })) },
+      { id: 'out_venda', label: 'Vendas de bens', keys: keysWith('out_venda_').concat(keysWith('out_quita_')), children: ENGINE.BENS.flatMap((b, k) => b.venda ? [
+        { id: 'out_venda_' + k, label: 'Custos da venda: ' + (b.nome || 'bem'), keys: ['out_venda_' + k] }, { id: 'out_quita_' + k, label: 'Quitação do financiamento: ' + (b.nome || 'bem'), keys: ['out_quita_' + k] }] : []) },
       { id: 'out_rendas', label: 'Contratação de rendas (fundos de pensão)', keys: ['out_rendas'], icon: 'convert' },
     ] },
     { id: 'mov', label: 'Movimentações no patrimônio', color: C.mov, keys: keysWith('mov_'), children: [
       { id: 'mov_cofre', label: 'Reserva (patrimônio livre)', keys: ['mov_cofre'], icon: 'convert' },
       ...OBJ.map(o => ({ id: 'mov_obj_' + o.id, label: 'Objetivo: ' + o.name, keys: ['mov_obj_' + o.id] })),
-      { id: 'mov_bens', label: 'Bens (entrada e amortização)', keys: ['mov_bens'] },
+      { id: 'mov_bens', label: 'Bens (compras, vendas e amortização)', keys: ['mov_bens'] },
     ] },
   ];
 }
@@ -1722,7 +1789,7 @@ function milestones() {
     if (e.type === 'obj' && e.obj.milestone) list.push({ week: e.week, kind: 'obj', obj: e.obj, title: e.obj.title, icon: e.obj.icon, ev: e });
     if (e.type === 'obj' && !e.obj.milestone) list.push({ week: e.week, kind: 'minor', obj: e.obj, icon: e.obj.icon, title: e.obj.name });
     if (e.type === 'ff') list.push({ week: e.week, kind: 'ff', title: 'Liberdade Financeira alcançada!', icon: 'infinity', ff: e.ff });
-    if (e.type === 'passive' || e.type === 'note') list.push({ week: e.week, kind: 'sub', title: e.label, detail: e.detail, icon: 'dot' });
+    if (e.type === 'passive' || e.type === 'note' || e.type === 'venda' || e.type === 'valoriza') list.push({ week: e.week, kind: 'sub', title: e.label, detail: e.detail, icon: 'dot' });
   });
   // enquanto o marco é arrastado, ele acompanha o cursor (a projeção só é refeita ao soltar)
   if (state.objDrag) { const mk = list.find(m => m.obj === state.objDrag.o); if (mk) mk.week = W0 + state.objDrag.o.months * WPY / 12; }

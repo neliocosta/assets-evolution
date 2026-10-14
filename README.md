@@ -96,7 +96,20 @@ página Patrimônio tem:
   que já existe ou dizer que a parcela não entra no fluxo (`divida.linha`, `linhaPropria`, `semFluxo`). Remover a
   dívida ou o bem remove a linha própria;
 - um bem que gera renda passiva aponta para a linha de entrada do Fluxo de caixa (`bem.renda`, o id da linha): o
-  consultor escolhe uma renda passiva que já existe ou cadastra uma nova dali mesmo. O valor fica num lugar só, o fluxo.
+  consultor escolhe uma renda passiva que já existe ou cadastra uma nova dali mesmo. O valor fica num lugar só, o fluxo;
+- cada bem tem, em "Ao longo do tempo", um minigráfico do valor e três botões (`ENGINE.trajetoriaDoBem`, no motor):
+  - **valorização ao ano**: % ao ano, de uma data, por um número de anos (`bem.valorizacao[]`, `tipo: 'taxa'`); negativa,
+    é a depreciação de um carro;
+  - **valorização pontual**: um salto em % ou em reais numa data, com o motivo (`tipo: 'pontual'`);
+  - **venda**: a data, o valor de venda (vazio: o valor projetado naquela data) e os custos (comissões, impostos e outras
+    despesas, cada um em % do valor de venda ou em reais) (`bem.venda`). A página mostra o valor de venda, os custos, a
+    quitação do financiamento (o saldo devedor de hoje, com os juros e as parcelas pagas até a venda) e o líquido que vai
+    para o mercado financeiro.
+
+  Na simulação, a valorização muda o valor dos bens sem passar pelo fluxo de caixa. Na venda, o preço sai dos bens e entra no
+  financeiro (Movimentações), e os custos e a quitação são saídas ("Vendas de bens"). A renda que o bem gera e a parcela dele
+  terminam no mês da venda. Na evolução patrimonial, a venda e a valorização pontual são marcos, e as curvas saltam na semana
+  em que acontecem, sem média. Só os bens da página Patrimônio têm essa linha do tempo; um bem comprado por um objetivo, não.
 
 Na tela do cliente: no alto, a fase atual e as cinco fases com as idades de cada uma. Depois, em
 largura total, o patrimônio total e o esperado para a idade, com barras na mesma escala. Em cima, a escada: o mercado
@@ -216,7 +229,11 @@ cada tela ouve o que a outra gravou.
                "protecao": "insuficiente", "apolice": {"seguradora": "…"},  // marcada na Gestão de riscos
                "saldoDevedor": 368000, "credito": 560000, "parcelas": 360,  // com saldo devedor, o detalhe do financiamento
                "parcela": 4870, "juros": 9.5, "situacao": "em_dia",         // juros em % ao ano; situacao: em_dia | inadimplente
-               "renda": "ent123"} ],                                        // id da linha de renda passiva do Fluxo, se o bem rende
+               "renda": "ent123",                                           // id da linha de renda passiva do Fluxo, se o bem rende
+               "valorizacao": [ {"tipo": "taxa", "pct": 2, "de": 0, "anos": 10},     // % ao ano, do mês "de" (0 = set/2026) por "anos"
+                                {"tipo": "pontual", "em": 12, "valor": 100000, "pct": null, "motivo": "reforma"} ],   // em % ou em reais
+               "venda": {"em": 60, "preco": null,                           // preco vazio: o valor projetado no mês da venda
+                         "custos": [ {"nome": "Corretagem", "pct": 6}, {"nome": "Imposto sobre o ganho", "valor": 20000} ]} } ],
     "dividas": [ {"nome": "Consignado", "saldoDevedor": 20000, "credito": 30000, "parcelas": 48, "parcela": 850, "juros": 22, "situacao": "em_dia"} ]
   },
   "tributario": {              // capítulo 3 (página Otimização tributária); valores anuais no IR, mensais no pró-labore

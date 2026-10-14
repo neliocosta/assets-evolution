@@ -171,9 +171,9 @@ confirmação em dois cliques, o resto não tem volta. Com a edição direto na 
 A nova data (e a nova idade de parar, ao arrastar a Liberdade Financeira) vive só na sessão do navegador do cliente. Depois da reunião, o consultor precisa repetir a
 alteração no portal.
 
-### 9. Depreciação de bens
-Um objetivo é "consumo" ou "vira bem". Um carro vira bem e nunca perde valor. Falta um terceiro
-comportamento, ou um percentual de depreciação ao ano.
+### 9. Depreciação de bens — resolvido para os bens de hoje (14/10/2026)
+Os bens da página Patrimônio têm valorização ao ano, que pode ser negativa (a depreciação de um carro). Continua em aberto
+para o bem comprado por um objetivo ("vira bem"): ele entra pelo valor e nunca perde valor, e não pode ser vendido no plano.
 
 ### 10. Prioridade explícita do objetivo
 Com a conferência do orçamento, um aporte novo não estoura mais o orçamento; mas planos antigos, ou uma despesa
@@ -474,6 +474,15 @@ Registradas aqui porque não são óbvias no código:
   vem com quantas ameaças estão totalmente protegidas ("4 de 8 ameaças totalmente protegidas"). O "7 de 8 ameaças avaliadas"
   saiu: na prática o consultor avalia todas. No link publicado, a contagem dava 7 porque o bem "Carro" da página Patrimônio
   estava sem proteção marcada (a lista antiga da gestão de riscos tinha "Carro da família", e o nome não bateu).
+- **Valorização e venda dos bens (14/10/2026).** Pedido do usuário, ao montar um planejamento: planejar a venda de um bem num
+  momento, quando ele vira patrimônio financeiro, com as comissões, os impostos e as outras despesas que levam o valor bruto ao
+  líquido; e marcar valorizações (por exemplo, 2% ao ano nos próximos 10 anos) ou uma valorização pontual. Ficou na página
+  Patrimônio, no próprio bem (uma informação num lugar só): "Ao longo do tempo", com um minigráfico do valor e um botão para
+  cada evento. Escolhas: o valor de venda abre com o projetado e pode ser outro; cada custo é em % do valor de venda ou em
+  reais (preencher um limpa o outro); a quitação do financiamento sai do líquido sozinha, estimada pelo saldo devedor de hoje
+  com os juros e as parcelas; a renda e a parcela do bem terminam na venda; a valorização não passa pelo fluxo de caixa. Em
+  aberto: o gráfico ainda não desconta o saldo devedor (item 2 de "Fase da vida e patrimônio"), então, num bem financiado, o
+  patrimônio total cai pela quitação no mês da venda; a venda de um bem comprado por um objetivo; o cliente propor uma venda.
 - **Hoje e recomendado sempre na mesma linha (07/10/2026).** O usuário achou o imposto de cada pessoa desalinhado entre
   as duas colunas (uma marca a mais quebrava a linha e empurrava a barra e o total da família) e pediu a tabela de
   lançamentos centralizada. O IR virou uma grade só, pessoa por pessoa (nome e imposto, a barra, as marcas embaixo); no

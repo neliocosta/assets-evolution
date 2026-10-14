@@ -62,6 +62,9 @@ Situação: **fonte** (informada aqui, só aqui), **ligada** (lida da fonte, sem
 | Bens (valor de mercado, saldo devedor, financiamento) | `patrimonio.bens[]` | fonte | `initialBens`, fase da vida, sucessão, proteção dos bens |
 | Titularidade de cada bem | `patrimonio.bens[].titularidade` (titular, cônjuge ou casal) e `titularPct` (a parte do titular no casal; 50% sem informar) | fonte | patrimônio do cliente; base futura do % do patrimônio dos seguros e do ITCMD |
 | Proteção e apólice de cada bem | `patrimonio.bens[].protecao`, `apolice` | fonte (marcada na Gestão de riscos, gravada no bem) | ameaça 6 |
+| Valorização do bem (ao ano, por um período, ou pontual) | `patrimonio.bens[].valorizacao[]` | fonte (consultor) | evolução patrimonial (valor dos bens), preço projetado da venda |
+| Venda planejada do bem: data, valor de venda, custos (% ou R$) | `patrimonio.bens[].venda` | fonte (consultor); valor de venda vazio = o projetado | evolução patrimonial, Fluxo de caixa (custos e quitação), fim da renda e da parcela do bem |
+| Valor projetado, quitação na venda e líquido da venda | `ENGINE.trajetoriaDoBem` | calculada (não gravada) | Patrimônio, evolução patrimonial |
 | Outras dívidas | `patrimonio.dividas[]` | fonte | patrimônio total, sucessão |
 | Liquidez ideal | `patrimonio.liquidezIdeal` | fonte | patrimônio do cliente |
 
