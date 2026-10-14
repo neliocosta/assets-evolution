@@ -517,6 +517,14 @@ Registradas aqui porque não são óbvias no código:
     O exemplo ganhou a idade de parar da Ana, 57 anos: a liberdade passa de jan/2048 (aos 56, quando o patrimônio passava a
     sustentar a renda) para out/2048. Com 56, ela cairia em out/2047, antes de sustentar, e o exemplo mostraria "renda
     parcial". O motor ainda aceita um plano antigo sem a idade.
+  - ainda no mesmo dia, a pedido do usuário: sliders para calibrar a renda desejada (no alto e em cada período) e as
+    idades; a idade de parar de cada pessoa (num casal, a liberdade começa quando o primeiro para, e o outro continua com a
+    renda do trabalho até a idade dele, decisão do usuário); a ordem nova (renda e idades; rendas programadas; renda em cada
+    período, com as alternativas como botões no alto; e, no fim, "Simulação patrimonial do plano proposto", com o veredito e
+    a curva, sem os cartões). O exemplo: Marcos para aos 62, dois anos depois da Ana.
+  Em aberto: planos de família tratados separadamente. O usuário explicou que há planejamentos feitos em família (a regra
+  acima) e outros em que cada membro é tratado à parte; para esses, seriam precisos dois simuladores de evolução patrimonial,
+  com os bens e o patrimônio de cada um.
   Em aberto: o veredito usa "dura até a expectativa de vida", mas o selo "renda parcial" do topo do portal e o aviso
   "Requer revisão" da visão do cliente ainda usam o critério da perpetuidade (o rendimento cobre a maior falta); com a renda
   desejada como plano, o critério deveria ser durar até a expectativa de vida.

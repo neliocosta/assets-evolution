@@ -221,6 +221,7 @@ cada tela ouve o que a outra gravou.
 {
   "name": "Ana Ribeiro", "age": 35, "lifeExp": 95,
   "tipo": "familia", "spouseAge": 38, "conjugeNome": "Marcos Ribeiro",   // casal: o cônjuge entra no IR, nos sócios e nos seguros (o primeiro nome)
+  "retireAge": 57, "spouseRetireAge": 62,   // quando cada um para de trabalhar (obrigatórias); a liberdade começa quando o primeiro para
   "initialWealth": 860000,     // patrimônio financeiro do cliente hoje: ponto de partida do gráfico (com plano.patrimonio, a soma do detalhe)
   "patrimonio": {              // o detalhe do patrimônio de hoje e a fase da vida (página Fase da vida e patrimônio)
     "comecou": 23, "liquidezIdeal": 400000,
@@ -349,23 +350,24 @@ três caminhos para fechar a diferença.
 
 **Página Liberdade financeira (portal).** Lê de cima para baixo, como a conversa com o cliente:
 
-- **Quanto e a partir de quando**: a renda desejada por mês (digitada; a variável mora só aqui) e a idade em que o titular
-  para de trabalhar, as duas obrigatórias, com a data da liberdade e a idade de cada um nela. Sem as duas, a página pede
-  que sejam preenchidas. (O motor ainda aceita um plano antigo sem a idade: a liberdade é quando o patrimônio sustenta a renda.)
-- **O patrimônio dá conta?**: o veredito do plano (o patrimônio dura até a expectativa de vida, ou até que idade, e quanto
-  seria preciso na liberdade para durar até lá), a curva do patrimônio financeiro da liberdade em diante e, lado a lado, o
-  plano e duas alternativas com a mesma renda em todos os períodos: consumir o patrimônio até a expectativa de vida (a renda
-  cujos saques valem o patrimônio da liberdade) e preservá-lo (o rendimento mais as rendas da fase em que elas são menores).
-  "Usar" troca a renda desejada pela da alternativa. As contas das alternativas descontam os saques mês a mês à taxa da
-  reserva; a curva e o veredito vêm da simulação.
-- **Renda em cada período**: uma linha por período (um período novo começa quando uma renda começa ou termina, ou quando
-  a renda desejada muda), com as datas e a idade dos dois, a renda desejada e de onde ela vem, numa barra e por escrito:
-  "Fundo de pensão vitalício R$ 5.000 + Fundo por 5 anos R$ 7.000 + saque do patrimônio R$ 28.000". O primeiro período é a
-  renda desejada do alto; nos outros, um valor digitado vale daquele período em diante (`desiredSteps`), e o × volta a seguir
-  o anterior. "Mudar a renda numa idade" cria um período novo na idade de uma das pessoas. Um aluguel diz de que bem vem, e
-  o nome do bem abre o detalhe dele numa gaveta (o mesmo cartão da página Patrimônio).
+- **Renda desejada e quando cada um para de trabalhar**: sliders (a renda de R$ 500 em R$ 500; as idades de ano em ano),
+  todos obrigatórios, com o mês em que cada um para. A variável da renda mora só aqui. Num casal, a liberdade começa quando
+  o primeiro para; o outro continua com a renda do trabalho até a idade dele (`ENGINE.paradaMi`, `trabalhaEm`). (O motor
+  ainda aceita um plano antigo sem as idades: a liberdade é quando o patrimônio sustenta a renda.)
 - **Rendas programadas**: o cadastro das rendas da aposentadoria, com de quem é cada uma e a idade de começar dessa pessoa
-  ("aos 65 anos de Marcos"), e as rendas passivas do Fluxo de caixa, só para ler.
+  ("idade de Marcos"), e as rendas passivas do Fluxo de caixa, só para ler.
+- **Renda em cada período**: no alto, três botões: a renda escolhida (a dos sliders e de cada período) ou uma das duas
+  alternativas, com a mesma renda em todos os períodos: consumir o patrimônio até a expectativa de vida (a renda cujos saques
+  valem o patrimônio da liberdade) e preservá-lo (o rendimento mais as rendas da fase em que elas são menores); escolher uma
+  troca a renda desejada e apaga as mudanças por período. Depois, uma linha por período (um período novo começa quando uma
+  renda começa ou termina, ou quando a renda desejada muda), com as datas e a idade dos dois, a renda desejada e de onde ela
+  vem, numa barra e por escrito: "Fundo de pensão vitalício R$ 5.000 + Fundo por 5 anos R$ 7.000 + Pró-labore do Marcos (até
+  Marcos parar) + saque do patrimônio". O primeiro período é a renda desejada do alto; nos outros, um slider muda a renda
+  daquele período em diante (`desiredSteps`), e o × volta a seguir o anterior. "Mudar a renda numa idade" cria um período
+  novo na idade de uma das pessoas. Um aluguel diz de que bem vem, e o nome do bem abre o detalhe dele numa gaveta.
+- **Simulação patrimonial do plano proposto**, no fim: o veredito (o patrimônio dura até a expectativa de vida, ou até que
+  idade, e quanto seria preciso na liberdade para durar até lá) e a curva do patrimônio financeiro da liberdade em diante.
+  As contas das alternativas descontam os saques mês a mês à taxa da reserva; a curva e o veredito vêm da simulação.
 
 **Como sacar.** O plano é sempre o da renda desejada (`mode: "desej"`, o padrão do motor e o que o portal grava): a renda
 fica igual e o saque muda conforme as rendas entram e saem; o patrimônio pode acabar antes da expectativa de vida ou sobrar.
@@ -399,7 +401,8 @@ salário a salário, os dias 1 a 4 fecham o ciclo anterior. Uma despesa semanal 
 mês, que são quatro ou cinco. Para orçamento, o portal usa o equivalente mensal, então um bônus de
 12 mil por ano pesa mil por mês e uma despesa semanal de 300 pesa cerca de 1.304 (52 semanas ÷ 12).
 
-**Aposentadoria.** Na liberdade financeira, a renda ativa (trabalho) para. A renda passiva, como o aluguel
+**Aposentadoria.** Na liberdade financeira, a renda ativa (trabalho) para; num casal, a de quem ainda não parou continua
+até a idade dessa pessoa e conta como renda (diminui o saque e entra no padrão de vida). A renda passiva, como o aluguel
 de um imóvel, continua, e entra no cálculo de quanto o patrimônio precisa sustentar. As rendas contratadas
 começam numa data fixa (o INSS, numa idade definida) ou na liberdade financeira, com ou sem alguns meses
 de espera. Uma renda de data fixa que começa antes da liberdade já entra no fluxo. O portal mostra a data e

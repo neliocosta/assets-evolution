@@ -43,7 +43,7 @@ Situação: **fonte** (informada aqui, só aqui), **ligada** (lida da fonte, sem
 | Variável | Caminho | Situação | Quem usa |
 |---|---|---|---|
 | Renda desejada | `desired` (a do começo da liberdade) e `desiredSteps` (um valor a partir de um mês, digitado num período) | fonte, obrigatória, só na página Liberdade financeira (saiu da Cliente em 14/10/2026) | simulação, liberdade, visão do cliente |
-| Idade em que o titular para de trabalhar | `retireAge` | fonte, obrigatória, na página Liberdade financeira (saiu da Cliente em 14/10/2026); no exemplo, 57 | simulação, fase da vida |
+| Idade em que cada um para de trabalhar | `retireAge` (titular), `spouseRetireAge` (cônjuge, num casal) | fonte, obrigatórias, na página Liberdade financeira (saíram da Cliente em 14/10/2026); no exemplo, 57 e 62 | simulação (a liberdade começa quando o primeiro para; a renda ativa do outro continua até a idade dele), fase da vida (a do titular) |
 | Rendas da aposentadoria e de quem é cada uma | `passive[]`, `passive[].pessoa` | fonte | simulação, liberdade |
 | Forma de sacar | `mode` | sempre `desej` (decisão do usuário); perpetuidade e consumo são só comparação | visão do cliente |
 | Patrimônio que dura até a expectativa de vida, alternativas de renda | `alternativas` (portal) | calculada | liberdade |

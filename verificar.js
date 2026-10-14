@@ -195,6 +195,16 @@ console.log('\n5. Periodicidades e regras do fluxo');
   const k7 = 'in_pas_' + E7.PASSIVE.findIndex(p => p.name === 'INSS');
   ok('renda de data fixa antes da liberdade já entra no fluxo', !m7[99][k7] && m7[100][k7] === 4200 && s7.ff.mi > 100);
 
+  // casal: a liberdade começa quando o primeiro para; a renda ativa do outro continua até a idade dele e diminui o saque
+  const Ec = carregar(srcCliente); Ec.configure({ tipo: 'familia', age: 35, retireAge: 57, spouseAge: 38, spouseRetireAge: 64 });
+  const sc = Ec.run('desej'), ffc = sc.weeks[sc.ff.week].mi, pro = mi => { const b = sc.buckets.month.find(b => b.mi === mi && b.w1 > Ec.W0); return b ? b.f.in_prolabore || 0 : 0; };
+  const fimPro = Math.round((64 - 38) * 12), salAna = mi => { const b = sc.buckets.month.find(b => b.mi === mi && b.w1 > Ec.W0); return b ? b.f.in_salario || 0 : 0; };
+  ok('casal: a liberdade começa quando o primeiro para (Ana aos 57)', Math.abs(sc.ff.age - 57) < 0.1, 'aos ' + sc.ff.age.toFixed(2));
+  ok('casal: o salário de quem parou some e o pró-labore do outro continua até os 64 dele', salAna(ffc + 1) === 0 && pro(ffc + 1) > 0 && pro(fimPro - 1) > 0 && pro(fimPro) === 0, 'pró-labore até o mês ' + (fimPro - 1));
+  ok('casal: o saque desconta a renda de quem ainda trabalha', sc.weeks.find(w => w.mi === ffc + 1).saque < sc.weeks.find(w => w.mi === fimPro + 1).saque);
+  const Ei = carregar(srcCliente); Ei.configure({ tipo: 'individual', age: 35, retireAge: 57, spouseAge: null }); const si = Ei.run('desej');
+  ok('uma pessoa: a renda ativa toda para na liberdade', !si.buckets.month.some(b => b.mi > si.weeks[si.ff.week].mi && b.w1 > Ei.W0 && (b.f.in_prolabore || b.f.in_salario)));
+
   // semanal: o mês do motor tem semanas inteiras, e cada semana tem exatamente um sábado
   const feiraSab = { id: 'fs', frequency: 'semanal', weekday: 6, steps: [{ from: 0, value: 150 }] };
   let sabOk = true, totalSab = 0;
