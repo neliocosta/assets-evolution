@@ -37,7 +37,7 @@ Situação: **fonte** (informada aqui, só aqui), **ligada** (lida da fonte, sem
 | Dependentes (nome, relação, nascimento) | `riscos.dependentes` | fonte | reserva (d), seguro de vida, IR (dependentes) |
 | Começou a trabalhar aos | `patrimonio.comecou` | fonte | fase da vida |
 | Quer parar aos, expectativa de vida | `retireAge`, `lifeExp` | fonte | simulação, fase da vida, liberdade |
-| Renda desejada | `desired`, `desiredSteps` | fonte | liberdade financeira |
+| Renda desejada | `desired`, `desiredSteps` | fonte (o ponto do início da programação da renda, na Liberdade financeira, muda o mesmo `desired`) | liberdade financeira |
 
 ## Dinheiro que entra e sai (Fluxo de caixa)
 

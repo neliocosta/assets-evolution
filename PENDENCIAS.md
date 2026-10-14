@@ -496,6 +496,21 @@ Registradas aqui porque não são óbvias no código:
   no fluxo; ficou o desconto porque o comprador paga à família o preço menos o saldo que assume, e as parcelas param na venda); a renda e a parcela do bem terminam na venda; a valorização não passa pelo fluxo de caixa. Em
   aberto: o gráfico ainda não desconta o saldo devedor (item 2 de "Fase da vida e patrimônio"), então, num bem financiado, o
   patrimônio total cai pelo saldo transferido no mês da venda; a venda de um bem comprado por um objetivo; o cliente propor uma venda.
+- **Liberdade financeira decidida no portal (14/10/2026).** Pedido do usuário: o lugar de decidir o plano da liberdade é a
+  página Liberdade financeira do portal, não o gráfico do cliente. Ficou:
+  - um gráfico só da liberdade em diante, com o patrimônio financeiro nas três formas de sacar (a escolhida em destaque, as
+    outras tracejadas) e onde cada uma termina; um clique escolhe a forma (o mesmo campo do seletor);
+  - a programação em palavras, no formato que o usuário propôs ("essa família quer ter uma renda, a partir de 2040, de
+    R$ 20.000; nessa data a Maria teria 59 anos e o José 62; quando o José fizer 65 anos..."), com o aluguel ligado ao bem, que
+    abre o detalhe numa gaveta;
+  - na programação, a retirada necessária (renda desejada − rendas programadas) ao lado da retirada da forma escolhida e da
+    renda da família. Leitura do pedido "se os valores de renda desejada vão ser iguais e os valores de retiradas vão ser
+    iguais": na renda desejada a renda fica igual e a retirada muda; na perpetuidade e no consumo a retirada fica igual e a
+    renda muda. Antes, na perpetuidade e no consumo, a programação cortava a retirada no que faltava, e o motor sacava o
+    rendimento inteiro: agora a programação mostra o que o motor faz;
+  - o ponto do início da linha da renda desejada, que faltava ("não consigo adicionar um ponto âncora no t0"): fica sempre lá
+    e arrasta a renda desde o primeiro mês da liberdade; muda o degrau que já vale nesse mês ou, sem degrau, a renda desejada
+    da página Cliente (a mesma variável). Sem idade para parar de trabalhar, mudar a renda desejada muda a data da liberdade.
 - **Hoje e recomendado sempre na mesma linha (07/10/2026).** O usuário achou o imposto de cada pessoa desalinhado entre
   as duas colunas (uma marca a mais quebrava a linha e empurrava a barra e o total da família) e pediu a tabela de
   lançamentos centralizada. O IR virou uma grade só, pessoa por pessoa (nome e imposto, a barra, as marcas embaixo); no

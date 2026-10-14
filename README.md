@@ -352,10 +352,23 @@ liberdade (antes e depois de contratar as rendas), os bens e participações, e 
 (o rendimento) e no consumo até a expectativa de vida, cada uma somada às rendas que entram na fase em que elas são
 menores. Cada cenário diz se cobre a renda desejada e oferece usá-lo como renda desejada.
 
-**Programação da renda.** No portal, a página Liberdade financeira mostra a renda desejada como uma barra e,
-em cada janela de tempo (uma renda que começa ou termina abre uma janela nova), as rendas que entram: rendas de
-aposentadoria e rendas passivas do fluxo. O saque do patrimônio completa até a renda desejada, limitado ao que o
-patrimônio sustenta (o rendimento na perpetuidade, a parcela de consumo no outro modo); o resto aparece como falta.
+**Como sacar do patrimônio.** A forma de sacar é decidida no portal, na página Liberdade financeira (o cliente não troca).
+Embaixo da escolha, um gráfico só da liberdade em diante mostra o patrimônio financeiro nas três formas (perpetuidade,
+consumo até a expectativa de vida e renda desejada), com a escolhida em destaque e, embaixo, onde cada uma termina ("acaba
+aos 83 anos" ou "R$ 4,7 mi aos 95 anos"). Um clique numa curva ou num nome escolhe a forma. São três simulações do mesmo
+motor, feitas só com a página aberta.
+
+**Programação da renda.** Abre com a programação em palavras: "Esta família quer ter uma renda de R$ 25.000 por mês a
+partir de jan/2048. Nessa data, Ana terá 56 anos e Marcos, 59", e, uma por linha, cada renda que entra (quando, de quem,
+quanto e por quanto tempo), as mudanças da renda desejada e o que fica para a carteira de patrimônio financeiro. Um aluguel
+diz de que bem vem, e o nome do bem abre o detalhe dele numa gaveta (o mesmo cartão da página Patrimônio). Depois, a renda
+desejada como uma linha tracejada e, em cada janela de tempo (uma renda que começa ou termina abre uma janela nova), as
+rendas programadas: rendas de aposentadoria e rendas passivas do fluxo. A tabela mostra, por janela, a retirada necessária
+(a renda desejada menos as rendas programadas), a retirada do patrimônio pela forma de sacar e a renda da família. Na renda
+desejada, a renda fica igual e a retirada muda; na perpetuidade e no consumo, a retirada fica igual (o rendimento ou a
+parcela de consumo) e a renda da família muda, acima ou abaixo da desejada (o que falta aparece hachurado). A linha
+tracejada tem um ponto fixo no início, que arrasta a renda desejada desde o primeiro mês da liberdade (o degrau que já vale
+nele, ou a renda desejada da página Cliente); dois cliques no resto da linha criam um ponto que muda a renda a partir dali.
 
 - **Perpetuidade** (`mode: "perp"`): retirada mensal = patrimônio × taxa. O principal fica estável.
 - **Consumo** (`"cons"`): retirada mensal = PMT até a expectativa de vida. O patrimônio chega a zero na data.
