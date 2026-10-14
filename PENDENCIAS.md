@@ -482,7 +482,10 @@ Registradas aqui porque não são óbvias no código:
   opção o patrimônio é consumido de propósito" saiu junto. No mesmo dia, o cabeçalho ficou numa linha só: Reproduzir
   (e "Pular animação") e a ajuda foram para o canto de cima do gráfico, o botão que abre o fluxo numa janela virou um ícone
   ao lado do título da tabela, e o nome "Nord Liberta" saiu do canto. No lugar, o ícone da Nord (o anel com a estrela, recortado do logo que o usuário
-  enviou; `marca/nord-icone-64.png` e `-256.png`), embutido na página como o favicon.
+  enviou; `marca/nord-icone-64.png` e `-256.png`), embutido na página como o favicon. O "Olá, Ana 👋 · 35 anos" virou
+  "Planejamento de Vida" e as iniciais de quem é o plano, sem as partículas de, da, do, das, dos ("Nélio de Oliveira Costa"
+  vira N. O. C.; um casal, "N. O. C. e J. I. C."). Para as iniciais do cônjuge, o campo "Nome do cônjuge" passou a levar o
+  nome completo; as páginas de cada pessoa usam o primeiro nome. Abaixo de 1300 px de largura o texto some, como a saudação.
 - **Valorização e venda dos bens (14/10/2026).** Pedido do usuário, ao montar um planejamento: planejar a venda de um bem num
   momento, quando ele vira patrimônio financeiro, com as comissões, os impostos e as outras despesas que levam o valor bruto ao
   líquido; e marcar valorizações (por exemplo, 2% ao ano nos próximos 10 anos) ou uma valorização pontual. Ficou na página

@@ -220,7 +220,7 @@ cada tela ouve o que a outra gravou.
 ```jsonc
 {
   "name": "Ana Ribeiro", "age": 35, "lifeExp": 95,
-  "tipo": "familia", "spouseAge": 38, "conjugeNome": "Marcos",   // casal: o cônjuge entra no IR, nos sócios e nos seguros
+  "tipo": "familia", "spouseAge": 38, "conjugeNome": "Marcos Ribeiro",   // casal: o cônjuge entra no IR, nos sócios e nos seguros (o primeiro nome)
   "initialWealth": 860000,     // patrimônio financeiro do cliente hoje: ponto de partida do gráfico (com plano.patrimonio, a soma do detalhe)
   "patrimonio": {              // o detalhe do patrimônio de hoje e a fase da vida (página Fase da vida e patrimônio)
     "comecou": 23, "liquidezIdeal": 400000,

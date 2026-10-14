@@ -30,8 +30,8 @@ Situação: **fonte** (informada aqui, só aqui), **ligada** (lida da fonte, sem
 
 | Variável | Caminho no plano | Situação | Quem usa |
 |---|---|---|---|
-| Nome do cliente | `name` | fonte | saudação, nomes do titular (primeiro nome) |
-| Nome do cônjuge | `conjugeNome` | fonte (vazio: o segundo nome de "Camila e Rafael Souza") | IR, sócios, seguros, "de quem é a renda" |
+| Nome do cliente | `name` | fonte | "Planejamento de Vida" e as iniciais no alto da área do cliente, nomes do titular (primeiro nome) |
+| Nome do cônjuge (completo) | `conjugeNome` | fonte (vazio: o segundo nome de "Camila e Rafael Souza") | iniciais no alto da área do cliente; o primeiro nome no IR, sócios, seguros, "de quem é a renda" |
 | Idade do titular | `age` | fonte | simulação, fase da vida, seguros |
 | Tipo de plano e idade do cônjuge | `tipo`, `spouseAge` | fonte | casal (`ENGINE.casalDe`), eixo da evolução, seguros, IR |
 | Dependentes (nome, relação, nascimento) | `riscos.dependentes` | fonte | reserva (d), seguro de vida, IR (dependentes) |
