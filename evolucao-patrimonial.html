@@ -2237,7 +2237,8 @@ document.getElementById('btnFluxo').onclick = () => {
   let w = null; try { w = window.open(url, 'nl-fluxo', 'popup,width=' + screen.availWidth + ',height=' + screen.availHeight); } catch (e) { }
   if (!w) location.href = url;   // janela bloqueada: abre na mesma aba
 };
-document.getElementById('btnVoltar').onclick = () => { if (window.opener) window.close(); else history.back(); };
+// voltar: numa janela própria, fecha; na mesma aba (o link publicado), vai direto ao gráfico, e não à página lembrada
+document.getElementById('btnVoltar').onclick = () => { if (window.opener) window.close(); else location.href = '?fase=evolucao' + (PAPEL === 'apresentar' ? '&apresentar' : ''); };
 if (FLUXO) { document.body.classList.add('fluxo'); document.title = 'Fluxo de caixa — Nord Liberta'; document.querySelector('.brand small').textContent = 'Fluxo de caixa'; }
 document.querySelectorAll('#segView button').forEach(b => b.onclick = () => { document.querySelectorAll('#segView button').forEach(x => x.classList.remove('on')); b.classList.add('on'); state.viewKind = b.dataset.v; });
 // semana em que o patrimônio financeiro acaba depois da liberdade (null se não acaba)
