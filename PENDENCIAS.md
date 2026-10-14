@@ -257,8 +257,8 @@ Resolvidos em 02/10/2026: a página Objetivos vazia aponta para a Liberdade fina
 - O cartão da casa não oferece encerrar o aluguel. Isso só se faz pela linha do aluguel, com "Até um objetivo
   ser realizado".
 
-### 31. Favicon (rodada 7)
-A primeira carga gera um 404 do `favicon.ico` no console.
+### 31. Favicon (rodada 7) — resolvido (14/10/2026)
+As duas telas têm o ícone da Nord como favicon, embutido na página (`marca/nord-icone-64.png`).
 
 ---
 
@@ -481,7 +481,8 @@ Registradas aqui porque não são óbvias no código:
   mouse); o seletor perpetuidade, consumo e renda desejada saiu da tela do cliente, que usa o modo do plano; o aviso "nesta
   opção o patrimônio é consumido de propósito" saiu junto. No mesmo dia, o cabeçalho ficou numa linha só: Reproduzir
   (e "Pular animação") e a ajuda foram para o canto de cima do gráfico, o botão que abre o fluxo numa janela virou um ícone
-  ao lado do título da tabela, e o nome "Nord Liberta" saiu do canto (o usuário quer o logo da Nord ali; falta o arquivo).
+  ao lado do título da tabela, e o nome "Nord Liberta" saiu do canto. No lugar, o ícone da Nord (o anel com a estrela, recortado do logo que o usuário
+  enviou; `marca/nord-icone-64.png` e `-256.png`), embutido na página como o favicon.
 - **Valorização e venda dos bens (14/10/2026).** Pedido do usuário, ao montar um planejamento: planejar a venda de um bem num
   momento, quando ele vira patrimônio financeiro, com as comissões, os impostos e as outras despesas que levam o valor bruto ao
   líquido; e marcar valorizações (por exemplo, 2% ao ano nos próximos 10 anos) ou uma valorização pontual. Ficou na página
