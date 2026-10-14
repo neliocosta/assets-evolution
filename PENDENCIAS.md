@@ -511,11 +511,15 @@ Registradas aqui porque não são óbvias no código:
     e o portal grava `mode: "desej"`; por isso a visão do cliente do exemplo mudou (antes, perpetuidade);
   - em cada período a renda se digita, e vale daquele período em diante; "Mudar a renda numa idade" abre um período novo;
   - cada renda programada diz de quem é, e a idade de começar é dessa pessoa ("aos 65 anos de Marcos");
-  - uma mudança da renda que cai no começo da liberdade, ou antes (sem idade para parar, a data muda com a renda), vira a
-    própria renda desejada.
-  Em aberto: o veredito usa "dura até a expectativa de vida", mas a data da liberdade sem idade para parar, o selo "renda
-  parcial" do topo do portal e o aviso "Requer revisão" da visão do cliente ainda usam o critério da perpetuidade (o
-  rendimento cobre a maior falta); com a renda desejada como plano, o critério deveria ser durar até a expectativa de vida.
+  - uma mudança da renda que cai no começo da liberdade, ou antes (num plano antigo sem idade para parar, a data muda com a
+    renda), vira a própria renda desejada;
+  - no mesmo dia, o usuário decidiu: a idade de parar de trabalhar e a renda desejada são sempre obrigatórias para o plano.
+    O exemplo ganhou a idade de parar da Ana, 57 anos: a liberdade passa de jan/2048 (aos 56, quando o patrimônio passava a
+    sustentar a renda) para out/2048. Com 56, ela cairia em out/2047, antes de sustentar, e o exemplo mostraria "renda
+    parcial". O motor ainda aceita um plano antigo sem a idade.
+  Em aberto: o veredito usa "dura até a expectativa de vida", mas o selo "renda parcial" do topo do portal e o aviso
+  "Requer revisão" da visão do cliente ainda usam o critério da perpetuidade (o rendimento cobre a maior falta); com a renda
+  desejada como plano, o critério deveria ser durar até a expectativa de vida.
 - **Hoje e recomendado sempre na mesma linha (07/10/2026).** O usuário achou o imposto de cada pessoa desalinhado entre
   as duas colunas (uma marca a mais quebrava a linha e empurrava a barra e o total da família) e pediu a tabela de
   lançamentos centralizada. O IR virou uma grade só, pessoa por pessoa (nome e imposto, a barra, as marcas embaixo); no

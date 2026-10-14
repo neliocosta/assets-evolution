@@ -593,7 +593,7 @@ const ENGINE = (() => {
   let INITIAL_WEALTH = 860000; // patrimônio financeiro do cliente hoje, informado pelo consultor
   let CAP_OVERRIDE = null;     // capacidade de poupança informada pelo cliente, se ele disser um valor próprio
   let INITIAL_BENS = 1210000;  // imóveis e outros bens de hoje (não financeiros)
-  let RETIRE_AGE = null;       // idade em que o cliente quer parar; vazio = assim que o patrimônio sustentar a renda
+  let RETIRE_AGE = 57;         // idade em que o titular para de trabalhar (obrigatória no portal; a do exemplo); vazia, num plano antigo, = assim que o patrimônio sustentar a renda
 
   // Perfis de investimento do dinheiro dedicado a cada objetivo (retorno real líquido ao mês)
   const PROFILES = { conservador: 0.004, moderado: 0.005, agressivo: 0.006 };

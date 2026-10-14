@@ -350,7 +350,8 @@ três caminhos para fechar a diferença.
 **Página Liberdade financeira (portal).** Lê de cima para baixo, como a conversa com o cliente:
 
 - **Quanto e a partir de quando**: a renda desejada por mês (digitada; a variável mora só aqui) e a idade em que o titular
-  para de trabalhar (vazia: quando o patrimônio permitir), com a data da liberdade e a idade de cada um nela.
+  para de trabalhar, as duas obrigatórias, com a data da liberdade e a idade de cada um nela. Sem as duas, a página pede
+  que sejam preenchidas. (O motor ainda aceita um plano antigo sem a idade: a liberdade é quando o patrimônio sustenta a renda.)
 - **O patrimônio dá conta?**: o veredito do plano (o patrimônio dura até a expectativa de vida, ou até que idade, e quanto
   seria preciso na liberdade para durar até lá), a curva do patrimônio financeiro da liberdade em diante e, lado a lado, o
   plano e duas alternativas com a mesma renda em todos os períodos: consumir o patrimônio até a expectativa de vida (a renda

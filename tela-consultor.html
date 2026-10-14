@@ -618,7 +618,7 @@ details.pesos{margin-top:14px}
     <div class="bloco"><h3>Quanto e a partir de quando</h3>
       <div class="grid g3">
         <div class="field"><label>Renda desejada por mês <em>obrigatório</em></label><input id="f-desired" data-money type="text" inputmode="decimal" placeholder="R$ por mês, valores de hoje"></div>
-        <div class="field"><label id="lbRetire">Para de trabalhar aos</label><input id="f-retire" type="number" min="30" max="90" placeholder="vazio: quando o patrimônio permitir"></div>
+        <div class="field"><label id="lbRetire">Para de trabalhar aos <em>obrigatório</em></label><input id="f-retire" type="number" min="30" max="90" placeholder="anos"></div>
         <div class="field"><label>A liberdade financeira começa em</label><div class="lf-quando" id="ffQuando"></div></div>
       </div>
       <div class="sub" id="ffQuandoNota" style="margin:10px 0 0"></div>
@@ -701,7 +701,7 @@ const ENGINE = (() => {
   let INITIAL_WEALTH = 860000; // patrimônio financeiro do cliente hoje, informado pelo consultor
   let CAP_OVERRIDE = null;     // capacidade de poupança informada pelo cliente, se ele disser um valor próprio
   let INITIAL_BENS = 1210000;  // imóveis e outros bens de hoje (não financeiros)
-  let RETIRE_AGE = null;       // idade em que o cliente quer parar; vazio = assim que o patrimônio sustentar a renda
+  let RETIRE_AGE = 57;         // idade em que o titular para de trabalhar (obrigatória no portal; a do exemplo); vazia, num plano antigo, = assim que o patrimônio sustentar a renda
 
   // Perfis de investimento do dinheiro dedicado a cada objetivo (retorno real líquido ao mês)
   const PROFILES = { conservador: 0.004, moderado: 0.005, agressivo: 0.006 };
@@ -1961,7 +1961,7 @@ function renderTop() {
     `<div class="chip" data-ir="objetivos"><span>Aportes definidos</span><b class="${pl > cap && temFluxo() ? 'low' : ''}">${fmt(pl)}</b></div>` +
     `<div class="chip"><span>Folga mensal</span><b class="${livre < 0 ? 'low' : 'good'}">${temFluxo() || informada ? fmt(livre) : '—'}</b></div>` +
     `<div class="chip" data-ir="objetivos"><span>Objetivos fora do orçamento</span><b class="${risco && !aguardaOrcamento() ? 'low' : 'good'}">${aguardaOrcamento() || !plano.objectives.length ? '—' : plano.objectives.every(o => !(o.planned > 0)) ? 'aportes a definir' : risco + ' de ' + plano.objectives.length}</b></div>` +
-    `<div class="chip" data-ir="liberdade" title="${ff && ff.forced ? 'Nessa idade o patrimônio não sustenta toda a renda desejada' : ''}"><span>Liberdade financeira</span><b class="${ff && !ff.forced ? 'good' : 'low'}">${ff && plano.desired > 0 && temFluxo() ? Math.floor(ff.age) + ' anos · ' + ENGINE.weekDate(ff.week).getFullYear() + (ff.forced ? ' · renda parcial' : '') : '—'}</b></div>`;
+    `<div class="chip" data-ir="liberdade" title="${ff && ff.forced ? 'Nessa idade o patrimônio não sustenta toda a renda desejada' : ''}"><span>Liberdade financeira</span><b class="${ff && !ff.forced ? 'good' : 'low'}">${ff && planoDaLiberdade() && temFluxo() ? Math.floor(ff.age) + ' anos · ' + ENGINE.weekDate(ff.week).getFullYear() + (ff.forced ? ' · renda parcial' : '') : '—'}</b></div>`;
   document.getElementById('f-cap').placeholder = temFluxo() ? 'vazio: ' + fmt(media12()) + ' (média de 12 meses do Fluxo de caixa)' : 'vazio: calculada pelo Fluxo de caixa';
   // passos concluídos na barra lateral
   const vistas = plano.vistas || {};
@@ -2688,22 +2688,25 @@ document.addEventListener('click', e => {
   const r = e.target.closest('[data-del-pas]'); if (r) armar(r, () => plano.passive.splice(+r.dataset.delPas, 1));
 });
 document.addEventListener('click', e => { const b = e.target.closest('[data-usar-renda]'); if (!b) return; plano.desired = +b.dataset.usarRenda; plano.desiredSteps = []; fillFields(); renderAll(); });
+// o plano da liberdade pede as duas: a renda desejada e a idade em que o titular para de trabalhar
+const temIdadeAlvo = () => plano.retireAge != null && plano.retireAge !== '';
+const planoDaLiberdade = () => plano.desired > 0 && temIdadeAlvo();
 function renderLiberdade() {
   const tb = document.getElementById('tbPas'), f = ffInfo(), nm = ENGINE.nomesDaFamilia(plano), casal = conjuge();
   // quanto e a partir de quando (a idade de parar é a do titular)
-  document.getElementById('lbRetire').textContent = nm.titular + ' para de trabalhar aos';
+  document.getElementById('lbRetire').innerHTML = esc(nm.titular) + ' para de trabalhar aos <em>obrigatório</em>';
   const fd = document.getElementById('f-desired'); if (document.activeElement !== fd) fd.value = plano.desired ? money(plano.desired) : '';
-  document.getElementById('ffQuando').innerHTML = f ? `${monthsLabel(f.mi)}<small>${esc(nm.titular)} com ${Math.floor(ENGINE.CURRENT_AGE + f.mi / 12)} anos${casal ? ', ' + esc(nm.conjuge) + ' com ' + Math.floor(+plano.spouseAge + f.mi / 12) : ''}</small>` : '—';
-  document.getElementById('ffQuandoNota').innerHTML = plano.retireAge == null || plano.retireAge === '' ? 'Sem idade para parar de trabalhar, a liberdade começa quando o patrimônio sustenta a renda desejada (entre os 50 e os 68 anos): mudar a renda muda essa data.' : '';
+  document.getElementById('ffQuando').innerHTML = f && temIdadeAlvo() ? `${monthsLabel(f.mi)}<small>${esc(nm.titular)} com ${Math.floor(ENGINE.CURRENT_AGE + f.mi / 12)} anos${casal ? ', ' + esc(nm.conjuge) + ' com ' + Math.floor(+plano.spouseAge + f.mi / 12) : ''}</small>` : '—';
+  document.getElementById('ffQuandoNota').innerHTML = temIdadeAlvo() ? '' : 'A renda desejada e a idade de parar de trabalhar são obrigatórias: com as duas, a página mostra se o patrimônio dá conta e a renda de cada período.';
   // o patrimônio dá conta e a renda em cada período
-  const pronto = f && plano.desired > 0 && temFluxo();
+  const pronto = f && planoDaLiberdade() && temFluxo();
   let wEsg = null, js = null, sobraFim = 0;
   if (pronto) {
     for (let i = f.ff.week + 1; i < ENGINE.NW; i++) if (SIM.weeks[i].fin < 1) { wEsg = i; break; }
     js = janelasDeRenda(f, wEsg != null ? SIM.weeks[wEsg].mi : null);
     sobraFim = SIM.weeks[Math.min(ENGINE.NW - 1, Math.round(+plano.lifeExp * ENGINE.WPY))].fin;
   }
-  document.getElementById('ffVeredito').innerHTML = pronto ? htmlVeredito(f, js, wEsg, sobraFim) : '<div class="fxcap vazio">O patrimônio na liberdade e a renda de cada período aparecem quando houver a renda desejada (acima) e entradas no Fluxo de caixa.</div>';
+  document.getElementById('ffVeredito').innerHTML = pronto ? htmlVeredito(f, js, wEsg, sobraFim) : '<div class="fxcap vazio">O patrimônio na liberdade e a renda de cada período aparecem quando houver a renda desejada e a idade de parar de trabalhar (acima) e entradas no Fluxo de caixa.</div>';
   document.getElementById('ffPeriodos').innerHTML = pronto ? htmlPeriodos(f, js) : '';
   // rendas programadas: as da aposentadoria, editáveis aqui, e as rendas passivas do fluxo (um aluguel), só para ler
   const bens = (plano.patrimonio && plano.patrimonio.bens) || [];
@@ -2721,6 +2724,7 @@ function renderLiberdade() {
   const pend = [];
   if (!(plano.name && plano.age)) pend.push('<button class="link" data-ir="cliente">Cliente</button>: nome e idade');
   if (!(plano.desired > 0)) pend.push('a renda desejada, no alto desta página');
+  if (!temIdadeAlvo()) pend.push('a idade em que ' + esc(nm.titular) + ' para de trabalhar, no alto desta página');
   if (!plano.passive.length) pend.push('<button class="link" data-ir="liberdade">Liberdade financeira</button>: nenhuma renda de aposentadoria (INSS, previdência). Se o cliente não tem, pode seguir');
   if (!temFluxo()) pend.push('<button class="link" data-ir="fluxo">Fluxo de caixa</button>: nenhuma entrada cadastrada');
   const revisar = plano.objectives.filter(o => o.status !== 'ok');
@@ -3652,7 +3656,7 @@ function renderApresentacaoC() {
     ['previdencia', 3, 'Previdência no longo prazo', T && T.previdencia && (+T.previdencia.inicial > 0 || +T.previdencia.aporte > 0) ? 'ganho de ' + fmt(ENGINE.simulaPrevidencia(T.previdencia).ganho) + ' em ' + T.previdencia.anos + ' anos' : null, 'Faltam o valor inicial ou o aporte do simulador.', 'tributario'],
     ['patrimonio', 4, 'Fase da vida e patrimônio', f.fases ? 'Fase: ' + f.fases[f.fase].nome.toLowerCase() + ' · patrimônio total ' + fmt(f.total) : null, 'Falta a idade em que o cliente começou a trabalhar (página Cliente).', 'cliente'],
     ['riscos', 5, 'Gestão de riscos', a.avaliados ? 'Percentual de proteção ' + Math.round((a.nota || 0) * 100) + '% · ' + ENGINE.RISCOS.filter(x => a.itens[x.id].status === 'ok').length + ' de 8 ameaças totalmente protegidas' : null, 'Nenhuma ameaça avaliada ainda.', 'riscos'],
-    ['evolucao', 6, 'Evolução patrimonial', ff && temFluxo() && plano.desired > 0 ? 'Liberdade financeira aos ' + Math.floor(ff.age) + ' anos' + (ff.forced ? ' (renda parcial)' : '') : null, 'Faltam o fluxo de caixa e a renda desejada.', 'fluxo']];
+    ['evolucao', 6, 'Evolução patrimonial', ff && temFluxo() && planoDaLiberdade() ? 'Liberdade financeira aos ' + Math.floor(ff.age) + ' anos' + (ff.forced ? ' (renda parcial)' : '') : null, temFluxo() ? 'Faltam a renda desejada e a idade de parar de trabalhar.' : 'Falta o fluxo de caixa.', temFluxo() ? 'liberdade' : 'fluxo']];
   // um capítulo por bloco: os dois vídeos (o teórico, o mesmo para todos os clientes, na capa; o do caso deste cliente, no
   // resumo) e as páginas, com o que cada uma vai mostrar. Um vídeo antigo de página vira o vídeo do caso do capítulo.
   const caps = [['tributario', 3, 'Otimização tributária', ['ir', 'prolabore', 'sucessao', 'previdencia']], ['patrimonio', 4, 'Patrimônio', ['patrimonio']], ['riscos', 5, 'Gestão de riscos', ['riscos']], ['evolucao', 6, 'Evolução patrimonial', ['evolucao']]];
