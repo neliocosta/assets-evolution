@@ -298,7 +298,8 @@ Onde ela ficou ansiosa, e que vale vigiar em qualquer mudança futura:
   a janela sumiu antes de ela terminar de ler. Hoje o botão de pausa do card (um clique pausa, outro continua)
   segura a contagem; a pausa automática com o mouse em cima foi tirada porque parecia travamento. O impacto
   emocional do vermelho continua.
-- A queda do patrimônio a zero no modo de consumo. Hoje há uma faixa explicando que é intencional.
+- A queda do patrimônio a zero no modo de consumo. A faixa que explicava que é intencional saiu com o seletor (14/10/2026):
+  o modo é escolha do consultor, que explica ao apresentar.
 
 ---
 
@@ -351,7 +352,8 @@ Registradas aqui porque não são óbvias no código:
   (nome, valor, começo, duração, custo; o resto na gaveta "⋯"), e a programação da renda vem no fim, com valores
   exatos até o real e cores suaves. A renda desejada pode mudar com a idade: dois cliques na linha tracejada criam
   um ponto que arrasta para cima e para baixo (`desiredSteps`); dois cliques no ponto o removem.
-- **Como sacar na liberdade é decisão do planejador** (premissa do plano, e botões na visão do cliente):
+- **Como sacar na liberdade é decisão do planejador** (premissa do plano, na página Liberdade financeira; desde 14/10/2026 a
+  visão do cliente não tem mais os botões, nem o aviso do consumo, para o topo ocupar menos espaço):
   saques da perpetuidade (o rendimento; o padrão de vida acompanha), consumo até a expectativa de vida, ou
   saques da renda desejada (só o que falta; o patrimônio pode acabar antes ou sobrar).
 - **O gráfico do objetivo mostra o que o orçamento entrega**, não só o aporte definido, para concordar com o
@@ -474,6 +476,11 @@ Registradas aqui porque não são óbvias no código:
   vem com quantas ameaças estão totalmente protegidas ("4 de 8 ameaças totalmente protegidas"). O "7 de 8 ameaças avaliadas"
   saiu: na prática o consultor avalia todas. No link publicado, a contagem dava 7 porque o bem "Carro" da página Patrimônio
   estava sem proteção marcada (a lista antiga da gestão de riscos tinha "Carro da família", e o nome não bateu).
+- **Topo da evolução patrimonial mais enxuto (14/10/2026).** Pedido do usuário: os botões e o aviso ocupavam quatro linhas.
+  "Patrimônio total" e "Apenas financeiro" viraram dois ícones ao lado da pílula do capítulo (o nome aparece ao passar o
+  mouse); o seletor perpetuidade, consumo e renda desejada saiu da tela do cliente, que usa o modo do plano; o aviso "nesta
+  opção o patrimônio é consumido de propósito" saiu junto. Ficaram duas linhas: a de cima e a de Fluxo de caixa, ajuda e
+  Reproduzir.
 - **Valorização e venda dos bens (14/10/2026).** Pedido do usuário, ao montar um planejamento: planejar a venda de um bem num
   momento, quando ele vira patrimônio financeiro, com as comissões, os impostos e as outras despesas que levam o valor bruto ao
   líquido; e marcar valorizações (por exemplo, 2% ao ano nos próximos 10 anos) ou uma valorização pontual. Ficou na página

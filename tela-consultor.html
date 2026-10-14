@@ -2762,7 +2762,7 @@ const MODO_EXP = {
 function renderLiberdade() {
   const tb = document.getElementById('tbPas'), f = ffInfo();
   document.getElementById('ffSustenta').innerHTML = htmlSustenta();
-  document.getElementById('modoExp').innerHTML = MODO_EXP[['perp', 'cons', 'desej'].includes(plano.mode) ? plano.mode : 'perp'] + ' A visão do cliente abre nesta opção.';
+  document.getElementById('modoExp').innerHTML = MODO_EXP[['perp', 'cons', 'desej'].includes(plano.mode) ? plano.mode : 'perp'] + ' É a forma de sacar que o cliente vê na evolução patrimonial (ele não troca).';
   document.getElementById('ffProg').innerHTML = htmlProgramacao();
   tb.innerHTML = plano.passive.length ? plano.passive.map(htmlLinhaRenda).join('')
     : '<tr><td colspan="6" class="txt" style="color:#8d8d8d;font-weight:500;padding:16px 10px">Nenhuma renda de aposentadoria ainda. Cadastre o INSS e as previdências em <b>+ Adicionar renda</b>: nome, valor, quando começa e quanto dura.</td></tr>';

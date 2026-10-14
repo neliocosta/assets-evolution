@@ -247,7 +247,7 @@ cada tela ouve o que a outra gravou.
     "previdencia": { "inicial": 120000, "aporte": 1521, "anos": 20, "rent": 10, "trocas": 4, "aliqComum": 15, "comeCotas": true, "taxaComum": 0.8, "taxaPrev": 0.8 }
   },
   "capacityOverride": null,    // capacidade de poupança informada pelo cliente; null = salário − despesas
-  "mode": "perp",              // liberdade financeira por "perp" (perpetuidade) ou "cons" (consumo até a expectativa de vida); a visão do cliente abre nela
+  "mode": "perp",              // liberdade financeira por "perp" (perpetuidade) , "cons" (consumo até a expectativa de vida) ou "desej" (renda desejada); a visão do cliente usa esta, sem trocar
   "tipo": "familia",           // "individual" ou "familia": sem família, o cônjuge some do cadastro
   "horizonte": "month",        // como o Fluxo de caixa abre: month, quarter, semester ou year
   "desired": 25000,

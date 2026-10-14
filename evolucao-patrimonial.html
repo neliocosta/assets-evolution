@@ -36,10 +36,12 @@ header{min-height:64px;display:flex;flex-wrap:wrap;align-items:center;gap:12px 2
 .stat span{display:block;font:500 10.5px 'DM Sans',sans-serif;color:#8d8d8d}
 .stat b{font:600 15px Sora,sans-serif;color:var(--nl-navy-900)}
 .stat b.ff{color:var(--nl-orange-600)}
-#modeNote{flex-basis:100%;background:var(--nl-peach-100);color:var(--nl-orange-600);border-radius:11px;padding:8px 14px;font:500 12px 'DM Sans',sans-serif;line-height:1.4}
 .seg{display:flex;background:#F0EEE9;border-radius:11px;padding:3px}
 .seg button{background:transparent;border:0;color:#666;font:500 12px 'DM Sans',sans-serif;padding:6px 12px;border-radius:9px;cursor:pointer;transition:background .15s,color .15s;white-space:nowrap}
 .seg button.on{background:var(--nl-navy-900);color:#fff}
+/* visão do gráfico em ícones, ao lado do capítulo: patrimônio total ou só o financeiro */
+.seg-ic button{display:flex;align-items:center;padding:6px 9px}
+.seg-ic svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .btn{border:0;cursor:pointer;font:600 13px 'DM Sans',sans-serif;display:flex;align-items:center;gap:8px;transition:filter .15s,transform .1s;white-space:nowrap}
 .btn:hover{filter:brightness(.94)} .btn:active{transform:scale(.97)}
 .btn-primary{background:var(--nl-orange-500);color:#fff;border-radius:9999px;padding:9px 18px}
@@ -122,7 +124,7 @@ body.fluxo #fases{display:none}
 @media (max-width:900px){.cp-um{grid-template-columns:1fr}}
 /* "Hoje" só na janela do fluxo de caixa; no gráfico, a tecla Home volta para hoje */
 body:not(.fluxo) #btnHome{display:none}
-body.sem-grafico .legend,body.sem-grafico .stats,body.sem-grafico #segView,body.sem-grafico #segMode,body.sem-grafico #btnHome,body.sem-grafico #btnFluxo,body.sem-grafico #btnPlay,body.sem-grafico #btnSkip,body.sem-grafico #ajuda{display:none!important}
+body.sem-grafico .legend,body.sem-grafico .stats,body.sem-grafico #segView,body.sem-grafico #btnHome,body.sem-grafico #btnFluxo,body.sem-grafico #btnPlay,body.sem-grafico #btnSkip,body.sem-grafico #ajuda{display:none!important}
 /* fase da vida e patrimônio */
 #patrimonio{flex:1;min-height:0;overflow:auto;background:var(--nl-cream-50)}
 #patrimonio .rc{max-width:1120px;margin:0 auto;padding:24px 24px 60px;display:flex;flex-direction:column;gap:20px}
@@ -522,6 +524,7 @@ body.fluxo .stats{margin-left:auto}
 <header>
   <div class="brand"><span class="dot"></span>Nord Liberta <small>Fluxo de caixa</small></div>
   <nav id="fases"><button data-pg="ant" title="Página anterior">‹</button><button id="pgAtual" title="Sumário: todos os capítulos e páginas"><span><small id="pgCap"></small><b id="pgTit"></b></span><em>▾</em></button><i id="pgProg"></i><button data-pg="prox" title="Próxima página">›</button><div id="sumario" hidden></div></nav>
+  <div class="seg seg-ic" id="segView" role="group" aria-label="O que o gráfico mostra"><button class="on" data-v="total" title="Patrimônio total: financeiro, bens e participações" aria-label="Patrimônio total"><svg viewBox="0 0 24 24"><path d="M12 3l9 4.5-9 4.5-9-4.5zM3 12l9 4.5 9-4.5M3 16.5l9 4.5 9-4.5"/></svg></button><button data-v="fin" title="Apenas o patrimônio financeiro" aria-label="Apenas financeiro"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M15 9.5c-.5-1-1.6-1.5-3-1.5-1.7 0-3 .8-3 2s1.3 1.7 3 2 3 .8 3 2-1.3 2-3 2c-1.4 0-2.5-.5-3-1.5M12 6.5V8M12 16v1.5"/></svg></button></div>
   <div class="hello">Olá, Ana 👋 · 35 anos</div>
   <div class="legend">
     <span><i style="background:rgba(46,158,91,.25);border-color:var(--c-fin)"></i>Financeiro</span>
@@ -532,9 +535,6 @@ body.fluxo .stats{margin-left:auto}
     <span><i class="ring" style="border-color:#D64545"></i>Requer revisão</span>
 </div>
   <div class="stats"><div class="stat"><span>Você tem hoje</span><b id="stHoje">—</b></div><div class="stat"><span>Liberdade financeira</span><b id="stFF">—</b></div></div>
-  <div class="seg" id="segView"><button class="on" data-v="total">Patrimônio total</button><button data-v="fin">Apenas financeiro</button></div>
-  <div class="seg" id="segMode"><button class="on" data-m="perp" title="A retirada mensal é só o rendimento: o patrimônio fica estável e a renda dura para sempre.">Perpetuidade</button><button data-m="cons" title="A retirada mensal consome também o principal, de forma planejada, até a expectativa de vida.">Consumo até <span id="lblLife">95</span></button><button data-m="desej" title="A retirada mensal é só o que falta para a renda desejada. O patrimônio pode acabar antes da expectativa de vida ou sobrar.">Renda desejada</button></div>
-  <div id="modeNote" hidden>Nesta opção o patrimônio é consumido de propósito: ele chega a zero na expectativa de vida configurada, depois de ter pago o padrão de vida desejado todos os meses.</div>
   <button class="btn btn-secondary" id="btnHome" title="Voltar para hoje (zoom de 6 anos)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.5"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg>Hoje</button>
   <button class="btn btn-secondary" id="btnFluxo" title="Abrir o fluxo de caixa numa janela própria, sem o gráfico"><svg viewBox="0 0 24 24"><path d="M3 5h18M3 12h18M3 19h18M8 3v18"/></svg>Fluxo de caixa</button>
   <button class="btn btn-secondary" id="btnVoltar" title="Fechar o fluxo de caixa e voltar ao gráfico">← Voltar ao gráfico</button>
@@ -1660,7 +1660,6 @@ buildPre();
 function rerun() { OBJ.sort((a, b) => a.months - b.months); SIM.perp = ENGINE.run('perp'); SIM.cons = ENGINE.run('cons'); SIM.desej = ENGINE.run('desej'); buildSeries(); buildPre(); updateStats(); }
 // Indicadores fixos do cabeçalho: as duas perguntas que o cliente mais faz
 function updateStats() {
-  document.getElementById('lblLife').textContent = ENGINE.config().lifeExp;
   const s = sim(), c = ENGINE.config();
   const hoje = (+c.initialWealth || 0) + (+c.initialBens || 0) + (+c.partValue || 0);   // exatamente o que o consultor informou
   document.getElementById('stHoje').textContent = fmt(hoje);
@@ -1677,7 +1676,7 @@ function applyPlan(plan) {
   }
   ENGINE.configure(plan); PLANO = plan;
   try { localStorage.setItem('nl-plano', JSON.stringify(plan)); } catch (e) { }
-  state.mode = ENGINE.MODE; marcaModo();
+  state.mode = ENGINE.MODE;
   rerun(); rebuildRows();
   state.expanded = abertosPorPadrao(); state.rowScroll = 0; state.milestonesShown.clear();
   state.started = false; state.done = false; state.playing = false; state.cursor = W0; state.seg = null;
@@ -2237,13 +2236,6 @@ if (FLUXO) { document.body.classList.add('fluxo'); document.title = 'Fluxo de ca
 document.querySelectorAll('#segView button').forEach(b => b.onclick = () => { document.querySelectorAll('#segView button').forEach(x => x.classList.remove('on')); b.classList.add('on'); state.viewKind = b.dataset.v; });
 // semana em que o patrimônio financeiro acaba depois da liberdade (null se não acaba)
 function fimDoPatrimonio(s) { if (!s.ff) return null; for (let i = s.ff.week + 1; i < NW; i++) if (s.weeks[i].fin < 1) return i; return null; }
-function marcaModo() { document.querySelectorAll('#segMode button').forEach(x => x.classList.toggle('on', x.dataset.m === state.mode)); document.getElementById('modeNote').hidden = state.mode !== 'cons'; }
-marcaModo();
-document.querySelectorAll('#segMode button').forEach(b => b.onclick = () => {
-  document.querySelectorAll('#segMode button').forEach(x => x.classList.remove('on')); b.classList.add('on'); state.mode = b.dataset.m;
-  document.getElementById('modeNote').hidden = state.mode !== 'cons'; // explica a queda a zero antes que ela assuste
-  updateStats();
-});
 
 // --- Autoplay ---
 const btnPlay = document.getElementById('btnPlay');
