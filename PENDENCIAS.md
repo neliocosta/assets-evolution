@@ -479,8 +479,9 @@ Registradas aqui porque não são óbvias no código:
 - **Topo da evolução patrimonial mais enxuto (14/10/2026).** Pedido do usuário: os botões e o aviso ocupavam quatro linhas.
   "Patrimônio total" e "Apenas financeiro" viraram dois ícones ao lado da pílula do capítulo (o nome aparece ao passar o
   mouse); o seletor perpetuidade, consumo e renda desejada saiu da tela do cliente, que usa o modo do plano; o aviso "nesta
-  opção o patrimônio é consumido de propósito" saiu junto. Ficaram duas linhas: a de cima e a de Fluxo de caixa, ajuda e
-  Reproduzir.
+  opção o patrimônio é consumido de propósito" saiu junto. No mesmo dia, o cabeçalho ficou numa linha só: Reproduzir
+  (e "Pular animação") e a ajuda foram para o canto de cima do gráfico, o botão que abre o fluxo numa janela virou um ícone
+  ao lado do título da tabela, e o nome "Nord Liberta" saiu do canto (o usuário quer o logo da Nord ali; falta o arquivo).
 - **Valorização e venda dos bens (14/10/2026).** Pedido do usuário, ao montar um planejamento: planejar a venda de um bem num
   momento, quando ele vira patrimônio financeiro, com as comissões, os impostos e as outras despesas que levam o valor bruto ao
   líquido; e marcar valorizações (por exemplo, 2% ao ano nos próximos 10 anos) ou uma valorização pontual. Ficou na página

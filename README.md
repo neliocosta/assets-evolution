@@ -23,7 +23,7 @@ O consultor configura o plano no portal, e ele é gravado sozinho no armazém co
 onde os dados ficam", abaixo), de onde a área do cliente lê. Não há arquivo para trocar. O portal reabre no ponto
 em que parou.
 
-Na tela do cliente, o botão **"Fluxo de caixa"** abre a tabela numa janela própria, sem o gráfico e ocupando a tela
+Na tela do cliente, o ícone de janela ao lado do título da tabela ("Fluxo de caixa · por ano") abre a tabela numa janela própria, sem o gráfico e ocupando a tela
 toda (`evolucao-patrimonial.html?fluxo`). Ela abre nos próximos 24 meses, mês a mês, com entradas e saídas já
 detalhadas, e mostra o mesmo plano e a mesma proposta da tela principal.
 
