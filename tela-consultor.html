@@ -350,6 +350,13 @@ circle.pv-hit{cursor:ns-resize}
 .lf-ver.ok{background:#F1F8F3;color:#2b6e45} .lf-ver.falta{background:#FDF3F3;color:#9b3a3a}
 .lf-modos{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px} .lf-modo{border:1px solid #e6e3dd;background:#fff;border-radius:10px;padding:7px 12px;font:600 12.5px 'DM Sans',sans-serif;color:var(--nl-navy-900);cursor:pointer;text-align:left}
 .lf-modo small{display:block;font:500 11.5px 'DM Sans',sans-serif;color:#8d8d8d} .lf-modo.on{border-color:var(--nl-orange-500);background:var(--nl-peach-100);cursor:default} .lf-modo.on small{color:var(--nl-orange-600)}
+.nasc{display:flex;gap:6px} .nasc select{width:auto;padding:8px 6px} .nasc select.sd{width:74px} .nasc select.sm{width:80px} .nasc select.sa{width:86px}
+.lf-rest{margin-top:6px;font-size:12px} .lf-rest small{display:block}
+.pp-frase{white-space:pre-line;background:var(--nl-cream-50);border-radius:10px;padding:12px 14px;font-size:13.5px;line-height:1.6;color:var(--nl-navy-900);margin-bottom:10px}
+.pp-item{display:grid;grid-template-columns:30px minmax(0,1fr) 110px 70px;gap:10px;align-items:center;padding:9px 0;border-top:1px solid #f1efea}
+.pp-n{width:26px;height:26px;border-radius:50%;background:var(--nl-peach-100);color:var(--nl-orange-600);font:700 12px Sora,sans-serif;display:flex;align-items:center;justify-content:center}
+.pp-t b{display:block;font:600 13.5px Sora,sans-serif;color:var(--nl-navy-900)} .pp-t small{display:block;font-size:12.5px;color:#8a8a8a;margin-top:2px} .pp-t input{margin-top:5px;padding:6px 9px;font-size:12.5px}
+.pp-tag{font:600 11px 'DM Sans',sans-serif;color:var(--nl-orange-600)} .pp-ord{display:flex;gap:2px;justify-content:flex-end} .pp-ord .btn-icon[disabled]{opacity:.25;cursor:default}
 .lf-tab{min-width:0} .lf-tab td{vertical-align:top;padding:10px 8px;font-size:12.5px} .lf-tab td small{display:block;color:#9a9a9a;font-size:11px;margin-top:3px} .lf-tab td>b{color:var(--nl-navy-900);font-weight:600}
 .lf-d{display:flex;align-items:center;gap:4px} .lf-d b{font:600 14px Sora,sans-serif;color:var(--nl-navy-900)} .lf-r.herdado{opacity:.5}
 .lf-d0{font:600 14px Sora,sans-serif;color:var(--nl-navy-900);padding-top:6px}
@@ -526,7 +533,7 @@ details.pesos{margin-top:14px}
   </nav>
   <div class="foot">
     <button class="btn btn-primary" id="btnOpen"><svg viewBox="0 0 24 24"><path d="M15 3h6v6M10 14L21 3M18 13v8H3V6h8"/></svg>Apresentar ao cliente</button>
-    <a class="linkfoot" id="btnComoCliente" href="evolucao-patrimonial.html?fase=capa-tributario" target="_blank">Ver como o cliente vê ↗</a>
+    <a class="linkfoot" id="btnComoCliente" href="evolucao-patrimonial.html?fase=proposito" target="_blank">Ver como o cliente vê ↗</a>
   </div>
 </aside>
 
@@ -540,12 +547,12 @@ details.pesos{margin-top:14px}
     <div class="bloco"><h3>Quem é</h3>
       <div class="grid g3">
         <div class="field"><label>Nome do cliente <em>obrigatório</em></label><input id="f-name" type="text" placeholder="ex.: Camila e Rafael Souza"></div>
-        <div class="field"><label>Idade hoje <em>obrigatório</em></label><input id="f-age" type="number" min="18" max="90" placeholder="anos"></div>
+        <div class="field"><label>Data de nascimento <em>obrigatório</em> <span class="tip" tabindex="0" data-tip="Mês e ano obrigatórios; o dia é opcional (sem ele, vale o dia 1). A idade de hoje e a idade em cada marco do plano saem desta data.">?</span></label><div class="nasc" id="f-nasc"></div><div class="deriv" id="idNasc"></div></div>
         <div class="field"><label>O plano é de</label><select id="f-tipo"><option value="individual">Uma pessoa</option><option value="familia">Um casal ou uma família</option></select></div>
         <div class="field"><label>Nome do cônjuge <span class="tip" tabindex="0" data-tip="O nome completo: as iniciais aparecem no alto da área do cliente (Planejamento de Vida N. O. C. e J. I. C.), e o primeiro nome nas páginas que tratam de cada um (imposto de renda, sócios, seguros). Vazio: o segundo nome do cliente, em nomes como Camila e Rafael Souza.">?</span></label><input id="f-conjugeNome" data-r="conjugeNome" data-rt="texto" type="text" placeholder="ex.: Rafael Souza"></div>
-        <div class="field"><label>Idade do cônjuge</label><input id="f-spouse" type="number" min="18" max="90" placeholder="anos"></div>
+        <div class="field" id="f-spouse"><label>Data de nascimento do cônjuge <em>obrigatório</em></label><div class="nasc" id="f-nascConj"></div><div class="deriv" id="idNascConj"></div></div>
       </div>
-      <details class="ajuda" id="notaCasal"><summary>Casal: de quem é a "Idade hoje"?</summary>Use a idade de quem é a referência da aposentadoria (quem vai parar primeiro; se o casal vai parar junto, a do mais velho) e informe a do outro em "Idade do cônjuge". A renda de cada um entra como uma linha própria no Fluxo de caixa, e o INSS de cada um como uma renda na página Liberdade financeira.</details>
+      <details class="ajuda" id="notaCasal"><summary>Casal: quem é o titular?</summary>O titular é o primeiro nome do cliente; o outro é o cônjuge, com o nome e a data de nascimento dele nos campos próprios. A idade em que cada um para de trabalhar fica na página Liberdade financeira: a liberdade começa quando o primeiro para. A renda de cada um entra como uma linha própria no Fluxo de caixa, e o INSS de cada um como uma renda na página Liberdade financeira.</details>
     </div>
     <div class="bloco"><h3>Trabalho e expectativa de vida</h3>
       <div class="grid g4">
@@ -608,6 +615,7 @@ details.pesos{margin-top:14px}
     <h2>Objetivos</h2>
     <div class="hint">Os sonhos com data: juntar dinheiro até uma data para comprar ou gastar algo. Clique num objetivo para abrir o detalhe.</div>
     <details class="ajuda solta"><summary>Objetivo ou despesa futura?</summary>Objetivo é algo para juntar dinheiro até uma data (entrada da casa, viagem, troca do carro). Mensalidades que começam no futuro, como a escola do filho, entram no Fluxo de caixa. Em cada objetivo, preencha nome, data e valor: o quanto guardar por mês aparece sozinho, e o aporte definido pode ser ajustado depois de conferir quanto cabe no orçamento.</details>
+    <div id="propositoC"></div>
     <div id="goals"></div>
     <div class="rowend"><button class="btn btn-tertiary" id="btnAddGoal">+ Adicionar objetivo</button><div class="muted" id="goalSum" style="margin-left:auto"></div></div>
     <div class="pagenav"><button class="btn btn-tertiary" data-ir="liberdade">Próximo: Liberdade financeira →</button></div>
@@ -685,10 +693,18 @@ details.pesos{margin-top:14px}
 <script id="engine">
 // ===================== MOTOR DE SIMULAÇÃO (semanal, 0–100 anos) =====================
 const ENGINE = (() => {
-  // A linha do tempo vai do nascimento aos 100 anos; a idade de hoje (plan.age) define onde está "hoje".
+  // A linha do tempo vai do nascimento aos 100 anos; a data de nascimento (plan.nascimento) define onde está "hoje".
   const TODAY = new Date(2026, 8, 19), WPY = 365.25 / 7, NW = Math.round(100 * WPY) + 1;
   let CURRENT_AGE = 35, BIRTH = new Date(2026 - CURRENT_AGE, 8, 19), W0 = Math.round(CURRENT_AGE * WPY);
   const defineIdade = a => { CURRENT_AGE = Math.min(90, Math.max(18, Math.round(+a) || 35)); BIRTH = new Date(2026 - CURRENT_AGE, 8, 19); W0 = Math.round(CURRENT_AGE * WPY); };
+  // A data de nascimento ("AAAA-MM" ou "AAAA-MM-DD"; sem o dia, o dia 1) dá a idade exata de hoje, com fração: assim a idade
+  // num marco é a de verdade (quem faz aniversário em maio já tem a idade nova em setembro). Sem a data (plano antigo), vale a
+  // idade inteira de plan.age, com o aniversário em 19/09.
+  const dataNasc = v => { const m = /^(\d{4})-(\d{2})(?:-(\d{2}))?$/.exec(String(v || '')); return m ? new Date(+m[1], +m[2] - 1, m[3] ? +m[3] : 1) : null; };
+  const idadeExata = v => { const d = dataNasc(v); return d ? (TODAY - d) / (365.25 * 864e5) : null; };
+  const defineNascimento = v => { const d = dataNasc(v), a = idadeExata(v); if (!d || !(a >= 18 && a <= 90)) return false; BIRTH = d; CURRENT_AGE = a; W0 = Math.round(a * WPY); return true; };
+  const NASC_EXEMPLO = '1991-05-12', NASC_CONJ_EXEMPLO = '1988-02-23';   // Ana e Marcos, no exemplo
+  defineNascimento(NASC_EXEMPLO);
   const weekDate = i => new Date(BIRTH.getTime() + i * 7 * 864e5);
   const tOf = i => (i - W0) / WPY, ageOf = i => i / WPY;
   // ---- Configuração: tudo o que a tela do consultor define. Os valores abaixo são o padrão do mock. ----
@@ -702,34 +718,34 @@ const ENGINE = (() => {
   let CAP_OVERRIDE = null;     // capacidade de poupança informada pelo cliente, se ele disser um valor próprio
   let INITIAL_BENS = 1210000;  // imóveis e outros bens de hoje (não financeiros)
   let RETIRE_AGE = 57;         // idade em que o titular para de trabalhar (obrigatória no portal; a do exemplo); vazia, num plano antigo, = assim que o patrimônio sustentar a renda
-  let SPOUSE_AGE = 38, SPOUSE_RETIRE = 62;   // casal: a idade do cônjuge hoje e a idade em que ele para (as do exemplo); fora de um casal, vazias
+  let SPOUSE_AGE = idadeExata(NASC_CONJ_EXEMPLO), SPOUSE_RETIRE = 62;   // casal: a idade do cônjuge hoje e a idade em que ele para (as do exemplo); fora de um casal, vazias
 
   // Perfis de investimento do dinheiro dedicado a cada objetivo (retorno real líquido ao mês)
   const PROFILES = { conservador: 0.004, moderado: 0.005, agressivo: 0.006 };
   // Objetivos configurados na tela do consultor (somente leitura aqui).
   // Todos têm a mesma estrutura; campos sem valor ficam em 0 / null e o card mostra "—".
   const OBJ = [
-    { id: 'fortaleza', photo: 'fotos/fortaleza.jpg', name: 'Viagem a Fortaleza', icon: 'sun', kind: 'consumo', milestone: true, title: 'Viagem a Fortaleza realizada!',
+    { id: 'fortaleza', photo: 'fotos/fortaleza.jpg', name: 'Viagem a Fortaleza', descricao: 'Uma semana de descanso, todos juntos, longe da rotina', icon: 'sun', kind: 'consumo', milestone: true, title: 'Viagem a Fortaleza realizada!',
       months: 20, amount: 12000, recurring: null,
       dedicated: 3000, profile: 'conservador', planned: 450,
       strategy: 'Viagem de 7 dias para quatro pessoas em maio, fora da alta temporada, com passagens compradas com seis meses de antecedência. O valor fica em renda fixa de liquidez diária, porque o prazo é curto e a data é inegociável.' },
 
-    { id: 'casa', photo: 'fotos/casa.jpg', name: 'Casa própria', icon: 'home', kind: 'bem', milestone: true, title: 'Casa própria realizada!',
+    { id: 'casa', photo: 'fotos/casa.jpg', name: 'Casa própria', descricao: 'Sair do aluguel e ter um lugar que seja da família', icon: 'home', kind: 'bem', milestone: true, title: 'Casa própria realizada!',
       months: 46, amount: 180000, recurring: { value: 4000, months: 420, label: 'Financiamento da casa própria', amort: 0.45 },
       dedicated: 45000, profile: 'moderado', planned: 1500,
       strategy: 'Para a compra do apartamento de R$ 600 mil, será dada uma entrada de R$ 180 mil e financiado o restante, com parcela inicial de R$ 4.000 por mês em 420 meses. Para conseguir o crédito, a renda declarada da família precisa ser de cerca de R$ 13.300 por mês, o que está dentro da realidade. O aporte atual não fecha a entrada integral: a diferença sai da reserva ou a data é adiada em alguns meses.' },
 
-    { id: 'europa', photo: 'fotos/europa.jpg', name: 'Viagem à Europa em família', icon: 'plane', kind: 'consumo', milestone: true, title: 'Viagem à Europa realizada!',
+    { id: 'europa', photo: 'fotos/europa.jpg', name: 'Viagem à Europa em família', descricao: 'Mostrar o mundo aos filhos e criar memórias que ficam para sempre', icon: 'plane', kind: 'consumo', milestone: true, title: 'Viagem à Europa realizada!',
       months: 60, amount: 60000, recurring: null,
       dedicated: 18000, profile: 'moderado', planned: 300,
       strategy: 'Roteiro de 21 dias por Itália e França para a família, no verão europeu, com passagens e hospedagem parceladas no semestre anterior. Sem custo recorrente depois. O aporte definido não fecha o valor cheio: a diferença sai da reserva no ano da viagem ou o roteiro é encurtado.' },
 
-    { id: 'intercambio', photo: 'fotos/intercambio.jpg', name: 'Intercâmbio do filho', icon: 'grad', kind: 'consumo', milestone: true, title: 'Intercâmbio do filho realizado!',
+    { id: 'intercambio', photo: 'fotos/intercambio.jpg', name: 'Intercâmbio do filho', descricao: 'Abrir o mundo para ele antes da faculdade', icon: 'grad', kind: 'consumo', milestone: true, title: 'Intercâmbio do filho realizado!',
       months: 96, amount: 150000, recurring: null,
       dedicated: 20000, profile: 'moderado', planned: 150,
       strategy: 'Um ano de intercâmbio acadêmico no exterior, com moradia e seguro incluídos, quando o filho tiver 18 anos. Como a capacidade mensal de poupança está comprometida com a casa própria, este objetivo recebe um aporte simbólico até 2030 e precisa ser revisto quando a entrada do imóvel sair do caminho. Sem essa revisão, a maior parte virá da reserva.' },
 
-    { id: 'praia', name: 'Casa de praia', icon: 'palm', kind: 'bem', milestone: true, title: 'Casa de praia realizada!',
+    { id: 'praia', name: 'Casa de praia', descricao: 'Um lugar para reunir a família nos fins de semana e nas férias', icon: 'palm', kind: 'bem', milestone: true, title: 'Casa de praia realizada!',
       months: 132, amount: 300000, recurring: { value: 800, months: null, label: 'Condomínio e IPTU da casa de praia', amort: 0 },
       dedicated: 25000, profile: 'agressivo', planned: 100,
       strategy: 'Compra à vista de uma casa no litoral norte, sem financiamento, depois que o intercâmbio estiver pago. O valor migra de patrimônio financeiro para bens, sem perda de patrimônio total. A partir da compra entram condomínio e IPTU de R$ 800 por mês, por tempo indeterminado. O aporte atual é simbólico: o objetivo só fecha se receber a folga que aparece depois do intercâmbio, e por isso está marcado para revisão.' },
@@ -1131,7 +1147,7 @@ const ENGINE = (() => {
   // Plano antigo: o aluguel era um campo solto (plan.rent), que parava quando a casa própria era comprada.
   // Vira uma despesa fixa comum, que termina quando o objetivo 'casa' é realizado.
   function normaliza(plan) {
-    sincronizaPatrimonio(plan);
+    sincronizaPatrimonio(plan); sincronizaIdades(plan);
     if (plan.rent == null) return plan;
     const linha = { id: 'moradia', label: 'Moradia (aluguel)', group: 'fix', week: 1, steps: [{ from: 0, value: +plan.rent }] };
     if ((plan.objectives || OBJ).some(o => o.id === 'casa')) linha.endObj = 'casa';
@@ -1151,11 +1167,11 @@ const ENGINE = (() => {
     if (plan.salaryGrowth != null) SAL_G = +plan.salaryGrowth;
     if (plan.partValue != null) PART_VALUE = +plan.partValue;
     if (plan.initialWealth != null) INITIAL_WEALTH = +plan.initialWealth;
-    defineIdade(plan.age != null && plan.age !== '' ? plan.age : 35);   // sem idade, vale o padrão (não a do cliente anterior)
+    if (!defineNascimento(plan.nascimento)) { if (plan.age != null && plan.age !== '') defineIdade(plan.age); else defineNascimento(NASC_EXEMPLO); }   // sem data nem idade, vale o padrão (não a do cliente anterior)
     INITIAL_BENS = +plan.initialBens || 0;
     RETIRE_AGE = plan.retireAge == null || plan.retireAge === '' ? null : Math.max(CURRENT_AGE, +plan.retireAge);
     if ('spouseAge' in plan || 'tipo' in plan) { const casal = plan.tipo !== 'individual' && +plan.spouseAge > 0;
-      SPOUSE_AGE = casal ? +plan.spouseAge : null; SPOUSE_RETIRE = casal && num(plan.spouseRetireAge) != null ? Math.max(SPOUSE_AGE, +plan.spouseRetireAge) : null; }
+      SPOUSE_AGE = casal ? (idadeExata(plan.conjugeNascimento) != null ? idadeExata(plan.conjugeNascimento) : +plan.spouseAge) : null; SPOUSE_RETIRE = casal && num(plan.spouseRetireAge) != null ? Math.max(SPOUSE_AGE, +plan.spouseRetireAge) : null; }
     CAP_OVERRIDE = plan.capacityOverride == null || plan.capacityOverride === '' ? null : +plan.capacityOverride;
     if (plan.rate != null) { R_M = +plan.rate; GW = Math.pow(1 + R_M, 7 / 30.4375); }
     if (plan.profiles) Object.assign(PROFILES, plan.profiles);
@@ -1428,6 +1444,13 @@ const ENGINE = (() => {
   //   juros (% ao ano contratado), situacao ('em_dia' | 'inadimplente').
   // Um bem pode gerar renda passiva: bem.renda é o id da linha de entrada do Fluxo de caixa (um aluguel, por exemplo).
   const somaDe = (l, k) => (l || []).reduce((a, x) => a + (+x[k] || 0), 0);
+  // a idade de hoje de cada um sai da data de nascimento (calculada e sincronizada, como os totais do patrimônio); sem a
+  // data, vale a idade informada (plano antigo)
+  function sincronizaIdades(plan) {
+    const a = idadeExata(plan && plan.nascimento), c = idadeExata(plan && plan.conjugeNascimento);
+    if (a != null) plan.age = Math.floor(a); if (c != null) plan.spouseAge = Math.floor(c);
+    return plan;
+  }
   function sincronizaPatrimonio(plan) {
     const P = plan && plan.patrimonio; if (!P) return plan;
     if (Array.isArray(P.financeiro)) plan.initialWealth = somaDe(P.financeiro, 'valor');
@@ -1512,6 +1535,34 @@ const ENGINE = (() => {
   // Os nomes vêm da página Cliente: o titular é o primeiro nome do cliente ("Ana Ribeiro", ou "Camila" em "Camila e Rafael
   // Souza"); o cônjuge, o nome informado ou o segundo nome antes do sobrenome. Casal: plano de família com a idade do cônjuge.
   const casalDe = plan => (plan || {}).tipo !== 'individual' && +(plan || {}).spouseAge > 0;
+  // ---- Capítulo 1: o propósito do planejamento ----
+  // A frase, em três parágrafos separados por \n (no plural para um casal, no singular para uma pessoa; a lista sempre tem mais de um objetivo) e os objetivos na
+  // ordem que o cliente declarou na coleta (plan.objetivosOrdem, de ids). Segurança financeira e liberdade financeira estão
+  // sempre na lista, mesmo sem terem sido declaradas, com a descrição pronta; os outros são os da página Objetivos, com a
+  // descrição que diz por que cada um importa (objectives[].descricao). Sem ordem gravada: segurança, os objetivos pela data e
+  // a liberdade por último; um objetivo novo entra antes da liberdade.
+  const fraseDoProposito = plan => casalDe(plan)
+    ? 'Este é o plano da vida que vocês querem viver.\nO nosso papel é usar a renda e o patrimônio de vocês da melhor forma possível para que vocês alcancem as suas realizações e a sua felicidade.\nNa nossa conversa anterior, escutamos vocês e, juntos, concluímos que, para atingir esse propósito, o dinheiro de vocês deve tornar estes objetivos realidade.'
+    : 'Este é o plano da vida que você quer viver.\nO nosso papel é usar a sua renda e o seu patrimônio da melhor forma possível para que você alcance as suas realizações e a sua felicidade.\nNa nossa conversa anterior, escutamos você e, juntos, concluímos que, para atingir esse propósito, o seu dinheiro deve tornar estes objetivos realidade.';
+  function ordemDoProposito(plan) {
+    const ids = (plan.objectives || []).slice().sort((a, b) => a.months - b.months).map(o => o.id), fixos = ['seguranca', 'liberdade'];
+    const salva = Array.isArray(plan.objetivosOrdem) ? plan.objetivosOrdem.filter((id, k, l) => (fixos.includes(id) || ids.includes(id)) && l.indexOf(id) === k) : [];
+    const ordem = salva.length ? salva : ['seguranca'].concat(ids, ['liberdade']);
+    if (!ordem.includes('seguranca')) ordem.unshift('seguranca');
+    if (!ordem.includes('liberdade')) ordem.push('liberdade');
+    ids.forEach(id => { if (!ordem.includes(id)) ordem.splice(ordem.indexOf('liberdade'), 0, id); });
+    return ordem;
+  }
+  // a renda desejada num mês, pelo plano (a do começo da liberdade, ou a de uma mudança por período)
+  const desejoDoPlano = (plan, mi) => { let v = +plan.desired || 0; (plan.desiredSteps || []).slice().sort((a, b) => a.from - b.from).forEach(st => { if (mi >= st.from) v = +st.value || 0; }); return v; };
+  // ffMi: o mês em que a liberdade começa, pela simulação (vazio enquanto o plano não a tem)
+  const objetivosDoProposito = (plan, ffMi) => ordemDoProposito(plan).map(id => {
+    if (id === 'seguranca') return { id, titulo: 'Segurança financeira', descricao: 'Estar blindado dos principais riscos financeiros e ter a fundação sólida para realizar seus objetivos.', fixo: true };
+    if (id === 'liberdade') return { id, titulo: 'Liberdade financeira', fixo: true, descricao: ffMi != null && desejoDoPlano(plan, ffMi) > 0
+      ? 'A partir de ' + mesDoPlano(ffMi) + ', conseguir uma renda passiva de ' + reais(desejoDoPlano(plan, ffMi)) + ' por mês e não ter mais a obrigação de trabalhar.'
+      : 'Conseguir uma renda passiva e não ter mais a obrigação de trabalhar.' };
+    const o = plan.objectives.find(x => x.id === id); return { id, titulo: o.name || 'Objetivo sem nome', descricao: o.descricao || '', fixo: false };
+  });
   function nomesDaFamilia(plan) {
     const partes = String((plan || {}).name || '').split(/\s+e\s+/i).map(n => n.trim().split(/\s+/)[0]).filter(Boolean);
     return { titular: partes[0] || 'Titular', conjuge: String((plan || {}).conjugeNome || '').trim().split(/\s+/)[0] || partes[1] || 'Cônjuge' };
@@ -1656,10 +1707,11 @@ const ENGINE = (() => {
     previdencia: { inicial: 120000, aporte: 1404, anos: 20, rent: 10, trocas: 4, aliqComum: 15, comeCotas: true, taxaComum: 0.8, taxaPrev: 0.8 },
   };
   // A família do exemplo: um casal, com o nome e a idade do cônjuge (página Cliente)
-  const FAMILIA_EXEMPLO = { tipo: 'familia', spouseAge: 38, conjugeNome: 'Marcos Ribeiro' };
+  const FAMILIA_EXEMPLO = { tipo: 'familia', nascimento: NASC_EXEMPLO, conjugeNascimento: NASC_CONJ_EXEMPLO, spouseAge: 38, conjugeNome: 'Marcos Ribeiro',
+    consultor: { nome: 'Carolina Andrade', certificacao: 'CFP®', telefone: '+55 (11) 99999-0000', email: 'carolina.andrade@exemplo.com.br', foto: '' } };
   const ORIGENS_OUT = ORIGENS;
-  const config = () => ({ age: CURRENT_AGE, retireAge: RETIRE_AGE, spouseRetireAge: SPOUSE_RETIRE, initialBens: INITIAL_BENS, desired: DESIRED, desiredSteps: DESIRED_STEPS, lifeExp: LIFE_EXP, salary: SALARY, salaryGrowth: SAL_G, partValue: PART_VALUE, initialWealth: INITIAL_WEALTH, capacityOverride: CAP_OVERRIDE, rate: R_M, profiles: PROFILES, incomes: INCOMES, expenses: EXPENSES, objectives: OBJ, passive: PASSIVE });
-  return { TODAY, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, PASSIVE, PROFILES, STATUS, trajetoriaDoBem, saldoDevedorEm, get BENS() { return bensDoPlano(); }, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, serieCusto, desiredAt, aplicaAlteracoes, descreveAlteracao, valorAtual, mesDoPlano, RISCOS, NATUREZAS, ITENS_RUINA, RISCOS_EXEMPLO, avaliaRiscos, custoDeVida, SEGURO, RELACOES, calculaSeguros, mesesAteIdade, FASES_VIDA, faseDaVida, sincronizaPatrimonio, PATRIMONIO_EXEMPLO, padraoDeVida, lerCaminho, gravaCaminho, IR, calculaIR, irDaFamilia, REGIMES, calculaRetirada, retiradaDosSocios, PREVIDENCIA, sucessao, simulaPrevidencia, aliqRegressiva, TRIBUTARIO_EXEMPLO, FAMILIA_EXEMPLO, casalDe, nomesDaFamilia, pessoasDaFamilia, rendaDaPessoa, bensDoRisco, titularidadeDoBem, setRetireAge: a => { RETIRE_AGE = a == null ? null : Math.max(CURRENT_AGE, +a); }, paradaMi, trabalhaEm, idadeDaLiberdade, financiamentoValido, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
+  const config = () => ({ age: Math.floor(CURRENT_AGE), retireAge: RETIRE_AGE, spouseRetireAge: SPOUSE_RETIRE, initialBens: INITIAL_BENS, desired: DESIRED, desiredSteps: DESIRED_STEPS, lifeExp: LIFE_EXP, salary: SALARY, salaryGrowth: SAL_G, partValue: PART_VALUE, initialWealth: INITIAL_WEALTH, capacityOverride: CAP_OVERRIDE, rate: R_M, profiles: PROFILES, incomes: INCOMES, expenses: EXPENSES, objectives: OBJ, passive: PASSIVE });
+  return { TODAY, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, PASSIVE, PROFILES, STATUS, trajetoriaDoBem, saldoDevedorEm, get BENS() { return bensDoPlano(); }, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, serieCusto, desiredAt, aplicaAlteracoes, descreveAlteracao, valorAtual, mesDoPlano, RISCOS, NATUREZAS, ITENS_RUINA, RISCOS_EXEMPLO, avaliaRiscos, custoDeVida, SEGURO, RELACOES, calculaSeguros, mesesAteIdade, FASES_VIDA, faseDaVida, sincronizaPatrimonio, PATRIMONIO_EXEMPLO, padraoDeVida, lerCaminho, gravaCaminho, IR, calculaIR, irDaFamilia, REGIMES, calculaRetirada, retiradaDosSocios, PREVIDENCIA, sucessao, simulaPrevidencia, aliqRegressiva, TRIBUTARIO_EXEMPLO, FAMILIA_EXEMPLO, casalDe, nomesDaFamilia, pessoasDaFamilia, rendaDaPessoa, bensDoRisco, titularidadeDoBem, setRetireAge: a => { RETIRE_AGE = a == null ? null : Math.max(CURRENT_AGE, +a); }, paradaMi, trabalhaEm, idadeDaLiberdade, dataNasc, idadeExata, sincronizaIdades, fraseDoProposito, ordemDoProposito, objetivosDoProposito, financiamentoValido, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
 })();
 if (typeof module !== 'undefined') module.exports = ENGINE;
 </script>
@@ -1744,12 +1796,12 @@ const STATUS = { ok: 'Alcançável', adj: 'Alcançável com ajustes', risk: 'Req
 
 // O plano padrão vem do próprio motor: uma só fonte de verdade para os dois lados.
 const PLANO_PADRAO = Object.assign(
-  { name: 'Ana Ribeiro', age: 35, tipo: ENGINE.FAMILIA_EXEMPLO.tipo, spouseAge: ENGINE.FAMILIA_EXEMPLO.spouseAge, conjugeNome: ENGINE.FAMILIA_EXEMPLO.conjugeNome, riscos: JSON.parse(JSON.stringify(ENGINE.RISCOS_EXEMPLO)), patrimonio: JSON.parse(JSON.stringify(ENGINE.PATRIMONIO_EXEMPLO)), tributario: JSON.parse(JSON.stringify(ENGINE.TRIBUTARIO_EXEMPLO)), videos: {} },
+  { name: 'Ana Ribeiro', age: 35, nascimento: ENGINE.FAMILIA_EXEMPLO.nascimento, conjugeNascimento: ENGINE.FAMILIA_EXEMPLO.conjugeNascimento, consultor: JSON.parse(JSON.stringify(ENGINE.FAMILIA_EXEMPLO.consultor)), tipo: ENGINE.FAMILIA_EXEMPLO.tipo, spouseAge: ENGINE.FAMILIA_EXEMPLO.spouseAge, conjugeNome: ENGINE.FAMILIA_EXEMPLO.conjugeNome, riscos: JSON.parse(JSON.stringify(ENGINE.RISCOS_EXEMPLO)), patrimonio: JSON.parse(JSON.stringify(ENGINE.PATRIMONIO_EXEMPLO)), tributario: JSON.parse(JSON.stringify(ENGINE.TRIBUTARIO_EXEMPLO)), videos: {} },
   JSON.parse(JSON.stringify(ENGINE.config()))
 );
 
 // plano salvo completado com o padrão; o patrimônio detalhado e a tributação não vêm do exemplo (um plano antigo só tem os totais)
-const doSalvo = p => Object.assign(structuredClone(PLANO_PADRAO), { patrimonio: null, tributario: null, tipo: null, spouseAge: null, spouseRetireAge: null, conjugeNome: '' }, p);
+const doSalvo = p => Object.assign(structuredClone(PLANO_PADRAO), { patrimonio: null, tributario: null, tipo: null, consultor: null, nascimento: '', conjugeNascimento: '', spouseAge: null, spouseRetireAge: null, conjugeNome: '' }, p);
 let plano = load();
 function load() {
   try { const raw = localStorage.getItem('nl-plano'); if (raw) return doSalvo(JSON.parse(raw)); } catch (e) { }
@@ -1954,7 +2006,7 @@ function renderAll() {
   // o campo em edição volta com o foco e com o texto exatamente como estava sendo digitado
   const foco = document.activeElement, fg = foco && foco.dataset ? foco.dataset.g : null, fk = foco && foco.dataset ? foco.dataset.k : null;
   const oid = fg != null && plano.objectives[+fg] ? plano.objectives[+fg].id : null, txt = foco ? foco.value : null;
-  recompute(); renderTop(); renderFluxo(); renderGoals(); renderLiberdade(); renderClienteC(); renderPatrimonioC(); renderRiscosC(); renderTributarioC(); renderPremissas(); renderApresentacaoC(); renderPropostas(); save();
+  recompute(); renderTop(); renderFluxo(); renderGoals(); renderPropositoC(); renderLiberdade(); renderClienteC(); renderPatrimonioC(); renderRiscosC(); renderTributarioC(); renderPremissas(); renderApresentacaoC(); renderPropostas(); save();
   if (gaveta && gaveta.t === 'bem') renderGaveta();   // o detalhe do bem acompanha o que mudou nele
   if (oid && fk) {
     const i = plano.objectives.findIndex(o => o.id === oid), el = document.querySelector('[data-g="' + i + '"][data-k="' + fk + '"]');
@@ -1979,7 +2031,7 @@ function renderTop() {
   document.getElementById('f-cap').placeholder = temFluxo() ? 'vazio: ' + fmt(media12()) + ' (média de 12 meses do Fluxo de caixa)' : 'vazio: calculada pelo Fluxo de caixa';
   // passos concluídos na barra lateral
   const vistas = plano.vistas || {};
-  const feito = { cliente: !!(plano.name && plano.age),
+  const feito = { cliente: !!(plano.name && ENGINE.idadeExata(plano.nascimento) != null && (plano.tipo === 'individual' || ENGINE.idadeExata(plano.conjugeNascimento) != null)),
     patrimonio: !!(vistas.patrimonio || plano.initialWealth > 0 || plano.initialBens > 0 || plano.partValue > 0),
     objetivos: !!(vistas.objetivos || (plano.objectives.length && plano.objectives.every(o => o.name && o.amount > 0))),
     fluxo: temFluxo(), liberdade: !!vistas.liberdade, riscos: !!vistas.riscos, tributario: !!(vistas.tributario || plano.tributario), premissas: !!vistas.premissas, apresentacao: !!vistas.apresentacao };
@@ -1990,7 +2042,7 @@ function renderTop() {
     b.dataset.ir = alvo;
     b.textContent = 'Próximo: ' + NOMES_PAGINA[alvo] + ' →';
   });
-  const falta = [!plano.name && 'nome', !plano.age && 'idade'].filter(Boolean);
+  const falta = [!plano.name && 'nome', ENGINE.idadeExata(plano.nascimento) == null && 'data de nascimento', plano.tipo !== 'individual' && ENGINE.idadeExata(plano.conjugeNascimento) == null && 'data de nascimento do cônjuge'].filter(Boolean);
   document.getElementById('faltaCliente').innerHTML = falta.length ? `<div class="falta">Falta preencher: ${falta.join(', ')}. Depois siga para o Fluxo de caixa.</div>` : '';
   if (!plano.objectives.length) { document.getElementById('goalSum').innerHTML = ''; return; }
   const linhas = plano.objectives.map(o => `<tr><td>${esc(o.name || 'sem nome')}</td><td>${monthsLabel(o.months)}</td>` +
@@ -2106,6 +2158,27 @@ document.addEventListener('change', e => {
   if (span.dataset.g != null) campoObjetivo(alvo, () => 0);
   else if (span.dataset.r != null) { ENGINE.gravaCaminho(plano, span.dataset.r, /\.em$/.test(span.dataset.r) ? Math.max(1, mesDoInput(value)) : mesDoInput(value)); renderAll(); }
   else if (gavetaEl.contains(span)) campoGaveta({ target: alvo, type: 'change' });
+});
+// ---------- data de nascimento: dia (opcional), mês e ano ----------
+function seletorNasc(campo, valor) {
+  const m = /^(\d{4})-(\d{2})(?:-(\d{2}))?$/.exec(valor || ''), y = m ? +m[1] : null, mm = m ? +m[2] : null, d = m && m[3] ? +m[3] : null;
+  let dias = '<option value="">dia</option>'; for (let k = 1; k <= 31; k++) dias += `<option${k === d ? ' selected' : ''}>${k}</option>`;
+  let anos = '<option value="">ano</option>'; for (let a = 2008; a >= 1930; a--) anos += `<option${a === y ? ' selected' : ''}>${a}</option>`;
+  return `<select class="sd" data-nasc="${campo}">${dias}</select><select class="sm" data-nasc="${campo}"><option value="">mês</option>${MESES.map((n, k) => `<option value="${k + 1}"${k + 1 === mm ? ' selected' : ''}>${n}</option>`).join('')}</select><select class="sa" data-nasc="${campo}">${anos}</select>`;
+}
+const idadeTexto = (v, antiga) => { const a = ENGINE.idadeExata(v); return a != null ? Math.floor(a) + ' anos hoje' : antiga ? 'sem a data; hoje o plano usa ' + antiga + ' anos' : ''; };
+function mostraNascimentos(soTexto) {
+  if (!soTexto) { document.getElementById('f-nasc').innerHTML = seletorNasc('nascimento', plano.nascimento); document.getElementById('f-nascConj').innerHTML = seletorNasc('conjugeNascimento', plano.conjugeNascimento); }
+  document.getElementById('idNasc').textContent = idadeTexto(plano.nascimento, plano.age);
+  document.getElementById('idNascConj').textContent = idadeTexto(plano.conjugeNascimento, plano.spouseAge);
+}
+document.addEventListener('change', e => {
+  const t = e.target; if (!t.dataset || t.dataset.nasc == null) return;
+  const c = t.dataset.nasc, box = t.parentElement, d = box.querySelector('.sd').value, m = box.querySelector('.sm').value, y = box.querySelector('.sa').value;
+  if (!y || !m) { plano[c] = ''; mostraNascimentos(true); renderAll(); return; }   // mês e ano obrigatórios: até lá, a data fica vazia (e a página pede); as listas guardam o que já foi escolhido
+  plano[c] = y + '-' + d2(m) + (d ? '-' + d2(Math.min(+d, new Date(+y, +m, 0).getDate())) : '');
+  ENGINE.sincronizaIdades(plano); if (c === 'nascimento') fx.t0 = null;
+  mostraNascimentos(); aplicaTipo(); renderAll();
 });
 // ---------- degraus e ajustes ----------
 const stepEm = (it, m) => (it.steps || []).find(st => st.from === m);
@@ -2634,6 +2707,7 @@ function htmlPeriodos(f, js) {
   const nm = ENGINE.nomesDaFamilia(plano), casal = conjuge(), idadeEm = (q, mi) => Math.floor(idadeDe(q) + mi / 12), passos = plano.desiredSteps || [];
   const cor = {}; let nc = 0; js.forEach(j => j.camadas.forEach(c => { if (!(c.id in cor)) cor[c.id] = CORES_RENDA[nc++ % CORES_RENDA.length]; }));
   const escala = Math.max(...js.map(j => Math.max(j.D, somaR(j)))) || 1, bens = (plano.patrimonio && plano.patrimonio.bens) || [], teto = tetoRenda();
+  const jsInteiro = janelasDeRenda(f, null), ultimo = jsInteiro[jsInteiro.length - 1].m0;   // o último período, sem o corte de onde o patrimônio acaba
   const nomeCamada = c => {
     if (c.id[0] === 'f') { const it = plano.incomes.find(x => 'f' + x.id === c.id), bi = it ? bens.findIndex(b => b.renda === it.id) : -1;
       return esc(c.nome) + (bi >= 0 ? ` (<button class="link" data-bem-det="${bi}" title="Abrir o detalhe do bem">${esc(bens[bi].nome || 'bem')}</button>)` : ''); }
@@ -2646,9 +2720,10 @@ function htmlPeriodos(f, js) {
     const proprio = k ? passos.find(st => st.from === j.m0) : passos.filter(st => st.from <= j.m0).pop();
     const idades = casal ? `${esc(nm.titular)} ${idadeEm('titular', j.m0)} a ${idadeEm('titular', j.m1 - 1)} · ${esc(nm.conjuge)} ${idadeEm('conjuge', j.m0)} a ${idadeEm('conjuge', j.m1 - 1)}` : `${idadeEm('titular', j.m0)} a ${idadeEm('titular', j.m1 - 1)} anos`;
     const mp = proprio ? proprio.from : j.m0;
-    const campo = k === 0 && !proprio ? `<div class="lf-d0">${fmt(j.D)}</div><small>a renda desejada, no alto</small>`
+    const restante = j.m0 === ultimo ? `<div class="lf-rest"><button class="link" data-restante="${j.m0}">Usar a renda restante</button><small>a renda que o patrimônio paga daqui até os ${plano.lifeExp} anos</small></div>` : '';
+    const campo = (k === 0 && !proprio ? `<div class="lf-d0">${fmt(j.D)}</div><small>a renda desejada, no alto</small>`
       : `<div class="lf-d"><b data-periodo-v="${mp}">${fmt(j.D)}</b>${proprio ? `<button class="btn btn-icon" data-periodo-rm="${proprio.from}" title="Voltar a seguir o período anterior">×</button>` : ''}</div>
-        <input type="range" class="lf-r${proprio ? '' : ' herdado'}" data-periodo="${mp}" min="0" max="${teto}" step="500" value="${j.D}"><small>${proprio ? 'deste período em diante' : 'igual ao anterior'}</small>`;
+        <input type="range" class="lf-r${proprio ? '' : ' herdado'}" data-periodo="${mp}" min="0" max="${teto}" step="500" value="${j.D}"><small>${proprio ? 'deste período em diante' : 'igual ao anterior'}</small>`) + restante;
     const barra = j.camadas.map(c => seg(c.v, '', cor[c.id], fmtC(c.v))).join('') + seg(saque, 'lf-saque', '', 'saque ' + fmtC(saque)) + seg(falta, 'lf-falta', '', 'falta ' + fmtC(falta));
     const partes = j.camadas.map(c => `<i class="sw" style="background:${cor[c.id]}"></i>${nomeCamada(c)} ${fmt(c.v)}`)
       .concat(saque > 0.5 ? [`<i class="sw lf-saque"></i>saque do patrimônio <b>${fmt(saque)}</b>`] : [])
@@ -2679,6 +2754,43 @@ document.addEventListener('click', e => {
   mudaDesejo(mi, v);
 });
 document.addEventListener('click', e => { const b = e.target.closest('[data-bem-det]'); if (b) abrirGaveta('bem', +b.dataset.bemDet); });
+// Usar a renda restante: a renda do último período que leva o patrimônio a acabar na expectativa de vida, com os períodos
+// anteriores como estão. Procura pela simulação (cada tentativa roda o motor), de R$ 100 em R$ 100, para baixo.
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-restante]'); if (!b) return;
+  const f = ffInfo(); if (!f) return;
+  const m0 = +b.dataset.restante, noInicio = m0 <= f.mi, antes = (plano.desiredSteps || []).filter(st => st.from < m0), idFim = Math.min(ENGINE.NW - 1, Math.round(+plano.lifeExp * ENGINE.WPY));
+  const aplica = D => { if (noInicio) { plano.desired = D; plano.desiredSteps = []; } else plano.desiredSteps = antes.concat({ from: m0, value: D }); };
+  const dura = D => { aplica(D); ENGINE.configure(plano); const s = ENGINE.run('desej'); for (let i = s.ff.week + 1; i < idFim; i++) if (s.weeks[i].fin < 1) return false; return true; };
+  b.textContent = 'Calculando…';
+  setTimeout(() => {
+    let lo = 0, hi = Math.max(20000, tetoRenda());
+    while (dura(hi) && hi < 1e7) { lo = hi; hi *= 2; }
+    for (let k = 0; k < 18 && hi - lo > 50; k++) { const m = (lo + hi) / 2; if (dura(m)) lo = m; else hi = m; }
+    aplica(Math.floor(lo / 100) * 100); fillFields(); renderAll();
+  }, 0);
+});
+
+// ---------- propósito: o capítulo 1 do cliente ----------
+// A frase e os objetivos na ordem que o cliente declarou (ENGINE.objetivosDoProposito). Segurança e liberdade financeira estão
+// sempre na lista, com a descrição pronta; cada objetivo do plano tem a descrição que diz por que ele importa
+// (objectives[].descricao, que virá da coleta). As setas mudam a ordem (plano.objetivosOrdem).
+function renderPropositoC() {
+  const el = document.getElementById('propositoC'); if (!el) return;
+  const f = ffInfo(), lista = ENGINE.objetivosDoProposito(plano, f && temIdadeAlvo() ? f.mi : null);
+  el.innerHTML = `<div class="bloco"><h3>Propósito<span class="dir">capítulo 1 do cliente</span></h3>
+    <div class="pp-frase">${esc(ENGINE.fraseDoProposito(plano))}</div>
+    <div>${lista.map((x, k) => { const i = plano.objectives.findIndex(o => o.id === x.id);
+      return `<div class="pp-item"><span class="pp-n">${k + 1}</span><div class="pp-t"><b>${esc(x.titulo)}</b>${x.fixo ? `<small>${esc(x.descricao)}</small>` : `<input data-g="${i}" data-k="descricao" value="${esc(x.descricao)}" placeholder="por que este objetivo importa para o cliente">`}</div>
+        <span class="pp-tag">${x.fixo ? 'sempre na lista' : ''}</span><div class="pp-ord"><button class="btn btn-icon" data-ordem="${x.id}:-1"${k ? '' : ' disabled'} title="Subir">↑</button><button class="btn btn-icon" data-ordem="${x.id}:1"${k < lista.length - 1 ? '' : ' disabled'} title="Descer">↓</button></div></div>`; }).join('')}</div>
+    <div class="pc-acoes"><button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="proposito">Ver na tela do cliente</button></div></div>`;
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-ordem]'); if (!b || b.disabled) return;
+  const [id, d] = b.dataset.ordem.split(':'), ordem = ENGINE.ordemDoProposito(plano), k = ordem.indexOf(id), j = k + +d;
+  if (k < 0 || j < 0 || j >= ordem.length) return;
+  [ordem[k], ordem[j]] = [ordem[j], ordem[k]]; plano.objetivosOrdem = ordem; renderAll();
+});
 
 // ---------- rendas da aposentadoria, cadastradas na própria tabela ----------
 function htmlLinhaRenda(p, i) {
@@ -2725,7 +2837,7 @@ function mostraSliders() {
   sl('f-desired', 'desired', v => fmt(v));
   const f = ffInfo(), mesParada = (q, mi) => f && temIdadeAlvo() ? ENGINE.paradaMi(q, f.mi) : Math.max(0, mi);   // pelo motor: quem para primeiro abre a liberdade
   sl('f-retire', 'retireAge', v => v + ' anos', ['qRetire', v => 'em ' + monthsLabel(mesParada('titular', Math.round((v - ENGINE.CURRENT_AGE) * 12)))]);
-  if (conjuge()) sl('f-retire2', 'spouseRetireAge', v => v + ' anos', ['qRetire2', v => 'em ' + monthsLabel(mesParada('conjuge', Math.round((v - +plano.spouseAge) * 12)))]);
+  if (conjuge()) sl('f-retire2', 'spouseRetireAge', v => v + ' anos', ['qRetire2', v => 'em ' + monthsLabel(mesParada('conjuge', Math.round((v - idadeDe('conjuge')) * 12)))]);
 }
 let rafLiberdade = null;
 const redesenhaLiberdade = () => { if (rafLiberdade) return; rafLiberdade = setTimeout(() => { rafLiberdade = null; renderAll(); }, 40); };   // um redesenho por vez enquanto o slider anda
@@ -2738,7 +2850,7 @@ function renderLiberdade() {
   document.getElementById('slRetire2').hidden = !casal;
   let quando = 'A renda desejada e a idade em que ' + (casal ? 'cada um para' : esc(nm.titular) + ' para') + ' de trabalhar são obrigatórias: com elas, a página mostra a renda em cada período e a simulação do patrimônio.';
   if (f && temIdadeAlvo()) {
-    const idades = esc(nm.titular) + ' com ' + Math.floor(ENGINE.CURRENT_AGE + f.mi / 12) + (casal ? ', ' + esc(nm.conjuge) + ' com ' + Math.floor(+plano.spouseAge + f.mi / 12) : '');
+    const idades = esc(nm.titular) + ' com ' + Math.floor(ENGINE.CURRENT_AGE + f.mi / 12) + (casal ? ', ' + esc(nm.conjuge) + ' com ' + Math.floor(idadeDe('conjuge') + f.mi / 12) : '');
     const fimT = ENGINE.paradaMi('titular', f.mi), fimC = casal ? ENGINE.paradaMi('conjuge', f.mi) : fimT, primeiro = casal && fimC < fimT ? 'conjuge' : 'titular', outro = primeiro === 'titular' ? 'conjuge' : 'titular';
     quando = `A liberdade financeira começa em <b>${monthsLabel(f.mi)}</b>, quando ${esc(nm[primeiro])} para de trabalhar (${idades}).` +
       (casal && Math.max(fimT, fimC) > f.mi ? ` ${esc(nm[outro])} continua trabalhando até ${monthsLabel(Math.max(fimT, fimC) - 1)}: essa renda do trabalho entra na renda de cada período e diminui o saque.` : '');
@@ -2768,7 +2880,7 @@ function renderLiberdade() {
   document.getElementById('tbPasTotals').innerHTML = `<tr class="total"><td>Renda da aposentadoria no início da liberdade</td><td></td><td class="num">${fmt(inicio)}</td><td colspan="2"></td><td class="num">${fmt(custo)}</td><td></td></tr>`;
   // fechamento: o que falta e o próximo passo
   const pend = [];
-  if (!(plano.name && plano.age)) pend.push('<button class="link" data-ir="cliente">Cliente</button>: nome e idade');
+  if (!(plano.name && ENGINE.idadeExata(plano.nascimento) != null)) pend.push('<button class="link" data-ir="cliente">Cliente</button>: nome e data de nascimento');
   if (!(plano.desired > 0)) pend.push('a renda desejada, no alto desta página');
   if (!temIdadeAlvo()) pend.push('a idade em que ' + (casal ? 'cada um para' : esc(nm.titular) + ' para') + ' de trabalhar, no alto desta página');
   if (!plano.passive.length) pend.push('<button class="link" data-ir="liberdade">Liberdade financeira</button>: nenhuma renda de aposentadoria (INSS, previdência). Se o cliente não tem, pode seguir');
@@ -2799,8 +2911,6 @@ document.addEventListener('input', e => {
   const map = { 'f-name': 'name', 'f-lifeExp': 'lifeExp' };
   const sliders = { 'f-desired': 'desired', 'f-retire': 'retireAge', 'f-retire2': 'spouseRetireAge' };
   if (sliders[t.id]) { plano[sliders[t.id]] = +t.value; mostraSliders(); redesenhaLiberdade(); return; }
-  if (t.id === 'f-age') { plano.age = t.value === '' ? '' : Math.min(90, Math.max(18, +t.value || 0)); if (t.value === '' || +t.value >= 18) { fx.t0 = null; renderAll(); } else renderTop(); return; }
-  if (t.id === 'f-spouse') { plano.spouseAge = t.value === '' ? null : +t.value; save(); return; }
   if (t.id === 'f-cap') { plano.capacityOverride = vazio ? null : num; renderAll(); return; }
   if (map[t.id]) { plano[map[t.id]] = t.id === 'f-name' ? t.value : val(); renderAll(); return; }
   if (t.id === 'f-tipo') { plano.tipo = t.value; aplicaTipo(); renderAll(); return; }
@@ -2828,7 +2938,7 @@ function campoObjetivo(t, val) {
   if (k === 'planned') o.segueNecessario = false;          // digitou o aporte: deixa de acompanhar o necessário
   if (k === 'months') o.months = inputToMonths(t.value);
   else if (k === 'name') { o.name = t.value; o.title = t.value + ' realizado!'; }
-  else if (k === 'strategy' || k === 'icon' || k === 'kind' || k === 'profile' || k === 'photo' || k === 'iconFA') o[k] = t.value;
+  else if (k === 'strategy' || k === 'descricao' || k === 'icon' || k === 'kind' || k === 'profile' || k === 'photo' || k === 'iconFA') o[k] = t.value;
   else if (k.startsWith('c:')) {                                  // um dos gastos depois de realizado
     const [, cid, f] = k.split(':'), c = (o.costs || []).find(x => x.id === cid); if (!c) return;
     if (f === 'type') c.type = t.value;
@@ -2846,7 +2956,7 @@ function campoObjetivo(t, val) {
     const g = t.closest('.goal');
     if (g) { const pf = g.querySelector('.fotoprev'), pi = g.querySelector('.prev'), ic = g.querySelector('.ico'); if (pf) pf.innerHTML = fotoHtml(o); if (pi) pi.innerHTML = iconeHtml(o, 'var(--nl-navy-900)'); if (ic) ic.innerHTML = iconeHtml(o, ic.style.borderColor); }
   }
-  if (k === 'strategy' || k === 'name' || k === 'photo' || k === 'iconFA') { save(); renderTop(); return; }
+  if (k === 'strategy' || k === 'descricao' || k === 'name' || k === 'photo' || k === 'iconFA') { save(); renderTop(); return; }
   renderAll();                                     // refaz a simulação e devolve o foco ao campo
 }
 // número grava ao terminar (change); mês e data só ao sair do campo, porque o navegador avisa a cada parte digitada
@@ -3175,7 +3285,7 @@ function htmlLinha(it) {
   return h + rodape();
 }
 // idade de quem recebe a renda: o titular ou o cônjuge (casal)
-const idadeDe = pessoa => pessoa === 'conjuge' && conjuge() ? +plano.spouseAge : ENGINE.CURRENT_AGE;
+const idadeDe = pessoa => pessoa === 'conjuge' && conjuge() ? (ENGINE.idadeExata(plano.conjugeNascimento) != null ? ENGINE.idadeExata(plano.conjugeNascimento) : +plano.spouseAge) : ENGINE.CURRENT_AGE;
 const quemTexto = pessoa => pessoa === 'conjuge' && conjuge() ? 'o cônjuge' : 'o titular';
 const ORIGENS_RENDA = ['INSS', 'Previdência privada', 'Fundo de pensão', 'Outra'];
 function htmlRenda(p) {
@@ -3188,7 +3298,7 @@ function htmlRenda(p) {
   h += `<details class="opc"${p.gross ? ' open' : ''}><summary>Bruto e imposto (opcional)</summary><div class="row2">${campo('Bruto (R$/mês)', `<input data-gvr="gross" data-money type="text" inputmode="decimal" value="${p.gross ? money(p.gross) : ''}">`)}${campo('Imposto (R$/mês)', `<input data-gvr="tax" data-money type="text" inputmode="decimal" value="${p.tax ? money(p.tax) : ''}">`)}</div><div class="deriv">Com o bruto e o imposto, o líquido é calculado.</div></details>`;
   h += campo('Começa', `<div class="radios"><label><input type="radio" name="gvini" value="fixa"${fixa ? ' checked' : ''}>Numa idade ou data fixa (INSS)</label><label><input type="radio" name="gvini" value="ff"${fixa ? '' : ' checked'}>Na liberdade financeira (previdência contratada)</label></div>`);
   if (fixa) {
-    h += `<div class="row2">${conjuge() ? campo('De quem é a renda', `<select data-gvr="pessoa">${opt('titular', 'Titular (' + ENGINE.CURRENT_AGE + ' anos hoje)', pessoa)}${opt('conjuge', 'Cônjuge (' + plano.spouseAge + ' anos hoje)', pessoa)}</select>`) : ''}` +
+    h += `<div class="row2">${conjuge() ? campo('De quem é a renda', `<select data-gvr="pessoa">${opt('titular', 'Titular (' + Math.floor(ENGINE.CURRENT_AGE) + ' anos hoje)', pessoa)}${opt('conjuge', 'Cônjuge (' + plano.spouseAge + ' anos hoje)', pessoa)}</select>`) : ''}` +
       campo('Começa aos', `<input type="number" min="18" max="100" data-gvr="idadeIni" value="${Math.floor(idadeDe(pessoa) + p.startMi / 12)}" style="max-width:110px"> anos`) + `</div>` +
       campo('ou na data', `${seletorMes('data-gvr="startMi"', p.startMi)}<div class="deriv" id="gvIni">${quemTexto(pessoa)} terá ${Math.floor(idadeDe(pessoa) + p.startMi / 12)} anos</div>`);
   } else {
@@ -3691,12 +3801,23 @@ function renderPremissas() {
 }
 
 // ===================== APRESENTAÇÃO =====================
+// O capítulo 1 é uma página só, sem capa nem resumo: o vídeo de boas-vindas, quem cuida do planejamento (plano.consultor;
+// na plataforma, viria do cadastro do planejador) e a data do relatório (plano.dataRelatorio; vazia, a de hoje).
+function capitulo1() {
+  const cp = (n, h) => `<div class="field"><label>${n}</label>${h}</div>`, link = ' placeholder="link do YouTube, do Vimeo ou do arquivo"';
+  return `<div class="ap-cap"><div class="ap-cab"><span class="ap-num">1</span><b>Propósito</b><button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="proposito">Abrir a página 1</button><button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="proposito-nos">Abrir a página 2</button></div>
+    <div class="sub" style="margin:0 0 12px">Duas páginas, como uma landing page. Na primeira, boas-vindas com o seu vídeo, a frase do propósito em destaque e os objetivos na ordem do cliente (no bloco Propósito da página Objetivos). Na segunda, quem cuida do planejamento, como vamos caminhar juntos e quem somos.</div>
+    <div class="grid g3">${cp('Vídeo de boas-vindas', campoR('videos.cap-proposito-caso', 'texto', link))}${cp('Data do relatório', campoR('dataRelatorio', 'texto', ' type="date"'))}<div></div>
+      ${cp('Planejador', campoR('consultor.nome', 'texto', ' placeholder="nome completo"'))}${cp('Certificação', campoR('consultor.certificacao', 'texto', ' placeholder="ex.: CFP®"'))}${cp('Foto (link)', campoR('consultor.foto', 'texto', ' placeholder="vazio: as iniciais"'))}
+      ${cp('Telefone', campoR('consultor.telefone', 'texto', ' placeholder="+55 (11) 90000-0000"'))}${cp('E-mail', campoR('consultor.email', 'texto', ' placeholder="nome@nordwealth.com.br"'))}</div></div>`;
+}
 // As páginas que o cliente vê, na ordem da jornada dele, com o que cada uma vai mostrar, o vídeo e o atalho.
 function renderApresentacaoC() {
   const el = document.getElementById('apresC'); if (!el) return;
   const f = ENGINE.faseDaVida(plano), a = ENGINE.avaliaRiscos(plano), ff = SIM && SIM.ff, ir = ENGINE.irDaFamilia(plano), pro = ENGINE.retiradaDosSocios(plano), su = ENGINE.sucessao(plano), T = plano.tributario;
   const eco = v => 'economia de ' + fmt(v) + (v > 0 ? '' : ' (sem ganho)');
   const pgs = [
+    ['proposito', 1, 'O propósito do seu planejamento', ENGINE.objetivosDoProposito(plano, null).length + ' objetivos, com a segurança e a liberdade financeira', '', 'objetivos'],
     ['ir', 3, 'Imposto de renda da família', ir ? eco(ir.economia) + ' por ano' : null, 'Faltam as pessoas e os lançamentos do imposto de renda.', 'tributario'],
     ['prolabore', 3, 'Pró-labore e dividendos', pro ? eco(pro.economia) + ' por ano' : null, 'Nenhum sócio cadastrado.', 'tributario'],
     ['sucessao', 3, 'Sucessão e ITCMD', T && su.atual.total > 0 ? eco(su.economia) + ' na sucessão' : null, T ? 'Falta o patrimônio na página Patrimônio.' : 'Falta preencher a página Otimização tributária.', T ? 'patrimonio' : 'tributario'],
@@ -3706,16 +3827,17 @@ function renderApresentacaoC() {
     ['evolucao', 6, 'Evolução patrimonial', ff && temFluxo() && planoDaLiberdade() ? 'Liberdade financeira aos ' + Math.floor(ff.age) + ' anos' + (ff.forced ? ' (renda parcial)' : '') : null, temFluxo() ? 'Faltam a renda desejada e a idade de parar de trabalhar.' : 'Falta o fluxo de caixa.', temFluxo() ? 'liberdade' : 'fluxo']];
   // um capítulo por bloco: os dois vídeos (o teórico, o mesmo para todos os clientes, na capa; o do caso deste cliente, no
   // resumo) e as páginas, com o que cada uma vai mostrar. Um vídeo antigo de página vira o vídeo do caso do capítulo.
-  const caps = [['tributario', 3, 'Otimização tributária', ['ir', 'prolabore', 'sucessao', 'previdencia']], ['patrimonio', 4, 'Patrimônio', ['patrimonio']], ['riscos', 5, 'Gestão de riscos', ['riscos']], ['evolucao', 6, 'Evolução patrimonial', ['evolucao']]];
+  const caps = [['proposito', 1, 'Propósito', ['proposito']], ['tributario', 3, 'Otimização tributária', ['ir', 'prolabore', 'sucessao', 'previdencia']], ['patrimonio', 4, 'Patrimônio', ['patrimonio']], ['riscos', 5, 'Gestão de riscos', ['riscos']], ['evolucao', 6, 'Evolução patrimonial', ['evolucao']]];
   plano.videos = plano.videos || {};
   caps.forEach(([cid, , , ids]) => { const k = 'cap-' + cid + '-caso', velho = ids.map(i => plano.videos[i]).find(Boolean); if (!plano.videos[k] && velho) plano.videos[k] = velho; });
   const cp = (n, h) => `<div class="field"><label>${n}</label>${h}</div>`, link = ' placeholder="link do YouTube, do Vimeo ou do arquivo"';
-  el.innerHTML = `<div class="bloco"><h3>Os capítulos do cliente</h3><div class="sub">Cada capítulo abre com duas páginas: a capa, com o vídeo teórico, que explica o tema e é o mesmo para todos os clientes; e o resumo do caso, com o vídeo em que você explica o planejamento deste cliente, os principais números e o que fazer. Depois vêm as páginas de detalhe, só com os resultados. Os capítulos 1 e 2 ainda vão ser construídos.</div>
-    ${caps.map(([cid, n, nome, ids]) => `<div class="ap-cap"><div class="ap-cab"><span class="ap-num">${n}</span><b>${nome}</b><button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="capa-${cid}">Abrir a capa</button><button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="resumo-${cid}">Abrir o resumo</button></div>
+  el.innerHTML = `<div class="bloco"><h3>Os capítulos do cliente</h3><div class="sub">Cada capítulo abre com duas páginas: a capa, com o vídeo teórico, que explica o tema e é o mesmo para todos os clientes; e o resumo do caso, com o vídeo em que você explica o planejamento deste cliente, os principais números e o que fazer. Depois vêm as páginas de detalhe, só com os resultados. O capítulo 2 ainda vai ser construído.</div>
+    ${capitulo1()}
+    ${caps.filter(([cid]) => cid !== 'proposito').map(([cid, n, nome, ids]) => `<div class="ap-cap"><div class="ap-cab"><span class="ap-num">${n}</span><b>${nome}</b><button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="capa-${cid}">Abrir a capa</button><button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="resumo-${cid}">Abrir o resumo</button></div>
       <div class="grid g2">${cp('Vídeo teórico, na capa (o mesmo para todos os clientes)', campoR('videos.cap-' + cid + '-teoria', 'texto', link))}${cp('Vídeo do caso deste cliente, no resumo', campoR('videos.cap-' + cid + '-caso', 'texto', link))}</div>
       ${pgs.filter(p => ids.includes(p[0])).map(([id, , nomeP, ok, falta, ir]) => `<div class="ap-pg"><div><b>${nomeP}</b>${ok ? `<small>${ok}</small>` : `<small class="falta">${falta} <button class="link" data-ir="${ir}">Resolver</button></small>`}</div>
         <button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="${id}">Abrir</button></div>`).join('')}</div>`).join('')}</div>
-    <div class="bloco"><h3>Abrir a área do cliente</h3><div class="ap-bts"><button class="btn btn-primary" data-abrir-cliente data-fase="capa-tributario">Apresentar desde o começo</button><a class="btn btn-secondary" href="evolucao-patrimonial.html?fase=capa-tributario" target="_blank" style="text-decoration:none" data-como-cliente>Ver como o cliente vê ↗</a></div>
+    <div class="bloco"><h3>Abrir a área do cliente</h3><div class="ap-bts"><button class="btn btn-primary" data-abrir-cliente data-fase="proposito">Apresentar desde o começo</button><a class="btn btn-secondary" href="evolucao-patrimonial.html?fase=proposito" target="_blank" style="text-decoration:none" data-como-cliente>Ver como o cliente vê ↗</a></div>
       <div class="sub" style="margin:12px 0 0">Apresentar abre a área do cliente sem as ferramentas de proposta. "Ver como o cliente vê" abre exatamente o que o cliente tem.</div></div>`;
 }
 document.addEventListener('click', e => { if (e.target.closest('[data-como-cliente]')) gravarNuvem(true); });
@@ -3975,7 +4097,7 @@ document.addEventListener('click', e => {
 document.getElementById('nav').addEventListener('keydown', e => { const a = e.target.closest('[data-nav]'); if (a && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); irPara(a.dataset.nav); } });
 
 // Novo cliente: plano em branco, sem nada do exemplo. Com um plano em andamento, pede confirmação no próprio botão.
-const planoVazio = () => ({ name: '', age: '', lifeExp: 95, desired: 0, retireAge: null, spouseAge: null, spouseRetireAge: null, initialWealth: 0, initialBens: 0, partValue: 0, capacityOverride: null,
+const planoVazio = () => ({ name: '', age: '', nascimento: '', conjugeNascimento: '', lifeExp: 95, desired: 0, retireAge: null, spouseAge: null, spouseRetireAge: null, initialWealth: 0, initialBens: 0, partValue: 0, capacityOverride: null,
   rate: PLANO_PADRAO.rate, profiles: Object.assign({}, PLANO_PADRAO.profiles), incomes: [], expenses: [], objectives: [], passive: [], riscos: {}, videos: {},
   patrimonio: { comecou: null, liquidezIdeal: null, financeiro: [], participacoes: [], bens: [] } });
 const temConteudo = () => !!(plano.name || plano.incomes.length || plano.expenses.length || plano.objectives.length);
@@ -4006,8 +4128,8 @@ document.getElementById('btnComoCliente').addEventListener('click', () => gravar
 // plano de uma pessoa: o campo e a orientação do cônjuge saem da página Cliente
 const conjuge = () => plano.tipo !== 'individual' && +plano.spouseAge > 0;
 function aplicaTipo() {
-  const so = (plano.tipo || (+plano.spouseAge > 0 ? 'familia' : 'individual')) === 'individual';
-  document.getElementById('f-spouse').closest('.field').hidden = so; document.getElementById('f-conjugeNome').closest('.field').hidden = so;
+  const so = (plano.tipo || (+plano.spouseAge > 0 || plano.conjugeNascimento ? 'familia' : 'individual')) === 'individual';
+  document.getElementById('f-spouse').hidden = so; document.getElementById('f-conjugeNome').closest('.field').hidden = so;
   document.getElementById('notaCasal').hidden = so;
 }
 function fillFields() {
@@ -4015,11 +4137,10 @@ function fillFields() {
   document.getElementById('f-horiz').value = plano.horizonte || 'month';
   aplicaTipo();
   document.getElementById('f-name').value = plano.name;
-  document.getElementById('f-age').value = plano.age;
+  mostraNascimentos();
   document.getElementById('f-retire').value = vazioL(plano.retireAge) ? 60 : plano.retireAge;
   document.getElementById('f-retire2').value = vazioL(plano.spouseRetireAge) ? 60 : plano.spouseRetireAge;
   document.getElementById('f-comecou').value = plano.patrimonio && plano.patrimonio.comecou != null ? plano.patrimonio.comecou : '';
-  document.getElementById('f-spouse').value = plano.spouseAge == null ? '' : plano.spouseAge;
   document.getElementById('f-conjugeNome').value = plano.conjugeNome || '';
   document.getElementById('f-lifeExp').value = plano.lifeExp;
   document.getElementById('f-desired').max = tetoRenda(); document.getElementById('f-desired').value = +plano.desired || 0;

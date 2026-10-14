@@ -32,8 +32,9 @@ Situação: **fonte** (informada aqui, só aqui), **ligada** (lida da fonte, sem
 |---|---|---|---|
 | Nome do cliente | `name` | fonte | "Planejamento de Vida" e as iniciais no alto da área do cliente, nomes do titular (primeiro nome) |
 | Nome do cônjuge (completo) | `conjugeNome` | fonte (vazio: o segundo nome de "Camila e Rafael Souza") | iniciais no alto da área do cliente; o primeiro nome no IR, sócios, seguros, "de quem é a renda" |
-| Idade do titular | `age` | fonte | simulação, fase da vida, seguros |
-| Tipo de plano e idade do cônjuge | `tipo`, `spouseAge` | fonte | casal (`ENGINE.casalDe`), eixo da evolução, seguros, IR |
+| Data de nascimento do titular e do cônjuge | `nascimento`, `conjugeNascimento` ("AAAA-MM" ou "AAAA-MM-DD") | fonte, obrigatórias (mês e ano; o dia é opcional) | idade exata de hoje e nos marcos (simulação, eixo da evolução, períodos da liberdade) |
+| Idade de hoje do titular e do cônjuge | `age`, `spouseAge` | calculada da data de nascimento (`ENGINE.sincronizaIdades`); informada só num plano antigo, sem a data | fase da vida, seguros, IR, casal (`ENGINE.casalDe`) |
+| Tipo de plano | `tipo` | fonte | casal |
 | Dependentes (nome, relação, nascimento) | `riscos.dependentes` | fonte | reserva (d), seguro de vida, IR (dependentes) |
 | Começou a trabalhar aos | `patrimonio.comecou` | fonte | fase da vida |
 | Expectativa de vida | `lifeExp` | fonte | simulação, fase da vida, liberdade |
@@ -108,6 +109,17 @@ Situação: **fonte** (informada aqui, só aqui), **ligada** (lida da fonte, sem
 | Patrimônio da sucessão | Patrimônio | ligada | sucessão |
 | ITCMD, custos, valor a levar para a previdência | `tributario.sucessao` | parâmetro | sucessão |
 | Simulador da previdência | `tributario.previdencia` | parâmetro (o valor inicial poderia abrir com a previdência do Patrimônio) | previdência |
+
+## Propósito (capítulo 1)
+
+| Variável | Caminho | Situação | Quem usa |
+|---|---|---|---|
+| Descrição de cada objetivo (por que ele importa) | `objectives[].descricao` | fonte (coleta: `obj_descricao`; no portal, no bloco Propósito da página Objetivos) | capítulo 1 |
+| Ordem dos objetivos | `objetivosOrdem` (ids; `seguranca` e `liberdade` para os dois fixos) | fonte (a ordem declarada na coleta; no portal, as setas) | capítulo 1 |
+| Segurança e liberdade financeira na lista, e as descrições delas | `ENGINE.objetivosDoProposito` | calculada (sempre na lista; a da liberdade usa a data da liberdade e a renda desejada) | capítulo 1 |
+| A frase do propósito | `ENGINE.fraseDoProposito` | calculada (singular ou plural pelo tipo de plano) | capítulo 1 |
+| Quem cuida do planejamento: nome, certificação, telefone, e-mail, foto | `consultor` | fonte, na página Apresentação; na plataforma, viria do cadastro do planejador (é do escritório, não do cliente) | capítulo 1 |
+| Data do relatório | `dataRelatorio` ("AAAA-MM-DD") | fonte, na página Apresentação; vazia, a data de hoje | capítulo 1 |
 
 ## Apresentação
 

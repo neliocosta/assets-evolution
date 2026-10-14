@@ -87,7 +87,7 @@ feitos sem o usuário por perto, a partir do pedido dele: confira as escolhas ab
 Font Awesome publicado junto (o visualizador bloqueia o cdnjs) e tem o banco compartilhado (capacidades `db` e
 `user`, regras: `plano` só o dono grava, `propostas` grava quem é Contribuidor). Para republicar, gere a cópia a
 partir dos arquivos do repositório com essas três trocas (`node gerar-publicacao.js . <pasta>` faz as três) e publique no
-mesmo link, mantendo as capacidades. Versão 40 no ar, gerada do commit bfcef78.
+mesmo link, mantendo as capacidades. Versão 41 no ar, gerada de um estado intermediário, sem commit, da rodada do capítulo 1 (antes da landing page); falta republicar a partir do commit dessa rodada.
 
 ## Armadilhas deste repositório
 
@@ -136,7 +136,9 @@ R$ 54.300 em vez de R$ 52.000; Juliana: plantões R$ 27.000 em vez de R$ 23.400)
 já passou. Decidir se "hoje" vem do relógio ou de uma data gravada no plano, sem quebrar a identidade contábil
 nem o `verificar.js`.
 
-### 21. Idade nos marcos dos objetivos um ano menor (rodada 7)
+### 21. Idade nos marcos dos objetivos um ano menor (rodada 7) — resolvido com a data de nascimento (14/10/2026)
+Com a data de nascimento, a idade de hoje é exata e o aniversário é o de verdade. Continua valendo para um plano antigo, só
+com a idade.
 Na visão do cliente, todo objetivo em setembro mostra um ano a menos (Viagem set/2028 "34 anos", esperado 35;
 Faculdade do Marcos set/2029 "50", esperado 51; Sala da Juliana set/2031 "42", esperado 43). Provavelmente o
 aniversário assumido é 19/09 (`BIRTH`) e o marco cai antes dele. A idade de hoje e a da liberdade estão certas.
@@ -522,6 +524,28 @@ Registradas aqui porque não são óbvias no código:
     renda do trabalho até a idade dele, decisão do usuário); a ordem nova (renda e idades; rendas programadas; renda em cada
     período, com as alternativas como botões no alto; e, no fim, "Simulação patrimonial do plano proposto", com o veredito e
     a curva, sem os cartões). O exemplo: Marcos para aos 62, dois anos depois da Ana.
+  - por último no dia: a data de nascimento de cada um no lugar da idade de hoje (mês e ano obrigatórios, o dia opcional);
+    `age` e `spouseAge` passaram a ser calculadas. O exemplo: Ana em 12/05/1991 e Marcos em 23/02/1988 (antes, 35 e 38
+    anos com aniversário em 19/09); a liberdade do exemplo foi para jun/2048 (Ana faz 57 em maio). E, no último período,
+    "Usar a renda restante": a renda que leva o patrimônio a acabar na expectativa de vida.
+  - e o capítulo 1, Propósito, combinado com o usuário antes de construir: só a frase e os objetivos (o perfil de relação
+    com o dinheiro, devedor, zero a zero ou investidor, vai para outro lugar, a definir); a frase fala direto com o cliente,
+    no positivo (felicidade e realização, sem falar de riqueza), com "escutamos" e "propósito"; segurança e liberdade
+    financeira sempre na lista; a ordem e a descrição de cada objetivo vêm da coleta. Escolhas minhas: a ordem padrão
+    (segurança, objetivos pela data, liberdade por último), "por mês" na descrição da liberdade, as descrições fictícias dos
+    objetivos do exemplo e o capítulo com capa e resumo, como os outros.
+  - o capítulo 1 refeito como landing page, a pedido do usuário ("algo que pareça uma LP sedutora, que o cliente queira
+    voltar e rever várias vezes"; o resumo do caso "não fazia sentido"): uma página só, sem capa nem resumo, com o vídeo ao
+    lado das boas-vindas, o propósito em destaque, a jornada dos objetivos com as fotos, o planejador com a data do relatório
+    e os contatos (o slide de introdução de hoje), como vamos caminhar juntos e quem somos (o slide institucional, com o
+    FPSB e a história do grupo, tirada da apresentação institucional da Nord Liberta). O planejador do exemplo é fictício
+    (Carolina Andrade, CFP®). Na rodada seguinte, com referências do usuário (a citação de Jared Spool num balão, em serifada,
+    duas cores; o app de citações do Dribbble, com camadas de cor que se movem): a frase foi para o centro, num balão, com
+    animação palavra por palavra; o planejador, a trilha e quem somos foram para uma segunda página; a trilha virou uma linha
+    do tempo que se preenche até o "agora". Depois: fundo claro, a frase em três parágrafos centralizados; a serifada só na
+    frase (os títulos voltaram à fonte do plano) e a frase entrando parágrafo a parágrafo, não mais palavra por palavra.
+    A ver com o usuário: o tom dos textos institucionais.
+  Em aberto: o perfil de relação com o dinheiro (devedor, zero a zero, investidor), que o usuário vai colocar em outro lugar.
   Em aberto: planos de família tratados separadamente. O usuário explicou que há planejamentos feitos em família (a regra
   acima) e outros em que cada membro é tratado à parte; para esses, seriam precisos dois simuladores de evolução patrimonial,
   com os bens e o patrimônio de cada um.

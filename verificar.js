@@ -205,6 +205,24 @@ console.log('\n5. Periodicidades e regras do fluxo');
   const Ei = carregar(srcCliente); Ei.configure({ tipo: 'individual', age: 35, retireAge: 57, spouseAge: null }); const si = Ei.run('desej');
   ok('uma pessoa: a renda ativa toda para na liberdade', !si.buckets.month.some(b => b.mi > si.weeks[si.ff.week].mi && b.w1 > Ei.W0 && (b.f.in_prolabore || b.f.in_salario)));
 
+  // data de nascimento: a idade de hoje é exata, e a idade num marco é a de verdade
+  const En = carregar(srcCliente); En.configure({ nascimento: '1980-03-10', objectives: [] });
+  const marcoN = Math.round((2040 - 2026) * 12 + (4 - 1) - 8);   // abr/2040, um mês depois do aniversário de 60 anos
+  ok('nascimento: a idade de hoje sai da data (46 anos e meio em 19/09/2026)', Math.abs(En.CURRENT_AGE - 46.53) < 0.01, En.CURRENT_AGE.toFixed(3));
+  ok('nascimento: em abr/2040 a pessoa já tem 60 anos', Math.floor(En.CURRENT_AGE + marcoN / 12) === 60);
+  const pn = { nascimento: '1980-03-10', conjugeNascimento: '1982-11', tipo: 'familia', spouseAge: 1, age: 1 }; En.sincronizaIdades(pn);
+  ok('nascimento: a idade do plano é calculada da data (sem o dia, o dia 1)', pn.age === 46 && pn.spouseAge === 43, pn.age + ' e ' + pn.spouseAge);
+  const Ev = carregar(srcCliente); Ev.configure({ age: 48 }); ok('plano antigo, sem a data: vale a idade inteira', Ev.CURRENT_AGE === 48);
+
+  // capítulo 1: a frase do propósito e os objetivos, com segurança e liberdade financeira sempre na lista
+  const Ep = carregar(srcCliente), objsP = [{ id: 'b', name: 'Casa', months: 40, descricao: 'Sair do aluguel' }, { id: 'a', name: 'Viagem', months: 12 }];
+  const lp = Ep.objetivosDoProposito({ objectives: objsP, desired: 30000 }, 260);
+  ok('propósito: segurança primeiro, os objetivos pela data e a liberdade por último', lp.map(x => x.id).join() === 'seguranca,a,b,liberdade', lp.map(x => x.id).join());
+  ok('propósito: a liberdade diz quando e quanto', /A partir de mai\/2048, conseguir uma renda passiva de R\$ 30\.000 por mês/.test(lp[3].descricao), lp[3].descricao);
+  const lo = Ep.objetivosDoProposito({ objectives: objsP.concat({ id: 'c', name: 'Carro', months: 5 }), objetivosOrdem: ['liberdade', 'b', 'seguranca', 'a'] }, null);
+  ok('propósito: vale a ordem declarada, e um objetivo novo entra antes da liberdade', lo.map(x => x.id).join() === 'c,liberdade,b,seguranca,a', lo.map(x => x.id).join());
+  ok('propósito: no singular para uma pessoa, no plural para um casal, em três parágrafos', /vocês querem viver/.test(Ep.fraseDoProposito({ tipo: 'familia', spouseAge: 40 })) && /você quer viver/.test(Ep.fraseDoProposito({ tipo: 'individual' })) && /tornar estes objetivos realidade\.$/.test(Ep.fraseDoProposito({})) && Ep.fraseDoProposito({}).split('\n').length === 3);
+
   // semanal: o mês do motor tem semanas inteiras, e cada semana tem exatamente um sábado
   const feiraSab = { id: 'fs', frequency: 'semanal', weekday: 6, steps: [{ from: 0, value: 150 }] };
   let sabOk = true, totalSab = 0;

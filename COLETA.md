@@ -159,7 +159,7 @@ só aparece como dependente (relação "Cônjuge", com nome e idade).
 | **Lista de objetivos** (`objList`) | | | `objectives[]` |
 | Título do objetivo | `obj_titulo[]` | texto | `name` |
 | Categoria | `obj_categoria[]` | Compra de Casa, Compra de Veículo, Viagem, Intercâmbio, Aposentadoria Segura, Futuro dos Filhos, Casamento, Quitar Dívidas, Segurança Financeira, Outro | `icon` e `kind` (casa e veículo viram bem; o resto é consumo), por uma regra a definir |
-| Descrição | `obj_descricao[]` | texto longo | não usado |
+| Descrição | `obj_descricao[]` | texto longo | `descricao` (o porquê do objetivo, no capítulo 1); a ordem dos objetivos na coleta vira `objetivosOrdem` |
 | Mês alvo | `obj_dataAlvo[]` | mês | `months`, calculado (meses a partir de set/2026) |
 | Valor necessário na data alvo | `obj_valorNecessario[]` | R$ | `amount` |
 | Custo total do objetivo | `obj_custoTotal[]` | R$ ("parcial ou financiado") | a diferença para o necessário seria o financiado de `costs[]` (faltam taxa e prazo) |
@@ -353,9 +353,9 @@ variáveis. **Lacuna**: o plano usa e a coleta não pega; hoje quem preenche é 
 | Variável | Caminho | Origem | De onde |
 |---|---|---|---|
 | Nome do cliente | `name` | Coleta (cadastro) | nome do cliente na plataforma |
-| Idade do titular | `age` | Calculada | `dateofbirth` (exame, pergunta 32) |
+| Data de nascimento do titular | `nascimento` (`age` é calculada) | Exame | `dateofbirth` (exame, pergunta 32) |
 | Tipo de plano | `tipo` | Consultor | pista: `maritalstatus` (exame, pergunta 30) |
-| Nome e idade do cônjuge | `conjugeNome`, `spouseAge` | Lacuna | só se o cônjuge for cadastrado como dependente (`dep_relacao` = Cônjuge) |
+| Nome e data de nascimento do cônjuge | `conjugeNome`, `conjugeNascimento` (`spouseAge` é calculada) | Lacuna | só se o cônjuge for cadastrado como dependente (`dep_relacao` = Cônjuge) |
 | Dependentes | `riscos.dependentes` | Coleta | `depList`; a idade vira um nascimento aproximado |
 | Começou a trabalhar aos | `patrimonio.comecou` | Exame | `startingworkingage` (pergunta 19) |
 | Quer parar aos | `retireAge` | Exame | `retiringtargetage` (pergunta 20) |

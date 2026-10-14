@@ -43,11 +43,33 @@ Os vídeos são links do YouTube, do Vimeo ou do arquivo, em `plano.videos['cap-
 `['cap-<capítulo>-caso']`, cadastrados na página Apresentação do portal; vazio, o espaço fica reservado. Depois vêm as
 páginas de detalhe, sem vídeo: mostram só os resultados e terminam com "anterior" e "próximo". O cabeçalho mostra a página atual ("Capítulo 3 · Otimização tributária / Imposto de renda da
 família"), com anterior, próxima e uma barra de progresso dividida por capítulo; um clique nela abre o sumário, que marca
-as páginas já vistas. Hoje existem **Otimização tributária** (capítulo 3, quatro páginas), **Patrimônio** (capítulo 4,
+as páginas já vistas. Hoje existem **Propósito** (capítulo 1), **Otimização tributária** (capítulo 3, quatro páginas), **Patrimônio** (capítulo 4,
 página "Fase da vida e patrimônio"), **Gestão de riscos** (capítulo 5) e **Evolução patrimonial** (capítulo 6, a última);
-os capítulos 1 e 2 ainda vão ser construídos e aparecem só no sumário, como "em breve", fora da sequência. A página pode
-vir no endereço (`?fase=capa-tributario`, `?fase=resumo-tributario`, `?fase=ir`, `?fase=patrimonio`, `?fase=riscos`); senão, a tela abre na
-última vista, ou na capa do capítulo 3 na primeira vez.
+o capítulo 2 ainda vai ser construído e aparece só no sumário, como "em breve", fora da sequência. A página pode
+vir no endereço (`?fase=proposito`, `?fase=capa-tributario`, `?fase=resumo-tributario`, `?fase=ir`, `?fase=patrimonio`, `?fase=riscos`); senão, a tela abre na
+última vista, ou no capítulo 1 na primeira vez.
+
+**Propósito** (capítulo 1) abre a reunião com duas páginas, sem capa nem resumo, desenhadas como uma landing page que o
+cliente queira rever. Na primeira (`?fase=proposito`): boas-vindas (quem é o plano, quem o preparou e quando) com o vídeo de
+boas-vindas do planejador ao lado (`videos['cap-proposito-caso']`); a frase do propósito no centro, em três parágrafos centralizados, num balão claro, em serifada
+(DM Serif Display, só ela; os títulos seguem a fonte do plano), com as palavras do propósito em laranja, entrando parágrafo
+a parágrafo na primeira vez que aparece, sobre camadas de cor suaves que se movem devagar; o título "O que vocês querem que seu dinheiro torne realidade:"; e a jornada dos objetivos, com as fotos, entrando em sequência ao longo de uma linha. Na segunda
+(`?fase=proposito-nos`): quem cuida do planejamento, com o telefone, o WhatsApp e o e-mail (`plano.consultor`); como vamos
+caminhar juntos (escutar, planejar, falar e fazer), numa linha do tempo que se preenche até onde o cliente está; e quem somos
+(a Nord Liberta, o padrão FPSB/CFP® e a história do grupo, de 2018 a 2024, da apresentação institucional, também numa linha do
+tempo). Quem pede menos movimento no sistema vê tudo parado. No portal, o vídeo, o planejador e a data do relatório (`plano.dataRelatorio`; vazia, a de
+hoje) ficam na página Apresentação. O propósito é a frase, falando direto com o cliente (no plural num
+casal, no singular para uma pessoa: "Este é o plano da vida que vocês querem viver. / O nosso papel é usar a renda e o
+patrimônio de vocês da melhor forma possível para que vocês alcancem as suas realizações e a sua felicidade. / Na nossa
+conversa anterior, escutamos vocês e, juntos, concluímos que, para atingir esse propósito, o dinheiro de vocês deve tornar
+estes objetivos realidade.") e a lista numerada dos objetivos, com título e descrição (`ENGINE.fraseDoProposito`,
+`objetivosDoProposito`). Segurança financeira e liberdade financeira estão sempre na lista, mesmo sem terem sido declaradas,
+com a descrição pronta ("Estar blindado dos principais riscos financeiros e ter a fundação sólida para realizar seus
+objetivos"; "A partir de jun/2048, conseguir uma renda passiva de R$ 25.000 por mês e não ter mais a obrigação de
+trabalhar", com a data e a renda do plano). Os outros são os da página Objetivos, com a descrição de cada um (o porquê, que
+virá da coleta). A ordem é a que o cliente declarou (`plano.objetivosOrdem`); sem ela, segurança, os objetivos pela data e a
+liberdade por último. No portal, o bloco "Propósito", no alto da página Objetivos, mostra a frase e a lista, com a descrição
+de cada objetivo e as setas da ordem.
 
 **Otimização tributária** (capítulo 3) tem quatro páginas com o mesmo roteiro: no alto, quanto o cliente economiza, com
 a comparação de quanto para quanto ao lado; depois, hoje e o recomendado lado a lado, na mesma escala; o que muda; e, recolhida,
@@ -219,8 +241,9 @@ cada tela ouve o que a outra gravou.
 
 ```jsonc
 {
-  "name": "Ana Ribeiro", "age": 35, "lifeExp": 95,
-  "tipo": "familia", "spouseAge": 38, "conjugeNome": "Marcos Ribeiro",   // casal: o cônjuge entra no IR, nos sócios e nos seguros (o primeiro nome)
+  "name": "Ana Ribeiro", "nascimento": "1991-05-12", "lifeExp": 95,   // "AAAA-MM" ou "AAAA-MM-DD" (sem o dia, o dia 1)
+  "age": 35, "spouseAge": 38,  // calculadas da data de nascimento (ENGINE.sincronizaIdades); num plano antigo, sem a data, informadas
+  "tipo": "familia", "conjugeNascimento": "1988-02-23", "conjugeNome": "Marcos Ribeiro",   // casal: o cônjuge entra no IR, nos sócios e nos seguros (o primeiro nome)
   "retireAge": 57, "spouseRetireAge": 62,   // quando cada um para de trabalhar (obrigatórias); a liberdade começa quando o primeiro para
   "initialWealth": 860000,     // patrimônio financeiro do cliente hoje: ponto de partida do gráfico (com plano.patrimonio, a soma do detalhe)
   "patrimonio": {              // o detalhe do patrimônio de hoje e a fase da vida (página Fase da vida e patrimônio)
@@ -348,6 +371,12 @@ aposentadoria junto. Se aos 68 anos o patrimônio ainda não sustentar a renda d
 mesmo assim, mas sem celebração: o card informa quanto o patrimônio de fato sustenta por mês e aponta os
 três caminhos para fechar a diferença.
 
+**Data de nascimento.** A página Cliente pede a data de nascimento de cada um (mês e ano obrigatórios; o dia é opcional, e
+sem ele vale o dia 1). O motor tira dela a idade exata de hoje, com fração (`ENGINE.idadeExata`): a linha do tempo começa no
+nascimento de verdade, e a idade num marco é a certa (quem faz aniversário em maio já tem a idade nova em setembro). `age` e
+`spouseAge` passam a ser calculadas e sincronizadas a cada configuração (`ENGINE.sincronizaIdades`, como os totais do
+patrimônio). Um plano antigo, sem a data, continua com a idade inteira e o aniversário em 19/09.
+
 **Página Liberdade financeira (portal).** Lê de cima para baixo, como a conversa com o cliente:
 
 - **Renda desejada e quando cada um para de trabalhar**: sliders (a renda de R$ 500 em R$ 500; as idades de ano em ano),
@@ -364,7 +393,8 @@ três caminhos para fechar a diferença.
   vem, numa barra e por escrito: "Fundo de pensão vitalício R$ 5.000 + Fundo por 5 anos R$ 7.000 + Pró-labore do Marcos (até
   Marcos parar) + saque do patrimônio". O primeiro período é a renda desejada do alto; nos outros, um slider muda a renda
   daquele período em diante (`desiredSteps`), e o × volta a seguir o anterior. "Mudar a renda numa idade" cria um período
-  novo na idade de uma das pessoas. Um aluguel diz de que bem vem, e o nome do bem abre o detalhe dele numa gaveta.
+  novo na idade de uma das pessoas. No último período, "Usar a renda restante" põe nele a renda que leva o patrimônio a acabar
+  na expectativa de vida, com os períodos anteriores como estão (procura pela simulação, de R$ 100 em R$ 100, para baixo). Um aluguel diz de que bem vem, e o nome do bem abre o detalhe dele numa gaveta.
 - **Simulação patrimonial do plano proposto**, no fim: o veredito (o patrimônio dura até a expectativa de vida, ou até que
   idade, e quanto seria preciso na liberdade para durar até lá) e a curva do patrimônio financeiro da liberdade em diante.
   As contas das alternativas descontam os saques mês a mês à taxa da reserva; a curva e o veredito vêm da simulação.
