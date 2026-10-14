@@ -785,8 +785,9 @@ const ENGINE = (() => {
   //                [{ tipo: 'pontual', em, pct | valor, motivo }]   no mês `em`, um salto em % ou em reais
   //   venda: { em, preco, custos: [{ nome, pct | valor }] }  preço vazio = o valor projetado; cada custo em % do preço ou em reais
   // A valorização muda o patrimônio em bens sem passar pelo fluxo de caixa (não é dinheiro que entra ou sai). Na venda, o preço
-  // sai dos bens e entra no financeiro; os custos e a quitação do financiamento (o saldo devedor de hoje, com os juros e as
-  // parcelas pagas até a venda) são saídas. A renda que o bem gera e a parcela dele terminam no mês da venda.
+  // sai dos bens e entra no financeiro; os custos e o saldo devedor transferido ao comprador (ou quitado) são saídas. As parcelas param no mês da venda:
+  // o que já foi pago está no fluxo, e o que falta é o saldo devedor de hoje, com os juros e as parcelas pagas até a venda.
+  // A renda que o bem gera também termina no mês da venda.
   let BENS = null;   // null: os bens do exemplo
   const bensDoPlano = () => BENS || PATRIMONIO_EXEMPLO.bens;
   function trajetoriaDoBem(b) {
@@ -1760,7 +1761,7 @@ function buildRows() {
       { id: 'out_adj', label: 'Ajustáveis', keys: keysWith('out_adj_'), novo: { lista: 'expenses', group: 'adj' }, children: ENGINE.EXPENSES.filter(c => c.group === 'adj').map(c => ({ id: 'out_adj_' + c.id, label: c.label, keys: ['out_adj_' + c.id], edit: { lista: 'expenses', id: c.id } })) },
       { id: 'out_obj', label: 'Objetivos realizados', keys: keysWith('out_obj_'), children: OBJ.map(o => ({ id: 'out_obj_' + o.id, label: o.name, keys: ['out_obj_' + o.id] })) },
       { id: 'out_venda', label: 'Vendas de bens', keys: keysWith('out_venda_').concat(keysWith('out_quita_')), children: ENGINE.BENS.flatMap((b, k) => b.venda ? [
-        { id: 'out_venda_' + k, label: 'Custos da venda: ' + (b.nome || 'bem'), keys: ['out_venda_' + k] }, { id: 'out_quita_' + k, label: 'Quitação do financiamento: ' + (b.nome || 'bem'), keys: ['out_quita_' + k] }] : []) },
+        { id: 'out_venda_' + k, label: 'Custos da venda: ' + (b.nome || 'bem'), keys: ['out_venda_' + k] }, { id: 'out_quita_' + k, label: 'Saldo devedor transferido: ' + (b.nome || 'bem'), keys: ['out_quita_' + k] }] : []) },
       { id: 'out_rendas', label: 'Contratação de rendas (fundos de pensão)', keys: ['out_rendas'], icon: 'convert' },
     ] },
     { id: 'mov', label: 'Movimentações no patrimônio', color: C.mov, keys: keysWith('mov_'), children: [

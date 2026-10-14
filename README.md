@@ -102,12 +102,13 @@ página Patrimônio tem:
     é a depreciação de um carro;
   - **valorização pontual**: um salto em % ou em reais numa data, com o motivo (`tipo: 'pontual'`);
   - **venda**: a data, o valor de venda (vazio: o valor projetado naquela data) e os custos (comissões, impostos e outras
-    despesas, cada um em % do valor de venda ou em reais) (`bem.venda`). A página mostra o valor de venda, os custos, a
-    quitação do financiamento (o saldo devedor de hoje, com os juros e as parcelas pagas até a venda) e o líquido que vai
-    para o mercado financeiro.
+    despesas, cada um em % do valor de venda ou em reais) (`bem.venda`). A página mostra o valor de venda, os custos, o
+    saldo devedor transferido ao comprador (ou quitado) e o líquido que vai para o mercado financeiro. As parcelas param no mês da venda: o
+    que já foi pago está no Fluxo de caixa, e o que falta é o saldo devedor de hoje, com os juros e as parcelas pagas até a
+    venda. Com o financiamento quitado antes, o valor entra líquido.
 
   Na simulação, a valorização muda o valor dos bens sem passar pelo fluxo de caixa. Na venda, o preço sai dos bens e entra no
-  financeiro (Movimentações), e os custos e a quitação são saídas ("Vendas de bens"). A renda que o bem gera e a parcela dele
+  financeiro (Movimentações), e os custos e o saldo devedor transferido são saídas ("Vendas de bens"). A renda que o bem gera e a parcela dele
   terminam no mês da venda. Na evolução patrimonial, a venda e a valorização pontual são marcos, e as curvas saltam na semana
   em que acontecem, sem média. Só os bens da página Patrimônio têm essa linha do tempo; um bem comprado por um objetivo, não.
 

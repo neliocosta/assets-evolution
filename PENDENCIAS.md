@@ -479,10 +479,11 @@ Registradas aqui porque não são óbvias no código:
   líquido; e marcar valorizações (por exemplo, 2% ao ano nos próximos 10 anos) ou uma valorização pontual. Ficou na página
   Patrimônio, no próprio bem (uma informação num lugar só): "Ao longo do tempo", com um minigráfico do valor e um botão para
   cada evento. Escolhas: o valor de venda abre com o projetado e pode ser outro; cada custo é em % do valor de venda ou em
-  reais (preencher um limpa o outro); a quitação do financiamento sai do líquido sozinha, estimada pelo saldo devedor de hoje
-  com os juros e as parcelas; a renda e a parcela do bem terminam na venda; a valorização não passa pelo fluxo de caixa. Em
+  reais (preencher um limpa o outro); o saldo devedor transferido ao comprador (ou quitado) sai do líquido sozinho, estimado pelo saldo
+  devedor de hoje com os juros e as parcelas pagas até a venda (o usuário pensou em não descontar, porque as parcelas já estão
+  no fluxo; ficou o desconto porque o comprador paga à família o preço menos o saldo que assume, e as parcelas param na venda); a renda e a parcela do bem terminam na venda; a valorização não passa pelo fluxo de caixa. Em
   aberto: o gráfico ainda não desconta o saldo devedor (item 2 de "Fase da vida e patrimônio"), então, num bem financiado, o
-  patrimônio total cai pela quitação no mês da venda; a venda de um bem comprado por um objetivo; o cliente propor uma venda.
+  patrimônio total cai pelo saldo transferido no mês da venda; a venda de um bem comprado por um objetivo; o cliente propor uma venda.
 - **Hoje e recomendado sempre na mesma linha (07/10/2026).** O usuário achou o imposto de cada pessoa desalinhado entre
   as duas colunas (uma marca a mais quebrava a linha e empurrava a barra e o total da família) e pediu a tabela de
   lançamentos centralizada. O IR virou uma grade só, pessoa por pessoa (nome e imposto, a barra, as marcas embaixo); no

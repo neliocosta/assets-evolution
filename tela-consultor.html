@@ -900,8 +900,9 @@ const ENGINE = (() => {
   //                [{ tipo: 'pontual', em, pct | valor, motivo }]   no mês `em`, um salto em % ou em reais
   //   venda: { em, preco, custos: [{ nome, pct | valor }] }  preço vazio = o valor projetado; cada custo em % do preço ou em reais
   // A valorização muda o patrimônio em bens sem passar pelo fluxo de caixa (não é dinheiro que entra ou sai). Na venda, o preço
-  // sai dos bens e entra no financeiro; os custos e a quitação do financiamento (o saldo devedor de hoje, com os juros e as
-  // parcelas pagas até a venda) são saídas. A renda que o bem gera e a parcela dele terminam no mês da venda.
+  // sai dos bens e entra no financeiro; os custos e o saldo devedor transferido ao comprador (ou quitado) são saídas. As parcelas param no mês da venda:
+  // o que já foi pago está no fluxo, e o que falta é o saldo devedor de hoje, com os juros e as parcelas pagas até a venda.
+  // A renda que o bem gera também termina no mês da venda.
   let BENS = null;   // null: os bens do exemplo
   const bensDoPlano = () => BENS || PATRIMONIO_EXEMPLO.bens;
   function trajetoriaDoBem(b) {
@@ -2164,7 +2165,7 @@ function linhasFluxo() {
     grp('out_venda', 'Vendas de bens', { keys: vendas.flatMap(x => ['out_venda_' + x.k, 'out_quita_' + x.k]), depth: 1, cls: 'grp2', filhos: true, somenteComValor: true });
     if (ab('out_venda')) vendas.forEach(({ b, k }) => { const nome = b.nome || 'bem';
       L.push({ id: 'out_venda_' + k, label: 'Custos da venda: ' + nome, t: 'ro', keys: ['out_venda_' + k], depth: 2, bem: true, pai: 'out_venda', tag: 'bem' });
-      L.push({ id: 'out_quita_' + k, label: 'Quitação do financiamento: ' + nome, t: 'ro', keys: ['out_quita_' + k], depth: 2, bem: true, pai: 'out_venda', tag: 'bem' }); });
+      L.push({ id: 'out_quita_' + k, label: 'Saldo devedor transferido: ' + nome, t: 'ro', keys: ['out_quita_' + k], depth: 2, bem: true, pai: 'out_venda', tag: 'bem' }); });
     L.push({ id: 'out_rendas', label: 'Contratação de rendas (fundos de pensão)', t: 'ro', keys: ['out_rendas'], depth: 1, pai: 'out', tag: 'aposentadoria' });
   }
   return L;
@@ -2973,7 +2974,7 @@ function abrirPop(r, b, el) {
   let h = '';
   if (r.t === 'ro') {
     const nota = r.obj ? `Este valor vem do objetivo <b>${esc(r.obj.name)}</b>: aportes, compra ou custo depois de realizado. Para mudar, edite o objetivo.`
-      : r.bem ? 'Vem da venda planejada do bem, na página Patrimônio: os custos da venda e a quitação do financiamento saem do valor de venda.'
+      : r.bem ? 'Vem da venda planejada do bem, na página Patrimônio: os custos da venda e o saldo devedor transferido ao comprador (ou quitado) saem do valor de venda.'
       : r.id === 'out_rendas' ? 'Custo de contratar as rendas da aposentadoria, pago uma vez na liberdade financeira. As rendas ficam na página Liberdade financeira.'
       : 'Calculado pela simulação a partir das entradas, saídas e objetivos.';
     const ir = r.obj ? '<button class="btn btn-tertiary btn-small" data-ir="objetivos">Abrir Objetivos</button>' : r.bem ? '<button class="btn btn-tertiary btn-small" data-ir="patrimonio">Abrir Patrimônio</button>' : r.id === 'out_rendas' ? '<button class="btn btn-tertiary btn-small" data-ir="liberdade">Abrir Liberdade financeira</button>' : '';
@@ -3506,8 +3507,8 @@ function renderPatrimonioC() {
 }
 const somaLista = (l, k) => (l || []).reduce((a, x) => a + (+x[k] || 0), 0);
 // ---- o bem ao longo do tempo: valorização ao ano, valorização pontual e venda (b.valorizacao, b.venda) ----
-// A conta é do motor (ENGINE.trajetoriaDoBem): o valor projetado mês a mês e, na venda, o preço, os custos, a quitação
-// do financiamento e o líquido que vai para o mercado financeiro. Nada disso é gravado: só o que o consultor informa.
+// A conta é do motor (ENGINE.trajetoriaDoBem): o valor projetado mês a mês e, na venda, o preço, os custos, o saldo devedor
+// transferido e o líquido que vai para o mercado financeiro. Nada disso é gravado: só o que o consultor informa.
 const vazioR = v => v == null || v === '';
 function graficoBem(b, tr) {
   const ev = b.valorizacao || [], fimEv = Math.max(0, ...ev.map(e => e.tipo === 'taxa' ? (+e.de || 0) + Math.round((vazioR(e.anos) ? 10 : +e.anos) * 12) : +e.em || 0));
@@ -3544,7 +3545,7 @@ function tempoDoBemC(b, i) {
     venda = `<div class="bt-ev"><span class="bt-tag venda">Venda</span>em ${seletorMes(`data-r="${p}em"`, V.mi)}, por ${campoR(p + 'preco', 'reais0', ` placeholder="${fmt(V.projetado)}, o valor projetado" style="width:260px"`)}<button class="btn btn-icon" data-bem-sem-venda="${i}" title="Remover a venda">×</button></div>
       <div class="bt-custos"><div class="muted" style="margin:2px 0">Custos da venda (comissões, impostos e outras despesas), em % do valor de venda ou em reais:</div>${custos}<button class="link" data-bem-custo="${i}">+ custo</button></div>
       <div class="bt-conta"><span>Valor de venda${vazioR(vd.preco) ? ' (o projetado)' : ''}</span><b>${fmt(V.preco)}</b><span>Custos da venda</span><b>− ${fmt(V.custo)}</b>
-        ${V.quitacao > 0 ? `<span>Quitação do financiamento ${tip('O saldo devedor de hoje, com os juros e as parcelas pagas até a venda.')}</span><b>− ${fmt(V.quitacao)}</b>` : ''}
+        ${V.quitacao > 0 ? `<span>Saldo devedor transferido ao comprador (ou quitado) ${tip('As parcelas param no mês da venda. O que já foi pago está no Fluxo de caixa; o que falta é o saldo devedor de hoje, com os juros e as parcelas pagas até a venda. Com o financiamento quitado antes, não há o que descontar.')}</span><b>− ${fmt(V.quitacao)}</b>` : ''}
         <span class="tot">Vai para o mercado financeiro</span><b class="tot">${fmt(V.liquido)}</b></div>
       ${fim.length ? `<div class="muted" style="margin:6px 0 0 18px">Na venda, ${fim.join(' e ')} ${fim.length > 1 ? 'terminam' : 'termina'} no Fluxo de caixa.</div>` : ''}`;
   }
