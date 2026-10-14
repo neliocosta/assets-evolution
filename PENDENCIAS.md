@@ -87,7 +87,7 @@ feitos sem o usuário por perto, a partir do pedido dele: confira as escolhas ab
 Font Awesome publicado junto (o visualizador bloqueia o cdnjs) e tem o banco compartilhado (capacidades `db` e
 `user`, regras: `plano` só o dono grava, `propostas` grava quem é Contribuidor). Para republicar, gere a cópia a
 partir dos arquivos do repositório com essas três trocas (`node gerar-publicacao.js . <pasta>` faz as três) e publique no
-mesmo link, mantendo as capacidades. Versão 38 no ar, gerada do commit 117514b.
+mesmo link, mantendo as capacidades. Versão 39 no ar, gerada do commit 9b220f1.
 
 ## Armadilhas deste repositório
 
