@@ -125,6 +125,7 @@ Situação: **fonte** (informada aqui, só aqui), **ligada** (lida da fonte, sem
 | A frase do propósito | `ENGINE.fraseDoProposito` | calculada (singular ou plural pelo tipo de plano) | Propósito |
 | Quem cuida do planejamento: nome, certificação, telefone, e-mail, foto | `consultor` | fonte, na página Apresentação; na plataforma, viria do cadastro do planejador (é do escritório, não do cliente) | Propósito |
 | Data do relatório | `dataRelatorio` ("AAAA-MM-DD") | fonte, na página Apresentação; vazia, a data de hoje | Propósito |
+| Mensagem final do planejador | `mensagemFinal` | fonte, na página Apresentação (capítulo Evolução patrimonial); vazia, a página mostra só a assinatura e o contato | O caminho daqui para frente |
 
 ## Diagnóstico
 

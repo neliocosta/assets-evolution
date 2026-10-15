@@ -44,9 +44,9 @@ Os vídeos são links do YouTube, do Vimeo ou do arquivo, em `plano.videos['cap-
 páginas de detalhe, sem vídeo: mostram só os resultados e terminam com "anterior" e "próximo". O cabeçalho mostra a página atual ("Otimização tributária / Imposto de renda da
 família"; os capítulos têm só o título, sem número, porque nem todo cliente terá todos), com anterior, próxima e uma barra de progresso dividida por capítulo; um clique nela abre o sumário, que marca
 as páginas já vistas. Hoje existem, nesta ordem, **Propósito**, **Diagnóstico**, **Gestão financeira** (capa e três páginas), **Otimização tributária** (quatro páginas), **Patrimônio**
-(página "Fase da vida e patrimônio"), **Gestão de riscos** e **Evolução patrimonial** (a última);
+(página "Fase da vida e patrimônio"), **Gestão de riscos** e **Evolução patrimonial** (a trajetória do patrimônio e, por último, "O caminho daqui para frente");
 um capítulo ainda por construir (`mock`) aparece só no sumário, como "em breve", fora da sequência. A página pode
-vir no endereço (`?fase=proposito`, `?fase=diagnostico`, `?fase=hoje-depois`, `?fase=capa-gestao`, `?fase=renda-custo`, `?fase=tempo`, `?fase=orcamento`, `?fase=capa-tributario`, `?fase=resumo-tributario`, `?fase=ir`, `?fase=patrimonio`, `?fase=riscos`); senão, a tela abre na
+vir no endereço (`?fase=proposito`, `?fase=diagnostico`, `?fase=hoje-depois`, `?fase=capa-gestao`, `?fase=renda-custo`, `?fase=tempo`, `?fase=orcamento`, `?fase=capa-tributario`, `?fase=resumo-tributario`, `?fase=ir`, `?fase=patrimonio`, `?fase=riscos`, `?fase=evolucao`, `?fase=caminho`); senão, a tela abre na
 última vista, ou no Propósito na primeira vez.
 
 **Propósito**, o primeiro capítulo, abre a reunião com duas páginas, sem capa nem resumo, desenhadas como uma landing page que o

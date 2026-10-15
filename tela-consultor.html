@@ -728,6 +728,7 @@ const ENGINE = (() => {
   let INITIAL_WEALTH = 860000; // patrimônio financeiro do cliente hoje, informado pelo consultor
   let CAP_OVERRIDE = null;     // capacidade de poupança informada pelo cliente, se ele disser um valor próprio
   let INITIAL_BENS = 1210000;  // imóveis e outros bens de hoje (não financeiros)
+  let DIVIDAS = 0;             // saldo devedor dos bens e das outras dívidas (patrimonio.bens, patrimonio.dividas)
   let RETIRE_AGE = 57;         // idade em que o titular para de trabalhar (obrigatória no portal; a do exemplo); vazia, num plano antigo, = assim que o patrimônio sustentar a renda
   let SPOUSE_AGE = idadeExata(NASC_CONJ_EXEMPLO), SPOUSE_RETIRE = 62;   // casal: a idade do cônjuge hoje e a idade em que ele para (as do exemplo); fora de um casal, vazias
 
@@ -1185,6 +1186,7 @@ const ENGINE = (() => {
     if (plan.initialWealth != null) INITIAL_WEALTH = +plan.initialWealth;
     if (!defineNascimento(plan.nascimento)) { if (plan.age != null && plan.age !== '') defineIdade(plan.age); else defineNascimento(NASC_EXEMPLO); }   // sem data nem idade, vale o padrão (não a do cliente anterior)
     INITIAL_BENS = +plan.initialBens || 0;
+    DIVIDAS = faseDaVida(plan).dividas;
     RETIRE_AGE = plan.retireAge == null || plan.retireAge === '' ? null : Math.max(CURRENT_AGE, +plan.retireAge);
     if ('spouseAge' in plan || 'tipo' in plan) { const casal = plan.tipo !== 'individual' && +plan.spouseAge > 0;
       SPOUSE_AGE = casal ? (idadeExata(plan.conjugeNascimento) != null ? idadeExata(plan.conjugeNascimento) : +plan.spouseAge) : null; SPOUSE_RETIRE = casal && num(plan.spouseRetireAge) != null ? Math.max(SPOUSE_AGE, +plan.spouseRetireAge) : null; }
@@ -1871,7 +1873,7 @@ const ENGINE = (() => {
     diagnostico: { orcamento: { futuro: 'superavitario' }, reserva: { futuro: 'ideal' }, protecao: { futuro: 100 }, perfil: { presente: 'inadequado', futuro: 'adequado' },
       concentracao: { presente: 'razoavel', futuro: 'bem' }, liberdade: { presente: 'nao', futuro: 'sim' } } };
   const ORIGENS_OUT = ORIGENS;
-  const config = () => ({ age: Math.floor(CURRENT_AGE), retireAge: RETIRE_AGE, spouseRetireAge: SPOUSE_RETIRE, initialBens: INITIAL_BENS, desired: DESIRED, desiredSteps: DESIRED_STEPS, lifeExp: LIFE_EXP, salary: SALARY, salaryGrowth: SAL_G, partValue: PART_VALUE, initialWealth: INITIAL_WEALTH, capacityOverride: CAP_OVERRIDE, rate: R_M, profiles: PROFILES, incomes: INCOMES, expenses: EXPENSES, objectives: OBJ, passive: PASSIVE });
+  const config = () => ({ age: Math.floor(CURRENT_AGE), retireAge: RETIRE_AGE, spouseRetireAge: SPOUSE_RETIRE, initialBens: INITIAL_BENS, dividas: DIVIDAS, desired: DESIRED, desiredSteps: DESIRED_STEPS, lifeExp: LIFE_EXP, salary: SALARY, salaryGrowth: SAL_G, partValue: PART_VALUE, initialWealth: INITIAL_WEALTH, capacityOverride: CAP_OVERRIDE, rate: R_M, profiles: PROFILES, incomes: INCOMES, expenses: EXPENSES, objectives: OBJ, passive: PASSIVE });
   return { TODAY, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, PASSIVE, PROFILES, STATUS, trajetoriaDoBem, saldoDevedorEm, get BENS() { return bensDoPlano(); }, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, serieCusto, desiredAt, aplicaAlteracoes, descreveAlteracao, valorAtual, mesDoPlano, RISCOS, NATUREZAS, ITENS_RUINA, RISCOS_EXEMPLO, avaliaRiscos, custoDeVida, SEGURO, RELACOES, calculaSeguros, mesesAteIdade, FASES_VIDA, faseDaVida, sincronizaPatrimonio, PATRIMONIO_EXEMPLO, padraoDeVida, lerCaminho, gravaCaminho, IR, calculaIR, irDaFamilia, REGIMES, calculaRetirada, retiradaDosSocios, PREVIDENCIA, sucessao, simulaPrevidencia, aliqRegressiva, TRIBUTARIO_EXEMPLO, FAMILIA_EXEMPLO, casalDe, nomesDaFamilia, pessoasDaFamilia, rendaDaPessoa, bensDoRisco, titularidadeDoBem, setRetireAge: a => { RETIRE_AGE = a == null ? null : Math.max(CURRENT_AGE, +a); }, paradaMi, trabalhaEm, idadeDaLiberdade, dataNasc, idadeExata, sincronizaIdades, fraseDoProposito, ordemDoProposito, objetivosDoProposito, naturezaDe, naturezaDaReserva, CLASSES_ATIVOS, ORCAMENTO_IDEAL, VEZES_POUPOU, gestaoFinanceira, horasDoTrabalho, familiaDoPlano, ESTADOS_DIAGNOSTICO, orcamentoDoFluxo, concentracaoDoPatrimonio, diagnosticoDaFamilia, financiamentoValido, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
 })();
 if (typeof module !== 'undefined') module.exports = ENGINE;
@@ -4066,8 +4068,9 @@ function renderApresentacaoC() {
     ${capitulo1()}
     ${capitulo2()}
     ${capituloGestao()}
-    ${caps.filter(([cid]) => cid !== 'proposito').map(([cid, n, nome, ids]) => `<div class="ap-cap"><div class="ap-cab"><b>${nome}</b><button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="capa-${cid}">Abrir a capa</button><button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="resumo-${cid}">Abrir o resumo</button></div>
+    ${caps.filter(([cid]) => cid !== 'proposito').map(([cid, n, nome, ids]) => `<div class="ap-cap"><div class="ap-cab"><b>${nome}</b><button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="capa-${cid}">Abrir a capa</button><button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="resumo-${cid}">Abrir o resumo</button>${cid === 'evolucao' ? '<button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="caminho">Abrir a última página</button>' : ''}</div>
       <div class="grid g2">${cp('Vídeo teórico, na capa (o mesmo para todos os clientes)', campoR('videos.cap-' + cid + '-teoria', 'texto', link))}${cp('Vídeo do caso deste cliente, no resumo', campoR('videos.cap-' + cid + '-caso', 'texto', link))}</div>
+      ${cid === 'evolucao' ? `<div class="grid" style="margin-top:14px">${cp('Mensagem final, na última página do cliente (O caminho daqui para frente)', campoR('mensagemFinal', 'texto', ' placeholder="ex.: Nos vemos na revisão de abril. Até lá, qualquer dúvida, é só chamar."'))}</div>` : ''}
       ${pgs.filter(p => ids.includes(p[0])).map(([id, , nomeP, ok, falta, ir]) => `<div class="ap-pg"><div><b>${nomeP}</b>${ok ? `<small>${ok}</small>` : `<small class="falta">${falta} <button class="link" data-ir="${ir}">Resolver</button></small>`}</div>
         <button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="${id}">Abrir</button></div>`).join('')}</div>`).join('')}</div>
     <div class="bloco"><h3>Abrir a área do cliente</h3><div class="ap-bts"><button class="btn btn-primary" data-abrir-cliente data-fase="proposito">Apresentar desde o começo</button><a class="btn btn-secondary" href="evolucao-patrimonial.html?fase=proposito" target="_blank" style="text-decoration:none" data-como-cliente>Ver como o cliente vê ↗</a></div>

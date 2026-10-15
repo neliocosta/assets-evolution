@@ -608,14 +608,34 @@ Registradas aqui porque não são óbvias no código:
     referência em azul-marinho), com o futuro saindo do alto no sentido horário, como a marca dos 20%; as barras de horas
     e os valores do futuro do capítulo ficaram em laranja também.
   Resolvido: o perfil de relação com o dinheiro (devedor, zero a zero, investidor) é o status do orçamento do Diagnóstico.
-  Em aberto (15/10/2026): o painel do tempo ("Tempo: uma moeda universal") está fraco do ponto de vista estético, na
-  opinião do usuário; precisa ser redesenhado, com a mesma atenção dada à rosca e ao treemap do orçamento.
+  Resolvido (15/10/2026): o painel do tempo virou o relógio do mês (direção escolhida pelo usuário entre três esboços):
+  um anel por pessoa, uma marquinha por hora, as horas do futuro em laranja saindo do alto no sentido horário, a marca
+  dos 20% e o valor da hora no centro; o patrimônio aparece em anos de trabalho.
   Em aberto: planos de família tratados separadamente. O usuário explicou que há planejamentos feitos em família (a regra
   acima) e outros em que cada membro é tratado à parte; para esses, seriam precisos dois simuladores de evolução patrimonial,
   com os bens e o patrimônio de cada um.
   Em aberto: o veredito usa "dura até a expectativa de vida", mas o selo "renda parcial" do topo do portal e o aviso
   "Requer revisão" da visão do cliente ainda usam o critério da perpetuidade (o rendimento cobre a maior falta); com a renda
   desejada como plano, o critério deveria ser durar até a expectativa de vida.
+- **Crítica da área do cliente (15/10/2026).** Com o impeccable: `PRODUCT.md` (o produto) e `DESIGN.md` (o sistema visual,
+  "O mapa da travessia") foram criados, e uma crítica das 23 páginas deu 23/40. Corrigido: o cabeçalho da evolução mostra
+  "Bens e investimentos" (bruto) e "Patrimônio líquido" (o das páginas de patrimônio); a idade do gráfico sem decimais; a
+  saudação (as iniciais eram usadas antes de existir); o texto pequeno em laranja e em cinza claro passou para marinho e
+  para o cinza de legenda, o botão principal tem texto marinho e nenhum texto fica abaixo de 11px; no celular, o rodapé
+  quebra em duas linhas e as tabelas rolam dentro de si; todas as páginas abrem com o mesmo cabeçalho; e o livro termina
+  em "O caminho daqui para frente" (o placar, a liberdade, os objetivos, os próximos passos de cada capítulo e a mensagem
+  final do planejador, `mensagemFinal`, na Apresentação). A página de riscos virou "As ameaças ao padrão de vida" e a da
+  evolução, "A trajetória do patrimônio". Em aberto:
+  1. Reserva x liquidez: o Hoje e depois diz "reserva entre mínima e aceitável" e o resumo do patrimônio, "dinheiro
+     disponível acima da liquidez ideal". São medidas diferentes (o resgate no mesmo dia x todo o financeiro); falta o
+     usuário decidir como explicar a diferença.
+  2. Esboços aprovados para depois: riscos em camadas (a lista das oito ameaças pela urgência no lugar do radar e do
+     carrossel), a evolução em resumo no celular e o orçamento por toque (botões no lugar do hover e do duplo clique, com
+     envelopes mais escuros para o texto branco passar no contraste).
+  3. O resumo tributário mistura bases de tempo (por ano, uma vez, em 20 anos) e não tem total.
+  4. O exemplo fala em "intercâmbio do filho", mas a filha do exemplo é a Luiza.
+  5. No celular, os valores ao lado das barras da previdência passam da borda do cartão.
+  6. Os subtítulos novos das páginas tributárias e os títulos novos de riscos e da evolução esperam a revisão de tom.
 - **Hoje e recomendado sempre na mesma linha (07/10/2026).** O usuário achou o imposto de cada pessoa desalinhado entre
   as duas colunas (uma marca a mais quebrava a linha e empurrava a barra e o total da família) e pediu a tabela de
   lançamentos centralizada. O IR virou uma grade só, pessoa por pessoa (nome e imposto, a barra, as marcas embaixo); no
