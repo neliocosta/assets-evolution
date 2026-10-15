@@ -223,6 +223,58 @@ console.log('\n5. Periodicidades e regras do fluxo');
   ok('propósito: vale a ordem declarada, e um objetivo novo entra antes da liberdade', lo.map(x => x.id).join() === 'c,liberdade,b,seguranca,a', lo.map(x => x.id).join());
   ok('propósito: no singular para uma pessoa, no plural para um casal, em três parágrafos', /vocês querem viver/.test(Ep.fraseDoProposito({ tipo: 'familia', spouseAge: 40 })) && /você quer viver/.test(Ep.fraseDoProposito({ tipo: 'individual' })) && /tornar estes objetivos realidade\.$/.test(Ep.fraseDoProposito({})) && Ep.fraseDoProposito({}).split('\n').length === 3);
 
+  // capítulo 2: o diagnóstico, a família hoje e depois do planejamento
+  const Ed = carregar(srcCliente), linha = (pl, id) => Ed.diagnosticoDaFamilia(pl).linhas.find(l => l.id === id);
+  const fluxo = (e, sai) => ({ incomes: [{ id: 'r', frequency: 'mensal', steps: [{ from: 0, value: e }] }], expenses: [{ id: 'd', frequency: 'mensal', steps: [{ from: 0, value: sai }] }] });
+  ok('diagnóstico: o orçamento sai do Fluxo de caixa (zero a zero com sobra ou falta de até 5% das entradas)',
+    Ed.orcamentoDoFluxo(fluxo(10000, 9600)).estado === 'zero' && Ed.orcamentoDoFluxo(fluxo(10000, 10400)).estado === 'zero'
+    && Ed.orcamentoDoFluxo(fluxo(10000, 9000)).estado === 'superavitario' && Ed.orcamentoDoFluxo(fluxo(10000, 11000)).estado === 'deficitario'
+    && Ed.orcamentoDoFluxo({ incomes: [], expenses: [] }) === null);
+  const resD = atual => linha({ riscos: { reserva: { natureza: 'CLT (empresa privada)', custoVida: 10000, atual } } }, 'reserva').presente;   // ideal R$ 50 mil
+  ok('diagnóstico: a reserva nos quatro estados, pela mínima (40%), a aceitável (70%) e a ideal', [10000, 20000, 35000, 50000].map(resD).join() === 'abaixo,minima,aceitavel,ideal', [10000, 20000, 35000, 50000].map(resD).join());
+  const objsD = { objectives: [{ id: 'a', diagnostico: { presente: 'sonho', futuro: 'caminho' } }, { id: 'b', diagnostico: { presente: 'meta', futuro: 'caminho' } }, { id: 'c' }] };
+  ok('diagnóstico: os objetivos contam quantos estão definidos e quantos têm caminho', linha(objsD, 'definidos').presenteTxt === '1 de 3' && linha(objsD, 'definidos').futuroTxt === '2 de 3' && linha(objsD, 'caminho').presenteTxt === '0 de 3' && linha(objsD, 'caminho').futuroTxt === '2 de 3');
+  ok('diagnóstico: sem nenhum degrau marcado, a linha fica vazia', linha({ objectives: [{ id: 'a' }] }, 'definidos').presente === null);
+  ok('diagnóstico: o futuro e o presente sem conta são do consultor', linha({ diagnostico: { perfil: { presente: 'muito', futuro: 'adequado' } } }, 'perfil').presenteTxt === 'Muito desalinhado' && linha({ diagnostico: { protecao: { futuro: 90 } } }, 'protecao').futuroTxt === '90%');
+  const conc = fin => Ed.concentracaoDoPatrimonio({ patrimonio: { financeiro: [{ valor: fin }], participacoes: [], bens: [{ mercado: 100 - fin }] } });
+  ok('diagnóstico: o guia da concentração sugere preocupante com menos de 30% no financeiro', conc(29).sugestao === 'preocupante' && conc(30).sugestao === null && Math.abs(conc(29).pct.fin - 0.29) < 1e-9);
+
+  const tomP = pr => linha({ diagnostico: { protecao: { futuro: pr } } }, 'protecao').futuroTom;
+  ok('diagnóstico: o tom da proteção (em dia a partir de 80%, atenção a partir de 50%)', [90, 80, 79, 50, 49].map(tomP).join() === 'bom,bom,atencao,atencao,ruim');
+  ok('diagnóstico: o tom dos objetivos pela fração no degrau', linha(objsD, 'definidos').presenteTom === 'atencao' && linha(objsD, 'caminho').presenteTom === 'ruim' && linha({ objectives: [{ id: 'a', diagnostico: { futuro: 'caminho' } }] }, 'caminho').futuroTom === 'bom');
+  const plD = Ed.diagnosticoDaFamilia({ diagnostico: { perfil: { presente: 'adequado', futuro: 'adequado' }, liberdade: { presente: 'nao', futuro: 'sim' } } }).placar;
+  ok('diagnóstico: o placar conta as linhas em dia entre as que têm valor', plD.futuro.emDia === 2 && plD.futuro.de === 2 && plD.presente.emDia === 1, JSON.stringify(plD));
+
+  // quem é a família: a natureza do trabalho de cada pessoa, a da reserva, as instituições e as classes de ativos
+  const renda = (pessoa, v) => ({ id: pessoa, kind: 'ativa', pessoa, frequency: 'mensal', steps: [{ from: 0, value: v }] });
+  const casalN = { tipo: 'familia', spouseAge: 40, natureza: 'CLT (empresa privada)', conjugeNatureza: 'Empresário', incomes: [renda('titular', 8000), renda('conjuge', 12000)] };
+  ok('natureza: a reserva usa a de quem tem a maior renda do trabalho', Ed.naturezaDaReserva(casalN).natureza === 'Empresário' && Ed.avaliaRiscos(casalN).itens.reserva.t === 7);
+  ok('natureza: sem a natureza de quem ganha mais, vale a de quem a tem', Ed.naturezaDaReserva(Object.assign({}, casalN, { conjugeNatureza: '' })).quem === 'titular');
+  ok('natureza: num plano antigo, a da reserva é a do titular', Ed.naturezaDe({ riscos: { reserva: { natureza: 'Aposentado' } } }, 'titular') === 'Aposentado');
+  const famD = Ed.familiaDoPlano({ tipo: 'familia', spouseAge: 40, riscos: { dependentes: [{ nome: 'Bia', nasc: '2020-01' }] }, patrimonio: {
+    financeiro: [{ nome: 'Nubank', valor: 1, titularidade: 'titular' }, { nome: 'Itaú', valor: 2 }, { nome: 'XP', valor: 3, titularidade: 'conjuge' }, { nome: 'Nubank', valor: 4, titularidade: 'titular' }],
+    contas: { titular: ['Caixa', 'Nubank'], casal: ['Inter'] } } });
+  const [anaD, marD] = famD.pessoas, txtI = l => l.map(x => x.nome + (x.conjunta ? '*' : '')).join();
+  ok('família: cada pessoa com as instituições dela; a do casal (ou sem titularidade) nas duas, como conjunta', txtI(anaD.investe) === 'Nubank,Itaú*' && txtI(marD.investe) === 'XP,Itaú*', txtI(anaD.investe) + ' | ' + txtI(marD.investe));
+  ok('família: a conta só onde a pessoa não investe, e a conjunta nas duas', txtI(anaD.conta) === 'Caixa,Inter*' && txtI(marD.conta) === 'Inter*', txtI(anaD.conta) + ' | ' + txtI(marD.conta));
+  ok('família: uma pessoa só não tem nada conjunto', Ed.familiaDoPlano({ tipo: 'individual', patrimonio: { financeiro: [{ nome: 'Itaú', valor: 1 }], contas: { casal: ['Inter'] } } }).pessoas[0].conta.every(x => !x.conjunta));
+  ok('família: os dependentes com a idade, e as duas pessoas do casal', famD.dependentes[0].idade === 6 && famD.pessoas.length === 2, famD.dependentes[0].idade);
+  const expD = Ed.familiaDoPlano({ tipo: 'familia', spouseAge: 40, experiencia: { conjuge: { ouro: { restricao: true } } } }).classes;
+  ok('família: a experiência é de cada pessoa, e sem nenhuma marca a tabela some', famD.classes === null && expD.find(c => c.id === 'ouro').pessoas.map(p => p.restricao).join() === 'false,true');
+
+  // gestão financeira: renda, custo de vida e futuro pelo Fluxo de caixa; as horas de trabalho; o orçamento combinado
+  const Eg = carregar(srcCliente), lin = (id, pessoa, v, extra) => Object.assign({ id, pessoa, kind: 'ativa', frequency: 'mensal', steps: [{ from: 0, value: v }] }, extra || {});
+  const planoG = { tipo: 'familia', spouseAge: 40, horas: 160, conjugeHoras: 200, incomes: [lin('a', 'titular', 8000), lin('b', 'conjuge', 4000)],
+    expenses: [{ id: 'f1', group: 'fix', label: 'Aluguel', steps: [{ from: 0, value: 5000 }] }, { id: 'a1', group: 'adj', label: 'Mercado', steps: [{ from: 0, value: 4000 }] }, { id: 'f2', group: 'fix', label: 'IPTU', frequency: 'anual', steps: [{ from: 0, value: 1200 }] }] };
+  const gG = Eg.gestaoFinanceira(planoG);
+  ok('gestão: renda, custo de vida e futuro no mês e no ano, pela média de 12 meses (o IPTU anual entra como R$ 100 por mês)', gG.mes.renda === 12000 && Math.round(gG.mes.custo) === 9100 && Math.round(gG.ano.futuro) === 34800, JSON.stringify(gG.mes));
+  ok('gestão: as fixas são o grupo fix; o recomendado é 50/30/20 da renda', Math.round(gG.grupos.fixas) === 5100 && gG.grupos.ajustaveis === 4000 && gG.ideal.fixas === 6000 && gG.ideal.futuro === 2400);
+  ok('gestão: sem os três envelopes gravados, não há orçamento combinado', gG.envelopes === null && Eg.gestaoFinanceira(Object.assign({}, planoG, { orcamento: { envelopes: { fixas: 6000, ajustaveis: 3500, futuro: 2500 } } })).envelopes.futuro === 2500);
+  const hG = Eg.horasDoTrabalho(planoG), [aG, bG] = hG.pessoas;
+  ok('tempo: o valor da hora é a renda do trabalho pelas horas', aG.valorHora === 50 && bG.valorHora === 20 && hG.familia.valorHora === 12000 / 360);
+  ok('tempo: as horas se dividem na proporção do orçamento, e o futuro é o resto', Math.abs(aG.presente - 160 * 9100 / 12000) < 1e-9 && Math.abs(aG.presente + aG.futuro - 160) < 1e-9);
+  ok('tempo: sem as horas de alguém, a família soma só quem informou', Eg.horasDoTrabalho(Object.assign({}, planoG, { conjugeHoras: null })).familia === null);
+
   // semanal: o mês do motor tem semanas inteiras, e cada semana tem exatamente um sábado
   const feiraSab = { id: 'fs', frequency: 'semanal', weekday: 6, steps: [{ from: 0, value: 150 }] };
   let sabOk = true, totalSab = 0;

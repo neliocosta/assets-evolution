@@ -35,29 +35,29 @@ abre com duas páginas, um vídeo em cada:
 - a **capa**: o assunto em uma frase, o vídeo **teórico**, que explica o tema e é o mesmo para todos os clientes, e a lista
   das páginas do capítulo;
 - o **resumo do caso**: o vídeo **do caso**, em que o consultor explica o planejamento daquele cliente, os principais
-  números ao lado (o ganho de cada página no capítulo 3; o patrimônio, a fase e o dinheiro disponível; o percentual de proteção e as ameaças
+  números ao lado (o ganho de cada página na Otimização tributária; o patrimônio, a fase e o dinheiro disponível; o percentual de proteção e as ameaças
   críticas; a idade da liberdade e os objetivos alcançáveis) e, embaixo, o que fazer, página a página, com o caminho para o
   detalhe (`destaques`, na tela do cliente).
 
 Os vídeos são links do YouTube, do Vimeo ou do arquivo, em `plano.videos['cap-<capítulo>-teoria']` e
 `['cap-<capítulo>-caso']`, cadastrados na página Apresentação do portal; vazio, o espaço fica reservado. Depois vêm as
-páginas de detalhe, sem vídeo: mostram só os resultados e terminam com "anterior" e "próximo". O cabeçalho mostra a página atual ("Capítulo 3 · Otimização tributária / Imposto de renda da
-família"), com anterior, próxima e uma barra de progresso dividida por capítulo; um clique nela abre o sumário, que marca
-as páginas já vistas. Hoje existem **Propósito** (capítulo 1), **Otimização tributária** (capítulo 3, quatro páginas), **Patrimônio** (capítulo 4,
-página "Fase da vida e patrimônio"), **Gestão de riscos** (capítulo 5) e **Evolução patrimonial** (capítulo 6, a última);
-o capítulo 2 ainda vai ser construído e aparece só no sumário, como "em breve", fora da sequência. A página pode
-vir no endereço (`?fase=proposito`, `?fase=capa-tributario`, `?fase=resumo-tributario`, `?fase=ir`, `?fase=patrimonio`, `?fase=riscos`); senão, a tela abre na
-última vista, ou no capítulo 1 na primeira vez.
+páginas de detalhe, sem vídeo: mostram só os resultados e terminam com "anterior" e "próximo". O cabeçalho mostra a página atual ("Otimização tributária / Imposto de renda da
+família"; os capítulos têm só o título, sem número, porque nem todo cliente terá todos), com anterior, próxima e uma barra de progresso dividida por capítulo; um clique nela abre o sumário, que marca
+as páginas já vistas. Hoje existem, nesta ordem, **Propósito**, **Diagnóstico**, **Gestão financeira** (capa e três páginas), **Otimização tributária** (quatro páginas), **Patrimônio**
+(página "Fase da vida e patrimônio"), **Gestão de riscos** e **Evolução patrimonial** (a última);
+um capítulo ainda por construir (`mock`) aparece só no sumário, como "em breve", fora da sequência. A página pode
+vir no endereço (`?fase=proposito`, `?fase=diagnostico`, `?fase=hoje-depois`, `?fase=capa-gestao`, `?fase=renda-custo`, `?fase=tempo`, `?fase=orcamento`, `?fase=capa-tributario`, `?fase=resumo-tributario`, `?fase=ir`, `?fase=patrimonio`, `?fase=riscos`); senão, a tela abre na
+última vista, ou no Propósito na primeira vez.
 
-**Propósito** (capítulo 1) abre a reunião com duas páginas, sem capa nem resumo, desenhadas como uma landing page que o
+**Propósito**, o primeiro capítulo, abre a reunião com duas páginas, sem capa nem resumo, desenhadas como uma landing page que o
 cliente queira rever. Na primeira (`?fase=proposito`): boas-vindas (quem é o plano, quem o preparou e quando) com o vídeo de
 boas-vindas do planejador ao lado (`videos['cap-proposito-caso']`); a frase do propósito no centro, em três parágrafos centralizados, num balão claro, em serifada
 (DM Serif Display, só ela; os títulos seguem a fonte do plano), com as palavras do propósito em laranja, entrando parágrafo
-a parágrafo na primeira vez que aparece, sobre camadas de cor suaves que se movem devagar; o título "O que vocês querem que seu dinheiro torne realidade:"; e a jornada dos objetivos, com as fotos, entrando em sequência ao longo de uma linha. Na segunda
+a parágrafo, devagar (3 s cada, um a cada 2 s), quando a pessoa começa a rolar a página (ou logo, se a página não rola), sobre camadas de cor suaves que se movem devagar; o título "O que vocês querem que seu dinheiro torne realidade:"; e a jornada dos objetivos, com as fotos, entrando em sequência ao longo de uma linha. Na segunda
 (`?fase=proposito-nos`): quem cuida do planejamento, com o telefone, o WhatsApp e o e-mail (`plano.consultor`); como vamos
 caminhar juntos (escutar, planejar, falar e fazer), numa linha do tempo que se preenche até onde o cliente está; e quem somos
 (a Nord Liberta, o padrão FPSB/CFP® e a história do grupo, de 2018 a 2024, da apresentação institucional, também numa linha do
-tempo). Quem pede menos movimento no sistema vê tudo parado. No portal, o vídeo, o planejador e a data do relatório (`plano.dataRelatorio`; vazia, a de
+tempo). Quem pede menos movimento no sistema (no Windows, "Mostrar animações" desligado) vê tudo parado, menos a frase, que aparece só pela opacidade, sem subir. No portal, o vídeo, o planejador e a data do relatório (`plano.dataRelatorio`; vazia, a de
 hoje) ficam na página Apresentação. O propósito é a frase, falando direto com o cliente (no plural num
 casal, no singular para uma pessoa: "Este é o plano da vida que vocês querem viver. / O nosso papel é usar a renda e o
 patrimônio de vocês da melhor forma possível para que vocês alcancem as suas realizações e a sua felicidade. / Na nossa
@@ -71,7 +71,78 @@ virá da coleta). A ordem é a que o cliente declarou (`plano.objetivosOrdem`); 
 liberdade por último. No portal, o bloco "Propósito", no alto da página Objetivos, mostra a frase e a lista, com a descrição
 de cada objetivo e as setas da ordem.
 
-**Otimização tributária** (capítulo 3) tem quatro páginas com o mesmo roteiro: no alto, quanto o cliente economiza, com
+**Diagnóstico** tem duas páginas, sem capa nem resumo. Na primeira (`?fase=diagnostico`), **quem é a família**
+(`ENGINE.familiaDoPlano`): um cartão por pessoa, com a idade, a profissão e a natureza do trabalho (`profissao`, `natureza` e
+as do cônjuge, na página Cliente) e as instituições dela: onde investe (as do mercado financeiro, pela titularidade de cada
+uma, `patrimonio.financeiro[].titularidade`) e onde só tem conta (`patrimonio.contas.titular`, `.conjuge`); num casal, o que é
+do casal (ou sem titularidade) aparece nas duas pessoas com "(conjunta)". Embaixo, "Do casal": os dependentes com a idade.
+Depois, a **experiência com investimentos**, de cada pessoa: as onze classes
+de ativos (`ENGINE.CLASSES_ATIVOS`: pós-fixado, pré-fixado, indexado à inflação, fundos multimercado, fundos imobiliários,
+bolsa Brasil, fundos de ações Brasil, ouro, criptoativos, renda fixa internacional e bolsa internacional), cada uma com
+"entende" e "já investiu" (✓) e "tem restrição" (✗), numa tabela só, com as classes nas linhas e um grupo de colunas por
+pessoa (`plano.experiencia.titular`, `.conjuge`), e as observações (`plano.experiencia`, na página Cliente); sem nenhuma
+marca, a tabela não aparece. Na segunda (`?fase=hoje-depois`), a fotografia de como a família está hoje e de como
+queremos que esteja depois do planejamento (`ENGINE.diagnosticoDaFamilia`), em dois cartões lado a lado, como no rascunho
+aprovado pelo usuário: "Como vocês estão hoje" (apagado), cada linha num cartãozinho com o nome à esquerda e a etiqueta à direita, e
+"Depois do planejamento" (branco, mais estreito), só com as etiquetas, sem repetir os nomes; uma seta suave entre os dois. As linhas ficam numa grade só, para baterem entre os
+cartões. São oito linhas:
+
+| Linha | Presente | Futuro |
+|---|---|---|
+| Status do orçamento (o perfil devedor, zero a zero ou investidor) | calculado: entradas − saídas, médias dos próximos 12 meses do Fluxo de caixa; zero a zero com sobra ou falta de até 5% das entradas | consultor |
+| Reserva | calculado pela Gestão de riscos: abaixo da mínima (40% do ideal), entre mínima e aceitável (70%), entre aceitável e ideal, ideal | consultor |
+| Objetivos bem definidos | quantos objetivos estão no degrau "meta definida" (valor e prazo) ou "meta com caminho" | idem, com o degrau do futuro |
+| Objetivos com caminho definido | quantos estão no degrau "meta com caminho" (sabem como chegar) | idem |
+| Percentual de proteção | calculado pela Gestão de riscos | consultor (%) |
+| Perfil de risco da carteira | consultor (muito desalinhado, inadequado, adequado) | consultor |
+| Concentração patrimonial | consultor (preocupante, razoável, bem distribuída), com um guia | consultor |
+| Liberdade financeira encaminhada | consultor (sim ou não) | consultor |
+
+Os degraus de cada objetivo (sonho, meta definida, meta com caminho) são marcados pelo consultor, objetivo a objetivo
+(`objectives[].diagnostico.presente` e `.futuro`), e as duas linhas mostram a contagem ("2 de 5"). O guia da concentração
+(`ENGINE.concentracaoDoPatrimonio`) mostra, só no portal, quanto do patrimônio (pelo valor de mercado) está no financeiro, nos
+imóveis e bens e nas participações, e sugere "preocupante" abaixo de 30% no financeiro. Sem valor, a célula mostra "—". No
+portal, tudo fica no bloco "Diagnóstico" da página Apresentação; os valores calculados aparecem só para leitura, com o
+caminho até onde nascem.
+
+Cada valor vem numa etiqueta com a cor do estado (`tomDoDiagnostico`): verde quando está em dia (superavitário, reserva ideal,
+todos os objetivos no degrau, proteção de 80% ou mais, carteira adequada, bem distribuída, liberdade encaminhada), laranja em
+atenção (zero a zero, reserva entre a mínima e a ideal, parte dos objetivos, proteção de 50% a 79%, carteira inadequada,
+concentração razoável) e vermelho no resto. No alto de cada cartão, o placar: quantas linhas estão em dia entre as que têm
+valor ("1 de 8 em dia"; verde a partir de 3/4, laranja a partir de 40%, vermelho abaixo). O hoje fica sempre à vista; o depois
+entra em cascata quando o quadro aparece (40% dele na tela), uma linha a cada 0,45 s, com uma luz laranja passando pela linha,
+e o placar do depois aparece no fim. Com menos
+movimento no sistema, as linhas do futuro só aparecem pela opacidade, sem a luz.
+
+**Gestão financeira** abre com a capa (só o vídeo teórico, `videos['cap-gestao-teoria']`; o capítulo não tem resumo, `semResumo`)
+e tem três páginas, tudo a partir do Fluxo de caixa, pela média dos próximos 12 meses (`ENGINE.gestaoFinanceira`):
+
+- **Renda e custo de vida** (`?fase=renda-custo`): a renda líquida, o custo de vida e o que vai para o futuro (o que sobra),
+  por mês ou por ano (uma alternância Mês | Ano); um gráfico de rosca do padrão de vida e do futuro, com a marca da
+  referência de 20% para o futuro, os percentuais ao lado e quanto falta para chegar lá; e quantas vezes a família poupou nos últimos 12 meses (`plano.orcamento.vezesPoupou`, a pergunta do exame,
+  informada no Fluxo de caixa do portal), numa escala de cinco respostas.
+- **Tempo: uma moeda universal** (`?fase=tempo`, `ENGINE.horasDoTrabalho`): para a família ("o combinado") e para cada
+  pessoa, as horas trabalhadas no mês (`plano.horas`, `plano.conjugeHoras`, na página Cliente), o valor da hora (a renda do
+  trabalho dividida pelas horas), quantas horas pagam o custo de vida e quantas vão para o futuro (na proporção do orçamento
+  da família) e quantas horas, e quantos anos de trabalho, o patrimônio de hoje representa; com a marca dos 20% das horas
+  para o futuro.
+- **O orçamento da família** (`?fase=orcamento`): a renda dividida em três envelopes (despesas fixas, despesas ajustáveis
+  e futuro), num treemap feito aqui, sem biblioteca. Os sliders mexem só nos envelopes; nenhum tira de outro: o que a soma
+  não cobre aparece como "sem destino" e o que passa da renda, como excesso. Dois cliques num envelope dão a ele o que está
+  sem destino. Os envelopes ficam encostados, como um treemap só, separados por linhas finas, em cores sóbrias (azul-marinho,
+  bronze e verde) e cantos retos; cada um diz quanto está acima ou abaixo do recomendado, e uma régua acima do palco, na
+  mesma escala, mostra o recomendado (50/30/20), com guias tracejadas atravessando os blocos. Cada envelope mostra se as
+  despesas de hoje cabem (a barrinha de uso e o selo), e, com o mouse em cima, as despesas de hoje aparecem dentro dele.
+  Um clique abre o envelope num treemap
+  das despesas de hoje (a área é o valor), dentro da moldura tracejada do envelope: a folga fica vazia e o que não cabe,
+  listrado em vermelho. As despesas pequenas demais para ler (o bloco não cabe o nome e o valor) vão para "Outros", que
+  também abre. Ctrl + roda do mouse aproxima e afasta; arrastar move a vista; uma trilha no alto volta aos níveis
+  anteriores. O consultor apresentando grava o orçamento no plano (`plano.orcamento.envelopes`, valores por mês), e ele abre
+  assim da próxima vez; o portal aberto recebe a gravação e não a apaga. O cliente, em vez de gravar, propõe o orçamento ao
+  consultor. Sem orçamento gravado, a página abre no recomendado (50% fixas, 30% ajustáveis, 20% futuro). No portal, o
+  bloco Gestão financeira da página Apresentação tem o vídeo da capa e os três envelopes.
+
+**Otimização tributária** tem quatro páginas com o mesmo roteiro: no alto, quanto o cliente economiza, com
 a comparação de quanto para quanto ao lado; depois, hoje e o recomendado lado a lado, na mesma escala; o que muda; e, recolhida,
 a conta. Quando a estratégia recomendada não diminui o imposto de renda, a página do IR não repete hoje igual ao
 recomendado: diz que a estratégia atual já está otimizada e mostra só o imposto e os lançamentos de hoje. No portal, a
@@ -178,7 +249,8 @@ status:
 | Proteção da renda / da família | todas as pessoas não precisam ou têm o necessário | alguém tem menos que o necessário | alguém precisa e não tem |
 
 - Reserva ideal = custo de vida mensal × (d + t): d = 3 com dependentes financeiros, 0 sem; t pela natureza do
-  trabalho (`ENGINE.NATUREZAS`, os da calculadora de reserva da Nord: servidor público e aposentado 3; estagiário e
+  trabalho de quem tem a maior renda do trabalho no Fluxo de caixa (`ENGINE.naturezaDaReserva`; cada pessoa tem a sua, na
+  página Cliente) (`ENGINE.NATUREZAS`, os da calculadora de reserva da Nord: servidor público e aposentado 3; estagiário e
   CLT 5; liberal, autônomo e empresário 7). O custo de vida vem do Fluxo de caixa (média das saídas dos próximos 12
   meses), a reserva atual vem do D+0 da liquidez; o consultor pode informar outros. Com a lista de dependentes do
   item 8, é ela que diz se há dependentes.
@@ -262,7 +334,7 @@ cada tela ouve o que a outra gravou.
                          "custos": [ {"nome": "Corretagem", "pct": 6}, {"nome": "Imposto sobre o ganho", "valor": 20000} ]} } ],
     "dividas": [ {"nome": "Consignado", "saldoDevedor": 20000, "credito": 30000, "parcelas": 48, "parcela": 850, "juros": 22, "situacao": "em_dia"} ]
   },
-  "tributario": {              // capítulo 3 (página Otimização tributária); valores anuais no IR, mensais no pró-labore
+  "tributario": {              // página Otimização tributária; valores anuais no IR, mensais no pró-labore
     "ir": { "pessoas": [ {"nome": "Ana", "rend": 152100, "inss": 12845, "outras": 0} ],
             "atual":       { "depsCom": 0, "lanc": [ {"instr": 0, "med": 0, "pgbl": 0} ] },     // depsCom: índice de quem declara os dependentes
             "recomendada": { "depsCom": 0, "lanc": [ {"instr": 0, "med": 0, "pgbl": 18252} ] } },

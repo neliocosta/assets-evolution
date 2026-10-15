@@ -38,6 +38,9 @@ Situação: **fonte** (informada aqui, só aqui), **ligada** (lida da fonte, sem
 | Dependentes (nome, relação, nascimento) | `riscos.dependentes` | fonte | reserva (d), seguro de vida, IR (dependentes) |
 | Começou a trabalhar aos | `patrimonio.comecou` | fonte | fase da vida |
 | Expectativa de vida | `lifeExp` | fonte | simulação, fase da vida, liberdade |
+| Profissão do titular e do cônjuge | `profissao`, `conjugeProfissao` | fonte | quem é a família (Diagnóstico) |
+| Natureza do trabalho do titular e do cônjuge | `natureza`, `conjugeNatureza` (as de `ENGINE.NATUREZAS`) | fonte (coleta: `incomenature`, a da fonte principal; `ra_regime` de cada renda ativa); num plano antigo, a do titular vem de `riscos.reserva.natureza` | reserva ideal (a de quem tem a maior renda do trabalho), quem é a família |
+| Experiência com as classes de ativos, de cada pessoa: entende, já investiu, tem restrição; observações | `experiencia.<titular ou conjuge>.<classe>.entende`, `.investiu`, `.restricao`; `experiencia.observacoes` (um campo só) | fonte (a coleta tem as restrições em texto: `restricaoClasseAtivo`, `classeNaoQuer`) | Diagnóstico (a tabela some sem nenhuma marca) |
 
 ## Liberdade financeira
 
@@ -68,6 +71,7 @@ Situação: **fonte** (informada aqui, só aqui), **ligada** (lida da fonte, sem
 | Variável | Caminho | Situação | Quem usa |
 |---|---|---|---|
 | Financeiro por instituição e tipo (investimento, PGBL, VGBL) | `patrimonio.financeiro[]` | fonte | `initialWealth` (simulação), sucessão, seguros |
+| De quem é cada instituição do financeiro | `patrimonio.financeiro[].titularidade` (titular, cônjuge; vazio num casal: do casal, conjunta) | fonte | quem é a família (onde cada pessoa investe); base futura do % do patrimônio de cada pessoa nos seguros |
 | Participações | `patrimonio.participacoes[]` | fonte | `partValue`, sucessão |
 | Bens (valor de mercado, saldo devedor, financiamento) | `patrimonio.bens[]` | fonte | `initialBens`, fase da vida, sucessão, proteção dos bens |
 | Titularidade de cada bem | `patrimonio.bens[].titularidade` (titular, cônjuge ou casal) e `titularPct` (a parte do titular no casal; 50% sem informar) | fonte | patrimônio do cliente; base futura do % do patrimônio dos seguros e do ITCMD |
@@ -77,12 +81,13 @@ Situação: **fonte** (informada aqui, só aqui), **ligada** (lida da fonte, sem
 | Valor projetado, saldo devedor transferido na venda e líquido da venda | `ENGINE.trajetoriaDoBem` | calculada (não gravada) | Patrimônio, evolução patrimonial |
 | Outras dívidas | `patrimonio.dividas[]` | fonte | patrimônio total, sucessão |
 | Liquidez ideal | `patrimonio.liquidezIdeal` | fonte | patrimônio do cliente |
+| Instituições onde só tem conta | `patrimonio.contas.titular`, `.conjuge`, `.casal` (nomes; as do casal são conjuntas) | fonte | quem é a família (no cartão de cada pessoa) |
 
 ## Proteção (Gestão de riscos)
 
 | Variável | Caminho | Situação | Quem usa |
 |---|---|---|---|
-| Natureza do trabalho | `riscos.reserva.natureza` | fonte | reserva ideal |
+| Natureza do trabalho da reserva | `ENGINE.naturezaDaReserva` | ligada: a de quem tem a maior renda do trabalho, entre as da página Cliente (`riscos.reserva.natureza` só num plano antigo) | reserva ideal |
 | Reserva atual | `riscos.reserva.atual` | ligada ao D+0 da liquidez (com ajuste) | reserva |
 | Liquidez D+0 a 1 ano | `riscos.liquidez` | fonte, digitada por enquanto (decisão do usuário); no futuro virá da carteira do cliente, que traz a liquidez de cada aplicação | liquidez, reserva |
 | Plano de saúde: prêmio de cada vida e quem paga | `riscos.saude.vidas[].premio`, `pagador` ('terceiros': empresa ou outra pessoa) | fonte | custo do plano, economia da alternativa |
@@ -110,16 +115,40 @@ Situação: **fonte** (informada aqui, só aqui), **ligada** (lida da fonte, sem
 | ITCMD, custos, valor a levar para a previdência | `tributario.sucessao` | parâmetro | sucessão |
 | Simulador da previdência | `tributario.previdencia` | parâmetro (o valor inicial poderia abrir com a previdência do Patrimônio) | previdência |
 
-## Propósito (capítulo 1)
+## Propósito (o primeiro capítulo)
 
 | Variável | Caminho | Situação | Quem usa |
 |---|---|---|---|
-| Descrição de cada objetivo (por que ele importa) | `objectives[].descricao` | fonte (coleta: `obj_descricao`; no portal, no bloco Propósito da página Objetivos) | capítulo 1 |
-| Ordem dos objetivos | `objetivosOrdem` (ids; `seguranca` e `liberdade` para os dois fixos) | fonte (a ordem declarada na coleta; no portal, as setas) | capítulo 1 |
-| Segurança e liberdade financeira na lista, e as descrições delas | `ENGINE.objetivosDoProposito` | calculada (sempre na lista; a da liberdade usa a data da liberdade e a renda desejada) | capítulo 1 |
-| A frase do propósito | `ENGINE.fraseDoProposito` | calculada (singular ou plural pelo tipo de plano) | capítulo 1 |
-| Quem cuida do planejamento: nome, certificação, telefone, e-mail, foto | `consultor` | fonte, na página Apresentação; na plataforma, viria do cadastro do planejador (é do escritório, não do cliente) | capítulo 1 |
-| Data do relatório | `dataRelatorio` ("AAAA-MM-DD") | fonte, na página Apresentação; vazia, a data de hoje | capítulo 1 |
+| Descrição de cada objetivo (por que ele importa) | `objectives[].descricao` | fonte (coleta: `obj_descricao`; no portal, no bloco Propósito da página Objetivos) | Propósito |
+| Ordem dos objetivos | `objetivosOrdem` (ids; `seguranca` e `liberdade` para os dois fixos) | fonte (a ordem declarada na coleta; no portal, as setas) | Propósito |
+| Segurança e liberdade financeira na lista, e as descrições delas | `ENGINE.objetivosDoProposito` | calculada (sempre na lista; a da liberdade usa a data da liberdade e a renda desejada) | Propósito |
+| A frase do propósito | `ENGINE.fraseDoProposito` | calculada (singular ou plural pelo tipo de plano) | Propósito |
+| Quem cuida do planejamento: nome, certificação, telefone, e-mail, foto | `consultor` | fonte, na página Apresentação; na plataforma, viria do cadastro do planejador (é do escritório, não do cliente) | Propósito |
+| Data do relatório | `dataRelatorio` ("AAAA-MM-DD") | fonte, na página Apresentação; vazia, a data de hoje | Propósito |
+
+## Diagnóstico
+
+| Variável | Caminho | Situação | Quem usa |
+|---|---|---|---|
+| Status do orçamento de hoje (o perfil devedor, zero a zero ou investidor) | `ENGINE.orcamentoDoFluxo` | calculada: entradas − saídas, médias dos próximos 12 meses do Fluxo; zero a zero até ±5% das entradas | Diagnóstico |
+| Reserva de hoje | `ENGINE.diagnosticoDaFamilia` | calculada: a reserva atual contra a mínima, a aceitável e a ideal da Gestão de riscos | Diagnóstico |
+| Percentual de proteção de hoje | `ENGINE.avaliaRiscos` (`nota`) | calculada | Diagnóstico, Gestão de riscos |
+| Degrau de cada objetivo hoje e depois (sonho, meta definida, meta com caminho) | `objectives[].diagnostico.presente`, `.futuro` | fonte (consultor, no bloco Diagnóstico da página Apresentação) | Diagnóstico (a contagem dos objetivos bem definidos e com caminho) |
+| Perfil de risco da carteira, concentração patrimonial e liberdade encaminhada de hoje | `diagnostico.perfil.presente`, `diagnostico.concentracao.presente`, `diagnostico.liberdade.presente` | fonte (consultor); a coleta tem o perfil de cada carteira (`af_cd_perfil`), ainda não ligado | Diagnóstico |
+| Tom de cada valor (em dia, atenção, ruim) e o placar "em dia" de cada coluna | `ENGINE.diagnosticoDaFamilia` (`presenteTom`, `futuroTom`, `placar`) | calculada (proteção: em dia a partir de 80%, atenção a partir de 50%) | Diagnóstico |
+| O futuro de cada linha | `diagnostico.<linha>.futuro` (`orcamento`, `reserva`, `protecao` em %, `perfil`, `concentracao`, `liberdade`) | fonte (consultor) | Diagnóstico |
+| Guia da concentração (financeiro, imóveis e bens, participações) | `ENGINE.concentracaoDoPatrimonio` | calculada da página Patrimônio; abaixo de 30% no financeiro sugere "preocupante" | portal |
+
+## Gestão financeira
+
+| Variável | Caminho | Situação | Quem usa |
+|---|---|---|---|
+| Renda líquida, custo de vida e o que vai para o futuro, no mês e no ano | `ENGINE.gestaoFinanceira` | calculada do Fluxo de caixa (média dos próximos 12 meses) | Gestão financeira |
+| Despesas fixas e ajustáveis (e cada despesa) | `expenses[].group` (`fix`; as outras são ajustáveis) | ligada ao Fluxo de caixa | orçamento |
+| Quantas vezes poupou nos últimos 12 meses | `orcamento.vezesPoupou` (nenhuma, 1-3, 4-6, 7-9, 10+) | fonte (exame: `recentsavingsfrequency`; no portal, no Fluxo de caixa) | Gestão financeira |
+| Horas trabalhadas no mês do titular e do cônjuge | `horas`, `conjugeHoras` | fonte (coleta: a soma de `ra_horas` das rendas ativas da pessoa; no portal, na página Cliente) | o tempo como moeda |
+| Valor da hora, horas do presente e do futuro, patrimônio em horas | `ENGINE.horasDoTrabalho` | calculada | o tempo como moeda |
+| Orçamento combinado: os envelopes de fixas, ajustáveis e futuro (por mês) | `orcamento.envelopes.fixas`, `.ajustaveis`, `.futuro` | fonte (gravado na apresentação, pelo consultor, ou no portal, na Apresentação; o cliente propõe); vazio, o recomendado 50/30/20 | orçamento |
 
 ## Apresentação
 
@@ -133,8 +162,8 @@ Situação: **fonte** (informada aqui, só aqui), **ligada** (lida da fonte, sem
    são certas e quais são estimativas, e a participação de cada um nas despesas, que costuma ser uma decisão subjetiva. Daí
    sai a % da renda de cada gerador dos seguros.
 2. **Nome e idade das vidas do plano de saúde**: abrir com o titular, o cônjuge e os dependentes da Cliente.
-3. **% do patrimônio de cada pessoa nos seguros**: pela titularidade, que já existe nos bens e falta no financeiro e nas
-   participações.
+3. **% do patrimônio de cada pessoa nos seguros**: pela titularidade, que já existe nos bens e no financeiro (este
+   só usado, por enquanto, no retrato da família) e falta nas participações.
 4. **Liquidez de cada aplicação** (quando a carteira do cliente for recebida): a escada de D+0 a 1 ano sai dela.
 
 Resolvidas em 07/10/2026: renda tributável, INSS, pró-labore e dividendos (do Fluxo); nomes do casal (Cliente); bens da

@@ -545,7 +545,71 @@ Registradas aqui porque não são óbvias no código:
     do tempo que se preenche até o "agora". Depois: fundo claro, a frase em três parágrafos centralizados; a serifada só na
     frase (os títulos voltaram à fonte do plano) e a frase entrando parágrafo a parágrafo, não mais palavra por palavra.
     A ver com o usuário: o tom dos textos institucionais.
-  Em aberto: o perfil de relação com o dinheiro (devedor, zero a zero, investidor), que o usuário vai colocar em outro lugar.
+  - a frase do capítulo 1 não animava na máquina do usuário: o Windows estava com "Mostrar animações" desligado, o que vira
+    `prefers-reduced-motion: reduce`, e a regra de menos movimento deixava tudo parado. Combinado: com menos movimento, a frase
+    aparece só pela opacidade, sem subir nem desfocar. A pedido do usuário, a entrada ficou 3,3 vezes mais lenta (3 s por
+    parágrafo, um a cada 2 s) e começa quando a pessoa começa a rolar a página (a frase já aparecia metade na tela ao abrir,
+    em 1366×768, e a animação rodava antes de a pessoa chegar nela); se a página não rola, começa logo.
+  - o capítulo 2, Diagnóstico, combinado com o usuário antes de construir: a fotografia da família hoje e depois do
+    planejamento, no formato que a Nord já usa (presente, futuro e uma seta suave; o usuário recusou a primeira proposta, de
+    réguas com os estados). As linhas são as da lista dele: orçamento, reserva, objetivos (em duas linhas: bem definidos e com
+    caminho, contando os objetivos pelos degraus sonho, meta definida e meta com caminho), percentual de proteção, perfil de
+    risco da carteira, concentração patrimonial e liberdade encaminhada. Decisões do usuário: o futuro é do consultor; a
+    concentração mostra ao consultor a divisão entre financeiro, imóveis e participações, e menos de 30% no financeiro é
+    preocupante; o perfil devedor, zero a zero ou investidor é a linha do orçamento. Escolhas minhas: o presente é calculado
+    onde há conta (orçamento pelo Fluxo de caixa, reserva e proteção pela Gestão de riscos); zero a zero é uma sobra ou falta
+    de até 5% das entradas; os degraus dos objetivos do exemplo e o diagnóstico do exemplo; o título "Hoje e depois do
+    planejamento".
+  - ainda no Diagnóstico, a pedido do usuário: quem é a família no começo da página (cada pessoa com a idade, a profissão e a
+    natureza do trabalho; os dependentes com a idade; as instituições onde investe e onde só tem conta) e a experiência com as
+    onze classes de ativos (entende, já investiu, tem restrição) com as observações; sem nenhuma marca, a tabela não aparece.
+    Decisões do usuário: a natureza do trabalho passou a ser de cada pessoa, na página Cliente, e a reserva usa a de quem tem a
+    maior renda do trabalho (num plano antigo, a da reserva vira a do titular); um campo só de observações. No exemplo, Ana é
+    analista de marketing (CLT), Marcos é dono da papelaria (empresário), as contas sem investimento são Caixa e Banco do Brasil
+    (Itaú e Nubank já estão no financeiro) e as classes são fictícias. A reserva do exemplo não mudou (a Ana ganha mais).
+  - os capítulos perderam o número, a pedido do usuário: nem todo cliente terá todos os capítulos. Ficou só o título no
+    cabeçalho, no sumário, nas capas e no portal; o Diagnóstico junta a família e o hoje e depois numa página só ("A família
+    hoje e depois do planejamento").
+  - o hoje e depois ganhou etiquetas coloridas e uma entrada em cascata. O usuário trouxe como referência um slider de antes
+    e depois (Dribbble); no esboço, desistiu de arrastar ("sem que a pessoa tenha que ativamente clicar e arrastar") e gostou
+    da transformação linha a linha, mas pediu que o antes continuasse visível. Ficou: o presente sempre à vista; o futuro entra
+    em cascata quando o quadro aparece, com uma luz laranja passando por cada linha; etiquetas verde, laranja ou vermelha pelo
+    estado; e o placar "em dia" de cada coluna. Escolha minha, aceita pelo usuário: proteção em dia a partir de 80% e em
+    atenção a partir de 50%.
+  - o hoje e depois foi para uma página própria (o Diagnóstico ficou com "Quem é a família" e "Hoje e depois do
+    planejamento"), no estilo do rascunho que o usuário preferiu à versão de colunas: dois cartões lado a lado, cada linha num
+    cartãozinho com a etiqueta à direita e o placar grande no alto, o hoje apagado e sempre à vista, o depois entrando em cascata.
+  - "Quem é a família" por pessoa, a pedido do usuário: cada cartão traz as instituições da pessoa (onde investe e onde só
+    tem conta), e uma conta ou um investimento conjunto aparece nas duas, com "(conjunta)" (o usuário não quis um cartão à
+    parte); os dependentes ficam em "Do casal"; a experiência com investimentos é de cada pessoa, numa tabela só com um grupo
+    de colunas por pessoa, na largura da página. Para isso o financeiro ganhou "De quem" (titular, cônjuge; vazio num casal,
+    conjunta) e as contas viraram três listas (de cada pessoa e conjuntas). Escolhas minhas: as onze classes sempre aparecem
+    (o vazio diz que a pessoa não conhece); no exemplo, Nubank e BTG da Ana, o VGBL do Marcos e o Itaú conjunto.
+  - o capítulo Gestão financeira, combinado com o usuário: capa só com o vídeo; renda e custo de vida (mês e ano, a barra com a
+    referência de 20% para o futuro, quantas vezes poupou); o tempo como moeda (por pessoa e o combinado da família); e o
+    orçamento. Para o orçamento, o usuário partiu da calculadora de orçamento ideal da Nord (50/30/20, uma grade de
+    quadradinhos) e do Tetris do material de hoje, e pediu algo melhor. Recusou a grade de 1%: misturava macro e
+    microcategorias, uma categoria tirava da outra, o passo de 1% quebrava as despesas e os quadrados pareciam infantis.
+    Ficou: primeiro os envelopes (só as macrocategorias, sem uma tirar da outra; o que falta ou sobra aparece como "sem
+    destino" ou excesso; dois cliques dão ao envelope o que está sem destino), depois conferir se as despesas cabem, num
+    treemap com zoom (clique no envelope, "Outros" para o que fica pequeno demais para ler, Ctrl + roda do mouse). O motor é
+    nosso (o Flourish foi conectado, mas os dados dos clientes não devem sair daqui e a lógica dos envelopes não cabe num
+    modelo pronto). O consultor grava o orçamento na apresentação; o cliente propõe. Escolhas minhas: as cores (fixas em
+    azul-marinho, ajustáveis em laranja, futuro em verde); o "Lazer" do exemplo virou lazer, pet, academia, assinaturas e
+    streaming (mesmo total, R$ 1.600) para o "Outros" aparecer; as horas do exemplo (176 da Ana, 220 do Marcos).
+  - na primeira versão do orçamento, o usuário achou que não parecia um treemap (espaços grandes entre os blocos, os detalhes
+    só no clique), os cantos e as cores infantis, e quis comparar com o 50/30/20. Ficou: os envelopes encostados, com linhas
+    finas, cantos retos e cores sóbrias (azul-marinho, bronze, verde); as despesas de hoje aparecem no hover e o clique abre
+    na tela toda; uma régua do recomendado acima do palco, na mesma escala, com guias tracejadas e quanto cada envelope está
+    acima ou abaixo.
+  - renda e custo de vida: a barra virou um gráfico de rosca com os percentuais, e o mês e o ano, que apareciam juntos (o
+    anual pequeno demais), viraram uma alternância Mês | Ano, a pedido do usuário.
+    Depois, a rosca passou às cores da identidade (o futuro em laranja, o padrão de vida em azul-marinho claro, a marca da
+    referência em azul-marinho), com o futuro saindo do alto no sentido horário, como a marca dos 20%; as barras de horas
+    e os valores do futuro do capítulo ficaram em laranja também.
+  Resolvido: o perfil de relação com o dinheiro (devedor, zero a zero, investidor) é o status do orçamento do Diagnóstico.
+  Em aberto (15/10/2026): o painel do tempo ("Tempo: uma moeda universal") está fraco do ponto de vista estético, na
+  opinião do usuário; precisa ser redesenhado, com a mesma atenção dada à rosca e ao treemap do orçamento.
   Em aberto: planos de família tratados separadamente. O usuário explicou que há planejamentos feitos em família (a regra
   acima) e outros em que cada membro é tratado à parte; para esses, seriam precisos dois simuladores de evolução patrimonial,
   com os bens e o patrimônio de cada um.

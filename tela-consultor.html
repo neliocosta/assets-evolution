@@ -501,9 +501,17 @@ details.pesos{margin-top:14px}
 .ap-cap .grid{margin-bottom:6px}
 .ap-pg{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;padding:10px 0 10px 42px;border-bottom:1px solid #f6f4f0}
 .ap-pg:last-child{border-bottom:0}
-.ap-num{width:30px;height:30px;border-radius:50%;background:var(--nl-peach-100);color:var(--nl-orange-600);font:700 12px Sora,sans-serif;display:flex;align-items:center;justify-content:center}
 .ap-pg b{font:600 14px Sora,sans-serif;color:var(--nl-navy-900)} .ap-pg small{display:block;font:500 12px 'DM Sans',sans-serif;color:#8a8a8a;margin-top:3px}
 .ap-pg small.falta{color:var(--nl-orange-600)}
+.ex-t{width:100%;max-width:900px;border-collapse:collapse;margin-bottom:12px} .ex-t .ex-g{border-left:1px solid #ECE8E1}
+.ex-t th,.ex-t td{padding:6px 10px;border-bottom:1px solid #f1efea;text-align:center} .ex-t th:first-child,.ex-t td:first-child{text-align:left}
+.ex-t thead th{font:600 11px 'DM Sans',sans-serif;color:#8a8a8a;text-transform:uppercase;letter-spacing:.08em} .ex-t td:first-child{font:500 13px 'DM Sans',sans-serif;color:var(--nl-navy-900)}
+.dg-t{width:100%;border-collapse:collapse;margin-bottom:6px}
+.dg-t th,.dg-t td{padding:8px 10px;border-bottom:1px solid #f1efea;text-align:left;vertical-align:middle}
+.dg-t thead th{font:600 11px 'DM Sans',sans-serif;color:#8a8a8a;text-transform:uppercase;letter-spacing:.08em}
+.dg-t tbody th{width:30%;font:600 13.5px Sora,sans-serif;color:var(--nl-navy-900)} .dg-t td{width:35%}
+.dg-t td b{font:600 14px Sora,sans-serif;color:var(--nl-navy-900)} .dg-t td small{display:block;font:500 12px 'DM Sans',sans-serif;color:#8a8a8a;margin-top:3px}
+.dg-t select,.dg-t input{width:100%} .dg-t tr.dg-obj th{padding-left:26px;font:500 13px 'DM Sans',sans-serif;color:var(--nl-gray-700)}
 .ap-pg input{padding:7px 9px;font-size:12.5px}
 .ap-bts{display:flex;gap:10px;flex-wrap:wrap}
 .ap-bts .btn-primary{width:auto}
@@ -559,8 +567,10 @@ details.pesos{margin-top:14px}
         <div class="field"><label>Começou a trabalhar aos <span class="tip" tabindex="0" data-tip="Com esta idade e a de parar de trabalhar, a página de patrimônio do cliente mostra as fases da vida financeira e o patrimônio esperado para a idade.">?</span></label><input id="f-comecou" data-r="patrimonio.comecou" data-rt="num" type="number" min="10" max="70" placeholder="anos"></div>
         <div class="field"><label>Expectativa de vida</label><input id="f-lifeExp" type="number" min="70" max="110"></div>
       </div>
+      <div id="trabC" style="margin-top:14px"></div>
     </div>
     <div class="bloco"><h3>Dependentes financeiros</h3><div id="depC"></div></div>
+    <div class="bloco"><h3>Experiência com investimentos</h3><div class="sub">As classes que cada pessoa entende, em que já investiu e em que tem restrição. Sem nenhuma marca, a tabela não aparece para o cliente.</div><div id="expC"></div></div>
     <div id="faltaCliente"></div>
     <div class="pagenav"><button class="btn btn-tertiary" data-ir="fluxo">Próximo: Fluxo de caixa →</button></div>
   </section>
@@ -570,6 +580,7 @@ details.pesos{margin-top:14px}
     <h2>Fluxo de caixa</h2>
     <div class="hint">Entradas e despesas do cliente, mês a mês. O <b>+</b> de cada grupo cadastra uma linha; um clique numa célula muda o valor dali em diante.</div>
     <div id="fxCap"></div>
+    <div id="fxPoupou"></div>
     <div class="bloco fxbloco">
       <div class="fxbar">
         <span class="fxnivel" id="fxNivel">Mês</span>
@@ -649,7 +660,7 @@ details.pesos{margin-top:14px}
   <section class="page" data-page="tributario">
     <div class="kicker">Planejamento · passo 7 de 9</div>
     <h2>Otimização tributária</h2>
-    <div class="hint">O imposto de renda da família, a retirada dos sócios, a sucessão e a previdência: hoje e com a estratégia recomendada. O cliente vê a economia de cada uma no capítulo 3.</div>
+    <div class="hint">O imposto de renda da família, a retirada dos sócios, a sucessão e a previdência: hoje e com a estratégia recomendada. O cliente vê a economia de cada uma no capítulo Otimização tributária.</div>
     <div id="tribC"></div>
     <div class="pagenav"><button class="btn btn-tertiary" data-ir="premissas">Próximo: Premissas →</button></div>
   </section>
@@ -725,27 +736,27 @@ const ENGINE = (() => {
   // Objetivos configurados na tela do consultor (somente leitura aqui).
   // Todos têm a mesma estrutura; campos sem valor ficam em 0 / null e o card mostra "—".
   const OBJ = [
-    { id: 'fortaleza', photo: 'fotos/fortaleza.jpg', name: 'Viagem a Fortaleza', descricao: 'Uma semana de descanso, todos juntos, longe da rotina', icon: 'sun', kind: 'consumo', milestone: true, title: 'Viagem a Fortaleza realizada!',
+    { id: 'fortaleza', photo: 'fotos/fortaleza.jpg', name: 'Viagem a Fortaleza', descricao: 'Uma semana de descanso, todos juntos, longe da rotina', icon: 'sun', kind: 'consumo', milestone: true, title: 'Viagem a Fortaleza realizada!', diagnostico: { presente: 'meta', futuro: 'caminho' },
       months: 20, amount: 12000, recurring: null,
       dedicated: 3000, profile: 'conservador', planned: 450,
       strategy: 'Viagem de 7 dias para quatro pessoas em maio, fora da alta temporada, com passagens compradas com seis meses de antecedência. O valor fica em renda fixa de liquidez diária, porque o prazo é curto e a data é inegociável.' },
 
-    { id: 'casa', photo: 'fotos/casa.jpg', name: 'Casa própria', descricao: 'Sair do aluguel e ter um lugar que seja da família', icon: 'home', kind: 'bem', milestone: true, title: 'Casa própria realizada!',
+    { id: 'casa', photo: 'fotos/casa.jpg', name: 'Casa própria', descricao: 'Sair do aluguel e ter um lugar que seja da família', icon: 'home', kind: 'bem', milestone: true, title: 'Casa própria realizada!', diagnostico: { presente: 'meta', futuro: 'caminho' },
       months: 46, amount: 180000, recurring: { value: 4000, months: 420, label: 'Financiamento da casa própria', amort: 0.45 },
       dedicated: 45000, profile: 'moderado', planned: 1500,
       strategy: 'Para a compra do apartamento de R$ 600 mil, será dada uma entrada de R$ 180 mil e financiado o restante, com parcela inicial de R$ 4.000 por mês em 420 meses. Para conseguir o crédito, a renda declarada da família precisa ser de cerca de R$ 13.300 por mês, o que está dentro da realidade. O aporte atual não fecha a entrada integral: a diferença sai da reserva ou a data é adiada em alguns meses.' },
 
-    { id: 'europa', photo: 'fotos/europa.jpg', name: 'Viagem à Europa em família', descricao: 'Mostrar o mundo aos filhos e criar memórias que ficam para sempre', icon: 'plane', kind: 'consumo', milestone: true, title: 'Viagem à Europa realizada!',
+    { id: 'europa', photo: 'fotos/europa.jpg', name: 'Viagem à Europa em família', descricao: 'Mostrar o mundo aos filhos e criar memórias que ficam para sempre', icon: 'plane', kind: 'consumo', milestone: true, title: 'Viagem à Europa realizada!', diagnostico: { presente: 'sonho', futuro: 'caminho' },
       months: 60, amount: 60000, recurring: null,
       dedicated: 18000, profile: 'moderado', planned: 300,
       strategy: 'Roteiro de 21 dias por Itália e França para a família, no verão europeu, com passagens e hospedagem parceladas no semestre anterior. Sem custo recorrente depois. O aporte definido não fecha o valor cheio: a diferença sai da reserva no ano da viagem ou o roteiro é encurtado.' },
 
-    { id: 'intercambio', photo: 'fotos/intercambio.jpg', name: 'Intercâmbio do filho', descricao: 'Abrir o mundo para ele antes da faculdade', icon: 'grad', kind: 'consumo', milestone: true, title: 'Intercâmbio do filho realizado!',
+    { id: 'intercambio', photo: 'fotos/intercambio.jpg', name: 'Intercâmbio do filho', descricao: 'Abrir o mundo para ele antes da faculdade', icon: 'grad', kind: 'consumo', milestone: true, title: 'Intercâmbio do filho realizado!', diagnostico: { presente: 'sonho', futuro: 'caminho' },
       months: 96, amount: 150000, recurring: null,
       dedicated: 20000, profile: 'moderado', planned: 150,
       strategy: 'Um ano de intercâmbio acadêmico no exterior, com moradia e seguro incluídos, quando o filho tiver 18 anos. Como a capacidade mensal de poupança está comprometida com a casa própria, este objetivo recebe um aporte simbólico até 2030 e precisa ser revisto quando a entrada do imóvel sair do caminho. Sem essa revisão, a maior parte virá da reserva.' },
 
-    { id: 'praia', name: 'Casa de praia', descricao: 'Um lugar para reunir a família nos fins de semana e nas férias', icon: 'palm', kind: 'bem', milestone: true, title: 'Casa de praia realizada!',
+    { id: 'praia', name: 'Casa de praia', descricao: 'Um lugar para reunir a família nos fins de semana e nas férias', icon: 'palm', kind: 'bem', milestone: true, title: 'Casa de praia realizada!', diagnostico: { presente: 'sonho', futuro: 'meta' },
       months: 132, amount: 300000, recurring: { value: 800, months: null, label: 'Condomínio e IPTU da casa de praia', amort: 0 },
       dedicated: 25000, profile: 'agressivo', planned: 100,
       strategy: 'Compra à vista de uma casa no litoral norte, sem financiamento, depois que o intercâmbio estiver pago. O valor migra de patrimônio financeiro para bens, sem perda de patrimônio total. A partir da compra entram condomínio e IPTU de R$ 800 por mês, por tempo indeterminado. O aporte atual é simbólico: o objetivo só fecha se receber a folga que aparece depois do intercâmbio, e por isso está marcado para revisão.' },
@@ -824,7 +835,12 @@ const ENGINE = (() => {
     { id: 'faculdade', label: 'Faculdade do filho', group: 'fix', week: 1, steps: [{ from: 80, value: 2500 }, { from: 128, value: 0 }] },
     { id: 'alimentacao', label: 'Alimentação', group: 'adj', week: 0, steps: [{ from: 0, value: 1900 }] },
     { id: 'mercado', label: 'Mercado', group: 'adj', week: 0, steps: [{ from: 0, value: 2700 }] },
-    { id: 'lazer', label: 'Lazer', group: 'adj', week: 0, steps: [{ from: 0, value: 1600 }] },
+    { id: 'lazer', label: 'Lazer', group: 'adj', week: 0, steps: [{ from: 0, value: 1150 }] },
+    // pequenas, para o orçamento mostrar o bloco Outros (somam o que era o lazer: R$ 1.600)
+    { id: 'pet', label: 'Pet', group: 'adj', week: 0, steps: [{ from: 0, value: 170 }] },
+    { id: 'academia', label: 'Academia', group: 'adj', week: 0, steps: [{ from: 0, value: 150 }] },
+    { id: 'assinaturas', label: 'Assinaturas', group: 'adj', week: 0, steps: [{ from: 0, value: 70 }] },
+    { id: 'streaming', label: 'Streaming', group: 'adj', week: 0, steps: [{ from: 0, value: 60 }] },
   ];
   const sortSteps = it => { it.steps = (it.steps || []).slice().sort((a, b) => a.from - b.from); return it; };
   // valor de um item no mês mm (0 = hoje); antes do primeiro degrau, zero
@@ -1282,12 +1298,14 @@ const ENGINE = (() => {
   const NATUREZAS = [['Servidor público', 3], ['Aposentado', 3], ['Estagiário', 5], ['CLT (empresa privada)', 5], ['Profissional liberal ou autônomo', 7], ['Empresário', 7]];
   const ITENS_RUINA = [['fraude', 'Investimento fraudulento identificado'], ['classe', 'Alta concentração em classe de ativo'], ['ativo', 'Alta concentração em ativo específico'], ['corrosao', 'Possibilidade de corrosão do poder de compra']];
   const NOTA = { ok: 1, atencao: 0.5, critico: 0 };
-  // custo de vida mensal do plano: média das saídas dos próximos 12 meses (equivalente mensal de cada linha)
-  function custoDeVida(plan) {
-    const its = (plan.expenses || []).map(it => sortSteps(Object.assign({}, it)));
+  // média mensal de uma lista do fluxo nos próximos 12 meses (equivalente mensal de cada linha)
+  function mediaDe12Meses(lista) {
+    const its = (lista || []).map(it => sortSteps(Object.assign({}, it)));
     let t = 0; for (let mm = 0; mm < 12; mm++) its.forEach(it => { t += mensalizado(it, mm); });
     return t / 12;
   }
+  // custo de vida mensal do plano: média das saídas dos próximos 12 meses
+  const custoDeVida = plan => mediaDe12Meses(plan.expenses);
   const num = v => v == null || v === '' || isNaN(+v) ? null : +v;
   // ---- Seguro de vida e de acidentes pessoais ----
   // A conta é a da calculadora de seguros da Nord (/seguros), com os ajustes do consultor: o ponto de partida é a renda
@@ -1367,11 +1385,11 @@ const ENGINE = (() => {
     // Desemprego e emergência: ideal = custo de vida × (d + t); mínima 40%, aceitável 70%
     { const r = R.reserva || {}, custo = padraoDeVida(plan);
       const temDep = Array.isArray(R.dependentes) ? R.dependentes.length > 0 : !!r.dependentes;   // a lista de dependentes, quando existe, decide
-      const nat = NATUREZAS.find(n => n[0] === r.natureza), d = temDep ? 3 : 0, t = nat ? nat[1] : null;
+      const nr = naturezaDaReserva(plan), nat = NATUREZAS.find(n => n[0] === (nr && nr.natureza)), d = temDep ? 3 : 0, t = nat ? nat[1] : null;
       const calculado = t != null ? custo * (d + t) : null, ideal = num(r.alvo) != null ? +r.alvo : calculado;
       const atual = num(r.atual) != null ? +r.atual : num((R.liquidez || {}).d0);
       const status = ideal == null || !(ideal > 0) || atual == null ? 'pendente' : atual >= ideal ? 'ok' : atual >= ideal * 0.4 ? 'atencao' : 'critico';
-      out.reserva = { status, custo, dependentes: temDep, d, t, meses: t != null ? d + t : null, calculado, ideal, minima: ideal != null ? ideal * 0.4 : null, aceitavel: ideal != null ? ideal * 0.7 : null, atual, alvoProprio: num(r.alvo) != null }; }
+      out.reserva = { status, custo, dependentes: temDep, natureza: nat ? nat[0] : null, naturezaDe: nat ? nr.quem : null, d, t, meses: t != null ? d + t : null, calculado, ideal, minima: ideal != null ? ideal * 0.4 : null, aceitavel: ideal != null ? ideal * 0.7 : null, atual, alvoProprio: num(r.alvo) != null }; }
     // Saúde: a avaliação do consultor decide. O custo é a soma dos prêmios de cada vida; o que a empresa ou outra pessoa
     // paga (vida.pagador = 'terceiros') não sai do bolso da família e não entra no Fluxo de caixa (doBolso).
     { const r = R.saude || {}, vidas = r.vidas || [], total = vidas.reduce((a, v) => a + (+v.premio || 0), 0), alt = r.alternativa || {};
@@ -1422,7 +1440,7 @@ const ENGINE = (() => {
   // Plano de exemplo dos riscos (família da Ana Ribeiro), para o portal e para a tela do cliente sem plano
   const RISCOS_EXEMPLO = {
     pesos: { reserva: 1, saude: 1, terceiros: 1, ruina: 1, liquidez: 1, bens: 1, renda: 1, familia: 1 },
-    reserva: { dependentes: true, natureza: 'CLT (empresa privada)', custoVida: null, atual: null, alvo: null },
+    reserva: { dependentes: true, custoVida: null, atual: null, alvo: null },
     saude: { avaliacao: 'otimizavel', tipo: 'Adesão', hospitais: ['Hospital Alemão Oswaldo Cruz', 'Beneficência Portuguesa', 'Hospital Samaritano'],
       vidas: [{ nome: 'Ana', idade: 35, premio: 1150, pagador: 'terceiros' }, { nome: 'Marcos', idade: 38, premio: 1210 }, { nome: 'Luiza', idade: 1, premio: 290 }],
       linha: 'saude',   // a despesa "Plano de saúde" do Fluxo recebe o que sai do bolso (R$ 1.500; o da Ana a empresa paga)
@@ -1490,7 +1508,9 @@ const ENGINE = (() => {
   // Patrimônio de exemplo (família da Ana Ribeiro)
   const PATRIMONIO_EXEMPLO = {
     comecou: 23, liquidezIdeal: 400000,
-    financeiro: [{ nome: 'Nubank', valor: 60000 }, { nome: 'Itaú', valor: 150000 }, { nome: 'BTG Pactual', valor: 530000 }, { nome: 'Icatu Seguros (VGBL)', valor: 120000, tipo: 'vgbl' }],
+    financeiro: [{ nome: 'Nubank', valor: 60000, titularidade: 'titular' }, { nome: 'Itaú', valor: 150000, titularidade: 'casal' }, { nome: 'BTG Pactual', valor: 530000, titularidade: 'titular' },
+      { nome: 'Icatu Seguros (VGBL)', valor: 120000, tipo: 'vgbl', titularidade: 'conjuge' }],
+    contas: { titular: ['Caixa'], conjuge: ['Banco do Brasil'] },
     participacoes: [{ nome: 'Papelaria Canetinha', valor: 50000 }],
     bens: [{ nome: 'Hyundai Creta', mercado: 160000, saldoDevedor: 0, titularidade: 'titular', protecao: 'total', apolice: { seguradora: 'Porto Seguro', numero: '0531.22.118790', cobertura: '100% da tabela FIPE, terceiros R$ 200 mil', premio: 4200, vigencia: 'até mar/2027' } },
       { nome: 'Terreno em São Sebastião', mercado: 100000, saldoDevedor: 0, titularidade: 'conjuge', protecao: 'total' },
@@ -1563,6 +1583,139 @@ const ENGINE = (() => {
       : 'Conseguir uma renda passiva e não ter mais a obrigação de trabalhar.' };
     const o = plan.objectives.find(x => x.id === id); return { id, titulo: o.name || 'Objetivo sem nome', descricao: o.descricao || '', fixo: false };
   });
+  // ---- Quem é a família (o começo do capítulo Diagnóstico) ----
+  // A natureza do trabalho é de cada pessoa (plan.natureza, plan.conjugeNatureza, na página Cliente); num plano antigo, a
+  // do titular é a que estava na reserva (riscos.reserva.natureza). A reserva usa a de quem tem a maior renda do trabalho
+  // no Fluxo de caixa (no empate, o titular), entre as pessoas com a natureza informada.
+  const naturezaDe = (plan, quem) => (quem === 'conjuge' ? plan.conjugeNatureza : plan.natureza || ((plan.riscos || {}).reserva || {}).natureza) || null;
+  const rendaDoTrabalho = (plan, quem) => mediaDe12Meses((plan.incomes || []).filter(it => ativo(it) && (it.pessoa || 'titular') === quem));
+  function naturezaDaReserva(plan) {
+    const com = pessoasDaFamilia(plan).map(quem => ({ quem, natureza: naturezaDe(plan, quem), renda: rendaDoTrabalho(plan, quem) })).filter(p => p.natureza);
+    return com.reduce((a, p) => !a || p.renda > a.renda ? p : a, null);
+  }
+  // as classes de ativos: se cada pessoa entende, se já investiu e se tem restrição (plan.experiencia.<quem>.<classe>), com
+  // as observações (plan.experiencia.observacoes, um campo só)
+  const CLASSES_ATIVOS = [['posFixado', 'Pós-fixado'], ['preFixado', 'Pré-fixado'], ['inflacao', 'Indexado à inflação'], ['multimercado', 'Fundos multimercado'],
+    ['imobiliarios', 'Fundos imobiliários'], ['bolsaBrasil', 'Bolsa Brasil'], ['acoesBrasil', 'Fundos de ações Brasil'], ['ouro', 'Ouro'], ['cripto', 'Criptoativos'],
+    ['rfInternacional', 'Renda fixa internacional'], ['bolsaInternacional', 'Bolsa internacional']];
+  // Cada pessoa com as instituições dela: onde investe (as do mercado financeiro, pela titularidade de cada uma) e onde só
+  // tem conta (plan.patrimonio.contas.titular, .conjuge e .casal). Num casal, o que é do casal (ou sem titularidade) aparece
+  // nas duas pessoas, marcado como conjunta. Os dependentes são da família.
+  function familiaDoPlano(plan) {
+    const nm = nomesDaFamilia(plan), R = plan.riscos || {}, P = plan.patrimonio || {}, X = plan.experiencia || {}, quem = pessoasDaFamilia(plan), casal = quem.length > 1;
+    const deQuem = t => !casal ? 'titular' : t === 'titular' || t === 'conjuge' ? t : 'casal';
+    const contas = Array.isArray(P.contas) ? { casal: P.contas } : P.contas || {};   // uma lista só: as contas do casal
+    const sem = (l, fora) => l.filter((x, k) => x.nome && !fora.some(y => y.nome === x.nome) && l.findIndex(y => y.nome === x.nome) === k);
+    const instituicoes = q => {
+      const inv = (P.financeiro || []).map(x => ({ nome: String(x.nome || '').trim(), de: deQuem(x.titularidade) })).filter(x => x.de === q || x.de === 'casal')
+        .sort((a, b) => (a.de === 'casal') - (b.de === 'casal')).map(x => ({ nome: x.nome, conjunta: casal && x.de === 'casal' }));
+      const ct = [].concat(...['titular', 'conjuge', 'casal'].map(k => (contas[k] || []).map(n => ({ nome: String(n || '').trim(), de: deQuem(k) }))))
+        .filter(x => x.de === q || x.de === 'casal').sort((a, b) => (a.de === 'casal') - (b.de === 'casal')).map(x => ({ nome: x.nome, conjunta: casal && x.de === 'casal' }));
+      const investe = sem(inv, []); return { investe, conta: sem(ct, investe) }; };
+    const pessoas = quem.map(q => { const conj = q === 'conjuge', i = idadeExata(conj ? plan.conjugeNascimento : plan.nascimento);
+      return Object.assign({ quem: q, nome: nm[q], idade: i != null ? Math.floor(i) : +(conj ? plan.spouseAge : plan.age) || null, profissao: String((conj ? plan.conjugeProfissao : plan.profissao) || '').trim(), natureza: naturezaDe(plan, q) }, instituicoes(q)); });
+    const dependentes = (Array.isArray(R.dependentes) ? R.dependentes : []).map(d => { const i = idadeExata(d.nasc); return { nome: d.nome || '', relacao: d.relacao, idade: i == null ? null : Math.max(0, Math.floor(i)) }; });
+    const classes = CLASSES_ATIVOS.map(([id, nome]) => ({ id, nome, pessoas: quem.map(q => { const c = (X[q] || {})[id] || {}; return { entende: !!c.entende, investiu: !!c.investiu, restricao: !!c.restricao }; }) }));
+    return { pessoas, dependentes, temDependentes: Array.isArray(R.dependentes) ? dependentes.length > 0 : !!(R.reserva || {}).dependentes,
+      classes: classes.some(c => c.pessoas.some(p => p.entende || p.investiu || p.restricao)) ? classes : null, observacoes: String(X.observacoes || '').trim() };
+  }
+  // ---- Gestão financeira: renda, custo de vida e futuro; o tempo de trabalho; o orçamento em envelopes ----
+  // Tudo sai do Fluxo de caixa, pela média dos próximos 12 meses (o 13º, o bônus e o IPTU entram): a renda líquida, o custo
+  // de vida (as saídas) e o que vai para o futuro (o que sobra). As despesas fixas são as do grupo "fix"; as outras são
+  // ajustáveis. O orçamento recomendado é 50% fixas, 30% ajustáveis e 20% para o futuro; o combinado com a família fica em
+  // plan.orcamento.envelopes (valores por mês). Quantas vezes a família poupou nos últimos 12 meses vem do exame
+  // (plan.orcamento.vezesPoupou).
+  const ORCAMENTO_IDEAL = { fixas: 0.5, ajustaveis: 0.3, futuro: 0.2 };
+  const VEZES_POUPOU = [['nenhuma', 'Nenhuma'], ['1-3', '1 a 3 vezes'], ['4-6', '4 a 6 vezes'], ['7-9', '7 a 9 vezes'], ['10+', '10 ou mais vezes']];
+  function gestaoFinanceira(plan) {
+    const O = plan.orcamento || {}, despesas = plan.expenses || [];
+    const itens = g => despesas.filter(e => g === 'fixas' ? e.group === 'fix' : e.group !== 'fix').map(e => ({ id: e.id, nome: e.label || 'Despesa sem nome', valor: mediaDe12Meses([e]) }))
+      .filter(x => x.valor > 0.5).sort((a, b) => b.valor - a.valor);
+    const fixas = itens('fixas'), ajustaveis = itens('ajustaveis'), tot = l => l.reduce((a, x) => a + x.valor, 0);
+    const renda = mediaDe12Meses(plan.incomes), custo = tot(fixas) + tot(ajustaveis), futuro = renda - custo;
+    const E = O.envelopes || {}, temEnv = ['fixas', 'ajustaveis', 'futuro'].every(k => num(E[k]) != null);
+    return { mes: { renda, custo, futuro }, ano: { renda: renda * 12, custo: custo * 12, futuro: futuro * 12 }, pctFuturo: renda > 0 ? futuro / renda : null,
+      grupos: { fixas: tot(fixas), ajustaveis: tot(ajustaveis), futuro }, itens: { fixas, ajustaveis },
+      ideal: { fixas: renda * ORCAMENTO_IDEAL.fixas, ajustaveis: renda * ORCAMENTO_IDEAL.ajustaveis, futuro: renda * ORCAMENTO_IDEAL.futuro },
+      envelopes: temEnv ? { fixas: +E.fixas, ajustaveis: +E.ajustaveis, futuro: +E.futuro } : null, vezesPoupou: VEZES_POUPOU.some(v => v[0] === O.vezesPoupou) ? O.vezesPoupou : null };
+  }
+  // O tempo como moeda: o valor da hora de cada pessoa é a renda do trabalho dela no mês dividida pelas horas trabalhadas
+  // (plan.horas, plan.conjugeHoras). As horas se dividem entre o presente (pagar o custo de vida) e o futuro na mesma
+  // proporção do orçamento da família; o patrimônio total vira horas de trabalho pelo valor da hora. A família soma as horas
+  // e a renda do trabalho de quem informou as horas.
+  function horasDoTrabalho(plan) {
+    const g = gestaoFinanceira(plan), nm = nomesDaFamilia(plan), patrimonio = faseDaVida(plan).total;
+    const pPresente = g.mes.renda > 0 ? g.mes.custo / g.mes.renda : null;
+    const conta = (nome, horas, renda) => { const vh = horas > 0 && renda > 0 ? renda / horas : null, pres = horas > 0 && pPresente != null ? horas * pPresente : null;
+      return { nome, horas: horas > 0 ? horas : null, renda, valorHora: vh, presente: pres, futuro: pres != null ? horas - pres : null, patrimonio: vh ? patrimonio / vh : null }; };
+    const pessoas = pessoasDaFamilia(plan).map(q => Object.assign({ quem: q }, conta(nm[q], num(q === 'conjuge' ? plan.conjugeHoras : plan.horas), rendaDoTrabalho(plan, q))));
+    const com = pessoas.filter(p => p.horas), familia = com.length > 1 ? conta('Família', com.reduce((a, p) => a + p.horas, 0), com.reduce((a, p) => a + p.renda, 0)) : null;
+    return { pessoas, familia, referenciaFuturo: ORCAMENTO_IDEAL.futuro, patrimonio };
+  }
+  // ---- Capítulo 2: o diagnóstico, a família hoje e depois do planejamento ----
+  // Oito linhas (os objetivos em duas), cada uma com o presente e o futuro. O presente é calculado onde há conta (o orçamento, pelo Fluxo de
+  // caixa; a reserva e o percentual de proteção, pela Gestão de riscos) e marcado pelo consultor no resto
+  // (plan.diagnostico.<linha>.presente); o futuro é sempre do consultor (plan.diagnostico.<linha>.futuro). Cada objetivo
+  // tem o seu degrau (objectives[].diagnostico.presente e .futuro: sonho, meta definida ou meta com caminho), e as duas
+  // linhas dos objetivos contam quantos chegaram lá. O orçamento é o perfil de relação com o dinheiro (devedor, zero a
+  // zero, investidor).
+  const ESTADOS_DIAGNOSTICO = {
+    orcamento: [['deficitario', 'Deficitário'], ['zero', 'Zero a zero'], ['superavitario', 'Superavitário']],
+    reserva: [['abaixo', 'Abaixo da mínima'], ['minima', 'Entre mínima e aceitável'], ['aceitavel', 'Entre aceitável e ideal'], ['ideal', 'Ideal']],
+    objetivo: [['sonho', 'Sonho'], ['meta', 'Meta definida'], ['caminho', 'Meta com caminho']],
+    perfil: [['muito', 'Muito desalinhado'], ['inadequado', 'Inadequado'], ['adequado', 'Adequado']],
+    concentracao: [['preocupante', 'Preocupante'], ['razoavel', 'Razoável'], ['bem', 'Bem distribuída']],
+    liberdade: [['nao', 'Não'], ['sim', 'Sim']] };
+  const ORCAMENTO_ZERO = 0.05;   // sobra (ou falta) de até 5% das entradas: zero a zero
+  const CONCENTRACAO_FIN_MIN = 0.3;   // menos de 30% do patrimônio no financeiro: concentração preocupante
+  // o orçamento de hoje: entradas e saídas médias dos próximos 12 meses do Fluxo de caixa
+  function orcamentoDoFluxo(plan) {
+    const entradas = mediaDe12Meses(plan.incomes), saidas = mediaDe12Meses(plan.expenses), sobra = entradas - saidas;
+    if (!(entradas > 0) && !(saidas > 0)) return null;
+    const pct = entradas > 0 ? sobra / entradas : -1;
+    return { entradas, saidas, sobra, pct, estado: pct > ORCAMENTO_ZERO ? 'superavitario' : pct < -ORCAMENTO_ZERO ? 'deficitario' : 'zero' };
+  }
+  // o guia da concentração para o consultor: quanto do patrimônio (pelo valor de mercado, sem descontar dívidas) está no
+  // financeiro, nos imóveis e outros bens e nas participações
+  function concentracaoDoPatrimonio(plan) {
+    const f = faseDaVida(plan), bruto = f.fin + f.bens + f.part; if (!(bruto > 0)) return null;
+    const pct = { fin: f.fin / bruto, bens: f.bens / bruto, part: f.part / bruto };
+    return { fin: f.fin, bens: f.bens, part: f.part, bruto, pct, sugestao: pct.fin < CONCENTRACAO_FIN_MIN ? 'preocupante' : null };
+  }
+  // o tom de cada valor: bom (em dia), atenção ou ruim; os objetivos pela fração no degrau, a proteção pelo percentual
+  const TOM_DIAGNOSTICO = { deficitario: 'ruim', zero: 'atencao', superavitario: 'bom', abaixo: 'ruim', minima: 'atencao', aceitavel: 'atencao', ideal: 'bom',
+    muito: 'ruim', inadequado: 'atencao', adequado: 'bom', preocupante: 'ruim', razoavel: 'atencao', bem: 'bom', nao: 'ruim', sim: 'bom' };
+  const PROTECAO_BOA = 80, PROTECAO_ATENCAO = 50;
+  const tomDoDiagnostico = (l, v) => v == null || v === '' ? null : l.grupo === 'objetivo' ? (v >= l.total ? 'bom' : v > 0 ? 'atencao' : 'ruim')
+    : l.id === 'protecao' ? (v >= PROTECAO_BOA ? 'bom' : v >= PROTECAO_ATENCAO ? 'atencao' : 'ruim') : TOM_DIAGNOSTICO[v] || null;
+  const nomeDoEstado = (grupo, v) => { const e = ESTADOS_DIAGNOSTICO[grupo].find(x => x[0] === v); return e ? e[1] : null; };
+  function diagnosticoDaFamilia(plan) {
+    const D = plan.diagnostico || {}, lado = (id, k) => (D[id] || {})[k] || null;
+    const orc = orcamentoDoFluxo(plan), rk = avaliaRiscos(plan), r = rk.itens.reserva;
+    const reserva = r.status === 'pendente' ? null : r.atual < r.minima ? 'abaixo' : r.atual < r.aceitavel ? 'minima' : r.atual < r.ideal ? 'aceitavel' : 'ideal';
+    const objs = plan.objectives || [], degrau = (o, k) => (o.diagnostico || {})[k];
+    // quantos objetivos estão num dos degraus; nenhum marcado daquele lado, vazio
+    const conta = (k, degraus) => objs.some(o => degrau(o, k)) ? objs.filter(o => degraus.includes(degrau(o, k))).length : null;
+    const protecaoF = num(lado('protecao', 'futuro'));
+    const estado = (id, grupo, nome, presente, calculado) => ({ id, nome, grupo, calculado, presente, futuro: lado(id, 'futuro'),
+      presenteTxt: nomeDoEstado(grupo, presente), futuroTxt: nomeDoEstado(grupo, lado(id, 'futuro')) });
+    const objetivos = (id, nome, degraus) => { const p = conta('presente', degraus), fu = conta('futuro', degraus), txt = v => v == null ? null : v + ' de ' + objs.length;
+      return { id, nome, grupo: 'objetivo', calculado: false, presente: p, futuro: fu, total: objs.length, presenteTxt: txt(p), futuroTxt: txt(fu) }; };
+    const linhas = [
+      estado('orcamento', 'orcamento', 'Status do orçamento', orc && orc.estado, true),
+      estado('reserva', 'reserva', 'Reserva', reserva, true),
+      objetivos('definidos', 'Objetivos bem definidos', ['meta', 'caminho']),
+      objetivos('caminho', 'Objetivos com caminho definido', ['caminho']),
+      { id: 'protecao', nome: 'Percentual de proteção', grupo: null, calculado: true, presente: rk.nota == null ? null : Math.round(rk.nota * 100), futuro: protecaoF,
+        presenteTxt: rk.nota == null ? null : Math.round(rk.nota * 100) + '%', futuroTxt: protecaoF == null ? null : Math.round(protecaoF) + '%' },
+      estado('perfil', 'perfil', 'Perfil de risco da carteira', lado('perfil', 'presente'), false),
+      estado('concentracao', 'concentracao', 'Concentração patrimonial', lado('concentracao', 'presente'), false),
+      estado('liberdade', 'liberdade', 'Liberdade financeira encaminhada', lado('liberdade', 'presente'), false)];
+    linhas.forEach(l => { l.presenteTom = tomDoDiagnostico(l, l.presente); l.futuroTom = tomDoDiagnostico(l, l.futuro); });
+    // o placar de cada lado: quantas linhas estão em dia, entre as que têm valor
+    const placar = k => { const com = linhas.filter(l => l[k + 'Tom']); return { emDia: com.filter(l => l[k + 'Tom'] === 'bom').length, de: com.length }; };
+    return { linhas, placar: { presente: placar('presente'), futuro: placar('futuro') }, orcamento: orc, reserva: r, concentracao: concentracaoDoPatrimonio(plan) };
+  }
   function nomesDaFamilia(plan) {
     const partes = String((plan || {}).name || '').split(/\s+e\s+/i).map(n => n.trim().split(/\s+/)[0]).filter(Boolean);
     return { titular: partes[0] || 'Titular', conjuge: String((plan || {}).conjugeNome || '').trim().split(/\s+/)[0] || partes[1] || 'Cônjuge' };
@@ -1708,10 +1861,18 @@ const ENGINE = (() => {
   };
   // A família do exemplo: um casal, com o nome e a idade do cônjuge (página Cliente)
   const FAMILIA_EXEMPLO = { tipo: 'familia', nascimento: NASC_EXEMPLO, conjugeNascimento: NASC_CONJ_EXEMPLO, spouseAge: 38, conjugeNome: 'Marcos Ribeiro',
-    consultor: { nome: 'Carolina Andrade', certificacao: 'CFP®', telefone: '+55 (11) 99999-0000', email: 'carolina.andrade@exemplo.com.br', foto: '' } };
+    profissao: 'Analista de marketing', natureza: 'CLT (empresa privada)', conjugeProfissao: 'Dono da Papelaria Canetinha', conjugeNatureza: 'Empresário',
+    horas: 176, conjugeHoras: 220, orcamento: { vezesPoupou: '4-6' },
+    experiencia: { titular: { posFixado: { entende: true, investiu: true }, preFixado: { entende: true, investiu: true }, inflacao: { entende: true }, imobiliarios: { entende: true },
+        bolsaBrasil: { restricao: true }, cripto: { restricao: true } },
+      conjuge: { posFixado: { entende: true, investiu: true }, multimercado: { entende: true, investiu: true }, bolsaBrasil: { entende: true }, cripto: { restricao: true } },
+      observacoes: 'Ana prefere a renda fixa e não quer bolsa nem criptoativos. Marcos já teve um fundo multimercado indicado pelo gerente do banco.' },
+    consultor: { nome: 'Carolina Andrade', certificacao: 'CFP®', telefone: '+55 (11) 99999-0000', email: 'carolina.andrade@exemplo.com.br', foto: '' },
+    diagnostico: { orcamento: { futuro: 'superavitario' }, reserva: { futuro: 'ideal' }, protecao: { futuro: 100 }, perfil: { presente: 'inadequado', futuro: 'adequado' },
+      concentracao: { presente: 'razoavel', futuro: 'bem' }, liberdade: { presente: 'nao', futuro: 'sim' } } };
   const ORIGENS_OUT = ORIGENS;
   const config = () => ({ age: Math.floor(CURRENT_AGE), retireAge: RETIRE_AGE, spouseRetireAge: SPOUSE_RETIRE, initialBens: INITIAL_BENS, desired: DESIRED, desiredSteps: DESIRED_STEPS, lifeExp: LIFE_EXP, salary: SALARY, salaryGrowth: SAL_G, partValue: PART_VALUE, initialWealth: INITIAL_WEALTH, capacityOverride: CAP_OVERRIDE, rate: R_M, profiles: PROFILES, incomes: INCOMES, expenses: EXPENSES, objectives: OBJ, passive: PASSIVE });
-  return { TODAY, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, PASSIVE, PROFILES, STATUS, trajetoriaDoBem, saldoDevedorEm, get BENS() { return bensDoPlano(); }, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, serieCusto, desiredAt, aplicaAlteracoes, descreveAlteracao, valorAtual, mesDoPlano, RISCOS, NATUREZAS, ITENS_RUINA, RISCOS_EXEMPLO, avaliaRiscos, custoDeVida, SEGURO, RELACOES, calculaSeguros, mesesAteIdade, FASES_VIDA, faseDaVida, sincronizaPatrimonio, PATRIMONIO_EXEMPLO, padraoDeVida, lerCaminho, gravaCaminho, IR, calculaIR, irDaFamilia, REGIMES, calculaRetirada, retiradaDosSocios, PREVIDENCIA, sucessao, simulaPrevidencia, aliqRegressiva, TRIBUTARIO_EXEMPLO, FAMILIA_EXEMPLO, casalDe, nomesDaFamilia, pessoasDaFamilia, rendaDaPessoa, bensDoRisco, titularidadeDoBem, setRetireAge: a => { RETIRE_AGE = a == null ? null : Math.max(CURRENT_AGE, +a); }, paradaMi, trabalhaEm, idadeDaLiberdade, dataNasc, idadeExata, sincronizaIdades, fraseDoProposito, ordemDoProposito, objetivosDoProposito, financiamentoValido, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
+  return { TODAY, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, PASSIVE, PROFILES, STATUS, trajetoriaDoBem, saldoDevedorEm, get BENS() { return bensDoPlano(); }, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, serieCusto, desiredAt, aplicaAlteracoes, descreveAlteracao, valorAtual, mesDoPlano, RISCOS, NATUREZAS, ITENS_RUINA, RISCOS_EXEMPLO, avaliaRiscos, custoDeVida, SEGURO, RELACOES, calculaSeguros, mesesAteIdade, FASES_VIDA, faseDaVida, sincronizaPatrimonio, PATRIMONIO_EXEMPLO, padraoDeVida, lerCaminho, gravaCaminho, IR, calculaIR, irDaFamilia, REGIMES, calculaRetirada, retiradaDosSocios, PREVIDENCIA, sucessao, simulaPrevidencia, aliqRegressiva, TRIBUTARIO_EXEMPLO, FAMILIA_EXEMPLO, casalDe, nomesDaFamilia, pessoasDaFamilia, rendaDaPessoa, bensDoRisco, titularidadeDoBem, setRetireAge: a => { RETIRE_AGE = a == null ? null : Math.max(CURRENT_AGE, +a); }, paradaMi, trabalhaEm, idadeDaLiberdade, dataNasc, idadeExata, sincronizaIdades, fraseDoProposito, ordemDoProposito, objetivosDoProposito, naturezaDe, naturezaDaReserva, CLASSES_ATIVOS, ORCAMENTO_IDEAL, VEZES_POUPOU, gestaoFinanceira, horasDoTrabalho, familiaDoPlano, ESTADOS_DIAGNOSTICO, orcamentoDoFluxo, concentracaoDoPatrimonio, diagnosticoDaFamilia, financiamentoValido, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
 })();
 if (typeof module !== 'undefined') module.exports = ENGINE;
 </script>
@@ -1796,12 +1957,15 @@ const STATUS = { ok: 'Alcançável', adj: 'Alcançável com ajustes', risk: 'Req
 
 // O plano padrão vem do próprio motor: uma só fonte de verdade para os dois lados.
 const PLANO_PADRAO = Object.assign(
-  { name: 'Ana Ribeiro', age: 35, nascimento: ENGINE.FAMILIA_EXEMPLO.nascimento, conjugeNascimento: ENGINE.FAMILIA_EXEMPLO.conjugeNascimento, consultor: JSON.parse(JSON.stringify(ENGINE.FAMILIA_EXEMPLO.consultor)), tipo: ENGINE.FAMILIA_EXEMPLO.tipo, spouseAge: ENGINE.FAMILIA_EXEMPLO.spouseAge, conjugeNome: ENGINE.FAMILIA_EXEMPLO.conjugeNome, riscos: JSON.parse(JSON.stringify(ENGINE.RISCOS_EXEMPLO)), patrimonio: JSON.parse(JSON.stringify(ENGINE.PATRIMONIO_EXEMPLO)), tributario: JSON.parse(JSON.stringify(ENGINE.TRIBUTARIO_EXEMPLO)), videos: {} },
+  { name: 'Ana Ribeiro', age: 35, nascimento: ENGINE.FAMILIA_EXEMPLO.nascimento, conjugeNascimento: ENGINE.FAMILIA_EXEMPLO.conjugeNascimento, consultor: JSON.parse(JSON.stringify(ENGINE.FAMILIA_EXEMPLO.consultor)), tipo: ENGINE.FAMILIA_EXEMPLO.tipo, spouseAge: ENGINE.FAMILIA_EXEMPLO.spouseAge, conjugeNome: ENGINE.FAMILIA_EXEMPLO.conjugeNome, riscos: JSON.parse(JSON.stringify(ENGINE.RISCOS_EXEMPLO)), patrimonio: JSON.parse(JSON.stringify(ENGINE.PATRIMONIO_EXEMPLO)), tributario: JSON.parse(JSON.stringify(ENGINE.TRIBUTARIO_EXEMPLO)), diagnostico: JSON.parse(JSON.stringify(ENGINE.FAMILIA_EXEMPLO.diagnostico)), experiencia: JSON.parse(JSON.stringify(ENGINE.FAMILIA_EXEMPLO.experiencia)),
+    profissao: ENGINE.FAMILIA_EXEMPLO.profissao, natureza: ENGINE.FAMILIA_EXEMPLO.natureza, conjugeProfissao: ENGINE.FAMILIA_EXEMPLO.conjugeProfissao, conjugeNatureza: ENGINE.FAMILIA_EXEMPLO.conjugeNatureza,
+    horas: ENGINE.FAMILIA_EXEMPLO.horas, conjugeHoras: ENGINE.FAMILIA_EXEMPLO.conjugeHoras, orcamento: JSON.parse(JSON.stringify(ENGINE.FAMILIA_EXEMPLO.orcamento)), videos: {} },
   JSON.parse(JSON.stringify(ENGINE.config()))
 );
 
 // plano salvo completado com o padrão; o patrimônio detalhado e a tributação não vêm do exemplo (um plano antigo só tem os totais)
-const doSalvo = p => Object.assign(structuredClone(PLANO_PADRAO), { patrimonio: null, tributario: null, tipo: null, consultor: null, nascimento: '', conjugeNascimento: '', spouseAge: null, spouseRetireAge: null, conjugeNome: '' }, p);
+const doSalvo = p => Object.assign(structuredClone(PLANO_PADRAO), { patrimonio: null, tributario: null, diagnostico: null, experiencia: null, profissao: '', conjugeProfissao: '', conjugeNatureza: '', horas: null, conjugeHoras: null, orcamento: null,
+  natureza: ((p.riscos || {}).reserva || {}).natureza || '', tipo: null, consultor: null, nascimento: '', conjugeNascimento: '', spouseAge: null, spouseRetireAge: null, conjugeNome: '' }, p);
 let plano = load();
 function load() {
   try { const raw = localStorage.getItem('nl-plano'); if (raw) return doSalvo(JSON.parse(raw)); } catch (e) { }
@@ -2371,6 +2535,7 @@ function renderFluxo() {
     : !plano.expenses.some(comValorLinha) ? '<div class="fxcap vazio">Entradas cadastradas. Agora cadastre as <b>despesas</b>: clique no <b>+</b> ao lado de Fixas ou de Ajustáveis. Os aportes dos objetivos vêm depois.</div>'
     : `<div class="fxcap${pl > cap ? ' warn' : ''}">Capacidade de poupança: <b>${fmt(cap)}/mês</b> (entradas menos saídas, média dos próximos 12 meses). Aportes definidos nos objetivos: <b>${fmt(pl)}/mês</b>.${pl > cap ? ' Os aportes não cabem no orçamento.' : ''}` +
       (semAporte().length ? ' Próximo passo: definir quanto guardar nos Objetivos.' : '') + '</div>';
+  document.getElementById('fxPoupou').innerHTML = `<div class="grid g3" style="margin:0 0 14px"><div class="field"><label>Quantas vezes poupou nos últimos 12 meses ${tip('A pergunta do exame. Aparece no capítulo Gestão financeira, ao lado de quanto sobra para o futuro.')}</label>${selR('orcamento.vezesPoupou', [['', 'não informado']].concat(ENGINE.VEZES_POUPOU))}</div></div>`;
   const ent = incomeTotal(0), sai = livingTotal(0);
   document.getElementById('fxResumo').innerHTML = 'Depois da liberdade financeira, a renda do trabalho para e as despesas se ajustam à renda disponível.';
 }
@@ -2778,7 +2943,7 @@ document.addEventListener('click', e => {
 function renderPropositoC() {
   const el = document.getElementById('propositoC'); if (!el) return;
   const f = ffInfo(), lista = ENGINE.objetivosDoProposito(plano, f && temIdadeAlvo() ? f.mi : null);
-  el.innerHTML = `<div class="bloco"><h3>Propósito<span class="dir">capítulo 1 do cliente</span></h3>
+  el.innerHTML = `<div class="bloco"><h3>Propósito<span class="dir">o primeiro capítulo do cliente</span></h3>
     <div class="pp-frase">${esc(ENGINE.fraseDoProposito(plano))}</div>
     <div>${lista.map((x, k) => { const i = plano.objectives.findIndex(o => o.id === x.id);
       return `<div class="pp-item"><span class="pp-n">${k + 1}</span><div class="pp-t"><b>${esc(x.titulo)}</b>${x.fixo ? `<small>${esc(x.descricao)}</small>` : `<input data-g="${i}" data-k="descricao" value="${esc(x.descricao)}" placeholder="por que este objetivo importa para o cliente">`}</div>
@@ -3470,7 +3635,28 @@ document.addEventListener('click', e => {
 // ===================== CLIENTE: DEPENDENTES FINANCEIROS =====================
 // Quem depende do cliente é dado do cliente, e por isso é perguntado aqui, logo no começo. A lista fica em
 // plano.riscos.dependentes (o caminho de antes) e decide a reserva de emergência e o seguro de vida.
+// a profissão e a natureza do trabalho de cada pessoa; a reserva usa a natureza de quem tem a maior renda do trabalho
+function renderTrabalhoC() {
+  const el = document.getElementById('trabC'); if (!el) return;
+  const nm = ENGINE.nomesDaFamilia(plano), nr = ENGINE.naturezaDaReserva(plano), ops = [['', 'escolha']].concat(ENGINE.NATUREZAS.map(([n]) => [n, n]));
+  el.innerHTML = ENGINE.pessoasDaFamilia(plano).map(q => { const c = q === 'conjuge' ? 'conjuge' : '', k = n => c ? c + n[0].toUpperCase() + n.slice(1) : n;
+    return `<div class="grid g4"><div class="field"><label>Profissão de ${esc(nm[q])}</label>${campoR(k('profissao'), 'texto', ' placeholder="ex.: analista de marketing"')}</div>
+      <div class="field"><label>Natureza do trabalho de ${esc(nm[q])}</label>${selR(k('natureza'), ops)}</div>
+      <div class="field"><label>Horas trabalhadas no mês ${tip('Com a renda do trabalho, dá o valor da hora de ' + nm[q] + ' no capítulo Gestão financeira. Na coleta, é a soma das horas de cada renda ativa.')}</label>${campoR(k('horas'), 'num', ' min="1" max="744" placeholder="ex.: 176"')}</div>
+      <div class="field"><label>&nbsp;</label><div class="muted" style="padding-top:8px">${nr && nr.quem === q ? 'A reserva de emergência usa esta natureza: é a maior renda do trabalho.' : ''}</div></div></div>`; }).join('');
+}
+// a tabela das classes de ativos e as observações (plano.experiencia)
+function renderExperienciaC() {
+  const el = document.getElementById('expC'); if (!el) return;
+  const nm = ENGINE.nomesDaFamilia(plano), quem = ENGINE.pessoasDaFamilia(plano);
+  const chk = (q, id, k) => `<input type="checkbox" data-r="experiencia.${q}.${id}.${k}" data-rt="chk"${lerR('experiencia.' + q + '.' + id + '.' + k) ? ' checked' : ''}>`;
+  el.innerHTML = `<table class="ex-t"><thead><tr><th></th>${quem.map(q => `<th colspan="3" class="ex-g">${esc(nm[q])}</th>`).join('')}</tr>
+    <tr><th>Classe</th>${quem.map(() => '<th class="ex-g">Entende</th><th>Já investiu</th><th>Tem restrição</th>').join('')}</tr></thead><tbody>
+    ${ENGINE.CLASSES_ATIVOS.map(([id, n]) => `<tr><td>${n}</td>${quem.map(q => `<td class="ex-g">${chk(q, id, 'entende')}</td><td>${chk(q, id, 'investiu')}</td><td>${chk(q, id, 'restricao')}</td>`).join('')}</tr>`).join('')}</tbody></table>
+    <div class="field"><label>Observações</label><textarea data-r="experiencia.observacoes" data-rt="texto" placeholder="comentários pertinentes sobre a família e os investimentos">${esc(lerR('experiencia.observacoes') || '')}</textarea></div>`;
+}
 function renderClienteC() {
+  renderTrabalhoC(); renderExperienciaC();
   const el = document.getElementById('depC'); if (!el) return;
   const R = plano.riscos = plano.riscos || {}, deps = R.dependentes, tem = Array.isArray(deps) ? (deps.length ? 'sim' : 'nao') : '';
   const ate = d => { const lim = d.relacao === 'filho' ? ENGINE.SEGURO.independencia : ENGINE.SEGURO.vidaAdulto, m = ENGINE.mesesAteIdade(d.nasc, lim);
@@ -3495,6 +3681,8 @@ document.addEventListener('change', e => {
 // plano (ENGINE.sincronizaPatrimonio). Um bem pode gerar renda passiva: ele aponta para uma linha de entrada do Fluxo.
 const SITUACOES = [['', 'situação…'], ['em_dia', 'Em dia'], ['inadimplente', 'Inadimplente']];
 const TIPOS_FIN = [['', 'Investimentos'], ['pgbl', 'Previdência PGBL'], ['vgbl', 'Previdência VGBL']];
+// de quem é uma instituição: de uma pessoa ou do casal (vazio, conjunta)
+const DE_QUEM = () => { const nm = ENGINE.nomesDaFamilia(plano); return [['', 'do casal'], ['titular', nm.titular], ['conjuge', nm.conjuge]]; };
 function resumoPatrimonioC() {
   const f = ENGINE.faseDaVida(plano), t = (n, v, cor, cls) => `<div class="pc-tile ${cls || ''}"><span>${cor ? `<i style="background:${cor}"></i>` : ''}${n}</span><b>${v}</b></div>`;
   return t('Mercado financeiro', fmt(f.fin), '#2E9E5B') + t('Participações', fmt(f.part), '#D9952A') + t('Bens', fmt(f.bens), '#3B6FCB') + t('Dívidas', f.dividas ? '− ' + fmt(f.dividas) : fmt(0), '#D64545') + t('Patrimônio total', fmt(f.total), '', 'total');
@@ -3579,6 +3767,14 @@ function htmlBemC(b, i) {
       <button class="btn btn-icon" data-rrm="patrimonio.bens.${i}" title="Remover">×</button></div>
       ${deve ? camposDivida(c, b, 'Financiamento') : ''}${rendaDoBemC(b, i)}${tempoDoBemC(b, i)}</div>`;
 }
+// as instituições onde a família só tem conta, sem investir: de cada pessoa e, num casal, as conjuntas (plano.patrimonio.contas)
+function contasC() {
+  const nm = ENGINE.nomesDaFamilia(plano), D = plano.patrimonio;
+  if (Array.isArray(D.contas)) D.contas = { casal: D.contas };   // uma lista só (de um teste anterior): as do casal
+  const ajuda = tip('Instituições onde tem conta, mas não investe. Aparecem no retrato da família, no começo do capítulo Diagnóstico.');
+  const campo = (k, rot) => `<div class="field"><label>${rot} ${ajuda}</label>${campoR('patrimonio.contas.' + k, 'lista', ' placeholder="ex.: Caixa, Banco do Brasil"')}</div>`;
+  return conjuge() ? campo('titular', esc(nm.titular) + ' também tem conta em') + campo('conjuge', esc(nm.conjuge) + ' também tem conta em') + campo('casal', 'Conta conjunta em') : campo('titular', 'Também tem conta em');
+}
 function renderPatrimonioC() {
   const el = document.getElementById('patrC'); if (!el) return;
   const D = plano.patrimonio = plano.patrimonio || {};
@@ -3588,8 +3784,8 @@ function renderPatrimonioC() {
   if (!Array.isArray(D.bens)) D.bens = plano.initialBens ? [{ nome: '', mercado: +plano.initialBens, saldoDevedor: 0 }] : [];
   if (!Array.isArray(D.dividas)) D.dividas = [];
   const f = ENGINE.faseDaVida(plano), rm = c => `<td><button class="btn btn-icon" data-rrm="${c}" title="Remover">×</button></td>`;
-  const tabela = (c, cab, its, col, vazio, tipo) => its.length ? `<table class="rkc-tab" style="min-width:0"><thead><tr><th>${cab[0]}</th><th>${cab[1]}</th>${tipo ? `<th>Tipo ${tip('A previdência (PGBL e VGBL) fica fora do inventário na sucessão, na página Otimização tributária.')}</th>` : ''}<th></th></tr></thead><tbody>
-    ${its.map((x, i) => `<tr><td>${campoR(`${c}.${i}.nome`, 'texto', ` placeholder="${col}"`)}</td><td>${campoR(`${c}.${i}.valor`, 'reais')}</td>${tipo ? `<td>${selR(`${c}.${i}.tipo`, TIPOS_FIN)}</td>` : ''}${rm(`${c}.${i}`)}</tr>`).join('')}</tbody></table>` : `<div class="pc-vazio">${vazio}</div>`;
+  const tabela = (c, cab, its, col, vazio, tipo) => its.length ? `<table class="rkc-tab" style="min-width:0"><thead><tr><th>${cab[0]}</th><th>${cab[1]}</th>${tipo ? `<th>Tipo ${tip('A previdência (PGBL e VGBL) fica fora do inventário na sucessão, na página Otimização tributária.')}</th>` : ''}${tipo && conjuge() ? `<th>De quem ${tip('Em nome de quem está o investimento. Sem informar, conta como do casal (conjunta). Aparece no retrato da família, no começo do capítulo Diagnóstico.')}</th>` : ''}<th></th></tr></thead><tbody>
+    ${its.map((x, i) => `<tr><td>${campoR(`${c}.${i}.nome`, 'texto', ` placeholder="${col}"`)}</td><td>${campoR(`${c}.${i}.valor`, 'reais')}</td>${tipo ? `<td>${selR(`${c}.${i}.tipo`, TIPOS_FIN)}</td>` : ''}${tipo && conjuge() ? `<td>${selR(`${c}.${i}.titularidade`, DE_QUEM())}</td>` : ''}${rm(`${c}.${i}`)}</tr>`).join('')}</tbody></table>` : `<div class="pc-vazio">${vazio}</div>`;
   const divida = (d, i) => { const c = `patrimonio.dividas.${i}.`;
     return `<div class="pc-item${d.situacao === 'inadimplente' ? ' inad' : ''}"><div class="pc-linha dois">
       <div class="field"><label>Dívida</label>${campoR(c + 'nome', 'texto', ' placeholder="ex.: empréstimo pessoal, consignado"')}</div>
@@ -3600,6 +3796,7 @@ function renderPatrimonioC() {
     <div class="pc-dois">
       <div class="bloco"><h3>Mercado financeiro<span class="dir">${fmt(f.fin)}</span></h3><div class="sub">Investimentos, poupança e conta, por instituição. É o ponto de partida da evolução patrimonial e o que paga a renda da liberdade.</div>
         ${tabela('patrimonio.financeiro', ['Instituição', 'Valor'], D.financeiro, 'ex.: Itaú', 'Nenhuma instituição ainda.', true)}<button class="btn btn-step" data-radd="patrimonio.financeiro">+ instituição</button>
+        <div class="grid g3" style="margin-top:14px">${contasC()}</div>
         <div class="grid g2" style="margin-top:14px"><div class="field"><label>Liquidez ideal ${tip('Quanto do patrimônio deveria estar no mercado financeiro, pela sua avaliação. O cliente vê o patrimônio financeiro comparado a este valor.')}</label>${campoR('patrimonio.liquidezIdeal', 'reais', ' placeholder="defina pela sua avaliação"')}</div>
           <div class="field"><label>&nbsp;</label><div class="muted" style="padding-top:8px">${f.liquidezIdeal > 0 ? 'Hoje há ' + fmt(f.fin) + ' no financeiro: ' + (f.fin >= f.liquidezIdeal ? 'está bom.' : 'faltam ' + fmt(f.liquidezIdeal - f.fin) + ' para o ideal.') : ''}</div></div></div></div>
       <div class="bloco"><h3>Participações societárias<span class="dir">${fmt(f.part)}</span></h3><div class="sub">A parte do cliente em cada empresa. Fica constante no tempo e não paga a renda desejada.</div>
@@ -3805,11 +4002,45 @@ function renderPremissas() {
 // na plataforma, viria do cadastro do planejador) e a data do relatório (plano.dataRelatorio; vazia, a de hoje).
 function capitulo1() {
   const cp = (n, h) => `<div class="field"><label>${n}</label>${h}</div>`, link = ' placeholder="link do YouTube, do Vimeo ou do arquivo"';
-  return `<div class="ap-cap"><div class="ap-cab"><span class="ap-num">1</span><b>Propósito</b><button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="proposito">Abrir a página 1</button><button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="proposito-nos">Abrir a página 2</button></div>
+  return `<div class="ap-cap"><div class="ap-cab"><b>Propósito</b><button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="proposito">Abrir a página 1</button><button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="proposito-nos">Abrir a página 2</button></div>
     <div class="sub" style="margin:0 0 12px">Duas páginas, como uma landing page. Na primeira, boas-vindas com o seu vídeo, a frase do propósito em destaque e os objetivos na ordem do cliente (no bloco Propósito da página Objetivos). Na segunda, quem cuida do planejamento, como vamos caminhar juntos e quem somos.</div>
     <div class="grid g3">${cp('Vídeo de boas-vindas', campoR('videos.cap-proposito-caso', 'texto', link))}${cp('Data do relatório', campoR('dataRelatorio', 'texto', ' type="date"'))}<div></div>
       ${cp('Planejador', campoR('consultor.nome', 'texto', ' placeholder="nome completo"'))}${cp('Certificação', campoR('consultor.certificacao', 'texto', ' placeholder="ex.: CFP®"'))}${cp('Foto (link)', campoR('consultor.foto', 'texto', ' placeholder="vazio: as iniciais"'))}
       ${cp('Telefone', campoR('consultor.telefone', 'texto', ' placeholder="+55 (11) 90000-0000"'))}${cp('E-mail', campoR('consultor.email', 'texto', ' placeholder="nome@nordwealth.com.br"'))}</div></div>`;
+}
+// O capítulo 2 é uma página só: a família hoje e depois do planejamento, em oito linhas (ENGINE.diagnosticoDaFamilia). O
+// presente do orçamento, da reserva e da proteção é calculado e aparece aqui só para leitura, com o caminho até onde nasce;
+// o resto e todo o futuro o consultor marca aqui (plano.diagnostico, e o degrau de cada objetivo em objectives[].diagnostico).
+function capitulo2() {
+  const d = ENGINE.diagnosticoDaFamilia(plano), E = ENGINE.ESTADOS_DIAGNOSTICO, L = id => d.linhas.find(l => l.id === id);
+  const sel = (c, g) => selR(c, [['', '—']].concat(E[g])), pc = v => Math.round(v * 100) + '%', o = d.orcamento, r = d.reserva, c = d.concentracao;
+  const valor = t => `<b>${t ? esc(t) : '—'}</b>`, ir = (pg, nome) => ` <button class="link" data-ir="${pg}">${nome}</button>`;
+  const linha = (nome, pres, fut) => `<tr><th>${nome}</th><td>${pres}</td><td>${fut}</td></tr>`;
+  const objs = (plano.objectives || []).map((x, i) => `<tr class="dg-obj"><th>${esc(x.name || 'Objetivo sem nome')}</th><td>${sel('objectives.' + i + '.diagnostico.presente', 'objetivo')}</td><td>${sel('objectives.' + i + '.diagnostico.futuro', 'objetivo')}</td></tr>`).join('');
+  return `<div class="ap-cap"><div class="ap-cab"><b>Diagnóstico</b><button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="diagnostico">Abrir a página 1</button><button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="hoje-depois">Abrir a página 2</button></div>
+    <div class="sub" style="margin:0 0 12px">Duas páginas. Na primeira, quem é a família (das páginas Cliente e Patrimônio, com a experiência com investimentos). Na segunda, a família hoje e depois do planejamento, em dois cartões: o hoje sempre à vista e o depois entrando em cascata. O presente do orçamento, da reserva e da proteção é calculado; o resto, e todo o futuro, você marca aqui.</div>
+    <table class="dg-t"><thead><tr><th></th><th>Presente</th><th>Futuro</th></tr></thead><tbody>
+      ${linha('Status do orçamento', valor(L('orcamento').presenteTxt) + `<small>${o ? (o.sobra >= 0 ? 'Sobra' : 'Falta') + ' de ' + fmt(Math.abs(o.sobra)) + ' por mês (' + pc(Math.abs(o.pct)) + ' das entradas), no' : 'Falta o'}${ir('fluxo', 'Fluxo de caixa')}</small>`, sel('diagnostico.orcamento.futuro', 'orcamento'))}
+      ${linha('Reserva', valor(L('reserva').presenteTxt) + `<small>${r.status !== 'pendente' ? fmt(r.atual) + ' de ' + fmt(r.ideal) + ' ideais, na' : 'Falta avaliar a reserva na'}${ir('riscos', 'Gestão de riscos')}</small>`, sel('diagnostico.reserva.futuro', 'reserva'))}
+      ${linha('Objetivos bem definidos', valor(L('definidos').presenteTxt) + '<small>com valor e prazo: meta definida ou meta com caminho</small>', valor(L('definidos').futuroTxt))}
+      ${linha('Objetivos com caminho definido', valor(L('caminho').presenteTxt) + '<small>sabem como chegar: meta com caminho</small>', valor(L('caminho').futuroTxt))}
+      ${objs}
+      ${linha('Percentual de proteção', valor(L('protecao').presenteTxt) + `<small>${L('protecao').presente == null ? 'Nenhuma ameaça avaliada na' : 'Pela'}${ir('riscos', 'Gestão de riscos')}</small>`, campoR('diagnostico.protecao.futuro', 'num', ' min="0" max="100" placeholder="%"'))}
+      ${linha('Perfil de risco da carteira', sel('diagnostico.perfil.presente', 'perfil'), sel('diagnostico.perfil.futuro', 'perfil'))}
+      ${linha('Concentração patrimonial', sel('diagnostico.concentracao.presente', 'concentracao') + (c ? `<small>Financeiro ${pc(c.pct.fin)} · imóveis e bens ${pc(c.pct.bens)} · participações ${pc(c.pct.part)}. ${c.sugestao ? 'Abaixo de 30% no financeiro: preocupante.' : 'Abaixo de 30% no financeiro seria preocupante.'}</small>` : ''), sel('diagnostico.concentracao.futuro', 'concentracao'))}
+      ${linha('Liberdade financeira encaminhada', sel('diagnostico.liberdade.presente', 'liberdade'), sel('diagnostico.liberdade.futuro', 'liberdade'))}
+    </tbody></table></div>`;
+}
+// O capítulo Gestão financeira: a capa com o vídeo teórico e três páginas (renda e custo de vida, o tempo, o orçamento).
+// O orçamento combinado com a família (plano.orcamento.envelopes) pode ser gravado aqui ou na apresentação, pelo botão da
+// página do orçamento; vazio, a página abre no recomendado (50/30/20).
+function capituloGestao() {
+  const g = ENGINE.gestaoFinanceira(plano), cp = (n, h) => `<div class="field"><label>${n}</label>${h}</div>`, link = ' placeholder="link do YouTube, do Vimeo ou do arquivo"';
+  const env = k => cp({ fixas: 'Despesas fixas', ajustaveis: 'Despesas ajustáveis', futuro: 'Para o futuro' }[k] + ' (por mês)', campoR('orcamento.envelopes.' + k, 'reais', ` placeholder="vazio: ${fmt(g.ideal[k])} (recomendado)"`));
+  return `<div class="ap-cap"><div class="ap-cab"><b>Gestão financeira</b><button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="capa-gestao">Abrir a capa</button><button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="orcamento">Abrir o orçamento</button></div>
+    <div class="sub" style="margin:0 0 12px">A capa tem só o vídeo teórico. Depois, três páginas: a renda, o custo de vida e o que vai para o futuro; o tempo de trabalho de cada pessoa (as horas ficam na página Cliente); e o orçamento em envelopes, que vocês podem simular e gravar juntos na apresentação.</div>
+    <div class="grid g2">${cp('Vídeo teórico, na capa (o mesmo para todos os clientes)', campoR('videos.cap-gestao-teoria', 'texto', link))}<div></div></div>
+    <div class="grid g3">${env('fixas')}${env('ajustaveis')}${env('futuro')}</div></div>`;
 }
 // As páginas que o cliente vê, na ordem da jornada dele, com o que cada uma vai mostrar, o vídeo e o atalho.
 function renderApresentacaoC() {
@@ -3831,9 +4062,11 @@ function renderApresentacaoC() {
   plano.videos = plano.videos || {};
   caps.forEach(([cid, , , ids]) => { const k = 'cap-' + cid + '-caso', velho = ids.map(i => plano.videos[i]).find(Boolean); if (!plano.videos[k] && velho) plano.videos[k] = velho; });
   const cp = (n, h) => `<div class="field"><label>${n}</label>${h}</div>`, link = ' placeholder="link do YouTube, do Vimeo ou do arquivo"';
-  el.innerHTML = `<div class="bloco"><h3>Os capítulos do cliente</h3><div class="sub">Cada capítulo abre com duas páginas: a capa, com o vídeo teórico, que explica o tema e é o mesmo para todos os clientes; e o resumo do caso, com o vídeo em que você explica o planejamento deste cliente, os principais números e o que fazer. Depois vêm as páginas de detalhe, só com os resultados. O capítulo 2 ainda vai ser construído.</div>
+  el.innerHTML = `<div class="bloco"><h3>Os capítulos do cliente</h3><div class="sub">Cada capítulo abre com duas páginas: a capa, com o vídeo teórico, que explica o tema e é o mesmo para todos os clientes; e o resumo do caso, com o vídeo em que você explica o planejamento deste cliente, os principais números e o que fazer. Depois vêm as páginas de detalhe, só com os resultados.</div>
     ${capitulo1()}
-    ${caps.filter(([cid]) => cid !== 'proposito').map(([cid, n, nome, ids]) => `<div class="ap-cap"><div class="ap-cab"><span class="ap-num">${n}</span><b>${nome}</b><button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="capa-${cid}">Abrir a capa</button><button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="resumo-${cid}">Abrir o resumo</button></div>
+    ${capitulo2()}
+    ${capituloGestao()}
+    ${caps.filter(([cid]) => cid !== 'proposito').map(([cid, n, nome, ids]) => `<div class="ap-cap"><div class="ap-cab"><b>${nome}</b><button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="capa-${cid}">Abrir a capa</button><button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="resumo-${cid}">Abrir o resumo</button></div>
       <div class="grid g2">${cp('Vídeo teórico, na capa (o mesmo para todos os clientes)', campoR('videos.cap-' + cid + '-teoria', 'texto', link))}${cp('Vídeo do caso deste cliente, no resumo', campoR('videos.cap-' + cid + '-caso', 'texto', link))}</div>
       ${pgs.filter(p => ids.includes(p[0])).map(([id, , nomeP, ok, falta, ir]) => `<div class="ap-pg"><div><b>${nomeP}</b>${ok ? `<small>${ok}</small>` : `<small class="falta">${falta} <button class="link" data-ir="${ir}">Resolver</button></small>`}</div>
         <button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="${id}">Abrir</button></div>`).join('')}</div>`).join('')}</div>
@@ -3864,11 +4097,11 @@ function renderRiscosC() {
   const r = it.reserva, sn = [['', 'não informado'], ['sim', 'Sim'], ['nao', 'Não']];
   blocos.push(`<div class="bloco" id="rkc-reserva"><h3>1. Desemprego e emergência${stC(r.status)}</h3><div class="grid g3">
     <div class="field"><label>Dependentes financeiros (d = 3)</label>${Array.isArray(R.dependentes) ? `<input disabled value="${R.dependentes.length ? 'Sim: ' + R.dependentes.length + ', na página Cliente' : 'Não, pela página Cliente'}">` : selR('riscos.reserva.dependentes', sn, 'bool')}</div>
-    <div class="field"><label>Natureza do trabalho (t)</label>${selR('riscos.reserva.natureza', [['', 'escolha']].concat(ENGINE.NATUREZAS.map(([n, t]) => [n, n + ' · ' + t])))}</div>
+    <div class="field"><label>Natureza do trabalho (t)</label><input disabled value="${r.natureza ? esc(r.natureza) + ' · ' + r.t + ' (' + esc(ENGINE.nomesDaFamilia(plano)[r.naturezaDe]) + '), na página Cliente' : 'informe na página Cliente'}"></div>
     <div class="field"><label>Custo de vida mensal</label>${campoR('riscos.reserva.custoVida', 'reais', ` placeholder="vazio: ${f(ENGINE.custoDeVida(plano))} do fluxo"`)}</div>
     <div class="field"><label>Reserva atual</label>${campoR('riscos.reserva.atual', 'reais', ` placeholder="vazio: D+0 da liquidez"`)}</div>
     <div class="field"><label>Alvo de reserva (opcional)</label>${campoR('riscos.reserva.alvo', 'reais', ' placeholder="vazio: o ideal calculado"')}</div></div>
-    <div class="rkc-calc">${r.ideal != null ? `Ideal ${f(r.ideal)}${r.alvoProprio ? ' (alvo definido)' : ` = ${f(r.custo)} × (${r.d} + ${r.t}) meses`} · aceitável ${f(r.aceitavel)} · mínima ${f(r.minima)} · atual ${r.atual != null ? f(r.atual) : '—'}. Em dia a partir do ideal; atenção entre a mínima e o ideal; crítico abaixo da mínima.` : 'Escolha a natureza do trabalho para calcular a reserva ideal.'}</div></div>`);
+    <div class="rkc-calc">${r.ideal != null ? `Ideal ${f(r.ideal)}${r.alvoProprio ? ' (alvo definido)' : ` = ${f(r.custo)} × (${r.d} + ${r.t}) meses`} · aceitável ${f(r.aceitavel)} · mínima ${f(r.minima)} · atual ${r.atual != null ? f(r.atual) : '—'}. Em dia a partir do ideal; atenção entre a mínima e o ideal; crítico abaixo da mínima.` : 'Informe a natureza do trabalho na página Cliente para calcular a reserva ideal.'}</div></div>`);
   const S = R.saude || {};
   blocos.push(`<div class="bloco" id="rkc-saude"><h3>2. Problema de saúde${stC(it.saude.status)}</h3><div class="grid g3">
     <div class="field"><label>Avaliação</label>${selR('riscos.saude.avaliacao', [['', 'não avaliado'], ['adequado', 'Plano adequado (em dia)'], ['otimizavel', 'Pode ser otimizado (atenção)'], ['sem_plano', 'Sem plano de saúde (crítico)']])}</div>
@@ -4067,6 +4300,7 @@ function concluirResposta() {
 }
 // a proposta chegou ou mudou (enviada pelo cliente, de onde ele estiver)
 ARMAZEM.ouvir('proposta', () => renderPropostas());
+ARMAZEM.ouvir('plano', novo => { if (novo && JSON.stringify(novo.orcamento || null) !== JSON.stringify(plano.orcamento || null)) { plano.orcamento = novo.orcamento; renderAll(); } });
 
 // páginas do portal: cada assunto numa página, na ordem em que o plano é montado
 // (dados do cliente: Cliente, Fluxo, Patrimônio; planejamento: Riscos, Objetivos, Liberdade, Tributário, Premissas; com o cliente)

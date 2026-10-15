@@ -76,7 +76,7 @@ coleta.
 |---|---|---|---|---|
 | 1 | ★ De 1 a 5, sente que está usando seu dinheiro da melhor forma para construir o futuro? | `selfevaluation` | 1 Nada confiante a 5 Muito confiante | 09 Perfil |
 | 2 | ★ Quanto, em média, você poupa por mês? | `declaredmonthlysavings` | R$ | 02 Orçamento |
-| 3 | ★ Quantas vezes nos últimos 12 meses poupou esse valor? | `recentsavingsfrequency` | Nenhuma, 1-3, 4-6, 7-9, 10 ou mais | 02 Orçamento |
+| 3 | ★ Quantas vezes nos últimos 12 meses poupou esse valor? | `recentsavingsfrequency` | Nenhuma, 1-3, 4-6, 7-9, 10 ou mais | 02 Orçamento (no plano, `orcamento.vezesPoupou`) |
 | 4 | ★ Tem hoje, com clareza, um ou mais objetivos financeiros? | `hasobjective` | Sim, Não | 01 Objetivos |
 | 5 | Se tem objetivo: já avaliou quanto vai precisar? | `evaluateneededmoney` | Sim, Não | 01 Objetivos |
 | 6 | Se tem objetivo: já tem um plano concreto? | `hasplanforobjective` | Sim, Não | 01 Objetivos |
@@ -159,7 +159,7 @@ só aparece como dependente (relação "Cônjuge", com nome e idade).
 | **Lista de objetivos** (`objList`) | | | `objectives[]` |
 | Título do objetivo | `obj_titulo[]` | texto | `name` |
 | Categoria | `obj_categoria[]` | Compra de Casa, Compra de Veículo, Viagem, Intercâmbio, Aposentadoria Segura, Futuro dos Filhos, Casamento, Quitar Dívidas, Segurança Financeira, Outro | `icon` e `kind` (casa e veículo viram bem; o resto é consumo), por uma regra a definir |
-| Descrição | `obj_descricao[]` | texto longo | `descricao` (o porquê do objetivo, no capítulo 1); a ordem dos objetivos na coleta vira `objetivosOrdem` |
+| Descrição | `obj_descricao[]` | texto longo | `descricao` (o porquê do objetivo, no Propósito); a ordem dos objetivos na coleta vira `objetivosOrdem` |
 | Mês alvo | `obj_dataAlvo[]` | mês | `months`, calculado (meses a partir de set/2026) |
 | Valor necessário na data alvo | `obj_valorNecessario[]` | R$ | `amount` |
 | Custo total do objetivo | `obj_custoTotal[]` | R$ ("parcial ou financiado") | a diferença para o necessário seria o financiado de `costs[]` (faltam taxa e prazo) |
@@ -179,7 +179,7 @@ só aparece como dependente (relação "Cônjuge", com nome e idade).
 |---|---|---|---|
 | Periodicidade do orçamento | `orcamentoModo` | Mensal, Anual | unidade do valor abaixo |
 | ★ Valor do orçamento doméstico (custo de vida) | `declaredstandardofliving` | R$ ("somente o valor de sua responsabilidade") | `riscos.reserva.custoVida` (ajuste); o plano calcula o custo de vida das despesas. É **só a parte do cliente** nas despesas |
-| ★ Quantas vezes poupou esse valor nos últimos 12 meses? | `recentsavingsfrequency` | Nenhuma, 1-3, 4-6, 7-9, 10 ou mais | diagnóstico |
+| ★ Quantas vezes poupou esse valor nos últimos 12 meses? | `recentsavingsfrequency` | Nenhuma, 1-3, 4-6, 7-9, 10 ou mais | `orcamento.vezesPoupou` (Gestão financeira) |
 | ★ Acompanha as despesas mensais do orçamento doméstico? | `doesbudgeting` | Sim em detalhes, Sim parcialmente, Não mas tenho ideia, Não faço ideia | diagnóstico |
 | ★ Quanto poupa por mês em média? | `declaredmonthlysavings` | R$ | `capacityOverride` (capacidade de poupança informada) |
 
@@ -270,12 +270,12 @@ Cada seguro abre o detalhe quando "Protegido?" é Sim.
 
 | Campo | `name` | Tipo e opções | No plano |
 |---|---|---|---|
-| ★ Natureza da principal fonte de renda | `incomenature` | CLT, Servidor Público, Aposentadoria/Pensão, Profissional Liberal/Autônomo, Empresário, Sem Renda | `riscos.reserva.natureza` (mesmas categorias da calculadora de reserva, menos estagiário) |
+| ★ Natureza da principal fonte de renda | `incomenature` | CLT, Servidor Público, Aposentadoria/Pensão, Profissional Liberal/Autônomo, Empresário, Sem Renda | `natureza` do titular (mesmas categorias da calculadora de reserva, menos estagiário); o cônjuge tem `conjugeNatureza` |
 | ★ Renda líquida mensal | `declaredincome` | R$ | a renda principal em `incomes[]` (o valor do degrau) |
 | Regime de declaração do IR | `irRegime` | Simplificado, Completo, Não declara | o modelo de hoje no IR; o plano escolhe o de menor imposto sozinho |
 | **Renda ativa** ("outras fontes", `rendaAtivaList`) | | | `incomes[]` de tipo ativa |
 | Regime de trabalho | `ra_regime[]` | CLT, Profissional Liberal/Autônomo, Empresário, Servidor Público | `origin` (CLT e servidor: Salário; empresário: Pró-labore) e o INSS do IR |
-| Horas de trabalho/mês | `ra_horas[]` | número | não usado |
+| Horas de trabalho/mês | `ra_horas[]` | número | somadas por pessoa: `horas`, `conjugeHoras` (o valor da hora, na Gestão financeira) |
 | Renda bruta mensal | `ra_rendaBruta[]` | R$ | `gross` |
 | Renda líquida mensal | `ra_rendaLiquida[]` | R$ | `steps[0].value` |
 | Comissões (mensal) | `ra_comissoes[]` | R$ | uma linha "Comissões" |
@@ -329,7 +329,7 @@ O nome do cliente vem do cadastro da plataforma, não da coleta.
 | ★ Escala de 1 a 5: usa o dinheiro da melhor forma? | `selfevaluation` | 1 a 5 | diagnóstico |
 | Disposição a risco, capacidade para risco (identificadas pelo consultor) | `disposicaoRisco`, `capacidadeRisco` | Baixo, Médio, Alto | não usado (apoio para o perfil dos objetivos) |
 | Relação com o dinheiro | `relacaoDinheiro` | Gastador, Poupador, Neutro | não usado |
-| Restrição a classe de ativo; ativo que não quer desfazer; classe que não quer ter | `restricaoClasseAtivo`, `ativoNaoDesfazer`, `classeNaoQuer` | texto | não usado (apoio para a ameaça de ruína) |
+| Restrição a classe de ativo; ativo que não quer desfazer; classe que não quer ter | `restricaoClasseAtivo`, `ativoNaoDesfazer`, `classeNaoQuer` | texto | não usado (apoio para a ameaça de ruína e para `experiencia`, a tabela das classes de ativos) |
 | Perpetuidade / herança | `perpetuidadeHeranca` | texto longo | não usado (apoio para `mode`, perpetuidade ou consumo) |
 
 ### 10 Anexos e 11 Próximas tarefas
@@ -402,7 +402,7 @@ variáveis. **Lacuna**: o plano usa e a coleta não pega; hoje quem preenche é 
 
 | Variável | Caminho | Origem | De onde |
 |---|---|---|---|
-| Natureza do trabalho | `riscos.reserva.natureza` | Exame | `incomenature` (pergunta 24) |
+| Natureza do trabalho | `natureza` (e `conjugeNatureza`) | Exame | `incomenature` (pergunta 24) |
 | Tem dependentes | `riscos.reserva.dependentes` | Exame | `hasdependents` (pergunta 26) |
 | Reserva atual | `riscos.reserva.atual` | Exame | `currentreserve` (pergunta 10; o plano usa o D+0) |
 | Alvo de reserva | `riscos.reserva.alvo` | Exame | `estimatedreserve` (pergunta 12; o plano calcula a ideal) |
