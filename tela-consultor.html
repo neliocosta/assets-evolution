@@ -1964,6 +1964,21 @@ const PLANO_PADRAO = Object.assign(
     horas: ENGINE.FAMILIA_EXEMPLO.horas, conjugeHoras: ENGINE.FAMILIA_EXEMPLO.conjugeHoras, orcamento: JSON.parse(JSON.stringify(ENGINE.FAMILIA_EXEMPLO.orcamento)), videos: {} },
   JSON.parse(JSON.stringify(ENGINE.config()))
 );
+// Exemplo completo: o que só a apresentação usa (vídeos, data do relatório, foto do planejador, mensagem final, orçamento
+// combinado) e alguns campos opcionais, para ver o portal e a área do cliente inteiros. Tudo fictício: o vídeo é o curta
+// aberto Big Buck Bunny (Blender Foundation), no lugar dos vídeos do escritório.
+(() => {
+  const V = 'https://www.youtube.com/watch?v=aqz-KE-bpKQ', P = PLANO_PADRAO;
+  P.videos = Object.fromEntries(['proposito', 'gestao', 'tributario', 'patrimonio', 'riscos', 'evolucao'].flatMap(c => [['cap-' + c + '-teoria', V], ['cap-' + c + '-caso', V]]));
+  P.dataRelatorio = '2026-09-19';
+  P.mensagemFinal = 'Nos vemos na revisão de março. Até lá, qualquer dúvida, é só chamar.';
+  P.consultor.foto = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96"><rect width="96" height="96" fill="#20344C"/><circle cx="48" cy="38" r="17" fill="#FFF3EB"/><path d="M14 96c2-22 16-32 34-32s32 10 34 32z" fill="#FA7A35"/></svg>');
+  P.orcamento.envelopes = { fixas: 7200, ajustaveis: 4800, futuro: 3500 };
+  P.patrimonio.contas.casal = ['Banco Inter'];
+  const praia = P.objectives.find(o => o.id === 'praia'); if (praia) praia.iconFA = 'fa-umbrella-beach';
+  // a creche da Luiza: hoje na declaração do Marcos, que declara a filha; na recomendada, na da Ana
+  P.tributario.ir.atual.lanc[1].instr = 3000; P.tributario.ir.recomendada.lanc[0].instr = 3000;
+})();
 
 // plano salvo completado com o padrão; o patrimônio detalhado e a tributação não vêm do exemplo (um plano antigo só tem os totais)
 const doSalvo = p => Object.assign(structuredClone(PLANO_PADRAO), { patrimonio: null, tributario: null, diagnostico: null, experiencia: null, profissao: '', conjugeProfissao: '', conjugeNatureza: '', horas: null, conjugeHoras: null, orcamento: null,

@@ -9,6 +9,9 @@ anterior. Leia junto com o `README.md`, que descreve como as duas telas funciona
 2. Abra `tela-consultor.html` e `evolucao-patrimonial.html` no navegador. Os arquivos são autocontidos.
 3. Escolha um item de **P1** abaixo.
 
+**Última sessão (15/10/2026, tarde):** veja `SESSAO-2026-10-15.md`: o exemplo completo, o link republicado e as revisões de UX
+das duas ferramentas (em `ux/research/`), ainda não aplicadas.
+
 ## Gestão de riscos (em aberto)
 
 A gestão de riscos já existe (fase 1 da jornada do cliente e página "Gestão de riscos" no portal; veja o README).
@@ -87,7 +90,9 @@ feitos sem o usuário por perto, a partir do pedido dele: confira as escolhas ab
 Font Awesome publicado junto (o visualizador bloqueia o cdnjs) e tem o banco compartilhado (capacidades `db` e
 `user`, regras: `plano` só o dono grava, `propostas` grava quem é Contribuidor). Para republicar, gere a cópia a
 partir dos arquivos do repositório com essas três trocas (`node gerar-publicacao.js . <pasta>` faz as três) e publique no
-mesmo link, mantendo as capacidades. Versão 41 no ar, gerada de um estado intermediário, sem commit, da rodada do capítulo 1 (antes da landing page); falta republicar a partir do commit dessa rodada.
+mesmo link, mantendo as capacidades. Versão 43 no ar, com o exemplo completo (vídeos, data do relatório, foto do
+planejador, mensagem final, orçamento combinado; o vídeo é o curta aberto Big Buck Bunny), que também é o plano gravado no
+banco do link (`plano/atual`). O plano de teste que estava lá ficou em `plano/backup-2026-10-15`.
 
 ## Armadilhas deste repositório
 
