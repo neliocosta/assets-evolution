@@ -2,7 +2,8 @@
 // Usa o Chrome pelo protocolo do DevTools: viewport real, espera as animações, rola a página (ou o contêiner que rola)
 // para disparar as entradas e tira a página em trechos (-1, -2, ...).
 // uso: node ux/servir.cjs . 8137 (noutro terminal) e depois node ux/capturas.cjs <pasta-saida> [consultor|cliente] [pagina]
-// Celular: W=390 H=844 node ux/capturas.cjs <pasta> cliente. MAXT limita os trechos por página (padrão 5).
+// Celular: W=390 H=844 node ux/capturas.cjs <pasta> cliente. MAXT limita os trechos por página (padrão 5). Q acrescenta
+// parâmetros ao endereço da área do cliente, para comparar uma prévia (ex.: Q=&tom=x).
 const { spawn } = require('child_process'), fs = require('fs'), path = require('path'), os = require('os');
 const CHROME = process.env.CHROME || 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe', PORTA = 9333;
 const out = path.resolve(process.argv[2] || 'capturas'), so = process.argv[3], uma = process.argv[4];
@@ -15,7 +16,7 @@ const consultor = ['cliente', 'fluxo', 'patrimonio', 'riscos', 'objetivos', 'lib
 const cliente = ['proposito', 'proposito-nos', 'diagnostico', 'hoje-depois', 'capa-gestao', 'renda-custo', 'tempo', 'orcamento', 'capa-tributario', 'resumo-tributario', 'ir', 'prolabore', 'sucessao', 'previdencia', 'capa-patrimonio', 'resumo-patrimonio', 'patrimonio', 'capa-riscos', 'resumo-riscos', 'riscos', 'capa-evolucao', 'resumo-evolucao', 'evolucao', 'caminho'];
 // o portal sem plano no navegador abre o exemplo completo; a área do cliente recebe o plano pelo endereço
 const alvos = [].concat(so === 'cliente' ? [] : consultor.map((p, i) => [`consultor-${String(i + 1).padStart(2, '0')}-${p}`, `${base}tela-consultor.html#${p}`]),
-  so === 'consultor' ? [] : cliente.map((p, i) => [`cliente-${String(i + 1).padStart(2, '0')}-${p}`, `${base}evolucao-patrimonial.html?fase=${p}#plano=${b64}`]))
+  so === 'consultor' ? [] : cliente.map((p, i) => [`cliente-${String(i + 1).padStart(2, '0')}-${p}`, `${base}evolucao-patrimonial.html?fase=${p}${process.env.Q || ''}#plano=${b64}`]))
   .filter(([n]) => !uma || n.endsWith('-' + uma));
 const espera = ms => new Promise(r => setTimeout(r, ms));
 

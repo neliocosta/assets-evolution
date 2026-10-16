@@ -1,5 +1,10 @@
 ---
 name: Nord Liberta
+**Destaques em laranja suave** (escolha do usuário em 16/10/2026, comparada com a versão em marinho): os números em
+destaque dos resumos e dos heróis tributários vão no Laranja Horizonte Texto. As trilhas, a teia dos riscos, as barras do
+imposto, a fase atual e as referências da fase, a história da Nord e os sliders da previdência usam aurora e pêssego, nunca
+o laranja forte em área larga. O que impressionava mal era a cor forte, não o laranja.
+
 description: O planejamento financeiro da família como uma travessia, de hoje à liberdade financeira.
 colors:
   laranja-horizonte: "#FA7A35"

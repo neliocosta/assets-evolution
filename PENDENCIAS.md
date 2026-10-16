@@ -456,6 +456,8 @@ Registradas aqui porque não são óbvias no código:
   escadas do capítulo 3.
 - **Carrossel de riscos sem sobe e desce (07/10/2026).** Cada ameaça tinha uma altura, e a página subia e descia ao passar
   de uma para outra. Todos os slides têm agora a altura do mais alto: a tela é sempre a mesma, mesmo que seja preciso rolar.
+  **Refeito em 16/10/2026:** o cartão fica da altura da ameaça à vista (sem o vazio de até 1.200px), e a página guarda
+  embaixo do rodapé a diferença até a mais alta. A altura total não muda, então a tela continua sem pular.
 - **Otimização tributária como capítulo 3 (07/10/2026).** Pedido do usuário, que vai rever a ordem depois. Quatro páginas,
   com o roteiro das outras: a economia em destaque ao lado do vídeo, hoje e o recomendado lado a lado na mesma escala, o
   que muda e a conta recolhida. Composições aparecem como escada (soma), como no patrimônio. No portal, um passo novo em

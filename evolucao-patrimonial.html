@@ -587,7 +587,7 @@ body.sem-grafico .legend,body.sem-grafico .stats,body.sem-grafico #segView,body.
 #rkPos{margin-left:8px;font:600 12.5px 'DM Sans',sans-serif;color:#6b6a66}
 /* todos os slides têm a altura do mais alto: passar de uma ameaça para outra não mexe na página */
 .rk-car{position:relative;overflow:hidden;margin:0 -24px}
-.rk-trilha{display:flex;align-items:stretch;gap:20px;will-change:transform;touch-action:pan-y}
+.rk-trilha{display:flex;align-items:flex-start;gap:20px;will-change:transform;touch-action:pan-y}
 .rk-slide{flex:0 0 min(860px,76%);margin:0;opacity:.4;transform:scale(.97);transition:opacity .3s,transform .3s;cursor:pointer;user-select:none}
 .rk-slide.atual{opacity:1;transform:none;cursor:default;user-select:auto}
 .rk-slide.atual .corpo{cursor:auto}
@@ -866,6 +866,22 @@ body.fluxo .stats{margin-left:auto}
 .cp-v,.cp-pags,.nota-card,.tb-card,.pf-card,.pf-ideal,.pf-comp,.pf-como,.rk-card,.video{border-radius:16px}
 .simula input::placeholder,.simula textarea::placeholder{font:italic 400 13.5px 'DM Sans',sans-serif;color:#6B6A66;opacity:1}
 @media (prefers-reduced-motion:reduce){.lp-trilha li.agora .lp-tr-no{animation:none}}
+/* os destaques em laranja suave (aurora #F6A06B, pêssego #FCD9C2, texto #E06600), escolhidos pelo usuário em 16/10/2026 */
+.cp-n b.ok,.tb-eco{color:#E06600}
+.teia-a{fill:rgba(246,160,107,.18);stroke:#F6A06B}
+.tb-barra i{background:#FBCFB3} .tb-grade>:nth-child(even) .tb-barra i{background:#F6A06B}
+.pf-seg.on i em{background:#F6A06B}
+.lp-hist b{color:#E06600} .lp-hist li::before{border-color:#F6A06B} .lp-hist::before{background:#FCD9C2}
+.lp-tr-linha i{background:#F6A06B}
+.lp-trilha li.feito .lp-tr-no{background:#F6A06B;border-color:#F6A06B;color:var(--nl-navy-900)}
+.lp-objs::before{background:#FCD9C2}
+.lp-obj-i.fixo{background:linear-gradient(135deg,#FFF3EB,#FCD9C2)} .lp-obj-i.fixo svg{stroke:#E06600}
+.cp-p em{color:#F6A06B}
+.lp-av,.fm-av{background:#FCD9C2}
+.gf-vz li.on{background:#FFF3EB;border-color:#F6A06B}
+.tb-campo input[type=range]::-webkit-slider-runnable-track{background:linear-gradient(90deg,#F6A06B var(--p,50%),#EEF1F5 var(--p,50%))}
+.tb-campo input[type=range]::-webkit-slider-thumb{border-color:#F6A06B}
+.degraus .cheio{background:#F6A06B}
 </style>
 </head>
 <body>
@@ -3191,6 +3207,12 @@ function mostraFase(f) {
   const pg = paginaDe(f) || PAGINAS[0]; f = pg.id;
   FASE = f; VISTAS.add(f); try { localStorage.setItem('nl-fase', f); localStorage.setItem('nl-vistas', JSON.stringify([...VISTAS])); } catch (e) { }
   document.body.classList.toggle('sem-grafico', f !== 'evolucao');
+  // a trajetória abre tocando a evolução do patrimônio (uma vez; depois, "Reproduzir de novo"). Toca mesmo com menos movimento
+  // no sistema: aqui a animação é o conteúdo, como no botão Reproduzir.
+  if (f === 'evolucao' && !FLUXO && !state.started) setTimeout(() => {
+    if (FASE !== 'evolucao' || state.started) return;
+    togglePlay();
+  }, 500);
   document.getElementById('riscos').hidden = f !== 'riscos'; document.getElementById('patrimonio').hidden = f !== 'patrimonio'; document.getElementById('wrap').hidden = f !== 'evolucao'; document.getElementById('pagina').hidden = !noPainel(pg); document.getElementById('tributos').hidden = !PAGINAS_TRIB.includes(f);
   const k = PAGINAS.indexOf(pg);
   document.getElementById('pgCap').textContent = pg.capa || pg.titulo === pg.capTitulo ? 'Capítulo' : pg.capTitulo;
@@ -3764,8 +3786,8 @@ function ondeEsta(f) {
 // fase, com a linha tracejada levando o total até eles. A faixa escura ao fundo é a liquidez ideal do consultor.
 function idealHtml(f, fase, onde) {
   const liq = f.liquidezIdeal > 0 ? f.liquidezIdeal : 0, prep = fase && f.fase === 0, bruto = f.fin + f.part + f.bens;
-  const daFase = !fase || prep ? [] : f.maximo === f.minimo ? [['Esperado na liberdade financeira', f.esperado, '#C7D1DD']]
-    : [['Mínimo desta fase', f.minimo, '#E9EDF2'], ['Esperado para a sua idade', f.esperado, '#C7D1DD'], ['Máximo desta fase', f.maximo, '#9FB0C4']];
+  const daFase = !fase || prep ? [] : f.maximo === f.minimo ? [['Esperado na liberdade financeira', f.esperado, '#F9C9A9']]
+    : [['Mínimo desta fase', f.minimo, '#FCE6D8'], ['Esperado para a sua idade', f.esperado, '#F9C9A9'], ['Máximo desta fase', f.maximo, '#F6A06B']]
   const topo = Math.max(1, bruto, liq, ...daFase.map(x => x[1])), x = v => Math.max(0, v) / topo * 100;
   // a escada do patrimônio: as classes se somam uma depois da outra, as dívidas voltam e o que sobra é o total
   const passos = [['Mercado financeiro', 0, f.fin, '#77C094'], ['Participações societárias', f.fin, f.fin + f.part, '#E6BA74'], ['Imóveis e outros bens', f.fin + f.part, bruto, '#7FA1DD']]
@@ -3932,6 +3954,7 @@ function renderRiscos() {
   el.innerHTML = h + rodapeNav(paginaDe('riscos')) + '</div>'; el.scrollTop = rolagem;
   desenhaReserva(); desenhaSeguros();
   posicionaCarrossel(false);
+  if (obsCarrossel) { obsCarrossel.disconnect(); [...document.getElementById('rkTrilha').children].forEach(e => obsCarrossel.observe(e)); }
 }
 // leva o slide riscoSel ao meio; a altura é a do slide mais alto, a mesma para todos
 function posicionaCarrossel(anima, arraste) {
@@ -3939,12 +3962,23 @@ function posicionaCarrossel(anima, arraste) {
   const sl = tr.children, s = sl[riscoSel]; if (!s) return;
   const x = (car.clientWidth - s.offsetWidth) / 2 - s.offsetLeft + (arraste || 0);
   tr.style.transition = anima ? 'transform .35s ease' : 'none'; tr.style.transform = `translateX(${x}px)`;
+  // o cartão fica da altura da ameaça à vista (sem o vazio da mais alta). Para a tela não pular ao trocar, a página
+  // guarda embaixo do rodapé a diferença até a ameaça mais alta: a altura total não muda e a rolagem fica onde estava.
+  if (arraste == null) alturaDoCarrossel(anima);
   [...sl].forEach((e, k) => e.classList.toggle('atual', k === riscoSel));
   document.querySelectorAll('[data-car-ir]').forEach(b => b.classList.toggle('on', +b.dataset.carIr === riscoSel));
   document.querySelectorAll('[data-car="-1"]').forEach(b => { b.disabled = riscoSel === 0; });
   document.querySelectorAll('[data-car="1"]').forEach(b => { b.disabled = riscoSel === sl.length - 1; });
   const pos = document.getElementById('rkPos'); if (pos) pos.textContent = (riscoSel + 1) + ' de ' + sl.length + ' · ' + ENGINE.RISCOS[riscoSel].nome;
 }
+// a altura do cartão acompanha a ameaça à vista, também quando algo abre ou fecha dentro dela (16px para a sombra)
+function alturaDoCarrossel(anima) {
+  const car = document.getElementById('rkCar'), tr = document.getElementById('rkTrilha'); if (!car || !tr || !tr.children[riscoSel]) return;
+  const sl = [...tr.children], h = sl[riscoSel].offsetHeight, maxH = Math.max(...sl.map(e => e.offsetHeight)), pag = document.getElementById('riscos');
+  car.style.transition = anima ? 'height .35s ease' : 'none'; car.style.height = (h + 16) + 'px';
+  if (pag) pag.style.paddingBottom = (maxH - h) + 'px';
+}
+const obsCarrossel = typeof ResizeObserver === 'function' ? new ResizeObserver(() => alturaDoCarrossel(false)) : null;
 const vaiPara = k => { riscoSel = Math.max(0, Math.min(ENGINE.RISCOS.length - 1, k)); posicionaCarrossel(true); };
 // arrastar o carrossel para os lados (fora dos campos e botões)
 let carArr = null;
