@@ -4,7 +4,7 @@ Feita com a definição do agente `ui-ux-designer` (Madina Gbotoe, CC BY 4.0), a
 aplicação que passe a impressão de profissionalismo e elegância". O revisor viu as capturas das 10 páginas do portal (1440×900,
 com o exemplo completo, em trechos `-1`, `-2`, ...), leu o CSS e o HTML, o `PRODUCT.md`, o `DESIGN.md` e as decisões do
 `PENDENCIAS.md`. As capturas não estão no repositório: refaça-as com `ux/capturas.cjs` (os nomes citados são os que ele gera).
-Os números de linha são os de `tela-consultor.html` no commit `dfec810`. **Nada foi aplicado ainda.**
+Os números de linha são os de `tela-consultor.html` no commit `dfec810`. **Aplicada em 16/10/2026** (veja `revisao-ux-consultor-2026-10-16.md`), menos o item 14 (resultado em destaque no tributário) e o menu "⋯" da barra lateral.
 
 ## Veredito
 

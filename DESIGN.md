@@ -23,6 +23,9 @@ colors:
   azul-bens: "#3B6FCB"
   ocre-participacoes: "#D9952A"
   violeta-movimentos: "#7C5CBF"
+  verde-em-dia-meio: "#77C094"
+  azul-bens-meio: "#7FA1DD"
+  ocre-participacoes-meio: "#E6BA74"
   fixas-bruma: "#4B6584"
   ajustaveis-media: "#9FB0C4"
   futuro-aurora: "#F6A06B"
@@ -157,7 +160,10 @@ próprio código (rosca, relógio, barras do orçamento, linha do tempo) e segue
   `atencao-texto`. Em texto, use sempre as versões de texto.
 - **Categorias do patrimônio**: financeiro em verde (`verde-em-dia`), bens em azul (`azul-bens`), participações em ocre
   (`ocre-participacoes`) e movimentações em violeta (`violeta-movimentos`). Valem só na evolução patrimonial e no
-  patrimônio.
+  patrimônio. Em áreas largas (as barras da página de patrimônio), vale a versão do meio: `verde-em-dia-meio`,
+  `azul-bens-meio` e `ocre-participacoes-meio`. A cor cheia fica para pontos, legendas e traços. As dívidas, e tudo o que
+  sai de uma escada, usam um degradê suave de `#E2928D` a `#F7D7D4`, com a setinha para a esquerda: o valor faz o
+  patrimônio voltar.
 
 ### Orçamento
 Na bancada do orçamento, os grupos usam tons do meio, de peso parecido, para nenhum gritar: **Fixas Bruma**
