@@ -1273,7 +1273,7 @@ const ENGINE = (() => {
     const it = itemDaAlteracao(plan, a), val = v => v == null ? (a.tipo === 'liberdade' ? 'assim que o patrimônio permitir' : '—') : a.tipo === 'liberdade' ? v + ' anos' : a.campo === 'months' ? mesDoPlano(v) : reais(v);
     const lado = a.lista === 'incomes' ? 'entrada' : 'saída';
     if (a.tipo === 'campo') {
-      const f = v => v == null || v === '' ? '—' : a.formato === 'reais' ? reais(v) : a.formato === 'lista' ? [].concat(v).join(', ') : String(v), atual = valorAtual(plan, a);
+      const f = v => v == null || v === '' ? '—' : a.formato === 'reducao' ? '−' + reais(v.meta) + '/mês' + (v.cortes && v.cortes.length ? ' (' + v.cortes.map(c => c.nome || 'sem nome').join(', ') + ')' : '') : a.formato === 'reais' ? reais(v) : a.formato === 'lista' ? [].concat(v).join(', ') : String(v), atual = valorAtual(plan, a);
       const mudou = JSON.stringify(atual) !== JSON.stringify(a.de == null ? null : a.de);   // deTexto: como o valor de antes aparece (ex.: o custo calculado pelo fluxo)
       return { oque: a.rotulo || a.caminho, de: a.deTexto || f(a.de), para: f(a.para), atual: mudou ? f(atual) : a.deTexto || f(atual), mudou };
     }
@@ -1621,25 +1621,28 @@ const ENGINE = (() => {
     return { pessoas, dependentes, temDependentes: Array.isArray(R.dependentes) ? dependentes.length > 0 : !!(R.reserva || {}).dependentes,
       classes: classes.some(c => c.pessoas.some(p => p.entende || p.investiu || p.restricao)) ? classes : null, observacoes: String(X.observacoes || '').trim() };
   }
-  // ---- Gestão financeira: renda, custo de vida e futuro; o tempo de trabalho; o orçamento em envelopes ----
+  // ---- Gestão financeira: renda, custo de vida e futuro; o tempo de trabalho; o orçamento combinado ----
   // Tudo sai do Fluxo de caixa, pela média dos próximos 12 meses (o 13º, o bônus e o IPTU entram): a renda líquida, o custo
   // de vida (as saídas) e o que vai para o futuro (o que sobra). As despesas fixas são as do grupo "fix"; as outras são
-  // ajustáveis. O orçamento recomendado é 50% fixas, 30% ajustáveis e 20% para o futuro; o combinado com a família fica em
-  // plan.orcamento.envelopes (valores por mês). Quantas vezes a família poupou nos últimos 12 meses vem do exame
+  // ajustáveis. A referência é 50% fixas, 30% ajustáveis e 20% para o futuro. O combinado com a família fica em
+  // plan.orcamento.combinado: por grupo (fixas, ajustáveis), quanto liberar por mês (meta) e de quais despesas sai (cortes:
+  // o id da despesa do Fluxo, ou só o nome quando a família trouxe só o total; o valor vale só nas travadas, as outras
+  // dividem o resto da meta). O Fluxo de caixa não muda. Quantas vezes a família poupou nos últimos 12 meses vem do exame
   // (plan.orcamento.vezesPoupou).
   const ORCAMENTO_IDEAL = { fixas: 0.5, ajustaveis: 0.3, futuro: 0.2 };
   const VEZES_POUPOU = [['nenhuma', 'Nenhuma'], ['1-3', '1 a 3 vezes'], ['4-6', '4 a 6 vezes'], ['7-9', '7 a 9 vezes'], ['10+', '10 ou mais vezes']];
   function gestaoFinanceira(plan) {
     const O = plan.orcamento || {}, despesas = plan.expenses || [];
-    const itens = g => despesas.filter(e => g === 'fixas' ? e.group === 'fix' : e.group !== 'fix').map(e => ({ id: e.id, nome: e.label || 'Despesa sem nome', valor: mediaDe12Meses([e]) }))
+    const itens = g => despesas.filter(e => g === 'fixas' ? e.group === 'fix' : e.group !== 'fix').map(e => ({ id: String(e.id), nome: e.label || 'Despesa sem nome', valor: mediaDe12Meses([e]) }))
       .filter(x => x.valor > 0.5).sort((a, b) => b.valor - a.valor);
     const fixas = itens('fixas'), ajustaveis = itens('ajustaveis'), tot = l => l.reduce((a, x) => a + x.valor, 0);
     const renda = mediaDe12Meses(plan.incomes), custo = tot(fixas) + tot(ajustaveis), futuro = renda - custo;
-    const E = O.envelopes || {}, temEnv = ['fixas', 'ajustaveis', 'futuro'].every(k => num(E[k]) != null);
+    const C = O.combinado || {}, grupo = c => c && num(c.meta) != null ? { meta: Math.max(0, +c.meta), cortes: (Array.isArray(c.cortes) ? c.cortes : []).map(x => Object.assign(x.id != null && x.id !== '' ? { id: String(x.id) } : {},
+      { nome: String(x.nome || ''), valor: Math.max(0, +x.valor || 0), trava: !!x.trava })) } : null, combinado = { fixas: grupo(C.fixas), ajustaveis: grupo(C.ajustaveis) };
     return { mes: { renda, custo, futuro }, ano: { renda: renda * 12, custo: custo * 12, futuro: futuro * 12 }, pctFuturo: renda > 0 ? futuro / renda : null,
       grupos: { fixas: tot(fixas), ajustaveis: tot(ajustaveis), futuro }, itens: { fixas, ajustaveis },
       ideal: { fixas: renda * ORCAMENTO_IDEAL.fixas, ajustaveis: renda * ORCAMENTO_IDEAL.ajustaveis, futuro: renda * ORCAMENTO_IDEAL.futuro },
-      envelopes: temEnv ? { fixas: +E.fixas, ajustaveis: +E.ajustaveis, futuro: +E.futuro } : null, vezesPoupou: VEZES_POUPOU.some(v => v[0] === O.vezesPoupou) ? O.vezesPoupou : null };
+      combinado: combinado.fixas || combinado.ajustaveis ? combinado : null, vezesPoupou: VEZES_POUPOU.some(v => v[0] === O.vezesPoupou) ? O.vezesPoupou : null };
   }
   // O tempo como moeda: o valor da hora de cada pessoa é a renda do trabalho dela no mês dividida pelas horas trabalhadas
   // (plan.horas, plan.conjugeHoras). As horas se dividem entre o presente (pagar o custo de vida) e o futuro na mesma
@@ -1973,7 +1976,7 @@ const PLANO_PADRAO = Object.assign(
   P.dataRelatorio = '2026-09-19';
   P.mensagemFinal = 'Nos vemos na revisão de março. Até lá, qualquer dúvida, é só chamar.';
   P.consultor.foto = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96"><rect width="96" height="96" fill="#20344C"/><circle cx="48" cy="38" r="17" fill="#FFF3EB"/><path d="M14 96c2-22 16-32 34-32s32 10 34 32z" fill="#FA7A35"/></svg>');
-  P.orcamento.envelopes = { fixas: 7200, ajustaveis: 4800, futuro: 3500 };
+  P.orcamento.combinado = { fixas: { meta: 0, cortes: [] }, ajustaveis: { meta: 900, cortes: [{ id: 'alimentacao', nome: 'Alimentação', valor: 450, trava: false }, { id: 'lazer', nome: 'Lazer', valor: 450, trava: false }] } };
   P.patrimonio.contas.casal = ['Banco Inter'];
   const praia = P.objectives.find(o => o.id === 'praia'); if (praia) praia.iconFA = 'fa-umbrella-beach';
   // a creche da Luiza: hoje na declaração do Marcos, que declara a filha; na recomendada, na da Ana
@@ -4049,15 +4052,15 @@ function capitulo2() {
     </tbody></table></div>`;
 }
 // O capítulo Gestão financeira: a capa com o vídeo teórico e três páginas (renda e custo de vida, o tempo, o orçamento).
-// O orçamento combinado com a família (plano.orcamento.envelopes) pode ser gravado aqui ou na apresentação, pelo botão da
-// página do orçamento; vazio, a página abre no recomendado (50/30/20).
+// O orçamento combinado com a família (plano.orcamento.combinado: quanto liberar de cada grupo e de quais despesas) é feito
+// na apresentação, na página do orçamento; aqui aparece o resumo. Vazio, a página abre no orçamento de hoje.
 function capituloGestao() {
   const g = ENGINE.gestaoFinanceira(plano), cp = (n, h) => `<div class="field"><label>${n}</label>${h}</div>`, link = ' placeholder="link do YouTube, do Vimeo ou do arquivo"';
-  const env = k => cp({ fixas: 'Despesas fixas', ajustaveis: 'Despesas ajustáveis', futuro: 'Para o futuro' }[k] + ' (por mês)', campoR('orcamento.envelopes.' + k, 'reais', ` placeholder="vazio: ${fmt(g.ideal[k])} (recomendado)"`));
+  const C = g.combinado, red = k => { const c = C && C[k]; return c && c.meta > 0.5 ? fmt(c.meta) + ' a menos por mês' + (c.cortes.length ? ' (' + c.cortes.map(x => esc(x.nome || 'sem nome')).join(', ') + ')' : '') : 'sem redução'; };
   return `<div class="ap-cap"><div class="ap-cab"><b>Gestão financeira</b><button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="capa-gestao">Abrir a capa</button><button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="orcamento">Abrir o orçamento</button></div>
-    <div class="sub" style="margin:0 0 12px">A capa tem só o vídeo teórico. Depois, três páginas: a renda, o custo de vida e o que vai para o futuro; o tempo de trabalho de cada pessoa (as horas ficam na página Cliente); e o orçamento em envelopes, que vocês podem simular e gravar juntos na apresentação.</div>
+    <div class="sub" style="margin:0 0 12px">A capa tem só o vídeo teórico. Depois, três páginas: a renda, o custo de vida e o que vai para o futuro; o tempo de trabalho de cada pessoa (as horas ficam na página Cliente); e o orçamento combinado, que vocês decidem e gravam juntos na apresentação: quanto liberar das despesas fixas e das ajustáveis, e de quais despesas sai.</div>
     <div class="grid g2">${cp('Vídeo teórico, na capa (o mesmo para todos os clientes)', campoR('videos.cap-gestao-teoria', 'texto', link))}<div></div></div>
-    <div class="grid g3">${env('fixas')}${env('ajustaveis')}${env('futuro')}</div></div>`;
+    <div class="sub" style="margin:0">${C ? `Orçamento combinado: despesas fixas, ${red('fixas')}; despesas ajustáveis, ${red('ajustaveis')}.` : 'Ainda sem orçamento combinado.'} Para mudar, abra o orçamento.</div></div>`;
 }
 // As páginas que o cliente vê, na ordem da jornada dele, com o que cada uma vai mostrar, o vídeo e o atalho.
 function renderApresentacaoC() {

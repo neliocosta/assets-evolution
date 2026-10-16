@@ -23,6 +23,11 @@ colors:
   azul-bens: "#3B6FCB"
   ocre-participacoes: "#D9952A"
   violeta-movimentos: "#7C5CBF"
+  fixas-bruma: "#4B6584"
+  ajustaveis-media: "#9FB0C4"
+  futuro-aurora: "#F6A06B"
+  liberado-pessego: "#FCD9C2"
+  trilho-azulado: "#EEF1F5"
 typography:
   display:
     fontFamily: "Sora, sans-serif"
@@ -120,7 +125,7 @@ movimento calmo. É sofisticado porque é contido: muito espaço, poucos destaqu
 nenhum enfeite que não carregue informação. A densidade é de relatório lido com calma, não de painel de operação.
 
 O conteúdo vive em cartões brancos que flutuam com uma sombra leve sobre o creme. Os gráficos são desenhados à mão no
-próprio código (rosca, treemap, relógio, linha do tempo) e seguem a mesma paleta. Nada vem de biblioteca de gráficos.
+próprio código (rosca, relógio, barras do orçamento, linha do tempo) e seguem a mesma paleta. Nada vem de biblioteca de gráficos.
 
 **Key Characteristics:**
 - O tempo como eixo: linhas, marcos e trajetórias organizam as páginas.
@@ -148,11 +153,22 @@ próprio código (rosca, treemap, relógio, linha do tempo) e seguem a mesma pal
 
 ### Tertiary
 - **Verde Em Dia** e **Vermelho Alerta** (`verde-em-dia`, `vermelho-alerta`, com as versões de texto): estados do
-  diagnóstico e do orçamento (em dia, atenção, ruim). O estado de atenção usa fundo pêssego com o texto em
+  diagnóstico (em dia, atenção, ruim). O orçamento não usa vermelho (veja Orçamento). O estado de atenção usa fundo pêssego com o texto em
   `atencao-texto`. Em texto, use sempre as versões de texto.
 - **Categorias do patrimônio**: financeiro em verde (`verde-em-dia`), bens em azul (`azul-bens`), participações em ocre
   (`ocre-participacoes`) e movimentações em violeta (`violeta-movimentos`). Valem só na evolução patrimonial e no
   patrimônio.
+
+### Orçamento
+Na bancada do orçamento, os grupos usam tons do meio, de peso parecido, para nenhum gritar: **Fixas Bruma**
+(`fixas-bruma`, texto branco em cima), **Ajustáveis Média** (`ajustaveis-media`, texto marinho) e **Futuro Aurora**
+(`futuro-aurora`, texto marinho). O que sai de uma despesa para o futuro é **Pêssego Liberado** (`liberado-pessego`),
+liso, nunca listrado; o trilho vazio é **Trilho Azulado** (`trilho-azulado`). Nada de vermelho no orçamento: o que falta
+vai no texto de atenção.
+
+**The Aurora Rule.** Em áreas largas (segmentos de barra a partir de uns 12px de altura), o futuro vai em aurora. Em
+traços, marcas, anéis de foco e na ação principal, continua o Laranja Horizonte. O número grande do futuro usa o
+Laranja Horizonte Texto.
 
 ### Neutral
 - **Creme Papel** (`creme-papel`): o fundo de todas as páginas.
@@ -262,7 +278,7 @@ Macios e confiantes: cantos generosos, a ação principal em pílula laranja e o
 - **Rodapé da página:** "‹ anterior" secundário à esquerda e "Próximo: …" primário à direita.
 
 ### Gráficos desenhados à mão (signature)
-A rosca da renda, o relógio do mês, o treemap do orçamento e a linha do tempo da evolução são SVG do próprio código. Eles
+A rosca da renda, o relógio do mês, as barras do orçamento e a linha do tempo da evolução são desenhadas no próprio código. Eles
 seguem três convenções:
 - o futuro em laranja sai do alto e anda no sentido horário;
 - a referência (20% para o futuro) é uma marca tracejada em marinho;

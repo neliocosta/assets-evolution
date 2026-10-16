@@ -251,60 +251,101 @@ canvas#main.grab-obj{cursor:ew-resize}
 .gf-nota{font-size:13px;color:#6b6a66;margin-top:8px}
 @media (prefers-reduced-motion:reduce){.gf-rel .tk{transition:opacity .6s ease}}
 @media (max-width:860px){.gf-rosca{grid-template-columns:1fr;justify-items:center}.gf-cards,.gf-pessoas{grid-template-columns:1fr}.gf-cards.q4{grid-template-columns:repeat(2,minmax(0,1fr))}.gf-rel,.gf-pessoas .gf-rel{grid-template-columns:1fr;justify-items:center;gap:20px}.gf-rel>div{justify-self:stretch}.gf-rel .gf-leg b{font-size:20px}.gf-rel .gf-pat b{font-size:24px}.gf-vz{grid-template-columns:repeat(2,minmax(0,1fr))}}
-/* página 3: o orçamento em envelopes, num treemap com zoom */
-.oc-top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:22px 8px 10px;min-height:32px;flex-wrap:wrap}
-.oc-trilha{display:flex;align-items:center;gap:4px;flex-wrap:wrap;font:600 14px 'DM Sans',sans-serif}
-.oc-trilha button{border:0;background:none;padding:4px 6px;border-radius:8px;font:inherit;color:#6b6a66;cursor:pointer} .oc-trilha button:hover{background:#F1EEE8}
-.oc-trilha button:last-child{color:var(--nl-navy-900);cursor:default;background:none} .oc-trilha i{font-style:normal;color:#c9c5bd}
-.oc-status{font:600 13.5px 'DM Sans',sans-serif;padding:6px 12px;border-radius:9999px} .oc-status.ok{background:#E3F3E9;color:#22794a} .oc-status.no{background:#FBE6E6;color:#B53434} .oc-status.neutro{background:#F1EEE8;color:#6b6a66}
-.oc-regua{position:relative;height:30px;margin:0 8px 6px}
-.oc-regua i{position:absolute;top:0;height:100%;box-sizing:border-box;border-top:3px solid var(--cor);padding:4px 8px 0;font:600 11.5px 'DM Sans',sans-serif;font-style:normal;color:var(--escuro);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.oc-regua i small{font-size:11px;font-weight:500;color:#6b6a66}
-.oc-palco{position:relative;height:400px;margin:0 8px;border-radius:6px;background:#fff;border:1px solid #E6E2DA;overflow:hidden;touch-action:none;user-select:none}
-.oc-camada{position:absolute;inset:0;transform-origin:0 0}
-.oc-camada.entra{transition:transform .5s cubic-bezier(.2,.7,.2,1),opacity .35s ease}
-.oc-b{position:absolute;box-sizing:border-box;border-radius:3px;overflow:hidden;transition:left .45s cubic-bezier(.2,.7,.2,1),width .45s cubic-bezier(.2,.7,.2,1),top .45s,height .45s}
-.oc-palco.zoom .oc-b{transition:none}
-.oc-b.env{cursor:zoom-in;background:var(--cor);color:#fff} .oc-b.env.sem-zoom{cursor:default}
-.oc-b.env:focus-visible,.oc-b.it.abre:focus-visible{outline:3px solid var(--nl-orange-500);outline-offset:-3px}
-.oc-b .oc-tx{position:relative;height:100%;box-sizing:border-box;padding:12px 14px;display:flex;flex-direction:column;gap:1px;min-width:0;transition:opacity .2s}
-.oc-b .oc-tx b{font:600 12px 'DM Sans',sans-serif;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:.9}
-.oc-b .oc-tx big{font:600 24px Sora,sans-serif;white-space:nowrap;margin-top:2px} .oc-b .oc-tx small{font:500 12.5px 'DM Sans',sans-serif;opacity:.82;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.oc-b .oc-selo{margin-top:auto;font:600 12.5px/1.35 'DM Sans',sans-serif;display:flex;gap:7px;align-items:baseline}
-.oc-selo::before{content:'';flex:none;width:8px;height:8px;border-radius:50%;background:currentColor;transform:translateY(-1px)} .oc-selo.ok{color:#A8E6C1} .oc-selo.no{color:#FFC2B5}
-.oc-uso{position:absolute;left:0;bottom:0;height:4px;background:rgba(255,255,255,.55)} .oc-uso.no{background:#FF9B87}
-/* no hover, o envelope mostra as despesas de hoje dentro dele */
-.oc-filhos{position:absolute;inset:0;opacity:0;transition:opacity .2s;pointer-events:none}
-.oc-b.env:hover .oc-filhos{opacity:1} .oc-b.env:hover>.oc-tx{opacity:0}
-.oc-filhos .oc-f{position:absolute;box-sizing:border-box;border:1px solid var(--cor);padding:6px 8px;overflow:hidden;font:500 12px/1.3 'DM Sans',sans-serif}
-.oc-filhos .oc-f b{display:block;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.oc-filhos .oc-nome{position:absolute;left:0;top:0;padding:3px 8px;background:var(--escuro);color:#fff;font:600 11px 'DM Sans',sans-serif;letter-spacing:.06em;text-transform:uppercase;z-index:1}
-.oc-filhos .oc-fg{position:absolute;display:flex;align-items:center;justify-content:center;font:600 12px 'DM Sans',sans-serif;color:#fff;background:repeating-linear-gradient(135deg,rgba(255,255,255,.12) 0 6px,transparent 6px 12px)}
-.oc-filhos .oc-ps{position:absolute;left:0;right:0;bottom:0;padding:5px 8px;background:#B53434;color:#fff;font:600 12px 'DM Sans',sans-serif}
-.oc-b.sobra{background:repeating-linear-gradient(135deg,#F4F2EE 0 6px,#E9E5DE 6px 12px);color:#6b6a66;display:flex;align-items:center;justify-content:center;text-align:center;font:600 12.5px 'DM Sans',sans-serif;padding:8px}
-.oc-guia{position:absolute;top:0;bottom:0;width:0;border-left:2px dashed rgba(250,122,53,.95);pointer-events:none;z-index:2}
-.oc-b.it{border:0;background:var(--fundo);color:var(--texto)} .oc-b.it.abre{cursor:zoom-in}
-.oc-b.it .oc-tx{padding:9px 11px} .oc-b.it .oc-tx b{font-size:12.5px;letter-spacing:0;text-transform:none;opacity:1} .oc-b.it .oc-tx small{font-size:12px}
-.oc-b.it.abre:hover{filter:brightness(1.08)}
-.oc-moldura{position:absolute;border:2px dashed var(--nl-navy-900);border-radius:3px;pointer-events:none;transition:all .45s cubic-bezier(.2,.7,.2,1)}
-.oc-moldura span{position:absolute;right:6px;top:-22px;font:600 12px 'DM Sans',sans-serif;color:var(--nl-navy-900);white-space:nowrap}
-.oc-passa{position:absolute;pointer-events:none;background:repeating-linear-gradient(135deg,rgba(181,52,52,.45) 0 6px,rgba(181,52,52,.12) 6px 12px);border-left:2px solid #B53434}
-.oc-passa span,.oc-folga span{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font:600 12.5px 'DM Sans',sans-serif;white-space:nowrap;padding:4px 10px;border-radius:3px;background:#fff}
-.oc-passa span{color:#B53434} .oc-folga{position:absolute;pointer-events:none;background:repeating-linear-gradient(135deg,#F7F5F1 0 6px,#fff 6px 12px)} .oc-folga span{color:#22794a;border:1px solid #DCEFE3}
-.oc-limite{position:absolute;top:0;bottom:0;border-left:2px solid #B53434;pointer-events:none;z-index:2} .oc-limite span{position:absolute;top:8px;left:6px;font:600 12px 'DM Sans',sans-serif;color:#B53434;white-space:nowrap;background:#fff;padding:2px 6px}
-.oc-dica{display:flex;justify-content:space-between;gap:12px;margin:8px 8px 0;font-size:12.5px;color:#6b6a66;flex-wrap:wrap}
-.oc-dica button{border:0;background:none;padding:0;font:600 12.5px 'DM Sans',sans-serif;color:var(--nl-navy-900);cursor:pointer}
-.oc-ctl{margin:18px 8px 0;background:#fff;border-radius:16px;box-shadow:var(--shadow-card);padding:16px 20px}
-.oc-sl{display:grid;grid-template-columns:190px minmax(0,1fr) 190px;gap:14px;align-items:center;padding:8px 0}
-.oc-sl>span:first-child{font:600 14px 'DM Sans',sans-serif;color:var(--escuro);display:flex;align-items:center;gap:8px} .oc-sl>span:first-child::before{content:'';width:12px;height:12px;border-radius:2px;background:var(--cor)}
-.oc-sl input{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:3px;background:linear-gradient(90deg,var(--cor) var(--p,0%),#E6E2DA var(--p,0%));outline:none;cursor:pointer}
-.oc-sl input::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:#fff;border:3px solid var(--cor);box-shadow:0 2px 6px rgba(32,52,76,.2)}
-.oc-sl input::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#fff;border:3px solid var(--cor)}
-.oc-sl input:focus-visible{box-shadow:0 0 0 3px rgba(250,122,53,.35)} .oc-sl>span:last-child{text-align:right;font:600 15px Sora,sans-serif;color:var(--nl-navy-900)} .oc-sl>span:last-child small{font:500 12px 'DM Sans',sans-serif;color:#6b6a66;margin-left:6px}
-.oc-bts{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;padding-top:14px;border-top:1px solid #F1EEE8;align-items:center}
-.oc-bts .oc-gravado{margin-left:auto;font:600 13px 'DM Sans',sans-serif;color:#22794a}
-@media (max-width:760px){.oc-sl{grid-template-columns:1fr;gap:4px}.oc-sl>span:last-child{text-align:left}.oc-palco{height:340px}}
-@media (prefers-reduced-motion:reduce){.oc-b,.oc-moldura,.oc-filhos,.oc-b .oc-tx{transition:none}.oc-camada.entra{transition:opacity .3s ease}}
+/* página 3: o orçamento combinado (a bancada). Tons do meio para os grupos; o laranja forte fica para traços e foco */
+.ob{--ob-fix:#4B6584;--ob-adj:#9FB0C4;--ob-fut:#F6A06B;--ob-lib:#FCD9C2;--ob-trilho:#EEF1F5;--ob-borda:#E4E0D8;--ob-hover:#FAF8F4}
+.ob-ctl{display:flex;justify-content:flex-end;margin:18px 8px 0}
+.ob-card{background:#fff;border-radius:16px;box-shadow:var(--shadow-card);padding:20px 22px;margin:16px 8px 0}
+.ob-h{font:600 17px Sora,sans-serif;color:var(--nl-navy-900);margin:0;display:flex;align-items:center;gap:10px}
+.ob-h i{width:8px;height:8px;border-radius:2px}
+.ob-resumo{position:sticky;top:0;z-index:5;padding:18px 22px;transition:box-shadow .2s ease-out}
+.ob-resumo.grudado{box-shadow:0 4px 10px rgba(0,0,0,.08),0 12px 28px rgba(0,0,0,.10)}
+.ob-res{display:grid;grid-template-columns:1.6fr 1fr;gap:32px;align-items:center}
+.ob-barras{display:grid;grid-template-columns:84px 1fr;row-gap:8px;column-gap:12px;align-items:center;position:relative;padding-top:18px}
+.ob-barras .nm{font:500 13px 'DM Sans',sans-serif;color:#6b6a66;text-align:right}
+.ob-bar{display:flex;gap:2px;height:24px}
+.ob-bar>i{display:block;height:100%;border-radius:3px;font:600 12px/24px Sora,sans-serif;font-style:normal;padding-left:8px;white-space:nowrap;overflow:hidden;font-variant-numeric:tabular-nums;transition:width .25s ease-out}
+.ob-bar>i:first-child{border-radius:6px 3px 3px 6px} .ob-bar>i:last-child{border-radius:3px 6px 6px 3px}
+.ob-s-fix{background:var(--ob-fix);color:#fff} .ob-s-adj{background:var(--ob-adj);color:var(--nl-navy-900)} .ob-s-fut{background:var(--ob-fut);color:var(--nl-navy-900)}
+.ob-refs{position:absolute;left:96px;right:0;top:12px;bottom:-4px;pointer-events:none}
+.ob-refs b{position:absolute;top:0;bottom:0;border-left:1px dashed rgba(32,52,76,.35)}
+.ob-refs span{position:absolute;top:-14px;transform:translateX(-50%);font:500 11px 'DM Sans',sans-serif;color:#6b6a66;white-space:nowrap}
+.ob-leg{display:flex;gap:16px;margin:10px 0 0 96px;font:500 12px 'DM Sans',sans-serif;color:#6b6a66}
+.ob-leg i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px}
+.ob-de{font:500 15px Sora,sans-serif;color:#6b6a66;font-variant-numeric:tabular-nums}
+.ob-para{font:600 26px Sora,sans-serif;color:#E06600;font-variant-numeric:tabular-nums}
+.ob-meta-t{position:relative;height:6px;border-radius:3px;background:#F1EEE8;margin:24px 0 10px}
+.ob-meta-t>i{position:absolute;left:0;top:0;bottom:0;border-radius:3px;background:var(--ob-fut);transition:width .25s ease-out}
+.ob-meta-t>b{position:absolute;top:-3px;width:2px;height:12px;margin-left:-1px;background:var(--nl-navy-900);border-radius:1px}
+.ob-meta-t>b span{position:absolute;bottom:15px;left:1px;transform:translateX(-50%);font:500 11.5px 'DM Sans',sans-serif;color:#6b6a66;white-space:nowrap}
+.ob-fl{font:500 13px/1.7 'DM Sans',sans-serif;color:var(--nl-gray-700)}
+.ob-fl strong,.ob-est strong{font:600 13px Sora,sans-serif;color:var(--nl-navy-900)}
+.ob-ok{color:#22794a;font-weight:700} .ob-falta{color:#964400;font-weight:600} .ob-vazio{color:#6b6a66}
+.ob-gh{display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap}
+.ob-fato{font-size:13.5px} .ob-fato strong{font:600 14px Sora,sans-serif;color:var(--nl-navy-900)}
+.ob-faixa{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:14px 0 2px;padding:8px 12px;background:var(--ob-hover);border-radius:12px;font-size:14px}
+.ob-faixa label{font-weight:600;color:var(--nl-navy-900)}
+.ob-campo{display:inline-flex;align-items:center;border:1px solid var(--ob-borda);border-radius:8px;background:#fff;padding:0 8px;height:32px}
+.ob-campo input{border:0;outline:0;width:64px;font:600 14px Sora,sans-serif;color:var(--nl-navy-900);text-align:right;background:none;font-variant-numeric:tabular-nums}
+.ob-campo.pct input{width:44px}
+.ob-campo small{font:500 12px 'DM Sans',sans-serif;color:#6b6a66}
+.ob-campo:focus-within{border-color:var(--ob-fix);outline:2px solid var(--nl-orange-500);outline-offset:1px}
+.ob-txt{border:0;background:none;min-height:32px;padding:6px 10px;border-radius:8px;font:600 13px 'DM Sans',sans-serif;color:var(--nl-navy-900);cursor:pointer}
+.ob-txt:hover{background:#F1EEE8} .ob-txt:active{transform:scale(.97)}
+.ob-faixa [data-ob-ateref]{margin-left:auto}
+.ob-est{font:500 13px 'DM Sans',sans-serif;color:var(--nl-gray-700);margin:8px 2px 2px;min-height:22px}
+.ob-linhas{margin-top:8px}
+.ob-cab,.ob-ln{display:grid;grid-template-columns:20px minmax(150px,1fr) 80px minmax(240px,2.4fr) 112px 88px;column-gap:16px;align-items:center}
+.ob-cab.m,.ob-ln.m{grid-template-columns:minmax(150px,1fr) minmax(240px,2.4fr) 112px 48px 24px}
+.ob-cab{font:500 12px 'DM Sans',sans-serif;color:#6b6a66;padding:0 8px 8px;border-bottom:1px solid #F1EEE8}
+.ob-cab .d{text-align:right}
+.ob-ln{min-height:44px;padding:0 8px;border-bottom:1px solid #F1EEE8;transition:background .15s ease-out}
+.ob-ln:hover{background:var(--ob-hover)}
+.ob-ln input[type=checkbox]{width:16px;height:16px;accent-color:var(--ob-fix);cursor:pointer;margin:0}
+.ob-nome{font:500 14px 'DM Sans',sans-serif;color:var(--nl-gray-700);cursor:pointer}
+.ob-ln.sel .ob-nome{font-weight:600;color:var(--nl-navy-900)}
+.ob-v,.ob-novo{text-align:right;font:500 13.5px Sora,sans-serif;color:#6b6a66;font-variant-numeric:tabular-nums}
+.ob-novo{font-size:14px} .ob-ln.mudou .ob-novo{font-weight:600;color:var(--nl-navy-900)}
+.ob-tr{position:relative;height:20px}
+.ob-vb{position:absolute;left:0;top:6px;height:8px;border-radius:4px;overflow:hidden}
+.ob-g-fixas .ob-vb{background:var(--ob-fix)} .ob-g-ajustaveis .ob-vb{background:var(--ob-adj)} .ob-ln.m .ob-vb{width:100%;background:var(--ob-trilho)}
+.ob-corte{position:absolute;top:0;bottom:0;right:0;width:0;background:var(--ob-lib);box-shadow:inset 1px 0 0 #fff;transition:width .2s ease-out}
+.ob-parte{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--ob-lib);border-radius:4px;transition:width .2s ease-out}
+.ob-tr input[type=range]{position:absolute;left:-7px;top:0;height:20px;margin:0;-webkit-appearance:none;appearance:none;background:none;cursor:pointer}
+.ob-tr input[type=range]::-webkit-slider-runnable-track{height:20px;background:none}
+.ob-tr input[type=range]::-moz-range-track{height:20px;background:none}
+.ob-tr input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;margin-top:3px;border-radius:50%;background:#fff;border:1.5px solid var(--ob-fix);box-shadow:0 1px 2px rgba(32,52,76,.18);transition:box-shadow .15s ease-out,transform .15s ease-out}
+.ob-tr input[type=range]::-moz-range-thumb{width:12px;height:12px;border-radius:50%;background:#fff;border:1.5px solid var(--ob-fix)}
+.ob-tr input[type=range]:hover::-webkit-slider-thumb{box-shadow:0 0 0 4px rgba(75,101,132,.14);transform:scale(1.1)}
+.ob-tr input[type=range]:focus-visible{outline:none}
+.ob-tr input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 2px #fff,0 0 0 4px var(--nl-orange-500)}
+.ob-ln:not(.sel) .ob-tr input[type=range]::-webkit-slider-thumb{width:12px;height:12px;margin-top:4px;border-color:#8193A9;box-shadow:none}
+.ob-red{display:flex;align-items:center;justify-content:flex-end;gap:4px}
+.ob-ln .ob-campo{height:28px;padding:0 6px;border:1px solid transparent;border-radius:6px;background:none}
+.ob-ln .ob-campo:hover{border-color:var(--ob-borda);background:#fff}
+.ob-ln .ob-campo:focus-within{border-color:var(--ob-fix);background:#fff}
+.ob-ln .ob-campo input{width:56px;font-size:13.5px} .ob-ln .ob-campo input::placeholder{color:#B4BFCC}
+.ob-ln.travada .ob-campo{background:var(--ob-trilho)}
+.ob-trava,.ob-tirar{width:24px;height:24px;border-radius:6px;border:0;background:none;cursor:pointer;display:grid;place-items:center;color:#B4BFCC;padding:0}
+.ob-ln:not(.sel) .ob-trava{visibility:hidden}
+.ob-trava:hover,.ob-tirar:hover{background:var(--ob-hover);color:var(--nl-navy-900)}
+.ob-trava[aria-pressed=true]{background:var(--ob-trilho);color:var(--nl-navy-900)}
+.ob-trava svg{width:14px;height:14px} .ob-tirar{font:500 16px/1 'DM Sans',sans-serif}
+.ob-trava:focus-visible,.ob-tirar:focus-visible,.ob-txt:focus-visible,.ob-sug:focus-visible,.ob-ln input[type=checkbox]:focus-visible{outline:2px solid var(--nl-orange-500);outline-offset:2px}
+.ob-pc{text-align:right;font:500 12.5px 'DM Sans',sans-serif;color:#6b6a66;font-variant-numeric:tabular-nums}
+.ob-nm{border:1px solid transparent;border-radius:6px;background:none;font:600 14px 'DM Sans',sans-serif;color:var(--nl-navy-900);padding:4px 6px;margin-left:-7px;width:100%}
+.ob-nm:hover{border-color:var(--ob-borda);background:#fff} .ob-nm:focus{outline:2px solid var(--nl-orange-500);outline-offset:1px;border-color:var(--ob-fix);background:#fff}
+.ob-nm::placeholder{color:#B4BFCC;font-weight:500}
+.ob-sugs{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:12px 0 2px;font:500 13px 'DM Sans',sans-serif;color:#6b6a66}
+.ob-sug{border:1px dashed var(--ob-borda);background:#fff;border-radius:9999px;padding:3px 10px;font:500 13px 'DM Sans',sans-serif;color:var(--nl-navy-900);cursor:pointer}
+.ob-sug:hover{border-style:solid;border-color:var(--ob-adj);background:var(--ob-hover)}
+.ob-sem{padding:14px 0 6px;font:500 13px 'DM Sans',sans-serif;color:#6b6a66;border-top:1px solid #F1EEE8;margin-top:10px}
+.ob-ajustes{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 4px}
+.ob-chip{background:#F4F1EC;color:var(--nl-navy-900);border-radius:9999px;padding:4px 10px;font:500 13px 'DM Sans',sans-serif}
+.ob-chip b{font:600 13px Sora,sans-serif;margin-left:4px}
+.ob-bts{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px solid #F1EEE8;align-items:center}
+.ob-gravado{margin-left:auto;font:600 13px 'DM Sans',sans-serif;color:#6b6a66} .ob-gravado.ok{color:#22794a}
+@media (max-width:860px){.ob-res{grid-template-columns:1fr}.ob-resumo{position:static}}
+@media (prefers-reduced-motion:reduce){.ob-bar>i,.ob-corte,.ob-parte,.ob-meta-t>i,.ob-resumo,.ob-ln,.ob-tr input[type=range]::-webkit-slider-thumb{transition:none}}
 @media (max-width:1000px){.lp-hero{grid-template-columns:1fr;padding:40px 28px}.lp-citacao p{font-size:25px}.lp-citacao p:first-child{font-size:30px}.lp-hist{grid-template-columns:1fr 1fr}.lp-hist::before{display:none}}
 @media (max-width:820px){.lp-trilha ol{grid-template-columns:1fr 1fr}.lp-tr-linha{display:none}}
 @media (prefers-reduced-motion:reduce){.rev{opacity:1;transform:none;transition:none}.lp-citacao p{transform:none;filter:none;transition:opacity 3s ease}.lp-camadas i,.lp-trilha li.agora .lp-tr-no,.lp-hero-tx,.lp-hero-v{animation:none}
@@ -1358,7 +1399,7 @@ const ENGINE = (() => {
     const it = itemDaAlteracao(plan, a), val = v => v == null ? (a.tipo === 'liberdade' ? 'assim que o patrimônio permitir' : '—') : a.tipo === 'liberdade' ? v + ' anos' : a.campo === 'months' ? mesDoPlano(v) : reais(v);
     const lado = a.lista === 'incomes' ? 'entrada' : 'saída';
     if (a.tipo === 'campo') {
-      const f = v => v == null || v === '' ? '—' : a.formato === 'reais' ? reais(v) : a.formato === 'lista' ? [].concat(v).join(', ') : String(v), atual = valorAtual(plan, a);
+      const f = v => v == null || v === '' ? '—' : a.formato === 'reducao' ? '−' + reais(v.meta) + '/mês' + (v.cortes && v.cortes.length ? ' (' + v.cortes.map(c => c.nome || 'sem nome').join(', ') + ')' : '') : a.formato === 'reais' ? reais(v) : a.formato === 'lista' ? [].concat(v).join(', ') : String(v), atual = valorAtual(plan, a);
       const mudou = JSON.stringify(atual) !== JSON.stringify(a.de == null ? null : a.de);   // deTexto: como o valor de antes aparece (ex.: o custo calculado pelo fluxo)
       return { oque: a.rotulo || a.caminho, de: a.deTexto || f(a.de), para: f(a.para), atual: mudou ? f(atual) : a.deTexto || f(atual), mudou };
     }
@@ -1706,25 +1747,28 @@ const ENGINE = (() => {
     return { pessoas, dependentes, temDependentes: Array.isArray(R.dependentes) ? dependentes.length > 0 : !!(R.reserva || {}).dependentes,
       classes: classes.some(c => c.pessoas.some(p => p.entende || p.investiu || p.restricao)) ? classes : null, observacoes: String(X.observacoes || '').trim() };
   }
-  // ---- Gestão financeira: renda, custo de vida e futuro; o tempo de trabalho; o orçamento em envelopes ----
+  // ---- Gestão financeira: renda, custo de vida e futuro; o tempo de trabalho; o orçamento combinado ----
   // Tudo sai do Fluxo de caixa, pela média dos próximos 12 meses (o 13º, o bônus e o IPTU entram): a renda líquida, o custo
   // de vida (as saídas) e o que vai para o futuro (o que sobra). As despesas fixas são as do grupo "fix"; as outras são
-  // ajustáveis. O orçamento recomendado é 50% fixas, 30% ajustáveis e 20% para o futuro; o combinado com a família fica em
-  // plan.orcamento.envelopes (valores por mês). Quantas vezes a família poupou nos últimos 12 meses vem do exame
+  // ajustáveis. A referência é 50% fixas, 30% ajustáveis e 20% para o futuro. O combinado com a família fica em
+  // plan.orcamento.combinado: por grupo (fixas, ajustáveis), quanto liberar por mês (meta) e de quais despesas sai (cortes:
+  // o id da despesa do Fluxo, ou só o nome quando a família trouxe só o total; o valor vale só nas travadas, as outras
+  // dividem o resto da meta). O Fluxo de caixa não muda. Quantas vezes a família poupou nos últimos 12 meses vem do exame
   // (plan.orcamento.vezesPoupou).
   const ORCAMENTO_IDEAL = { fixas: 0.5, ajustaveis: 0.3, futuro: 0.2 };
   const VEZES_POUPOU = [['nenhuma', 'Nenhuma'], ['1-3', '1 a 3 vezes'], ['4-6', '4 a 6 vezes'], ['7-9', '7 a 9 vezes'], ['10+', '10 ou mais vezes']];
   function gestaoFinanceira(plan) {
     const O = plan.orcamento || {}, despesas = plan.expenses || [];
-    const itens = g => despesas.filter(e => g === 'fixas' ? e.group === 'fix' : e.group !== 'fix').map(e => ({ id: e.id, nome: e.label || 'Despesa sem nome', valor: mediaDe12Meses([e]) }))
+    const itens = g => despesas.filter(e => g === 'fixas' ? e.group === 'fix' : e.group !== 'fix').map(e => ({ id: String(e.id), nome: e.label || 'Despesa sem nome', valor: mediaDe12Meses([e]) }))
       .filter(x => x.valor > 0.5).sort((a, b) => b.valor - a.valor);
     const fixas = itens('fixas'), ajustaveis = itens('ajustaveis'), tot = l => l.reduce((a, x) => a + x.valor, 0);
     const renda = mediaDe12Meses(plan.incomes), custo = tot(fixas) + tot(ajustaveis), futuro = renda - custo;
-    const E = O.envelopes || {}, temEnv = ['fixas', 'ajustaveis', 'futuro'].every(k => num(E[k]) != null);
+    const C = O.combinado || {}, grupo = c => c && num(c.meta) != null ? { meta: Math.max(0, +c.meta), cortes: (Array.isArray(c.cortes) ? c.cortes : []).map(x => Object.assign(x.id != null && x.id !== '' ? { id: String(x.id) } : {},
+      { nome: String(x.nome || ''), valor: Math.max(0, +x.valor || 0), trava: !!x.trava })) } : null, combinado = { fixas: grupo(C.fixas), ajustaveis: grupo(C.ajustaveis) };
     return { mes: { renda, custo, futuro }, ano: { renda: renda * 12, custo: custo * 12, futuro: futuro * 12 }, pctFuturo: renda > 0 ? futuro / renda : null,
       grupos: { fixas: tot(fixas), ajustaveis: tot(ajustaveis), futuro }, itens: { fixas, ajustaveis },
       ideal: { fixas: renda * ORCAMENTO_IDEAL.fixas, ajustaveis: renda * ORCAMENTO_IDEAL.ajustaveis, futuro: renda * ORCAMENTO_IDEAL.futuro },
-      envelopes: temEnv ? { fixas: +E.fixas, ajustaveis: +E.ajustaveis, futuro: +E.futuro } : null, vezesPoupou: VEZES_POUPOU.some(v => v[0] === O.vezesPoupou) ? O.vezesPoupou : null };
+      combinado: combinado.fixas || combinado.ajustaveis ? combinado : null, vezesPoupou: VEZES_POUPOU.some(v => v[0] === O.vezesPoupou) ? O.vezesPoupou : null };
   }
   // O tempo como moeda: o valor da hora de cada pessoa é a renda do trabalho dela no mês dividida pelas horas trabalhadas
   // (plan.horas, plan.conjugeHoras). As horas se dividem entre o presente (pagar o custo de vida) e o futuro na mesma
@@ -3265,7 +3309,7 @@ function renderHojeDepois(pg) {
 }
 // ===================== GESTÃO FINANCEIRA =====================
 // Três páginas depois da capa (o vídeo teórico): a renda, o custo de vida e o futuro (ENGINE.gestaoFinanceira); o tempo de
-// trabalho como moeda (ENGINE.horasDoTrabalho); e o orçamento em envelopes, num treemap com zoom.
+// trabalho como moeda (ENGINE.horasDoTrabalho); e o orçamento combinado, onde se decide quanto liberar de cada grupo.
 const pctInt = v => Math.round(v * 100) + '%';
 const horasTxt = v => Math.round(v).toLocaleString('pt-BR') + ' h';
 // o cabeçalho de toda página: o rótulo (o capítulo), o título e o subtítulo (HTML), na mesma posição em todas
@@ -3359,186 +3403,211 @@ function renderCaminho(pg) {
   revelar();
 }
 
-// ---- o orçamento em envelopes ----
-// A renda do mês é dividida em três envelopes: despesas fixas, despesas ajustáveis e futuro. Os sliders mexem só nos
-// envelopes, e nenhum tira de outro: o que a soma não cobre aparece "sem destino", e o que passa da renda, como excesso.
-// Dois cliques num envelope dão a ele o que está sem destino. Um clique abre o envelope num treemap das despesas de hoje
-// (a área é o valor), dentro da moldura do envelope: a folga fica vazia e o que não cabe, listrado. As despesas pequenas
-// demais para ler vão para "Outros", que também abre. Ctrl + roda do mouse aproxima e afasta; arrastar move.
-// O consultor apresentando grava o orçamento no plano (plan.orcamento.envelopes); o cliente propõe.
-const OC_GRUPOS = { fixas: { n: 'Despesas fixas', cor: '#2B4562', escuro: '#1A2D42', tons: ['#22384F', '#2F4A68', '#3E5C7E', '#527094', '#6A86A8', '#87A0BC'] },
-  ajustaveis: { n: 'Despesas ajustáveis', cor: '#A87A3A', escuro: '#6E4E1F', tons: ['#8F6528', '#A47534', '#B58746', '#C39A5E', '#CFAE7B', '#DBC29B'] },
-  futuro: { n: 'Para o futuro', cor: '#3F7A62', escuro: '#244A3A', tons: ['#3F7A62'] } };
-const OC_KS = ['fixas', 'ajustaveis', 'futuro'];
-let OC = null;   // a simulação aberta: { chave, env, cam: [{ k } | { outros: [...] }], zoom: { k, x, y } }
-// o treemap: retângulos com a área de cada valor, o mais perto possível de quadrados (squarify)
-function squarify(itens, x, y, w, h) {
-  const tot = itens.reduce((a, i) => a + i.valor, 0), out = []; if (!(tot > 0) || w <= 0 || h <= 0) return out;
-  const nos = itens.map(i => ({ i, a: i.valor * w * h / tot }));
-  const pior = (lin, lado) => { const sm = lin.reduce((a, n) => a + n.a, 0), mx = Math.max(...lin.map(n => n.a)), mn = Math.min(...lin.map(n => n.a)); return Math.max(lado * lado * mx / (sm * sm), sm * sm / (lado * lado * mn)); };
-  let lin = [], k = 0;
-  const assenta = () => { const sm = lin.reduce((a, n) => a + n.a, 0);
-    if (w >= h) { const lw = sm / h; let yy = y; lin.forEach(n => { const hh = n.a / lw; out.push(Object.assign({}, n.i, { x, y: yy, w: lw, h: hh })); yy += hh; }); x += lw; w -= lw; }
-    else { const lh = sm / w; let xx = x; lin.forEach(n => { const ww = n.a / lh; out.push(Object.assign({}, n.i, { x: xx, y, w: ww, h: lh })); xx += ww; }); y += lh; h -= lh; } lin = []; };
-  while (k < nos.length) { const lado = Math.min(w, h); if (!lin.length || pior(lin.concat(nos[k]), lado) <= pior(lin, lado)) lin.push(nos[k++]); else assenta(); }
-  if (lin.length) assenta();
-  return out;
-}
-// junta em "Outros" as despesas que ficariam pequenas demais para ler (o bloco precisa caber o nome e o valor)
-function agrupaOutros(itens, w, h) {
-  let lista = itens.slice();
-  for (let t = 0; t < 6; t++) {
-    const peq = squarify(lista, 0, 0, w, h).filter(r => !r.outros && (r.w < 104 || r.h < 50)).map(r => lista.find(x => x.nome === r.nome && !x.outros));
-    if (peq.length < 2 && !(peq.length === 1 && lista.some(x => x.outros))) break;
-    const velho = lista.find(x => x.outros), juntos = peq.concat(velho ? velho.filhos : []);
-    lista = lista.filter(x => !x.outros && !peq.includes(x)).concat([{ nome: 'Outros', valor: juntos.reduce((a, x) => a + x.valor, 0), outros: true, filhos: juntos.sort((a, b) => b.valor - a.valor) }]);
-  }
-  return lista.sort((a, b) => (a.outros - b.outros) || b.valor - a.valor);
-}
-function ocDados() {
-  const P = planoVista(), g = ENGINE.gestaoFinanceira(P), salvo = g.envelopes, chave = JSON.stringify([g.mes.renda, salvo]);
-  if (!OC || OC.chave !== chave) OC = { chave, env: Object.assign({}, salvo || g.ideal), cam: [], zoom: { k: 1, x: 0, y: 0 } };
+// ---- o orçamento combinado ----
+// A referência é até 50% da renda em despesas fixas, até 30% em ajustáveis e pelo menos 20% para o futuro. Em cada grupo,
+// decide-se quanto liberar (a meta, em reais ou em % do grupo; começa no que passa da referência) e de quais despesas sai:
+// uma marcada leva tudo, várias dividem por igual, e arrastar ou digitar numa trava o valor dela, com as outras se
+// ajustando; nenhuma passa do próprio valor. Um grupo com menos de duas despesas (a família trouxe só o total) não tem
+// lista: a meta baixa o total, e as linhas são anotações de onde sai, com nome livre (as categorias típicas são sugestões
+// de escuta). O que sai do presente vai para o futuro, comparado com os 20% e com o que os objetivos pedem (a soma dos
+// aportes necessários). O consultor apresentando grava em plan.orcamento.combinado (a meta e as despesas escolhidas; vale
+// o valor só das travadas, as outras se recalculam); o cliente propõe. O Fluxo de caixa não muda.
+const OB_KS = ['fixas', 'ajustaveis'];
+const OB_G = { fixas: { n: 'Despesas fixas', curto: 'fixas', cor: '#4B6584', sug: ['Aluguel', 'Condomínio', 'Plano de saúde', 'Escola', 'Transporte', 'Seguros'] },
+  ajustaveis: { n: 'Despesas ajustáveis', curto: 'ajustáveis', cor: '#9FB0C4', sug: ['Mercado', 'Restaurantes', 'Lazer', 'Viagens', 'Compras', 'Assinaturas'] } };
+let OB = null, OB_OBS = null;   // a simulação aberta: { chave, maior, grupos: { fixas: { macro, total, meta, itens: [{ id, nome, valor, sel, trava, corte }] } } }
+const obF = () => GF_PER === 'ano' ? 12 : 1, obFmt = v => fmt(v * obF()), obFmtS = v => (v < -0.5 ? '− ' : '') + obFmt(Math.abs(v));
+const obNum = s => { const n = parseFloat(String(s).replace(/\./g, '').replace(',', '.')); return isFinite(n) ? n : null; };
+const obSoma = (l, f) => l.reduce((a, x) => a + f(x), 0);
+const obCorte = G => obSoma(G.itens, i => i.corte);
+const obReducao = G => G.macro ? G.meta : obCorte(G);   // nos totais, a meta inteira; no detalhe, o que foi distribuído
+function obDados() {
+  const P = planoVista(), g = ENGINE.gestaoFinanceira(P), salvo = g.combinado, chave = JSON.stringify([g.mes.renda, g.itens, salvo]);
+  if (!OB || OB.chave !== chave) OB = { chave, maior: Math.max(1, ...OB_KS.flatMap(k => g.itens[k].map(x => x.valor))),
+    grupos: Object.fromEntries(OB_KS.map(k => [k, obGrupo(k, g, salvo && salvo[k])])) };
   return { P, g, salvo };
 }
+function obGrupo(k, g, s) {
+  const lista = g.itens[k], macro = lista.length < 2, total = g.grupos[k], cortes = (s && s.cortes) || [];
+  const meta = s ? Math.min(s.meta, total) : Math.max(0, total - g.ideal[k]);
+  const itens = macro ? cortes.filter(c => !c.id).map((c, i) => ({ id: 'a' + i, nome: c.nome, valor: Infinity, sel: true, trava: c.trava, corte: c.trava ? c.valor : 0 }))
+    : lista.map(x => { const c = cortes.find(y => y.id === x.id); return { id: x.id, nome: x.nome, valor: x.valor, sel: !!c, trava: !!(c && c.trava), corte: c && c.trava ? Math.min(c.valor, x.valor) : 0 }; });
+  const G = { k, macro, total, meta, itens, novo: itens.length };
+  obDistribui(G); return G;
+}
+// a meta se divide entre as marcadas: as travadas ficam com o valor dado; o resto, por igual, sem passar do valor de cada uma
+function obDistribui(G) {
+  const sel = G.itens.filter(i => i.sel);
+  G.itens.forEach(i => { if (!i.sel) { i.corte = 0; i.trava = false; } });
+  let trav = sel.filter(i => i.trava);
+  if (obSoma(trav, i => i.corte) > G.meta + 0.01) { trav.forEach(i => i.trava = false); trav = []; }
+  let resto = G.meta - obSoma(trav, i => i.corte), pool = sel.filter(i => !i.trava);
+  pool.forEach(i => i.corte = 0);
+  while (pool.length && resto > 0.005) {
+    const parte = resto / pool.length, cheios = pool.filter(i => i.valor <= parte);
+    if (!cheios.length) { pool.forEach(i => i.corte = parte); resto = 0; break; }
+    cheios.forEach(i => { i.corte = i.valor; resto -= i.valor; });
+    pool = pool.filter(i => !cheios.includes(i));
+  }
+  G.falta = resto > 0.5 ? resto : 0;
+}
+// o que se grava: a meta e as despesas escolhidas (no detalhe, com o id da despesa do Fluxo; nos totais, só o nome)
+const obRegistro = () => Object.fromEntries(OB_KS.map(k => { const G = OB.grupos[k];
+  return [k, { meta: Math.round(G.meta), cortes: G.itens.filter(i => i.sel).map(i => Object.assign(G.macro ? {} : { id: i.id }, { nome: i.nome, valor: Math.round(i.corte), trava: i.trava })) }]; }));
+const OB_CADEADO = aberto => `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="${aberto ? 'M10.5 7V5a2.5 2.5 0 0 1 5 0' : 'M5.5 7V5a2.5 2.5 0 0 1 5 0v2'}"/></svg>`;
 function renderOrcamento(pg) {
-  const { g } = ocDados(), casal = ENGINE.casalDe(planoVista());
+  const { g, salvo } = obDados();
   if (!(g.mes.renda > 0)) { document.getElementById('pagina').innerHTML = `<div class="rc lp">${cabPagina(pg, '')}<div class="gf-sec"><div class="pf-nao">O seu consultor ainda está preparando o fluxo de caixa.</div></div>${rodapeNav(pg)}</div>`; return; }
-  const bt = PAPEL === 'apresentar' ? '<button class="btn btn-primary" data-oc="gravar">Gravar este orçamento</button>' : podeProp() ? '<button class="btn btn-primary" data-oc="gravar">Propor este orçamento ao consultor</button>' : '';
-  document.getElementById('pagina').innerHTML = `<div class="rc lp">${cabPagina(pg, `Primeiro, quanto da renda vai para cada envelope: despesas fixas, despesas ajustáveis e o futuro. Depois, se as despesas de hoje cabem em cada um. Recomendamos até 50% em fixas, até 30% em ajustáveis e pelo menos 20% para o futuro.`)}
-    <div class="oc-top"><div class="oc-trilha" id="ocTrilha"></div><span class="oc-status" id="ocStatus"></span></div>
-    <div class="oc-regua" id="ocRegua"></div>
-    <div class="oc-palco" id="ocPalco" tabindex="-1"><div class="oc-camada" id="ocCamada"></div></div>
-    <div class="oc-dica"><span id="ocDica"></span><button data-oc="ajusta" id="ocAjusta" hidden>Ajustar à tela</button></div>
-    <div class="oc-ctl" id="ocCtl">${OC_KS.map(k => `<div class="oc-sl" style="--cor:${OC_GRUPOS[k].cor};--escuro:${OC_GRUPOS[k].escuro}"><span>${OC_GRUPOS[k].n}</span><input type="range" min="0" max="${Math.round(g.mes.renda / 50) * 50}" step="50" data-oc-k="${k}" aria-label="Envelope de ${OC_GRUPOS[k].n}"><span id="ocV-${k}"></span></div>`).join('')}
-      <div class="oc-bts"><button class="btn btn-secondary" data-oc="ideal">Usar o recomendado (50/30/20)</button><button class="btn btn-secondary" data-oc="hoje">Usar os gastos de hoje</button>${bt}<span class="oc-gravado" id="ocGravado"></span></div></div>
+  const bt = PAPEL === 'apresentar' ? '<button class="btn btn-primary" data-ob="gravar">Gravar este orçamento</button>' : podeProp() ? '<button class="btn btn-primary" data-ob="gravar">Propor este orçamento ao consultor</button>' : '';
+  const tog = `<div class="gf-tog" role="group" aria-label="Período">${[['mes', 'Mês'], ['ano', 'Ano']].map(([k, n]) => `<button data-ob-per="${k}" class="${GF_PER === k ? 'on' : ''}" aria-pressed="${GF_PER === k}">${n}</button>`).join('')}</div>`;
+  document.getElementById('pagina').innerHTML = `<div class="rc lp ob">${cabPagina(pg, 'Em cada grupo, decida quanto liberar e de quais despesas isso sai. A referência é até 50% da renda em despesas fixas, até 30% em ajustáveis e pelo menos 20% para o futuro. O que sai do presente vai para o futuro.')}
+    <div class="ob-ctl">${tog}</div><div id="obSentinela"></div>
+    <section class="ob-card ob-resumo" aria-label="Resumo do orçamento"><div class="ob-res"><div><div class="ob-barras" id="obBarras"></div>
+      <div class="ob-leg" aria-hidden="true"><span><i style="background:var(--ob-fix)"></i>Fixas</span><span><i style="background:var(--ob-adj)"></i>Ajustáveis</span><span><i style="background:var(--ob-fut)"></i>Futuro</span></div></div>
+      <div id="obFut" aria-live="polite"></div></div></section>
+    ${OB_KS.map(k => `<section class="ob-card ob-g-${k}" id="obG-${k}"></section>`).join('')}
+    <section class="ob-card"><h2 class="ob-h">O orçamento combinado</h2><div class="ob-ajustes" id="obAjustes"></div>
+      <div class="ob-bts"><button class="ob-txt" data-ob="hoje">Voltar ao de hoje</button>${salvo ? '<button class="ob-txt" data-ob="gravado">Voltar ao gravado</button>' : ''}<span class="ob-gravado" id="obGravado"></span>${bt}</div></section>
     ${rodapeNav(pg)}</div>`;
-  ocDesenha(null);
+  OB_KS.forEach(obMonta); obPinta();
+  // o resumo ganha a sombra de destaque só quando gruda no alto
+  if (OB_OBS) OB_OBS.disconnect();
+  OB_OBS = new IntersectionObserver(([e]) => { const r = document.querySelector('.ob-resumo'); if (r) r.classList.toggle('grudado', !e.isIntersecting); }, { root: document.getElementById('pagina') }).observe(document.getElementById('obSentinela'));
 }
-// os blocos do nível aberto, em coordenadas do palco sem zoom
-function ocLayout(W, H, g) {
-  const env = OC.env, R = g.mes.renda, p = 10, nivel = OC.cam[OC.cam.length - 1];
-  if (!nivel) {   // os envelopes encostados, na escala da renda (ou da soma, se passar dela); a linha entre eles é o fundo
-    const tot = OC_KS.reduce((a, k) => a + env[k], 0), base = Math.max(R, tot), sobra = R - tot, esc = v => W * v / base, out = []; let acc = 0;
-    OC_KS.forEach(k => { if (!(env[k] > 0)) return; out.push({ tipo: 'env', k, x: esc(acc) + 1, y: 1, w: esc(env[k]) - 2, h: H - 2 }); acc += env[k]; });
-    if (sobra > 25) out.push({ tipo: 'sobra', x: esc(acc) + 1, y: 1, w: esc(sobra) - 2, h: H - 2, v: sobra });
-    if (tot > R + 25) out.push({ tipo: 'limite', x: esc(R), v: tot - R });
-    let cum = 0; ['fixas', 'ajustaveis'].forEach(k => { cum += ENGINE.ORCAMENTO_IDEAL[k]; out.push({ tipo: 'guia', x: esc(R * cum) }); });
-    return out;
-  }
-  const k = OC.cam[0].k, G = OC_GRUPOS[k], topo = 26, h = H - p * 2 - topo;
-  if (nivel.outros) {   // dentro de "Outros": as despesas pequenas, na largura toda
-    const lista = agrupaOutros(nivel.outros, W - p * 2, h);
-    return squarify(lista, p, p + topo, W - p * 2, h).map((r, i) => Object.assign(r, { tipo: 'it', k, cor: G.tons[Math.min(G.tons.length - 1, 1 + i % 4)] }, fino(r)));
-  }
-  const itens = g.itens[k], v = g.grupos[k], e = env[k], ref = Math.max(e, v, 1), wI = (W - p * 2) * v / ref, wE = (W - p * 2) * e / ref;
-  const lista = agrupaOutros(itens, wI, h), out = squarify(lista, p, p + topo, wI, h).map((r, i) => Object.assign(r, { tipo: 'it', k, cor: r.outros ? G.tons[G.tons.length - 1] : G.tons[Math.min(G.tons.length - 1, i)] }, fino(r)));
-  if (v > e + 0.5) out.push({ tipo: 'passa', x: p + wE, y: p + topo, w: wI - wE, h, v: v - e });
-  else if (e - v > 0.5) out.push({ tipo: 'folga', x: p + wI, y: p + topo, w: wE - wI, h, v: e - v });
-  out.push({ tipo: 'moldura', x: p, y: p + topo, w: wE, h, v: e });
-  return out;
+function obMonta(k) {
+  const G = OB.grupos[k], C = OB_G[k], el = document.getElementById('obG-' + k); if (!el) return;
+  const ln = i => G.macro ? `<div class="ob-ln m sel" data-k="${k}" data-id="${escH(i.id)}">
+        <input class="ob-nm" value="${escH(i.nome)}" placeholder="De onde sai?" aria-label="Nome do ajuste">
+        <div class="ob-tr"><div class="ob-vb"><div class="ob-parte"></div></div><input type="range" min="0" step="any" style="width:calc(100% + 14px)" aria-label="Parte da redução que sai deste item"></div>
+        <div class="ob-red"><span class="ob-campo"><small>−R$</small><input data-ob-corte inputmode="numeric" placeholder="0" aria-label="Quanto reduzir deste item"></span><button class="ob-trava" aria-pressed="false" aria-label="Travar a redução deste item" title="Travado: este item fica com o valor dado e os outros se ajustam"></button></div>
+        <span class="ob-pc"></span><button class="ob-tirar" aria-label="Tirar esta anotação" title="Tirar">×</button></div>`
+    : `<div class="ob-ln" data-k="${k}" data-id="${escH(i.id)}">
+        <input type="checkbox" id="obCk-${escH(i.id)}" data-ob-ck aria-label="Reduzir de ${escH(i.nome)}">
+        <label class="ob-nome" for="obCk-${escH(i.id)}">${escH(i.nome)}</label><span class="ob-v"></span>
+        <div class="ob-tr"><div class="ob-vb" style="width:${i.valor / OB.maior * 100}%"><div class="ob-corte"></div></div><input type="range" min="0" max="${i.valor}" step="any" style="width:calc(${i.valor / OB.maior * 100}% + 14px)" aria-label="Novo valor de ${escH(i.nome)}"></div>
+        <div class="ob-red"><span class="ob-campo"><small>−R$</small><input data-ob-corte inputmode="numeric" placeholder="0" aria-label="Quanto reduzir de ${escH(i.nome)}"></span><button class="ob-trava" aria-pressed="false" aria-label="Travar a redução de ${escH(i.nome)}" title="Travado: este item fica com o valor dado e os outros se ajustam"></button></div>
+        <span class="ob-novo"></span></div>`;
+  const usados = G.itens.map(i => i.nome);
+  el.innerHTML = `<div class="ob-gh"><h2 class="ob-h"><i style="background:${C.cor}"></i>${C.n}</h2><div class="ob-fato" data-ob-fato></div></div>
+    <div class="ob-faixa"><label for="obMeta-${k}">Liberar</label><span class="ob-campo"><small>R$</small><input id="obMeta-${k}" data-ob-meta="${k}" inputmode="numeric"></span>
+      <span>ou</span><span class="ob-campo pct"><input data-ob-pct="${k}" inputmode="decimal" aria-label="Liberar em porcentagem das despesas ${C.curto}"><small>%</small></span><span>das ${C.curto}</span>
+      <button class="ob-txt" data-ob-ateref="${k}">Até a referência</button><button class="ob-txt" data-ob-igual="${k}">Dividir por igual</button></div>
+    <div class="ob-est" data-ob-est aria-live="polite"></div>
+    ${G.macro ? `<div class="ob-sugs"><span>De onde sai? Anote com ${ENGINE.casalDe(planoVista()) ? 'a família' : 'o cliente'}:</span>${C.sug.filter(s => !usados.includes(s)).map(s => `<button class="ob-sug" data-ob-sug="${k}" data-nome="${escH(s)}">+ ${escH(s)}</button>`).join('')}<button class="ob-sug" data-ob-sug="${k}" data-nome="">+ Outro</button></div>
+      ${G.itens.length ? `<div class="ob-linhas"><div class="ob-cab m" aria-hidden="true"><span>Item</span><span>Parte da redução</span><span class="d">Reduz</span><span></span><span></span></div>${G.itens.map(ln).join('')}</div>`
+        : `<div class="ob-sem">Sem anotação, a redução vale para o total das despesas ${C.curto}.</div>`}`
+      : `<div class="ob-linhas"><div class="ob-cab" aria-hidden="true"><span></span><span>Despesa</span><span class="d">Hoje</span><span></span><span class="d">Reduz</span><span class="d">Novo</span></div>${G.itens.map(ln).join('')}</div>`}`;
 }
-const fino = r => ({ x: r.x + 1, y: r.y + 1, w: r.w - 2, h: r.h - 2 });   // a linha fina entre os blocos do treemap
-// as despesas de hoje dentro do envelope (no hover): a área de cada uma é o valor; a folga fica vazia; o que passa, avisado
-function ocFilhos(k, w, h, g) {
-  const e = OC.env[k], v = g.grupos[k], G = OC_GRUPOS[k]; if (k === 'futuro' || !(v > 0) || w < 60 || h < 60) return '';
-  const top = 22, hh = h - top, wI = v >= e ? w : w * v / e, lista = agrupaOutros(g.itens[k], wI, hh);
-  const blocos = squarify(lista, 0, top, wI, hh).map((r, i) => { const cor = r.outros ? G.tons[G.tons.length - 1] : G.tons[Math.min(G.tons.length - 1, i)], claro = ocLuz(cor) > 0.6, cabe = r.w > 64 && r.h > 34;
-    return `<div class="oc-f" style="left:${r.x}px;top:${r.y}px;width:${r.w}px;height:${r.h}px;background:${cor};color:${claro ? '#20344C' : '#fff'}">${cabe ? `<b>${escH(r.outros ? 'Outros (' + r.filhos.length + ')' : r.nome)}</b>${r.h > 48 ? fmt(r.valor) : ''}` : ''}</div>`; }).join('');
-  const fg = v < e - 0.5 && w - wI > 50 ? `<div class="oc-fg" style="left:${wI}px;top:${top}px;width:${w - wI}px;height:${hh}px">folga ${fmt(e - v)}</div>` : '';
-  const ps = v > e + 0.5 ? `<div class="oc-ps">as despesas de hoje passam em ${fmt(v - e)}</div>` : '';
-  return `<div class="oc-filhos"><span class="oc-nome">${G.n} · ${fmt(e)}</span>${blocos}${fg}${ps}</div>`;
+function obPinta() {
+  const { g, salvo } = obDados(); if (!document.getElementById('obBarras')) return;
+  const R = g.mes.renda, Gf = OB.grupos.fixas, Ga = OB.grupos.ajustaveis, futH = g.grupos.futuro, lib = obReducao(Gf) + obReducao(Ga), fut = futH + lib;
+  const base = Math.max(R, Gf.total + Ga.total + Math.max(0, futH));
+  const seg = (cls, v) => { const w = Math.max(0, v) / base * 100; return w > 0.05 ? `<i class="${cls}" style="width:${w}%">${w > 13 ? obFmt(v) : ''}</i>` : ''; };
+  const linhas = [['Hoje', Gf.total, Ga.total, futH], ['Combinado', Gf.total - obReducao(Gf), Ga.total - obReducao(Ga), fut]];
+  document.getElementById('obBarras').innerHTML = linhas.map(([n, f, a, u]) => `<span class="nm">${n}</span><div class="ob-bar" role="img" aria-label="${n}: fixas ${obFmt(f)}, ajustáveis ${obFmt(a)}, futuro ${obFmt(u)}">${seg('ob-s-fix', f)}${seg('ob-s-adj', a)}${seg('ob-s-fut', u)}</div>`).join('')
+    + `<div class="ob-refs" aria-hidden="true">${[0.5, 0.8].map(p => `<b style="left:${R * p / base * 100}%"></b><span style="left:${R * p / base * 100}%">${pctInt(p)}</span>`).join('')}</div>`;
+  // o futuro: de quanto para quanto, a régua com os 20% e os sonhos (a soma dos aportes que os objetivos pedem)
+  const regra = R * ENGINE.ORCAMENTO_IDEAL.futuro, sonhos = ENGINE.OBJ.filter(o => o.amount > 0).reduce((a, o) => a + (o.required || 0), 0);
+  const marcos = [['20%', 'os 20%', regra]].concat(sonhos > 0.5 ? [['sonhos', 'os sonhos', sonhos]] : []).sort((a, b) => a[2] - b[2]);
+  const esc = Math.max(fut, ...marcos.map(m => m[2])) * 1.1, origem = OB_KS.filter(k => obReducao(OB.grupos[k]) > 0.5).map(k => `${obFmt(obReducao(OB.grupos[k]))} das ${OB_G[k].curto}`);
+  document.getElementById('obFut').innerHTML = `<div class="lp-rot">Para o futuro</div>
+    <div><span class="ob-de">${obFmtS(futH)} →</span> <span class="ob-para">${obFmtS(fut)}</span></div>
+    <div class="ob-meta-t"><i style="width:${Math.max(0, Math.min(1, fut / esc)) * 100}%"></i>${marcos.map(([c, , v]) => `<b style="left:${v / esc * 100}%"${c === 'sonhos' ? ' title="A soma dos aportes mensais que os objetivos pedem"' : ''}><span>${c}</span></b>`).join('')}</div>
+    <div class="ob-fl">${origem.length ? `<strong>+${obFmt(lib)}</strong> liberados: ${origem.join(' e ')}<br>` : ''}${marcos.map(([, n, v]) => fut >= v - 0.5 ? `<span class="ob-ok">✓</span> ${n} alcançados (${obFmt(v)})`
+      : `faltam <span class="ob-falta">${obFmt(v - fut)}</span> para ${n} (${obFmt(v)})`).join(' · ')}</div>`;
+  OB_KS.forEach(k => obPintaGrupo(k, g));
+  // o orçamento combinado: a lista dos ajustes e se é o gravado
+  const l = [];
+  OB_KS.forEach(k => { const G = OB.grupos[k];
+    G.itens.filter(i => i.corte > 0.5).forEach(i => l.push([i.nome || 'Sem nome', i.corte]));
+    if (G.macro && G.meta - obCorte(G) > 0.5) l.push([G.itens.length ? `Despesas ${OB_G[k].curto}, sem item definido` : `Despesas ${OB_G[k].curto}`, G.meta - obCorte(G)]); });
+  document.getElementById('obAjustes').innerHTML = l.length ? l.map(([n, v]) => `<span class="ob-chip">${escH(n)}<b>−${obFmt(v)}</b></span>`).join('') : '<span class="ob-vazio">Nenhum ajuste ainda: o orçamento de hoje.</span>';
+  const igual = salvo && JSON.stringify(obRegistro()) === JSON.stringify(OB_KS.reduce((o, k) => Object.assign(o, { [k]: salvo[k] }), {})), gv = document.getElementById('obGravado');
+  gv.className = 'ob-gravado' + (igual ? ' ok' : ''); gv.textContent = igual ? '✓ este é o orçamento gravado' : salvo ? 'diferente do orçamento gravado' : 'ainda sem orçamento gravado';
 }
-const ocLuz = hex => { const n = parseInt(hex.slice(1), 16); return (0.299 * (n >> 16) + 0.587 * (n >> 8 & 255) + 0.114 * (n & 255)) / 255; };
-function ocSelo(k, g) {
-  const e = OC.env[k], v = g.grupos[k];
-  if (k === 'futuro') return v >= e - 0.5 ? ['ok', 'a sobra de hoje (' + fmt(v) + ') alcança'] : ['no', 'hoje sobram ' + fmt(Math.max(0, v)) + ': faltam ' + fmt(e - Math.max(0, v))];
-  return v <= e + 0.5 ? ['ok', 'cabem as despesas de hoje · folga de ' + fmt(e - v)] : ['no', 'as despesas de hoje passam em ' + fmt(v - e)];
+function obPintaGrupo(k, g) {
+  const G = OB.grupos[k], el = document.getElementById('obG-' + k), C = OB_G[k], ref = g.ideal[k], ex = G.total - ref;
+  el.querySelector('[data-ob-fato]').innerHTML = `Hoje <strong>${obFmt(G.total)}</strong> · referência ${obFmt(ref)} (${pctInt(ENGINE.ORCAMENTO_IDEAL[k])}) · `
+    + (ex > 0.5 ? `<strong>${obFmt(ex)}</strong> acima` : ex < -0.5 ? `${obFmt(-ex)} abaixo` : 'na referência');
+  const meta = el.querySelector('[data-ob-meta]'), pct = el.querySelector('[data-ob-pct]');
+  if (document.activeElement !== meta) meta.value = Math.round(G.meta * obF()).toLocaleString('pt-BR');
+  if (document.activeElement !== pct) pct.value = G.total > 0 ? (G.meta / G.total * 100).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) : '0';
+  const sel = G.itens.filter(i => i.sel), n = sel.length, dist = obCorte(G), igual = n > 1 && sel.every(i => Math.abs(i.corte - sel[0].corte) < 0.5);
+  const qtos = `${n} ${n > 1 ? 'itens' : 'item'}${igual ? `, ${obFmt(sel[0].corte)} em cada` : ''}`;
+  el.querySelector('[data-ob-est]').innerHTML = G.meta < 0.5 ? '<span class="ob-vazio">Sem redução neste grupo.</span>'
+    : G.macro ? (!n ? `<span class="ob-ok">✓</span> <strong>${obFmt(G.meta)}</strong> a menos no total das despesas ${C.curto}.`
+      : `<span class="ob-ok">✓</span> <strong>${obFmt(dist)}</strong> anotados em ${qtos}${G.falta ? `; <strong>${obFmt(G.falta)}</strong> sem item definido` : ''}.`)
+    : !n ? `<span class="ob-vazio">Marque de quais despesas sai a redução de ${obFmt(G.meta)}.</span>`
+    : G.falta ? `<span class="ob-falta">Faltam ${obFmt(G.falta)} para chegar aos ${obFmt(G.meta)}.</span> Destrave uma despesa ou marque outra.`
+    : `<span class="ob-ok">✓</span> <strong>${obFmt(dist)}</strong> distribuídos entre ${qtos}.`;
+  G.itens.forEach(i => {
+    const ln = el.querySelector(`.ob-ln[data-id="${CSS.escape(i.id)}"]`); if (!ln) return;
+    ln.classList.toggle('sel', i.sel); ln.classList.toggle('travada', i.sel && i.trava); ln.classList.toggle('mudou', i.corte > 0.5);
+    const r = ln.querySelector('input[type=range]'), c = ln.querySelector('[data-ob-corte]'), t = ln.querySelector('.ob-trava'), parte = G.meta > 0.5 ? Math.round(i.corte / G.meta * 100) : 0;
+    t.setAttribute('aria-pressed', i.trava); t.innerHTML = OB_CADEADO(!i.trava);
+    if (document.activeElement !== c) c.value = i.sel ? Math.round(i.corte * obF()).toLocaleString('pt-BR') : '';
+    if (G.macro) {
+      ln.querySelector('.ob-parte').style.width = parte + '%'; r.max = G.meta; if (document.activeElement !== r) r.value = i.corte;
+      r.setAttribute('aria-valuetext', `reduz ${obFmt(i.corte)}, ${parte}% da redução`); ln.querySelector('.ob-pc').textContent = parte + '%';
+      return;
+    }
+    const novo = i.valor - i.corte;
+    ln.querySelector('[data-ob-ck]').checked = i.sel; ln.querySelector('.ob-v').textContent = obFmt(i.valor);
+    ln.querySelector('.ob-corte').style.width = (i.corte / i.valor * 100) + '%';
+    if (document.activeElement !== r) r.value = novo;
+    r.setAttribute('aria-valuetext', `${obFmt(novo)}, reduz ${obFmt(i.corte)}` + (i.sel && G.meta > 0.5 ? `, ${parte}% da meta` : ''));
+    ln.querySelector('.ob-novo').textContent = obFmt(novo);
+  });
 }
-// desenha o nível aberto; de: o retângulo clicado, para a camada nova nascer dele
-function ocDesenha(de) {
-  const { g, salvo } = ocDados(), palco = document.getElementById('ocPalco'); if (!palco) return;
-  const W = palco.clientWidth, H = palco.clientHeight, Z = OC.zoom, R = g.mes.renda, nivel = OC.cam[OC.cam.length - 1];
-  const T = r => ({ x: r.x * Z.k + Z.x, y: r.y * Z.k + Z.y, w: r.w * Z.k, h: r.h * Z.k }), pos = t => `left:${t.x}px;top:${t.y}px;width:${Math.max(0, t.w)}px;height:${Math.max(0, t.h)}px`;
-  const html = ocLayout(W, H, g).map((r, i) => { const t = T(r);
-    if (r.tipo === 'env') { const G = OC_GRUPOS[r.k], [st, msg] = ocSelo(r.k, g), e = OC.env[r.k], ideal = R * ENGINE.ORCAMENTO_IDEAL[r.k], dif = e - ideal, uso = e > 0 ? Math.max(0, g.grupos[r.k]) / e : 0;
-      const cmp = Math.abs(dif) < 0.5 ? 'igual ao recomendado' : (dif > 0 ? fmt(dif) + ' acima' : fmt(-dif) + ' abaixo') + ' do recomendado (' + pctInt(ENGINE.ORCAMENTO_IDEAL[r.k]) + ')';
-      return `<div class="oc-b env${r.k === 'futuro' ? ' sem-zoom' : ''}" data-oc-env="${r.k}" role="button" tabindex="0" aria-label="${G.n}: ${fmt(e)}, ${cmp}. ${msg}" style="${pos(t)};--cor:${G.cor};--escuro:${G.escuro}">
-        <div class="oc-tx"><b>${t.w > 70 ? G.n : ''}</b><big>${t.w > 110 ? fmt(e) : ''}</big><small>${t.w > 150 ? pctInt(e / R) + ' da renda' : ''}</small><small>${t.w > 150 ? cmp : ''}</small>${t.w > 130 ? `<span class="oc-selo ${st}">${msg}</span>` : ''}</div>
-        ${r.k !== 'futuro' ? `<span class="oc-uso${uso > 1 ? ' no' : ''}" style="width:${Math.min(100, uso * 100)}%"></span>` : ''}${ocFilhos(r.k, t.w, t.h, g)}</div>`; }
-    if (r.tipo === 'sobra') return `<div class="oc-b sobra" style="${pos(t)}">${t.w > 90 ? fmt(r.v) + '<br>sem destino' : ''}</div>`;
-    if (r.tipo === 'limite') return `<div class="oc-limite" style="left:${t.x}px"><span>renda de ${fmt(R)} · passou ${fmt(r.v)}</span></div>`;
-    if (r.tipo === 'guia') return `<div class="oc-guia" style="left:${t.x - 1}px"></div>`;
-    if (r.tipo === 'it') { const nome = r.outros ? 'Outros (' + r.filhos.length + ')' : r.nome, cabeNome = t.w > 70 && t.h > 30, cabeValor = t.w > 70 && t.h > 52, claro = ocLuz(r.cor) > 0.6;
-      return `<div class="oc-b it${r.outros ? ' abre' : ''}" ${r.outros ? 'data-oc-outros="' + i + '" role="button" tabindex="0"' : ''} title="${escH(r.nome)} · ${fmt(r.valor)}${r.outros ? ': ' + escH(r.filhos.map(x => x.nome).join(', ')) : ''}" style="${pos(t)};--fundo:${r.cor};--texto:${claro ? '#20344C' : '#fff'}">
-        <div class="oc-tx">${cabeNome ? `<b>${escH(nome)}${r.outros ? ' ›' : ''}</b>` : ''}${cabeValor ? `<small>${fmt(r.valor)} · ${r.valor / R < 0.005 ? 'menos de 1%' : pctInt(r.valor / R)} da renda</small>` : ''}</div></div>`; }
-    if (r.tipo === 'passa') return `<div class="oc-passa" style="${pos(t)}">${t.w > 120 ? `<span>passam ${fmt(r.v)}</span>` : ''}</div>`;
-    if (r.tipo === 'folga') return `<div class="oc-folga" style="${pos(t)}">${t.w > 110 ? `<span>folga de ${fmt(r.v)}</span>` : ''}</div>`;
-    if (r.tipo === 'moldura') return `<div class="oc-moldura" style="${pos(t)}"><span>envelope de ${fmt(r.v)}</span></div>`;
-    return ''; }).join('');
-  const cam = document.getElementById('ocCamada'); cam.innerHTML = html; OC.layout = ocLayout(W, H, g);
-  const regua = document.getElementById('ocRegua'), base = Math.max(R, OC_KS.reduce((a, k) => a + OC.env[k], 0)); regua.hidden = !!nivel;
-  if (!nivel) { let acc = 0; regua.innerHTML = OC_KS.map((k, j) => { const v = R * ENGINE.ORCAMENTO_IDEAL[k], x = W * acc / base, w = W * v / base; acc += v;
-    return `<i style="left:${x + 1}px;width:${w - 2}px;--cor:${OC_GRUPOS[k].cor};--escuro:${OC_GRUPOS[k].escuro}">${j ? '' : 'Recomendado · '}${{ fixas: 'Fixas: até', ajustaveis: 'Ajustáveis: até', futuro: 'Futuro: pelo menos' }[k]} ${pctInt(ENGINE.ORCAMENTO_IDEAL[k])} <small>${fmt(v)}</small></i>`; }).join(''); }
-  if (de && !matchMedia('(prefers-reduced-motion: reduce)').matches) {   // a camada nova nasce do bloco clicado e cresce até o palco
-    cam.classList.remove('entra'); cam.style.transform = `translate(${de.x}px,${de.y}px) scale(${de.w / W},${de.h / H})`; cam.style.opacity = '0.4';
-    void cam.offsetWidth; cam.classList.add('entra'); cam.style.transform = ''; cam.style.opacity = '';
-  }
-  // a trilha, o status, a dica, os sliders e o botão de gravar
-  const trilha = [['Orçamento', 0]]; if (OC.cam[0]) trilha.push([OC_GRUPOS[OC.cam[0].k].n, 1]); if (OC.cam[1]) trilha.push(['Outros', 2]);
-  document.getElementById('ocTrilha').innerHTML = trilha.map(([n, i]) => `<button data-oc-nivel="${i}">${n}</button>`).join('<i>›</i>');
-  const tot = OC_KS.reduce((a, k) => a + OC.env[k], 0), sobra = R - tot, st = document.getElementById('ocStatus');
-  if (!nivel) { st.className = 'oc-status ' + (Math.abs(sobra) <= 25 ? 'ok' : 'no'); st.textContent = Math.abs(sobra) <= 25 ? '✓ toda a renda tem destino' : sobra > 0 ? fmt(sobra) + ' ainda sem destino' : 'os envelopes passam da renda em ' + fmt(-sobra); }
-  else if (nivel.outros) { st.className = 'oc-status neutro'; st.textContent = nivel.outros.length + ' despesas menores, ' + fmt(nivel.outros.reduce((a, x) => a + x.valor, 0)) + ' no total'; }
-  else { const [s2, msg] = ocSelo(nivel.k, g); st.className = 'oc-status ' + s2; st.textContent = msg; }
-  document.getElementById('ocDica').textContent = !nivel ? 'Mexa nos envelopes abaixo; as linhas tracejadas marcam o recomendado. Passe o mouse num envelope para ver as despesas de hoje dentro dele, clique para abrir e dê dois cliques para ele receber o que está sem destino.'
-    : 'Ctrl + roda do mouse aproxima e afasta; arraste para mover.' + (nivel.outros ? '' : ' "Outros" junta as despesas pequenas demais para ler: clique para abrir.');
-  document.getElementById('ocAjusta').hidden = Z.k === 1 && !Z.x && !Z.y;
-  const ctl = document.getElementById('ocCtl'); ctl.hidden = !!nivel;
-  OC_KS.forEach(k => { const i = ctl.querySelector(`[data-oc-k="${k}"]`); if (document.activeElement !== i) i.value = OC.env[k]; i.style.setProperty('--p', Math.min(100, OC.env[k] / (+i.max || 1) * 100) + '%');
-    document.getElementById('ocV-' + k).innerHTML = fmt(OC.env[k]) + `<small>${pctInt(OC.env[k] / R)}</small>`; });
-  const igual = salvo && OC_KS.every(k => Math.round(salvo[k]) === Math.round(OC.env[k]));
-  document.getElementById('ocGravado').textContent = igual ? '✓ este é o orçamento gravado' : salvo ? 'diferente do orçamento gravado' : 'ainda sem orçamento gravado';
+// arrastar ou digitar numa despesa marca e trava a despesa; o teto é o que a meta ainda deixa (descontadas as outras travadas)
+function obFixa(G, i, corte) {
+  const outros = obSoma(G.itens.filter(x => x !== i && x.sel && x.trava), x => x.corte);
+  i.sel = true; i.trava = true; i.corte = Math.min(Math.max(0, corte), i.valor, Math.max(0, G.meta - outros));
+  obDistribui(G); obPinta();
 }
-function ocAbre(novoCam, el) {
-  const palco = document.getElementById('ocPalco'), a = palco.getBoundingClientRect(), b = el ? el.getBoundingClientRect() : null;
-  OC.cam = novoCam; OC.zoom = { k: 1, x: 0, y: 0 }; ocDesenha(b ? { x: b.left - a.left, y: b.top - a.top, w: b.width, h: b.height } : null);
-}
-function ocGrava() {
-  const { g, salvo } = ocDados(), env = {}; OC_KS.forEach(k => env[k] = Math.round(OC.env[k]));
+const obItem = el => { const ln = el.closest('.ob-ln'); if (!ln) return {}; const G = OB.grupos[ln.dataset.k]; return { G, i: G.itens.find(x => x.id === ln.dataset.id) }; };
+function obGrava() {
+  const { g, salvo } = obDados(), reg = obRegistro();
   if (PAPEL === 'apresentar') {   // o consultor é o dono do plano: grava; o portal aberto recebe o orçamento e não o apaga
-    const plan = structuredClone(ARMAZEM.ler('plano') || PLANO || {}); plan.orcamento = Object.assign({}, plan.orcamento, { envelopes: env });
-    ARMAZEM.gravar('plano', plan).then(() => { trocaBase(plan); ocDesenha(null); avisar('Orçamento gravado. Ele abre assim da próxima vez.'); }).catch(() => avisar('Não consegui gravar o orçamento. Tente de novo.'));
+    const plan = structuredClone(ARMAZEM.ler('plano') || PLANO || {}); plan.orcamento = Object.assign({}, plan.orcamento, { combinado: reg }); delete plan.orcamento.envelopes;
+    ARMAZEM.gravar('plano', plan).then(() => { trocaBase(plan); obPinta(); avisar('Orçamento gravado. Ele abre assim da próxima vez.'); }).catch(() => avisar('Não consegui gravar o orçamento. Tente de novo.'));
     return;
   }
-  proporAlteracao(OC_KS.map(k => ({ tipo: 'campo', caminho: 'orcamento.envelopes.' + k, rotulo: 'Orçamento: ' + OC_GRUPOS[k].n.toLowerCase() + ' (por mês)', formato: 'reais',
-    de: salvo ? salvo[k] : null, deTexto: fmt(salvo ? salvo[k] : g.ideal[k]) + (salvo ? '' : ' (recomendado)'), para: env[k] })).filter(a => a.de == null || Math.round(a.de) !== a.para));
+  proporAlteracao(OB_KS.map(k => ({ tipo: 'campo', caminho: 'orcamento.combinado.' + k, rotulo: 'Orçamento combinado: ' + OB_G[k].n.toLowerCase(), formato: 'reducao',
+    de: salvo ? salvo[k] : null, deTexto: salvo && salvo[k] ? null : 'o orçamento de hoje', para: reg[k] })).filter(a => JSON.stringify(a.de) !== JSON.stringify(a.para)));
 }
-let ocClique = null;
 document.addEventListener('click', e => {
-  if (!OC || !document.getElementById('ocPalco')) return;
-  const b = e.target.closest('[data-oc]'); if (b) { const a = b.dataset.oc, { g } = ocDados();
-    if (a === 'ideal') OC_KS.forEach(k => OC.env[k] = g.ideal[k]); if (a === 'hoje') OC_KS.forEach(k => OC.env[k] = Math.max(0, g.grupos[k]));
-    if (a === 'ajusta') OC.zoom = { k: 1, x: 0, y: 0 }; if (a === 'gravar') { ocGrava(); return; } ocDesenha(null); return; }
-  const n = e.target.closest('[data-oc-nivel]'); if (n) { const i = +n.dataset.ocNivel; if (i < OC.cam.length) ocAbre(OC.cam.slice(0, i), null); return; }
-  const env = e.target.closest('[data-oc-env]'); if (env) { const k = env.dataset.ocEnv; clearTimeout(ocClique);   // um clique abre; dois cliques dão o que está sem destino
-    if (e.detail >= 2) { const { g } = ocDados(), sobra = g.mes.renda - OC_KS.reduce((a, x) => a + OC.env[x], 0); if (sobra > 0.5) { OC.env[k] += sobra; ocDesenha(null); } else avisar('Não há renda sem destino para dar a este envelope.'); return; }
-    if (k !== 'futuro') ocClique = setTimeout(() => ocAbre([{ k }], env), 260); return; }
-  const o = e.target.closest('[data-oc-outros]'); if (o) { const r = OC.layout[+o.dataset.ocOutros]; if (r && r.filhos) ocAbre(OC.cam.concat([{ outros: r.filhos }]), o); }
+  if (!OB || !e.target.closest || !e.target.closest('.ob')) return;
+  const t = e.target, per = t.closest('[data-ob-per]');
+  if (per) { GF_PER = per.dataset.obPer; document.querySelectorAll('[data-ob-per]').forEach(b => { const on = b.dataset.obPer === GF_PER; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); }); obPinta(); return; }
+  const a = t.closest('[data-ob]');
+  if (a) { const { g, salvo } = obDados(), acao = a.dataset.ob;
+    if (acao === 'gravar') { obGrava(); return; }
+    OB.grupos = Object.fromEntries(OB_KS.map(k => [k, obGrupo(k, g, acao === 'gravado' ? salvo && salvo[k] : null)]));
+    if (acao === 'hoje') OB_KS.forEach(k => { const G = OB.grupos[k]; G.itens = G.macro ? [] : G.itens.map(i => Object.assign(i, { sel: false, trava: false, corte: 0 })); obDistribui(G); });
+    OB_KS.forEach(obMonta); obPinta(); return; }
+  const ref = t.closest('[data-ob-ateref]'); if (ref) { const k = ref.dataset.obAteref, G = OB.grupos[k], { g } = obDados(); G.meta = Math.max(0, G.total - g.ideal[k]); obDistribui(G); obPinta(); return; }
+  const ig = t.closest('[data-ob-igual]'); if (ig) { const G = OB.grupos[ig.dataset.obIgual]; G.itens.forEach(i => i.trava = false); obDistribui(G); obPinta(); return; }
+  const sug = t.closest('[data-ob-sug]'); if (sug) { const k = sug.dataset.obSug, G = OB.grupos[k], id = 'a' + (G.novo++);
+    G.itens.push({ id, nome: sug.dataset.nome, valor: Infinity, sel: true, trava: false, corte: 0 }); obDistribui(G); obMonta(k); obPinta();
+    if (!sug.dataset.nome) { const nm = document.querySelector(`#obG-${k} .ob-ln[data-id="${id}"] .ob-nm`); if (nm) nm.focus(); } return; }
+  const tr = t.closest('.ob-trava'); if (tr) { const { G, i } = obItem(tr); if (i) { i.trava = !i.trava; obDistribui(G); obPinta(); } return; }
+  const ti = t.closest('.ob-tirar'); if (ti) { const { G, i } = obItem(ti); if (i) { G.itens = G.itens.filter(x => x !== i); obDistribui(G); obMonta(G.k); obPinta(); } }
 });
-document.addEventListener('keydown', e => { if (!OC || e.key !== 'Enter') return; const el = e.target.closest && e.target.closest('[data-oc-env],[data-oc-outros]'); if (!el) return;
-  if (el.dataset.ocEnv && el.dataset.ocEnv !== 'futuro') ocAbre([{ k: el.dataset.ocEnv }], el); else if (el.dataset.ocOutros) { const r = OC.layout[+el.dataset.ocOutros]; ocAbre(OC.cam.concat([{ outros: r.filhos }]), el); } });
-document.addEventListener('input', e => { const k = e.target.dataset && e.target.dataset.ocK; if (!k || !OC) return; OC.env[k] = +e.target.value; ocDesenha(null); });
-// Ctrl + roda do mouse: zoom em volta do cursor; arrastar move a vista aproximada
-document.addEventListener('wheel', e => { const palco = e.target.closest && e.target.closest('#ocPalco'); if (!palco || !e.ctrlKey || !OC) return; e.preventDefault();
-  const a = palco.getBoundingClientRect(), mx = e.clientX - a.left, my = e.clientY - a.top, Z = OC.zoom, k = Math.min(8, Math.max(1, Z.k * Math.exp(-e.deltaY * 0.0015)));
-  Z.x = mx - (mx - Z.x) * k / Z.k; Z.y = my - (my - Z.y) * k / Z.k; Z.k = k; if (k === 1) Z.x = Z.y = 0;
-  palco.classList.add('zoom'); ocDesenha(null); clearTimeout(palco._z); palco._z = setTimeout(() => palco.classList.remove('zoom'), 150); }, { passive: false });
-let ocArrasto = null;
-document.addEventListener('pointerdown', e => { const palco = e.target.closest && e.target.closest('#ocPalco'); if (!palco || !OC || OC.zoom.k === 1) return; ocArrasto = { x: e.clientX, y: e.clientY, zx: OC.zoom.x, zy: OC.zoom.y, mexeu: false }; });
-document.addEventListener('pointermove', e => { if (!ocArrasto) return; const dx = e.clientX - ocArrasto.x, dy = e.clientY - ocArrasto.y; if (Math.abs(dx) + Math.abs(dy) > 4) ocArrasto.mexeu = true;
-  if (ocArrasto.mexeu) { OC.zoom.x = ocArrasto.zx + dx; OC.zoom.y = ocArrasto.zy + dy; const p = document.getElementById('ocPalco'); p.classList.add('zoom'); ocDesenha(null); } });
-document.addEventListener('pointerup', () => { if (ocArrasto && ocArrasto.mexeu) { const p = document.getElementById('ocPalco'); if (p) p.classList.remove('zoom'); document.addEventListener('click', ev => ev.stopPropagation(), { capture: true, once: true }); } ocArrasto = null; });
-addEventListener('resize', () => { if (OC && document.getElementById('ocPalco')) ocDesenha(null); });
+document.addEventListener('change', e => {
+  if (!OB || !e.target.closest || !e.target.closest('.ob')) return;
+  const t = e.target, d = t.dataset;
+  if (d.obMeta || d.obPct) { const k = d.obMeta || d.obPct, G = OB.grupos[k], n = obNum(t.value);
+    if (n != null) { G.meta = d.obMeta ? Math.min(Math.max(0, n / obF()), G.total) : Math.min(Math.max(0, n), 100) / 100 * G.total; obDistribui(G); } obPinta(); return; }
+  if ('obCk' in d) { const { G, i } = obItem(t); i.sel = t.checked; i.trava = false; obDistribui(G); obPinta(); return; }
+  if ('obCorte' in d) { const { G, i } = obItem(t), n = obNum(t.value); obFixa(G, i, n == null ? 0 : n / obF()); }
+});
+document.addEventListener('input', e => {
+  if (!OB || !e.target.closest || !e.target.closest('.ob')) return;
+  const t = e.target;
+  if (t.type === 'range' && t.closest('.ob-tr')) { const { G, i } = obItem(t); obFixa(G, i, Math.round((G.macro ? +t.value : i.valor - +t.value) / 10) * 10); return; }
+  if (t.classList.contains('ob-nm')) { const { i } = obItem(t); i.nome = t.value; obPinta(); }
+});
 // a primeira página do capítulo: o assunto, o vídeo teórico e o que vem depois
 function renderCapa(pg) {
   const c = CAPITULOS.find(x => x.id === pg.capId), pags = PAGINAS.filter(p => p.capId === c.id && !p.capa);

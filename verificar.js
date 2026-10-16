@@ -269,7 +269,10 @@ console.log('\n5. Periodicidades e regras do fluxo');
   const gG = Eg.gestaoFinanceira(planoG);
   ok('gestão: renda, custo de vida e futuro no mês e no ano, pela média de 12 meses (o IPTU anual entra como R$ 100 por mês)', gG.mes.renda === 12000 && Math.round(gG.mes.custo) === 9100 && Math.round(gG.ano.futuro) === 34800, JSON.stringify(gG.mes));
   ok('gestão: as fixas são o grupo fix; o recomendado é 50/30/20 da renda', Math.round(gG.grupos.fixas) === 5100 && gG.grupos.ajustaveis === 4000 && gG.ideal.fixas === 6000 && gG.ideal.futuro === 2400);
-  ok('gestão: sem os três envelopes gravados, não há orçamento combinado', gG.envelopes === null && Eg.gestaoFinanceira(Object.assign({}, planoG, { orcamento: { envelopes: { fixas: 6000, ajustaveis: 3500, futuro: 2500 } } })).envelopes.futuro === 2500);
+  const cG = Eg.gestaoFinanceira(Object.assign({}, planoG, { orcamento: { combinado: { ajustaveis: { meta: '500', cortes: [{ id: 'a1', nome: 'Mercado', valor: 500, trava: 1 }, { nome: 'Restaurantes' }] } } } })).combinado;
+  ok('gestão: sem orçamento combinado gravado, ele é nulo; gravado, volta com a meta e os cortes normalizados', gG.combinado === null && cG.fixas === null && cG.ajustaveis.meta === 500
+    && cG.ajustaveis.cortes[0].id === 'a1' && cG.ajustaveis.cortes[0].trava === true && !('id' in cG.ajustaveis.cortes[1]) && cG.ajustaveis.cortes[1].valor === 0, JSON.stringify(cG));
+  ok('gestão: as despesas da lista do orçamento têm o id do Fluxo como texto', gG.itens.fixas.every(x => typeof x.id === 'string'));
   const hG = Eg.horasDoTrabalho(planoG), [aG, bG] = hG.pessoas;
   ok('tempo: o valor da hora é a renda do trabalho pelas horas', aG.valorHora === 50 && bG.valorHora === 20 && hG.familia.valorHora === 12000 / 360);
   ok('tempo: as horas se dividem na proporção do orçamento, e o futuro é o resto', Math.abs(aG.presente - 160 * 9100 / 12000) < 1e-9 && Math.abs(aG.presente + aG.futuro - 160) < 1e-9);

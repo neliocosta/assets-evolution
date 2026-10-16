@@ -126,21 +126,22 @@ e tem três páginas, tudo a partir do Fluxo de caixa, pela média dos próximos
   trabalho dividida pelas horas), quantas horas pagam o custo de vida e quantas vão para o futuro (na proporção do orçamento
   da família) e quantas horas, e quantos anos de trabalho, o patrimônio de hoje representa; com a marca dos 20% das horas
   para o futuro.
-- **O orçamento da família** (`?fase=orcamento`): a renda dividida em três envelopes (despesas fixas, despesas ajustáveis
-  e futuro), num treemap feito aqui, sem biblioteca. Os sliders mexem só nos envelopes; nenhum tira de outro: o que a soma
-  não cobre aparece como "sem destino" e o que passa da renda, como excesso. Dois cliques num envelope dão a ele o que está
-  sem destino. Os envelopes ficam encostados, como um treemap só, separados por linhas finas, em cores sóbrias (azul-marinho,
-  bronze e verde) e cantos retos; cada um diz quanto está acima ou abaixo do recomendado, e uma régua acima do palco, na
-  mesma escala, mostra o recomendado (50/30/20), com guias tracejadas atravessando os blocos. Cada envelope mostra se as
-  despesas de hoje cabem (a barrinha de uso e o selo), e, com o mouse em cima, as despesas de hoje aparecem dentro dele.
-  Um clique abre o envelope num treemap
-  das despesas de hoje (a área é o valor), dentro da moldura tracejada do envelope: a folga fica vazia e o que não cabe,
-  listrado em vermelho. As despesas pequenas demais para ler (o bloco não cabe o nome e o valor) vão para "Outros", que
-  também abre. Ctrl + roda do mouse aproxima e afasta; arrastar move a vista; uma trilha no alto volta aos níveis
-  anteriores. O consultor apresentando grava o orçamento no plano (`plano.orcamento.envelopes`, valores por mês), e ele abre
-  assim da próxima vez; o portal aberto recebe a gravação e não a apaga. O cliente, em vez de gravar, propõe o orçamento ao
-  consultor. Sem orçamento gravado, a página abre no recomendado (50% fixas, 30% ajustáveis, 20% futuro). No portal, o
-  bloco Gestão financeira da página Apresentação tem o vídeo da capa e os três envelopes.
+- **O orçamento da família** (`?fase=orcamento`): a bancada onde consultor e família combinam o orçamento. A referência é
+  até 50% da renda em despesas fixas, até 30% em ajustáveis e pelo menos 20% para o futuro. No alto, fixo ao rolar, duas
+  barras na escala da renda (hoje e combinado; as marcas de 50% e 80% são a referência), em que o futuro cresce com o que
+  sai do presente, e o bloco "Para o futuro": de quanto para quanto, uma régua com os 20% e os sonhos (a soma dos aportes
+  necessários dos objetivos, `o.required`), de onde veio o dinheiro e quanto ainda falta. Depois, um cartão por grupo:
+  quanto liberar (a meta, em reais ou em % do grupo; começa no que passa da referência, e "Até a referência" volta a ele) e
+  de quais despesas sai. Uma despesa marcada leva a meta inteira; várias dividem por igual; arrastar a bolinha ou digitar
+  numa despesa trava o valor dela (o cadeado), e as outras se ajustam; nenhuma passa do próprio valor, e o que não couber
+  aparece como "faltam". Um grupo com menos de duas despesas (a família trouxe só o total) não tem lista: a meta baixa o
+  total, e o consultor anota, se quiser, de onde sai (as categorias típicas são botões de escuta, "+ Outro" dá um nome
+  livre), com a mesma divisão e o mesmo cadeado; o resto fica "sem item definido". Embaixo, os ajustes combinados, "Voltar
+  ao de hoje" e "Voltar ao gravado". Tudo por mês ou por ano (a mesma alternância da página de renda). O consultor
+  apresentando grava em `plano.orcamento.combinado` (a meta e as despesas escolhidas; só o valor das travadas vale, as
+  outras se recalculam), e a página abre assim da próxima vez; o cliente, em vez de gravar, propõe. O Fluxo de caixa não
+  muda. No portal, o bloco Gestão financeira da página Apresentação tem o vídeo da capa e o resumo do orçamento combinado.
+  O protótipo isolado da bancada fica em `ux/prototipos/orcamento-combinado.html`.
 
 **Otimização tributária** tem quatro páginas com o mesmo roteiro: no alto, quanto o cliente economiza, com
 a comparação de quanto para quanto ao lado; depois, hoje e o recomendado lado a lado, na mesma escala; o que muda; e, recolhida,

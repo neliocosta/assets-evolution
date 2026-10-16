@@ -149,7 +149,7 @@ Situação: **fonte** (informada aqui, só aqui), **ligada** (lida da fonte, sem
 | Quantas vezes poupou nos últimos 12 meses | `orcamento.vezesPoupou` (nenhuma, 1-3, 4-6, 7-9, 10+) | fonte (exame: `recentsavingsfrequency`; no portal, no Fluxo de caixa) | Gestão financeira |
 | Horas trabalhadas no mês do titular e do cônjuge | `horas`, `conjugeHoras` | fonte (coleta: a soma de `ra_horas` das rendas ativas da pessoa; no portal, na página Cliente) | o tempo como moeda |
 | Valor da hora, horas do presente e do futuro, patrimônio em horas | `ENGINE.horasDoTrabalho` | calculada | o tempo como moeda |
-| Orçamento combinado: os envelopes de fixas, ajustáveis e futuro (por mês) | `orcamento.envelopes.fixas`, `.ajustaveis`, `.futuro` | fonte (gravado na apresentação, pelo consultor, ou no portal, na Apresentação; o cliente propõe); vazio, o recomendado 50/30/20 | orçamento |
+| Orçamento combinado: quanto liberar por mês de cada grupo e de quais despesas sai | `orcamento.combinado.fixas`, `.ajustaveis` (`meta`; `cortes`: `id` da despesa do Fluxo, ou só `nome` quando a família trouxe só o total, `valor` e `trava`) | fonte (gravado na apresentação, pelo consultor; o cliente propõe; o portal mostra o resumo). Só vale o valor das despesas travadas; as outras dividem o resto da meta na hora. Não muda o Fluxo de caixa. Substitui `orcamento.envelopes` | orçamento |
 
 ## Apresentação
 

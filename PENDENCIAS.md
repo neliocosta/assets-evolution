@@ -9,8 +9,8 @@ anterior. Leia junto com o `README.md`, que descreve como as duas telas funciona
 2. Abra `tela-consultor.html` e `evolucao-patrimonial.html` no navegador. Os arquivos são autocontidos.
 3. Escolha um item de **P1** abaixo.
 
-**Última sessão (15/10/2026, tarde):** veja `SESSAO-2026-10-15.md`: o exemplo completo, o link republicado e as revisões de UX
-das duas ferramentas (em `ux/research/`), ainda não aplicadas.
+**Última sessão (16/10/2026):** veja `SESSAO-2026-10-16.md`: o orçamento da família virou a bancada do orçamento combinado
+(sem o treemap). A anterior (15/10, tarde) está em `SESSAO-2026-10-15.md`.
 
 ## Gestão de riscos (em aberto)
 
@@ -607,6 +607,18 @@ Registradas aqui porque não são óbvias no código:
     finas, cantos retos e cores sóbrias (azul-marinho, bronze, verde); as despesas de hoje aparecem no hover e o clique abre
     na tela toda; uma régua do recomendado acima do palco, na mesma escala, com guias tracejadas e quanto cada envelope está
     acima ou abaixo.
+  - Resolvido (15–16/10/2026): o treemap saiu. O usuário não gostava dele e quis "negociar" o orçamento com a família: apontar
+    rápido que as fixas ou as ajustáveis passam da referência e quais despesas pesam, e ajustar junto. Ficou a bancada (veja o
+    README): a meta de cada grupo e as despesas de onde sai, divididas por igual, com o cadeado para balancear. O usuário
+    recusou cortar um percentual igual de todas ("não dá para reduzir o aluguel") e pediu o modo só com os totais, para a
+    família que não detalha. O agente de UX (`.claude/agents/ui-ux-designer`) revisou a proposta e refinou o visual: tons
+    do meio, o corte em pêssego liso (sem listras), controles finos; o usuário pediu o futuro numa barra laranja só no
+    combinado. Grava em `orcamento.combinado` (substitui `orcamento.envelopes`). Protótipo em `ux/prototipos/`.
+    Em aberto: (a) gravar os ajustes no Fluxo de caixa, como degraus datados a partir de um mês (recomendado pelo agente),
+    para a trajetória e os objetivos se recalcularem; hoje o combinado não muda o Fluxo; (b) "os sonhos" somam só os
+    aportes necessários dos objetivos (a liberdade não entra) e a soma vale até o prazo do primeiro objetivo; falta o
+    usuário confirmar; (c) a família sem detalhe: hoje o modo só com os totais aparece quando o grupo tem menos de duas
+    despesas no Fluxo; quando o detalhe chegar da coleta, as linhas de total devem ser substituídas, não somadas.
   - renda e custo de vida: a barra virou um gráfico de rosca com os percentuais, e o mês e o ano, que apareciam juntos (o
     anual pequeno demais), viraram uma alternância Mês | Ano, a pedido do usuário.
     Depois, a rosca passou às cores da identidade (o futuro em laranja, o padrão de vida em azul-marinho claro, a marca da
@@ -635,8 +647,8 @@ Registradas aqui porque não são óbvias no código:
      disponível acima da liquidez ideal". São medidas diferentes (o resgate no mesmo dia x todo o financeiro); falta o
      usuário decidir como explicar a diferença.
   2. Esboços aprovados para depois: riscos em camadas (a lista das oito ameaças pela urgência no lugar do radar e do
-     carrossel), a evolução em resumo no celular e o orçamento por toque (botões no lugar do hover e do duplo clique, com
-     envelopes mais escuros para o texto branco passar no contraste).
+     carrossel), a evolução em resumo no celular. O orçamento por toque ficou obsoleto: o treemap saiu
+     (16/10/2026).
   3. O resumo tributário mistura bases de tempo (por ano, uma vez, em 20 anos) e não tem total.
   4. O exemplo fala em "intercâmbio do filho", mas a filha do exemplo é a Luiza.
   5. No celular, os valores ao lado das barras da previdência passam da borda do cartão.

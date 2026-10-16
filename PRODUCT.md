@@ -43,8 +43,8 @@ evolução patrimonial. Ele dá certo quando a família sai da reunião sabendo 
 ## Capabilities and Constraints
 
 - Este código evolui até chegar a clientes reais. Não é só uma especificação.
-- São duas telas HTML autocontidas, sem bibliotecas externas além das fontes do Google. Os gráficos (rosca, treemap,
-  evolução) são desenhados no próprio código.
+- São duas telas HTML autocontidas, sem bibliotecas externas além das fontes do Google. Os gráficos (rosca, relógio,
+  barras do orçamento, evolução) são desenhados no próprio código.
 - O motor (`<script id="engine">`) e o armazém são duplicados nas duas telas. A área do cliente é a origem, e
   `node sync-motor.js` copia para o portal. `node verificar.js` confere as invariantes.
 - Cada dado é pedido uma vez só, num lugar só (`VARIAVEIS.md`). Os derivados são calculados, nunca gravados. O histórico
@@ -52,8 +52,7 @@ evolução patrimonial. Ele dá certo quando a família sai da reunião sabendo 
 - Nada é trocado ou guardado em arquivo .json.
 - Os capítulos têm só título, sem número, porque nem todo cliente terá todos.
 - Em aberto (`PENDENCIAS.md`): planos de família tratados separadamente; o critério do selo "renda parcial" e do aviso
-  "Requer revisão"; a idade de quem define a fase da vida num casal; a cor do futuro (laranja nas páginas de renda e de
-  tempo, verde no treemap do orçamento).
+  "Requer revisão"; a idade de quem define a fase da vida num casal.
 
 ## Brand Commitments
 
