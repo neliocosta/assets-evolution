@@ -80,6 +80,11 @@ Situação: **fonte** (informada aqui, só aqui), **ligada** (lida da fonte, sem
 | Venda planejada do bem: data, valor de venda, custos (% ou R$) | `patrimonio.bens[].venda` | fonte (consultor); valor de venda vazio = o projetado | evolução patrimonial, Fluxo de caixa (custos e saldo devedor transferido), fim da renda e da parcela do bem |
 | Valor projetado, saldo devedor transferido na venda e líquido da venda | `ENGINE.trajetoriaDoBem` | calculada (não gravada) | Patrimônio, evolução patrimonial |
 | Outras dívidas | `patrimonio.dividas[]` | fonte | patrimônio total, sucessão |
+| Saldo devedor de hoje (do extrato) | `saldoDevedor` (em `bens[]` e `dividas[]`) | fonte | patrimônio total, evolução patrimonial (cai no ritmo do contrato), sucessão |
+| Contrato da dívida: valor liberado, parcelas contratadas, mês da 1ª parcela, parcela atual, juros (ao ano ou ao mês), sistema, IOF, seguro prestamista, tarifas | `credito`, `parcelas`, `inicio` (AAAA-MM), `parcela`, `juros` e `jurosPeriodo` (vazio: ao ano; `mes`), `sistema`, `iof`, `seguro.{modo,valor,pct}`, `tarifas` (em `bens[]` e `dividas[]`) | fonte | `ENGINE.contratoDaDivida`, linha da parcela no Fluxo de caixa |
+| Adiantamentos da dívida: daqui a quantos meses, valor, o que reduz (prazo ou parcela) | `amortizacoes[].{em,valor,modo}` (em `bens[]` e `dividas[]`) | fonte (consultor, na gaveta de evolução) | saldo e quitação (`ENGINE.contratoDaDivida`), linha da parcela no Fluxo de caixa (o valor sai no mês) |
+| Parcelas que faltam | `restantes` | calculada pelo mês da 1ª parcela e pelos adiantamentos (`ENGINE.restantesDaDivida`); digitada só sem o mês da 1ª parcela | fim da linha da parcela, saldo ao longo do tempo, quitação |
+| CET, taxa pela parcela, IOF, valor financiado, saldo pelo contrato, o que falta pagar | `ENGINE.contratoDaDivida` | calculada (não gravada) | cartão da dívida, gaveta de evolução |
 | Liquidez ideal | `patrimonio.liquidezIdeal` | fonte | patrimônio do cliente |
 | Instituições onde só tem conta | `patrimonio.contas.titular`, `.conjuge`, `.casal` (nomes; as do casal são conjuntas) | fonte | quem é a família (no cartão de cada pessoa) |
 

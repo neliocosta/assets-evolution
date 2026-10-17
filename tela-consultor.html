@@ -178,6 +178,7 @@ aside nav a.on i{border-color:#fff;opacity:1}
 .fc.exc{color:var(--nl-navy-900);font-weight:600}
 .fc.exc::before{content:'';position:absolute;left:5px;top:5px;width:5px;height:5px;border-radius:50%;background:var(--nl-orange-500)}
 .fc.zoom{cursor:zoom-in}
+.fc.faixa{background:rgba(250,122,53,.14);box-shadow:inset 0 0 0 1px rgba(250,122,53,.35)}
 .fxrow.grp .fc,.fxrow.grp2 .fc{color:var(--nl-navy-900);font-weight:600;cursor:zoom-in}
 .fxrow.grp.mov .fc{color:#7C5CBF}
 .fxrow.ro .fc{color:#a9a7a2;font-style:italic;cursor:help}
@@ -459,6 +460,51 @@ label.fxhoriz select{width:auto;padding:5px 8px;font-size:12.5px}
 .pc-renda .link{margin-left:2px}
 .pc-renda select{width:auto;min-width:240px;max-width:420px;padding:6px 8px;font-size:12.5px}
 .pc-renda b{color:var(--nl-navy-900);font-weight:600}
+/* dívida: o valor calculado no lugar do campo, a conta do contrato e a gaveta de evolução */
+.dv-calc{padding:7px 9px;font:600 13px 'DM Sans',sans-serif;color:var(--nl-navy-900);background:#f7f5f1;border-radius:8px;border:1px solid #efeeea}
+.dv-calc small{font-weight:500;color:#8a8a8a;margin-left:4px}
+.dv-conta{display:grid;grid-template-columns:repeat(5,1fr) auto;gap:8px;margin-top:10px;align-items:stretch}
+.dv-conta.vazio{display:block;font-size:12px;color:#8a8a8a;background:#f7f5f1;border-radius:8px;padding:9px 12px}
+.dv-t{background:#f7f5f1;border-radius:8px;padding:8px 10px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.dv-t span{font:500 11px 'DM Sans',sans-serif;color:#8a8a8a}
+.dv-t b{font:600 14px Sora,sans-serif;color:var(--nl-navy-900)}
+.dv-t small{font-size:11px;color:#8a8a8a;line-height:1.35}
+.dv-t.forte{background:var(--nl-cream-50);box-shadow:inset 0 0 0 1px #f3d9c6}
+.dv-t.forte b{color:#B4501A}
+.dv-conf.ok{color:#2E7D4F}
+.dv-conf.alerta{color:#964400}
+.dv-ver{align-self:center;white-space:nowrap}
+.dv-dica{margin-top:8px;font-size:12px;color:#964400}
+.drawer .dv-conta{grid-template-columns:repeat(5,1fr)}
+.dv-nota{font-size:12px;color:#8a8a8a;margin:-4px 0 8px}
+.dv-svg{width:100%;height:auto;display:block}
+.dv-svg text{font:11px 'DM Sans',sans-serif;fill:#8a8a8a}
+.dv-svg text.hoje{fill:#B4501A;font-weight:600}
+.dv-svg .g{stroke:#20344C;stroke-opacity:.08;stroke-dasharray:1 4}
+.dv-leg{display:flex;gap:14px;font-size:11.5px;color:#5d5c58;margin-bottom:6px;flex-wrap:wrap}
+.dv-leg span{display:flex;align-items:center;gap:5px}
+.dv-leg i{width:10px;height:10px;border-radius:3px;display:inline-block}
+.dv-tot{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}
+.dv-tot div{background:#f7f5f1;border-radius:8px;padding:7px 10px;display:flex;flex-direction:column;gap:1px}
+.dv-tot span{font-size:11px;color:#8a8a8a}
+.dv-tot b{font:600 13px Sora,sans-serif;color:var(--nl-navy-900)}
+.dv-tot .forte b{color:#B4501A}
+.dv-taxa{display:flex;gap:6px;align-items:center}
+.dv-taxa input{flex:1;min-width:0}
+.dv-taxa select{width:auto;flex:none}
+.dv-mes{font-size:12px;color:#8a8a8a;white-space:nowrap;min-width:64px}
+.dv-adi{display:grid;grid-template-columns:1fr 1fr 1.3fr auto;gap:8px 12px;align-items:end}
+.dv-adi .btn-icon{margin-bottom:12px}
+.dv-efeito{margin-top:12px}
+.drawer .dv-efeito{grid-template-columns:repeat(5,1fr)}
+.dv-tab{border:1px solid #efeeea;border-radius:10px;overflow:hidden}
+.dv-tab table{width:100%;font-size:12px;border-collapse:collapse}
+.dv-tab th,.dv-tab td{text-align:center;padding:6px 8px;font-variant-numeric:tabular-nums}
+.dv-tab th{background:#f7f5f1;font:600 10.5px 'DM Sans',sans-serif;color:#6b6a66;text-transform:uppercase;letter-spacing:.04em}
+.dv-tab td{border-top:1px solid #f3f1ec;color:var(--nl-navy-900)}
+.dv-tab tr.pago td{color:#b0aea8}
+.dv-tab tr.hoje td{background:#fdf3ea;font-weight:600}
+.dv-tab tr.dv-miolo td{background:#faf9f6;padding:8px}
 /* patrimônio: o bem ao longo do tempo (valorização ao ano, valorização pontual e venda) */
 .bt{margin-top:10px;padding-top:10px;border-top:1px dashed #eceae5}
 .bt h4{font:600 11.5px Sora,sans-serif;color:var(--nl-navy-900);margin-bottom:6px}
@@ -651,7 +697,7 @@ aside nav a.feito i::before{content:'✓';font-size:13px}
   </nav>
   <div class="foot">
     <button class="btn btn-primary" id="btnOpen"><svg viewBox="0 0 24 24"><path d="M15 3h6v6M10 14L21 3M18 13v8H3V6h8"/></svg>Apresentar ao cliente</button>
-    <a class="linkfoot" id="btnComoCliente" href="evolucao-patrimonial.html?fase=proposito" target="_blank">Ver como o cliente vê ↗</a>
+    <a class="linkfoot" id="btnComoCliente" href="evolucao-patrimonial.html?fase=proposito&consultor" target="_blank">Ver como o cliente vê ↗</a>
   </div>
 </aside>
 
@@ -1046,6 +1092,74 @@ const ENGINE = (() => {
   };
   const cronogramaFin = f => { if (!financiamentoValido(f)) return []; const F = novoFin(f), out = []; for (let k = 0; k < F.n; k++) { const p = parcelaFin(F); F.bal = Math.max(0, F.bal - p.amort); out.push({ juros: p.juros, amort: p.amort, pay: p.pay, saldo: F.bal }); } return out; };
 
+  // ---- Dívidas: o contrato parcela a parcela ----
+  // Toda dívida (o financiamento de um bem ou uma de patrimonio.dividas) pode trazer o contrato:
+  //   credito: o valor liberado (o que caiu na conta); parcelas: o número contratado; inicio: 'AAAA-MM', o mês da 1ª parcela
+  //   (sem ele, valem as parcelas que faltam, restantes); sistema: 'price' (vazio) ou 'sac'; juros: em % ao ano, ou ao mês
+  //   com jurosPeriodo 'mes'; parcela: a deste mês, o total cobrado. Com a parcela, a taxa sai dela (a parcela que o banco
+  //   cobra manda) e a informada só é conferida; sem a parcela, ela sai da taxa.
+  //   iof: 'financiado' (vazio: somado ao crédito), 'avista' (pago à parte) ou 'isento'. Pessoa física: 0,38% sobre o valor
+  //   financiado mais 0,0082% ao dia sobre cada amortização, contando no máximo 365 dias.
+  //   seguro (prestamista): { modo: 'unico', valor } prêmio somado ao crédito, ou { modo: 'mensal', pct } % ao mês sobre o saldo.
+  //   tarifas: reais somados ao crédito (cadastro, avaliação).
+  //   amortizacoes: [{ em, valor, modo }] adiantamentos: no mês em (0 = este), depois da parcela, valor sai do saldo; modo
+  //   'prazo' (vazio: a parcela continua e a dívida acaba antes) ou 'parcela' (o prazo continua e a parcela cai).
+  // O CET é a taxa que iguala o que o cliente recebeu (o liberado, menos o IOF pago à parte) às parcelas do contrato.
+  const IOF_PF = { fixo: 0.0038, dia: 0.000082, dias: 365 };
+  const mesDe = s => { const m = /^(\d{4})-(\d{2})/.exec(s || ''); return m ? +m[1] * 12 + (+m[2] - 1) - (TODAY.getFullYear() * 12 + TODAY.getMonth()) : null; };   // 'AAAA-MM' → mês do plano (0 = este)
+  // parcelas que faltam no contrato, contando a deste mês: pela data da 1ª parcela, quando há; senão, a informada
+  const restantesContratadas = d => { const mi = mesDe(d && d.inicio), n = Math.round(+(d && d.parcelas) || 0); return mi != null && n > 0 ? Math.max(0, Math.min(n, n + mi)) : +(d && d.restantes) > 0 ? Math.round(+d.restantes) : null; };
+  // e as que de fato faltam: com o contrato, as amortizações extras podem encurtar
+  const restantesDaDivida = d => { const ct = d && contratoDaDivida(d); return ct ? ct.restantes : restantesContratadas(d); };
+  // as parcelas de um valor financiado F, à taxa mensal i, em n meses; extras: Map(parcela → { valor, modo })
+  function tabelaDaDivida(F, i, n, sac, seg, extras) {
+    const out = []; let bal = F, pm = i > 0 ? pmt(F, i, n) : F / n, am = F / n;
+    for (let k = 0; k < n && bal > 0.005; k++) {
+      const juros = bal * i, amort = Math.min(bal, sac ? am : pm - juros), seguro = bal * seg; bal = Math.max(0, bal - amort);
+      const x = extras && extras.get(k), extra = x && bal > 0 ? Math.min(bal, x.valor) : 0;
+      if (extra) { bal -= extra; const r = n - k - 1; if (x.modo === 'parcela' && bal > 0 && r > 0) { pm = i > 0 ? pmt(bal, i, r) : bal / r; am = bal / r; } }
+      out.push({ juros, amort, seguro, extra, pay: juros + amort + seguro, saldo: bal });
+    }
+    return out;
+  }
+  const iofDe = (F, linhas) => F * IOF_PF.fixo + linhas.reduce((a, l, k) => a + l.amort * IOF_PF.dia * Math.min(IOF_PF.dias, 30 * (k + 1)), 0);
+  // o valor financiado à taxa i: o liberado, o prêmio único, as tarifas e o IOF financiado (que incide sobre ele mesmo)
+  function financiadoEm(d, i, n) {
+    const sac = d.sistema === 'sac', S = d.seguro || {}, seg = S.modo === 'mensal' ? (+S.pct || 0) / 100 : 0, modo = d.iof || 'financiado';
+    const base = (+d.credito || 0) + (S.modo === 'unico' ? +S.valor || 0 : 0) + (+d.tarifas || 0);
+    let F = base, iof = 0;
+    if (modo !== 'isento') for (let r = 0; r < (modo === 'financiado' ? 12 : 1); r++) { iof = iofDe(F, tabelaDaDivida(F, i, n, sac, 0)); if (modo === 'financiado') F = base + iof; }
+    return { F, iof, sac, seg, linhas: tabelaDaDivida(F, i, n, sac, seg) };
+  }
+  const contratoMemo = new Map();
+  function contratoDaDivida(d) {
+    const n = Math.round(+(d && d.parcelas) || 0), C = +(d && d.credito) || 0, P = +d.parcela || 0, ja = num(d.juros), porMes = d.jurosPeriodo === 'mes';
+    if (!(n > 0 && C > 0) || !(P > 0 || ja != null)) return null;
+    const amorts = (Array.isArray(d.amortizacoes) ? d.amortizacoes : []).filter(a => a && num(a.em) != null && +a.valor > 0);
+    const chave = JSON.stringify([n, C, P, ja, porMes, d.inicio, d.restantes, d.sistema, d.iof, d.seguro, d.tarifas, amorts]);
+    if (contratoMemo.has(chave)) return contratoMemo.get(chave);
+    const rest = restantesContratadas(d), k0 = rest != null ? n - rest : 0, kHoje = Math.min(k0, n - 1);   // parcelas já pagas; a deste mês é a k0 (de 0)
+    const busca = (f, alvo, hi) => { let lo = 0; for (let r = 0; r < 60; r++) { const m = (lo + hi) / 2; if (f(m) < alvo) lo = m; else hi = m; } return (lo + hi) / 2; };
+    const iInf = ja == null ? null : porMes ? ja / 100 : Math.pow(1 + ja / 100, 1 / 12) - 1;
+    const i = P > 0 ? busca(m => financiadoEm(d, m, n).linhas[kHoje].pay, P, 0.2) : iInf;
+    const fz = financiadoEm(d, i, n), recebido = C - (d.iof === 'avista' ? fz.iof : 0);
+    const cet = busca(r => -fz.linhas.reduce((a, l, k) => a + l.pay / Math.pow(1 + r, k + 1), 0), -recebido, 0.3);   // o valor presente das parcelas cai com a taxa
+    // as amortizações extras: na parcela do mês em, depois dela
+    const extras = new Map(); amorts.forEach(a => { const k = k0 + Math.max(0, Math.round(+a.em)); if (k < n) { const x = extras.get(k); extras.set(k, { valor: (x ? x.valor : 0) + +a.valor, modo: a.modo === 'parcela' ? 'parcela' : 'prazo' }); } });
+    const linhas = extras.size ? tabelaDaDivida(fz.F, i, n, fz.sac, fz.seg, extras) : fz.linhas;
+    const anual = x => Math.pow(1 + x, 12) - 1, soma = (l, k) => l.reduce((a, x) => a + x[k], 0);
+    const resumo = l => { const f = l.slice(Math.max(0, k0)); return { pago: soma(f, 'pay') + soma(f, 'extra'), juros: soma(f, 'juros'), seguro: soma(f, 'seguro'), extra: soma(f, 'extra') }; };
+    const out = { n, fim: linhas.length, k0, restantes: Math.max(0, linhas.length - k0), inicio: -k0, i, juros: anual(i),
+      jurosInformado: iInf != null ? anual(iInf) : null, jurosInformadoMes: iInf, cet: { mes: cet, ano: anual(cet) },
+      credito: C, recebido, financiado: fz.F, iof: fz.iof, seguroUnico: (d.seguro || {}).modo === 'unico' ? +d.seguro.valor || 0 : 0, tarifas: +d.tarifas || 0, linhas,
+      saldoHoje: k0 <= 0 ? fz.F : k0 < fz.linhas.length ? fz.linhas[k0 - 1].saldo : 0, parcelaHoje: fz.linhas[kHoje].pay,
+      total: { pago: soma(linhas, 'pay') + soma(linhas, 'extra'), juros: soma(linhas, 'juros'), seguro: soma(linhas, 'seguro') },
+      falta: resumo(linhas), semExtras: extras.size ? { restantes: Math.max(0, n - k0), falta: resumo(fz.linhas), linhas: fz.linhas } : null };
+    if (contratoMemo.size > 200) contratoMemo.clear();
+    contratoMemo.set(chave, out);
+    return out;
+  }
+
   // ---- Bens ao longo do tempo (página Patrimônio): valorização, valorização pontual e venda ----
   // Cada bem de plan.patrimonio.bens pode ter:
   //   valorizacao: [{ tipo: 'taxa', pct, de, anos }]        pct % ao ano (negativo deprecia), do mês `de` (0 = hoje) por `anos`
@@ -1055,8 +1169,8 @@ const ENGINE = (() => {
   // sai dos bens e entra no financeiro; os custos e o saldo devedor transferido ao comprador (ou quitado) são saídas. As parcelas param no mês da venda:
   // o que já foi pago está no fluxo, e o que falta é o saldo devedor de hoje, com os juros e as parcelas pagas até a venda.
   // A renda que o bem gera também termina no mês da venda.
-  let BENS = null;   // null: os bens do exemplo
-  const bensDoPlano = () => BENS || PATRIMONIO_EXEMPLO.bens;
+  let BENS = null, DIVS = null;   // null: os bens e as dívidas do exemplo
+  const bensDoPlano = () => BENS || PATRIMONIO_EXEMPLO.bens, dividasDoPlano = () => DIVS || PATRIMONIO_EXEMPLO.dividas;
   function trajetoriaDoBem(b) {
     const H = Math.round((100 - CURRENT_AGE) * 12), ev = Array.isArray(b.valorizacao) ? b.valorizacao : [], vd = b.venda && num(b.venda.em) != null ? b.venda : null;
     const fim = vd ? Math.max(1, Math.min(H, Math.round(+vd.em))) : H, serie = new Float64Array(fim + 1), pontuais = [];
@@ -1077,10 +1191,13 @@ const ENGINE = (() => {
   }
   // saldo devedor do financiamento do bem daqui a k meses. Com as parcelas que faltam, o saldo de hoje cai como o valor
   // presente das parcelas restantes e chega a zero na última (depois dela, não há o que transferir); sem elas, o de hoje
-  // com os juros e as parcelas pagas até lá.
+  // com os juros e as parcelas pagas até lá. Com o contrato, o saldo de hoje cai como o saldo do contrato (o informado manda
+  // hoje; o contrato dá o caminho até zero).
   function saldoDevedorEm(b, k) {
     const B0 = +b.saldoDevedor || 0; if (!(B0 > 0)) return 0;
-    const p = +b.parcela || 0, i = Math.pow(1 + (+b.juros || 0) / 100, 1 / 12) - 1, n = Math.round(+b.restantes || 0);
+    const ct = contratoDaDivida(b);
+    if (ct && ct.saldoHoje > 0) { const j = ct.k0 + k; return j >= ct.fim ? 0 : B0 * (j <= 0 ? ct.financiado : ct.linhas[j - 1].saldo) / ct.saldoHoje; }
+    const p = +b.parcela || 0, i = Math.pow(1 + (+b.juros || 0) / 100, 1 / 12) - 1, n = Math.round(restantesDaDivida(b) || 0);
     if (n > 0) { if (k >= n) return 0; const vp = m => i > 0 ? (1 - Math.pow(1 + i, -m)) / i : m; return B0 * vp(n - k) / vp(n); }
     const g = Math.pow(1 + i, k);
     return Math.max(0, i > 0 ? B0 * g - p * (g - 1) / i : B0 - p * k);
@@ -1094,6 +1211,9 @@ const ENGINE = (() => {
     let cofre = 0, obj = OBJ.map(() => 0), done = OBJ.map(() => false), bens = 0, part = PART_VALUE;
     const saldoNaData = OBJ.map(() => 0);   // quanto cada objetivo de fato juntou até a data alvo
     const traj = bensDoPlano().map(trajetoriaDoBem), ultimo = traj.map(x => x.serie[0]), vendido = traj.map(() => false);   // os bens da página Patrimônio
+    // o que a família deve no mês: o saldo de cada dívida, que cai com as parcelas (a de um bem vendido foi quitada na venda)
+    const divMes = new Map(), dividaEm = mi => { if (!divMes.has(mi)) divMes.set(mi, bensDoPlano().reduce((a, b, k) => a + (vendido[k] ? 0 : saldoDevedorEm(b, mi)), 0) + dividasDoPlano().reduce((a, d) => a + saldoDevedorEm(d, mi), 0)); return divMes.get(mi); };
+    const quitacoes = bensDoPlano().map((b, k) => [b, k]).concat(dividasDoPlano().map(d => [d, -1])).filter(([d]) => +d.saldoDevedor > 0).map(([d, k]) => ({ d, k, mi: restantesDaDivida(d) })).filter(q => q.mi > 0);
     let offset = 99, streams = [], ff = null, prevActive = '', allocated = false, ks = [];
     const recurTotal = () => streams.reduce((a, st) => a + (st.left === 0 ? 0 : st.value), 0);
     // despesa com endObj (o aluguel, por exemplo) deixa de existir quando aquele objetivo é realizado
@@ -1179,12 +1299,17 @@ const ENGINE = (() => {
             if (V.custo > 0) add(f, 'out_venda_' + k, V.custo);
             if (V.quitacao > 0) add(f, 'out_quita_' + k, V.quitacao);
             events.push({ week: i, type: 'venda', label: 'Venda: ' + nome, detail: reais(V.liquido) + ' líquidos para o mercado financeiro', venda: V, antes: ultimo[k] });
+            divMes.clear();   // a dívida do bem saiu com a venda
             return;
           }
           const v = tr.serie[Math.min(mIdx, tr.serie.length - 1)];
           if (v !== ultimo[k]) { bens += v - ultimo[k]; ultimo[k] = v; }
           tr.pontuais.forEach(p => { if (p.mi === mIdx) events.push({ week: i, type: 'valoriza', label: (p.delta >= 0 ? 'Valorização: ' : 'Desvalorização: ') + nome, detail: (p.delta >= 0 ? '+ ' : '− ') + reais(Math.abs(p.delta)) + (p.motivo ? ' · ' + p.motivo : ''), delta: p.delta }); });
         });
+        if (t >= 0) {   // as dívidas que terminam no mês, num marco só
+          const qs = quitacoes.filter(q => q.mi === mIdx && !(q.k >= 0 && vendido[q.k])), nomes = qs.map(q => q.d.nome || (q.k >= 0 ? 'financiamento' : 'dívida'));
+          if (qs.length) events.push({ week: i, type: 'note', label: (qs.length > 1 ? 'Quitados: ' + nomes.slice(0, -1).join(', ') + ' e ' + nomes[nomes.length - 1] : (qs[0].k >= 0 ? 'Financiamento quitado: ' : 'Dívida quitada: ') + nomes[0]) });
+        }
         // gatilho da Liberdade Financeira
         // sem idade-alvo, a liberdade acontece assim que o patrimônio sustenta a renda (a partir dos 50, no máximo aos 68);
         // com idade-alvo, acontece nela, sustentando ou não
@@ -1243,7 +1368,7 @@ const ENGINE = (() => {
       let R = 0; for (const k in f) { if (k.startsWith('in_')) R += f[k]; else if (k.startsWith('out_')) R -= f[k]; }
       cofre += R; if (R) add(f, 'mov_cofre', R);
       if (cofre < 0) cofre = 0;
-      weeks[i] = { fin: fin(), cofre, obj: obj.slice(), bens, part, pas: m ? (m.pas || 0) : 0, saque: m ? (m.saque || 0) : 0, mi: m ? m.mIdx : -1, ks, f: i < W0 ? {} : f };   // o que aconteceu antes de hoje já está no patrimônio
+      weeks[i] = { fin: fin(), cofre, obj: obj.slice(), bens, part, div: dividaEm(Math.max(0, m ? m.mIdx : 0)), pas: m ? (m.pas || 0) : 0, saque: m ? (m.saque || 0) : 0, mi: m ? m.mIdx : -1, ks, f: i < W0 ? {} : f };   // o que aconteceu antes de hoje já está no patrimônio
     }
     // agregações
     const bucketize = keyFn => { const out = []; let cur = null; for (let i = 0; i < NW; i++) { const k = weeks[i].mi < 0 ? 'antes de hoje' : keyFn(i); if (!cur || cur.key !== k) { cur = { key: k, w0: i, w1: i + 1, mi: weeks[i].mi, f: {} }; out.push(cur); } cur.w1 = i + 1; const f = weeks[i].f; for (const key in f) cur.f[key] = (cur.f[key] || 0) + f[key]; } return out; };
@@ -1309,8 +1434,8 @@ const ENGINE = (() => {
     if (Array.isArray(plan.expenses)) EXPENSES = plan.expenses.map(migra);
     if (Array.isArray(plan.objectives)) { OBJ.length = 0; plan.objectives.forEach(o => OBJ.push(o)); OBJ.forEach(migraCustos); OBJ.forEach(derive); }
     if (Array.isArray(plan.passive)) { PASSIVE.length = 0; plan.passive.forEach(p => PASSIVE.push(p)); }
-    if (plan.patrimonio) BENS = Array.isArray(plan.patrimonio.bens) ? plan.patrimonio.bens : [];
-    else if (plan.initialBens != null) BENS = [];
+    if (plan.patrimonio) { BENS = Array.isArray(plan.patrimonio.bens) ? plan.patrimonio.bens : []; DIVS = Array.isArray(plan.patrimonio.dividas) ? plan.patrimonio.dividas : []; }
+    else if (plan.initialBens != null) { BENS = []; DIVS = []; }
     // a renda que um bem vendido gera e a parcela dele terminam no mês da venda
     bensDoPlano().forEach(b => { const v = b.venda && num(b.venda.em) != null ? Math.max(1, Math.round(+b.venda.em)) : null; if (v == null) return;
       if (b.renda) INCOMES = INCOMES.map(it => it.id === b.renda ? cortaLinha(it, v) : it);
@@ -1333,7 +1458,7 @@ const ENGINE = (() => {
   const reais = v => 'R$ ' + Math.round(+v || 0).toLocaleString('pt-BR');
   const lerCaminho = (o, c) => String(c).split('.').reduce((x, k) => x == null ? undefined : x[k], o);
   function gravaCaminho(o, c, v) { const ks = String(c).split('.'), ult = ks.pop(); let x = o; ks.forEach((k, i) => { if (x[k] == null || typeof x[k] !== 'object') x[k] = /^\d+$/.test(ks[i + 1] || ult) ? [] : {}; x = x[k]; }); x[ult] = v; }
-  const itemDaAlteracao = (plan, a) => a.tipo === 'objetivo' ? (plan.objectives || []).find(o => o.id === a.id) : a.tipo === 'fluxo' || a.tipo === 'linha' ? (plan[a.lista] || []).find(i => i.id === a.id) : null;
+  const itemDaAlteracao = (plan, a) => a.tipo === 'objetivo' ? (plan.objectives || []).find(o => o.id === a.id) : a.tipo === 'fluxo' || a.tipo === 'linha' || a.tipo === 'item' ? (plan[a.lista] || []).find(i => i.id === a.id) : null;
   // degrau a partir do mês m, com a mesma regra da tela do consultor: igual ao mês anterior não vira degrau
   function degrauEm(it, m, v) {
     it.steps = (it.steps || []).slice().sort((a, b) => a.from - b.from);
@@ -1353,6 +1478,7 @@ const ENGINE = (() => {
     if (a.tipo === 'objetivo') return +it[a.campo];
     const semDegraus = !it.steps;
     const base = semDegraus ? 0 : stepAt(sortSteps(Object.assign({}, it)), a.mi);
+    if (a.modo === 'faixa') return it.exc && it.exc[a.mi] != null ? +it.exc[a.mi] : semDegraus || !aconteceEm(sortSteps(Object.assign({}, it)), a.mi, a.lista === 'expenses') ? 0 : base;
     return a.modo === 'mes' && it.exc && it.exc[a.mi] != null ? +it.exc[a.mi] : base;
   }
   // aplica as alterações ao plano (muda o objeto recebido e o devolve); alteração de item que não existe mais é ignorada
@@ -1365,9 +1491,11 @@ const ENGINE = (() => {
         const it = { id: a.id, label: a.label || 'Nova linha', frequency: 'mensal', days: [5], steps: [{ from: +a.mi, value: +a.para }], description: 'Proposta pelo cliente' };
         if (a.lista === 'incomes') Object.assign(it, { kind: a.kind || 'ativa', origin: a.kind === 'passiva' ? 'Rendimentos recorrentes' : 'Outras receitas', gross: 0, taxable: true });
         else it.group = a.group === 'adj' ? 'adj' : 'fix';
+        if (a.item) Object.keys(a.item).forEach(k => { if (a.item[k] != null) it[k] = JSON.parse(JSON.stringify(a.item[k])); });   // configurada no painel: frequência, datas, início e fim
         (plan[a.lista] = plan[a.lista] || []).push(it); return;
       }
       const it = itemDaAlteracao(plan, a); if (!it) return;
+      if (a.tipo === 'item') { Object.keys(a.para || {}).forEach(k => { if (a.para[k] == null) delete it[k]; else it[k] = JSON.parse(JSON.stringify(a.para[k])); }); return; }
       if (a.tipo === 'linha') {   // remover a partir de mi: os degraus seguintes e os ajustes somem, e a linha vai a zero
         it.steps = (it.steps || []).filter(st => st.from < a.mi).concat({ from: +a.mi, value: 0 });
         if (it.exc) Object.keys(it.exc).forEach(k => { if (parseInt(k, 10) >= a.mi) delete it.exc[k]; });
@@ -1375,9 +1503,20 @@ const ENGINE = (() => {
       }
       if (a.tipo === 'objetivo') { it[a.campo] = +a.para; return; }
       if (a.modo === 'mes') { it.exc = Object.assign({}, it.exc, { [a.mi]: +a.para }); return; }
+      if (a.modo === 'faixa') { it.exc = Object.assign({}, it.exc); for (let m = +a.mi; m <= +a.ate; m++) it.exc[m] = +a.para; return; }   // faixa de meses: o valor em cada mês de mi a ate
       degrauEm(it, +a.mi, +a.para);
     });
     return sincronizaPatrimonio(plan);
+  }
+  // uma linha do fluxo numa frase: "R$ 260 por mês, no dia 10, a partir de jan/2027 até dez/2027"
+  function fraseDaLinha(it) {
+    const s = (it.steps || []).slice().sort((x, y) => x.from - y.from), fq = it.frequency || 'mensal';
+    if (!s.length) return 'sem valor';
+    const fim = s.length > 1 && !+s[s.length - 1].value ? s[s.length - 1].from - 1 : null, mudancas = s.length - 1 - (fim != null ? 1 : 0);
+    const datas = Array.isArray(it.dates) && it.dates.length ? it.dates.map(d => d.d + '/' + MESES_P[d.m]).join(', ') : '';
+    const dias = it.days && it.days.length ? (it.days.length > 1 ? ', nos dias ' + it.days.join(' e ') : ', no dia ' + it.days[0]) : '';
+    const quando = fq === 'pontual' ? 'uma vez, em ' + mesDoPlano(s[0].from) : fq === 'semanal' ? 'por semana' : fq === 'anual' ? (datas ? 'em cada data do ano (' + datas + ')' : 'por ano') : fq === 'mensal' ? 'por mês' + dias : 'a cada ' + (FREQ[fq] || 1) + ' meses';
+    return reais(s[0].value) + ' ' + quando + (fq === 'pontual' ? '' : ', a partir de ' + mesDoPlano(s[0].from) + (fim != null ? ' até ' + mesDoPlano(fim) : '')) + (mudancas > 0 ? ' (e ' + (mudancas === 1 ? 'uma mudança' : mudancas + ' mudanças') + ' de valor depois)' : '');
   }
   // texto da alteração para as duas telas: o que muda, o valor proposto e o valor de antes
   function descreveAlteracao(plan, a) {
@@ -1388,12 +1527,18 @@ const ENGINE = (() => {
       const mudou = JSON.stringify(atual) !== JSON.stringify(a.de == null ? null : a.de);   // deTexto: como o valor de antes aparece (ex.: o custo calculado pelo fluxo)
       return { oque: a.rotulo || a.caminho, de: a.deTexto || f(a.de), para: f(a.para), atual: mudou ? f(atual) : a.deTexto || f(atual), mudou };
     }
-    if (a.tipo === 'linha' && a.acao === 'nova') return { oque: 'Nova ' + lado + ' (' + (a.lista === 'incomes' ? (a.kind === 'passiva' ? 'renda passiva' : 'renda do trabalho') : a.group === 'adj' ? 'ajustável' : 'fixa') + '): ' + (a.label || 'sem nome'), de: '—', para: reais(a.para) + '/mês a partir de ' + mesDoPlano(a.mi), atual: it ? 'já existe' : '—', mudou: !!it };
+    if (a.tipo === 'item') {   // linha reconfigurada: a frase de antes e a de depois (só os campos propostos mudam)
+      const ks = Object.keys(a.para || {}), com = o => { const x = Object.assign({}, it); ks.forEach(k => { if (o[k] == null) delete x[k]; else x[k] = o[k]; }); return x; };
+      const nome = a.para && a.para.label ? '“' + a.para.label + '”: ' : '', igual = (x, y) => JSON.stringify(x == null ? null : x) === JSON.stringify(y == null ? null : y);
+      return { oque: (it ? it.label : (a.de && a.de.label) || 'Linha removida') + ': nova configuração', de: it ? fraseDaLinha(com(a.de || {})) : '—', para: it ? nome + fraseDaLinha(com(a.para)) : '—',
+        atual: it ? fraseDaLinha(it) : 'a linha não existe mais', mudou: !it || ks.some(k => !igual(it[k], (a.de || {})[k])) };
+    }
+    if (a.tipo === 'linha' && a.acao === 'nova') return { oque: 'Nova ' + lado + ' (' + (a.lista === 'incomes' ? (a.kind === 'passiva' ? 'renda passiva' : 'renda do trabalho') : a.group === 'adj' ? 'ajustável' : 'fixa') + '): ' + (a.label || 'sem nome'), de: '—', para: a.item ? fraseDaLinha(a.item) : reais(a.para) + '/mês a partir de ' + mesDoPlano(a.mi), atual: it ? 'já existe' : '—', mudou: !!it };
     if (a.tipo === 'linha') return { oque: (it ? it.label : 'Linha removida') + ': remover a partir de ' + mesDoPlano(a.mi), de: val(a.de), para: 'R$ 0 (sem a linha)', atual: val(valorAtual(plan, a)), mudou: valorAtual(plan, a) !== a.de };
     let oque;
     if (a.tipo === 'liberdade') oque = 'Idade para parar de trabalhar';
     else if (a.tipo === 'objetivo') oque = (it ? it.name : 'Objetivo removido') + ': ' + (a.campo === 'months' ? 'data alvo' : 'custo');
-    else oque = (it ? it.label : 'Linha removida') + ': ' + (a.modo === 'mes' ? 'só em ' + mesDoPlano(a.mi) : 'a partir de ' + mesDoPlano(a.mi));
+    else oque = (it ? it.label : 'Linha removida') + ': ' + (a.modo === 'mes' ? 'só em ' + mesDoPlano(a.mi) : a.modo === 'faixa' ? 'de ' + mesDoPlano(a.mi) + ' a ' + mesDoPlano(a.ate) + ' (' + (a.ate - a.mi + 1) + ' meses), depois volta ao que era' : 'a partir de ' + mesDoPlano(a.mi));
     return { oque, de: val(a.de), para: val(a.para), atual: val(valorAtual(plan, a)), mudou: valorAtual(plan, a) !== a.de && !(valorAtual(plan, a) == null && a.de == null) };
   }
   // ---- Gestão de riscos ----
@@ -1988,7 +2133,7 @@ const ENGINE = (() => {
       concentracao: { presente: 'razoavel', futuro: 'bem' }, liberdade: { presente: 'nao', futuro: 'sim' } } };
   const ORIGENS_OUT = ORIGENS;
   const config = () => ({ age: Math.floor(CURRENT_AGE), retireAge: RETIRE_AGE, spouseRetireAge: SPOUSE_RETIRE, initialBens: INITIAL_BENS, dividas: DIVIDAS, desired: DESIRED, desiredSteps: DESIRED_STEPS, lifeExp: LIFE_EXP, salary: SALARY, salaryGrowth: SAL_G, partValue: PART_VALUE, initialWealth: INITIAL_WEALTH, capacityOverride: CAP_OVERRIDE, rate: R_M, profiles: PROFILES, incomes: INCOMES, expenses: EXPENSES, objectives: OBJ, passive: PASSIVE });
-  return { TODAY, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, PASSIVE, PROFILES, STATUS, trajetoriaDoBem, saldoDevedorEm, get BENS() { return bensDoPlano(); }, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, serieCusto, desiredAt, aplicaAlteracoes, descreveAlteracao, valorAtual, mesDoPlano, RISCOS, NATUREZAS, ITENS_RUINA, RISCOS_EXEMPLO, avaliaRiscos, custoDeVida, SEGURO, RELACOES, calculaSeguros, mesesAteIdade, FASES_VIDA, faseDaVida, sincronizaPatrimonio, PATRIMONIO_EXEMPLO, padraoDeVida, lerCaminho, gravaCaminho, IR, calculaIR, irDaFamilia, REGIMES, calculaRetirada, retiradaDosSocios, PREVIDENCIA, sucessao, simulaPrevidencia, aliqRegressiva, TRIBUTARIO_EXEMPLO, FAMILIA_EXEMPLO, casalDe, nomesDaFamilia, pessoasDaFamilia, rendaDaPessoa, bensDoRisco, titularidadeDoBem, setRetireAge: a => { RETIRE_AGE = a == null ? null : Math.max(CURRENT_AGE, +a); }, paradaMi, trabalhaEm, idadeDaLiberdade, dataNasc, idadeExata, sincronizaIdades, fraseDoProposito, ordemDoProposito, objetivosDoProposito, naturezaDe, naturezaDaReserva, CLASSES_ATIVOS, ORCAMENTO_IDEAL, VEZES_POUPOU, gestaoFinanceira, horasDoTrabalho, familiaDoPlano, ESTADOS_DIAGNOSTICO, orcamentoDoFluxo, concentracaoDoPatrimonio, diagnosticoDaFamilia, financiamentoValido, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
+  return { TODAY, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, PASSIVE, PROFILES, STATUS, trajetoriaDoBem, saldoDevedorEm, contratoDaDivida, restantesDaDivida, mesDe, get BENS() { return bensDoPlano(); }, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, serieCusto, desiredAt, aplicaAlteracoes, fraseDaLinha, descreveAlteracao, valorAtual, mesDoPlano, RISCOS, NATUREZAS, ITENS_RUINA, RISCOS_EXEMPLO, avaliaRiscos, custoDeVida, SEGURO, RELACOES, calculaSeguros, mesesAteIdade, FASES_VIDA, faseDaVida, sincronizaPatrimonio, PATRIMONIO_EXEMPLO, padraoDeVida, lerCaminho, gravaCaminho, IR, calculaIR, irDaFamilia, REGIMES, calculaRetirada, retiradaDosSocios, PREVIDENCIA, sucessao, simulaPrevidencia, aliqRegressiva, TRIBUTARIO_EXEMPLO, FAMILIA_EXEMPLO, casalDe, nomesDaFamilia, pessoasDaFamilia, rendaDaPessoa, bensDoRisco, titularidadeDoBem, setRetireAge: a => { RETIRE_AGE = a == null ? null : Math.max(CURRENT_AGE, +a); }, paradaMi, trabalhaEm, idadeDaLiberdade, dataNasc, idadeExata, sincronizaIdades, fraseDoProposito, ordemDoProposito, objetivosDoProposito, naturezaDe, naturezaDaReserva, CLASSES_ATIVOS, ORCAMENTO_IDEAL, VEZES_POUPOU, gestaoFinanceira, horasDoTrabalho, familiaDoPlano, ESTADOS_DIAGNOSTICO, orcamentoDoFluxo, concentracaoDoPatrimonio, diagnosticoDaFamilia, financiamentoValido, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
 })();
 if (typeof module !== 'undefined') module.exports = ENGINE;
 </script>
@@ -2309,7 +2454,7 @@ function renderAll() {
   const foco = document.activeElement, fg = foco && foco.dataset ? foco.dataset.g : null, fk = foco && foco.dataset ? foco.dataset.k : null;
   const oid = fg != null && plano.objectives[+fg] ? plano.objectives[+fg].id : null, txt = foco ? foco.value : null;
   recompute(); renderTop(); renderFluxo(); renderGoals(); renderPropositoC(); renderLiberdade(); renderClienteC(); renderPatrimonioC(); renderRiscosC(); renderTributarioC(); renderPremissas(); renderApresentacaoC(); renderPropostas(); save();
-  if (gaveta && gaveta.t === 'bem') renderGaveta();   // o detalhe do bem acompanha o que mudou nele
+  if (gaveta && (gaveta.t === 'bem' || gaveta.t === 'div')) renderGaveta();   // o detalhe do bem e a evolução da dívida acompanham o que mudou neles
   if (oid && fk) {
     const i = plano.objectives.findIndex(o => o.id === oid), el = document.querySelector('[data-g="' + i + '"][data-k="' + fk + '"]');
     if (el) { el.focus(); if (el.type === 'text' || el.tagName === 'TEXTAREA') { el.value = txt; try { el.setSelectionRange(txt.length, txt.length); } catch (e) { } } }
@@ -2526,6 +2671,11 @@ function setStep(it, m, v) {
   if (!it.steps.length) it.steps.push({ from: 0, value: 0 });
   it.steps.sort((a, b) => a.from - b.from);
 }
+// "até quando" por número de vezes: o fim continua sendo o último mês (o degrau zero); as vezes são contadas com as
+// ocorrências da própria linha (frequência, dias do mês, datas do ano), sem os ajustes de uma ocorrência
+const contaveis = it => Object.assign({}, it, { exc: null, steps: [{ from: it.steps[0].from, value: 1 }] });
+function vezesAte(it, fim) { const c = contaveis(it), saida = !!it.group; let n = 0; for (let m = it.steps[0].from; m <= fim; m++) n += ENGINE.ocorrencias(c, m, saida).length; return n; }
+function fimPorVezes(it, n, limite) { const c = contaveis(it), saida = !!it.group; let k = 0; for (let m = it.steps[0].from; m <= limite; m++) { k += ENGINE.ocorrencias(c, m, saida).length; if (k >= n) return m; } return limite; }
 // "até quando": a linha termina com um degrau de valor zero
 const fimDe = it => { const s = it.steps, u = s[s.length - 1]; return s.length > 1 && !(+u.value) ? u.from - 1 : null; };
 function setFim(it, ate) {
@@ -3345,7 +3495,33 @@ fxR.addEventListener('wheel', e => {
   redesenha();
 }, { passive: false });
 let arraste = null;
-fxR.addEventListener('pointerdown', e => { if (e.button === 0) arraste = { x: e.clientX, t0: fx.t0, t1: fx.t1, moveu: false, alvo: e.target }; });
+// Arrastar sobre as células de uma entrada ou saída (no mês ou na semana) seleciona uma faixa de meses; em qualquer outro
+// lugar da planilha (cabeçalho, gráfico, grupos, colunas de ano), arrastar anda no tempo
+let faixa = null;   // { ri, c0, c1, y, alvo }
+fxR.addEventListener('pointerdown', e => {
+  if (e.button !== 0) return;
+  const cel = e.target.closest('[data-cel]'), [ri, ci] = cel ? cel.dataset.cel.split(':').map(Number) : [], r = cel && fx.linhas[ri];
+  if (r && r.it && (r.t === 'inc' || r.t === 'exp') && (fx.nivel === 'month' || fx.nivel === 'week')) { faixa = { ri, c0: ci, c1: ci, y: e.clientY, alvo: e.target }; e.preventDefault(); return; }
+  arraste = { x: e.clientX, t0: fx.t0, t1: fx.t1, moveu: false, alvo: e.target };
+});
+// a faixa à vista: as células da linha entre a primeira e a última coluna, em laranja suave
+function pintaFaixa() {
+  fxR.querySelectorAll('.fc.faixa').forEach(c => c.classList.remove('faixa')); if (!faixa) return;
+  fxR.querySelectorAll('[data-cel^="' + faixa.ri + ':"]').forEach(c => { const ci = +c.dataset.cel.split(':')[1]; if (ci >= Math.min(faixa.c0, faixa.c1) && ci <= Math.max(faixa.c0, faixa.c1)) c.classList.add('faixa'); });
+}
+addEventListener('pointermove', e => {
+  if (!faixa) return;
+  const c = document.elementFromPoint(e.clientX, faixa.y), cel = c && c.closest('[data-cel]');
+  if (cel && +cel.dataset.cel.split(':')[0] === faixa.ri) { const ci = +cel.dataset.cel.split(':')[1]; if (ci !== faixa.c1) { faixa.c1 = ci; fecharPop(); pintaFaixa(); } }
+});
+addEventListener('pointerup', () => {
+  if (!faixa) return;
+  const f = faixa; faixa = null;
+  if (f.c0 === f.c1) { pintaFaixa(); cliqueNaPlanilha(f.alvo); return; }   // uma coluna: é o clique de sempre
+  const a = Math.min(f.c0, f.c1), b = Math.max(f.c0, f.c1), r = fx.linhas[f.ri];
+  faixa = { ri: f.ri, c0: a, c1: b }; pintaFaixa(); faixa = null;   // a faixa fica pintada enquanto a janelinha está aberta
+  abrirPopFaixa(r, fx.cols[a], fx.cols[b], fxR.querySelector('[data-cel="' + f.ri + ':' + a + '"]'));
+});
 addEventListener('pointermove', e => {
   if (!arraste) return;
   const dx = e.clientX - arraste.x;
@@ -3384,7 +3560,7 @@ function cliqueNaPlanilha(el) {
 // ---------- janelinha de edição da célula ----------
 let popCtx = null;
 const popEl = document.getElementById('pop');
-function fecharPop() { popEl.hidden = true; popCtx = null; }
+function fecharPop() { popEl.hidden = true; popCtx = null; fxR.querySelectorAll('.fc.faixa').forEach(c => c.classList.remove('faixa')); }
 function posicionaPop(el) {
   popEl.hidden = false;
   const r = el.getBoundingClientRect(), w = popEl.offsetWidth, h = popEl.offsetHeight;
@@ -3441,6 +3617,17 @@ function abrirPop(r, b, el) {
   const foco = popEl.querySelector('#popNome') || popEl.querySelector('#popV');
   if (foco) { foco.focus(); if (foco.select) foco.select(); }
 }
+// faixa de meses: o valor em cada mês, do primeiro ao último (como o ajuste de uma ocorrência, então vale também nos
+// meses em que a linha não acontecia); depois, a linha segue como era. É a mesma regra da faixa proposta pelo cliente.
+function abrirPopFaixa(r, bA, bB, el) {
+  const it = r.it, mi1 = bA.mi0, mi2 = Math.max(mi1, bB.mi1), n = mi2 - mi1 + 1;
+  popCtx = { r, b: bA, faixa: { mi1, mi2 } };
+  popEl.innerHTML = `<h5>${esc(it.label)}</h5><div class="quando">${n} ${n === 1 ? 'mês' : 'meses'}, de ${monthsLabel(mi1)} a ${monthsLabel(mi2)}</div>
+    <div class="field"><label>Valor em cada mês</label><input id="popV" data-money type="text" inputmode="decimal" value="" placeholder="R$ 0,00"></div>
+    <div class="nota">O valor de cada mês selecionado, em todos eles. Em ${monthsLabel(mi2 + 1)} a linha volta ao que era.</div>
+    <div class="acoes"><button class="btn btn-secondary btn-small" data-pop="fechar">Cancelar</button><button class="btn btn-tertiary btn-small" data-pop="salvar">Salvar</button></div>`;
+  posicionaPop(el); const foco = popEl.querySelector('#popV'); foco.focus(); foco.select();
+}
 function criarLinha(alvo, b, d) {
   const semana = fx.nivel === 'week', k = semana ? kDaSemana(b) : 1;
   const dia = !semana || k === 1 ? 5 : ENGINE.weekDate(b.w0).getDate();
@@ -3462,6 +3649,13 @@ function salvarPop(acao) {
     fecharPop();
     if (acao === 'mais') { renderAll(); abrirGaveta(r.alvo === 'inc' ? 'inc' : 'exp', it.id, true); } else renderAll();
     return;
+  }
+  if (popCtx.faixa) {
+    const it = r.it, { mi1, mi2 } = popCtx.faixa;
+    it.exc = it.exc || {};   // os ajustes de uma semana dentro da faixa dão lugar ao valor do mês
+    Object.keys(it.exc).forEach(k => { const m = parseInt(k, 10); if (k.includes(':') && m >= mi1 && m <= mi2) delete it.exc[k]; });
+    for (let m = mi1; m <= mi2; m++) it.exc[m] = v;
+    fecharPop(); renderAll(); return;
   }
   const it = r.it, mi = b.mi0, modo = (popEl.querySelector('input[name=pm]:checked') || {}).value || 'from';
   if (modo === 'from') setStep(it, mi, v);
@@ -3532,12 +3726,16 @@ function itemGaveta() {
   if (!gaveta) return null;
   if (gaveta.t === 'pas') return plano.passive[gaveta.i];
   if (gaveta.t === 'bem') { const l = (plano.patrimonio && plano.patrimonio.bens) || []; gaveta.i = l.indexOf(gaveta.bem); return gaveta.i >= 0 ? gaveta.bem : null; }
+  if (gaveta.t === 'div') return dividaDoCaminho(gaveta.caminho);
   return (gaveta.t === 'inc' ? plano.incomes : plano.expenses).find(x => x.id === gaveta.id);
 }
 function abrirGaveta(t, idOuI, novo) {
   if (gaveta && gaveta.novo && itemGaveta() && linhaVazia(itemGaveta())) removerDaGaveta();
-  gaveta = { t, novo: !!novo, diaPadrao: !!novo }; if (t === 'pas') gaveta.i = idOuI; else if (t === 'bem') gaveta.bem = plano.patrimonio.bens[idOuI]; else gaveta.id = idOuI;
+  gaveta = { t, novo: !!novo, diaPadrao: !!novo }; if (t === 'pas') gaveta.i = idOuI; else if (t === 'bem') gaveta.bem = plano.patrimonio.bens[idOuI]; else if (t === 'div') gaveta.caminho = idOuI; else gaveta.id = idOuI;
   fecharPop(); renderGaveta(); renderAll();
+  // a gaveta é sempre o mesmo elemento e guardaria a rolagem da anterior: abre no alto e, numa linha nova, já no nome
+  gavetaEl.scrollTop = 0;
+  if (novo) { const nome = gavetaEl.querySelector('[data-gv="label"], [data-gvr="name"]'); if (nome) nome.focus({ preventScroll: true }); }
 }
 function removerDaGaveta() {
   if (gaveta.t === 'pas') plano.passive.splice(gaveta.i, 1);
@@ -3551,8 +3749,9 @@ function fecharGaveta(cancelar) {
 function renderGaveta() {
   const it = itemGaveta();
   if (!it) { gaveta = null; gavetaEl.hidden = true; gavetaEl.classList.remove('larga'); fx.fixa = null; return; }
-  gavetaEl.hidden = false; gavetaEl.classList.toggle('larga', gaveta.t === 'bem');
+  gavetaEl.hidden = false; gavetaEl.classList.toggle('larga', gaveta.t === 'bem' || gaveta.t === 'div');
   if (gaveta.t === 'bem') { fx.fixa = null; gavetaEl.innerHTML = htmlBemGaveta(it, gaveta.i); return; }
+  if (gaveta.t === 'div') { fx.fixa = null; gavetaEl.innerHTML = htmlDividaGaveta(it, gaveta.caminho); return; }
   fx.fixa = gaveta.t === 'pas' ? 'in_pas_' + gaveta.i : gaveta.t === 'inc' ? 'in_' + it.id : 'out_' + (it.group || 'adj') + '_' + it.id;
   gavetaEl.innerHTML = gaveta.t === 'pas' ? htmlRenda(it) : htmlLinha(it);
   if (gaveta.aviso) avisoGaveta(gaveta.aviso);
@@ -3560,6 +3759,100 @@ function renderGaveta() {
 // o bem na gaveta: o mesmo cartão da página Patrimônio (os campos gravam no plano como lá)
 const htmlBemGaveta = (b, i) => `<div class="dh"><h3><span class="kind">Bem · página Patrimônio</span>${esc(b.nome || 'Bem sem nome')}</h3><button class="btn btn-icon" data-gv-fechar title="Fechar">×</button></div>
   ${htmlBemC(b, i)}<div class="foot"><button class="btn btn-secondary btn-small" data-ir="patrimonio">Ir para a página Patrimônio</button><span style="margin-left:auto"></span><button class="btn btn-tertiary btn-small" data-gv-fechar>Concluir</button></div>`;
+// a evolução de uma dívida na gaveta, como num simulador de financiamento: o contrato (os mesmos campos do cartão), os
+// adiantamentos, o saldo devedor parcela a parcela, a parcela de cada ano dividida, os totais e a tabela das parcelas.
+// Cores suaves (nada de cor forte); a amortização e o adiantamento na mesma família de azul, porque os dois abatem o saldo.
+const COR_DIV = { amort: '#8EAAD6', extra: '#4F6F9E', juros: '#DF9A90', seguro: '#A891C9' }, NOME_DIV = { amort: 'Amortização', extra: 'Adiantamento', juros: 'Juros', seguro: 'Seguro' };
+const LINHA_DIV = '#E2928D';
+const MODOS_ADIANT = [['', 'O prazo (a parcela continua)'], ['parcela', 'A parcela (o prazo continua)']];
+const reaisCurto = v => v >= 1e6 ? 'R$ ' + (v / 1e6).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + ' mi' : v >= 1e3 ? 'R$ ' + Math.round(v / 1e3) + ' mil' : 'R$ ' + Math.round(v);
+function anosDaDivida(ct) {
+  const anos = [];
+  ct.linhas.forEach((l, k) => { const y = anoMes(ct.inicio + k).y; let a = anos[anos.length - 1]; if (!a || a.y !== y) anos.push(a = { y, juros: 0, amort: 0, seguro: 0, extra: 0, pay: 0, saldo: 0, n: 0, pagas: 0 }); a.juros += l.juros; a.amort += l.amort; a.seguro += l.seguro; a.extra += l.extra; a.pay += l.pay + l.extra; a.saldo = l.saldo; a.n++; if (k < ct.k0) a.pagas++; });
+  return anos;
+}
+function graficoSaldo(ct, anos) {
+  const W = 752, H = 170, L = 64, R = 12, T = 14, B = 24, pw = W - L - R, ph = H - T - B, n = ct.n;
+  const saldoDe = lin => k => k <= 0 ? ct.financiado : k - 1 < lin.length ? lin[k - 1].saldo : 0, saldo = saldoDe(ct.linhas);
+  const x = k => L + k / n * pw, y = v => T + ph - v / ct.financiado * ph;
+  const pts = (a, b, f) => { let p = ''; for (let k = a; k <= b; k++) p += (p ? 'L' : 'M') + x(k).toFixed(1) + ',' + y((f || saldo)(k)).toFixed(1); return p; };
+  const area = (a, b) => pts(a, b) + 'L' + x(b).toFixed(1) + ',' + y(0) + 'L' + x(a).toFixed(1) + ',' + y(0) + 'Z', hoje = Math.min(ct.k0, n), fim = ct.fim;
+  const passo = Math.max(1, Math.ceil(anos.length / 8));
+  let k = 0, ultX = -1e9; const marcas = anos.map((a, j) => { const k0 = k; k += a.n; if (j % passo || x(k0) - ultX < 40) return ''; ultX = x(k0); return `<text x="${x(k0)}" y="${H - 6}" text-anchor="${j ? 'middle' : 'start'}">${a.y}</text>`; }).join('');   // um ano curto no começo não encavala o rótulo
+  k = 0; const alvos = anos.map(a => { const k0 = k; k += a.n; return `<rect x="${x(k0)}" y="${T}" width="${Math.max(1, x(k) - x(k0))}" height="${ph}" fill="transparent"><title>${a.y}: saldo devedor de ${fmt(a.saldo)} no fim do ano</title></rect>`; }).join('');
+  const sem = ct.semExtras ? `<path d="${pts(hoje, n, saldoDe(ct.semExtras.linhas))}" fill="none" stroke="#9aa5b1" stroke-width="1.5" stroke-dasharray="4 4"/><text x="${x(n) - 4}" y="${y(saldoDe(ct.semExtras.linhas)(Math.round(n - (n - hoje) * 0.25))) - 8}" text-anchor="end">sem os adiantamentos</text>` : '';
+  return `<svg class="dv-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Saldo devedor de ${fmt(ct.financiado)} a zero">
+    ${[0, 0.5, 1].map(f => `<line x1="${L}" x2="${W - R}" y1="${y(ct.financiado * f)}" y2="${y(ct.financiado * f)}" class="g"/><text x="${L - 8}" y="${y(ct.financiado * f) + 4}" text-anchor="end">${reaisCurto(ct.financiado * f)}</text>`).join('')}
+    ${hoje > 0 ? `<path d="${area(0, hoje)}" fill="#20344C" fill-opacity=".05"/><path d="${pts(0, hoje)}" fill="none" stroke="#b9c1ca" stroke-width="2"/>` : ''}
+    ${sem}${hoje < fim ? `<path d="${area(hoje, fim)}" fill="${LINHA_DIV}" fill-opacity=".13"/><path d="${pts(hoje, fim)}" fill="none" stroke="${LINHA_DIV}" stroke-width="2" stroke-linejoin="round"/>` : ''}
+    ${hoje > 0 && hoje < fim ? `<line x1="${x(hoje)}" x2="${x(hoje)}" y1="${T - 6}" y2="${y(0)}" stroke="#F6A06B" stroke-width="1.5"/><circle cx="${x(hoje)}" cy="${y(saldo(hoje))}" r="4.5" fill="#fff" stroke="${LINHA_DIV}" stroke-width="2"/><text x="${x(hoje) + 8}" y="${T + 4}" class="hoje">hoje · ${fmt(saldo(hoje))}</text>` : ''}
+    ${marcas}${alvos}</svg>`;
+}
+function graficoComposicao(anos) {
+  const W = 752, H = 190, L = 64, R = 12, T = 10, B = 24, pw = W - L - R, ph = H - T - B, mx = Math.max(...anos.map(a => a.pay)) || 1;
+  const bw = pw / anos.length, larg = Math.max(3, Math.min(34, bw - 4)), y = v => T + ph - v / mx * ph, passo = Math.max(1, Math.ceil(anos.length / 12));
+  const barras = anos.map((a, j) => {
+    const cx = L + j * bw + bw / 2, ks = ['amort', 'extra', 'juros', 'seguro'].filter(kk => a[kk] > 0); let topo = y(0), segs = '';
+    ks.forEach((kk, s) => { const h = a[kk] / mx * ph, yy = topo - h, ultimo = s === ks.length - 1; segs += `<rect x="${cx - larg / 2}" y="${(yy + (s ? 1 : 0)).toFixed(1)}" width="${larg}" height="${Math.max(0.5, h - (s ? 2 : 0)).toFixed(1)}" rx="${ultimo ? 3 : 0}" fill="${COR_DIV[kk]}"/>`; topo = yy; });
+    const pago = a.pagas === a.n;
+    return `<g${pago ? ' opacity=".4"' : ''}>${segs}<rect x="${L + j * bw}" y="${T}" width="${bw}" height="${ph}" fill="transparent"><title>${a.y}${pago ? ' (pago)' : a.pagas ? ' (' + a.pagas + ' de ' + a.n + ' parcelas pagas)' : ''}: ${fmt(a.pay)} em ${a.n} parcelas · amortização ${fmt(a.amort)}${a.extra ? ' · adiantamento ' + fmt(a.extra) : ''} · juros ${fmt(a.juros)}${a.seguro ? ' · seguro ' + fmt(a.seguro) : ''}</title></rect></g>${j % passo ? '' : `<text x="${cx}" y="${H - 6}" text-anchor="middle">${a.y}</text>`}`;
+  }).join('');
+  return `<svg class="dv-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Quanto se paga por ano, dividido em amortização, adiantamento, juros e seguro">
+    ${[0, 0.5, 1].map(f => `<line x1="${L}" x2="${W - R}" y1="${y(mx * f)}" y2="${y(mx * f)}" class="g"/><text x="${L - 8}" y="${y(mx * f) + 4}" text-anchor="end">${reaisCurto(mx * f)}</text>`).join('')}${barras}</svg>`;
+}
+// adiantamentos: daqui a quantos meses, quanto, e se reduz o prazo ou a parcela; o efeito, comparado com o contrato sem eles
+function htmlAdiantamentos(d, caminho, ct) {
+  const L = Array.isArray(d.amortizacoes) ? d.amortizacoes : [], c = caminho + '.amortizacoes.';
+  const linhas = L.map((a, i) => `<div class="dv-adi">
+    <div class="field"><label>Daqui a quantos meses</label><div class="dv-taxa">${campoR(c + i + '.em', 'num', ' min="0" step="1" placeholder="ex.: 3"')}<span class="dv-mes">${a.em != null && a.em !== '' ? monthsLabel(Math.max(0, Math.round(+a.em))) : ''}</span></div></div>
+    <div class="field"><label>Valor adiantado</label>${campoR(c + i + '.valor', 'reais')}</div>
+    <div class="field"><label>O que reduz</label>${selR(c + i + '.modo', MODOS_ADIANT)}</div>
+    <button class="btn btn-icon" data-div-adi-rm="${caminho}|${i}" title="Remover">×</button></div>`).join('');
+  const S = ct.semExtras, t = (rot, v, sub, cls) => `<div class="dv-t ${cls || ''}"><span>${rot}</span><b>${v}</b>${sub ? `<small>${sub}</small>` : ''}</div>`;
+  let efeito = '';
+  if (S) {
+    const antes = S.restantes - ct.restantes, eco = S.falta.juros + S.falta.seguro - ct.falta.juros - ct.falta.seguro;
+    const ult = ct.linhas.reduce((u, l, k) => l.extra ? k : u, -1), novaParcela = ult >= 0 && ult + 1 < ct.fim ? ct.linhas[ult + 1].pay : null, parcelaAntes = ult >= 0 ? S.linhas[Math.min(ult + 1, S.linhas.length - 1)].pay : null;
+    efeito = `<div class="dv-conta dv-efeito">${t('Juros economizados', fmt(eco), 'de ' + fmt(S.falta.juros + S.falta.seguro) + ' para ' + fmt(ct.falta.juros + ct.falta.seguro), 'forte')}
+      ${t('Quitação', ct.restantes ? monthsLabel(ct.restantes - 1) : '—', antes > 0 ? antes + (antes === 1 ? ' mês antes' : ' meses antes') + ' (era ' + monthsLabel(S.restantes - 1) + ')' : 'no mesmo mês')}
+      ${t('Parcela depois do último adiantamento', novaParcela != null ? fmt(novaParcela) : '—', novaParcela != null && parcelaAntes != null && Math.abs(novaParcela - parcelaAntes) >= 0.5 ? 'era ' + fmt(parcelaAntes) : 'a mesma')}
+      ${t('Total a pagar daqui para frente', fmt(ct.falta.pago), 'era ' + fmt(S.falta.pago))}
+      ${t('Adiantado', fmt(ct.falta.extra), L.length + (L.length === 1 ? ' adiantamento' : ' adiantamentos'))}</div>`;
+  }
+  return `<div class="blk"><h4>Adiantamentos</h4><p class="dv-nota">Valores que o cliente vai usar para abater o saldo. Eles entram no plano: o valor sai no Fluxo de caixa no mês, e o saldo, a parcela e a quitação acompanham.</p>
+    ${linhas}<button class="link" data-div-adi-add="${caminho}">+ adiantamento</button>${efeito}</div>`;
+}
+// a tabela das parcelas: as 10 primeiras e as 10 últimas; o miolo abre e fecha
+function tabelaDasParcelas(ct, aberta) {
+  const comSeg = ct.total.seguro > 0, comExtra = ct.linhas.some(l => l.extra), cols = 6 + (comSeg ? 1 : 0) + (comExtra ? 1 : 0);
+  const linha = (l, k) => `<tr class="${k < ct.k0 ? 'pago' : k === ct.k0 ? 'hoje' : ''}"><td>${k + 1}</td><td>${monthsLabel(ct.inicio + k)}</td><td>${fmt(l.pay)}</td><td>${fmt(l.juros)}</td><td>${fmt(l.amort)}</td>${comSeg ? `<td>${fmt(l.seguro)}</td>` : ''}${comExtra ? `<td>${l.extra ? fmt(l.extra) : '—'}</td>` : ''}<td>${fmt(l.saldo)}</td></tr>`;
+  const N = ct.linhas.length, recolhe = N > 24, miolo = N - 20;
+  const botao = t => `<tr class="dv-miolo"><td colspan="${cols}"><button class="link" data-div-miolo>${t}</button></td></tr>`;
+  const corpo = !recolhe ? ct.linhas.map(linha).join('')
+    : aberta ? ct.linhas.slice(0, 10).map(linha).join('') + botao('recolher as ' + miolo + ' parcelas do meio ▴') + ct.linhas.slice(10).map((l, j) => linha(l, j + 10)).join('')
+    : ct.linhas.slice(0, 10).map(linha).join('') + botao('mostrar as ' + miolo + ' parcelas do meio (da ' + 11 + 'ª à ' + (N - 10) + 'ª) ▾') + ct.linhas.slice(N - 10).map((l, j) => linha(l, N - 10 + j)).join('');
+  return `<div class="dv-tab"><table><thead><tr><th>Nº</th><th>Mês</th><th>Parcela</th><th>Juros</th><th>Amortização</th>${comSeg ? '<th>Seguro</th>' : ''}${comExtra ? '<th>Adiantamento</th>' : ''}<th>Saldo devedor</th></tr></thead><tbody>${corpo}</tbody></table></div>`;
+}
+function htmlDividaGaveta(d, caminho) {
+  const ct = ENGINE.contratoDaDivida(d), bem = /^patrimonio\.bens\./.test(caminho), c = caminho + '.';
+  const topo = `<div class="dh"><h3><span class="kind">${bem ? 'Financiamento do bem' : 'Dívida'} · evolução</span>${esc(d.nome || (bem ? 'Bem sem nome' : 'Dívida sem nome'))}</h3><button class="btn btn-icon" data-gv-fechar title="Fechar">×</button></div>`;
+  const pe = `<div class="foot"><button class="btn btn-secondary btn-small" data-ir="patrimonio">Ir para a página Patrimônio</button><span style="margin-left:auto"></span><button class="btn btn-tertiary btn-small" data-gv-fechar>Concluir</button></div>`;
+  if (!ct) return topo + camposDivida(c, d, 'Contrato', true) + pe;
+  const anos = anosDaDivida(ct), tot = (rot, v, forte) => `<div${forte ? ' class="forte"' : ''}><span>${rot}</span><b>${v}</b></div>`;
+  const leg = ['amort', 'extra', 'juros', 'seguro'].filter(k => k === 'amort' || k === 'juros' || (k === 'seguro' ? ct.total.seguro > 0 : ct.semExtras)).map(k => `<span><i style="background:${COR_DIV[k]}"></i>${NOME_DIV[k]}</span>`).join('');
+  return topo + camposDivida(c, d, 'Contrato', true) + htmlAdiantamentos(d, caminho, ct)
+    + `<div class="blk"><h4>Saldo devedor, parcela a parcela</h4><p class="dv-nota">O cálculo usa o contrato. No patrimônio vale o saldo do extrato, que cai no mesmo ritmo até a última parcela.</p>${graficoSaldo(ct, anos)}</div>
+    <div class="blk"><h4>Quanto se paga por ano</h4><div class="dv-leg">${leg}<span class="muted">anos já pagos em tom claro</span></div>${graficoComposicao(anos)}</div>
+    <div class="blk"><h4>O contrato inteiro</h4><div class="dv-tot">${tot('Valor liberado', fmt(ct.credito))}${ct.iof ? tot('IOF' + (d.iof === 'avista' ? ' (pago à parte)' : ''), fmt(ct.iof)) : ''}${ct.seguroUnico ? tot('Seguro (prêmio único)', fmt(ct.seguroUnico)) : ''}${ct.tarifas ? tot('Tarifas', fmt(ct.tarifas)) : ''}${tot('Valor financiado', fmt(ct.financiado))}
+      ${tot('Total pago no contrato', fmt(ct.total.pago), true)}${tot('Juros', fmt(ct.total.juros))}${ct.total.seguro ? tot('Seguro mensal', fmt(ct.total.seguro)) : ''}${tot('Cada R$ 1 liberado custa', 'R$ ' + (ct.total.pago / ct.credito).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }))}</div>
+      ${tabelaDasParcelas(ct, gaveta && gaveta.miolo)}</div>` + pe;
+}
+document.addEventListener('click', e => {
+  if (e.target.closest('[data-div-miolo]')) { gaveta.miolo = !gaveta.miolo; renderGaveta(); return; }
+  const add = e.target.closest('[data-div-adi-add]'); if (add) { const d = dividaDoCaminho(add.dataset.divAdiAdd); if (d) { if (!Array.isArray(d.amortizacoes)) d.amortizacoes = []; d.amortizacoes.push({ em: 3, valor: null, modo: '' }); renderAll(); } return; }
+  const rm = e.target.closest('[data-div-adi-rm]'); if (rm) { const [cam, i] = rm.dataset.divAdiRm.split('|'), d = dividaDoCaminho(cam); if (d && d.amortizacoes) { d.amortizacoes.splice(+i, 1); lancaParcela(d, false); renderAll(); } }
+});
+document.addEventListener('click', e => { const b = e.target.closest('[data-div-evolucao]'); if (b) abrirGaveta('div', b.dataset.divEvolucao); });
 // dias do mês de uma linha; renda no formato antigo tem um só `day`
 const diasDe = it => it.days && it.days.length ? it.days : (gaveta && gaveta.t === 'inc' && it.day ? [+it.day] : []);
 const campo = (lab, html) => `<div class="field"><label>${lab}</label>${html}</div>`;
@@ -3594,12 +3887,14 @@ function htmlLinha(it) {
       h += '<div class="deriv" style="margin:-4px 0 10px">Anual, semestral, trimestral ou em parcelas? Use "Em datas do ano" e marque cada data (ex.: lucros em 30/jun e 30/dez). Valores diferentes em dias diferentes, como adiantamento no dia 20 e saldo no dia 5? Cadastre uma linha para cada.</div>';
       if (!dias.length) h += `<div class="deriv">Sem dia definido: ${it.week === 0 ? 'o valor é diluído nas quatro semanas do mês' : 'cai na ' + (it.week || 1) + 'ª semana do mês'}.</div>`;
     }
-    const modoFim = !inc && (it.endObj || gaveta.fimObj) ? 'obj' : fim != null || gaveta.fimData ? 'ate' : 'sempre';
+    const modoFim = !inc && (it.endObj || gaveta.fimObj) ? 'obj' : gaveta.fimVezes ? 'vezes' : fim != null || gaveta.fimData ? 'ate' : 'sempre', vezes = fim != null ? vezesAte(it, fim) : null;
     h += campo('Início', `${seletorMes('data-gv="inicio"', it.steps[0].from)}`);
     h += campo('Até quando', `<div class="radios"><label><input type="radio" name="gvate" value="sempre"${modoFim === 'sempre' ? ' checked' : ''}>Sempre</label>` +
       `<label><input type="radio" name="gvate" value="ate"${modoFim === 'ate' ? ' checked' : ''}>Até uma data</label>` +
+      `<label><input type="radio" name="gvate" value="vezes"${modoFim === 'vezes' ? ' checked' : ''}>Por um número de vezes</label>` +
       (!inc && plano.objectives.length ? `<label><input type="radio" name="gvate" value="obj"${modoFim === 'obj' ? ' checked' : ''}>Até um objetivo ser realizado</label>` : '') + `</div>` +
-      (modoFim === 'ate' ? `<div style="margin-top:8px">${seletorMes('data-gv="ate"', fim)}</div><div class="deriv">${fim != null ? 'último mês com valor: ' + monthsLabel(fim) : 'Escolha o último mês em que a linha acontece.'}</div>` : '') +
+      (modoFim === 'ate' ? `<div style="margin-top:8px">${seletorMes('data-gv="ate"', fim)}</div><div class="deriv">${fim != null ? 'último mês com valor: ' + monthsLabel(fim) + ' · ' + vezes + (vezes === 1 ? ' vez' : ' vezes') : 'Escolha o último mês em que a linha acontece.'}</div>` : '') +
+      (modoFim === 'vezes' ? `<div style="margin-top:8px"><input type="number" data-gv="vezes" min="1" step="1" value="${vezes != null ? vezes : ''}" placeholder="ex.: 16" style="width:110px"> ${it.group ? 'parcelas ou pagamentos' : 'recebimentos'}</div><div class="deriv">${fim != null ? 'a ' + (vezes === 1 ? 'única' : 'última') + ' em ' + monthsLabel(fim) + ', contando de ' + monthsLabel(it.steps[0].from) : 'Quantas vezes a linha acontece, a partir do início. Ex.: uma compra em 16 parcelas.'}</div>` : '') +
       (modoFim === 'obj' ? `<select data-gv="endObj" style="margin-top:8px">${opt('', 'Escolha o objetivo…', it.endObj || '')}${plano.objectives.map(o => opt(o.id, o.name || 'sem nome', it.endObj)).join('')}</select><div class="deriv">Ex.: o aluguel deixa de existir quando a casa própria é comprada.</div>` : ''));
     const ult = fim != null ? it.steps.length - 1 : it.steps.length;
     h += `<div class="blk"><h4>Mudanças de valor</h4>` + it.steps.slice(1, ult).map((s, j) => `<div class="stepline"><span class="muted">a partir de</span>${seletorMes('data-gvs-m="' + (j + 1) + '"', s.from)}<input data-money data-gvs-v="${j + 1}" type="text" inputmode="decimal" value="${money(s.value)}"><button class="btn btn-icon" data-gvs-rm="${j + 1}" title="Remover">×</button></div>`).join('') +
@@ -3707,9 +4002,10 @@ function campoGaveta(e) {
   else if (k === 'date') { if (!t.value) return; if (it._valorGuardado != null) { it.steps[0].value = it._valorGuardado; delete it._valorGuardado; } it.date = t.value; it.steps[0].from = miDaData(t.value); it.days = [+t.value.split('-')[2]]; delete it.week; }
   else if (k === 'inicio') { if (!t.value) return; const m = mesDoInput(t.value); it.steps[0].from = m; it.steps = [it.steps[0], ...it.steps.slice(1).filter(s => s.from > m)]; }
   else if (k === 'ate') { if (!t.value) return; setFim(it, Math.max(it.steps[0].from, mesDoInput(t.value))); gaveta.fimData = false; }
+  else if (k === 'vezes') { const n = Math.round(+t.value); if (!(n >= 1)) { avisoGaveta('Use um número de vezes a partir de 1.'); return; } setFim(it, fimPorVezes(it, n, mesLimite)); }
   else it[k] = t.value;                                        // origin, kind, group
   renderAll(); atualizaFrase();
-  if (k === 'group' || k === 'inicio' || k === 'ate' || k === 'kind') renderGaveta();
+  if (k === 'group' || k === 'inicio' || k === 'ate' || k === 'vezes' || k === 'kind') renderGaveta();
 }
 gavetaEl.addEventListener('input', campoGaveta);
 gavetaEl.addEventListener('keydown', e => {
@@ -3726,8 +4022,8 @@ gavetaEl.addEventListener('change', e => {
     renderAll(); renderGaveta(); return;
   }
   if (t.name !== 'gvate') return;
-  gaveta.fimData = t.value === 'ate'; gaveta.fimObj = t.value === 'obj';
-  if (t.value !== 'ate') setFim(it, null);
+  gaveta.fimData = t.value === 'ate'; gaveta.fimObj = t.value === 'obj'; gaveta.fimVezes = t.value === 'vezes';
+  if (t.value !== 'ate' && t.value !== 'vezes') setFim(it, null);   // data e número de vezes são o mesmo fim, visto de dois jeitos
   if (t.value !== 'obj') delete it.endObj;
   renderAll(); renderGaveta();
 });
@@ -3849,14 +4145,45 @@ function resumoPatrimonioC() {
   const f = ENGINE.faseDaVida(plano), t = (n, v, cor, cls) => `<div class="pc-tile ${cls || ''}"><span>${cor ? `<i style="background:${cor}"></i>` : ''}${n}</span><b>${v}</b></div>`;
   return t('Mercado financeiro', fmt(f.fin), '#2E9E5B') + t('Participações', fmt(f.part), '#D9952A') + t('Bens', fmt(f.bens), '#3B6FCB') + t('Dívidas', f.dividas ? '− ' + fmt(f.dividas) : fmt(0), '#D64545') + t('Patrimônio total', fmt(f.total), '', 'total');
 }
-// o detalhe de uma dívida: o mesmo para o financiamento de um bem e para uma dívida avulsa
-function camposDivida(c, d, titulo) {
+// o detalhe de uma dívida: o mesmo para o financiamento de um bem e para uma dívida avulsa. Com o contrato (valor
+// liberado, parcelas, parcela ou juros), o motor calcula o CET, o saldo e o que falta pagar (ENGINE.contratoDaDivida).
+const SISTEMAS = [['', 'Price (parcela fixa)'], ['sac', 'SAC (parcela cai)']];
+const PERIODOS_JUROS = [['', '% ao ano'], ['mes', '% ao mês']];
+const MODOS_IOF = [['', 'Somado ao crédito'], ['avista', 'Pago à parte'], ['isento', 'Isento']];
+const MODOS_SEGURO = [['', 'Sem seguro'], ['unico', 'Prêmio único, somado ao crédito'], ['mensal', 'Mensal, sobre o saldo devedor']];
+const pctBR = (x, d = 2) => (x * 100).toLocaleString('pt-BR', { minimumFractionDigits: d, maximumFractionDigits: d }) + '%';
+function camposDivida(c, d, titulo, naGaveta) {
   const st = d.situacao === 'inadimplente' ? '<span class="pill-st critico">inadimplente</span>' : '';
-  const aviso = +d.credito > 0 && +d.saldoDevedor > +d.credito ? '<div class="sub" style="margin:8px 0 0;color:#964400">O saldo devedor está maior que o crédito contratado: confira os valores.</div>' : '';
-  const cp = (n, h) => `<div class="field"><label>${n}</label>${h}</div>`;
+  const aviso = +d.credito > 0 && +d.saldoDevedor > +d.credito ? '<div class="sub" style="margin:8px 0 0;color:#964400">O saldo devedor está maior que o valor liberado: confira os valores.</div>' : '';
+  const cp = (n, h) => `<div class="field"><label>${n}</label>${h}</div>`, S = d.seguro || {};
+  const restantes = ENGINE.mesDe(d.inicio) != null && +d.parcelas > 0 ? `<div class="dv-calc">${ENGINE.restantesDaDivida(d)} <small>pela data da 1ª parcela</small></div>` : campoR(c + 'restantes', 'num', ' min="1" step="1" placeholder="ex.: 240"');
+  const seguro = S.modo === 'unico' ? cp('Prêmio do seguro', campoR(c + 'seguro.valor', 'reais')) : S.modo === 'mensal' ? cp('Seguro (% ao mês sobre o saldo)', campoR(c + 'seguro.pct', 'num', ' min="0" step="0.001" placeholder="ex.: 0,03"')) : '';
   return `<div class="pc-fin"><h4>${titulo}${st}</h4><div class="grid">
-    ${cp('Crédito contratado', campoR(c + 'credito', 'reais'))}${cp('Parcelas contratadas', campoR(c + 'parcelas', 'num', ' min="1" step="1" placeholder="ex.: 360"'))}${cp('Juros contratados (% ao ano)', campoR(c + 'juros', 'num', ' min="0" step="0.01" placeholder="ex.: 9,5"'))}
-    ${cp('Parcela atual (por mês)', campoR(c + 'parcela', 'reais'))}${cp('Parcelas que faltam', campoR(c + 'restantes', 'num', ' min="1" step="1" placeholder="ex.: 240"'))}${cp('Situação', selR(c + 'situacao', SITUACOES))}</div>${aviso}${fluxoDaDivida(c, d)}</div>`;
+    ${cp('Valor liberado (o que caiu na conta)', campoR(c + 'credito', 'reais'))}${cp('Parcelas contratadas', campoR(c + 'parcelas', 'num', ' min="1" step="1" placeholder="ex.: 360"'))}${cp('1ª parcela (mês e ano)', campoR(c + 'inicio', 'texto', ' type="month"'))}
+    ${cp('Parcela atual (total do mês)', campoR(c + 'parcela', 'reais'))}${cp('Juros contratados', `<div class="dv-taxa">${campoR(c + 'juros', 'num', ' min="0" step="0.01" placeholder="ex.: 1,95"')}${selR(c + 'jurosPeriodo', PERIODOS_JUROS)}</div>`)}${cp('Parcelas que faltam', restantes)}
+    ${cp('Sistema de amortização', selR(c + 'sistema', SISTEMAS))}${cp('IOF', selR(c + 'iof', MODOS_IOF))}${cp('Seguro prestamista', selR(c + 'seguro.modo', MODOS_SEGURO))}
+    ${seguro}${cp('Tarifas somadas ao crédito', campoR(c + 'tarifas', 'reais'))}${cp('Situação', selR(c + 'situacao', SITUACOES))}</div>${aviso}${contaDaDivida(c, d, naGaveta)}${naGaveta ? '' : fluxoDaDivida(c, d)}</div>`;
+}
+// a conta do contrato: CET, a taxa e o saldo conferidos com o que o cliente trouxe, e o que falta pagar
+function contaDaDivida(c, d, naGaveta) {
+  const ct = ENGINE.contratoDaDivida(d);
+  if (!ct) return '<div class="dv-conta vazio">Com o valor liberado, as parcelas contratadas e a parcela atual (ou os juros), o portal calcula o CET, confere a taxa e o saldo e mostra quanto falta pagar.</div>';
+  const B0 = +d.saldoDevedor || 0, dS = B0 > 0 && ct.saldoHoje > 0 ? B0 / ct.saldoHoje - 1 : null, comParcela = +d.parcela > 0;
+  const conf = (ok, t) => `<small class="dv-conf ${ok ? 'ok' : 'alerta'}">${ok ? '✓' : '!'} ${t}</small>`;
+  // a taxa informada é conferida no período em que foi informada (ao mês ou ao ano); a tolerância é de meio ponto ao ano
+  const porMes = d.jurosPeriodo === 'mes', dJ = comParcela && ct.jurosInformado != null ? ct.juros - ct.jurosInformado : null;
+  const dif = dJ == null ? 0 : porMes ? ct.i - ct.jurosInformadoMes : dJ, per = porMes ? ' ao mês' : ' ao ano';
+  const taxa = dJ == null ? `<small>${comParcela ? 'pela parcela' : 'a informada'}</small>`
+    : conf(Math.abs(dJ) < 0.005, Math.abs(dif) < 0.00005 ? 'bate com a informada' : `informada ${pctBR(porMes ? ct.jurosInformadoMes : ct.jurosInformado)}${per} · ${(Math.abs(dif) * 100).toLocaleString('pt-BR', { maximumFractionDigits: porMes ? 3 : 2 })} ponto ${dif > 0 ? 'acima' : 'abaixo'}`);
+  const saldo = dS == null ? '<small>informe o saldo do extrato para conferir</small>' : conf(Math.abs(dS) < 0.02, Math.abs(dS) < 0.0005 ? 'bate com o extrato' : `extrato ${fmt(B0)} (${dS > 0 ? '+' : '−'}${pctBR(Math.abs(dS), 1)})`);
+  const fimMi = ct.restantes - 1, iofTxt = d.iof === 'isento' ? 'isento' : `${fmt(ct.iof)} ${d.iof === 'avista' ? 'pago à parte' : 'somado ao crédito'}`;
+  const dica = dJ != null && Math.abs(dJ) >= 0.005 && (d.iof || 'financiado') === 'financiado' && ct.iof > 0 ? '<div class="dv-dica">A parcela não fecha com a taxa informada. Se o IOF já estava dentro do valor liberado, marque o IOF como isento ou pago à parte e confira de novo.</div>' : '';
+  const t = (rot, v, sub, cls) => `<div class="dv-t ${cls || ''}"><span>${rot}</span><b>${v}</b>${sub}</div>`;
+  return `<div class="dv-conta">${t('CET (custo efetivo total)', pctBR(ct.cet.ano) + ' ao ano', `<small>${pctBR(ct.cet.mes)} ao mês · IOF ${iofTxt}</small>`, 'forte')}
+    ${t('Juros', porMes ? pctBR(ct.i) + ' ao mês' : pctBR(ct.juros) + ' ao ano', `<small>${porMes ? pctBR(ct.juros) + ' ao ano' : pctBR(ct.i) + ' ao mês'}</small>` + taxa)}${t('Saldo devedor pelo contrato', fmt(ct.saldoHoje), saldo)}
+    ${t('Faltam', ct.restantes ? ct.restantes + ' parcelas' : 'nenhuma parcela', `<small>${ct.restantes ? 'a última em ' + monthsLabel(fimMi) : 'contrato encerrado'}</small>`)}
+    ${t('Ainda a pagar', fmt(ct.falta.pago), `<small>${fmt(ct.falta.juros + ct.falta.seguro)} de juros${ct.falta.seguro ? ' e seguro' : ''}${ct.falta.extra ? ' · ' + fmt(ct.falta.extra) + ' adiantados' : ''}</small>`)}
+    ${naGaveta ? '' : `<button class="btn btn-secondary btn-small dv-ver" data-div-evolucao="${c.replace(/\.$/, '')}">Ver evolução</button>`}</div>${dica}`;
 }
 // A parcela da dívida entra no Fluxo de caixa como uma despesa fixa. Por padrão, numa linha própria ("Parcela: nome"),
 // criada quando o consultor informa a parcela e mantida igual a ela (valor e, com as parcelas que faltam, o fim). O
@@ -3871,7 +4198,7 @@ function fluxoDaDivida(c, d) {
     ${sit === '__pend' ? opt('__pend', 'Ainda não lançada') : ''}${opt('__propria', it && d.linhaPropria ? 'Linha própria: ' + esc(it.label) : 'Lançar numa linha própria')}
     ${fixas.map(x => opt(x.id, 'Já está na linha ' + esc(x.label || 'sem nome') + ' · ' + fmt(mensalDe(x)) + '/mês')).join('')}${opt('nao', 'Não entra no fluxo')}</select>
     ${it ? `<span><b>${fmt(mensalDe(it))}/mês</b>${fim != null ? ' até ' + monthsLabel(fim) : ', sem data para terminar'}</span><button class="link" data-div-abrir="${esc(it.id)}">ver no Fluxo de caixa</button>`
-      : sit === '__pend' && +d.parcela > 0 ? `<span style="color:#964400">A parcela de ${fmt(+d.parcela)} ainda não está no fluxo.</span><button class="link" data-div-lancar="${c}">Lançar agora</button>` : ''}</div>`;
+      : sit === '__pend' && (+d.parcela > 0 || ENGINE.contratoDaDivida(d)) ? `<span style="color:#964400">A parcela de ${fmt(+d.parcela || ENGINE.contratoDaDivida(d).parcelaHoje)} ainda não está no fluxo.</span><button class="link" data-div-lancar="${c}">Lançar agora</button>` : ''}</div>`;
 }
 // cria ou acerta a linha da parcela: valor a partir de hoje e, numa linha própria, o nome e o fim
 function lancaParcela(d, criar) {
@@ -3883,14 +4210,25 @@ function lancaParcela(d, criar) {
     plano.expenses.push(it); d.linha = it.id; d.linhaPropria = true;
   }
   if (d.linhaPropria) it.label = 'Parcela: ' + (d.nome || 'dívida');
-  if (+d.parcela > 0 || d.linhaPropria) setStep(it, 0, +d.parcela || 0);
-  if (d.linhaPropria) setFim(it, +d.restantes > 0 ? Math.round(+d.restantes) - 1 : null);
+  const ct = ENGINE.contratoDaDivida(d), rest = ENGINE.restantesDaDivida(d);
+  if (d.linhaPropria && ct && ct.restantes) { it.steps = degrausDaParcela(ct); it.exc = {}; ct.linhas.forEach((l, k) => { if (l.extra && k >= ct.k0) it.exc[k - ct.k0] = Math.round((l.pay + l.extra) * 100) / 100; }); }
+  else if (+d.parcela > 0 || d.linhaPropria) setStep(it, 0, +d.parcela || 0);
+  if (d.linhaPropria) setFim(it, rest > 0 ? rest - 1 : null);
+}
+// a parcela pelo contrato, de hoje em diante: muda no SAC e com o seguro sobre o saldo (revista a cada 12 meses) e no mês
+// seguinte a um adiantamento que reduz a parcela
+function degrausDaParcela(ct) {
+  const meses = new Set(); for (let m = 0; ct.k0 + m < ct.fim; m += 12) meses.add(m);
+  ct.linhas.forEach((l, k) => { if (l.extra && k + 1 - ct.k0 > 0 && k + 1 < ct.fim) meses.add(k + 1 - ct.k0); });
+  const out = [];
+  [...meses].sort((a, b) => a - b).forEach(m => { const v = Math.round(ct.linhas[ct.k0 + m].pay * 100) / 100; if (!out.length || Math.abs(v - out[out.length - 1].value) >= 0.5) out.push({ from: m, value: v }); });
+  return out;
 }
 const dividaDoCaminho = c => { const m = /^patrimonio\.(bens|dividas)\.(\d+)\.?/.exec(c || ''); return m ? (plano.patrimonio[m[1]] || [])[+m[2]] : null; };
 function soltaLinhaPropria(d) { if (d && d.linhaPropria) { const i = plano.expenses.findIndex(x => x.id === d.linha); if (i >= 0) plano.expenses.splice(i, 1); } if (d) { delete d.linha; delete d.linhaPropria; } }
-// a parcela, as parcelas que faltam ou o nome mudaram: a linha do fluxo acompanha (cria a linha na primeira parcela)
+// a parcela, o contrato ou o nome mudaram: a linha do fluxo acompanha (cria a linha na primeira parcela)
 document.addEventListener('change', e => {
-  const t = e.target, c = t.dataset && t.dataset.r; if (!c || !/^patrimonio\.(bens|dividas)\.\d+\.(parcela|restantes|nome)$/.test(c)) return;
+  const t = e.target, c = t.dataset && t.dataset.r; if (!c || !/^patrimonio\.(bens|dividas)\.\d+\.(parcela|restantes|nome|inicio|parcelas|credito|juros|jurosPeriodo|sistema|iof|tarifas|seguro\.(modo|valor|pct)|amortizacoes\.\d+\.(em|valor|modo))$/.test(c)) return;
   ENGINE.gravaCaminho(plano, c, valorDoCampoR(t));
   const d = dividaDoCaminho(c); if (d && (+d.saldoDevedor > 0 || c.startsWith('patrimonio.dividas'))) lancaParcela(d, c.endsWith('.parcela') && +d.parcela > 0);
 });
@@ -4233,7 +4571,7 @@ function renderApresentacaoC() {
   const cp = (n, h) => `<div class="field"><label>${n}</label>${h}</div>`, link = ' placeholder="link do YouTube, do Vimeo ou do arquivo"';
   const tudo = Object.entries(pendencias()), revisar = temFluxo() ? plano.objectives.filter(o => o.status !== 'ok') : [];
   const resumoPend = tudo.length || revisar.length ? '<div class="pn-falta">' + tudo.map(([p, ps]) => '<b><button class="link" data-ir="' + p + '">' + NOMES_PAGINA[p] + '</button>:</b> ' + ps.map(x => x.t).join(', ')).concat(revisar.length ? ['<b><button class="link" data-ir="objetivos">Objetivos</button>:</b> ' + revisar.map(o => esc(o.name || 'sem nome')).join(', ') + (revisar.length > 1 ? ' não chegam' : ' não chega') + ' à meta na data com o aporte definido (o cliente vai ver isso)'] : []).join('<br>') + '</div>' : '<span class="pn-ok">✓ Tudo preenchido</span>';
-  el.innerHTML = `<div class="bloco"><h3>Antes de apresentar</h3>${resumoPend}<div class="ap-bts" style="margin-top:12px"><button class="btn btn-primary" data-abrir-cliente data-fase="proposito">Apresentar desde o começo</button><a class="btn btn-secondary" href="evolucao-patrimonial.html?fase=proposito" target="_blank" style="text-decoration:none" data-como-cliente>Ver como o cliente vê ↗</a></div>
+  el.innerHTML = `<div class="bloco"><h3>Antes de apresentar</h3>${resumoPend}<div class="ap-bts" style="margin-top:12px"><button class="btn btn-primary" data-abrir-cliente data-fase="proposito">Apresentar desde o começo</button><a class="btn btn-secondary" href="evolucao-patrimonial.html?fase=proposito&consultor" target="_blank" style="text-decoration:none" data-como-cliente>Ver como o cliente vê ↗</a></div>
       <div class="sub" style="margin:12px 0 0">Apresentar abre a área do cliente sem as ferramentas de proposta. "Ver como o cliente vê" abre exatamente o que o cliente tem.</div></div>
     <div class="bloco"><h3>Os capítulos do cliente</h3><div class="sub">Cada capítulo abre com duas páginas: a capa, com o vídeo teórico, que explica o tema e é o mesmo para todos os clientes; e o resumo do caso, com o vídeo em que você explica o planejamento deste cliente, os principais números e o que fazer. Depois vêm as páginas de detalhe, só com os resultados.</div>
     ${capitulo1()}

@@ -415,6 +415,22 @@ console.log('\n10. Patrimônio de hoje e fase da vida financeira');
   ok('sem a idade em que começou: sem fase', Ef.faseDaVida({ age: 35, patrimonio: {} }).fase === null);
   const alt = Ef.aplicaAlteracoes(Object.assign({}, pl, { patrimonio: P() }), [{ tipo: 'campo', caminho: 'patrimonio.financeiro.2.valor', para: 700000 }]);
   ok('proposta num valor do detalhe atualiza o total', alt.initialWealth === 860000 - P().financeiro[2].valor + 700000, alt.initialWealth);
+  // linha reconfigurada pelo cliente: o IPTU de R$ 3.200 por ano vira R$ 260 por mês, só de jan/2027 a dez/2027
+  const iptu = () => ({ expenses: [{ id: 'iptu', label: 'IPTU', group: 'fix', week: 1, frequency: 'anual', dates: [{ m: 0, d: 10 }], steps: [{ from: 4, value: 3200 }] }] });
+  const ia = { tipo: 'item', lista: 'expenses', id: 'iptu', para: { frequency: 'mensal', days: [10], dates: null, steps: [{ from: 4, value: 260 }, { from: 16, value: 0 }] }, de: { frequency: 'anual', days: null, dates: [{ m: 0, d: 10 }], steps: [{ from: 4, value: 3200 }] } };
+  const ip = Ef.aplicaAlteracoes(iptu(), [ia]).expenses[0];
+  ok('linha reconfigurada: só os campos propostos mudam, e null apaga', ip.frequency === 'mensal' && ip.days[0] === 10 && !('dates' in ip) && ip.week === 1 && ip.label === 'IPTU' && ip.steps.length === 2);
+  // faixa de meses: R$ 500 em cada mês de out/2026 a abr/2027 numa linha anual; os meses sem o IPTU também recebem
+  const fa = { tipo: 'fluxo', modo: 'faixa', lista: 'expenses', id: 'iptu', mi: 1, ate: 7, para: 500 };
+  const pf = Ef.aplicaAlteracoes(iptu(), [fa]).expenses[0];
+  ok('faixa de meses: o valor em cada mês dela, e fora dela a linha como era', [1, 2, 3, 4, 5, 6, 7].every(m => pf.exc[m] === 500) && pf.exc[8] == null && pf.exc[0] == null && pf.steps[0].value === 3200);
+  ok('faixa de meses: o valor de antes é o do primeiro mês (zero, sem o IPTU)', Ef.valorAtual(iptu(), fa) === 0 && /de out\/2026 a abr\/2027 \(7 meses\)/.test(Ef.descreveAlteracao(iptu(), fa).oque), Ef.descreveAlteracao(iptu(), fa).oque);
+  // linha nova configurada no painel: comida de R$ 800 por mês, de mar/2027 (mês 6) a jul/2028 (mês 22)
+  const na = { tipo: 'linha', acao: 'nova', lista: 'expenses', id: 'cli_comida', label: 'Comida', group: 'adj', mi: 6, para: 800, de: null, item: { frequency: 'mensal', steps: [{ from: 6, value: 800 }, { from: 23, value: 0 }] } };
+  const pn = Ef.aplicaAlteracoes(iptu(), [na]).expenses.find(e => e.id === 'cli_comida');
+  ok('linha nova com a configuração do painel: início e fim', pn && pn.group === 'adj' && pn.steps.length === 2 && pn.steps[1].from === 23 && Ef.descreveAlteracao(iptu(), na).para === 'R$ 800 por mês, a partir de mar/2027 até jul/2028', pn && Ef.descreveAlteracao(iptu(), na).para);
+  const id = Ef.descreveAlteracao(iptu(), ia);
+  ok('linha reconfigurada: a frase de antes e a de depois', id.de === 'R$ 3.200 em cada data do ano (10/jan), a partir de jan/2027' && id.para === 'R$ 260 por mês, no dia 10, a partir de jan/2027 até dez/2027' && !id.mudou, id.de + ' → ' + id.para);
 }
 
 console.log('\n11. Otimização tributária (regras de 2026)');
@@ -499,6 +515,49 @@ console.log('\n12. Bens ao longo do tempo: valorização e venda');
   const wv = s.events.find(e => e.type === 'venda').week, antes = s.weeks[wv - 1].bens, depois = s.weeks[wv].bens;
   ok('depois da venda sobram só os outros bens', Math.abs(depois - 100000) < 0.01 && Math.abs(antes - (100000 + s.events.find(e => e.type === 'venda').antes)) < 0.01, 'bens de R$ ' + Math.round(antes) + ' para R$ ' + Math.round(depois));
   ok('o plano não é alterado pela venda (as linhas são cortadas numa cópia)', alug.steps.length === 1 && Eb.INCOMES.find(x => x.id === 'alug').steps.length === 2);
+  ok('a dívida do bem sai do patrimônio na venda', s.weeks[wv - 1].div > 0 && s.weeks[wv].div === 0);
+}
+
+console.log('\n13. Dívidas: contrato, CET e saldo ao longo do tempo');
+{
+  const Ed = carregar(srcCliente);
+  // consignado do caso real: R$ 254.355 liberados, 120 parcelas de R$ 5.512, a 1ª em out/2024 (23 pagas até set/2026)
+  const bb = { nome: 'Consignado', saldoDevedor: 238000, credito: 254355, parcelas: 120, juros: 26.36, parcela: 5512, inicio: '2024-10', iof: 'isento' };
+  const c = Ed.contratoDaDivida(bb);
+  ok('pela data da 1ª parcela, faltam 97 parcelas', c.restantes === 97 && Ed.restantesDaDivida(bb) === 97);
+  ok('a taxa sai da parcela que o banco cobra (1,95% ao mês)', Math.abs(c.parcelaHoje - 5512) < 0.01 && Math.abs(c.i - 0.01955) < 0.0001, (c.i * 100).toFixed(3) + '%');
+  ok('sem IOF nem seguro, o CET é a própria taxa', Math.abs(c.cet.mes - c.i) < 1e-6);
+  ok('o saldo do contrato hoje bate com o do extrato (diferença < 0,5%)', Math.abs(c.saldoHoje / 238000 - 1) < 0.005, 'R$ ' + Math.round(c.saldoHoje));
+  ok('o saldo informado vale hoje e chega a zero depois da última parcela', Ed.saldoDevedorEm(bb, 0) === 238000 && Ed.saldoDevedorEm(bb, 96) > 0 && Ed.saldoDevedorEm(bb, 97) === 0);
+  // IOF de pessoa física sobre R$ 100 mil em 60 parcelas, a 2% ao mês: 0,38% mais 0,0082% ao dia sobre cada amortização
+  const novo = { saldoDevedor: 100000, credito: 100000, parcelas: 60, juros: (Math.pow(1.02, 12) - 1) * 100, inicio: '2026-09' };
+  const n1 = Ed.contratoDaDivida(Object.assign({}, novo, { iof: 'avista' })), n2 = Ed.contratoDaDivida(novo);
+  ok('IOF à vista entre 0,38% e 3,38% do crédito', n1.iof > 380 && n1.iof < 3380 && n1.financiado === 100000, 'R$ ' + Math.round(n1.iof));
+  ok('IOF financiado: incide sobre ele mesmo e entra no valor financiado', Math.abs(n2.financiado - 100000 - n2.iof) < 0.01 && n2.iof > n1.iof);
+  ok('IOF e seguro encarecem o CET acima da taxa', n1.cet.mes > n1.i && n2.cet.mes > n2.i);
+  const sm = Ed.contratoDaDivida(Object.assign({}, novo, { iof: 'isento', seguro: { modo: 'mensal', pct: 0.1 } }));
+  ok('seguro mensal: 0,1% do saldo devedor em cada parcela', Math.abs(sm.linhas[0].seguro - 100) < 1e-6 && Math.abs(sm.linhas[1].seguro - sm.linhas[0].saldo * 0.001) < 1e-6);
+  const sac = Ed.contratoDaDivida(Object.assign({}, novo, { iof: 'isento', sistema: 'sac' }));
+  ok('SAC: amortização fixa e parcela que cai', Math.abs(sac.linhas[0].amort - 100000 / 60) < 1e-6 && sac.linhas[59].pay < sac.linhas[0].pay);
+  const am = Ed.contratoDaDivida(Object.assign({}, novo, { iof: 'isento', juros: 2, jurosPeriodo: 'mes' }));
+  ok('juros informados ao mês: 2% ao mês valem 26,82% ao ano', Math.abs(am.i - 0.02) < 1e-12 && Math.abs(am.jurosInformado - (Math.pow(1.02, 12) - 1)) < 1e-12);
+  // adiantamentos: R$ 40 mil daqui a 3 meses e R$ 12 mil daqui a 6
+  const base = Object.assign({}, bb, { iof: 'isento' }), adi = m => Object.assign({}, base, { amortizacoes: [{ em: 3, valor: 40000, modo: m }, { em: 6, valor: 12000, modo: m }] });
+  const sem = Ed.contratoDaDivida(base), pz = Ed.contratoDaDivida(adi('prazo')), pc = Ed.contratoDaDivida(adi('parcela'));
+  ok('adiantamento: o saldo cai o valor adiantado no mês', Math.abs((pz.linhas[sem.k0 + 3].saldo) - (sem.linhas[sem.k0 + 3].saldo - 40000)) < 0.01);
+  ok('reduzir o prazo: a parcela continua e a dívida acaba antes', pz.restantes < sem.restantes && Math.abs(pz.linhas[sem.k0 + 10].pay - 5512) < 0.01 && Ed.restantesDaDivida(adi('prazo')) === pz.restantes, pz.restantes + ' parcelas em vez de ' + sem.restantes);
+  ok('reduzir a parcela: o prazo continua e a parcela cai', pc.restantes === sem.restantes && pc.linhas[sem.k0 + 10].pay < 5512 - 100, 'R$ ' + Math.round(pc.linhas[sem.k0 + 10].pay));
+  ok('adiantar economiza juros; reduzir o prazo economiza mais', pz.falta.juros < pc.falta.juros && pc.falta.juros < sem.falta.juros && pz.semExtras && Math.abs(pz.semExtras.falta.juros - sem.falta.juros) < 0.01);
+  ok('o CET é o do contrato, com ou sem adiantamento', Math.abs(pz.cet.mes - sem.cet.mes) < 1e-12);
+  ok('com o adiantamento, o saldo no patrimônio chega a zero antes', Ed.saldoDevedorEm(adi('prazo'), pz.restantes) === 0 && Ed.saldoDevedorEm(base, pz.restantes) > 0);
+  // na trajetória: o patrimônio de hoje desconta o saldo, e a dívida some depois da última parcela
+  Ed.configure({ patrimonio: { financeiro: [{ nome: 'Banco', valor: 300000 }], bens: [], dividas: [bb] }, initialWealth: 300000, initialBens: 0, objectives: [], passive: [],
+    incomes: [{ id: 'sal', label: 'Salário', kind: 'ativa', frequency: 'mensal', days: [5], steps: [{ from: 0, value: 20000 }] }],
+    expenses: [{ id: 'parc', label: 'Parcela: Consignado', group: 'fix', frequency: 'mensal', days: [10], steps: [{ from: 0, value: 5512 }, { from: 97, value: 0 }] }] });
+  const s = Ed.run('perp'), w0 = s.weeks[Ed.W0], fim = s.weeks.find(w => w.mi === 97);
+  ok('hoje a dívida é a do extrato', w0.div === 238000);
+  ok('depois da última parcela, nada a dever', fim && fim.div === 0 && s.weeks.find(w => w.mi === 96).div > 0);
+  ok('a quitação aparece na linha do tempo', s.events.some(e => e.type === 'note' && e.label === 'Dívida quitada: Consignado'));
 }
 
 console.log('\n' + (falhas ? falhas + ' verificação(ões) falharam.' : 'Tudo certo.') + '\n');

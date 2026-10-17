@@ -182,11 +182,33 @@ página Patrimônio tem:
   que o resto do plano usa: `initialWealth` (financeiro), `partValue` (participações) e `initialBens` (valor de mercado
   dos bens), somados em `ENGINE.sincronizaPatrimonio`, que roda ao configurar o motor e ao aplicar as propostas do
   cliente. Um plano antigo, só com os totais, ganha uma linha por total na primeira vez que a página abre;
-- toda dívida, o financiamento de um bem (quando ele tem saldo devedor) ou uma dívida avulsa, tem o mesmo detalhe:
-  crédito contratado, juros contratados (% ao ano), situação (em dia ou inadimplente), parcelas contratadas, parcelas
-  que faltam e parcela atual;
+- toda dívida, o financiamento de um bem (quando ele tem saldo devedor) ou uma dívida avulsa, tem o mesmo detalhe, o
+  contrato: valor liberado (o que caiu na conta), parcelas contratadas, mês da 1ª parcela, parcela atual (o total cobrado
+  no mês), juros contratados (em % ao ano ou ao mês, à escolha), sistema (Price ou SAC), IOF (somado ao crédito, pago à parte ou isento), seguro
+  prestamista (prêmio único somado ao crédito, ou mensal em % sobre o saldo devedor), tarifas somadas ao crédito e
+  situação. Com o mês da 1ª parcela, as parcelas que faltam são calculadas; sem ele, informadas;
+- com o valor liberado, as parcelas e a parcela atual (ou os juros), o motor monta o contrato parcela a parcela
+  (`ENGINE.contratoDaDivida`). A parcela que o banco cobra manda: a taxa sai dela, e a informada é conferida. O IOF é o de
+  pessoa física (0,38% mais 0,0082% ao dia sobre cada amortização, até 365 dias) e, somado ao crédito, incide sobre ele
+  mesmo. O CET é a taxa que iguala o que o cliente recebeu às parcelas que paga. O cartão mostra o CET, a taxa conferida
+  com a informada, o saldo pelo contrato conferido com o do extrato, as parcelas que faltam e quanto ainda falta pagar,
+  com os juros. Quando a parcela não fecha com a taxa e o IOF está somado ao crédito, o cartão sugere conferir se o IOF já
+  estava dentro do valor liberado;
+- "Ver evolução" abre a dívida numa gaveta larga, como um simulador de financiamento: o contrato (os mesmos campos), os
+  adiantamentos, o saldo devedor parcela a parcela com o ponto de hoje, quanto se paga por ano dividido em amortização,
+  adiantamento, juros e seguro, os totais do contrato (liberado, IOF, seguro, tarifas, financiado, total pago, juros,
+  quanto custa cada R$ 1 liberado) e uma tabela só, das parcelas: as 10 primeiras e as 10 últimas, com o miolo
+  recolhido (um clique abre e fecha);
+- adiantamentos (`divida.amortizacoes`): daqui a quantos meses, o valor e o que ele reduz, o prazo (a parcela continua e
+  a dívida acaba antes) ou a parcela (o prazo continua). Eles entram no plano: o valor sai no Fluxo de caixa no mês, na
+  própria linha da parcela, e o saldo, a parcela e a quitação acompanham. A gaveta compara com o contrato sem eles: os
+  juros economizados, a nova data de quitação, a parcela depois do último adiantamento e o total a pagar. O CET continua
+  o do contrato;
+- no patrimônio vale o saldo do extrato (`saldoDevedor`): hoje é ele, e ele cai no ritmo do contrato até zero na última
+  parcela (`ENGINE.saldoDevedorEm`). Sem o contrato, cai como o valor presente das parcelas que faltam;
 - a parcela entra no Fluxo de caixa como despesa fixa: ao informar a parcela, o portal cria a linha "Parcela: nome" e a
-  mantém igual (valor a partir de hoje e, com as parcelas que faltam, o fim). O consultor pode apontar uma despesa fixa
+  mantém igual (valor a partir de hoje e, com as parcelas que faltam, o fim; com o contrato, a parcela dele, revista a
+  cada 12 meses quando muda, no SAC ou com o seguro sobre o saldo). O consultor pode apontar uma despesa fixa
   que já existe ou dizer que a parcela não entra no fluxo (`divida.linha`, `linhaPropria`, `semFluxo`). Remover a
   dívida ou o bem remove a linha própria;
 - um bem que gera renda passiva aponta para a linha de entrada do Fluxo de caixa (`bem.renda`, o id da linha): o
@@ -217,6 +239,14 @@ participações, bens, dívidas), com os itens; um bem ou uma dívida abre o det
 bem gera). Por último, recolhido, "Como o patrimônio esperado é calculado", com a tabela das fases deste cliente.
 
 - Patrimônio total = financeiro + participações + bens (valor de mercado) − saldo devedor dos bens − outras dívidas.
+  A evolução patrimonial usa a mesma conta, mês a mês: a dívida é uma faixa vermelha abaixo do zero, que encolhe com as
+  parcelas, e o valor do cursor e do tooltip já desconta o que a família deve. A quitação é um marco ("Dívida quitada:
+  nome"; várias no mesmo mês, num marco só). Os três botões do gráfico mostram o patrimônio total, só o financeiro, ou
+  o financeiro e as dívidas; com dívida, há um quarto: só o patrimônio líquido, considerando tudo, numa linha cheia com
+  a área até o zero (abaixo dele, em tom de dívida: é onde fica visível quando a família deve mais do que tem). O
+  terceiro e o quarto só aparecem quando há dívida. Nas visões total e financeiro e dívidas, um botão ao lado liga e
+  desliga a linha do patrimônio líquido (o que a família tem na visão, menos o que deve), tracejada, fina e clara, por
+  cima das faixas e lida no mesmo eixo; ela começa desligada.
 - Fases: a vida de trabalho (de quando começou, da página Cliente, até a idade para parar de trabalhar, da página Liberdade financeira; vazia, 65
   anos) dividida em nonos. Preparação antes de começar; Início de carreira até 2/9; Consolidação até 6/9; Plenitude
   até 9/9; Liberdade financeira depois. Começou aos 23, para aos 65: marcos em 23, 32, 51 e 65.
@@ -273,19 +303,70 @@ status:
   A doença grave, que a Nord pergunta, não entra na conta.
 - Percentual de proteção (0 a 100%, no código `nota`): média ponderada dos status (em dia 1, atenção 0,5, crítico 0; não avaliados ficam de
   fora), com pesos editáveis em `plano.riscos.pesos` (todos 1 por padrão).
-- O cliente simula à vontade (por exemplo, o custo de vida de 8.000 para 7.500 refaz a reserva na hora) e pode propor
-  ao consultor, com justificativa, o custo de vida, o alvo de reserva, as idades e os prêmios do plano de saúde, os
-  hospitais desejados e, nos seguros, o INSS (por invalidez e por morte) e a cobertura atual de cada pessoa. São alterações do tipo `campo` (qualquer caminho do plano), aprovadas como as outras.
+- O cliente simula à vontade numa calculadora de proposta (veja Propostas do cliente): o ícone junto à reserva, ao
+  plano de saúde e aos dois seguros abre a conta numa janela. Ele pode propor ao consultor o custo de vida, o alvo de
+  reserva, as idades e os prêmios do plano de saúde, os hospitais desejados e, nos seguros, o INSS (por invalidez e
+  por morte) e a cobertura atual de cada pessoa. São alterações do tipo `campo` (qualquer caminho do plano), aprovadas
+  como as outras.
 
 ## Propostas do cliente
 
-A tela do cliente mostra o plano aprovado pelo consultor. O cliente pode, na própria tela:
+A tela do cliente mostra o plano aprovado pelo consultor. O cliente propõe mudanças de dois jeitos.
 
-- mudar o valor de uma entrada ou saída (clique na célula: a partir daquele mês ou só naquele mês);
-- criar uma entrada ou saída nova (clique na célula de Entradas, Saídas, Fixas ou Ajustáveis, no mês em que ela
-  começa) ou remover uma linha a partir de um mês (no mesmo clique da célula);
-- mudar o custo e a data alvo de um objetivo (no card do marco, ou arrastando o marco);
-- mudar a idade para parar de trabalhar (no card da Liberdade Financeira, ou arrastando-a).
+**No fluxo de caixa, direto na tabela.** A tabela é uma só (`drawCashflow`): a de baixo do gráfico e a da janela
+própria (`?fluxo`) são a mesma página, com o mesmo plano e a mesma proposta do armazém. A edição é só na janela do
+fluxo: embaixo do gráfico a tabela é pequena demais, e o clique numa célula avisa e oferece "Abrir agora" (o mesmo que o
+ícone de janela ao lado do título). Na janela, a tabela abre bloqueada; clicar numa célula só avisa que é preciso
+desbloquear. O cadeado antes do título ("Fluxo de caixa · por mês") desbloqueia:
+
+- clicar numa célula de entrada ou saída abre a edição no lugar da célula, com o valor de cada ocorrência (o mesmo do
+  portal, "hoje R$ 3.000 por mês") e quando vale: a partir daquele mês, só naquele mês (com a tabela no mês ou na
+  semana) ou encerrar a linha ali. Enter inclui, Tab grava e vai à coluna seguinte (Shift + Tab volta), Esc cancela, e
+  clicar fora também inclui;
+- clicar e arrastar sobre várias colunas de uma linha seleciona uma faixa de meses (em laranja suave): o valor digitado
+  entra em cada mês selecionado, também nos meses em que a linha não acontecia (o IPTU anual, uma linha vazia), e depois
+  da faixa a linha volta ao que era (uma compra em 14 parcelas, um pagamento pelos próximos 6 meses). Vira uma alteração
+  `{ tipo: 'fluxo', modo: 'faixa', mi, ate, para }`, aplicada como o ajuste de uma ocorrência em cada mês (`exc`), que
+  chega ao consultor como "IPTU: de out/2026 a abr/2027 (7 meses), depois volta ao que era";
+- clicar no nome de uma entrada ou saída (ex.: IPTU) abre a linha inteira num painel do lado direito, como o cadastro
+  do portal: nome, valor de cada ocorrência, frequência (todo mês, em datas do ano, toda semana, uma vez só), os dias
+  do mês, as datas do ano ou o dia da semana, início e até quando, com a frase de como a linha fica e o efeito no plano.
+  Vira uma alteração `item` (`{ tipo: 'item', lista, id, para, de }`, só os campos que mudaram; `null` apaga o campo),
+  que o consultor vê como "IPTU: nova configuração", de "R$ 3.200 por ano…" para "R$ 260 por mês, no dia 10…"
+  (`ENGINE.fraseDaLinha`). As mudanças de valor que o cliente já tinha proposto nessa linha saem, porque o painel parte
+  delas; as mudanças de valor do plano depois do início ficam;
+- no painel da linha, **Excluir esta linha** a tira do plano de hoje em diante (uma alteração `linha` de remover, que
+  substitui as outras mudanças propostas nela); numa linha criada na própria proposta, o botão é "Tirar esta linha da
+  proposta";
+- o **+** ao lado do nome de cada grupo (Entradas, Saídas, Fixas, Ajustáveis), que só aparece com a tabela
+  desbloqueada, cria na hora uma linha nova, vazia (a partir do primeiro mês à vista; clicando numa célula do grupo, a
+  partir do mês dela), que fica à vista mesmo sem valor, e abre o painel dela: nome, tipo, valor, frequência, início e
+  até quando (ex.: comida de mar/2027 a jul/2028). Ou o cliente fecha o painel e preenche as células, uma a uma ou
+  arrastando uma faixa de meses. O painel de uma linha nova muda a própria alteração `linha` nova (que leva a
+  configuração em `item`), no lugar dela, para as mudanças de valor feitas depois nas células continuarem valendo;
+- cada valor vira uma alteração no rascunho da proposta (`PROP.ops`, o mesmo das calculadoras): as duas tabelas, o
+  gráfico e as outras páginas se refazem com ele, e as colunas que a mudança alcança ficam em laranja suave;
+- os controles ficam na linha do título da tabela, para não tirar espaço do gráfico: desbloqueada, a faixa da proposta
+  no alto se recolhe e, no lugar do título, aparece **Enviar as N mudanças** (passando o mouse, a idade da liberdade
+  financeira e o patrimônio nela, do plano aprovado para o de agora). Ele abre a revisão da proposta, onde o cliente
+  tira o que não quer e escreve a mensagem ao consultor. O cadeado bloqueia de novo; enviada, a tabela volta a bloquear.
+
+**Nos outros cálculos, numa calculadora de proposta**: uma janela com a conta, que se abre
+
+- pelo ícone discreto no card de um objetivo (custo e data alvo) e no da Liberdade Financeira (idade para parar);
+- pelo ícone junto aos cálculos da Gestão de riscos (reserva, plano de saúde, seguro de acidentes e seguro de vida).
+
+Arrastar um marco ou a Liberdade Financeira no gráfico continua propondo a nova data ou idade direto, sem a janela.
+
+A calculadora é um componente só (`CALCS` e `abrirCalc`). A janela tem os campos à esquerda (cada um com o valor do
+plano embaixo) e o resultado à direita, recalculado sem gravar nada: na linha nova, nos objetivos e na liberdade, uma tabela
+"Como está" e "Com estes valores" (a liberdade financeira, o patrimônio nela, a renda desejada coberta e os objetivos no
+prazo), que espera o cliente parar de digitar porque roda a simulação inteira (`simulaAParte`: o motor roda com o outro
+plano e volta ao da tela). "Enviar ao consultor" leva as alterações, com as observações (opcionais) em cada uma, e envia
+a proposta na hora, junto com o que já estava no rascunho. Com a proposta já enviada, a janela só simula. Para uma tela
+nova, basta registrar em `CALCS[id]` uma função que devolve `{ titulo, sub, campos, resultado(P, mudou) }` e pôr
+`calcIco('id:argumento')` junto ao cálculo; cada campo é um caminho do plano (vira uma alteração `campo`) ou traz a
+própria alteração (`alt`).
 
 **Nada disso muda o plano**: cada mudança vira uma alteração numa proposta, e a tela alterna entre "Plano atual" e
 "Com as alterações" para o cliente ver o efeito. Ele revisa e envia; o consultor abre **Propostas do cliente** (no
@@ -299,6 +380,11 @@ e a resposta fica registrada nele (`propostas: [{ id, em, decisoes, nota }]`).
 - **Consultor**: o portal (`tela-consultor.html`). "Apresentar ao cliente" (barra lateral e página Apresentação) apresenta o plano
   (`evolucao-patrimonial.html?apresentar`): sem editar, e mostrando a proposta que o cliente enviou.
   "Ver como o cliente vê" abre a tela exatamente como o cliente a tem.
+  Nas duas, o consultor tem **← Voltar à edição** no começo do cabeçalho: leva à página do portal que corresponde à página
+  à vista (Gestão de riscos → Riscos, Otimização tributária → Tributário, a evolução → Objetivos, a janela do fluxo →
+  Fluxo de caixa; `PAG_PORTAL`). Se foi a aba do portal que abriu esta, ela vai para a página e fica à frente, e esta
+  fecha; senão, o portal abre na mesma aba. O botão só aparece para o dono do plano: na apresentação, e em "Ver como o
+  cliente vê", que o portal abre com `?consultor`. O cliente nunca o vê.
 
 O plano e a proposta ficam num armazém (`<script id="armazem">`, duplicado nas duas telas como o motor e sincronizado
 pelo `sync-motor.js`). Na área logada da Nord Liberta, ele é a API da plataforma. No protótipo:
@@ -333,7 +419,8 @@ cada tela ouve o que a outra gravou.
                                 {"tipo": "pontual", "em": 12, "valor": 100000, "pct": null, "motivo": "reforma"} ],   // em % ou em reais
                "venda": {"em": 60, "preco": null,                           // preco vazio: o valor projetado no mês da venda
                          "custos": [ {"nome": "Corretagem", "pct": 6}, {"nome": "Imposto sobre o ganho", "valor": 20000} ]} } ],
-    "dividas": [ {"nome": "Consignado", "saldoDevedor": 20000, "credito": 30000, "parcelas": 48, "parcela": 850, "juros": 22, "situacao": "em_dia"} ]
+    "dividas": [ {"nome": "Consignado", "saldoDevedor": 20000, "credito": 30000, "parcelas": 48, "inicio": "2025-03", "parcela": 850, "juros": 22,
+                   "sistema": "", "iof": "", "seguro": {"modo": "unico", "valor": 900}, "tarifas": 0, "situacao": "em_dia"} ]   // iof vazio: somado ao crédito
   },
   "tributario": {              // página Otimização tributária; valores anuais no IR, mensais no pró-labore
     "ir": { "pessoas": [ {"nome": "Ana", "rend": 152100, "inss": 12845, "outras": 0} ],
@@ -490,10 +577,17 @@ antes ou depois da janela.
 - Numa coluna de ano ou maior, clicar aproxima até o mês. Numa coluna de mês ou de semana, clicar abre a
   edição: **a partir daqui** (cria um degrau), **só nesta ocorrência** (grava em `exc`) ou **encerrar aqui**
   (degrau zero).
+- Numa coluna de mês ou de semana, clicar numa célula de entrada ou saída e arrastar para o lado seleciona uma faixa de
+  meses (em laranja suave): o valor digitado entra em cada mês selecionado, também nos meses em que a linha não
+  acontecia, e depois da faixa a linha segue como era (um ajuste de uma ocorrência por mês, em `exc`). É o mesmo gesto e
+  a mesma regra da janela do fluxo do cliente. Arrastar no cabeçalho, no gráfico, nos grupos ou numa coluna de ano
+  continua andando no tempo.
 - A linha em branco no fim de cada grupo cria uma linha nova já na data da célula clicada.
 - O botão **+** de cada grupo abre o cadastro completo: nome, valor, pontual ou recorrente, frequência
   (semanal, mensal em um ou mais dias, anual em uma ou mais datas), início, até quando, mudanças de valor
-  e ajustes de uma ocorrência.
+  e ajustes de uma ocorrência. "Até quando" pode ser sempre, até uma data, por um número de vezes (ex.: 16 parcelas) ou
+  até um objetivo ser realizado. O número de vezes não é um campo novo: vira o último mês (o degrau zero), contando as
+  ocorrências da própria linha (dias do mês, datas do ano); com "até uma data", a gaveta mostra quantas vezes dá.
 - Aportes e custos dos objetivos e as rendas da aposentadoria aparecem como linhas só de leitura, com o
   caminho para a página onde são editados.
 

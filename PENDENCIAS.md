@@ -112,6 +112,72 @@ banco do link (`plano/atual`). O plano de teste que estava lá ficou em `plano/b
 
 ---
 
+## Dívidas (em aberto)
+
+Resolvido em 16/10/2026, a partir de um caso real (dois consignados): o motor de dívidas (`ENGINE.contratoDaDivida`:
+Price ou SAC, IOF de pessoa física, seguro prestamista único ou mensal, tarifas, CET), o mês da 1ª parcela, a conferência
+da taxa e do saldo no cartão, a gaveta "Ver evolução" e a dívida descontada mês a mês na evolução patrimonial (faixa
+vermelha e o botão "financeiro e dívidas"). Falta:
+
+1. **Planejamento de dívidas, numa seção própria.** Para os casos em que o plano é sobre as dívidas: todas as dívidas
+   juntas, com ferramentas para decidir: portabilidade (o mesmo saldo a outra taxa), amortização extra (reduzir prazo ou
+   parcela), qual quitar primeiro e o efeito de cada escolha no fluxo e na evolução patrimonial. Usa o mesmo motor.
+2. **Dívida na tela do cliente.** O detalhe da dívida na página "Fase da vida e patrimônio" ainda mostra só os campos;
+   falta mostrar o CET e a evolução para o cliente, se o consultor quiser.
+
+## Voltar à edição — resolvido (16/10/2026)
+
+Pedido antigo do usuário: na apresentação e em "Ver como o cliente vê", o consultor tem "← Voltar à edição" no cabeçalho,
+que leva à página correspondente do portal (veja o README, "Quem vê o quê"). Testado indo ao portal na mesma aba; a volta
+para a aba do portal que abriu a apresentação (que fica à frente, e a apresentação fecha) não deu para testar no
+navegador de testes, que abre tudo na mesma aba: conferir no Chrome.
+
+## Fluxo de caixa do cliente: linha inteira e faixa de meses (17/10/2026)
+
+Feito: na janela do fluxo, desbloqueada, o nome da linha abre a linha inteira num painel do lado (frequência, datas,
+início, até quando), e arrastar sobre as células seleciona uma faixa de meses com um valor só (veja o README). Falta:
+
+1. **O mesmo no portal — resolvido (17/10/2026).** A planilha do portal também seleciona uma faixa de meses arrastando
+   sobre as células de uma entrada ou saída (veja o README, "Fluxo de caixa"); o nome da linha já abria a gaveta de
+   cadastro. Corrigido no mesmo dia, a pedido do usuário: a faixa era feita com degraus, e numa linha que não acontece
+   todo mês (o IPTU anual, uma linha vazia) só o primeiro mês mudava. Agora, nas duas telas, o valor entra em cada mês
+   da faixa (um ajuste de uma ocorrência por mês) e depois a linha volta ao que era.
+2. **Painel da linha mais completo.** Ficaram de fora do painel do cliente: entradas em dois dias com valores
+   diferentes, a lista de mudanças de valor (ele só mostra o primeiro valor; as outras ficam como estão) e "até um
+   objetivo ser realizado".
+   Também em 17/10: o cliente não achava como criar uma linha (só clicando numa célula do grupo) nem como excluir uma.
+   Agora há o + ao lado de cada grupo e "Excluir esta linha" no painel do nome. O + foi conferido no navegador; o
+   Excluir não foi clicado lá (o usuário estava usando o mesmo navegador de testes): conferir. Depois, a pedido do
+   usuário, o + passou a criar a linha vazia na hora (sem exigir um valor) e abrir o painel dela, com início e fim.
+3. **Faixa numa linha com dois dias no mês.** O ajuste do mês vale para cada ocorrência: numa entrada nos dias 5 e 20,
+   o valor da faixa entra duas vezes por mês.
+
+## Calculadora de proposta (em aberto)
+
+Feito em 16/10/2026 na Gestão de riscos: os campos de proposta espalhados pela página saíram. Junto a cada cálculo que o
+cliente pode mudar (reserva, plano de saúde, seguro de acidentes e seguro de vida) há um ícone discreto que abre uma
+janela com a conta: os campos à esquerda (com o valor do plano embaixo de cada um), o resultado recalculado na hora à
+direita, observações opcionais e "Enviar ao consultor". O envio inclui as alterações na proposta e já a envia (vão
+junto as que estavam no rascunho). É um componente só (`CALCS` e `abrirCalc`, na seção de propostas). Falta:
+
+1. **Outras telas — resolvido (16/10/2026, com o desenho aprovado pelo usuário).** O card do objetivo, o da Liberdade
+   Financeira e a célula do fluxo de caixa (outro valor, só num mês, remover, linha nova) usam a mesma janela, com a
+   tabela "Como está" e "Com estes valores" (liberdade, patrimônio nela, renda desejada, objetivos no prazo). O popover
+   da célula e o formulário dos cards saíram. Arrastar o marco ou a Liberdade no gráfico continua propondo direto. Fica
+   de fora o orçamento combinado, que já é uma bancada inteira com o seu próprio botão de propor.
+   **Fluxo de caixa — mudou no mesmo dia, a pedido do usuário:** a célula não abre mais a janela. A tabela abre
+   bloqueada; o cadeado antes do título desbloqueia, o cliente edita no lugar da célula (Enter, Tab, Esc), vê as
+   colunas mudadas em laranja suave, e "Enviar as N mudanças", no lugar do título da tabela, abre a revisão e manda tudo
+   ao consultor. Nada vai para a faixa do alto (o usuário pediu: o gráfico é o protagonista). Pelo mesmo motivo, os
+   indicadores do cabeçalho da evolução (Bens e investimentos, Patrimônio líquido e Liberdade financeira) saíram, na
+   tela principal e na janela do fluxo. E a edição ficou só na janela do fluxo: embaixo do gráfico, o clique numa célula
+   avisa e oferece abrir a janela. A linha
+   nova continua numa janela, que inclui sem enviar. O usuário pediu que fique claro que a tabela é uma só (a de baixo
+   do gráfico e a da janela própria são a mesma página e os mesmos dados); está no README.
+2. **Proposta já enviada.** Enquanto a proposta está com o consultor, a janela só simula (a regra de sempre: cancele o
+   envio para propor algo novo). Se o cliente quiser propor em sequência, uma opção é o envio da janela reabrir a
+   proposta pendente com as alterações novas (o consultor recomeça a resposta).
+
 # P1 — Bloqueia o uso real
 
 ### 1. Vocabulário da tela do cliente

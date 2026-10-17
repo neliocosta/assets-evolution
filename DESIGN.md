@@ -168,7 +168,11 @@ próprio código (rosca, relógio, barras do orçamento, linha do tempo) e segue
   patrimônio. Em áreas largas (as barras da página de patrimônio), vale a versão do meio: `verde-em-dia-meio`,
   `azul-bens-meio` e `ocre-participacoes-meio`. A cor cheia fica para pontos, legendas e traços. As dívidas, e tudo o que
   sai de uma escada, usam um degradê suave de `#E2928D` a `#F7D7D4`, com a setinha para a esquerda: o valor faz o
-  patrimônio voltar.
+  patrimônio voltar. Na evolução patrimonial, a dívida é uma faixa nesse tom abaixo do zero, e o patrimônio líquido é
+  uma linha marinho por cima das faixas.
+- **Dívidas, na gaveta de evolução** (escolha do usuário em 16/10/2026: "nada de cor forte"): amortização `#8EAAD6`,
+  adiantamento `#4F6F9E` (o mesmo azul, mais fundo, porque os dois abatem o saldo), juros `#DF9A90` e seguro `#A891C9`,
+  com 2 px de vão entre os pedaços, legenda e a tabela ao lado. O saldo devedor é `#E2928D`; o que já foi pago, cinza.
 
 ### Orçamento
 Na bancada do orçamento, os grupos usam tons do meio, de peso parecido, para nenhum gritar: **Fixas Bruma**
