@@ -35,11 +35,10 @@ Situação: **fonte** (informada aqui, só aqui), **ligada** (lida da fonte, sem
 | Data de nascimento do titular e do cônjuge | `nascimento`, `conjugeNascimento` ("AAAA-MM" ou "AAAA-MM-DD") | fonte, obrigatórias (mês e ano; o dia é opcional) | idade exata de hoje e nos marcos (simulação, eixo da evolução, períodos da liberdade) |
 | Idade de hoje do titular e do cônjuge | `age`, `spouseAge` | calculada da data de nascimento (`ENGINE.sincronizaIdades`); informada só num plano antigo, sem a data | fase da vida, seguros, IR, casal (`ENGINE.casalDe`) |
 | Tipo de plano | `tipo` | fonte | casal |
-| Dependentes (nome, relação, nascimento) | `riscos.dependentes` | fonte | reserva (d), seguro de vida, IR (dependentes) |
-| Começou a trabalhar aos | `patrimonio.comecou` | fonte | fase da vida |
+| Dependentes (nome, relação, nascimento, até que idade depende) | `riscos.dependentes[]`: `nome`, `relacao`, `nasc` ("AAAA-MM" ou "AAAA-MM-DD": mês e ano obrigatórios, o dia é opcional), `ate` (vazio: a sugestão pela relação, 25 para filhos e 95 para adultos; `ENGINE.idadeLimiteDe`) | fonte | reserva (d), seguro de vida (prazo), IR (dependentes) |
+| Começou a trabalhar aos, de cada pessoa | `patrimonio.comecou` (titular), `patrimonio.conjugeComecou` (cônjuge) | fonte, no bloco de cada pessoa da página Cliente (a idade de parar, ao lado, é ligada à Liberdade financeira) | fase da vida: cada pessoa tem a sua curva (`ENGINE.faseDaVida(plan, quem)`); a área do cliente ainda mostra só a do titular |
 | Expectativa de vida | `lifeExp` | fonte | simulação, fase da vida, liberdade |
-| Profissão do titular e do cônjuge | `profissao`, `conjugeProfissao` | fonte | quem é a família (Diagnóstico) |
-| Natureza do trabalho do titular e do cônjuge | `natureza`, `conjugeNatureza` (as de `ENGINE.NATUREZAS`) | fonte (coleta: `incomenature`, a da fonte principal; `ra_regime` de cada renda ativa); num plano antigo, a do titular vem de `riscos.reserva.natureza` | reserva ideal (a de quem tem a maior renda do trabalho), quem é a família |
+| Rendas ativas de cada pessoa: profissão, natureza do trabalho, horas no mês | `rendasAtivas[]`: `pessoa` (titular ou cônjuge), `profissao`, `natureza` (as de `ENGINE.NATUREZAS`), `horas`; o valor de cada renda fica no Fluxo de caixa | fonte, N por pessoa (coleta: `incomenature` e as listas `ra_regime`, `ra_horas`); num plano antigo, os campos `profissao`, `natureza`, `horas` e os do cônjuge (e `riscos.reserva.natureza`) viram a primeira renda ao abrir a página Cliente (`ENGINE.rendasAtivasDe`) | profissão da pessoa (as das rendas, juntas) e natureza dela (a da primeira renda que a tem) em quem é a família; reserva ideal (a natureza de quem tem a maior renda do trabalho); horas (a soma) no tempo como moeda |
 | Experiência com as classes de ativos, de cada pessoa: entende, já investiu, tem restrição; observações | `experiencia.<titular ou conjuge>.<classe>.entende`, `.investiu`, `.restricao`; `experiencia.observacoes` (um campo só) | fonte (a coleta tem as restrições em texto: `restricaoClasseAtivo`, `classeNaoQuer`) | Diagnóstico (a tabela some sem nenhuma marca) |
 
 ## Liberdade financeira
@@ -52,7 +51,13 @@ Situação: **fonte** (informada aqui, só aqui), **ligada** (lida da fonte, sem
 | Forma de sacar | `mode` | sempre `desej` (decisão do usuário); perpetuidade e consumo são só comparação | visão do cliente |
 | Patrimônio que dura até a expectativa de vida, alternativas de renda | `alternativas` (portal) | calculada | liberdade |
 
-## Dinheiro que entra e sai (Fluxo de caixa)
+## Dinheiro que entra e sai (Orçamento e Fluxo de caixa)
+
+A página **Orçamento** (passo 2, antes do Fluxo) é a visão macro: as mesmas linhas de `incomes[]` e `expenses[]`, pela média
+dos próximos 12 meses, separadas em rendas, despesas fixas (`group: 'fix'`) e ajustáveis, como no capítulo Gestão financeira
+que ela gera. Não há variável nova: criar uma linha no Orçamento cria a linha do Fluxo (mensal, desde hoje), e o valor de
+uma linha simples (mensal, um valor só) se edita ali. A linha detalhada no Fluxo (degraus, outra frequência) e a lançada
+por outra página (parcela de dívida, plano de saúde) aparecem com a média e o caminho para mudá-la.
 
 | Variável | Caminho | Situação | Quem usa |
 |---|---|---|---|
@@ -72,9 +77,11 @@ Situação: **fonte** (informada aqui, só aqui), **ligada** (lida da fonte, sem
 |---|---|---|---|
 | Financeiro por instituição e tipo (investimento, PGBL, VGBL) | `patrimonio.financeiro[]` | fonte | `initialWealth` (simulação), sucessão, seguros |
 | De quem é cada instituição do financeiro | `patrimonio.financeiro[].titularidade` (titular, cônjuge; vazio num casal: do casal, conjunta) | fonte | quem é a família (onde cada pessoa investe); base futura do % do patrimônio de cada pessoa nos seguros |
-| Participações | `patrimonio.participacoes[]` | fonte | `partValue`, sucessão |
+| Participações (nome, valor de hoje) | `patrimonio.participacoes[]`: `nome`, `valor` | fonte | `partValue`, sucessão |
+| Valorização da participação (ao ano, pontual, valor esperado numa data) e venda planejada | `patrimonio.participacoes[].valorizacao[]` (`tipo`: `taxa`, `pontual` ou `alvo` com `em` e `valor`: o valuation esperado), `.venda` (data, preço, custos) | fonte (consultor); o preço de venda informado vale também como valor esperado no mês da venda | evolução patrimonial (participações), Fluxo de caixa (custos da venda), financeiro (o líquido da venda) |
+| Valor projetado da participação | `ENGINE.trajetoriaDaParticipacao` | calculada (não gravada) | Patrimônio, evolução patrimonial |
 | Bens (valor de mercado, saldo devedor, financiamento) | `patrimonio.bens[]` | fonte | `initialBens`, fase da vida, sucessão, proteção dos bens |
-| Titularidade de cada bem | `patrimonio.bens[].titularidade` (titular, cônjuge ou casal) e `titularPct` (a parte do titular no casal; 50% sem informar) | fonte | patrimônio do cliente; base futura do % do patrimônio dos seguros e do ITCMD |
+| Titularidade de cada bem | `patrimonio.bens[].titularidade` (titular, cônjuge ou `casal`, que na tela é "Em partes"), `titularPct` e `conjugePct` (a parte de cada pessoa); o que falta para 100% é de outros (irmãos, outros sócios), calculado (`ENGINE.titularidadeDoBem`). Sem informar, metade de cada um no casal; com só a do titular, o cônjuge fica com o resto | fonte | patrimônio do cliente; base futura do % do patrimônio dos seguros e do ITCMD |
 | Proteção e apólice de cada bem | `patrimonio.bens[].protecao`, `apolice` | fonte (marcada na Gestão de riscos, gravada no bem) | ameaça 6 |
 | Valorização do bem (ao ano, por um período, ou pontual) | `patrimonio.bens[].valorizacao[]` | fonte (consultor) | evolução patrimonial (valor dos bens), preço projetado da venda |
 | Venda planejada do bem: data, valor de venda, custos (% ou R$) | `patrimonio.bens[].venda` | fonte (consultor); valor de venda vazio = o projetado | evolução patrimonial, Fluxo de caixa (custos e saldo devedor transferido), fim da renda e da parcela do bem |
@@ -85,7 +92,7 @@ Situação: **fonte** (informada aqui, só aqui), **ligada** (lida da fonte, sem
 | Adiantamentos da dívida: daqui a quantos meses, valor, o que reduz (prazo ou parcela) | `amortizacoes[].{em,valor,modo}` (em `bens[]` e `dividas[]`) | fonte (consultor, na gaveta de evolução) | saldo e quitação (`ENGINE.contratoDaDivida`), linha da parcela no Fluxo de caixa (o valor sai no mês) |
 | Parcelas que faltam | `restantes` | calculada pelo mês da 1ª parcela e pelos adiantamentos (`ENGINE.restantesDaDivida`); digitada só sem o mês da 1ª parcela | fim da linha da parcela, saldo ao longo do tempo, quitação |
 | CET, taxa pela parcela, IOF, valor financiado, saldo pelo contrato, o que falta pagar | `ENGINE.contratoDaDivida` | calculada (não gravada) | cartão da dívida, gaveta de evolução |
-| Liquidez ideal | `patrimonio.liquidezIdeal` | fonte | patrimônio do cliente |
+| Liquidez ideal | `patrimonio.liquidezIdealPct` (% do patrimônio total: financeiro, participações e bens, menos as dívidas) | fonte, no último bloco da página Patrimônio; o valor em reais é calculado (`ENGINE.faseDaVida`) e acompanha o patrimônio. Num plano antigo, `patrimonio.liquidezIdeal` (em reais) vira o % ao abrir a página | patrimônio do cliente (comparada ao patrimônio financeiro) |
 | Instituições onde só tem conta | `patrimonio.contas.titular`, `.conjuge`, `.casal` (nomes; as do casal são conjuntas) | fonte | quem é a família (no cartão de cada pessoa) |
 
 ## Proteção (Gestão de riscos)
@@ -151,8 +158,8 @@ Situação: **fonte** (informada aqui, só aqui), **ligada** (lida da fonte, sem
 |---|---|---|---|
 | Renda líquida, custo de vida e o que vai para o futuro, no mês e no ano | `ENGINE.gestaoFinanceira` | calculada do Fluxo de caixa (média dos próximos 12 meses) | Gestão financeira |
 | Despesas fixas e ajustáveis (e cada despesa) | `expenses[].group` (`fix`; as outras são ajustáveis) | ligada ao Fluxo de caixa | orçamento |
-| Quantas vezes poupou nos últimos 12 meses | `orcamento.vezesPoupou` (nenhuma, 1-3, 4-6, 7-9, 10+) | fonte (exame: `recentsavingsfrequency`; no portal, no Fluxo de caixa) | Gestão financeira |
-| Horas trabalhadas no mês do titular e do cônjuge | `horas`, `conjugeHoras` | fonte (coleta: a soma de `ra_horas` das rendas ativas da pessoa; no portal, na página Cliente) | o tempo como moeda |
+| Quantas vezes poupou nos últimos 12 meses | `orcamento.vezesPoupou` (nenhuma, 1-3, 4-6, 7-9, 10+) | fonte (exame: `recentsavingsfrequency`; no portal, na página Orçamento) | Gestão financeira |
+| Horas trabalhadas no mês de cada pessoa | a soma de `rendasAtivas[].horas` da pessoa | calculada (as horas de cada renda ativa são fonte, na página Cliente) | o tempo como moeda |
 | Valor da hora, horas do presente e do futuro, patrimônio em horas | `ENGINE.horasDoTrabalho` | calculada | o tempo como moeda |
 | Orçamento combinado: quanto liberar por mês de cada grupo e de quais despesas sai | `orcamento.combinado.fixas`, `.ajustaveis` (`meta`; `cortes`: `id` da despesa do Fluxo, ou só `nome` quando a família trouxe só o total, `valor` e `trava`) | fonte (gravado na apresentação, pelo consultor; o cliente propõe; o portal mostra o resumo). Só vale o valor das despesas travadas; as outras dividem o resto da meta na hora. Não muda o Fluxo de caixa. Substitui `orcamento.envelopes` | orçamento |
 

@@ -276,6 +276,8 @@ console.log('\n5. Periodicidades e regras do fluxo');
   const hG = Eg.horasDoTrabalho(planoG), [aG, bG] = hG.pessoas;
   ok('tempo: o valor da hora é a renda do trabalho pelas horas', aG.valorHora === 50 && bG.valorHora === 20 && hG.familia.valorHora === 12000 / 360);
   ok('tempo: as horas se dividem na proporção do orçamento, e o futuro é o resto', Math.abs(aG.presente - 160 * 9100 / 12000) < 1e-9 && Math.abs(aG.presente + aG.futuro - 160) < 1e-9);
+  const planoRA = Object.assign({}, planoG, { rendasAtivas: [{ pessoa: 'titular', profissao: 'Analista', natureza: '', horas: 100 }, { pessoa: 'titular', profissao: 'Professora', natureza: 'Profissional liberal', horas: 60 }, { pessoa: 'conjuge', horas: 200 }] });
+  ok('rendas ativas: as horas da pessoa são a soma, a natureza é a da primeira que a tem', Eg.horasDoTrabalho(planoRA).pessoas[0].horas === 160 && Eg.naturezaDe(planoRA, 'titular') === 'Profissional liberal' && Eg.familiaDoPlano(planoRA).pessoas[0].profissao === 'Analista e Professora');
   ok('tempo: sem as horas de alguém, a família soma só quem informou', Eg.horasDoTrabalho(Object.assign({}, planoG, { conjugeHoras: null })).familia === null);
 
   // semanal: o mês do motor tem semanas inteiras, e cada semana tem exatamente um sábado
@@ -394,6 +396,8 @@ console.log('\n9. Seguro de vida e de acidentes pessoais (calculadora da Nord)')
   ok('acidentes: até os 95 anos, G − E', p.acidentes.F === 660 && Math.abs(p.acidentes.necessidade - (7000 * (1 - Math.pow(1.004, -660)) / 0.004 - 200000)) < 0.01);
   const sem = um({}); sem.riscos.dependentes = [];
   ok('sem dependentes: o seguro de vida não é essencial e a reserva perde o d', Es.calculaSeguros(sem).pessoas[0].vida.status === 'ok' && Es.avaliaRiscos(sem).itens.reserva.d === 0);
+  const atip = um({}); atip.riscos.dependentes = [{ relacao: 'filho', nasc: '2021-09-14', ate: 90 }];
+  ok('dependente: a idade até quando depende pode ser informada (criança atípica até os 90)', Es.calculaSeguros(atip).deps[0].limite === 90 && Es.idadeLimiteDe({ relacao: 'filho' }) === 25 && Es.idadeLimiteDe({ relacao: 'pai' }) === 95);
   ok('cobertura parcial: atenção; nenhuma: crítico', Es.avaliaRiscos(um({ coberturaVida: 500000 })).itens.familia.status === 'atencao' && Es.avaliaRiscos(um({})).itens.familia.status === 'critico');
   ok('plano sem o cálculo de seguro: não avaliado', Es.avaliaRiscos({ riscos: {} }).itens.renda.status === 'pendente');
 }
@@ -413,6 +417,8 @@ console.log('\n10. Patrimônio de hoje e fase da vida financeira');
   ok('depois da idade alvo: Liberdade, 200×', Ef.faseDaVida(Object.assign({}, pl, { age: 70 })).esperado === 2000000);
   ok('dívida avulsa também desconta do total', Ef.faseDaVida(Object.assign({}, pl, { patrimonio: Object.assign(P(), { dividas: [{ nome: 'Consignado', saldoDevedor: 20000 }] }) })).total === f.total - 20000);
   ok('sem a idade em que começou: sem fase', Ef.faseDaVida({ age: 35, patrimonio: {} }).fase === null);
+  const fc = Ef.faseDaVida(Object.assign({}, pl, { spouseAge: 40, spouseRetireAge: 60, patrimonio: Object.assign(P(), { conjugeComecou: 20 }) }), 'conjuge');
+  ok('cada pessoa tem a sua curva: o cônjuge com as idades dele', fc.comecou === 20 && fc.alvo === 60 && fc.idade === 40 && fc.fases[4].de === 60, JSON.stringify([fc.comecou, fc.alvo, fc.idade]));
   const alt = Ef.aplicaAlteracoes(Object.assign({}, pl, { patrimonio: P() }), [{ tipo: 'campo', caminho: 'patrimonio.financeiro.2.valor', para: 700000 }]);
   ok('proposta num valor do detalhe atualiza o total', alt.initialWealth === 860000 - P().financeiro[2].valor + 700000, alt.initialWealth);
   // linha reconfigurada pelo cliente: o IPTU de R$ 3.200 por ano vira R$ 260 por mês, só de jan/2027 a dez/2027
@@ -469,7 +475,10 @@ console.log('\n11. Otimização tributária (regras de 2026)');
   ok('seguros: a idade do titular e do cônjuge é a da página Cliente', seg.pessoas[0].idade === 35 && seg.pessoas[1].idade === 38);
   const tb = b => Et.titularidadeDoBem(plan, b);
   ok('titularidade: de uma pessoa ou do casal (metade, sem informar)', tb({ titularidade: 'conjuge' }).texto === 'de Marcos' && tb({ titularidade: 'casal' }).titular === 0.5
-    && tb({ titularidade: 'casal', titularPct: 70 }).texto === 'do casal (70% de Ana)' && tb({}) === null);
+    && tb({ titularidade: 'casal', titularPct: 70 }).texto === '70% de Ana e 30% de Marcos' && tb({}) === null);
+  const irm = tb({ titularidade: 'casal', titularPct: 33, conjugePct: 0 });
+  ok('titularidade em partes: o que falta para 100% é de outros (os irmãos)', irm.texto === '33% de Ana e 67% de outros' && Math.abs(irm.outros - 0.67) < 1e-9 && irm.conjuge === 0 && !irm.excesso
+    && tb({ titularidade: 'casal', titularPct: 60, conjugePct: 60 }).excesso);
   const r = Et.calculaRetirada(7000, 3000, 'presumido');
   ok('pró-labore: INSS de 11% e 20% patronal fora do Simples', r.inss === 770 && Math.abs(r.patronal - 1400) < 1e-9 && Et.calculaRetirada(7000, 0, 'simples').patronal === 0);
   ok('pró-labore: INSS limitado ao teto', Math.abs(Et.calculaRetirada(20000, 0, 'simples').inss - 8475.55 * 0.11) < 1e-9);
@@ -516,6 +525,27 @@ console.log('\n12. Bens ao longo do tempo: valorização e venda');
   ok('depois da venda sobram só os outros bens', Math.abs(depois - 100000) < 0.01 && Math.abs(antes - (100000 + s.events.find(e => e.type === 'venda').antes)) < 0.01, 'bens de R$ ' + Math.round(antes) + ' para R$ ' + Math.round(depois));
   ok('o plano não é alterado pela venda (as linhas são cortadas numa cópia)', alug.steps.length === 1 && Eb.INCOMES.find(x => x.id === 'alug').steps.length === 2);
   ok('a dívida do bem sai do patrimônio na venda', s.weeks[wv - 1].div > 0 && s.weeks[wv].div === 0);
+}
+
+console.log('\n12b. Participações ao longo do tempo e liquidez ideal');
+{
+  const Ep = carregar(srcCliente);
+  const pap = { nome: 'Papelaria Canetinha', valor: 50000, valorizacao: [{ tipo: 'taxa', pct: 8, de: 0, anos: 30 }] };
+  const bomb = { nome: 'Bombonière', valor: 100000, venda: { em: 60, preco: 200000, custos: [] } };
+  const alvo = { nome: 'Startup', valor: 100000, valorizacao: [{ tipo: 'alvo', em: 60, valor: 200000 }, { tipo: 'taxa', pct: 5, de: 0, anos: 30 }] };
+  const tp = Ep.trajetoriaDoBem(pap), ta = Ep.trajetoriaDoBem(alvo);
+  ok('participação: 8% ao ano a partir do valor de hoje', Math.abs(tp.serie[12] - 54000) < 0.01, Math.round(tp.serie[12]));
+  ok('valor esperado numa data: chega nele, num ritmo constante, e depois vale a taxa', Math.abs(ta.serie[60] - 200000) < 0.01 && Math.abs(ta.serie[30] - 100000 * Math.SQRT2) < 0.01 && Math.abs(ta.serie[72] - 210000) < 0.01);
+  Ep.configure({ patrimonio: { participacoes: [pap, bomb], bens: [] }, partValue: 150000, initialBens: 0, objectives: [], passive: [],
+    incomes: [{ id: 'sal', label: 'Salário', kind: 'ativa', frequency: 'mensal', days: [5], steps: [{ from: 0, value: 20000 }] }],
+    expenses: [{ id: 'vida', label: 'Vida', group: 'adj', frequency: 'mensal', days: [10], steps: [{ from: 0, value: 8000 }] }] });
+  const s = Ep.run('perp'), ev = s.events.find(e => e.type === 'venda' && /Bombonière/.test(e.label)), wv = ev.week;
+  ok('a venda da participação leva o preço ao financeiro e tira a participação', Math.abs(s.weeks[wv - 1].part - s.weeks[wv].part - ev.antes) < 1000 && ev.antes > 195000 && s.weeks[wv].fin - s.weeks[wv - 1].fin > 190000, 'part ' + Math.round(s.weeks[wv - 1].part) + ' → ' + Math.round(s.weeks[wv].part));
+  ok('a participação que valoriza cresce no simulador', s.weeks[wv].part > 50000 * 1.4);
+  ok('com o preço de venda, a participação cresce até ele (sem salto na venda)', Math.abs(Ep.trajetoriaDaParticipacao(bomb).serie[30] - 100000 * Math.SQRT2) < 0.01 && Ep.trajetoriaDaParticipacao(bomb).venda.preco === 200000);
+  const fL = Ep.faseDaVida({ age: 35, patrimonio: { financeiro: [{ valor: 400000 }], bens: [{ mercado: 1200000 }], participacoes: [{ valor: 50000 }], liquidezIdealPct: 40 } });
+  ok('liquidez ideal: o % do patrimônio total', fL.liquidezIdeal === 660000 && fL.total === 1650000);
+  ok('liquidez ideal: num plano antigo, o valor em reais', Ep.faseDaVida({ age: 35, patrimonio: { liquidezIdeal: 300000 } }).liquidezIdeal === 300000);
 }
 
 console.log('\n13. Dívidas: contrato, CET e saldo ao longo do tempo');

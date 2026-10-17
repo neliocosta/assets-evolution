@@ -970,7 +970,7 @@ const ENGINE = (() => {
   // ---- Configuração: tudo o que a tela do consultor define. Os valores abaixo são o padrão do mock. ----
   let PLAN_MODE = 'desej';
   let R_M = 0.004, GW = Math.pow(1 + R_M, 7 / 30.4375);
-  let PART_VALUE = 50000;   // participação societária: valor constante (sem remuneração modelada)
+  let PART_VALUE = 50000;   // participações societárias: o valor de hoje (a valorização e a venda vêm de cada participação)
   let LIFE_EXP = 95, DESIRED = 25000, SALARY = 15000, SAL_G = 0.045;
   let DESIRED_STEPS = [];      // mudanças da renda desejada a partir de um mês: [{ from, value }]
   const desiredAt = mi => { let v = DESIRED; for (const s of DESIRED_STEPS) if (mi >= s.from) v = +s.value || 0; return v; };
@@ -1256,19 +1256,25 @@ const ENGINE = (() => {
   // Cada bem de plan.patrimonio.bens pode ter:
   //   valorizacao: [{ tipo: 'taxa', pct, de, anos }]        pct % ao ano (negativo deprecia), do mês `de` (0 = hoje) por `anos`
   //                [{ tipo: 'pontual', em, pct | valor, motivo }]   no mês `em`, um salto em % ou em reais
+  //                [{ tipo: 'alvo', em, valor }]               o valor esperado no mês `em` (o valuation de uma empresa): até lá, o valor
+  //                                                            cresce num ritmo constante e chega nele; a taxa ao ano vale depois do último
   //   venda: { em, preco, custos: [{ nome, pct | valor }] }  preço vazio = o valor projetado; cada custo em % do preço ou em reais
   // A valorização muda o patrimônio em bens sem passar pelo fluxo de caixa (não é dinheiro que entra ou sai). Na venda, o preço
   // sai dos bens e entra no financeiro; os custos e o saldo devedor transferido ao comprador (ou quitado) são saídas. As parcelas param no mês da venda:
   // o que já foi pago está no fluxo, e o que falta é o saldo devedor de hoje, com os juros e as parcelas pagas até a venda.
   // A renda que o bem gera também termina no mês da venda.
-  let BENS = null, DIVS = null;   // null: os bens e as dívidas do exemplo
-  const bensDoPlano = () => BENS || PATRIMONIO_EXEMPLO.bens, dividasDoPlano = () => DIVS || PATRIMONIO_EXEMPLO.dividas;
+  // As participações societárias usam a mesma trajetória (o valor de hoje é `valor`, e não há saldo devedor).
+  let BENS = null, DIVS = null, PARTS = null;   // null: os bens, as dívidas e as participações do exemplo
+  const bensDoPlano = () => BENS || PATRIMONIO_EXEMPLO.bens, dividasDoPlano = () => DIVS || PATRIMONIO_EXEMPLO.dividas, partsDoPlano = () => PARTS || PATRIMONIO_EXEMPLO.participacoes;
   function trajetoriaDoBem(b) {
     const H = Math.round((100 - CURRENT_AGE) * 12), ev = Array.isArray(b.valorizacao) ? b.valorizacao : [], vd = b.venda && num(b.venda.em) != null ? b.venda : null;
     const fim = vd ? Math.max(1, Math.min(H, Math.round(+vd.em))) : H, serie = new Float64Array(fim + 1), pontuais = [];
-    let v = +b.mercado || 0; serie[0] = v;
+    const alvos = ev.filter(e => e.tipo === 'alvo' && num(e.valor) != null && Math.round(+e.em) >= 1).map(e => ({ em: Math.round(+e.em), valor: Math.max(0, +e.valor) })).sort((a, b) => a.em - b.em);
+    let v = +(b.mercado != null ? b.mercado : b.valor) || 0; serie[0] = v;
     for (let m = 1; m <= fim; m++) {
-      ev.forEach(e => { if (e.tipo !== 'taxa' || num(e.pct) == null) return; const de = Math.max(0, Math.round(+e.de || 0)), ate = de + Math.round((num(e.anos) != null ? +e.anos : 10) * 12); if (m - 1 >= de && m - 1 < ate) v *= Math.pow(1 + e.pct / 100, 1 / 12); });
+      const a = alvos.find(x => x.em >= m);   // o próximo valor esperado: o ritmo é refeito a cada mês, para chegar nele mesmo depois de um salto
+      if (a) v = v > 0 && a.valor > 0 ? v * Math.pow(a.valor / v, 1 / (a.em - m + 1)) : v + (a.valor - v) / (a.em - m + 1);
+      else ev.forEach(e => { if (e.tipo !== 'taxa' || num(e.pct) == null) return; const de = Math.max(0, Math.round(+e.de || 0)), ate = de + Math.round((num(e.anos) != null ? +e.anos : 10) * 12); if (m - 1 >= de && m - 1 < ate) v *= Math.pow(1 + e.pct / 100, 1 / 12); });
       ev.forEach(e => { if (e.tipo !== 'pontual' || Math.round(+e.em) !== m) return; const antes = v; v = Math.max(0, num(e.pct) != null ? v * (1 + e.pct / 100) : v + (+e.valor || 0)); pontuais.push({ mi: m, delta: v - antes, motivo: e.motivo || '' }); });
       serie[m] = v;
     }
@@ -1281,6 +1287,10 @@ const ENGINE = (() => {
     }
     return { serie, pontuais, venda };
   }
+  // A participação usa a trajetória do bem; com o preço de venda informado, ele é também o valor esperado no mês da venda
+  // (a empresa que vale 100 mil e será vendida por 200 mil daqui a 5 anos cresce até lá, sem um salto na venda).
+  const trajetoriaDaParticipacao = p => trajetoriaDoBem(p.venda && num(p.venda.preco) != null && num(p.venda.em) != null
+    ? Object.assign({}, p, { valorizacao: (p.valorizacao || []).concat({ tipo: 'alvo', em: +p.venda.em, valor: +p.venda.preco }) }) : p);
   // saldo devedor do financiamento do bem daqui a k meses. Com as parcelas que faltam, o saldo de hoje cai como o valor
   // presente das parcelas restantes e chega a zero na última (depois dela, não há o que transferir); sem elas, o de hoje
   // com os juros e as parcelas pagas até lá. Com o contrato, o saldo de hoje cai como o saldo do contrato (o informado manda
@@ -1303,6 +1313,7 @@ const ENGINE = (() => {
     let cofre = 0, obj = OBJ.map(() => 0), done = OBJ.map(() => false), bens = 0, part = PART_VALUE;
     const saldoNaData = OBJ.map(() => 0);   // quanto cada objetivo de fato juntou até a data alvo
     const traj = bensDoPlano().map(trajetoriaDoBem), ultimo = traj.map(x => x.serie[0]), vendido = traj.map(() => false);   // os bens da página Patrimônio
+    const trajP = partsDoPlano().map(trajetoriaDaParticipacao), ultimoP = trajP.map(x => x.serie[0]), vendidoP = trajP.map(() => false);   // e as participações
     // o que a família deve no mês: o saldo de cada dívida, que cai com as parcelas (a de um bem vendido foi quitada na venda)
     const divMes = new Map(), dividaEm = mi => { if (!divMes.has(mi)) divMes.set(mi, bensDoPlano().reduce((a, b, k) => a + (vendido[k] ? 0 : saldoDevedorEm(b, mi)), 0) + dividasDoPlano().reduce((a, d) => a + saldoDevedorEm(d, mi), 0)); return divMes.get(mi); };
     const quitacoes = bensDoPlano().map((b, k) => [b, k]).concat(dividasDoPlano().map(d => [d, -1])).filter(([d]) => +d.saldoDevedor > 0).map(([d, k]) => ({ d, k, mi: restantesDaDivida(d) })).filter(q => q.mi > 0);
@@ -1396,6 +1407,21 @@ const ENGINE = (() => {
           }
           const v = tr.serie[Math.min(mIdx, tr.serie.length - 1)];
           if (v !== ultimo[k]) { bens += v - ultimo[k]; ultimo[k] = v; }
+          tr.pontuais.forEach(p => { if (p.mi === mIdx) events.push({ week: i, type: 'valoriza', label: (p.delta >= 0 ? 'Valorização: ' : 'Desvalorização: ') + nome, detail: (p.delta >= 0 ? '+ ' : '− ') + reais(Math.abs(p.delta)) + (p.motivo ? ' · ' + p.motivo : ''), delta: p.delta }); });
+        });
+        // participações ao longo do tempo: o mesmo que os bens; na venda, o preço sai das participações e entra no financeiro
+        if (t >= 0 && mIdx >= 1) trajP.forEach((tr, k) => {
+          if (vendidoP[k]) return;
+          const nome = partsDoPlano()[k].nome || 'participação';
+          if (tr.venda && mIdx >= tr.venda.mi) {
+            const V = tr.venda; vendidoP[k] = true;
+            part -= ultimoP[k]; cofre += V.preco; transfer(f, 'mov_bens', 'mov_cofre', V.preco);
+            if (V.custo > 0) add(f, 'out_vendap_' + k, V.custo);
+            events.push({ week: i, type: 'venda', label: 'Venda: ' + nome, detail: reais(V.liquido) + ' líquidos para o mercado financeiro', venda: V, antes: ultimoP[k] });
+            return;
+          }
+          const v = tr.serie[Math.min(mIdx, tr.serie.length - 1)];
+          if (v !== ultimoP[k]) { part += v - ultimoP[k]; ultimoP[k] = v; }
           tr.pontuais.forEach(p => { if (p.mi === mIdx) events.push({ week: i, type: 'valoriza', label: (p.delta >= 0 ? 'Valorização: ' : 'Desvalorização: ') + nome, detail: (p.delta >= 0 ? '+ ' : '− ') + reais(Math.abs(p.delta)) + (p.motivo ? ' · ' + p.motivo : ''), delta: p.delta }); });
         });
         if (t >= 0) {   // as dívidas que terminam no mês, num marco só
@@ -1526,8 +1552,8 @@ const ENGINE = (() => {
     if (Array.isArray(plan.expenses)) EXPENSES = plan.expenses.map(migra);
     if (Array.isArray(plan.objectives)) { OBJ.length = 0; plan.objectives.forEach(o => OBJ.push(o)); OBJ.forEach(migraCustos); OBJ.forEach(derive); }
     if (Array.isArray(plan.passive)) { PASSIVE.length = 0; plan.passive.forEach(p => PASSIVE.push(p)); }
-    if (plan.patrimonio) { BENS = Array.isArray(plan.patrimonio.bens) ? plan.patrimonio.bens : []; DIVS = Array.isArray(plan.patrimonio.dividas) ? plan.patrimonio.dividas : []; }
-    else if (plan.initialBens != null) { BENS = []; DIVS = []; }
+    if (plan.patrimonio) { BENS = Array.isArray(plan.patrimonio.bens) ? plan.patrimonio.bens : []; DIVS = Array.isArray(plan.patrimonio.dividas) ? plan.patrimonio.dividas : []; PARTS = Array.isArray(plan.patrimonio.participacoes) ? plan.patrimonio.participacoes : []; }
+    else if (plan.initialBens != null) { BENS = []; DIVS = []; PARTS = []; }
     // a renda que um bem vendido gera e a parcela dele terminam no mês da venda
     bensDoPlano().forEach(b => { const v = b.venda && num(b.venda.em) != null ? Math.max(1, Math.round(+b.venda.em)) : null; if (v == null) return;
       if (b.renda) INCOMES = INCOMES.map(it => it.id === b.renda ? cortaLinha(it, v) : it);
@@ -1669,6 +1695,8 @@ const ENGINE = (() => {
   //         Sem dependentes não há seguro de vida a calcular.
   const SEGURO = { taxa: 0.004, independencia: 25, vidaAdulto: 95, sucessao: 10 };
   const RELACOES = [['filho', 'Filho(a) ou criança'], ['conjuge', 'Cônjuge'], ['pai', 'Pai ou mãe'], ['outro', 'Outro adulto']];
+  // até que idade o dependente depende: a informada (d.ate, ex.: uma criança atípica até os 90) ou a sugestão pela relação
+  const idadeLimiteDe = d => num(d.ate) != null ? +d.ate : d.relacao === 'filho' ? SEGURO.independencia : SEGURO.vidaAdulto;
   // meses de hoje até a pessoa nascida em "AAAA-MM" fazer a idade dada
   const mesesAteIdade = (nasc, idade) => { const m = /^(\d{4})-(\d{2})/.exec(nasc || ''); return m ? (+m[1] + idade) * 12 + (+m[2] - 1) - (TODAY.getFullYear() * 12 + TODAY.getMonth()) : null; };
   const valorPresente = (mensal, n, i) => mensal > 0 && n > 0 ? mensal * (1 - Math.pow(1 + i, -n)) / i : 0;
@@ -1687,19 +1715,27 @@ const ENGINE = (() => {
     const doNome = n => velhos.find(v => String(v.nome || '').trim().toLowerCase() === String(n || '').trim().toLowerCase()) || {};
     return P.bens.map((b, i) => ({ i, nome: b.nome, valor: +b.mercado || 0, protecao: b.protecao != null ? b.protecao : doNome(b.nome).protecao || '', apolice: b.apolice !== undefined ? b.apolice : doNome(b.nome).apolice || null }));
   }
-  // De quem é um bem (patrimonio.bens[].titularidade): do titular, do cônjuge ou do casal (titularPct: a parte do titular,
-  // 50% sem informar). Base futura do % do patrimônio dos seguros e do ITCMD.
+  // De quem é um bem (patrimonio.bens[].titularidade): do titular, do cônjuge ou em partes ('casal'): a do titular (titularPct),
+  // a do cônjuge (conjugePct, só num casal) e a de outros (irmãos, outros sócios), que é o que falta para 100%. Sem informar,
+  // metade de cada um no casal; com só a do titular, o cônjuge fica com o resto (o "do casal" de antes). Base futura do % do
+  // patrimônio dos seguros e do ITCMD.
   function titularidadeDoBem(plan, b) {
     const t = (b || {}).titularidade, n = nomesDaFamilia(plan); if (!t) return null;
-    if (t === 'casal') { const p = num(b.titularPct) != null ? Math.min(100, Math.max(0, +b.titularPct)) : 50; return { texto: p === 50 ? 'do casal' : 'do casal (' + p + '% de ' + n.titular + ')', titular: p / 100 }; }
-    return { texto: 'de ' + n[t === 'conjuge' ? 'conjuge' : 'titular'], titular: t === 'conjuge' ? 0 : 1 };
+    if (t === 'casal') {
+      const pc = v => Math.min(100, Math.max(0, +v)), casal = casalDe(plan), temC = casal && num(b.conjugePct) != null;
+      const ti = num(b.titularPct) != null ? pc(b.titularPct) : temC ? 100 - pc(b.conjugePct) : casal ? 50 : 100;
+      const co = !casal ? 0 : temC ? pc(b.conjugePct) : 100 - ti, outros = Math.max(0, 100 - ti - co), num1 = v => Math.round(v * 10) / 10;
+      const partes = [[ti, n.titular], [co, n.conjuge], [outros, 'outros']].filter(([p]) => p > 0).map(([p, q]) => num1(p) + '% de ' + q);
+      return { texto: casal && ti === 50 && co === 50 ? 'do casal' : partes.length > 1 ? partes.slice(0, -1).join(', ') + ' e ' + partes[partes.length - 1] : partes[0] || 'sem partes', titular: ti / 100, conjuge: co / 100, outros: outros / 100, excesso: ti + co > 100 };
+    }
+    return { texto: 'de ' + n[t === 'conjuge' ? 'conjuge' : 'titular'], titular: t === 'conjuge' ? 0 : 1, conjuge: t === 'conjuge' ? 1 : 0, outros: 0 };
   }
   const statusSeguro = (nec, atual) => nec <= 0 || atual >= nec ? 'ok' : atual > 0 ? 'atencao' : 'critico';
   function calculaSeguros(plan) {
     const S = (plan.riscos || {}).seguro; if (!S) return null;
     const pc = (v, padrao) => (num(v) != null ? +v : padrao) / 100;
     const deps = ((plan.riscos || {}).dependentes || []).map(d => {
-      const lim = d.relacao === 'filho' ? SEGURO.independencia : SEGURO.vidaAdulto, ate = mesesAteIdade(d.nasc, lim);
+      const lim = idadeLimiteDe(d), ate = mesesAteIdade(d.nasc, lim);
       return { nome: d.nome || '', relacao: d.relacao, nasc: d.nasc, idade: ate == null ? null : Math.floor((lim * 12 - ate) / 12), limite: lim, meses: ate == null ? null : Math.max(0, ate) };
     });
     const prazoVida = Math.max(0, ...deps.map(d => d.meses || 0));
@@ -1838,13 +1874,17 @@ const ENGINE = (() => {
     { id: 'liberdade', nome: 'Liberdade financeira', min: 200, max: 200 },
   ];
   const IDADE_ALVO_PADRAO = 65;
-  function faseDaVida(plan) {
-    const P = plan.patrimonio || {}, idade = +plan.age > 0 ? +plan.age : CURRENT_AGE;
+  // Cada pessoa tem a sua curva: a idade de hoje, a em que começou a trabalhar (patrimonio.comecou, .conjugeComecou) e a de
+  // parar (retireAge, spouseRetireAge). Sem `quem`, a do titular.
+  function faseDaVida(plan, quem) {
+    const conj = quem === 'conjuge', P = plan.patrimonio || {}, idadeP = +(conj ? plan.spouseAge : plan.age), idade = idadeP > 0 ? idadeP : CURRENT_AGE;
     const fin = Array.isArray(P.financeiro) ? somaDe(P.financeiro, 'valor') : +plan.initialWealth || 0;
     const part = Array.isArray(P.participacoes) ? somaDe(P.participacoes, 'valor') : +plan.partValue || 0;
     const bens = Array.isArray(P.bens) ? somaDe(P.bens, 'mercado') : +plan.initialBens || 0, dividas = somaDe(P.bens, 'saldoDevedor') + somaDe(P.dividas, 'saldoDevedor');
-    const out = { idade, fin, part, bens, dividas, total: fin + part + bens - dividas, liquidezIdeal: num(P.liquidezIdeal), padrao: padraoDeVida(plan), fase: null };
-    const comecou = num(P.comecou), alvoPlano = num(plan.retireAge), alvo = alvoPlano != null ? alvoPlano : IDADE_ALVO_PADRAO;
+    // a liquidez ideal é um % do patrimônio total (patrimonio.liquidezIdealPct); num plano antigo, um valor em reais (liquidezIdeal)
+    const total = fin + part + bens - dividas, liqPct = num(P.liquidezIdealPct), liquidezIdeal = liqPct != null ? Math.max(0, total) * liqPct / 100 : num(P.liquidezIdeal);
+    const out = { idade, fin, part, bens, dividas, total, liquidezIdeal, liquidezIdealPct: liqPct, padrao: padraoDeVida(plan), fase: null };
+    const comecou = num(conj ? P.conjugeComecou : P.comecou), alvoPlano = num(conj ? plan.spouseRetireAge : plan.retireAge), alvo = alvoPlano != null ? alvoPlano : IDADE_ALVO_PADRAO;
     Object.assign(out, { comecou, alvo, alvoDoPlano: alvoPlano != null });
     if (comecou == null || !(alvo > comecou)) return out;   // sem a idade em que começou a trabalhar, não há fase
     const dur = alvo - comecou, lim = [0, comecou, comecou + 2 / 9 * dur, comecou + 6 / 9 * dur, alvo, null];
@@ -1857,7 +1897,7 @@ const ENGINE = (() => {
   }
   // Patrimônio de exemplo (família da Ana Ribeiro)
   const PATRIMONIO_EXEMPLO = {
-    comecou: 23, liquidezIdeal: 400000,
+    comecou: 23, conjugeComecou: 20, liquidezIdealPct: 25,
     financeiro: [{ nome: 'Nubank', valor: 60000, titularidade: 'titular' }, { nome: 'Itaú', valor: 150000, titularidade: 'casal' }, { nome: 'BTG Pactual', valor: 530000, titularidade: 'titular' },
       { nome: 'Icatu Seguros (VGBL)', valor: 120000, tipo: 'vgbl', titularidade: 'conjuge' }],
     contas: { titular: ['Caixa'], conjuge: ['Banco do Brasil'] },
@@ -1934,10 +1974,21 @@ const ENGINE = (() => {
     const o = plan.objectives.find(x => x.id === id); return { id, titulo: o.name || 'Objetivo sem nome', descricao: o.descricao || '', fixo: false };
   });
   // ---- Quem é a família (o começo do capítulo Diagnóstico) ----
-  // A natureza do trabalho é de cada pessoa (plan.natureza, plan.conjugeNatureza, na página Cliente); num plano antigo, a
+  // A natureza do trabalho é de cada pessoa (a das rendas ativas dela, na página Cliente); num plano antigo, a
   // do titular é a que estava na reserva (riscos.reserva.natureza). A reserva usa a de quem tem a maior renda do trabalho
   // no Fluxo de caixa (no empate, o titular), entre as pessoas com a natureza informada.
-  const naturezaDe = (plan, quem) => (quem === 'conjuge' ? plan.conjugeNatureza : plan.natureza || ((plan.riscos || {}).reserva || {}).natureza) || null;
+  // Cada pessoa pode ter várias rendas ativas (plan.rendasAtivas: pessoa, profissão, natureza e horas no mês; o valor de cada
+  // uma fica no Fluxo de caixa). Num plano sem a lista, uma renda com os campos de antes (profissao, natureza, horas e os do
+  // cônjuge). A natureza da pessoa é a da primeira renda que a tem (a principal), e as horas dela, a soma.
+  function rendasAtivasDe(plan, quem) {
+    if (Array.isArray(plan.rendasAtivas)) return plan.rendasAtivas.filter(r => (r.pessoa || 'titular') === quem);
+    const conj = quem === 'conjuge', r = { pessoa: quem, profissao: (conj ? plan.conjugeProfissao : plan.profissao) || '',
+      natureza: (conj ? plan.conjugeNatureza : plan.natureza || ((plan.riscos || {}).reserva || {}).natureza) || '', horas: num(conj ? plan.conjugeHoras : plan.horas) };
+    return r.profissao || r.natureza || r.horas != null ? [r] : [];
+  }
+  const naturezaDe = (plan, quem) => (rendasAtivasDe(plan, quem).find(r => r.natureza) || {}).natureza || null;
+  const profissaoDe = (plan, quem) => rendasAtivasDe(plan, quem).map(r => String(r.profissao || '').trim()).filter(Boolean).join(' e ');
+  const horasDe = (plan, quem) => { const hs = rendasAtivasDe(plan, quem).map(r => num(r.horas)).filter(h => h > 0); return hs.length ? hs.reduce((a, h) => a + h, 0) : null; };
   const rendaDoTrabalho = (plan, quem) => mediaDe12Meses((plan.incomes || []).filter(it => ativo(it) && (it.pessoa || 'titular') === quem));
   function naturezaDaReserva(plan) {
     const com = pessoasDaFamilia(plan).map(quem => ({ quem, natureza: naturezaDe(plan, quem), renda: rendaDoTrabalho(plan, quem) })).filter(p => p.natureza);
@@ -1963,7 +2014,7 @@ const ENGINE = (() => {
         .filter(x => x.de === q || x.de === 'casal').sort((a, b) => (a.de === 'casal') - (b.de === 'casal')).map(x => ({ nome: x.nome, conjunta: casal && x.de === 'casal' }));
       const investe = sem(inv, []); return { investe, conta: sem(ct, investe) }; };
     const pessoas = quem.map(q => { const conj = q === 'conjuge', i = idadeExata(conj ? plan.conjugeNascimento : plan.nascimento);
-      return Object.assign({ quem: q, nome: nm[q], idade: i != null ? Math.floor(i) : +(conj ? plan.spouseAge : plan.age) || null, profissao: String((conj ? plan.conjugeProfissao : plan.profissao) || '').trim(), natureza: naturezaDe(plan, q) }, instituicoes(q)); });
+      return Object.assign({ quem: q, nome: nm[q], idade: i != null ? Math.floor(i) : +(conj ? plan.spouseAge : plan.age) || null, profissao: profissaoDe(plan, q), natureza: naturezaDe(plan, q) }, instituicoes(q)); });
     const dependentes = (Array.isArray(R.dependentes) ? R.dependentes : []).map(d => { const i = idadeExata(d.nasc); return { nome: d.nome || '', relacao: d.relacao, idade: i == null ? null : Math.max(0, Math.floor(i)) }; });
     const classes = CLASSES_ATIVOS.map(([id, nome]) => ({ id, nome, pessoas: quem.map(q => { const c = (X[q] || {})[id] || {}; return { entende: !!c.entende, investiu: !!c.investiu, restricao: !!c.restricao }; }) }));
     return { pessoas, dependentes, temDependentes: Array.isArray(R.dependentes) ? dependentes.length > 0 : !!(R.reserva || {}).dependentes,
@@ -1993,7 +2044,7 @@ const ENGINE = (() => {
       combinado: combinado.fixas || combinado.ajustaveis ? combinado : null, vezesPoupou: VEZES_POUPOU.some(v => v[0] === O.vezesPoupou) ? O.vezesPoupou : null };
   }
   // O tempo como moeda: o valor da hora de cada pessoa é a renda do trabalho dela no mês dividida pelas horas trabalhadas
-  // (plan.horas, plan.conjugeHoras). As horas se dividem entre o presente (pagar o custo de vida) e o futuro na mesma
+  // (a soma das horas das rendas ativas dela). As horas se dividem entre o presente (pagar o custo de vida) e o futuro na mesma
   // proporção do orçamento da família; o patrimônio total vira horas de trabalho pelo valor da hora. A família soma as horas
   // e a renda do trabalho de quem informou as horas.
   function horasDoTrabalho(plan) {
@@ -2001,7 +2052,7 @@ const ENGINE = (() => {
     const pPresente = g.mes.renda > 0 ? g.mes.custo / g.mes.renda : null;
     const conta = (nome, horas, renda) => { const vh = horas > 0 && renda > 0 ? renda / horas : null, pres = horas > 0 && pPresente != null ? horas * pPresente : null;
       return { nome, horas: horas > 0 ? horas : null, renda, valorHora: vh, presente: pres, futuro: pres != null ? horas - pres : null, patrimonio: vh ? patrimonio / vh : null }; };
-    const pessoas = pessoasDaFamilia(plan).map(q => Object.assign({ quem: q }, conta(nm[q], num(q === 'conjuge' ? plan.conjugeHoras : plan.horas), rendaDoTrabalho(plan, q))));
+    const pessoas = pessoasDaFamilia(plan).map(q => Object.assign({ quem: q }, conta(nm[q], horasDe(plan, q), rendaDoTrabalho(plan, q))));
     const com = pessoas.filter(p => p.horas), familia = com.length > 1 ? conta('Família', com.reduce((a, p) => a + p.horas, 0), com.reduce((a, p) => a + p.renda, 0)) : null;
     return { pessoas, familia, referenciaFuturo: ORCAMENTO_IDEAL.futuro, patrimonio };
   }
@@ -2214,8 +2265,8 @@ const ENGINE = (() => {
   };
   // A família do exemplo: um casal, com o nome e a idade do cônjuge (página Cliente)
   const FAMILIA_EXEMPLO = { tipo: 'familia', nascimento: NASC_EXEMPLO, conjugeNascimento: NASC_CONJ_EXEMPLO, spouseAge: 38, conjugeNome: 'Marcos Ribeiro',
-    profissao: 'Analista de marketing', natureza: 'CLT (empresa privada)', conjugeProfissao: 'Dono da Papelaria Canetinha', conjugeNatureza: 'Empresário',
-    horas: 176, conjugeHoras: 220, orcamento: { vezesPoupou: '4-6' },
+    rendasAtivas: [{ pessoa: 'titular', profissao: 'Analista de marketing', natureza: 'CLT (empresa privada)', horas: 176 },
+      { pessoa: 'conjuge', profissao: 'Dono da Papelaria Canetinha', natureza: 'Empresário', horas: 220 }], orcamento: { vezesPoupou: '4-6' },
     experiencia: { titular: { posFixado: { entende: true, investiu: true }, preFixado: { entende: true, investiu: true }, inflacao: { entende: true }, imobiliarios: { entende: true },
         bolsaBrasil: { restricao: true }, cripto: { restricao: true } },
       conjuge: { posFixado: { entende: true, investiu: true }, multimercado: { entende: true, investiu: true }, bolsaBrasil: { entende: true }, cripto: { restricao: true } },
@@ -2225,7 +2276,7 @@ const ENGINE = (() => {
       concentracao: { presente: 'razoavel', futuro: 'bem' }, liberdade: { presente: 'nao', futuro: 'sim' } } };
   const ORIGENS_OUT = ORIGENS;
   const config = () => ({ age: Math.floor(CURRENT_AGE), retireAge: RETIRE_AGE, spouseRetireAge: SPOUSE_RETIRE, initialBens: INITIAL_BENS, dividas: DIVIDAS, desired: DESIRED, desiredSteps: DESIRED_STEPS, lifeExp: LIFE_EXP, salary: SALARY, salaryGrowth: SAL_G, partValue: PART_VALUE, initialWealth: INITIAL_WEALTH, capacityOverride: CAP_OVERRIDE, rate: R_M, profiles: PROFILES, incomes: INCOMES, expenses: EXPENSES, objectives: OBJ, passive: PASSIVE });
-  return { TODAY, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, PASSIVE, PROFILES, STATUS, trajetoriaDoBem, saldoDevedorEm, contratoDaDivida, restantesDaDivida, mesDe, get BENS() { return bensDoPlano(); }, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, serieCusto, desiredAt, aplicaAlteracoes, fraseDaLinha, descreveAlteracao, valorAtual, mesDoPlano, RISCOS, NATUREZAS, ITENS_RUINA, RISCOS_EXEMPLO, avaliaRiscos, custoDeVida, SEGURO, RELACOES, calculaSeguros, mesesAteIdade, FASES_VIDA, faseDaVida, sincronizaPatrimonio, PATRIMONIO_EXEMPLO, padraoDeVida, lerCaminho, gravaCaminho, IR, calculaIR, irDaFamilia, REGIMES, calculaRetirada, retiradaDosSocios, PREVIDENCIA, sucessao, simulaPrevidencia, aliqRegressiva, TRIBUTARIO_EXEMPLO, FAMILIA_EXEMPLO, casalDe, nomesDaFamilia, pessoasDaFamilia, rendaDaPessoa, bensDoRisco, titularidadeDoBem, setRetireAge: a => { RETIRE_AGE = a == null ? null : Math.max(CURRENT_AGE, +a); }, paradaMi, trabalhaEm, idadeDaLiberdade, dataNasc, idadeExata, sincronizaIdades, fraseDoProposito, ordemDoProposito, objetivosDoProposito, naturezaDe, naturezaDaReserva, CLASSES_ATIVOS, ORCAMENTO_IDEAL, VEZES_POUPOU, gestaoFinanceira, horasDoTrabalho, familiaDoPlano, ESTADOS_DIAGNOSTICO, orcamentoDoFluxo, concentracaoDoPatrimonio, diagnosticoDaFamilia, financiamentoValido, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
+  return { TODAY, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, PASSIVE, PROFILES, STATUS, trajetoriaDoBem, trajetoriaDaParticipacao, saldoDevedorEm, contratoDaDivida, restantesDaDivida, mesDe, get BENS() { return bensDoPlano(); }, get PARTS() { return partsDoPlano(); }, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, serieCusto, desiredAt, aplicaAlteracoes, fraseDaLinha, descreveAlteracao, valorAtual, mesDoPlano, RISCOS, NATUREZAS, ITENS_RUINA, RISCOS_EXEMPLO, avaliaRiscos, custoDeVida, mediaDe12Meses, SEGURO, RELACOES, idadeLimiteDe, calculaSeguros, mesesAteIdade, FASES_VIDA, faseDaVida, sincronizaPatrimonio, PATRIMONIO_EXEMPLO, padraoDeVida, lerCaminho, gravaCaminho, IR, calculaIR, irDaFamilia, REGIMES, calculaRetirada, retiradaDosSocios, PREVIDENCIA, sucessao, simulaPrevidencia, aliqRegressiva, TRIBUTARIO_EXEMPLO, FAMILIA_EXEMPLO, casalDe, nomesDaFamilia, pessoasDaFamilia, rendaDaPessoa, bensDoRisco, titularidadeDoBem, setRetireAge: a => { RETIRE_AGE = a == null ? null : Math.max(CURRENT_AGE, +a); }, paradaMi, trabalhaEm, idadeDaLiberdade, dataNasc, idadeExata, sincronizaIdades, fraseDoProposito, ordemDoProposito, objetivosDoProposito, rendasAtivasDe, naturezaDe, naturezaDaReserva, CLASSES_ATIVOS, ORCAMENTO_IDEAL, VEZES_POUPOU, gestaoFinanceira, horasDoTrabalho, familiaDoPlano, ESTADOS_DIAGNOSTICO, orcamentoDoFluxo, concentracaoDoPatrimonio, diagnosticoDaFamilia, financiamentoValido, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
 })();
 if (typeof module !== 'undefined') module.exports = ENGINE;
 </script>
@@ -2466,8 +2517,8 @@ function buildRows() {
       ] },
       { id: 'out_adj', label: 'Ajustáveis', keys: keysWith('out_adj_'), novo: { lista: 'expenses', group: 'adj' }, children: ENGINE.EXPENSES.filter(c => c.group === 'adj').map(c => ({ id: 'out_adj_' + c.id, label: c.label, keys: ['out_adj_' + c.id], edit: { lista: 'expenses', id: c.id } })) },
       { id: 'out_obj', label: 'Objetivos realizados', keys: keysWith('out_obj_'), children: OBJ.map(o => ({ id: 'out_obj_' + o.id, label: o.name, keys: ['out_obj_' + o.id] })) },
-      { id: 'out_venda', label: 'Vendas de bens', keys: keysWith('out_venda_').concat(keysWith('out_quita_')), children: ENGINE.BENS.flatMap((b, k) => b.venda ? [
-        { id: 'out_venda_' + k, label: 'Custos da venda: ' + (b.nome || 'bem'), keys: ['out_venda_' + k] }, { id: 'out_quita_' + k, label: 'Saldo devedor transferido: ' + (b.nome || 'bem'), keys: ['out_quita_' + k] }] : []) },
+      { id: 'out_venda', label: ENGINE.PARTS.some(p => p.venda) ? 'Vendas de bens e participações' : 'Vendas de bens', keys: keysWith('out_venda_').concat(keysWith('out_quita_'), keysWith('out_vendap_')), children: ENGINE.PARTS.flatMap((p, k) => p.venda ? [{ id: 'out_vendap_' + k, label: 'Custos da venda: ' + (p.nome || 'participação'), keys: ['out_vendap_' + k] }] : []).concat(ENGINE.BENS.flatMap((b, k) => b.venda ? [
+        { id: 'out_venda_' + k, label: 'Custos da venda: ' + (b.nome || 'bem'), keys: ['out_venda_' + k] }, { id: 'out_quita_' + k, label: 'Saldo devedor transferido: ' + (b.nome || 'bem'), keys: ['out_quita_' + k] }] : [])) },
       { id: 'out_rendas', label: 'Contratação de rendas (fundos de pensão)', keys: ['out_rendas'], icon: 'convert' },
     ] },
     { id: 'mov', label: 'Movimentações no patrimônio', color: C.mov, keys: keysWith('mov_'), children: [
