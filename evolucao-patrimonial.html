@@ -3573,15 +3573,22 @@ function fxLinha(r) {
 const DIAS_SEMANA_C = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'];
 const ddmm = d => String(d.d).padStart(2, '0') + '/' + String(d.m + 1).padStart(2, '0');
 // os campos de uma linha: o que a janela mostra e compara
-function camposDaLinha(it) {
+function camposDaLinha(it, saida) {
   const s = (it.steps || []).slice().sort((a, b) => a.from - b.from), fim = s.length > 1 && !+s[s.length - 1].value ? s[s.length - 1].from - 1 : null, fq = it.frequency || 'mensal';
-  return { label: it.label || '', valor: s.length ? +s[0].value : 0, freq: ['pontual', 'semanal', 'mensal', 'anual'].includes(fq) ? fq : 'mensal', dias: (it.days || []).join(', '),
-    datas: (it.dates || []).map(ddmm).join(', '), weekday: String(it.weekday != null ? it.weekday : 6), inicio: s.length ? s[0].from : 0, fim };
+  return { label: it.label || '', valor: s.length ? +s[0].value : 0, per: fq === 'pontual' ? 'pontual' : 'recorrente', freq: ['semanal', 'mensal', 'anual'].includes(fq) ? fq : 'mensal', dias: (it.days || []).join(', '),
+    datas: (it.dates || []).map(ddmm).join(', '), weekday: String(it.weekday != null ? it.weekday : 6), inicio: s.length ? s[0].from : 0,
+    ate: saida && it.endObj ? 'obj' : fim != null ? 'data' : 'sempre', fim, vezes: fim != null ? vezesDaLinha(it, fim, saida) : null, endObj: it.endObj || '' };
 }
+// "por um número de vezes", como na gaveta do portal: o fim continua sendo o último mês; as vezes são as ocorrências da
+// própria linha (frequência, dias, datas), contadas a partir do início
+const contaveis = it => Object.assign({}, it, { exc: null, steps: [{ from: (it.steps && it.steps.length ? it.steps : [{ from: 0 }])[0].from, value: 1 }] });
+function vezesDaLinha(it, fim, saida) { const c = contaveis(it); let n = 0; for (let m = c.steps[0].from; m <= fim; m++) n += ENGINE.ocorrencias(c, m, saida).length; return n; }
+function fimPorVezes(it, n, saida) { const c = contaveis(it), lim = Math.round((100 - ENGINE.CURRENT_AGE) * 12) - 1; let k = 0; for (let m = c.steps[0].from; m <= lim; m++) { k += ENGINE.ocorrencias(c, m, saida).length; if (k >= n) return m; } return lim; }
 // a linha com os valores da janela (só os campos que a janela mexe)
-function linhaComValores(it, v) {
+function linhaComValores(it, v, saida) {
+  v = Object.assign({}, v, { freq: v.per === 'pontual' ? 'pontual' : v.freq });   // pontual ou, sendo recorrente, a frequência
   const s = (it.steps || []).slice().sort((a, b) => a.from - b.from), velhoFim = s.length > 1 && !+s[s.length - 1].value ? s.length - 1 : s.length;
-  const fim = v.freq === 'pontual' ? null : v.fim, meio = s.slice(1, velhoFim).filter(st => st.from > v.inicio && (fim == null || st.from <= fim));
+  const fim = v.freq === 'pontual' || v.ate === 'sempre' || v.ate === 'obj' ? null : v.ate === 'vezes' ? (v.vezes >= 1 ? null : v.fim) : v.fim, meio = s.slice(1, velhoFim).filter(st => st.from > v.inicio && (fim == null || st.from <= fim));
   const steps = [{ from: v.inicio, value: v.valor }].concat(meio, fim != null ? [{ from: fim + 1, value: 0 }] : []);
   const dias = String(v.dias).split(/[,;\s]+/).map(Number).filter(d => d >= 1 && d <= 31);
   const datas = String(v.datas).split(/[,;\s]+/).map(t => /^(\d{1,2})\/(\d{1,2})$/.exec(t)).filter(m => m && +m[1] >= 1 && +m[1] <= 31 && +m[2] >= 1 && +m[2] <= 12).map(m => ({ m: +m[2] - 1, d: +m[1] }));
@@ -3590,13 +3597,18 @@ function linhaComValores(it, v) {
   if (v.freq === 'anual') novo.dates = datas.length ? datas : null; else novo.dates = null;
   if (v.freq === 'semanal') novo.weekday = +v.weekday;
   if (v.freq !== 'pontual' || v.inicio !== (s.length ? s[0].from : 0)) novo.date = null;   // a data avulsa do portal só vale para a pontual que não mudou de mês
+  novo.endObj = saida && v.freq !== 'pontual' && v.ate === 'obj' && v.endObj ? v.endObj : null;   // até um objetivo ser realizado
+  if (v.freq !== 'pontual' && v.ate === 'vezes' && v.vezes >= 1) {   // o número de vezes vira o último mês, com a frequência nova
+    const f = fimPorVezes(Object.assign({}, it, novo), v.vezes, saida);
+    novo.steps = novo.steps.filter((st, j) => j === 0 || st.from <= f).concat({ from: f + 1, value: 0 });
+  }
   return novo;
 }
-const CAMPOS_LINHA = ['label', 'frequency', 'steps', 'days', 'dates', 'weekday', 'date'];
+const CAMPOS_LINHA = ['label', 'frequency', 'steps', 'days', 'dates', 'weekday', 'date', 'endObj'];
 const igualJ = (x, y) => JSON.stringify(x == null ? null : x) === JSON.stringify(y == null ? null : y);
 CALCS.linha = r => {
   const lista = r.edit.lista, id = r.edit.id, it = (planoVista()[lista] || []).find(i => i.id === id); if (!it) return null;
-  const b = (BASE[lista] || []).find(i => i.id === id), v0 = camposDaLinha(it), d0 = b ? camposDaLinha(b) : null, saida = lista === 'expenses', nova = !b;
+  const b = (BASE[lista] || []).find(i => i.id === id), saida = lista === 'expenses', v0 = camposDaLinha(it, saida), d0 = b ? camposDaLinha(b, saida) : null, nova = !b;
   const opNova = nova && PROP ? PROP.ops.find(o => o.acao === 'nova' && o.lista === lista && o.id === id) || {} : {};
   const de = k => d0 ? d0[k] : null, mesTxt = mi => mi == null ? 'sempre' : ENGINE.mesDoPlano(mi);
   return { titulo: nova ? (saida ? 'Nova saída' : 'Nova entrada') : it.label || 'Linha', sub: nova ? 'A linha já está na tabela, vazia. Dê um nome e, se quiser, o valor, o início e até quando; ou feche e preencha as células (arrastando, uma faixa de meses).' : `${saida ? 'Saída' : 'Entrada'} do fluxo de caixa. Mude o que precisar; ela entra nas mudanças do fluxo, que vão ao consultor quando você enviar.`,
@@ -3613,16 +3625,20 @@ CALCS.linha = r => {
       { k: 'label', rotulo: 'Nome', formato: 'texto', valor: nova && /^Nova (saída|entrada)$/.test(v0.label) ? '' : v0.label, de: de('label'), placeholder: saida ? 'Ex.: comida, academia' : 'Ex.: aluguel do apartamento' },
       ...(nova ? [{ k: 'tipo', rotulo: 'Tipo', formato: 'opcoes', valor: saida ? (opNova.group || 'fix') : (opNova.kind || 'ativa'), opcoes: saida ? [['fix', 'Fixa'], ['adj', 'Ajustável']] : [['ativa', 'Renda do trabalho'], ['passiva', 'Renda passiva (aluguel, dividendos)']] }] : []),
       { k: 'valor', rotulo: 'Valor de cada ocorrência', formato: 'reais', valor: v0.valor, de: de('valor') },
-      { k: 'freq', rotulo: 'Frequência', formato: 'opcoes', valor: v0.freq, opcoes: [['mensal', 'Todo mês'], ['anual', 'Em datas do ano'], ['semanal', 'Toda semana'], ['pontual', 'Uma vez só']] },
-      { k: 'dias', rotulo: 'Dias do mês (ex.: 10, ou 5, 20)', formato: 'texto', valor: v0.dias, de: de('dias'), placeholder: 'o dia do pagamento', mostra: v => v.freq === 'mensal' },
-      { k: 'datas', rotulo: 'Datas no ano (dia/mês, ex.: 10/02, 10/08)', formato: 'texto', valor: v0.datas, de: de('datas'), placeholder: 'sem data: a cada 12 meses do início', mostra: v => v.freq === 'anual' },
-      { k: 'weekday', rotulo: 'Dia da semana', formato: 'opcoes', valor: v0.weekday, opcoes: DIAS_SEMANA_C.map((d, i) => [String(i), d]), mostra: v => v.freq === 'semanal' },
-      { k: 'inicio', rotulo: 'Começa em', formato: 'mes', min: 0, valor: v0.inicio, de: de('inicio'), deTexto: d0 ? mesTxt(d0.inicio) : '—' },
-      { k: 'fim', rotulo: 'Até (vazio: sempre)', formato: 'mes', vazio: true, min: 0, valor: v0.fim, de: de('fim'), deTexto: d0 ? mesTxt(d0.fim) : '—', mostra: v => v.freq !== 'pontual' }],
+      { k: 'per', rotulo: 'Periodicidade', formato: 'opcoes', valor: v0.per, opcoes: [['recorrente', 'Recorrente'], ['pontual', 'Pontual (uma vez só)']] },
+      { k: 'freq', rotulo: 'Frequência', formato: 'opcoes', valor: v0.freq, opcoes: [['mensal', 'Mensal'], ['semanal', 'Semanal'], ['anual', 'Em datas do ano']], mostra: v => v.per === 'recorrente' },
+      { k: 'dias', rotulo: 'Dias do mês (ex.: 10, ou 5, 20)', formato: 'texto', valor: v0.dias, de: de('dias'), placeholder: 'o dia do pagamento', mostra: v => v.per === 'recorrente' && v.freq === 'mensal' },
+      { k: 'datas', rotulo: 'Datas no ano (dia/mês, ex.: 10/02, 10/08)', formato: 'texto', valor: v0.datas, de: de('datas'), placeholder: 'sem data: a cada 12 meses do início', mostra: v => v.per === 'recorrente' && v.freq === 'anual' },
+      { k: 'weekday', rotulo: 'Dia da semana', formato: 'opcoes', valor: v0.weekday, opcoes: DIAS_SEMANA_C.map((d, i) => [String(i), d]), mostra: v => v.per === 'recorrente' && v.freq === 'semanal' },
+      { k: 'inicio', rotulo: 'Começa em (pontual: o mês)', formato: 'mes', min: 0, valor: v0.inicio, de: de('inicio'), deTexto: d0 ? mesTxt(d0.inicio) : '—' },
+      { k: 'ate', rotulo: 'Até quando', formato: 'opcoes', valor: v0.ate, opcoes: [['sempre', 'Sempre'], ['data', 'Até uma data'], ['vezes', 'Por um número de vezes']].concat(saida && (planoVista().objectives || []).length ? [['obj', 'Até um objetivo ser realizado']] : []), mostra: v => v.per === 'recorrente' },
+      { k: 'fim', rotulo: 'Último mês', formato: 'mes', vazio: true, min: 0, valor: v0.fim, de: de('fim'), deTexto: d0 ? mesTxt(d0.fim) : '—', mostra: v => v.per === 'recorrente' && v.ate === 'data' },
+      { k: 'vezes', rotulo: 'Número de vezes (ex.: 16 parcelas)', formato: 'numero', vazio: true, min: 1, valor: v0.vezes, de: de('vezes'), mostra: v => v.per === 'recorrente' && v.ate === 'vezes' },
+      { k: 'endObj', rotulo: 'Objetivo', formato: 'opcoes', valor: v0.endObj, opcoes: [['', 'Escolha o objetivo…']].concat((planoVista().objectives || []).map(o => [o.id, o.name || 'sem nome'])), mostra: v => v.per === 'recorrente' && v.ate === 'obj' }],
     alteracoes: v => {
-      const novo = linhaComValores(it, v), para = {}, antes = {};
+      const novo = linhaComValores(it, v, saida), para = {}, antes = {};
       if (nova) {   // a linha nova da proposta: a própria alteração dela muda (nome, tipo e a configuração inteira)
-        const item = {}; ['frequency', 'steps', 'days', 'dates', 'weekday'].forEach(k => { if (novo[k] != null) item[k] = novo[k]; });
+        const item = {}; ['frequency', 'steps', 'days', 'dates', 'weekday', 'endObj'].forEach(k => { if (novo[k] != null) item[k] = novo[k]; });
         const n = Object.assign({}, opNova, { label: v.label || opNova.label, mi: v.inicio, para: v.valor, item }, saida ? { group: v.tipo } : { kind: v.tipo });
         return JSON.stringify(n) === JSON.stringify(opNova) ? [] : [n];
       }

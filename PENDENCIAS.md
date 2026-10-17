@@ -142,9 +142,9 @@ início, até quando), e arrastar sobre as células seleciona uma faixa de meses
    cadastro. Corrigido no mesmo dia, a pedido do usuário: a faixa era feita com degraus, e numa linha que não acontece
    todo mês (o IPTU anual, uma linha vazia) só o primeiro mês mudava. Agora, nas duas telas, o valor entra em cada mês
    da faixa (um ajuste de uma ocorrência por mês) e depois a linha volta ao que era.
-2. **Painel da linha mais completo.** Ficaram de fora do painel do cliente: entradas em dois dias com valores
-   diferentes, a lista de mudanças de valor (ele só mostra o primeiro valor; as outras ficam como estão) e "até um
-   objetivo ser realizado".
+2. **Painel da linha mais completo.** Desde 17/10 o painel do cliente segue a gaveta do portal (periodicidade, frequência,
+   até quando com número de vezes e até um objetivo). Ficaram de fora: entradas em dois dias com valores diferentes e a
+   lista de mudanças de valor (ele só mostra o primeiro valor; as outras ficam como estão).
    Também em 17/10: o cliente não achava como criar uma linha (só clicando numa célula do grupo) nem como excluir uma.
    Agora há o + ao lado de cada grupo e "Excluir esta linha" no painel do nome. O + foi conferido no navegador; o
    Excluir não foi clicado lá (o usuário estava usando o mesmo navegador de testes): conferir. Depois, a pedido do

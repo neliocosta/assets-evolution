@@ -329,8 +329,10 @@ desbloquear. O cadeado antes do título ("Fluxo de caixa · por mês") desbloque
   `{ tipo: 'fluxo', modo: 'faixa', mi, ate, para }`, aplicada como o ajuste de uma ocorrência em cada mês (`exc`), que
   chega ao consultor como "IPTU: de out/2026 a abr/2027 (7 meses), depois volta ao que era";
 - clicar no nome de uma entrada ou saída (ex.: IPTU) abre a linha inteira num painel do lado direito, como o cadastro
-  do portal: nome, valor de cada ocorrência, frequência (todo mês, em datas do ano, toda semana, uma vez só), os dias
-  do mês, as datas do ano ou o dia da semana, início e até quando, com a frase de como a linha fica e o efeito no plano.
+  do portal e na mesma ordem: nome, valor de cada ocorrência, periodicidade (recorrente ou pontual), a frequência
+  (mensal, semanal, em datas do ano) com os dias do mês, as datas do ano ou o dia da semana, início e até quando
+  (sempre, até uma data, por um número de vezes ou, nas saídas, até um objetivo ser realizado), com a frase de como a
+  linha fica e o efeito no plano. O número de vezes, como no portal, vira o último mês.
   Vira uma alteração `item` (`{ tipo: 'item', lista, id, para, de }`, só os campos que mudaram; `null` apaga o campo),
   que o consultor vê como "IPTU: nova configuração", de "R$ 3.200 por ano…" para "R$ 260 por mês, no dia 10…"
   (`ENGINE.fraseDaLinha`). As mudanças de valor que o cliente já tinha proposto nessa linha saem, porque o painel parte
