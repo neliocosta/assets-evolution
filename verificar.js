@@ -27,6 +27,8 @@ console.log('\n1. Motor sincronizado entre as duas telas');
 const srcCliente = bloco(CLIENTE), srcPortal = bloco(PORTAL);
 ok('o bloco do motor é idêntico nos dois arquivos', srcCliente === srcPortal,
   srcCliente === srcPortal ? '' : '→ rode: node sync-motor.js');
+const graficos = arq => (fs.readFileSync(arq, 'utf8').match(/<script id="graficos">([\s\S]*?)<\/script>/) || [])[1];
+ok('os gráficos compartilhados (o sunburst) são idênticos nos dois arquivos', !!graficos(CLIENTE) && graficos(CLIENTE) === graficos(PORTAL), '');
 
 const E = carregar(srcCliente);
 
@@ -408,6 +410,21 @@ console.log('\n10. Patrimônio de hoje e fase da vida financeira');
   const pl = { age: 35, retireAge: 65, riscos: { reserva: { custoVida: 10000 } }, patrimonio: P() };
   Ef.sincronizaPatrimonio(pl);
   ok('as listas viram os totais do plano', pl.initialWealth === 860000 && pl.partValue === 50000 && pl.initialBens === 1210000);
+  // a carteira de hoje manda nos investimentos do financeiro: soma por instituição, titular e tipo; o digitado de
+  // investimento sai, e o FGTS e o empréstimo a amigos ficam. Limpar a carteira tira só o que veio dela.
+  const pc = { patrimonio: { financeiro: [{ nome: 'Nubank', valor: 5 }, { nome: 'FGTS', valor: 30000, tipo: 'fgts' }, { nome: 'Irmão', valor: 1000, tipo: 'emprestimo' }] },
+    carteira: { ativos: [{ instituicao: 'XP', titular: 'conjuge', valor: 100.5 }, { instituicao: 'XP ', titular: 'conjuge', valor: 200 }, { instituicao: 'XP', titular: 'conjuge', valor: 50, tipo: 'vgbl' }, { instituicao: 'XP', titular: 'titular', valor: 10 }] } };
+  Ef.sincronizaPatrimonio(pc);
+  const fx = pc.patrimonio.financeiro;
+  ok('carteira: financeiro por instituição, titular e tipo, mais FGTS e empréstimo', fx.length === 5 && fx[0].valor === 300.5 && fx[0].titularidade === 'conjuge' && fx[1].tipo === 'vgbl' && fx[2].titularidade === 'titular' && pc.initialWealth === 31360.5, JSON.stringify(fx));
+  pc.carteira.ativos = []; Ef.sincronizaPatrimonio(pc);
+  ok('limpar a carteira tira só os investimentos que vieram dela', pc.patrimonio.financeiro.length === 2 && pc.initialWealth === 31000, JSON.stringify(pc.patrimonio.financeiro));
+  // macroalocação: a liquidez diária fica com o restante; a classe sem recomendada segue a ideal
+  const mc = Ef.carteiraDoPlano({ carteira: { aporte: 100, ativos: [{ classe: 'alternativos', valor: 40, acao: 'manter' }, { classe: 'posFixado', valor: 860, acao: 'parcial', resgate: 300 }],
+    ideal: { posFixado: 0.6, inflacao: 0.3 }, recomendada: { alternativos: 0.04 }, novos: [{ classe: 'inflacao', valor: 300 }] } });
+  const cl = id => mc.classes.find(c => c.id === id);
+  ok('macro: liquidez com o restante, na ideal e na recomendada', Math.abs(cl('liquidez').pIdeal - 0.1) < 1e-9 && Math.abs(cl('liquidez').pRec - 0.06) < 1e-9 && cl('posFixado').segue && !cl('alternativos').segue);
+  ok('micro: o que fica, os novos e o caixa', cl('posFixado').fica === 560 && cl('inflacao').resultado === 300 && mc.resgatado === 300 && mc.caixa === 100 && mc.semAcao.length === 0);
   const f = Ef.faseDaVida(pl);
   ok('total = financeiro + participações + bens − saldo devedor', f.total === 860000 + 50000 + 1210000 - 368000, f.total);
   // começou aos 23, para aos 65: marcos em 23 / 32,3 / 51 / 65; aos 35, 14% da Consolidação (18× a 60×)

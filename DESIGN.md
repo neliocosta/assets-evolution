@@ -181,6 +181,23 @@ Na bancada do orçamento, os grupos usam tons do meio, de peso parecido, para ne
 liso, nunca listrado; o trilho vazio é **Trilho Azulado** (`trilho-azulado`). Nada de vermelho no orçamento: o que falta
 vai no texto de atenção.
 
+### Classes da carteira
+Cada uma das 15 classes tem uma cor viva (`ENGINE.CLASSES_CARTEIRA[].cor`), e cada grande classe é uma família bem
+distinta das outras (pedido do usuário em 18/10/2026: "as grandes classes diferentes têm que ter cores bem diferentes"):
+a renda fixa nos azuis (liquidez diária `#8FD0F5`, pós-fixado `#3D79D1`, pré-fixado `#1F4E9C`, inflação `#2BB0C9`), a
+renda variável nos quentes (multimercado `#E9A23B`, imobiliários `#C8655A`, ações Brasil `#E5743A`, fundo de ações Brasil
+`#F0B27A`, ouro `#C9A227`, cripto `#C060A1`, alternativos `#8D6E57`) e o internacional nos verdes (cambial `#8BC34A`,
+renda fixa global `#3DA66A`, ações globais `#1E7F5C`, fundo de ações globais `#6FCF97`). Valem no anel de fora do sunburst,
+no traço do controle, na marca da linha e nos pontos das legendas; nas etiquetas, entram misturadas ao branco (34%). A
+diferença em reais vai em texto (verde para mais, o texto de atenção para menos).
+
+**Sunburst.** É a exceção pedida pelo usuário à regra dos tons suaves: o anel de dentro (os grupos) é pastel, um pouco mais firme que o primeiro (o usuário achou o primeiro apagado demais) (renda fixa
+`#B3CAEE`, renda variável `#F1CA9C`, internacional `#B5DFC1`) e o de fora, com as classes, é vivo, sem nenhuma cor igual
+à de dentro. O gráfico não tem rótulos: o nome e o % de cada classe ficam na legenda ao lado e, com o mouse, no centro.
+1,5 px de branco entre os arcos; com o mouse num arco, os outros vão a 35%. Na microalocação, a decisão de cada ativo é uma etiqueta em tom do meio: manter `#9FCFB1`,
+resgate parcial `#F0CF8F`, resgate integral `#EDB3A2`, portabilidade `#C4B5E0`; "a decidir" é tracejada no laranja de
+atenção.
+
 **The Aurora Rule.** Em áreas largas (segmentos de barra a partir de uns 12px de altura), o futuro vai em aurora. Em
 traços, marcas, anéis de foco e na ação principal, continua o Laranja Horizonte. O número grande do futuro usa o
 Laranja Horizonte Texto.

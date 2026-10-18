@@ -132,6 +132,56 @@ que leva à página correspondente do portal (veja o README, "Quem vê o quê").
 para a aba do portal que abriu a apresentação (que fica à frente, e a apresentação fecha) não deu para testar no
 navegador de testes, que abre tudo na mesma aba: conferir no Chrome.
 
+## Carteira: atual, macroalocação e microalocação (18/10/2026)
+
+Pedido do usuário: a macroalocação do relatório (hoje a planilha "Alocação" do Excel da Nord, com as 15 classes) dentro
+da ferramenta, com uma terceira coluna: além de hoje e da recomendação, a **ideal** (o mundo perfeito, tudo em dinheiro,
+alocando do zero). A recomendada é o ajuste intermediário: o fundo alternativo que não se consegue vender fica nela, mesmo
+com a ideal zerada. Entrada por colagem das linhas do Excel (escolhida no lugar do modelo para baixar e subir: o Excel já
+copia como texto com tabulação, então não há arquivo nem biblioteca de leitura de .xlsx).
+
+Decisões do usuário, na ordem:
+1. A carteira colada é a fonte do patrimônio financeiro; sem carteira, vale o digitado no Patrimônio.
+2. Três capítulos: **Carteira atual** em Dados do cliente (a fotografia, com instituição, titular, incluindo dependentes,
+   vencimento, subclasse e observações); **Macroalocação** e **Microalocação** no Planejamento.
+3. Fundo de pensão, FGTS e empréstimos a amigos e familiares (tipo novo, `emprestimo`) ficam no patrimônio financeiro, fora
+   da carteira; limpar a carteira tira só os investimentos.
+4. A macroalocação usa o desenho da mesa da política (campo e controle deslizante), e o restante fica na liquidez diária,
+   como a liberdade financeira na política.
+5. As carteiras modelo se chamam perfil 0, 1, 2 e 3.
+
+Feito e testado (verificar.js e no navegador): a colagem das 14 linhas da tabela de posições do Excel da Aline e do Leônidas,
+com e sem cabeçalho (o total bate com a planilha, R$ 234.489,49, e a previdência da XP com a linha Previdência, R$ 123.178,27);
+o financeiro trocado pela carteira e devolvido ao limpar; a mesa da macroalocação (digitar, arrastar, "usar" e o "passa em X
+p.p."); a microalocação (decisão por ativo, resgate parcial, "+ incluir" com o que falta e o caixa).
+
+Premissas que o usuário pode querer mudar:
+- a ordem dos perfis: 0 = Conservador, 1 = Moderado, 2 = Sofisticado, 3 = Agressivo (os portfólios 1 a 4 da planilha);
+- Macroalocação e Microalocação vêm depois da Política de investimentos, não antes;
+- a ideal também tem a liquidez diária como restante (não só a recomendada);
+- portabilidade conta como saída do ativo, e o destino é um ativo novo como os outros.
+
+A tela da Carteira atual foi refeita a pedido do usuário (a tabela de dez colunas "estava bem ruim"): contas que abrem e
+fecham, como a posição de uma corretora; classe e subclasse em etiquetas; previdência num botão de três estados; observação
+num ícone. Alternativa feita junto: a visão por classe. Alternativas que ficaram de fora, para conversar:
+- arrastar um ativo de uma conta para outra (hoje, só mudando a conta inteira no cabeçalho);
+- selecionar vários ativos e trocar a classe de todos de uma vez;
+
+A Microalocação passou para o mesmo desenho (feito a pedido do usuário): indicadores, placar recolhível, cartões por conta
+com a decisão na linha e os ativos novos no mesmo formato.
+
+O capítulo Carteira na área do cliente está montado (estrutura pedida pelo usuário): a carteira de hoje, a recomendada com
+os motivos e o que muda. O sunburst veio da sugestão dele (o exemplo "Portfolio" do Flourish), com as animações; no portal,
+substituiu as barras do cabeçalho da Macroalocação, que também ganhou a carteira modelo num bloco à parte.
+
+Em aberto:
+- "outros elementos que eu vou mandar depois" na página do que muda (o usuário anunciou mais conteúdo para ela);
+- o que fazer quando um ativo é trocado (hoje, um resgate seguido de um ativo novo; não há vínculo entre os dois);
+- a lista de ativos recomendados da Nord para escolher os novos (a aba `Ativos_Recomendados` da planilha); hoje o nome é
+  digitado;
+- levar a base de ativos classificados para a plataforma;
+- as carteiras modelo mudam todo mês: hoje estão fixas no motor com a referência abr/26.
+
 ## Política de investimentos — feito (17/10/2026)
 
 Pedido do usuário: um capítulo para dizer ao cliente para onde vai cada real do patrimônio de hoje e da sobra do orçamento

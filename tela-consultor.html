@@ -747,6 +747,164 @@ aside nav a.on i{color:#fff}
 aside nav a.feito i{background:transparent;border:0;color:#8FD9AE;font-size:0}
 aside nav a.feito i::before{content:'✓';font-size:13px}
 .nav-g{color:rgba(255,255,255,.5)}
+/* carteira atual: a fotografia das posições, editável linha a linha */
+.car-colar textarea{width:100%;font:500 13px 'DM Sans',sans-serif;border:1px dashed #D8D2C6;background:#FCFBF8;border-radius:10px;padding:12px 14px;resize:vertical}
+.car-colar small{display:block;margin-top:6px;font-size:12px;color:var(--nl-legenda)}
+.bloco .car-colar{margin-top:12px}
+.car-nota{font:500 12.5px/1.5 'DM Sans',sans-serif;color:var(--nl-legenda);margin-top:14px;padding-top:12px;border-top:1px solid #F1EEE8}
+.car-ativos{width:100%;border-collapse:collapse} .car-ativos th{text-align:left;font:600 11px 'DM Sans',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#8d8d8d;padding:0 6px 8px;white-space:nowrap}
+.car-ativos td{padding:4px 6px;border-top:1px solid #efece6;font:500 13px 'DM Sans',sans-serif;vertical-align:middle} .car-ativos td small{display:block;font-size:11.5px;color:var(--nl-legenda)}
+.car-ativos .num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap} .car-ativos td.x{width:32px;text-align:right}
+.car-ativos input,.car-ativos select{padding:5px 7px;font-size:12.5px;min-width:0;width:100%} .car-ativos td.num input{text-align:right;width:118px}
+.car-ativos tfoot td{border-top:1px solid #dcd7cd;font-weight:600;color:var(--nl-navy-900);padding-top:8px}
+.car-ativos td.sem select{border-color:#D9A27A;background:#FFFBF7;color:#964400}
+.car-acoes{display:flex;gap:18px;margin-top:12px}
+.car-zero{color:#B9B5AD} .car-mais{color:#22794A} .car-menos{color:#964400} .car-fora{color:#964400}
+/* carteira atual: cada conta é um cartão com a faixa do cabeçalho em fundo próprio; os ativos são linhas brancas com
+   divisórias. Hierarquia por tamanho: a conta em Sora maior, o nome do ativo em destaque, liquidez e subclasse pequenas */
+.car-atual .car-topo{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:14px}
+.car-atual .car-topo h3{margin:0 0 4px}
+.car-resumo{font:500 12.5px 'DM Sans',sans-serif;color:var(--nl-legenda)}
+.car-tot{display:flex;flex-direction:column;align-items:flex-end;gap:6px} .car-tot b{font:600 22px/1 Sora,sans-serif;color:var(--nl-navy-900);font-variant-numeric:tabular-nums}
+.car-tot .car-barra{width:240px}
+.car-barra{display:flex;gap:2px;height:6px;border-radius:3px;overflow:hidden;background:#E7E3DC;width:100%}
+.car-barra i{display:block;min-width:2px} .car-barra i.sem{background:repeating-linear-gradient(135deg,#E9C9B0 0 3px,#FFF3EB 3px 6px)}
+.car-barra-ctl{display:flex;align-items:center;gap:16px;padding:10px 0 12px;border-top:1px solid #F1EEE8}
+.car-ctl-dir{margin-left:auto;display:flex;gap:16px} .car-limpa{color:#8a8a8a!important}
+/* as colunas: a linha do ativo e o cabeçalho da conta terminam nas mesmas três colunas (valor, %, ação) */
+.car-cols,.car-ln{display:grid;grid-template-columns:minmax(0,1fr) 200px 56px 32px 130px 52px 26px;gap:12px;align-items:center}
+.car-cols{position:sticky;top:52px;z-index:4;background:#F7F5F1;border-radius:8px;padding:8px 15px;margin:0 0 10px;font:600 10.5px 'DM Sans',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#8d8d8d}
+.car-cols .r{text-align:right} .car-cols[hidden]{display:none}
+.car-g{border:1px solid #E7E2D9;border-radius:12px;overflow:hidden;margin-bottom:10px;background:#fff}
+.car-gh{display:grid;grid-template-columns:22px minmax(0,1fr) 140px 130px 52px 26px;gap:12px;align-items:center;padding:12px 14px;background:#F4F1EB;cursor:pointer}
+.car-gh:hover{background:#EFEBE3}
+.car-gh.aberto{border-bottom:1px solid #E7E2D9}
+.car-chev{border:0;background:none;width:22px;height:22px;display:grid;place-items:center;cursor:pointer;border-radius:6px;padding:0}
+.car-chev svg{width:14px;height:14px;fill:none;stroke:var(--nl-navy-900);stroke-width:2.2;transition:transform .15s} .car-gh.aberto .car-chev svg{transform:rotate(90deg)}
+.car-gnome{display:flex;align-items:center;gap:10px;min-width:0}
+.car-gqt{font:500 12px 'DM Sans',sans-serif;color:#6b6a66;white-space:nowrap}
+.car-gv{text-align:right;font:600 16px Sora,sans-serif;color:var(--nl-navy-900);font-variant-numeric:tabular-nums}
+.car-gp{text-align:right;font:600 12px 'DM Sans',sans-serif;color:#6b6a66}
+.car-gcl{display:inline-flex;align-items:center;gap:8px;font:600 15px Sora,sans-serif;color:var(--nl-navy-900)}
+.car-gl{padding:0}
+.car-gadd{display:block;margin:0;padding:9px 15px;border-top:1px solid #F1EEE8!important;font-size:12.5px;width:100%;text-align:left}
+/* campos sem borda: parecem texto até o mouse passar ou o foco chegar */
+.car-sb{border:1px solid transparent;background:transparent;border-radius:7px;padding:3px 6px;font:500 13.5px 'DM Sans',sans-serif;color:var(--nl-navy-900);width:100%;min-width:0;box-shadow:none}
+.car-sb:hover{border-color:#E4E0D8;background:#fff} .car-sb:focus{border-color:var(--nl-navy-900);background:#fff;outline:none}
+.car-inst{font:600 15.5px Sora,sans-serif;max-width:240px;padding:3px 6px}
+.car-ln{padding:7px 14px 7px 14px;position:relative;border-top:1px solid #F1EEE8}
+.car-gl .car-ln:first-child{border-top:0}
+.car-ln:hover{background:#FBF9F6}
+.car-nm{min-width:0}
+.car-nome{font:600 14px 'DM Sans',sans-serif;padding:2px 6px}
+.car-sub{display:flex;align-items:center;gap:2px;min-width:0}
+.car-venc{font-size:11px;color:#8a867e;padding:0 6px;max-width:170px;height:18px} .car-venc::placeholder{color:#CFCAC1}
+.car-conta{font:500 11px 'DM Sans',sans-serif;color:#8a867e;white-space:nowrap;padding-left:6px}
+/* classe e subclasse, uma em cima da outra: a classe numa etiqueta com a cor dela, a subclasse em texto pequeno */
+.car-tags{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-width:0}
+.car-tag{-webkit-appearance:none;appearance:none;border:0;border-radius:9999px;cursor:pointer;max-width:100%;min-width:0;text-overflow:ellipsis;margin:0;color:var(--nl-navy-900);
+  background:color-mix(in srgb,var(--c,#E6E3DD) 34%,#fff) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%2320344C' stroke-width='1.4'/%3E%3C/svg%3E") no-repeat right 7px center/7px 4px;
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--c,#D8D3CA) 65%,#fff)}
+.car-atual .car-tags select.car-tag{margin:0;width:auto;max-width:100%}
+.car-atual select.car-tag{height:21px;min-height:0;line-height:17px;padding:2px 20px 2px 9px;font:600 11px 'DM Sans',sans-serif}
+.car-atual select.car-tag.sub{height:17px;line-height:15px;padding:0 16px 0 9px;font:500 11px 'DM Sans',sans-serif;color:#6b6a66;background-color:transparent;box-shadow:none;background-position:right 4px center}
+.car-atual select.car-tag.sub.vazia{color:#BDB8AF}
+.car-tag:hover{filter:brightness(.97)} .car-tag.sub:hover{color:var(--nl-navy-900)} .car-tag:focus-visible{outline:2px solid var(--nl-navy-900);outline-offset:1px}
+.car-tag.pede{--c:#F3C9A6;color:#964400}
+.car-atual select.car-tag.tit{--c:#DDE5F0;height:24px;font-size:12px;flex:none;width:auto}
+/* a previdência: um botão pequeno de três estados */
+.car-prev{border:1px dashed #DDD8CF;background:none;border-radius:6px;font:600 10.5px 'DM Sans',sans-serif;color:#B5B0A7;padding:3px 0;cursor:pointer;letter-spacing:.02em}
+.car-prev.on{border:0;background:#E9E3F4;color:#4B3C77} .car-prev.pede{border:1px solid #E9B48C;background:#FFF3EB;color:#964400}
+.car-prev:hover{filter:brightness(.96)}
+/* a observação: o ícone vazio ou cheio */
+.car-obs{border:0;background:none;width:28px;height:28px;display:grid;place-items:center;border-radius:7px;cursor:pointer;padding:0}
+.car-obs svg{width:17px;height:17px;fill:none;stroke:#C9C4BB;stroke-width:1.7;stroke-linejoin:round}
+.car-obs:hover{background:#F1EEE8} .car-obs:hover svg{stroke:var(--nl-navy-900)}
+.car-obs.cheia svg{stroke:var(--nl-navy-900)} .car-obs svg .cheio{fill:#DDE5F0} .car-obs svg .linha{stroke:var(--nl-navy-900);stroke-linecap:round}
+.car-valor{text-align:right;font:600 14px 'DM Sans',sans-serif;font-variant-numeric:tabular-nums}
+.car-pct{text-align:right;font:500 11.5px 'DM Sans',sans-serif;color:#8a867e;font-variant-numeric:tabular-nums}
+.car-x{border:0;background:none;color:#B5B0A7;font-size:16px;cursor:pointer;border-radius:6px;width:24px;height:24px;opacity:0}
+.car-ln:hover .car-x,.car-x:focus-visible{opacity:1} .car-x:hover{color:#964400;background:#FFF3EB}
+.car-obs-ed{grid-column:1/-1;display:flex;gap:10px;align-items:flex-start;padding:4px 0 6px}
+.car-obs-ed textarea{flex:1;font:500 13px 'DM Sans',sans-serif;padding:8px 10px;border-radius:8px;resize:vertical}
+.car-obs-ed .btn{margin:0}
+/* os indicadores do alto, em cartões pequenos */
+.car-kpis{display:grid;grid-template-columns:1.6fr repeat(4,1fr);gap:10px;margin:2px 0 14px}
+.car-kpi{border:1px solid #ECE8E1;border-radius:10px;padding:10px 14px;background:#fff;min-width:0}
+.car-kpi span{display:block;font:500 12px 'DM Sans',sans-serif;color:#6b6a66}
+.car-kpi b{display:block;font:600 20px/1.2 Sora,sans-serif;color:var(--nl-navy-900);margin-top:3px;font-variant-numeric:tabular-nums}
+.car-kpi.at b{color:#964400} .car-kpi .car-barra{margin-top:8px}
+/* macroalocação: a mesa da política com as classes nas linhas; a liquidez diária no rodapé, com o restante */
+.mac-tab th.cx{width:20%} .mac-tab th.hoje{width:14%;text-align:right} .mac-tab th.fonte{width:27%} .mac-tab th.dif{width:12%;text-align:right}
+.mac-tab th .tot{font-size:20px;white-space:nowrap}
+.mac-tab th.num,.mac-tab td.num{text-align:right} .mac-tab th .tip::after{left:auto;right:-8px}
+.mac-hoje{font:600 14px Sora,sans-serif;color:var(--nl-navy-900);padding-top:6px;font-variant-numeric:tabular-nums} .mac-hoje small{display:block;font:500 12px 'DM Sans',sans-serif;color:#6b6a66}
+.mac-dif{font:600 13.5px 'DM Sans',sans-serif;padding-top:18px!important}
+.mac-in{display:flex;align-items:center;gap:6px} .mac-in input{text-align:right;padding:7px 10px;font:600 14px Sora,sans-serif;color:var(--nl-navy-900);font-variant-numeric:tabular-nums}
+.mac-in input.segue{font-weight:500} .mac-in input.segue::placeholder{color:#8E8A83} .mac-in span{font:600 13px 'DM Sans',sans-serif;color:#6b6a66}
+/* o topo da macroalocação: os controles numa faixa e as três carteiras em sunburst */
+.mac-topo{padding:18px 22px 14px}
+.mac-ctl{display:grid;grid-template-columns:auto auto 1fr;gap:32px;align-items:start;padding-bottom:16px;border-bottom:1px solid #F1EEE8}
+.mac-c{display:flex;flex-direction:column;gap:7px;min-width:0} .mac-c.dir{align-items:flex-end;text-align:right}
+.mac-rot{font:600 11px 'DM Sans',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--nl-navy-900)}
+.mac-c small{font:500 12px 'DM Sans',sans-serif;color:var(--nl-legenda)}
+.mac-perfis{margin:0} .mac-perfis button{display:flex;flex-direction:column;align-items:flex-start;gap:1px;padding:6px 14px;line-height:1.2}
+.mac-perfis button b{font-weight:600;font-size:12.5px} .mac-perfis button small{font-size:11px;color:inherit;opacity:.75}
+.mac-aporte input{width:180px;padding:7px 10px}
+.mac-big{font:600 24px/1 Sora,sans-serif;color:var(--nl-navy-900);font-variant-numeric:tabular-nums}
+.mac-sbs{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;padding-top:16px}
+.mac-sb{display:flex;flex-direction:column;align-items:center;gap:8px}
+.mac-sbg{width:230px;height:230px}
+.mac-just textarea{width:100%;font:500 13.5px/1.5 'DM Sans',sans-serif;padding:10px 12px;border-radius:10px;resize:vertical}
+/* o sunburst (o mesmo desenho na área do cliente) */
+.sunburst{display:block;width:100%;height:auto;overflow:visible}
+.sunburst path{stroke:#fff;stroke-width:1.5;cursor:pointer;transition:opacity .15s} .sunburst path.apaga{opacity:.35}
+.sunburst .sb-c1{fill:#6b6a66;font-family:'DM Sans',sans-serif;font-weight:600;letter-spacing:.06em;text-transform:uppercase;pointer-events:none}
+.sunburst .sb-c2{fill:var(--nl-navy-900);font-family:Sora,sans-serif;font-weight:600;pointer-events:none}
+.sunburst .sb-c3{fill:#6b6a66;font-family:'DM Sans',sans-serif;font-weight:500;pointer-events:none}
+.sunburst .sb-volta{cursor:pointer}
+/* microalocação: o mesmo desenho da Carteira atual (cartões por conta), com a decisão de cada ativo na linha */
+.mic .car-kpis{grid-template-columns:1.6fr 1fr 1fr 1fr}
+.car-kpi small{display:block;font:500 11.5px 'DM Sans',sans-serif;color:#8a867e;margin-top:3px}
+.car-kpi.ok b{color:#22794A}
+.car-gh.fixo{cursor:default} .car-gh.fixo:hover{background:#F4F1EB}
+.car-gtit{font:600 15.5px Sora,sans-serif;color:var(--nl-navy-900);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mic-tit{font:600 12px 'DM Sans',sans-serif;color:var(--nl-navy-900);background:#DDE5F0;border-radius:9999px;padding:2px 10px;white-space:nowrap}
+.mic-sec{display:flex;align-items:baseline;gap:16px;margin:22px 0 10px} .mic-sec h3{margin:0}
+.mic-placar .car-gh{grid-template-columns:22px minmax(0,1fr)}
+.mic-pl{display:grid;grid-template-columns:minmax(0,1fr) repeat(4,130px) 200px;gap:12px;align-items:center;padding:7px 14px;border-top:1px solid #F1EEE8;font:500 13.5px 'DM Sans',sans-serif;color:var(--nl-gray-700);font-variant-numeric:tabular-nums}
+.mic-pl .r{text-align:right} .mic-pl small{display:block;font-size:11px;color:#8a867e} .mic-pl b{color:var(--nl-navy-900)}
+.mic-pl-cab{border-top:0;background:#F7F5F1;font:600 10.5px 'DM Sans',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#8d8d8d;padding:8px 14px}
+.mic-pl .usar-mini{margin-left:8px}
+.mic-cl{display:inline-flex;align-items:center;gap:7px} .mic-cl i{width:8px;height:8px;border-radius:50%}
+.mic-pl .mic-cl i{width:8px;height:16px;border-radius:3px}
+/* as linhas dos ativos de hoje: o ativo, a decisão, hoje, sai e fica */
+.mic-cols,.mic-ln,.mic-gh{display:grid;grid-template-columns:minmax(0,1fr) 170px 120px 130px 120px;gap:12px;align-items:center}
+.mic-gh{grid-template-columns:22px minmax(0,1fr) 120px 130px 120px}
+.mic-cols{position:sticky;top:52px;z-index:4;background:#F7F5F1;border-radius:8px;padding:8px 15px;margin:0 0 10px;font:600 10.5px 'DM Sans',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#8d8d8d}
+.mic-cols .r{text-align:right} .mic-cols[hidden]{display:none}
+.mic-ln{padding:8px 14px;border-top:1px solid #F1EEE8;position:relative}
+.car-gl .mic-ln:first-child{border-top:0} .mic-ln:hover{background:#FBF9F6}
+.mic-ln.pede{box-shadow:inset 3px 0 0 #E9B48C}
+.mic-nome{font:600 14px 'DM Sans',sans-serif;color:var(--nl-navy-900);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mic-sub{display:flex;align-items:center;gap:10px;font:500 11px 'DM Sans',sans-serif;color:#8a867e;margin-top:2px;white-space:nowrap;overflow:hidden}
+.mic-prev{font-weight:600;color:#4B3C77;background:#E9E3F4;border-radius:5px;padding:0 5px}
+.mic select.car-tag.mic-acao{height:24px;min-height:0;line-height:18px;padding:2px 22px 2px 10px;font:600 11.5px 'DM Sans',sans-serif;margin:0;width:auto;max-width:100%}
+.mic-acao.manter{--c:#9FCFB1} .mic-acao.parcial{--c:#F0CF8F} .mic-acao.integral{--c:#EDB3A2} .mic-acao.portabilidade{--c:#C4B5E0}
+.mic select.car-tag.mic-acao.pede{--c:#fff;color:#964400;box-shadow:inset 0 0 0 1px #E9B48C;background-color:#FFF8F2;border:1px dashed #E9B48C}
+.mic-v{text-align:right;font:500 13.5px 'DM Sans',sans-serif;color:var(--nl-gray-700);font-variant-numeric:tabular-nums}
+.mic-fica{font-weight:600;color:var(--nl-navy-900)}
+.mic-gh .car-gv{font-size:15px} .mic-gh .mic-v{font-size:13.5px}
+.mic-res{max-width:130px;margin-left:auto;display:block;border-color:#E4E0D8;background:#fff}
+/* os ativos novos */
+.mic-nv{display:grid;grid-template-columns:minmax(0,1fr) 200px 130px 26px;gap:12px;align-items:center;padding:7px 14px;border-top:1px solid #F1EEE8}
+.car-gl .mic-nv:first-child{border-top:0} .mic-nv:hover{background:#FBF9F6} .mic-nv:hover .car-x{opacity:1}
+.mic-nv-gh{grid-template-columns:0 minmax(0,1fr) 130px 26px}
+.mic-vazio{padding:14px}
+.usar-mini{border:0;background:var(--nl-peach-100);color:var(--nl-navy-900);font:600 11px 'DM Sans',sans-serif;padding:2px 8px;border-radius:9999px;cursor:pointer;margin-left:4px}
+.mic-falta{color:var(--nl-navy-900);font-weight:600}
+.pc-da-carteira{font:500 12.5px 'DM Sans',sans-serif;color:var(--nl-legenda);margin:-4px 0 10px} .pc-da-carteira .link{font-size:12.5px}
+.da-carteira td{font:500 13.5px 'DM Sans',sans-serif;color:var(--nl-navy-900)} .da-carteira td.num{text-align:left;font-variant-numeric:tabular-nums}
 @media (max-width:1560px){ .pc-dois{grid-template-columns:1fr} }
 @media (prefers-reduced-motion:reduce){ *{transition:none!important;animation:none!important} .btn:active{transform:none} }
 </style>
@@ -763,15 +921,18 @@ aside nav a.feito i::before{content:'✓';font-size:13px}
     <a data-nav="orcamento" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M3 7h18v13H3zM3 7l3-4h12l3 4M16 13h2"/></svg>Orçamento<i>2</i></a>
     <a data-nav="fluxo" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M3 5h18M3 12h18M3 19h18M8 3v18M16 3v18"/></svg>Fluxo de caixa<i>3</i></a>
     <a data-nav="patrimonio" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M3 21h18M5 21V10l7-5 7 5v11M9 21v-6h6v6"/></svg>Patrimônio<i>4</i></a>
+    <a data-nav="carteira" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M3 7h18v13H3zM8 7V4h8v3M3 12h18"/></svg>Carteira atual<i>5</i></a>
     <div class="nav-g">Planejamento</div>
-    <a data-nav="politica" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M3 12h4l3-7 4 14 3-7h4"/></svg>Política de investimentos<i>5</i></a>
-    <a data-nav="riscos" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Gestão de riscos<i>6</i></a>
-    <a data-nav="objetivos" role="button" tabindex="0"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1"/></svg>Objetivos<i>7</i></a>
-    <a data-nav="liberdade" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M18.2 8.5c2 0 3.8 1.6 3.8 3.5s-1.8 3.5-3.8 3.5c-3.8 0-8.6-7-12.4-7C3.8 8.5 2 10.1 2 12s1.8 3.5 3.8 3.5c3.8 0 8.6-7 12.4-7z"/></svg>Liberdade financeira<i>8</i></a>
-    <a data-nav="tributario" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M6 2h9l5 5v15H6zM14 2v6h6M9 13h8M9 17h5"/></svg>Otimização tributária<i>9</i></a>
-    <a data-nav="premissas" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg>Premissas<i>10</i></a>
+    <a data-nav="politica" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M3 12h4l3-7 4 14 3-7h4"/></svg>Política de investimentos<i>6</i></a>
+    <a data-nav="macro" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M12 3v9h9A9 9 0 1112 3z"/><path d="M15.5 3.7A9 9 0 0120.3 8.5h-4.8z"/></svg>Macroalocação<i>7</i></a>
+    <a data-nav="micro" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M9 6h12M9 12h12M9 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg>Microalocação<i>8</i></a>
+    <a data-nav="riscos" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Gestão de riscos<i>9</i></a>
+    <a data-nav="objetivos" role="button" tabindex="0"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1"/></svg>Objetivos<i>10</i></a>
+    <a data-nav="liberdade" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M18.2 8.5c2 0 3.8 1.6 3.8 3.5s-1.8 3.5-3.8 3.5c-3.8 0-8.6-7-12.4-7C3.8 8.5 2 10.1 2 12s1.8 3.5 3.8 3.5c3.8 0 8.6-7 12.4-7z"/></svg>Liberdade financeira<i>11</i></a>
+    <a data-nav="tributario" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M6 2h9l5 5v15H6zM14 2v6h6M9 13h8M9 17h5"/></svg>Otimização tributária<i>12</i></a>
+    <a data-nav="premissas" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg>Premissas<i>13</i></a>
     <div class="nav-g">Com o cliente</div>
-    <a data-nav="apresentacao" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M3 4h18v12H3zM8 20h8M12 16v4M10 8l4 2-4 2z"/></svg>Apresentação<i>11</i></a>
+    <a data-nav="apresentacao" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M3 4h18v12H3zM8 20h8M12 16v4M10 8l4 2-4 2z"/></svg>Apresentação<i>14</i></a>
     <a data-nav="propostas" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M22 12h-6l-2 3h-4l-2-3H2M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/></svg>Propostas do cliente<i class="contador" id="navProp"></i></a>
   </nav>
   <div class="foot">
@@ -784,7 +945,7 @@ aside nav a.feito i::before{content:'✓';font-size:13px}
   <div class="pagehead"><span class="gravado" id="gravado">O plano grava sozinho</span><div class="chips" id="chips"></div></div>
 
   <section class="page" data-page="cliente">
-    <div class="kicker">Dados do cliente · passo 1 de 11</div>
+    <div class="kicker">Dados do cliente · passo 1 de 14</div>
     <h2>Cliente</h2>
     <div class="hint">Quem é o cliente, como trabalha, quem depende dele e como lida com investimentos. É o ponto de partida do plano.</div>
     <div class="bloco"><h3>Quem é</h3>
@@ -815,7 +976,7 @@ aside nav a.feito i::before{content:'✓';font-size:13px}
   </section>
 
   <section class="page" data-page="orcamento">
-    <div class="kicker">Dados do cliente · passo 2 de 11</div>
+    <div class="kicker">Dados do cliente · passo 2 de 14</div>
     <h2>Orçamento</h2>
     <div class="hint">Os grandes números da família, por mês: as rendas, as despesas fixas e as ajustáveis. É daqui que sai o capítulo Gestão financeira da área do cliente. Cada linha é uma linha do Fluxo de caixa, onde ganha detalhe (datas, degraus, frequência).</div>
     <div id="orcC"></div>
@@ -823,7 +984,7 @@ aside nav a.feito i::before{content:'✓';font-size:13px}
   </section>
 
   <section class="page wide" data-page="fluxo">
-    <div class="kicker">Dados do cliente · passo 3 de 11</div>
+    <div class="kicker">Dados do cliente · passo 3 de 14</div>
     <h2>Fluxo de caixa</h2>
     <div class="hint">Entradas e despesas mês a mês. O <b>+</b> de cada grupo cria uma linha; clique numa célula para mudar o valor dali em diante.</div>
     <div id="fxCap"></div>
@@ -852,23 +1013,47 @@ aside nav a.feito i::before{content:'✓';font-size:13px}
   </section>
 
   <section class="page" data-page="patrimonio">
-    <div class="kicker">Dados do cliente · passo 4 de 11</div>
+    <div class="kicker">Dados do cliente · passo 4 de 14</div>
     <h2>Patrimônio</h2>
     <div class="hint">O que o cliente tem e o que ele deve hoje, item a item. As somas alimentam a simulação, a gestão de riscos e a página de patrimônio do cliente.</div>
     <div id="patrC"></div>
     <div class="pagenav"><button class="btn btn-tertiary" data-ir="politica">Próximo: Política de investimentos →</button></div>
   </section>
 
+  <section class="page" data-page="carteira">
+    <div class="kicker">Dados do cliente · passo 5 de 14</div>
+    <h2>Carteira atual</h2>
+    <div class="hint">A fotografia das posições de hoje, ativo a ativo: a instituição, o titular, a classe, o vencimento e o valor. Cole as linhas da planilha e ajuste o que precisar aqui.</div>
+    <div id="carteiraC"></div>
+    <div class="pagenav"><button class="btn btn-tertiary" data-ir="politica">Próximo →</button></div>
+  </section>
+
   <section class="page" data-page="politica">
-    <div class="kicker">Planejamento · passo 5 de 11</div>
+    <div class="kicker">Planejamento · passo 6 de 14</div>
     <h2>Política de investimentos</h2>
     <div class="hint">Para onde vai cada real: o patrimônio financeiro de hoje e a sobra de cada mês, divididos entre a reserva, os compromissos e cada objetivo. A liberdade financeira fica com o que restar.</div>
     <div id="politicaC"></div>
-    <div class="pagenav"><button class="btn btn-tertiary" data-ir="riscos">Próximo: Gestão de riscos →</button></div>
+    <div class="pagenav"><button class="btn btn-tertiary" data-ir="carteira">Próximo: Carteira recomendada →</button></div>
+  </section>
+
+  <section class="page" data-page="macro">
+    <div class="kicker">Planejamento · passo 7 de 14</div>
+    <h2>Macroalocação</h2>
+    <div class="hint">A carteira por classe, em três tempos: como está hoje, como seria no mundo perfeito (tudo em dinheiro, alocando do zero) e o ajuste que recomendamos agora para caminhar até lá. A liquidez diária fica com o que restar.</div>
+    <div id="macroC"></div>
+    <div class="pagenav"><button class="btn btn-tertiary" data-ir="micro">Próximo →</button></div>
+  </section>
+
+  <section class="page" data-page="micro">
+    <div class="kicker">Planejamento · passo 8 de 14</div>
+    <h2>Microalocação</h2>
+    <div class="hint">Ativo a ativo: o que se mantém, o que se resgata ou se portabiliza e o que entra no lugar, até chegar à macroalocação recomendada.</div>
+    <div id="microC"></div>
+    <div class="pagenav"><button class="btn btn-tertiary" data-ir="riscos">Próximo →</button></div>
   </section>
 
   <section class="page" data-page="riscos">
-    <div class="kicker">Planejamento · passo 6 de 11</div>
+    <div class="kicker">Planejamento · passo 9 de 14</div>
     <h2>Gestão de riscos</h2>
     <div class="hint">Avalie, uma a uma, as oito ameaças ao padrão de vida da família. O status de cada uma sai da regra que aparece embaixo dela.</div>
     <div id="riscosC"></div>
@@ -876,7 +1061,7 @@ aside nav a.feito i::before{content:'✓';font-size:13px}
   </section>
 
   <section class="page" data-page="objetivos">
-    <div class="kicker">Planejamento · passo 7 de 11</div>
+    <div class="kicker">Planejamento · passo 10 de 14</div>
     <h2>Objetivos</h2>
     <div class="hint">Os sonhos com data: juntar dinheiro até uma data para comprar ou gastar algo. Clique num objetivo para abrir o detalhe.</div>
     <details class="ajuda solta"><summary>Objetivo ou despesa futura?</summary>Objetivo é algo para juntar dinheiro até uma data (entrada da casa, viagem, troca do carro). Mensalidades que começam no futuro, como a escola do filho, entram no Fluxo de caixa. Em cada objetivo, preencha nome, data e valor: o quanto guardar por mês aparece sozinho, e o aporte definido pode ser ajustado depois de conferir quanto cabe no orçamento.</details>
@@ -888,7 +1073,7 @@ aside nav a.feito i::before{content:'✓';font-size:13px}
   </section>
 
   <section class="page" data-page="liberdade">
-    <div class="kicker">Planejamento · passo 8 de 11</div>
+    <div class="kicker">Planejamento · passo 11 de 14</div>
     <h2>Liberdade financeira</h2>
     <div class="hint">Quanto a família quer receber por mês, quando cada um para de trabalhar e de onde vem a renda em cada fase.</div>
     <div class="bloco"><h3>Renda desejada e quando cada um para de trabalhar</h3>
@@ -913,7 +1098,7 @@ aside nav a.feito i::before{content:'✓';font-size:13px}
   </section>
 
   <section class="page" data-page="tributario">
-    <div class="kicker">Planejamento · passo 9 de 11</div>
+    <div class="kicker">Planejamento · passo 12 de 14</div>
     <h2>Otimização tributária</h2>
     <div class="hint">O imposto de renda da família, a retirada dos sócios, a sucessão e a previdência: hoje e com a estratégia recomendada. O cliente vê a economia de cada uma no capítulo Otimização tributária.</div>
     <div id="tribC"></div>
@@ -921,7 +1106,7 @@ aside nav a.feito i::before{content:'✓';font-size:13px}
   </section>
 
   <section class="page" data-page="premissas">
-    <div class="kicker">Planejamento · passo 10 de 11</div>
+    <div class="kicker">Planejamento · passo 13 de 14</div>
     <h2>Premissas</h2>
     <div class="hint">As rentabilidades que a simulação usa, já descontada a inflação. Os valores sugeridos servem para a maioria dos clientes.</div>
     <div class="bloco"><h3>Rentabilidade real líquida (% ao mês)</h3>
@@ -937,7 +1122,7 @@ aside nav a.feito i::before{content:'✓';font-size:13px}
   </section>
 
   <section class="page" data-page="apresentacao">
-    <div class="kicker">Com o cliente · passo 11 de 11</div>
+    <div class="kicker">Com o cliente · passo 14 de 14</div>
     <h2>Apresentação</h2>
     <div class="hint">Confira o que falta, coloque os vídeos de cada capítulo, veja o que cada página vai mostrar e apresente.</div>
     <div id="apresC"></div>
@@ -1912,6 +2097,19 @@ const ENGINE = (() => {
   }
   function sincronizaPatrimonio(plan) {
     const P = plan && plan.patrimonio; if (!P) return plan;
+    // a carteira de hoje, quando preenchida, é a fonte dos investimentos do financeiro: cada instituição, titular e tipo
+    // (investimentos, PGBL, VGBL) vira uma linha com a soma dos ativos (daCarteira). Fundo de pensão, FGTS e empréstimos a
+    // amigos e familiares não são da carteira e continuam como foram informados. Sem carteira, vale o que foi digitado; ao
+    // limpar a carteira, saem só as linhas que vieram dela.
+    const A = plan.carteira && plan.carteira.ativos, foraDaCarteira = f => SEM_LIQUIDEZ.includes(f.tipo);
+    if (Array.isArray(A) && A.length) {
+      const antes = Array.isArray(P.financeiro) ? P.financeiro : [], grupos = new Map();
+      A.forEach(a => { const k = String(a.instituicao || '').trim().toLowerCase() + '|' + (a.titular || '') + '|' + (a.tipo || '');
+        if (!grupos.has(k)) grupos.set(k, { nome: String(a.instituicao || '').trim() || 'Sem instituição', valor: 0, tipo: a.tipo || '', titularidade: a.titular || '', daCarteira: true });
+        grupos.get(k).valor += +a.valor || 0; });
+      grupos.forEach(g => { g.valor = Math.round(g.valor * 100) / 100; });
+      P.financeiro = [...grupos.values(), ...antes.filter(f => !f.daCarteira && foraDaCarteira(f))];
+    } else if (Array.isArray(P.financeiro) && P.financeiro.some(f => f.daCarteira)) P.financeiro = P.financeiro.filter(f => !f.daCarteira);
     if (Array.isArray(P.financeiro)) plan.initialWealth = somaDe(P.financeiro, 'valor');
     if (Array.isArray(P.participacoes)) plan.partValue = somaDe(P.participacoes, 'valor');
     if (Array.isArray(P.bens)) plan.initialBens = somaDe(P.bens, 'mercado');
@@ -2134,6 +2332,50 @@ const ENGINE = (() => {
     const pct = entradas > 0 ? sobra / entradas : -1;
     return { entradas, saidas, sobra, pct, estado: pct > ORCAMENTO_ZERO ? 'superavitario' : pct < -ORCAMENTO_ZERO ? 'deficitario' : 'zero' };
   }
+  // ---- Carteira: a de hoje, a macroalocação (ideal e recomendada) e a microalocação ----
+  // A carteira de hoje é a fotografia das posições (plan.carteira.ativos: instituição, titular, ativo, classe, subclasse,
+  // vencimento, tipo, valor, observações), colada da planilha do consultor. A ideal é a alocação do zero, com tudo em
+  // dinheiro; a recomendada é o ajuste possível agora (um fundo que não se consegue vender fica). As duas são frações por
+  // classe (plan.carteira.ideal e .recomendada) sobre o total: a carteira de hoje mais os recursos novos (plan.carteira.aporte).
+  // A liquidez diária fica com o restante, como a liberdade financeira na política; a classe sem recomendada segue a ideal.
+  // Na microalocação, cada ativo de hoje é mantido, resgatado em parte ou por inteiro, ou portabilizado (ativos[].acao e
+  // .resgate), e os ativos novos (plan.carteira.novos) entram no lugar.
+  const CLASSES_CARTEIRA = [
+    { id: 'liquidez', nome: 'Liquidez diária', grupo: 'Renda fixa', cor: '#8FD0F5' }, { id: 'posFixado', nome: 'Pós-fixado', grupo: 'Renda fixa', cor: '#3D79D1' },
+    { id: 'preFixado', nome: 'Pré-fixado', grupo: 'Renda fixa', cor: '#1F4E9C' }, { id: 'inflacao', nome: 'Indexado à inflação', grupo: 'Renda fixa', cor: '#2BB0C9' },
+    { id: 'multimercado', nome: 'Fundos multimercado', grupo: 'Renda variável', cor: '#E9A23B' }, { id: 'imobiliarios', nome: 'Fundos imobiliários', grupo: 'Renda variável', cor: '#C8655A' },
+    { id: 'acoesBrasil', nome: 'Ações Brasil', grupo: 'Renda variável', cor: '#E5743A' }, { id: 'fundoAcoesBrasil', nome: 'Fundo de ações Brasil', grupo: 'Renda variável', cor: '#F0B27A' },
+    { id: 'ouro', nome: 'Ouro', grupo: 'Renda variável', cor: '#C9A227' }, { id: 'cripto', nome: 'Criptoativos', grupo: 'Renda variável', cor: '#C060A1' },
+    { id: 'alternativos', nome: 'Alternativos', grupo: 'Renda variável', cor: '#8D6E57' },
+    { id: 'cambial', nome: 'Cambial', grupo: 'Internacional', cor: '#8BC34A' }, { id: 'rfGlobal', nome: 'Renda fixa global', grupo: 'Internacional', cor: '#3DA66A' },
+    { id: 'acoesGlobais', nome: 'Ações globais', grupo: 'Internacional', cor: '#1E7F5C' }, { id: 'fundoAcoesGlobais', nome: 'Fundo de ações globais', grupo: 'Internacional', cor: '#6FCF97' }];
+  // as carteiras modelo da Nord por perfil, do 0 (o mais conservador) ao 3 (planilha de alocação, referência abr/26)
+  const CARTEIRAS_MODELO = { ref: 'abr/26',
+    conservador: { nome: 'Perfil 0', perfil: 'Conservador', posFixado: 0.47, preFixado: 0.03, inflacao: 0.30, multimercado: 0.10, rfGlobal: 0.06, fundoAcoesGlobais: 0.04 },
+    moderado: { nome: 'Perfil 1', perfil: 'Moderado', posFixado: 0.37, preFixado: 0.02, inflacao: 0.27, multimercado: 0.12, fundoAcoesBrasil: 0.08, rfGlobal: 0.06, fundoAcoesGlobais: 0.08 },
+    sofisticado: { nome: 'Perfil 2', perfil: 'Sofisticado', posFixado: 0.32, preFixado: 0.02, inflacao: 0.22, multimercado: 0.12, fundoAcoesBrasil: 0.13, rfGlobal: 0.09, fundoAcoesGlobais: 0.10 },
+    agressivo: { nome: 'Perfil 3', perfil: 'Agressivo', posFixado: 0.25, preFixado: 0.01, inflacao: 0.18, multimercado: 0.10, fundoAcoesBrasil: 0.21, rfGlobal: 0.11, fundoAcoesGlobais: 0.14 } };
+  const ACOES_ATIVO = { manter: 'Manter', parcial: 'Resgate parcial', integral: 'Resgate integral', portabilidade: 'Portabilidade' };
+  function carteiraDoPlano(plan) {
+    const C = plan.carteira || {}, ativos = C.ativos || [], novos = C.novos || [], ideal = C.ideal || {}, rec = C.recomendada || {};
+    const val = a => Math.max(0, +a.valor || 0), soma = (l, f) => l.reduce((s, x) => s + f(x), 0);
+    // o que sai de cada ativo de hoje: nada (manter ou a decidir), uma parte ou tudo (resgate integral e portabilidade)
+    const sai = a => a.acao === 'integral' || a.acao === 'portabilidade' ? val(a) : a.acao === 'parcial' ? Math.min(val(a), Math.max(0, +a.resgate || 0)) : 0;
+    const atual = soma(ativos, val), aporte = Math.max(0, +C.aporte || 0), total = atual + aporte;
+    const pI = id => +ideal[id] || 0, segue = id => rec[id] == null, pR = id => segue(id) ? pI(id) : +rec[id] || 0;
+    const outras = CLASSES_CARTEIRA.filter(k => k.id !== 'liquidez'), restoI = 1 - soma(outras, k => pI(k.id)), restoR = 1 - soma(outras, k => pR(k.id));
+    const classes = CLASSES_CARTEIRA.map(k => {
+      const delas = ativos.filter(a => a.classe === k.id), v = soma(delas, val), liq = k.id === 'liquidez';
+      const pIdeal = liq ? Math.max(0, restoI) : pI(k.id), pRec = liq ? Math.max(0, restoR) : pR(k.id);
+      const fica = soma(delas, a => val(a) - sai(a)), novo = soma(novos.filter(n => n.classe === k.id), val);
+      return Object.assign({}, k, { atual: v, pAtual: atual > 0 ? v / atual : 0, pIdeal, ideal: pIdeal * total, pRec, rec: pRec * total, segue: !liq && segue(k.id), resto: liq,
+        dif: pRec * total - v, fica, novos: novo, resultado: fica + novo, falta: pRec * total - fica - novo });
+    });
+    const resgatado = soma(ativos, sai), aplicado = soma(novos, val);
+    return { classes, atual, aporte, total, excessoIdeal: Math.max(0, -restoI), excessoRec: Math.max(0, -restoR),
+      semClasse: ativos.filter(a => !CLASSES_CARTEIRA.some(k => k.id === a.classe)), semAcao: ativos.filter(a => !ACOES_ATIVO[a.acao]),
+      resgatado, aplicado, caixa: resgatado + aporte - aplicado, sai };
+  }
   // ---- Política de investimentos: para onde vai o patrimônio financeiro de hoje e a sobra de cada mês ----
   // As caixinhas, na ordem: os compromissos (plan.compromissos), a reserva de emergência, cada objetivo e a liberdade
   // financeira, que fica com o restante. O que vai para cada objetivo é o próprio objetivo (dedicated e planned): a política
@@ -2294,8 +2536,8 @@ const ENGINE = (() => {
   const PREVIDENCIA = ['pgbl', 'vgbl', 'fechada'];
   // os tipos do patrimônio financeiro (patrimonio.financeiro[].tipo; vazio = investimentos). O FGTS e a previdência fechada
   // contam no patrimônio, mas não têm liquidez: na política de investimentos, ficam na liberdade financeira.
-  const TIPOS_FINANCEIRO = { '': 'Investimentos', pgbl: 'Previdência PGBL', vgbl: 'Previdência VGBL', fechada: 'Previdência fechada', fgts: 'FGTS' };
-  const SEM_LIQUIDEZ = ['fgts', 'fechada'];
+  const TIPOS_FINANCEIRO = { '': 'Investimentos', pgbl: 'Previdência PGBL', vgbl: 'Previdência VGBL', fechada: 'Previdência fechada', fgts: 'FGTS', emprestimo: 'Empréstimo a amigos e familiares' };
+  const SEM_LIQUIDEZ = ['fgts', 'fechada', 'emprestimo'];   // fora da carteira de investimentos, sem liquidez
   function sucessao(plan) {
     const P = (plan || {}).patrimonio || {}, S = ((plan || {}).tributario || {}).sucessao || {}, fin = P.financeiro || [];
     const prev = fin.filter(x => PREVIDENCIA.includes(x.tipo)).reduce((a, x) => a + pos(x.valor), 0), inv = fin.filter(x => !PREVIDENCIA.includes(x.tipo)).reduce((a, x) => a + pos(x.valor), 0);
@@ -2399,9 +2641,101 @@ const ENGINE = (() => {
     return mis.map(mi => ({ mi, mes: M[mi].mes, saldo: M[mi].saldo, aportado: M.slice(0, mi + 1).reduce((a, m) => a + m.aporte, 0), extra: M.slice(0, mi + 1).reduce((a, m) => a + m.extra, 0), data: mi === n }));
   }
   OBJ.forEach(derive);   // os objetivos do exemplo (aqui, depois dos bens: derive lê as vendas)
-  return { TODAY, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, PASSIVE, PROFILES, STATUS, trajetoriaDoBem, trajetoriaDaParticipacao, vendasDoObjetivo, partilhaDaVenda, HORIZONTES, horizonteDe, politicaDeInvestimentos, TIPOS_FINANCEIRO, SEM_LIQUIDEZ, get COMPROMISSOS() { return COMPROMISSOS; }, saldoDasVendas, precoDoObjetivo, mesISO, orcadoDoObjetivo, cortesDoObjetivo, saldoDevedorEm, contratoDaDivida, restantesDaDivida, mesDe, get BENS() { return bensDoPlano(); }, get PARTS() { return partsDoPlano(); }, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, serieCusto, desiredAt, aplicaAlteracoes, fraseDaLinha, descreveAlteracao, valorAtual, mesDoPlano, RISCOS, NATUREZAS, ITENS_RUINA, RISCOS_EXEMPLO, avaliaRiscos, custoDeVida, mediaDe12Meses, SEGURO, RELACOES, idadeLimiteDe, calculaSeguros, mesesAteIdade, FASES_VIDA, faseDaVida, sincronizaPatrimonio, PATRIMONIO_EXEMPLO, padraoDeVida, lerCaminho, gravaCaminho, IR, calculaIR, irDaFamilia, REGIMES, calculaRetirada, retiradaDosSocios, PREVIDENCIA, sucessao, simulaPrevidencia, aliqRegressiva, TRIBUTARIO_EXEMPLO, FAMILIA_EXEMPLO, casalDe, nomesDaFamilia, pessoasDaFamilia, rendaDaPessoa, bensDoRisco, titularidadeDoBem, setRetireAge: a => { RETIRE_AGE = a == null ? null : Math.max(CURRENT_AGE, +a); }, paradaMi, trabalhaEm, idadeDaLiberdade, dataNasc, idadeExata, sincronizaIdades, fraseDoProposito, ordemDoProposito, objetivosDoProposito, rendasAtivasDe, naturezaDe, naturezaDaReserva, CLASSES_ATIVOS, ORCAMENTO_IDEAL, VEZES_POUPOU, gestaoFinanceira, horasDoTrabalho, familiaDoPlano, ESTADOS_DIAGNOSTICO, orcamentoDoFluxo, concentracaoDoPatrimonio, diagnosticoDaFamilia, financiamentoValido, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
+  return { TODAY, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, PASSIVE, PROFILES, STATUS, trajetoriaDoBem, trajetoriaDaParticipacao, vendasDoObjetivo, partilhaDaVenda, HORIZONTES, horizonteDe, politicaDeInvestimentos, TIPOS_FINANCEIRO, SEM_LIQUIDEZ, get COMPROMISSOS() { return COMPROMISSOS; }, saldoDasVendas, precoDoObjetivo, mesISO, orcadoDoObjetivo, cortesDoObjetivo, saldoDevedorEm, contratoDaDivida, restantesDaDivida, mesDe, get BENS() { return bensDoPlano(); }, get PARTS() { return partsDoPlano(); }, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, serieCusto, desiredAt, aplicaAlteracoes, fraseDaLinha, descreveAlteracao, valorAtual, mesDoPlano, RISCOS, NATUREZAS, ITENS_RUINA, RISCOS_EXEMPLO, avaliaRiscos, custoDeVida, mediaDe12Meses, SEGURO, RELACOES, idadeLimiteDe, calculaSeguros, mesesAteIdade, FASES_VIDA, faseDaVida, sincronizaPatrimonio, PATRIMONIO_EXEMPLO, padraoDeVida, lerCaminho, gravaCaminho, IR, calculaIR, irDaFamilia, REGIMES, calculaRetirada, retiradaDosSocios, PREVIDENCIA, sucessao, simulaPrevidencia, aliqRegressiva, TRIBUTARIO_EXEMPLO, FAMILIA_EXEMPLO, casalDe, nomesDaFamilia, pessoasDaFamilia, rendaDaPessoa, bensDoRisco, titularidadeDoBem, setRetireAge: a => { RETIRE_AGE = a == null ? null : Math.max(CURRENT_AGE, +a); }, paradaMi, trabalhaEm, idadeDaLiberdade, dataNasc, idadeExata, sincronizaIdades, fraseDoProposito, ordemDoProposito, objetivosDoProposito, rendasAtivasDe, naturezaDe, naturezaDaReserva, CLASSES_ATIVOS, ORCAMENTO_IDEAL, VEZES_POUPOU, gestaoFinanceira, horasDoTrabalho, familiaDoPlano, ESTADOS_DIAGNOSTICO, orcamentoDoFluxo, CLASSES_CARTEIRA, CARTEIRAS_MODELO, ACOES_ATIVO, carteiraDoPlano, concentracaoDoPatrimonio, diagnosticoDaFamilia, financiamentoValido, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
 })();
 if (typeof module !== 'undefined') module.exports = ENGINE;
+</script>
+<script id="graficos">
+// ===================== GRÁFICOS COMPARTILHADOS (o sync-motor.js copia este bloco para o portal) =====================
+// O sunburst da carteira, no desenho do exemplo "Portfolio" do Flourish: o anel de dentro são os grupos (renda fixa, renda
+// variável, internacional) em tons pastel, e o de fora, as classes, em cores vivas (nenhuma igual às de dentro); o nome e o % ficam na legenda ao
+// lado e, com o mouse, no centro. Trocar de carteira
+// (hoje, ideal, recomendada) e clicar num grupo (que passa a ocupar a volta inteira, com só as classes dele; o centro volta)
+// são animados: cada arco vai do ângulo em que estava ao novo. A última forma de cada gráfico fica guardada pela chave, e
+// redesenhar a página continua de onde parou, em vez de recomeçar. Na primeira vez, os arcos abrem em leque a partir do alto.
+const SUNBURST = (() => {
+  const GRUPO_COR = { 'Renda fixa': '#B3CAEE', 'Renda variável': '#F1CA9C', 'Internacional': '#B5DFC1' };
+  const memoria = {}, INI = -Math.PI / 2, VOLTA = 2 * Math.PI;
+  const pt = (cx, cy, r, a) => [cx + r * Math.cos(a), cy + r * Math.sin(a)];
+  const n2 = v => Math.round(v * 100) / 100;
+  function arco(cx, cy, r0, r1, a0, a1) {
+    if (!(a1 - a0 > 1e-4)) return '';
+    if (a1 - a0 > VOLTA - 1e-4) a1 = a0 + VOLTA - 1e-4;
+    const g = a1 - a0 > Math.PI ? 1 : 0, [x0, y0] = pt(cx, cy, r1, a0), [x1, y1] = pt(cx, cy, r1, a1), [x2, y2] = pt(cx, cy, r0, a1), [x3, y3] = pt(cx, cy, r0, a0);
+    return `M${n2(x0)} ${n2(y0)}A${r1} ${r1} 0 ${g} 1 ${n2(x1)} ${n2(y1)}L${n2(x2)} ${n2(y2)}A${r0} ${r0} 0 ${g} 0 ${n2(x3)} ${n2(y3)}Z`;
+  }
+  // os arcos de destino: os grupos no anel de dentro, as classes no de fora; com um grupo em foco, ele ocupa a volta toda
+  function alvo(classes, foco) {
+    const vivas = classes.filter(c => c.v > 0), grupos = [...new Set(vivas.map(c => c.grupo))];
+    const totalDe = g => vivas.filter(c => c.grupo === g).reduce((s, c) => s + c.v, 0), total = vivas.reduce((s, c) => s + c.v, 0) || 1;
+    const base = foco && grupos.includes(foco) ? totalDe(foco) : total, arcos = [];
+    let a = INI;
+    grupos.forEach(g => { const tg = totalDe(g), dentro = !foco || foco === g || !grupos.includes(foco), span = dentro ? tg / base * VOLTA : 0, g0 = a;
+      arcos.push({ id: 'g:' + g, nivel: 0, nome: g, cor: GRUPO_COR[g] || '#C9C4BB', v: tg, p: tg / total, a0: g0, a1: g0 + span });
+      let b = g0; vivas.filter(c => c.grupo === g).forEach(c => { const s = dentro ? c.v / base * VOLTA : 0; arcos.push({ id: 'c:' + c.id, nivel: 1, nome: c.nome, cor: c.cor, v: c.v, p: c.v / total, grupo: g, a0: b, a1: b + s }); b += s; });
+      a += span; });
+    return arcos;
+  }
+  const ease = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  function quadro(st) {
+    const { el, arcos, op } = st, T = op.tamanho, c = T / 2, r0 = T * 0.2, r1 = T * 0.34, r2 = T * 0.495, hov = st.hover;
+    const pct = p => (p * 100).toLocaleString('pt-BR', { maximumFractionDigits: p < 0.1 ? 1 : 0 }) + '%';
+    let g = '';
+    arcos.forEach(x => {
+      const d = arco(c, c, x.nivel ? r1 : r0, x.nivel ? r2 : r1, x.a0, x.a1); if (!d) return;
+      g += `<path d="${d}" fill="${x.cor}" data-sb="${x.id}" class="${hov && hov !== x.id && !(hov.startsWith('g:') && x.grupo === hov.slice(2)) ? 'apaga' : ''}"><title>${x.nome}: ${pct(x.p)}</title></path>`;
+    });
+    // o centro: o título e o valor; com o mouse num arco, o nome, o % e o valor dele; com um grupo aberto, volta
+    const h = hov && arcos.find(x => x.id === hov), fs = T * 0.058;
+    const centro = h ? [h.nome, pct(h.p), op.total ? op.fmt(h.p * op.total) : ''] : st.foco ? [st.foco, 'voltar', ''] : [op.rot || '', op.valor || '', op.sub || ''];
+    g += `<circle cx="${c}" cy="${c}" r="${r0 - 2}" fill="transparent" class="${st.foco ? 'sb-volta' : ''}" data-sb-centro="1"/>`
+      + `<text class="sb-c1" x="${c}" y="${c - fs * 0.95}" text-anchor="middle" font-size="${n2(fs * 0.62)}">${centro[0]}</text>`
+      + `<text class="sb-c2" x="${c}" y="${c + fs * 0.35}" text-anchor="middle" font-size="${n2(fs)}">${centro[1]}</text>`
+      + (centro[2] ? `<text class="sb-c3" x="${c}" y="${c + fs * 1.25}" text-anchor="middle" font-size="${n2(fs * 0.55)}">${centro[2]}</text>` : '');
+    el.innerHTML = `<svg viewBox="0 0 ${T} ${T}" class="sunburst" role="img" aria-label="${op.rot || 'Carteira'}: ${arcos.filter(x => x.nivel === 1 && x.a1 > x.a0).map(x => x.nome + ' ' + pct(x.p)).join(', ')}">${g}</svg>`;
+  }
+  // anima de onde o gráfico estava até o destino
+  function anima(st, destino, ms) {
+    cancelAnimationFrame(st.raf);
+    const de = {}; st.arcos.forEach(x => { de[x.id] = x; });
+    const fim = destino, t0 = performance.now();
+    const passo = agora => {
+      const t = ms > 0 ? Math.min(1, (agora - t0) / ms) : 1, e = ease(t);
+      st.arcos = fim.map(x => { const o = de[x.id] || { a0: INI, a1: INI }; return Object.assign({}, x, { a0: o.a0 + (x.a0 - o.a0) * e, a1: o.a1 + (x.a1 - o.a1) * e }); });
+      quadro(st);
+      if (t < 1) st.raf = requestAnimationFrame(passo);
+    };
+    st.raf = requestAnimationFrame(passo);
+  }
+  // desenha (ou redesenha) o gráfico da chave no elemento. op: tamanho, rot, valor, sub, total (R$, para o centro
+  // mostrar o valor de cada arco), fmt, duracao (ms)
+  function desenha(el, chave, classes, op) {
+    const st = memoria[chave] = memoria[chave] || { arcos: [], foco: null, hover: null };
+    st.el = el; st.op = Object.assign({ tamanho: 400, duracao: 900, fmt: v => v }, op); st.classes = classes;
+    if (st.foco && !classes.some(c => c.grupo === st.foco && c.v > 0)) st.foco = null;
+    st.hover = null; el.dataset.sbChave = chave;
+    const nova = !st.arcos.length;
+    anima(st, alvo(classes, st.foco), nova ? st.op.duracao * 1.4 : st.op.duracao);
+  }
+  // o mouse e o clique: acende o arco (e as classes do grupo), abre o grupo, volta pelo centro
+  document.addEventListener('pointerover', e => {
+    const box = e.target.closest && e.target.closest('[data-sb-chave]'); if (!box) return; const st = memoria[box.dataset.sbChave]; if (!st) return;
+    const p = e.target.closest('[data-sb]'), id = p ? p.dataset.sb : null; if (id === st.hover) return; st.hover = id; quadro(st);
+  });
+  document.addEventListener('pointerout', e => {
+    const box = e.target.closest && e.target.closest('[data-sb-chave]'); if (!box || (e.relatedTarget && box.contains(e.relatedTarget))) return;
+    const st = memoria[box.dataset.sbChave]; if (st && st.hover) { st.hover = null; quadro(st); }
+  });
+  document.addEventListener('click', e => {
+    const box = e.target.closest && e.target.closest('[data-sb-chave]'); if (!box) return; const st = memoria[box.dataset.sbChave]; if (!st) return;
+    const p = e.target.closest('[data-sb]');
+    if (p && p.dataset.sb.startsWith('g:') && !st.foco) st.foco = p.dataset.sb.slice(2);
+    else if (st.foco && (e.target.closest('[data-sb-centro]') || (p && p.dataset.sb.startsWith('g:')))) st.foco = null;
+    else return;
+    st.hover = null; anima(st, alvo(st.classes, st.foco), 750);
+  });
+  return { desenha, GRUPO_COR };
+})();
 </script>
 <script id="armazem">
 // ===================== ARMAZÉM: onde o plano e a proposta ficam =====================
@@ -2493,11 +2827,33 @@ const PLANO_PADRAO = Object.assign(
 // aberto Big Buck Bunny (Blender Foundation), no lugar dos vídeos do escritório.
 (() => {
   const V = 'https://www.youtube.com/watch?v=aqz-KE-bpKQ', P = PLANO_PADRAO;
-  P.videos = Object.fromEntries(['proposito', 'gestao', 'tributario', 'patrimonio', 'riscos', 'evolucao'].flatMap(c => [['cap-' + c + '-teoria', V], ['cap-' + c + '-caso', V]]));
+  P.videos = Object.fromEntries(['proposito', 'gestao', 'tributario', 'patrimonio', 'riscos', 'carteira', 'evolucao'].flatMap(c => [['cap-' + c + '-teoria', V], ['cap-' + c + '-caso', V]]));
   P.dataRelatorio = '2026-09-19';
   P.mensagemFinal = 'Nos vemos na revisão de março. Até lá, qualquer dúvida, é só chamar.';
   P.consultor.foto = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96"><rect width="96" height="96" fill="#20344C"/><circle cx="48" cy="38" r="17" fill="#FFF3EB"/><path d="M14 96c2-22 16-32 34-32s32 10 34 32z" fill="#FA7A35"/></svg>');
   P.orcamento.combinado = { fixas: { meta: 0, cortes: [] }, ajustaveis: { meta: 900, cortes: [{ id: 'alimentacao', nome: 'Alimentação', valor: 450, trava: false }, { id: 'lazer', nome: 'Lazer', valor: 450, trava: false }] } };
+  // a carteira: os R$ 860 mil do financeiro, ativo a ativo. O fundo de private equity não tem como sair agora: a recomendada
+  // o mantém e tira a diferença do pós-fixado. Na microalocação, o CDB pré e o Tesouro IPCA+ ficam até o vencimento, a
+  // previdência do Marcos vai por portabilidade e os resgates e os R$ 60 mil novos entram nos ativos sugeridos.
+  const at = (instituicao, titular, nome, classe, subclasse, valor, vencimento, acao, tipo) => ({ id: 'ex' + nome.length + valor, instituicao, titular, nome, classe, subclasse, valor, vencimento, tipo: tipo || '', acao, obs: '' });
+  const nv = (instituicao, nome, classe, valor) => ({ id: 'nv' + nome.length + valor, instituicao, nome, classe, valor });
+  const { nome: _n, perfil: _p, ...moderado } = ENGINE.CARTEIRAS_MODELO.moderado;
+  P.carteira = { aporte: 60000, modelo: 'moderado', ideal: moderado, recomendada: { alternativos: 0.045, posFixado: 0.325 }, ativos: [
+    at('Nubank', 'titular', 'CDB liquidez diária', 'liquidez', 'Títulos Bancários', 60000, 'Diária', 'integral'),
+    at('Itaú', '', 'LCI Itaú 2028', 'posFixado', 'Títulos Bancários', 90000, 'Vencimento > 2 anos', 'manter'),
+    at('Itaú', '', 'Itaú Multimercado Global FIC FIM', 'multimercado', 'Equities', 60000, 'D + 30', 'manter'),
+    at('BTG Pactual', 'titular', 'Tesouro Selic 2029', 'liquidez', 'Títulos Públicos', 120000, 'Diária', 'integral'),
+    at('BTG Pactual', 'titular', 'CDB BTG Pré 2029', 'preFixado', 'Títulos Bancários', 80000, 'Vencimento > 2 anos', 'manter'),
+    at('BTG Pactual', 'titular', 'Tesouro IPCA+ 2035', 'inflacao', 'Títulos Públicos', 150000, 'Vencimento > 2 anos', 'manter'),
+    at('BTG Pactual', 'titular', 'BTG Pactual Fundo de Fundos FII', 'imobiliarios', 'Equities', 10000, 'Negociados em Bolsa', 'integral'),
+    at('BTG Pactual', 'titular', 'Patria Private Equity VII', 'alternativos', 'Equities', 40000, 'Sem liquidez', 'manter'),
+    at('BTG Pactual', 'titular', 'Absolute Pace Long Biased FIC FIA', 'fundoAcoesBrasil', 'Equities', 70000, 'D + 30', 'manter'),
+    at('BTG Pactual', 'titular', "ETF 'IVVB11' - S&P 500", 'acoesGlobais', 'Equities', 60000, 'Negociados em Bolsa', 'integral'),
+    at('Icatu Seguros', 'conjuge', 'Icatu Vanguarda Dinâmico Prev', 'posFixado', 'Títulos Bancários', 120000, 'Previdência', 'portabilidade', 'vgbl')],
+    novos: [nv('XP Investimentos', 'XP Previdência Pós-Fixado (VGBL), portabilidade da Icatu', 'posFixado', 120000), nv('BTG Pactual', 'Trend DI Simples', 'posFixado', 85000),
+      nv('BTG Pactual', 'Tesouro IPCA+ 2032', 'inflacao', 98000), nv('BTG Pactual', 'FOF Multimercado Nord', 'multimercado', 50000),
+      nv('BTG Pactual', 'Nord Global Equities FIC FIA', 'fundoAcoesGlobais', 70000), nv('BTG Pactual', 'BTG Global Bonds', 'rfGlobal', 7000)] };
+  P.carteira.justificativa = 'Tirar a concentração da liquidez diária, que hoje passa de 20% da carteira e rende menos que o necessário para os objetivos\nProteger da inflação os objetivos de longo prazo, com títulos atrelados ao IPCA\nAbrir espaço para o exterior, que hoje é só um ETF de bolsa americana\nManter o private equity, que não tem como sair antes do prazo do fundo';
   P.patrimonio.contas.casal = ['Banco Inter'];
   const praia = P.objectives.find(o => o.id === 'praia'); if (praia) praia.iconFA = 'fa-umbrella-beach';
   // a creche da Luiza: hoje na declaração do Marcos, que declara a filha; na recomendada, na da Ana
@@ -2505,7 +2861,7 @@ const PLANO_PADRAO = Object.assign(
 })();
 
 // plano salvo completado com o padrão; o patrimônio detalhado e a tributação não vêm do exemplo (um plano antigo só tem os totais)
-const doSalvo = p => Object.assign(structuredClone(PLANO_PADRAO), { patrimonio: null, tributario: null, diagnostico: null, experiencia: null, profissao: '', conjugeProfissao: '', conjugeNatureza: '', horas: null, conjugeHoras: null, rendasAtivas: null, orcamento: null,
+const doSalvo = p => Object.assign(structuredClone(PLANO_PADRAO), { patrimonio: null, tributario: null, carteira: null, diagnostico: null, experiencia: null, profissao: '', conjugeProfissao: '', conjugeNatureza: '', horas: null, conjugeHoras: null, rendasAtivas: null, orcamento: null,
   natureza: ((p.riscos || {}).reserva || {}).natureza || '', tipo: null, consultor: null, nascimento: '', conjugeNascimento: '', spouseAge: null, spouseRetireAge: null, conjugeNome: '' }, p);
 let plano = load();
 function load() {
@@ -2552,7 +2908,8 @@ function recompute() {
   // ordenar ANTES de configurar: o motor aporta na ordem em que recebe os objetivos (o mais próximo primeiro)
   // e os saldos da simulação são lidos por esse mesmo índice.
   plano.objectives.sort((a, b) => a.months - b.months);
-  ENGINE.configure(plano);                       // deriva o aporte necessário e a projeção teórica
+  ENGINE.sincronizaPatrimonio(plano);            // a carteira colada refaz o financeiro por instituição
+  ENGINE.configure(plano);                      // deriva o aporte necessário e a projeção teórica
   // aporte escolhido como "o necessário" acompanha mudanças de custo, data e patrimônio reservado
   plano.objectives.forEach(o => { if (o.segueNecessario) { o.planned = Math.ceil(o.required); ENGINE.derive(o); } });
   plano.mode = 'desej';   // o plano é sempre o da renda desejada; perpetuidade e consumo ficam só como comparação (Liberdade financeira)
@@ -2719,7 +3076,7 @@ function renderAll() {
   // o campo em edição volta com o foco e com o texto exatamente como estava sendo digitado
   const foco = document.activeElement, fg = foco && foco.dataset ? foco.dataset.g : null, fk = foco && foco.dataset ? foco.dataset.k : null;
   const oid = fg != null && plano.objectives[+fg] ? plano.objectives[+fg].id : null, txt = foco ? foco.value : null;
-  recompute(); renderTop(); renderFluxo(); renderGoals(); renderPropositoC(); renderLiberdade(); renderClienteC(); renderOrcamentoC(); renderPatrimonioC(); renderPoliticaC(); renderRiscosC(); renderTributarioC(); renderPremissas(); renderApresentacaoC(); renderPropostas(); save();
+  recompute(); renderTop(); renderFluxo(); renderGoals(); renderPropositoC(); renderLiberdade(); renderClienteC(); renderOrcamentoC(); renderPatrimonioC(); renderPoliticaC(); renderCarteiraC(); renderMacroC(); renderMicroC(); renderRiscosC(); renderTributarioC(); renderPremissas(); renderApresentacaoC(); renderPropostas(); save();
   if (gaveta && (gaveta.t === 'bem' || gaveta.t === 'div')) renderGaveta();   // o detalhe do bem e a evolução da dívida acompanham o que mudou neles
   if (oid && fk) {
     const i = plano.objectives.findIndex(o => o.id === oid), el = document.querySelector('[data-g="' + i + '"][data-k="' + fk + '"]');
@@ -2747,6 +3104,16 @@ function pendencias() {
   const D = plano.patrimonio || {};
   if (!(plano.initialWealth > 0 || plano.initialBens > 0 || plano.partValue > 0)) add('patrimonio', 'nenhum item de patrimônio');
   [...(D.bens || []).filter(b => +b.saldoDevedor > 0), ...(D.dividas || [])].forEach(d => { if (+d.parcela > 0 && !linhaDaDivida(d) && !d.semFluxo) add('patrimonio', 'parcela de ' + esc(d.nome || 'dívida sem nome') + ' fora do Fluxo de caixa'); });
+  const K = ENGINE.carteiraDoPlano(plano), C = plano.carteira || {};
+  if (!temCarteira()) add('carteira', 'colar a carteira de hoje', '#carCola');
+  if (K.semClasse.length) add('carteira', K.semClasse.length + (K.semClasse.length > 1 ? ' ativos sem classe' : ' ativo sem classe'));
+  const semTipo = (C.ativos || []).filter(pedeTipoCar).length;
+  if (semTipo) add('carteira', semTipo + (semTipo > 1 ? ' previdências' : ' previdência') + ' sem dizer se é PGBL ou VGBL');
+  if (!Object.keys(C.ideal || {}).length) add('macro', 'a alocação ideal (escolha um perfil)');
+  if (K.excessoIdeal > 0.0005) add('macro', 'a ideal passa de 100% em ' + pctCar(K.excessoIdeal) + ' p.p.');
+  if (K.excessoRec > 0.0005) add('macro', 'a recomendada passa de 100% em ' + pctCar(K.excessoRec) + ' p.p.');
+  if (K.semAcao.length) add('micro', K.semAcao.length + (K.semAcao.length > 1 ? ' ativos de hoje sem decisão' : ' ativo de hoje sem decisão'));
+  if (K.total > 0 && Math.abs(K.caixa) >= 1) add('micro', K.caixa > 0 ? 'faltam aplicar ' + fmt(K.caixa) : 'os ativos novos passam os recursos em ' + fmt(-K.caixa));
   const av = ENGINE.avaliaRiscos(plano), nAv = ENGINE.RISCOS.filter(x => av.itens[x.id] && av.itens[x.id].status === 'pendente');
   if (nAv.length) add('riscos', (nAv.length > 1 ? nAv.length + ' ameaças não avaliadas: ' : 'ameaça não avaliada: ') + nAv.map(x => x.nome).join(', '));
   if (!plano.objectives.length) add('objetivos', 'nenhum objetivo cadastrado');
@@ -4678,7 +5045,9 @@ function renderPatrimonioC() {
   const f = ENGINE.faseDaVida(plano), rm = c => `<td><button class="btn btn-icon" data-rrm="${c}" title="Remover">×</button></td>`;
   const liqPct = f.total > 0 ? f.fin / f.total : null;
   const tabela = (c, cab, its, col, vazio, tipo) => its.length ? `<table class="rkc-tab" style="min-width:0"><thead><tr><th>${cab[0]}</th><th>${cab[1]}</th>${tipo ? `<th>Tipo ${tip('A previdência (PGBL e VGBL) fica fora do inventário na sucessão, na página Otimização tributária.')}</th>` : ''}${tipo && conjuge() ? `<th>De quem ${tip('Em nome de quem está o investimento. Sem informar, conta como do casal (conjunta). Aparece no retrato da família, no começo do capítulo Diagnóstico.')}</th>` : ''}<th></th></tr></thead><tbody>
-    ${its.map((x, i) => `<tr><td>${campoR(`${c}.${i}.nome`, 'texto', ` placeholder="${col}"`)}</td><td>${campoR(`${c}.${i}.valor`, 'reais')}</td>${tipo ? `<td>${selR(`${c}.${i}.tipo`, TIPOS_FIN)}</td>` : ''}${tipo && conjuge() ? `<td>${selR(`${c}.${i}.titularidade`, DE_QUEM())}</td>` : ''}${rm(`${c}.${i}`)}</tr>`).join('')}</tbody></table>` : `<div class="pc-vazio">${vazio}</div>`;
+    ${its.map((x, i) => x.daCarteira   // a linha que vem da carteira: nome, valor e tipo lidos dela; a titularidade continua aqui
+      ? `<tr class="da-carteira"><td><b>${esc(x.nome)}</b></td><td class="num">${fmt(x.valor)}</td><td>${ENGINE.TIPOS_FINANCEIRO[x.tipo || '']}</td>${conjuge() ? `<td>${esc(nomeTitularCar(x.titularidade) || 'do casal')}</td>` : ''}<td></td></tr>`
+      : `<tr><td>${campoR(`${c}.${i}.nome`, 'texto', ` placeholder="${col}"`)}</td><td>${campoR(`${c}.${i}.valor`, 'reais')}</td>${tipo ? `<td>${selR(`${c}.${i}.tipo`, temCarteira() ? TIPOS_FIN.filter(([k]) => ENGINE.SEM_LIQUIDEZ.includes(k)) : TIPOS_FIN)}</td>` : ''}${tipo && conjuge() ? `<td>${selR(`${c}.${i}.titularidade`, DE_QUEM())}</td>` : ''}${rm(`${c}.${i}`)}</tr>`).join('')}</tbody></table>` : `<div class="pc-vazio">${vazio}</div>`;
   const divida = (d, i) => { const c = `patrimonio.dividas.${i}.`;
     return `<div class="pc-item${d.situacao === 'inadimplente' ? ' inad' : ''}"><div class="pc-linha dois">
       <div class="field"><label>Dívida</label>${campoR(c + 'nome', 'texto', ' placeholder="ex.: empréstimo pessoal, consignado"')}</div>
@@ -4687,7 +5056,8 @@ function renderPatrimonioC() {
   const dBens = somaLista(D.bens, 'saldoDevedor'), dAvulsas = somaLista(D.dividas, 'saldoDevedor');
   el.innerHTML = `<div class="pc-resumo" id="ptcResumo">${resumoPatrimonioC()}</div>
     <div class="bloco"><h3>Mercado financeiro<span class="dir">${fmt(f.fin)}</span></h3><div class="sub">Investimentos, poupança e conta, por instituição. É o ponto de partida da evolução patrimonial e o que paga a renda da liberdade.</div>
-        ${tabela('patrimonio.financeiro', ['Instituição', 'Valor'], D.financeiro, 'ex.: Itaú', 'Nenhuma instituição ainda.', true)}<button class="btn btn-step" data-radd="patrimonio.financeiro">+ instituição</button>
+        ${temCarteira() ? `<div class="pc-da-carteira">Os investimentos e a previdência aberta vêm da carteira, somados por instituição, titular e tipo. <button class="link" data-ir="carteira">Mudar na Carteira atual</button></div>` : ''}
+        ${tabela('patrimonio.financeiro', ['Instituição', 'Valor'], D.financeiro, 'ex.: Itaú', 'Nenhuma instituição ainda.', true)}<button class="btn btn-step" data-radd="patrimonio.financeiro">${temCarteira() ? '+ fundo de pensão, FGTS ou empréstimo' : '+ instituição'}</button>
         <div class="grid g3" style="margin-top:14px">${contasC()}</div></div>
     <div class="bloco"><h3>Participações societárias<span class="dir">${fmt(f.part)}</span></h3><div class="sub">A parte do cliente em cada empresa, pelo valor de hoje. Ao longo do tempo, pode crescer a uma taxa ao ano, chegar a um valor esperado numa data (o valuation) ou ser vendida; na venda, o líquido vai para o mercado financeiro. Não paga a renda desejada enquanto não é vendida.</div>
       <div class="pc-lista">${D.participacoes.map((p, i) => htmlParticipacaoC(p, i)).join('') || '<div class="pc-vazio">Nenhuma participação.</div>'}</div><button class="btn btn-step" data-radd="patrimonio.participacoes">+ empresa</button></div>
@@ -4969,10 +5339,13 @@ function renderApresentacaoC() {
     ['riscos', 5, 'Gestão de riscos', a.avaliados ? 'Percentual de proteção ' + Math.round((a.nota || 0) * 100) + '% · ' + ENGINE.RISCOS.filter(x => a.itens[x.id].status === 'ok').length + ' de 8 ameaças totalmente protegidas' : null, 'Nenhuma ameaça avaliada ainda.', 'riscos'],
     ['realizacao', 6, 'Como realizar cada objetivo', plano.objectives.some(o => o.amount > 0) ? plano.objectives.filter(o => o.amount > 0).length + ' objetivos, um por vez: estratégia, data, de onde vem o dinheiro e três cortes antes da data' + (plano.objectives.some(o => !o.strategy && o.amount > 0) ? ' · falta a estratégia de ' + plano.objectives.filter(o => !o.strategy && o.amount > 0).map(o => o.name || 'sem nome').join(', ') : '') : null, 'Nenhum objetivo com valor.', 'objetivos'],
     ['politica', 7, 'Para onde vai o seu dinheiro', (() => { const Pz = ENGINE.politicaDeInvestimentos(plano, SIM); return Pz.total > 0 ? fmt(Pz.total) + ' de patrimônio e ' + fmt(Pz.sobra * (Pz.periodicidade === 'anual' ? 12 : 1)) + (Pz.periodicidade === 'anual' ? ' de sobra por ano' : ' de sobra por mês') + ', em ' + Pz.caixinhas.filter(c => c.patrimonio > 0.5 || c.mensal > 0.5).length + ' caixinhas' : null; })(), 'Falta o patrimônio financeiro na página Patrimônio.', 'patrimonio'],
-    ['evolucao', 8, 'Evolução patrimonial', ff && temFluxo() && planoDaLiberdade() ? 'Liberdade financeira aos ' + Math.floor(ff.age) + ' anos' + (ff.forced ? ' (renda parcial)' : '') : null, temFluxo() ? 'Faltam a renda desejada e a idade de parar de trabalhar.' : 'Falta o fluxo de caixa.', temFluxo() ? 'liberdade' : 'fluxo']];
+    ['carteira-hoje', 8, 'A carteira de hoje', (() => { const K = ENGINE.carteiraDoPlano(plano); return K.atual > 0 ? fmt(K.atual) + ' em ' + ((plano.carteira || {}).ativos || []).length + ' investimentos, por classe' : null; })(), 'Falta a carteira de hoje.', 'carteira'],
+    ['carteira-recomendada', 8, 'A carteira recomendada', (() => { const C = plano.carteira || {}; return Object.keys(C.ideal || {}).length ? 'hoje, o ideal e a recomendada' + (String(C.justificativa || '').trim() ? ', com os motivos' : ' · falta escrever os motivos') : null; })(), 'Falta a alocação ideal.', 'macro'],
+    ['carteira-decisoes', 8, 'O que muda na carteira', (() => { const K = ENGINE.carteiraDoPlano(plano); return K.atual > 0 && !K.semAcao.length ? 'sai ' + fmt(K.resgatado) + ', entra ' + fmt(K.aplicado) : null; })(), 'Falta decidir o que fazer com cada investimento.', 'micro'],
+    ['evolucao', 9, 'Evolução patrimonial', ff && temFluxo() && planoDaLiberdade() ? 'Liberdade financeira aos ' + Math.floor(ff.age) + ' anos' + (ff.forced ? ' (renda parcial)' : '') : null, temFluxo() ? 'Faltam a renda desejada e a idade de parar de trabalhar.' : 'Falta o fluxo de caixa.', temFluxo() ? 'liberdade' : 'fluxo']];
   // um capítulo por bloco: os dois vídeos (o teórico, o mesmo para todos os clientes, na capa; o do caso deste cliente, no
   // resumo) e as páginas, com o que cada uma vai mostrar. Um vídeo antigo de página vira o vídeo do caso do capítulo.
-  const caps = [['proposito', 1, 'Propósito', ['proposito']], ['tributario', 3, 'Otimização tributária', ['ir', 'prolabore', 'sucessao', 'previdencia']], ['patrimonio', 4, 'Patrimônio', ['patrimonio']], ['riscos', 5, 'Gestão de riscos', ['riscos']], ['objetivos', 6, 'Objetivos', ['realizacao']], ['politica', 7, 'Política de investimentos', ['politica']], ['evolucao', 8, 'Evolução patrimonial', ['evolucao']]];
+  const caps = [['proposito', 1, 'Propósito', ['proposito']], ['tributario', 3, 'Otimização tributária', ['ir', 'prolabore', 'sucessao', 'previdencia']], ['patrimonio', 4, 'Patrimônio', ['patrimonio']], ['riscos', 5, 'Gestão de riscos', ['riscos']], ['objetivos', 6, 'Objetivos', ['realizacao']], ['politica', 7, 'Política de investimentos', ['politica']], ['carteira', 8, 'Carteira', ['carteira-hoje', 'carteira-recomendada', 'carteira-decisoes']], ['evolucao', 9, 'Evolução patrimonial', ['evolucao']]];
   plano.videos = plano.videos || {};
   caps.forEach(([cid, , , ids]) => { const k = 'cap-' + cid + '-caso', velho = ids.map(i => plano.videos[i]).find(Boolean); if (!plano.videos[k] && velho) plano.videos[k] = velho; });
   const cp = (n, h) => `<div class="field"><label>${n}</label>${h}</div>`, link = ' placeholder="link do YouTube, do Vimeo ou do arquivo"';
@@ -5176,6 +5549,382 @@ document.addEventListener('click', e => {
   const ab = e.target.closest('[data-comp-abrir]'); if (ab && !e.target.closest('[data-rrm]')) { polCompAberto.add(ab.dataset.compAbrir); renderAll(); const n = document.querySelector(`[data-comp-item="${ab.dataset.compAbrir}"] input`); if (n) n.focus(); }
 });
 
+// ===================== CARTEIRA: ATUAL, MACROALOCAÇÃO E MICROALOCAÇÃO =====================
+// A carteira de hoje (Dados do cliente) chega colada da planilha do consultor (Ctrl+C nas linhas do Excel, Ctrl+V aqui: o
+// Excel copia como texto separado por tabulação) e continua editável, linha a linha. Com o cabeçalho, as colunas são
+// reconhecidas pelo nome; sem ele, pelo conteúdo (o primeiro número é o valor, o nome de uma classe é a classe, os dois
+// primeiros textos são a instituição e o ativo). A classe que não vier sai da base de ativos já classificados (no protótipo,
+// guardada neste navegador; na plataforma, a base da Nord). O titular sai da coluna Titular ou do primeiro nome da família
+// que aparecer na instituição ("XP Aline").
+const normCar = s => String(s == null ? '' : s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[-_]/g, ' ').replace(/\s+/g, ' ').trim();
+const CLASSE_POR_NOME = Object.assign(Object.fromEntries(ENGINE.CLASSES_CARTEIRA.map(k => [normCar(k.nome), k.id])), {
+  'liquidez': 'liquidez', 'fundo acoes brasil': 'fundoAcoesBrasil', 'fundo acoes globais': 'fundoAcoesGlobais', 'fundo acoes global': 'fundoAcoesGlobais',
+  'inflacao': 'inflacao', 'indexado inflacao': 'inflacao', 'multimercado': 'multimercado', 'fii': 'imobiliarios', 'fiis': 'imobiliarios', 'acoes br': 'acoesBrasil',
+  'acoes global': 'acoesGlobais', 'cripto': 'cripto', 'criptoativo': 'cripto', 'rf global': 'rfGlobal' });
+const ACAO_POR_NOME = { 'manter': 'manter', 'resgate parcial': 'parcial', 'resgate integral': 'integral', 'resgate total': 'integral', 'portabilidade': 'portabilidade' };
+const BASE_ATIVOS = 'nl-base-ativos';
+const baseAtivos = () => { try { return JSON.parse(localStorage.getItem(BASE_ATIVOS) || '{}'); } catch (e) { return {}; } };
+function classificaNaBase(ativos) {
+  const b = baseAtivos(); ativos.forEach(a => { if (a.nome && a.classe) b[normCar(a.nome)] = a.classe; });
+  try { localStorage.setItem(BASE_ATIVOS, JSON.stringify(b)); } catch (e) { }
+}
+// "R$ 33.459,33", "33459,33", "33459.33", "1.507" (milhar) ou "37,5%"; null quando não é número
+function numeroCar(t) {
+  let x = String(t).replace(/R\$|\s|%/g, ''); if (!/^-?[\d.,]+$/.test(x) || !/\d/.test(x)) return null;
+  if (x.includes(',')) x = x.replace(/\./g, '').replace(',', '.'); else if (/^-?\d{1,3}(\.\d{3})+$/.test(x)) x = x.replace(/\./g, '');
+  const n = parseFloat(x); return isFinite(n) ? n : null;
+}
+// quem pode ser titular de uma conta: o titular, o cônjuge e os dependentes (pelo nome)
+function titularesCar() {
+  const nm = ENGINE.nomesDaFamilia(plano), deps = Array.isArray((plano.riscos || {}).dependentes) ? plano.riscos.dependentes : [];
+  return [['titular', nm.titular]].concat(conjuge() ? [['conjuge', nm.conjuge]] : [], deps.filter(d => d.nome).map(d => ['dep:' + d.nome, d.nome]));
+}
+const nomeTitularCar = t => (titularesCar().find(([k]) => k === t) || [, ''])[1];
+function titularDoTexto(txt) {
+  const n = ' ' + normCar(txt) + ' '; const t = titularesCar().find(([, nome]) => nome && n.includes(' ' + normCar(nome).split(' ')[0] + ' '));
+  return t ? t[0] : '';
+}
+const COLUNAS_CAR = [['instituicao', /institui|banco|corretora|^conta/], ['titular', /titular|^de quem/], ['subclasse', /subclasse/], ['classe', /classe/],
+  ['nome', /ativo|produto|^nome|papel/], ['valor', /financeiro|valor|saldo|posicao|r\$/], ['vencimento', /venc|liquidez|prazo/], ['acao', /^acao|movimento/], ['obs', /obs/]];
+function lerColagem(txt) {
+  const linhas = txt.replace(/\r/g, '').split('\n').map(l => l.split('\t').map(c => c.trim())).filter(l => l.some(Boolean));
+  let mapa = null; const ativos = [];
+  linhas.forEach(cel => {
+    const cab = cel.map(c => { const n = normCar(c), m = n && COLUNAS_CAR.find(([, re]) => re.test(n)); return m ? m[0] : null; });
+    if (cel.every(c => numeroCar(c) == null) && cab.filter(Boolean).length >= 2) { mapa = cab; return; }   // o cabeçalho
+    const a = { instituicao: '', titular: '', nome: '', classe: '', subclasse: '', valor: null, vencimento: '', tipo: '', acao: '', obs: '' };
+    if (mapa) cel.forEach((c, i) => { const k = mapa[i]; if (!k || !c) return;
+      if (k === 'valor') { if (a.valor == null) a.valor = numeroCar(c); } else if (k === 'classe') a.classe = CLASSE_POR_NOME[normCar(c)] || '';
+      else if (k === 'acao') a.acao = ACAO_POR_NOME[normCar(c)] || ''; else if (k === 'titular') a.titular = titularDoTexto(c); else if (!a[k]) a[k] = c; });
+    else { const textos = [];
+      cel.forEach(c => { if (!c) return; const n = numeroCar(c), nc = normCar(c);
+        if (n != null) { if (a.valor == null) a.valor = n; return; }
+        if (!a.classe && CLASSE_POR_NOME[nc]) { a.classe = CLASSE_POR_NOME[nc]; return; }
+        if (!a.acao && ACAO_POR_NOME[nc]) { a.acao = ACAO_POR_NOME[nc]; return; }
+        if (!a.vencimento && /^(diaria|d ?\+|vencimento|previdencia|negociados|offshore)/.test(nc)) { a.vencimento = c; return; }
+        if (!a.subclasse && /^(titulos (bancarios|publicos)|credito privado|equities|treasuries|cash)/.test(nc)) { a.subclasse = c; return; }
+        textos.push(c); });
+      a.instituicao = textos.length >= 2 ? textos[0] : ''; a.nome = textos.length >= 2 ? textos[1] : textos[0] || ''; a.obs = textos.slice(2).join(' · '); }
+    if (/^total/.test(normCar(a.nome || a.instituicao)) || !(a.valor > 0) || !a.nome) return;   // a linha do total e as vazias
+    const tudo = normCar(cel.join(' ')); a.tipo = /\bpgbl\b/.test(tudo) ? 'pgbl' : /\bvgbl\b/.test(tudo) ? 'vgbl' : '';   // a previdência, quando a linha diz qual
+    if (!a.titular) a.titular = titularDoTexto(a.instituicao);
+    ativos.push(a);
+  });
+  const base = baseAtivos();
+  ativos.forEach((a, i) => { a.id = 'at' + Date.now().toString(36) + i; a.valor = Math.round(a.valor * 100) / 100; if (!a.classe) a.classe = base[normCar(a.nome)] || ''; });
+  return ativos;
+}
+// previdência sem dizer se é PGBL ou VGBL: o financeiro (e a sucessão) precisam saber
+const pedeTipoCar = a => !a.tipo && /previdencia|\bprev\b|pgbl|vgbl/.test(normCar(a.vencimento + ' ' + a.nome));
+const TIPOS_CAR = [['', 'Investimento'], ['pgbl', 'PGBL'], ['vgbl', 'VGBL']];
+const VENCIMENTOS_CAR = ['Diária', 'D + 30', 'D + 45/60', 'D + 90/180', 'Vencimento 3 meses', 'Vencimento 6 meses', 'Vencimento 1 ano', 'Vencimento 2 anos', 'Vencimento > 2 anos', 'Negociados em Bolsa', 'Previdência', 'Offshore', 'Sem liquidez'];
+const SUBCLASSES_CAR = ['Títulos Bancários', 'Títulos Públicos', 'Crédito Privado', 'Equities', 'Cash & Floating', 'Treasuries', "CD's & Corporate Bonds"];
+const pctCar = (x, d = 1) => x == null ? '' : (x * 100).toLocaleString('pt-BR', { minimumFractionDigits: d, maximumFractionDigits: d });
+const difCar = v => Math.abs(v) < 0.5 ? '<span class="car-zero">R$ 0</span>' : `<span class="${v > 0 ? 'car-mais' : 'car-menos'}">${v > 0 ? '+' : '−'}${fmt(Math.abs(v))}</span>`;
+const temCarteira = () => !!(plano.carteira && (plano.carteira.ativos || []).length);
+const carDe = () => plano.carteira = plano.carteira || {};
+
+// ---------- a carteira atual ----------
+// Como na tela de posição de uma corretora: cada conta (instituição e titular) é um bloco que abre e fecha, com o total, a
+// parte da carteira e uma barra fina das classes; dentro, os ativos, um por linha. A mesma lista pode ser vista por classe.
+// Na linha, os campos não têm borda até o mouse passar; classe e subclasse são etiquetas que se clicam para trocar; a
+// previdência é um botão de três estados (não é, PGBL, VGBL); a observação é um ícone, cheio quando há texto.
+let carColando = false;   // a área de colar aberta, para acrescentar linhas
+let carVista = 'conta';   // agrupar por conta ou por classe (estado da tela, não do plano)
+const carFechados = new Set(), carObsAberta = new Set();
+let carGrupos = [];       // os grupos desenhados, para os botões do cabeçalho de cada um
+const carColar = rotulo => `<div class="car-colar"><textarea id="carCola" rows="3" placeholder="Copie as linhas da planilha da carteira (com o cabeçalho, de preferência) e cole aqui com Ctrl+V"></textarea>
+    <small>${rotulo} Instituição, titular, ativo, classe, subclasse, vencimento, valor e observações; as outras colunas podem vir junto. A classe que faltar sai da base de ativos já classificados.</small></div>`;
+const PREV_CAR = { '': 'Não é previdência', pgbl: 'PGBL', vgbl: 'VGBL' };
+const ICONE_OBS = cheio => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h14v12H9l-4 4z"${cheio ? ' class="cheio"' : ''}/>${cheio ? '<path d="M9 9h6M9 12h4" class="linha"/>' : ''}</svg>`;
+// a barra fina das classes de um conjunto de ativos
+function carBarra(lista) {
+  const tot = lista.reduce((s, a) => s + (+a.valor || 0), 0); if (!(tot > 0)) return '<span class="car-barra vazia"></span>';
+  return `<span class="car-barra">${ENGINE.CLASSES_CARTEIRA.map(c => ({ c, v: lista.filter(a => a.classe === c.id).reduce((s, a) => s + (+a.valor || 0), 0) })).filter(x => x.v > 0)
+    .map(x => `<i style="flex:${(x.v / tot).toFixed(4)} 0 0;background:${x.c.cor}" title="${x.c.nome}: ${fmt(x.v)}"></i>`).join('')}${lista.some(a => !a.classe) ? `<i class="sem" style="flex:${(lista.filter(a => !a.classe).reduce((s, a) => s + (+a.valor || 0), 0) / tot).toFixed(4)} 0 0" title="a classificar"></i>` : ''}</span>`;
+}
+function carLinha(a, i, tot) {
+  const cl = ENGINE.CLASSES_CARTEIRA.find(c => c.id === a.classe), subs = SUBCLASSES_CAR.includes(a.subclasse) || !a.subclasse ? SUBCLASSES_CAR : [a.subclasse].concat(SUBCLASSES_CAR);
+  const grupos = [...new Set(ENGINE.CLASSES_CARTEIRA.map(c => c.grupo))], pede = pedeTipoCar(a), obs = String(a.obs || '').trim();
+  const conta = carVista === 'classe' ? `<span class="car-conta">${esc(a.instituicao || 'sem instituição')}${a.titular || conjuge() ? ' · ' + esc(nomeTitularCar(a.titular) || 'do casal') : ''}</span>` : '';
+  return `<div class="car-ln" data-car-ln="${i}">
+    <div class="car-nm"><input class="car-sb car-nome" data-car-campo="${i}:nome" value="${esc(a.nome || '')}" placeholder="Nome do ativo" aria-label="Ativo">
+      <div class="car-sub">${conta}<input class="car-sb car-venc" data-car-campo="${i}:vencimento" value="${esc(a.vencimento || '')}" placeholder="vencimento" list="carVencimentos" aria-label="Vencimento de ${esc(a.nome)}"></div></div>
+    <div class="car-tags">
+      <select class="car-tag${cl ? '' : ' pede'}" data-car-campo="${i}:classe" style="${cl ? `--c:${cl.cor}` : ''}" aria-label="Classe de ${esc(a.nome)}"><option value="">a classificar</option>${grupos.map(g => `<optgroup label="${g}">${ENGINE.CLASSES_CARTEIRA.filter(c => c.grupo === g).map(c => `<option value="${c.id}"${a.classe === c.id ? ' selected' : ''}>${c.nome}</option>`).join('')}</optgroup>`).join('')}</select>
+      <select class="car-tag sub${a.subclasse ? '' : ' vazia'}" data-car-campo="${i}:subclasse" aria-label="Subclasse de ${esc(a.nome)}"><option value="">subclasse</option>${subs.map(s => `<option value="${esc(s)}"${a.subclasse === s ? ' selected' : ''}>${esc(s)}</option>`).join('')}</select></div>
+    <button type="button" class="car-prev${a.tipo ? ' on' : pede ? ' pede' : ''}" data-car-prev="${i}" title="${pede ? 'Previdência: PGBL ou VGBL? Clique para escolher' : PREV_CAR[a.tipo || ''] + ' · clique para trocar'}" aria-label="Previdência de ${esc(a.nome)}: ${PREV_CAR[a.tipo || '']}">${a.tipo === 'pgbl' ? 'PGBL' : a.tipo === 'vgbl' ? 'VGBL' : pede ? 'PG/VG?' : 'prev'}</button>
+    <button type="button" class="car-obs${obs ? ' cheia' : ''}" data-car-obs="${i}" title="${obs ? esc(obs) : 'Acrescentar uma observação'}" aria-label="${obs ? 'Observação: ' + esc(obs) : 'Acrescentar observação'}" aria-expanded="${carObsAberta.has(a.id)}">${ICONE_OBS(!!obs)}</button>
+    <input class="car-sb car-valor" data-car-campo="${i}:valor" data-money-opt inputmode="decimal" value="${a.valor ? fmt(a.valor) : ''}" placeholder="R$ 0" aria-label="Valor de ${esc(a.nome)}">
+    <span class="car-pct">${tot > 0 ? pctCar((+a.valor || 0) / tot) + '%' : ''}</span>
+    <button type="button" class="car-x" data-car-tira="${i}" title="Tirar da carteira" aria-label="Tirar ${esc(a.nome)}">×</button>
+    ${carObsAberta.has(a.id) ? `<div class="car-obs-ed"><textarea data-car-campo="${i}:obs" rows="2" placeholder="Observação sobre este ativo (cotização, carência, recomendação da casa…)">${esc(a.obs || '')}</textarea><button type="button" class="btn btn-step" data-car-obs="${i}">OK</button></div>` : ''}
+  </div>`;
+}
+function renderCarteiraC() {
+  const el = document.getElementById('carteiraC'); if (!el) return;
+  const ativos = (plano.carteira || {}).ativos || [], K = ENGINE.carteiraDoPlano(plano), tot = K.atual;
+  const nota = `<div class="car-nota">Preenchida, a carteira passa a ser os investimentos do mercado financeiro na página <button class="link" data-ir="patrimonio">Patrimônio</button>, somados por instituição, titular e tipo. Fundo de pensão, FGTS e empréstimos a amigos e familiares não entram nela: ficam no Patrimônio.</div>`;
+  if (!ativos.length) { carGrupos = []; el.innerHTML = `<div class="bloco"><h3>A carteira de hoje</h3>${carColar('Cada linha vira um ativo.')}<div class="car-acoes"><button class="link" data-car-novo-atual>+ digitar um ativo</button></div>${nota}</div>`; return; }
+  // os grupos: por conta (instituição e titular, na ordem em que aparecem) ou por classe (na ordem das classes)
+  const idx = ativos.map((a, i) => i);
+  if (carVista === 'conta') {
+    const m = new Map(); idx.forEach(i => { const a = ativos[i], k = normCar(a.instituicao) + '|' + (a.titular || ''); if (!m.has(k)) m.set(k, { chave: 'c:' + k, inst: a.instituicao || '', titular: a.titular || '', idx: [] }); m.get(k).idx.push(i); });
+    carGrupos = [...m.values()];
+  } else carGrupos = ENGINE.CLASSES_CARTEIRA.map(c => ({ chave: 'k:' + c.id, classe: c, idx: idx.filter(i => ativos[i].classe === c.id) })).concat([{ chave: 'k:', classe: null, idx: idx.filter(i => !ENGINE.CLASSES_CARTEIRA.some(c => c.id === ativos[i].classe)) }]).filter(g => g.idx.length);
+  const titulares = titularesCar(), vazioTit = conjuge() ? 'do casal' : 'titular não informado';
+  const cabeca = (g, gi) => { const lista = g.idx.map(i => ativos[i]), v = lista.reduce((s, a) => s + (+a.valor || 0), 0), aberto = !carFechados.has(g.chave);
+    const nome = carVista === 'conta'
+      ? `<input class="car-sb car-inst" data-car-g="${gi}:instituicao" value="${esc(g.inst)}" placeholder="Instituição" aria-label="Instituição">
+         <select class="car-tag tit" data-car-g="${gi}:titular" aria-label="Titular da conta"><option value="">${vazioTit}</option>${titulares.map(([k, n]) => `<option value="${esc(k)}"${g.titular === k ? ' selected' : ''}>${esc(n)}</option>`).join('')}</select>`
+      : `<span class="car-gcl"><i style="background:${g.classe ? g.classe.cor : '#E9C9B0'}"></i>${g.classe ? g.classe.nome : 'A classificar'}</span>`;
+    return `<div class="car-gh${aberto ? ' aberto' : ''}" data-car-abre="${gi}">
+      <button type="button" class="car-chev" data-car-abre="${gi}" aria-expanded="${aberto}" aria-label="${aberto ? 'Recolher' : 'Abrir'}"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
+      <div class="car-gnome">${nome}<span class="car-gqt">${lista.length} ${lista.length > 1 ? 'ativos' : 'ativo'}</span></div>
+      ${carVista === 'conta' ? carBarra(lista) : '<span></span>'}
+      <span class="car-gv">${fmt(v)}</span><span class="car-gp">${tot > 0 ? pctCar(v / tot) + '%' : ''}</span></div>`; };
+  const grupo = (g, gi) => `<div class="car-g">${cabeca(g, gi)}${carFechados.has(g.chave) ? '' : `<div class="car-gl">${g.idx.map(i => carLinha(ativos[i], i, tot)).join('')}
+      ${carVista === 'conta' ? `<button class="link car-gadd" data-car-conta-novo="${gi}">+ ativo nesta conta</button>` : ''}</div>`}</div>`;
+  const todosFechados = carGrupos.every(g => carFechados.has(g.chave));
+  const nContas = new Set(ativos.map(a => normCar(a.instituicao) + '|' + (a.titular || ''))).size, prev = ativos.filter(a => a.tipo).reduce((s, a) => s + (+a.valor || 0), 0);
+  const semDecisao = K.semClasse.length + ativos.filter(pedeTipoCar).length;
+  el.innerHTML = `<div class="bloco car-atual">
+    <div class="car-kpis"><div class="car-kpi"><span>Carteira de hoje</span><b>${fmt(tot)}</b>${carBarra(ativos)}</div>
+      <div class="car-kpi"><span>Contas</span><b>${nContas}</b></div><div class="car-kpi"><span>Ativos</span><b>${ativos.length}</b></div>
+      <div class="car-kpi"><span>Em previdência</span><b>${tot > 0 ? pctCar(prev / tot, 0) + '%' : '—'}</b></div>
+      <div class="car-kpi${semDecisao ? ' at' : ''}"><span>A classificar</span><b>${semDecisao || '—'}</b></div></div>
+    <div class="car-barra-ctl"><div class="pol-seg" role="group" aria-label="Agrupar"><button type="button" data-car-vista="conta" aria-pressed="${carVista === 'conta'}">Por conta</button><button type="button" data-car-vista="classe" aria-pressed="${carVista === 'classe'}">Por classe</button></div>
+      <button class="link" data-car-todas="${todosFechados ? 'abrir' : 'recolher'}">${todosFechados ? 'Abrir todas' : 'Recolher todas'}</button>
+      <span class="car-ctl-dir"><button class="link" data-car-mais>+ colar linhas</button><button class="link" data-car-novo-atual>+ conta</button><button class="link car-limpa" data-car-apaga>limpar a carteira</button></span></div>
+    ${carColando ? carColar('As linhas coladas entram no fim da lista.') : ''}
+    <div class="car-cols"${todosFechados ? ' hidden' : ''}><span>Ativo</span><span>Classe e subclasse</span><span>Prev.</span><span>Obs.</span><span class="r">Valor</span><span class="r">%</span><span></span></div>
+    ${carGrupos.map(grupo).join('')}
+    <datalist id="carVencimentos">${VENCIMENTOS_CAR.map(s => `<option value="${esc(s)}">`).join('')}</datalist>${nota}</div>`;
+}
+// abrir e fechar as contas, trocar a visão, a previdência e a observação; a instituição e o titular valem para a conta inteira
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-car-abre],[data-car-todas],[data-car-vista],[data-car-prev],[data-car-obs],[data-car-conta-novo]'); if (!t || e.target.closest('input,select')) return;
+  const d = t.dataset, C = carDe();
+  if (d.carAbre != null) { const g = carGrupos[+d.carAbre]; if (g) carFechados.has(g.chave) ? carFechados.delete(g.chave) : carFechados.add(g.chave); renderCarteiraC(); return; }
+  if (d.carTodas) { carGrupos.forEach(g => d.carTodas === 'abrir' ? carFechados.delete(g.chave) : carFechados.add(g.chave)); renderCarteiraC(); return; }
+  if (d.carVista) { carVista = d.carVista; renderCarteiraC(); return; }
+  if (d.carPrev != null) { const a = C.ativos[+d.carPrev], ordem = ['', 'pgbl', 'vgbl']; a.tipo = ordem[(ordem.indexOf(a.tipo || '') + 1) % 3]; renderAll(); const n = document.querySelector(`[data-car-prev="${d.carPrev}"]`); if (n) n.focus(); return; }
+  if (d.carObs != null) { const a = C.ativos[+d.carObs]; carObsAberta.has(a.id) ? carObsAberta.delete(a.id) : carObsAberta.add(a.id); renderAll();
+    if (carObsAberta.has(a.id)) { const n = document.querySelector(`textarea[data-car-campo="${d.carObs}:obs"]`); if (n) { n.focus(); n.setSelectionRange(n.value.length, n.value.length); } } return; }
+  if (d.carContaNovo != null) { const g = carGrupos[+d.carContaNovo]; if (!g) return;
+    const i = g.idx[g.idx.length - 1] + 1;   // entra logo depois do último ativo da conta
+    C.ativos.splice(i, 0, { id: 'at' + Date.now().toString(36), instituicao: g.inst, titular: g.titular, nome: '', classe: '', subclasse: '', valor: 0, vencimento: '', tipo: '', acao: '', obs: '' });
+    renderAll(); carFoco(`[data-car-campo="${i}:nome"]`, ''); return; }
+});
+document.addEventListener('change', e => {
+  const t = e.target; if (!t.dataset || t.dataset.carG == null) return;
+  const [gi, k] = t.dataset.carG.split(':'), g = carGrupos[+gi]; if (!g) return;
+  const fechado = carFechados.has(g.chave); g.idx.forEach(i => { plano.carteira.ativos[i][k] = k === 'instituicao' ? t.value.trim() : t.value; });
+  if (fechado) { carFechados.delete(g.chave); const a = plano.carteira.ativos[g.idx[0]]; carFechados.add('c:' + normCar(a.instituicao) + '|' + (a.titular || '')); }
+  renderAll();
+});
+// ---------- a macroalocação: hoje, ideal e recomendada, na mesa da política ----------
+// Cada classe é uma linha; a ideal e a recomendada são colunas com o % digitado e o controle deslizante fino (a escala é a
+// raiz, para 2% e 40% terem a mesma precisão; a marca é a referência, com ímã: o perfil escolhido na ideal, a ideal na
+// recomendada). A liquidez diária é o rodapé e fica com o restante, como a liberdade financeira na política: o trecho
+// listrado do trilho é o que ela já não tem para dar.
+let macArr = null;   // o controle sendo arrastado
+const macPasso = 0.005;
+function macLimites(q, c, K) {
+  const liq = K.classes.find(x => x.resto), v = q === 'i' ? c.pIdeal : c.pRec, livre = q === 'i' ? liq.pIdeal : liq.pRec;
+  const M = ENGINE.CARTEIRAS_MODELO[(plano.carteira || {}).modelo], ref = q === 'i' ? (M ? M[c.id] || 0 : null) : c.pIdeal;
+  return { v, ate: Math.min(1, v + livre), ref };
+}
+function macCelula(q, c, K) {
+  const L = macLimites(q, c, K), segue = q === 'r' && c.segue, M = ENGINE.CARTEIRAS_MODELO[(plano.carteira || {}).modelo];
+  const p = polP(L.v, 1), pa = polP(L.ate, 1), pr = L.ref != null ? polP(L.ref, 1) : null, on = macArr && macArr.q === q && macArr.id === c.id;
+  const faixa = `<div class="pol-fx${on ? ' on' : ''}" data-mac-sl="${q}:${c.id}" style="--cor:${c.cor}" role="slider" tabindex="0" aria-label="${q === 'i' ? 'Ideal' : 'Recomendada'} de ${c.nome}" aria-valuemin="0" aria-valuemax="${(L.ate * 100).toFixed(1)}" aria-valuenow="${(L.v * 100).toFixed(1)}" aria-valuetext="${pctCar(L.v)}%"><em></em>${pa < 0.999 ? `<s style="left:${(pa * 100).toFixed(2)}%" title="Até aqui a liquidez diária não tem mais o que dar"></s>` : ''}<i style="width:${(p * 100).toFixed(2)}%"></i>${pr != null && L.ref > 0 ? `<b style="left:${(pr * 100).toFixed(2)}%" title="${q === 'i' ? M.nome : 'A ideal'}: ${pctCar(L.ref)}%"></b>` : ''}<u style="left:${(p * 100).toFixed(2)}%"></u></div>`;
+  const igual = L.ref != null && Math.abs(L.v - L.ref) < 0.0005;
+  const txt = q === 'i' ? (M ? (igual ? `<span class="ok">no ${M.nome}</span>` : `${M.nome}: ${pctCar(L.ref)}% <button type="button" class="usar" data-mac-usar="i:${c.id}">usar</button>`) : '')
+    : segue ? 'segue a ideal' : igual ? '<span class="ok">igual à ideal</span>' : `ideal ${pctCar(L.ref)}% <button type="button" class="usar" data-mac-usar="r:${c.id}">usar</button>`;
+  return `<div class="pol-v"><div class="mac-in"><input class="${segue ? 'segue' : ''}" data-mac="${q}:${c.id}" inputmode="decimal" value="${segue ? '' : pctCar(L.v)}" placeholder="${pctCar(L.v)}" aria-label="${q === 'i' ? 'Ideal' : 'Recomendada'} de ${c.nome}, em %"><span>%</span></div>${faixa}<div class="pol-ref"><span>${txt}</span><span class="pc">${fmt(L.v * K.total)}</span></div></div>`;
+}
+// o cabeçalho de uma coluna: só o rótulo (com a explicação na dica) e o total, para os três ficarem na mesma linha
+const MAC_DICA = { h: 'A carteira de hoje, da página Carteira atual.', i: 'O mundo perfeito: como a carteira seria com tudo em dinheiro, alocando do zero.', r: 'O ajuste possível agora. Vazia, a classe segue a ideal; digite quando a vida real pede outro número, como um fundo que não se consegue vender.' };
+function macCab(q, K) {
+  const rot = { h: 'Hoje', i: 'Ideal', r: 'Recomendada' }[q], tot = q === 'h' ? K.atual : K.total;
+  return `<span class="rot">${rot} ${tip(MAC_DICA[q])}</span><span class="tot">${fmt(tot)}</span>`;
+}
+function macRodape(q, K) {
+  const liq = K.classes.find(c => c.resto), p = q === 'i' ? liq.pIdeal : liq.pRec, exc = q === 'i' ? K.excessoIdeal : K.excessoRec;
+  const estado = exc > 0.0005 ? `<span class="pol-estado at"><i></i>passa em ${pctCar(exc)} p.p.</span>` : '<span class="pol-estado"><i></i>fecha a conta</span>';
+  return `<span class="pol-resto${exc > 0.0005 ? ' neg' : ''}">${pctCar(p)}%<small>${fmt(p * K.total)} · fica com o restante</small></span>${estado}`;
+}
+function renderMacroC() {
+  const el = document.getElementById('macroC'); if (!el) return;
+  const K = ENGINE.carteiraDoPlano(plano), C = plano.carteira || {}, sobra12 = temFluxo() ? Math.max(0, capacity()) * 12 : 0;
+  const grupos = [...new Set(ENGINE.CLASSES_CARTEIRA.map(c => c.grupo))], liq = K.classes.find(c => c.resto);
+  const hoje = c => `<div class="mac-hoje">${c.atual ? fmt(c.atual) : '<span class="car-zero">R$ 0</span>'}<small>${pctCar(c.pAtual)}%</small></div>`;
+  const linha = c => `<tr class="linha"><td class="cx"><div class="pol-cx"><i style="background:${c.cor}"></i><div><b>${c.nome}</b></div></div></td><td class="num">${hoje(c)}</td>
+    <td data-mac-cel="i:${c.id}">${macCelula('i', c, K)}</td><td data-mac-cel="r:${c.id}">${macCelula('r', c, K)}</td><td class="num mac-dif">${difCar(c.dif)}</td></tr>`;
+  // no alto, num bloco à parte: o ponto de partida da ideal (a carteira modelo), os recursos novos e o total a alocar; e as
+  // três carteiras em sunburst, lado a lado, que acompanham os números da mesa
+  const M = ENGINE.CARTEIRAS_MODELO, perfis = Object.keys(M).filter(k => k !== 'ref');
+  const ctl = `<div class="mac-ctl">
+      <div class="mac-c"><span class="mac-rot">Carteira modelo da ideal ${tip('As carteiras modelo da Nord, do perfil 0 (o mais conservador) ao 3 (referência ' + M.ref + '). Escolher uma preenche a ideal, que continua editável na mesa.')}</span>
+        <div class="pol-seg mac-perfis" role="group" aria-label="Carteira modelo">${perfis.map(k => `<button type="button" data-car-modelo="${k}" aria-pressed="${C.modelo === k}"><b>${M[k].nome}</b><small>${M[k].perfil}</small></button>`).join('')}</div></div>
+      <div class="mac-c"><span class="mac-rot">Recursos novos a alocar ${tip('Dinheiro que entra na carteira além do que ela já tem: os aportes dos próximos 12 meses, uma venda. A ideal e a recomendada se aplicam à carteira de hoje mais estes recursos.')}</span>
+        <span class="mac-aporte">${campoR('carteira.aporte', 'reais0', ' placeholder="R$ 0"')}</span>${sobra12 > 0 ? `<small>sobra de 12 meses: ${fmt(sobra12)} · <button class="link" data-car-sobra="${Math.round(sobra12)}">usar</button></small>` : '<small>&nbsp;</small>'}</div>
+      <div class="mac-c dir"><span class="mac-rot">Total a alocar</span><b class="mac-big">${fmt(K.total)}</b><small>hoje ${fmt(K.atual)} + novos ${fmt(K.aporte)}</small></div></div>`;
+  const sbs = `<div class="mac-sbs">${['h', 'i', 'r'].map(q => `<div class="mac-sb"><div class="mac-sbt"><span class="mac-rot">${{ h: 'Hoje', i: 'Ideal', r: 'Recomendada' }[q]}</span></div><div class="mac-sbg" id="macSb-${q}"></div></div>`).join('')}</div>`;
+  el.innerHTML = `<div class="bloco mac-topo">${ctl}${sbs}</div>
+    <div class="pol-mesa"><div class="tablewrap"><table class="pol-tab mac-tab">
+    <thead><tr><th class="cx"><span class="rot">Classe</span></th><th class="hoje">${macCab('h', K)}</th><th class="fonte">${macCab('i', K)}</th><th class="fonte">${macCab('r', K)}</th><th class="num dif"><span class="rot">Diferença ${tip('Recomendada menos hoje, em reais: o que entra (+) ou sai (−) de cada classe.')}</span><span class="tot">${K.aporte > 0 ? '+' + fmt(K.aporte) : 'R$ 0'}</span></th></tr></thead>
+    <tbody>${grupos.map(g => `<tr class="grupo"><td colspan="5">${g}</td></tr>` + K.classes.filter(c => c.grupo === g && !c.resto).map(linha).join('')).join('')}</tbody>
+    <tfoot><tr><td class="cx"><div class="pol-cx"><i style="background:${liq.cor}"></i><div><b>${liq.nome}</b><small>fica com o restante</small></div></div></td><td class="num">${hoje(liq)}</td>
+      <td>${macRodape('i', K)}</td><td>${macRodape('r', K)}</td><td class="num mac-dif">${difCar(liq.dif)}</td></tr></tfoot></table></div></div>
+    <div class="bloco mac-just"><h3>Por que esta recomendação<span class="dir">o cliente vê, um motivo por linha</span></h3>
+      <textarea data-r="carteira.justificativa" data-rt="texto" rows="4" placeholder="Ex.: reduzir o pós-fixado, que hoje passa de 60% da carteira&#10;proteger da inflação os objetivos de longo prazo&#10;manter o private equity, que não tem como sair antes do prazo">${esc(C.justificativa || '')}</textarea></div>`;
+  const chave = { h: 'atual', i: 'ideal', r: 'rec' }, totalDe = { h: K.atual, i: K.total, r: K.total };
+  ['h', 'i', 'r'].forEach(q => SUNBURST.desenha(document.getElementById('macSb-' + q), 'portal-' + q,
+    K.classes.map(c => ({ id: c.id, nome: c.nome, cor: c.cor, grupo: c.grupo, v: c[chave[q]] })),
+    { tamanho: 230, rot: '', valor: fmtC(totalDe[q]), total: totalDe[q], fmt, duracao: 350 }));
+}
+// grava o % de uma classe (fração); vazio na recomendada volta a seguir a ideal
+function macGrava(q, id, v) {
+  const C = carDe(), M = q === 'i' ? (C.ideal = C.ideal || {}) : (C.recomendada = C.recomendada || {});
+  if (v == null) delete M[id]; else M[id] = Math.max(0, Math.round(v * 10000) / 10000);
+}
+function macArrasta(q, id, x) {
+  const s = document.querySelector(`[data-mac-sl="${q}:${id}"]`), K = ENGINE.carteiraDoPlano(plano), c = K.classes.find(y => y.id === id); if (!s || !c) return;
+  const r = s.getBoundingClientRect(), L = macLimites(q, c, K), p = Math.max(0, Math.min(1, (x - r.left) / Math.max(1, r.width)));
+  let v = Math.round(polV(p, 1) / macPasso) * macPasso;
+  if (L.ref > 0 && Math.abs(p - polP(L.ref, 1)) < 0.015) v = L.ref;
+  macGrava(q, id, Math.min(v, L.ate)); renderMacroC(); save();
+}
+document.addEventListener('pointerdown', e => {
+  const s = e.target.closest && e.target.closest('[data-mac-sl]'); if (!s) return;
+  const [q, id] = s.dataset.macSl.split(':'); macArr = { q, id }; e.preventDefault(); macArrasta(q, id, e.clientX);
+});
+addEventListener('pointermove', e => { if (macArr) macArrasta(macArr.q, macArr.id, e.clientX); });
+addEventListener('pointerup', () => { if (!macArr) return; const a = macArr; macArr = null; renderAll(); const n = document.querySelector(`[data-mac-sl="${a.q}:${a.id}"]`); if (n) n.focus(); });
+document.addEventListener('keydown', e => {
+  const s = e.target.closest && e.target.closest('[data-mac-sl]'); if (!s || !['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home'].includes(e.key)) return;
+  e.preventDefault(); const [q, id] = s.dataset.macSl.split(':'), K = ENGINE.carteiraDoPlano(plano), L = macLimites(q, K.classes.find(c => c.id === id), K);
+  const d = e.key === 'Home' ? -L.v : (e.key === 'ArrowRight' || e.key === 'ArrowUp' ? 1 : -1) * (e.shiftKey ? 10 : 1) * macPasso;
+  macGrava(q, id, Math.max(0, Math.min(L.ate, Math.round((L.v + d) / macPasso) * macPasso))); renderAll();
+  const n = document.querySelector(`[data-mac-sl="${q}:${id}"]`); if (n) n.focus();
+});
+
+// ---------- a microalocação: o que acontece com cada ativo de hoje e o que entra no lugar ----------
+// O mesmo desenho da Carteira atual: os indicadores no alto, o placar por classe num cartão, os ativos de hoje em cartões
+// por conta (que abrem e fecham), com a decisão de cada ativo na própria linha, e os ativos novos no mesmo formato.
+const micFechados = new Set();
+let micGrupos = [];
+function renderMicroC() {
+  const el = document.getElementById('microC'); if (!el) return;
+  const C = plano.carteira || {}, ativos = C.ativos || [], novos = C.novos || [], K = ENGINE.carteiraDoPlano(plano), grupos = [...new Set(ENGINE.CLASSES_CARTEIRA.map(c => c.grupo))];
+  if (!ativos.length && !novos.length && !(K.aporte > 0)) { micGrupos = []; el.innerHTML = `<div class="bloco"><div class="pc-vazio">Nenhum ativo ainda. A carteira de hoje é preenchida na página <button class="link" data-ir="carteira">Carteira atual</button>.</div></div>`; return; }
+  const classeDe = id => ENGINE.CLASSES_CARTEIRA.find(c => c.id === id);
+  const recursos = K.resgatado + K.aporte, saldo = K.caixa;
+  // os indicadores: o que há para aplicar, o que já foi aplicado e o saldo
+  const kpis = `<div class="car-kpis mic-kpis">
+    <div class="car-kpi"><span>Para aplicar</span><b>${fmt(recursos)}</b><small>${fmt(K.resgatado)} de resgates e portabilidades + ${fmt(K.aporte)} de recursos novos</small></div>
+    <div class="car-kpi"><span>Aplicado nos ativos novos</span><b>${fmt(K.aplicado)}</b></div>
+    <div class="car-kpi${Math.abs(saldo) < 1 ? ' ok' : ' at'}"><span>${Math.abs(saldo) < 1 ? 'Os recursos fecham' : saldo > 0 ? 'Falta aplicar' : 'Os novos passam em'}</span><b>${Math.abs(saldo) < 1 ? '✓' : fmt(Math.abs(saldo))}</b></div>
+    <div class="car-kpi${K.semAcao.length ? ' at' : ''}"><span>Ativos sem decisão</span><b>${K.semAcao.length || '—'}</b></div></div>`;
+  // o placar por classe: a recomendada, o que fica, os novos, o resultado e o que falta
+  const usadas = K.classes.filter(c => c.rec > 0.5 || c.resultado > 0.5), plAberto = !micFechados.has('placar');   // sem as classes zeradas na recomendada e no resultado
+  const pendentes = usadas.filter(c => Math.abs(c.falta) >= 1).length;
+  const placar = `<div class="car-g mic-placar"><div class="car-gh${plAberto ? ' aberto' : ''}" data-mic-placar><button type="button" class="car-chev" data-mic-placar aria-expanded="${plAberto}" aria-label="${plAberto ? 'Recolher' : 'Abrir'}"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button><div class="car-gnome"><span class="car-gtit">Por classe</span><span class="car-gqt">${pendentes ? pendentes + (pendentes > 1 ? ' classes longe' : ' classe longe') + ' da recomendada' : 'todas as classes na recomendada'}</span></div></div>${plAberto ? `
+    <div class="mic-pl mic-pl-cab"><span>Classe</span><span class="r">Recomendada</span><span class="r">Fica dos de hoje</span><span class="r">Novos</span><span class="r">Resultado</span><span class="r">Até a recomendada</span></div>
+    ${usadas.map(c => `<div class="mic-pl"><span class="mic-cl"><i style="background:${c.cor}"></i>${c.nome}</span><span class="r">${fmt(c.rec)}<small>${pctCar(c.pRec)}%</small></span><span class="r">${fmt(c.fica)}</span><span class="r">${c.novos > 0.5 ? fmt(c.novos) : '<span class="car-zero">—</span>'}</span>
+      <span class="r"><b>${fmt(c.resultado)}</b><small>${K.total > 0 ? pctCar(c.resultado / K.total) + '%' : ''}</small></span>
+      <span class="r">${Math.abs(c.falta) < 1 ? '<span class="pn-ok">✓</span>' : c.falta > 0 ? `<span class="mic-falta">falta ${fmt(c.falta)}</span><button class="usar-mini" data-mic-incluir="${c.id}" title="Incluir um ativo novo de ${c.nome} com este valor">+ incluir</button>` : `<span class="car-menos">passa ${fmt(-c.falta)}</span>`}</span></div>`).join('')}` : ''}</div>`;
+  // os ativos de hoje, por conta
+  const m = new Map(); ativos.forEach((a, i) => { const k = normCar(a.instituicao) + '|' + (a.titular || ''); if (!m.has(k)) m.set(k, { chave: k, inst: a.instituicao || 'Sem instituição', titular: a.titular || '', idx: [] }); m.get(k).idx.push(i); });
+  micGrupos = [...m.values()];
+  const linha = i => { const a = ativos[i], sai = K.sai(a), cl = classeDe(a.classe), decidido = !!ENGINE.ACOES_ATIVO[a.acao];
+    return `<div class="mic-ln${decidido ? '' : ' pede'}">
+      <div class="car-nm"><div class="mic-nome">${esc(a.nome || 'sem nome')}</div><div class="mic-sub"><span class="mic-cl"><i style="background:${cl ? cl.cor : '#E9C9B0'}"></i>${cl ? cl.nome : 'a classificar'}</span>${a.vencimento ? `<span>${esc(a.vencimento)}</span>` : ''}${a.tipo ? `<span class="mic-prev">${a.tipo.toUpperCase()}</span>` : ''}</div></div>
+      <div class="mic-acao-c"><select class="car-tag mic-acao ${decidido ? a.acao : 'pede'}" data-mic-acao-sel="${i}" aria-label="O que fazer com ${esc(a.nome)}">${decidido ? '' : '<option value="" selected>a decidir</option>'}${Object.keys(ENGINE.ACOES_ATIVO).map(k => `<option value="${k}"${a.acao === k ? ' selected' : ''}>${ENGINE.ACOES_ATIVO[k]}</option>`).join('')}</select></div>
+      <span class="mic-v">${fmt(a.valor)}</span>
+      <span class="mic-v">${a.acao === 'parcial' ? `<input class="car-sb car-valor mic-res" data-mic-resgate="${i}" data-money-opt inputmode="decimal" value="${+a.resgate ? fmt(+a.resgate) : ''}" placeholder="R$ 0" aria-label="Resgate de ${esc(a.nome)}">` : sai ? `<span class="car-menos">−${fmt(sai)}</span>` : '<span class="car-zero">—</span>'}</span>
+      <span class="mic-v mic-fica">${fmt(Math.max(0, (+a.valor || 0) - sai))}</span></div>`; };
+  const conta = (g, gi) => { const lista = g.idx.map(i => ativos[i]), v = lista.reduce((s, a) => s + (+a.valor || 0), 0), sai = lista.reduce((s, a) => s + K.sai(a), 0), aberto = !micFechados.has(g.chave);
+    const falta = lista.filter(a => !ENGINE.ACOES_ATIVO[a.acao]).length;
+    return `<div class="car-g"><div class="car-gh mic-gh${aberto ? ' aberto' : ''}" data-mic-abre="${gi}">
+      <button type="button" class="car-chev" data-mic-abre="${gi}" aria-expanded="${aberto}" aria-label="${aberto ? 'Recolher' : 'Abrir'}"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
+      <div class="car-gnome"><span class="car-gtit">${esc(g.inst)}</span>${g.titular || conjuge() ? `<span class="mic-tit">${esc(nomeTitularCar(g.titular) || 'do casal')}</span>` : ''}<span class="car-gqt">${lista.length} ${lista.length > 1 ? 'ativos' : 'ativo'}${falta ? ` · <span class="car-fora">${falta} sem decisão</span>` : ''}</span></div>
+      <span class="mic-v car-gv">${fmt(v)}</span><span class="mic-v">${sai > 0.5 ? `<span class="car-menos">−${fmt(sai)}</span>` : '<span class="car-zero">—</span>'}</span><span class="mic-v mic-fica car-gv">${fmt(v - sai)}</span></div>
+      ${aberto ? `<div class="car-gl">${g.idx.map(linha).join('')}</div>` : ''}</div>`; };
+  const todosFechados = micGrupos.length && micGrupos.every(g => micFechados.has(g.chave));
+  const atuais = ativos.length ? `<div class="mic-sec"><h3>Os ativos de hoje</h3><button class="link" data-mic-todas="${todosFechados ? 'abrir' : 'recolher'}">${todosFechados ? 'Abrir todas' : 'Recolher todas'}</button></div>
+    <div class="mic-cols"${todosFechados ? ' hidden' : ''}><span>Ativo</span><span>O que fazer</span><span class="r">Hoje</span><span class="r">Sai</span><span class="r">Fica</span></div>
+    ${micGrupos.map(conta).join('')}` : '';
+  // os ativos novos: o nome em destaque, a instituição pequena embaixo, a classe numa etiqueta
+  const classes = sel => `<option value=""${sel ? '' : ' selected'}>a classificar</option>` + grupos.map(g => `<optgroup label="${g}">${ENGINE.CLASSES_CARTEIRA.filter(c => c.grupo === g).map(c => `<option value="${c.id}"${sel === c.id ? ' selected' : ''}>${c.nome}</option>`).join('')}</optgroup>`).join('');
+  const novo = (n, i) => { const cl = classeDe(n.classe);
+    return `<div class="mic-nv"><div class="car-nm"><input class="car-sb car-nome" data-mic-campo="${i}:nome" value="${esc(n.nome || '')}" placeholder="Ativo sugerido" aria-label="Ativo novo">
+      <div class="car-sub"><input class="car-sb car-venc" data-mic-campo="${i}:instituicao" value="${esc(n.instituicao || '')}" placeholder="instituição" aria-label="Instituição do ativo novo"></div></div>
+      <div class="car-tags"><select class="car-tag${cl ? '' : ' pede'}" data-mic-campo="${i}:classe" style="${cl ? `--c:${cl.cor}` : ''}" aria-label="Classe do ativo novo">${classes(n.classe)}</select></div>
+      <input class="car-sb car-valor" data-mic-campo="${i}:valor" data-money-opt inputmode="decimal" value="${+n.valor ? fmt(+n.valor) : ''}" placeholder="R$ 0" aria-label="Valor do ativo novo">
+      <button type="button" class="car-x" data-mic-tira="${i}" title="Tirar" aria-label="Tirar ${esc(n.nome)}">×</button></div>`; };
+  const lista = `<div class="mic-sec"><h3>Os ativos novos</h3></div>
+    <div class="car-g"><div class="car-gh fixo mic-nv-gh"><span></span><div class="car-gnome"><span class="car-gtit">No lugar dos que saem</span><span class="car-gqt">${novos.length} ${novos.length === 1 ? 'ativo' : 'ativos'}</span></div><span class="car-gv">${fmt(K.aplicado)}</span><span></span></div>
+      <div class="car-gl">${novos.length ? novos.map(novo).join('') : '<div class="pc-vazio mic-vazio">Nenhum ativo novo ainda. Use o "+ incluir" de uma classe que falta, no placar, ou o botão abaixo.</div>'}</div>
+      <button class="link car-gadd" data-mic-novo>+ ativo novo</button></div>`;
+  el.innerHTML = `<div class="bloco car-atual mic">${kpis}${placar}${atuais}${lista}</div>`;
+}
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-mic-abre],[data-mic-todas],[data-mic-placar]'); if (!t || e.target.closest('input,select,.pol-seg,.usar-mini')) return;
+  if (t.dataset.micPlacar != null) micFechados.has('placar') ? micFechados.delete('placar') : micFechados.add('placar');
+  else if (t.dataset.micAbre != null) { const g = micGrupos[+t.dataset.micAbre]; if (g) micFechados.has(g.chave) ? micFechados.delete(g.chave) : micFechados.add(g.chave); }
+  else micGrupos.forEach(g => t.dataset.micTodas === 'abrir' ? micFechados.delete(g.chave) : micFechados.add(g.chave));
+  renderMicroC();
+});
+
+// ---------- o que se digita e se clica nas três páginas ----------
+document.addEventListener('paste', e => {
+  if (!e.target || e.target.id !== 'carCola') return;
+  e.preventDefault(); const novos = lerColagem((e.clipboardData || window.clipboardData).getData('text'));
+  if (!novos.length) { e.target.value = ''; e.target.placeholder = 'Nenhuma linha com ativo e valor foi reconhecida. Confira se copiou as linhas da carteira.'; return; }
+  const C = carDe(); C.ativos = (C.ativos || []).concat(novos);
+  classificaNaBase(novos); carColando = false; renderAll();
+});
+// devolve o foco ao campo que estava sendo digitado depois de redesenhar a página
+function carFoco(sel, txt) { const n = document.querySelector(sel); if (n) { n.focus(); n.value = txt; try { n.setSelectionRange(txt.length, txt.length); } catch (e) { } } }
+document.addEventListener('input', e => {
+  const t = e.target; if (!t.dataset) return;
+  if (t.dataset.carCampo != null && t.tagName !== 'SELECT') { const [i, k] = t.dataset.carCampo.split(':'); plano.carteira.ativos[+i][k] = k === 'valor' ? unmoney(t.value) : t.value; save(); return; }
+  if (t.dataset.micCampo != null && t.tagName === 'INPUT') { const [i, k] = t.dataset.micCampo.split(':'); plano.carteira.novos[+i][k] = k === 'valor' ? unmoney(t.value) : t.value; save(); return; }
+  if (t.dataset.micResgate != null) { plano.carteira.ativos[+t.dataset.micResgate].resgate = unmoney(t.value); save(); return; }
+  if (t.dataset.mac != null) { const [q, id] = t.dataset.mac.split(':'), n = numeroCar(t.value), txt = t.value;
+    macGrava(q, id, n == null ? (q === 'r' ? null : 0) : n / 100); renderMacroC(); save(); carFoco(`[data-mac="${q}:${id}"]`, txt); }
+});
+document.addEventListener('change', e => {
+  const t = e.target; if (!t.dataset) return;
+  if (t.dataset.carCampo != null) { const [i, k] = t.dataset.carCampo.split(':'), a = plano.carteira.ativos[+i];
+    if (t.tagName === 'SELECT') a[k] = t.value; if (k === 'classe' || k === 'nome') classificaNaBase([a]); setTimeout(renderAll, 0); return; }
+  if (t.dataset.micCampo != null) { const [i, k] = t.dataset.micCampo.split(':'); if (t.tagName === 'SELECT') plano.carteira.novos[+i][k] = t.value; setTimeout(renderAll, 0); return; }
+  if (t.dataset.micAcaoSel != null) { const i = t.dataset.micAcaoSel, a = plano.carteira.ativos[+i]; a.acao = t.value; if (a.acao !== 'parcial') delete a.resgate;
+    renderAll(); if (a.acao === 'parcial') carFoco(`[data-mic-resgate="${i}"]`, ''); return; }
+  if (t.dataset.micResgate != null || t.dataset.mac != null) setTimeout(renderAll, 0);
+});
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-car-modelo],[data-mac-usar],[data-car-tira],[data-car-mais],[data-car-apaga],[data-car-sobra],[data-car-novo-atual],[data-mic-incluir],[data-mic-novo],[data-mic-tira]'); if (!t) return;
+  const C = carDe(), d = t.dataset;
+  if (d.carModelo) { const m = ENGINE.CARTEIRAS_MODELO[d.carModelo]; C.modelo = d.carModelo; C.ideal = Object.fromEntries(ENGINE.CLASSES_CARTEIRA.filter(c => m[c.id]).map(c => [c.id, m[c.id]])); }
+  else if (d.macUsar) { const [q, id] = d.macUsar.split(":");
+    if (q === 'i') macGrava('i', id, (ENGINE.CARTEIRAS_MODELO[C.modelo] || {})[id] || 0); else macGrava('r', id, null); }
+  else if (d.carTira != null) C.ativos.splice(+d.carTira, 1);
+  else if (d.carMais != null) { carColando = true; renderAll(); const a = document.getElementById('carCola'); if (a) a.focus(); return; }
+  else if (d.carApaga != null) { if (!d.armed) { d.armed = '1'; t.textContent = 'Limpar os ' + C.ativos.length + ' ativos? Clique de novo'; return; } C.ativos = []; }
+  else if (d.carSobra) C.aporte = +d.carSobra;
+  else if (d.carNovoAtual != null) { C.ativos = (C.ativos || []).concat({ id: 'at' + Date.now().toString(36), instituicao: '', titular: '', nome: '', classe: '', subclasse: '', valor: 0, vencimento: '', tipo: '', acao: '', obs: '' });
+    carVista = 'conta'; renderAll(); carFoco(carGrupos.length > 1 || C.ativos.length > 1 ? `[data-car-g="${carGrupos.length - 1}:instituicao"]` : `[data-car-campo="0:nome"]`, ''); return; }
+  else if (d.micIncluir || d.micNovo != null) { const c = d.micIncluir ? ENGINE.carteiraDoPlano(plano).classes.find(x => x.id === d.micIncluir) : null;
+    C.novos = (C.novos || []).concat({ id: 'nv' + Date.now().toString(36), instituicao: '', nome: '', classe: c ? c.id : '', valor: c ? Math.round(c.falta) : 0 });
+    renderAll(); carFoco(`[data-mic-campo="${C.novos.length - 1}:nome"]`, ''); return; }
+  else if (d.micTira != null) C.novos.splice(+d.micTira, 1);
+  renderAll();
+});
+
 // ===================== GESTÃO DE RISCOS =====================
 // O consultor registra a situação de cada uma das oito ameaças em plano.riscos; o motor (avaliaRiscos) dá o status de
 // cada uma pela regra combinada e a nota da família. Campos com data-r="caminho" gravam direto no plano.
@@ -5341,7 +6090,7 @@ document.addEventListener('change', e => { const t = e.target; if (!t.dataset ||
 document.addEventListener('click', e => {
   const add = e.target.closest('[data-radd]'), rm = e.target.closest('[data-rrm]'), ex = e.target.closest('[data-rexemplo]'), ir = e.target.closest('[data-rir]');
   if (e.target.closest('[data-rseguro]')) { plano.riscos.seguro = novoSeguro(); if (!Array.isArray(plano.riscos.dependentes)) plano.riscos.dependentes = []; renderAll(); return; }
-  if (add) { const c = add.dataset.radd, lista = lerR(c) || []; lista.push(c.endsWith('vidas') ? { nome: '', idade: null, premio: 0 } : c.endsWith('bens.itens') ? { nome: '', valor: 0, protecao: '' } : c.endsWith('dependentes') ? { nome: '', relacao: 'filho', nasc: '' } : c.endsWith('geradores') ? novoGerador(lista.length ? 'outro' : 'titular', 0) : c === 'patrimonio.bens' ? { nome: '', mercado: 0, saldoDevedor: 0 } : c === 'patrimonio.dividas' ? { nome: '', saldoDevedor: 0, situacao: '' } : c.startsWith('patrimonio.') ? { nome: '', valor: 0 } : { nome: '', ideal: 0, atual: 0 }); ENGINE.gravaCaminho(plano, c, lista); if (c.includes('terceiros')) plano.riscos.terceiros.avaliado = true; renderAll(); }
+  if (add) { const c = add.dataset.radd, lista = lerR(c) || []; lista.push(c.endsWith('vidas') ? { nome: '', idade: null, premio: 0 } : c.endsWith('bens.itens') ? { nome: '', valor: 0, protecao: '' } : c.endsWith('dependentes') ? { nome: '', relacao: 'filho', nasc: '' } : c.endsWith('geradores') ? novoGerador(lista.length ? 'outro' : 'titular', 0) : c === 'patrimonio.bens' ? { nome: '', mercado: 0, saldoDevedor: 0 } : c === 'patrimonio.dividas' ? { nome: '', saldoDevedor: 0, situacao: '' } : c === 'patrimonio.financeiro' && temCarteira() ? { nome: '', valor: 0, tipo: 'fechada' } : c.startsWith('patrimonio.') ? { nome: '', valor: 0 } : { nome: '', ideal: 0, atual: 0 }); ENGINE.gravaCaminho(plano, c, lista); if (c.includes('terceiros')) plano.riscos.terceiros.avaliado = true; renderAll(); }
   else if (rm) { const ks = rm.dataset.rrm.split('.'), i = +ks.pop(), lista = lerR(ks.join('.')); lista.splice(i, 1); renderAll(); }
   else if (ex) { plano.riscos = JSON.parse(JSON.stringify(ENGINE.RISCOS_EXEMPLO)); renderAll(); }
   else if (ir) { abaRiscoC = ir.dataset.rir; renderRiscosC(); const r = document.getElementById('riscosC'); if (r && r.getBoundingClientRect().top < 0) r.scrollIntoView({ block: 'start' }); }
@@ -5407,8 +6156,8 @@ ARMAZEM.ouvir('plano', novo => { if (novo && JSON.stringify(novo.orcamento || nu
 
 // páginas do portal: cada assunto numa página, na ordem em que o plano é montado
 // (dados do cliente: Cliente, Fluxo, Patrimônio; planejamento: Riscos, Objetivos, Liberdade, Tributário, Premissas; com o cliente)
-const PAGINAS = ['cliente', 'orcamento', 'fluxo', 'patrimonio', 'politica', 'riscos', 'objetivos', 'liberdade', 'tributario', 'premissas', 'apresentacao', 'propostas'];
-const NOMES_PAGINA = { cliente: 'Cliente', patrimonio: 'Patrimônio', politica: 'Política de investimentos', objetivos: 'Objetivos', fluxo: 'Fluxo de caixa', liberdade: 'Liberdade financeira', riscos: 'Gestão de riscos', tributario: 'Otimização tributária', premissas: 'Premissas', apresentacao: 'Apresentação', propostas: 'Propostas do cliente' };
+const PAGINAS = ['cliente', 'orcamento', 'fluxo', 'patrimonio', 'carteira', 'politica', 'macro', 'micro', 'riscos', 'objetivos', 'liberdade', 'tributario', 'premissas', 'apresentacao', 'propostas'];
+const NOMES_PAGINA = { cliente: 'Cliente', patrimonio: 'Patrimônio', politica: 'Política de investimentos', carteira: 'Carteira atual', macro: 'Macroalocação', micro: 'Microalocação', objetivos: 'Objetivos', fluxo: 'Fluxo de caixa', liberdade: 'Liberdade financeira', riscos: 'Gestão de riscos', tributario: 'Otimização tributária', premissas: 'Premissas', apresentacao: 'Apresentação', propostas: 'Propostas do cliente' };
 // os indicadores do topo só aparecem onde ajudam a decidir: orçamento, objetivos e liberdade
 const COM_INDICADORES = ['fluxo', 'objetivos', 'liberdade'];
 let paginaAtual = null;
@@ -5416,7 +6165,7 @@ function irPara(p) {
   if (!PAGINAS.includes(p)) p = 'cliente';
   document.querySelectorAll('.page').forEach(s => { s.hidden = s.dataset.page !== p; });
   document.querySelectorAll('#nav a').forEach(a => a.classList.toggle('on', a.dataset.nav === p));
-  document.querySelector('main').classList.toggle('wide', p === 'fluxo');
+  document.querySelector('main').classList.toggle('wide', ['fluxo', 'carteira', 'macro', 'micro'].includes(p));
   document.getElementById('chips').hidden = !COM_INDICADORES.includes(p);
   const antes = paginaAtual; paginaAtual = p; if (antes && antes !== p) { plano.vistas = Object.assign({}, plano.vistas, { [antes]: true }); }
   if (gaveta) fecharGaveta(false);
@@ -5449,7 +6198,7 @@ document.getElementById('btnExemplo').onclick = e => trocarPlano(e.currentTarget
 
 // abrir a visão do cliente para apresentar: o plano vai gravado e também no endereço, e as ferramentas de proposta ficam de fora
 // a página do cliente que corresponde à página do portal à vista (ou a pedida pelo botão)
-const FASE_CLIENTE = { cliente: 'patrimonio', orcamento: 'orcamento', patrimonio: 'patrimonio', riscos: 'riscos', tributario: 'ir' };
+const FASE_CLIENTE = { carteira: 'carteira-hoje', macro: 'carteira-recomendada', micro: 'carteira-decisoes', cliente: 'patrimonio', orcamento: 'orcamento', patrimonio: 'patrimonio', riscos: 'riscos', tributario: 'ir' };
 document.getElementById('btnOpen').onclick = () => abrirCliente();
 function abrirCliente(fase) {
   const json = JSON.stringify(plano);

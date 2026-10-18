@@ -1,10 +1,10 @@
-// Copia o motor e o armazém da tela do cliente para a tela do consultor.
+// Copia o motor, o armazém e os gráficos compartilhados (o sunburst da carteira) da tela do cliente para a do consultor.
 // As duas telas são autocontidas, então os dois blocos são duplicados de propósito; rode isto após mexer neles.
 const fs = require('fs');
 const origem = fs.readFileSync('evolucao-patrimonial.html', 'utf8');
 const p = 'tela-consultor.html';
 let s = fs.readFileSync(p, 'utf8');
-for (const id of ['engine', 'armazem']) {
+for (const id of ['engine', 'armazem', 'graficos']) {
   const re = new RegExp('<script id="' + id + '">[\\s\\S]*?<\\/script>');
   const bloco = origem.match(re)[0];
   if (re.test(s)) s = s.replace(re, () => bloco);

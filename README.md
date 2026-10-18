@@ -14,7 +14,8 @@ além das fontes do Google, e abrem direto no navegador.
 - `VARIAVEIS.md` é o inventário das variáveis do plano: onde cada uma é informada (um lugar só) e quem a usa. Consulte
   antes de criar um campo novo.
 - `PENDENCIAS.md` lista o que falta, em ordem de prioridade, com o contexto dos testes com usuários.
-- `node sync-motor.js` copia o motor da tela do cliente para a do consultor. **Rode sempre que mexer no motor**:
+- `node sync-motor.js` copia o motor (e o armazém e os gráficos compartilhados) da tela do cliente para a do consultor.
+  **Rode sempre que mexer no motor ou no sunburst**:
   as duas telas são autocontidas e por isso carregam uma cópia cada.
 
 ## A realização de cada objetivo
@@ -65,6 +66,74 @@ Sankey começa como um bloco só, que se divide nas cores das caixinhas, e cada 
 com menos movimento no sistema, como a trajetória da evolução).
 As vendas futuras de bens não entram aqui: aparecem na evolução patrimonial. Num planejamento anual (`periodicidade`, na
 página Cliente), a sobra e os aportes aparecem por ano; o motor continua mensal.
+
+## A carteira: atual, macroalocação e microalocação
+
+São três páginas do portal, nas 15 classes da planilha de alocação da Nord (`ENGINE.CLASSES_CARTEIRA`, em renda fixa, renda
+variável e internacional, cada uma com a sua cor em tom do meio). A conta é uma só, `ENGINE.carteiraDoPlano`.
+
+**Carteira atual** (Dados do cliente, passo 5): a fotografia das posições de hoje, ativo a ativo, com instituição, titular
+(o titular, o cônjuge ou um dependente), ativo, classe, subclasse, vencimento, tipo (investimento, PGBL ou VGBL), valor e
+observações. Entra colando as linhas do Excel (Ctrl+C, Ctrl+V na área da página): com o cabeçalho, as colunas são
+reconhecidas pelo nome; sem ele, pelo conteúdo. A tela segue a posição de uma corretora: no alto, os indicadores (o total
+com a barra das classes, contas, ativos, a parte em previdência e o que falta classificar); embaixo, cada conta (instituição
+e titular) é um cartão que abre e fecha, com uma faixa de cabeçalho em fundo próprio (instituição em Sora,
+titular, total, a parte da carteira e a barra das classes); recolhidas, as contas são a visão geral. Os ativos são linhas
+brancas com divisórias, o nome em destaque e a liquidez pequena embaixo; os títulos das colunas ficam presos no alto ao
+rolar. A mesma lista pode ser vista por classe. Na linha, os campos não têm borda até o mouse passar; classe e subclasse são
+etiquetas empilhadas, na altura de uma linha, que se clicam para trocar; o valor aparece sem centavos; a previdência é um botão de três estados (não é, PGBL, VGBL); a observação é um ícone,
+cheio quando há texto, que abre o campo embaixo da linha. Instituição e titular se mudam no cabeçalho da conta, para todos
+os ativos dela; dá para acrescentar um ativo na conta ou uma conta nova. A classe
+que não vier sai da base de ativos já classificados, que aprende a cada colagem e a cada classe escolhida; o titular sai da
+coluna Titular ou do primeiro nome da família que aparecer na instituição ("XP Aline"); o tipo, da palavra PGBL ou VGBL na
+linha.
+
+Preenchida, a carteira é a fonte dos investimentos do patrimônio financeiro: `ENGINE.sincronizaPatrimonio` soma os ativos
+por instituição, titular e tipo em `patrimonio.financeiro` (linhas `daCarteira`, só leitura na página Patrimônio), e daí
+sai o `initialWealth`. Sem carteira, vale o que foi digitado no Patrimônio. Fundo de pensão (previdência fechada), FGTS e
+empréstimos a amigos e familiares não são da carteira: ficam no Patrimônio, digitados, e não somem quando a carteira é
+preenchida ou limpa. Limpar a carteira tira só os investimentos que vieram dela.
+
+**Macroalocação** (Planejamento, passo 7, depois da Política de investimentos): a mesa da política com as classes nas linhas
+e três colunas: hoje, ideal (o mundo perfeito: tudo em dinheiro, alocando do zero) e recomendada (o ajuste possível agora).
+A última coluna é a diferença em reais entre a recomendada e hoje. Ideal e recomendada são % sobre a carteira de hoje mais os recursos
+novos (`carteira.aporte`, com a sobra de 12 meses como referência), cada uma com o campo e o controle deslizante fino (escala
+da raiz, com ímã na referência: o perfil escolhido na ideal, a ideal na recomendada). A liquidez diária é o rodapé e fica com
+o restante, como a liberdade financeira na política; o trecho listrado do trilho é o que ela já não tem para dar, e o rodapé
+diz "fecha a conta" ou "passa em X p.p.". A ideal parte de uma carteira modelo, do perfil 0 (conservador) ao 3 (agressivo),
+em `ENGINE.CARTEIRAS_MODELO`; a classe sem recomendada segue a ideal, então só se digita a exceção (o fundo alternativo que
+não se consegue vender). No alto da página, num bloco à parte da mesa: a carteira modelo (perfis 0 a 3, com o nome de
+cada um), os recursos novos e o total a alocar; embaixo deles, as três carteiras (hoje, ideal, recomendada) em sunburst,
+que acompanham a mesa enquanto se digita ou se arrasta. Os cabeçalhos da mesa têm só o rótulo e o total, alinhados; a
+explicação de cada coluna fica na dica. Depois da mesa, os motivos da recomendação (`carteira.justificativa`, um por
+linha), que o cliente vê.
+
+O **sunburst** (`SUNBURST`, no bloco `<script id="graficos">`, que o `sync-motor.js` copia para o portal) segue o exemplo
+"Portfolio" do Flourish: o anel de dentro são os grupos (renda fixa, renda variável, internacional), em pastel, e o de fora
+as classes, em cores vivas; sem rótulos no gráfico, porque a legenda ao lado já descreve cada classe. Trocar de carteira e clicar num grupo (que passa a ocupar a volta inteira;
+o centro volta) são animados, arco por arco; na primeira vez, os arcos abrem em leque. O centro mostra o total e, com o
+mouse num arco, o nome, o % e o valor dele.
+
+**Microalocação** (passo 8): cada ativo de hoje é mantido, resgatado em parte (com o valor), resgatado por inteiro ou
+portabilizado (`ativos[].acao`, `.resgate`), e os ativos novos (`carteira.novos`) entram no lugar. Segue o desenho da
+Carteira atual: no alto, os indicadores (o que há para aplicar, o aplicado nos novos, o saldo e os ativos sem decisão);
+depois, o placar por classe num cartão que recolhe (a recomendada, o que fica dos ativos de hoje, os novos, o resultado e
+quanto falta, sem as classes zeradas); o "+ incluir" cria um ativo novo da classe com o valor que falta. Os ativos de hoje
+vêm em cartões por conta, que abrem e fecham, com a decisão na própria linha, numa etiqueta clicável com a cor de cada uma
+(Manter, Resgate parcial, Resgate integral, Portabilidade; no parcial, o valor que sai se digita ao lado), o valor de
+hoje, o que sai e o que fica; o ativo ainda sem decisão leva a etiqueta "a decidir" tracejada e uma marca laranja à
+esquerda. Os ativos novos ficam
+num cartão no mesmo formato. Os recursos fecham quando resgates, portabilidades e recursos novos são iguais ao aplicado nos
+novos.
+
+Na área do cliente, o capítulo **Carteira** vem depois da Política de investimentos, com capa e resumo do caso, como os
+outros, e três páginas: **A carteira de hoje** (o sunburst grande, a legenda por grupo e classe e as contas, cada uma com o
+total e a parte da carteira); **A carteira recomendada** (as abas Hoje, O ideal e Recomendada: ao chegar, a carteira de
+hoje vira a recomendada diante do cliente; a legenda mostra a diferença para hoje em pontos percentuais; depois, os motivos
+do consultor e o que muda por classe em duas colunas, o que resgatar à esquerda e o que aplicar à direita, cada uma com o
+total, o valor de cada classe, o % de hoje para o recomendado e uma barra fina do tamanho; embaixo, a diferença entre as
+duas são os recursos novos); e **O que muda na carteira** (os indicadores do que fica,
+sai em resgates, vai por portabilidade e entra, e três cartões com os investimentos de cada lado).
 
 ## Como as duas telas se conectam
 
@@ -721,7 +790,7 @@ A planilha do fluxo de caixa foi feita para mouse e trackpad; não há gesto de 
 |---|---|
 | `evolucao-patrimonial.html` | Tela do cliente. Contém o motor de simulação, que é a fonte de verdade. |
 | `tela-consultor.html` | Portal do consultor. Carrega uma cópia do mesmo motor. |
-| `sync-motor.js` | Copia o motor de uma tela para a outra. |
+| `sync-motor.js` | Copia o motor, o armazém e os gráficos compartilhados (o sunburst) de uma tela para a outra. |
 | `verificar.js` | Roda a simulação em Node e confere as invariantes. |
 | `PENDENCIAS.md` | O que falta fazer e o contexto dos testes com usuários. |
 | `marca/` | O ícone da Nord (recortado do logo), em 64 e 256 px. As telas levam o de 64 px embutido. |

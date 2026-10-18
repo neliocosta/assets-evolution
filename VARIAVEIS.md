@@ -76,7 +76,7 @@ por outra página (parcela de dívida, plano de saúde) aparecem com a média e 
 
 | Variável | Caminho | Situação | Quem usa |
 |---|---|---|---|
-| Financeiro por instituição e tipo (investimento, PGBL, VGBL, previdência fechada, FGTS) | `patrimonio.financeiro[]` (`tipo`: vazio, 'pgbl', 'vgbl', 'fechada', 'fgts'; os nomes em `ENGINE.TIPOS_FINANCEIRO`). O FGTS e a previdência fechada não têm liquidez (`ENGINE.SEM_LIQUIDEZ`) | fonte | `initialWealth` (simulação), sucessão, seguros |
+| Financeiro por instituição e tipo (investimento, PGBL, VGBL, previdência fechada, FGTS, empréstimo a amigos e familiares) | `patrimonio.financeiro[]` (`tipo`: vazio, 'pgbl', 'vgbl', 'fechada', 'fgts', 'emprestimo'; os nomes em `ENGINE.TIPOS_FINANCEIRO`). O FGTS e a previdência fechada não têm liquidez (`ENGINE.SEM_LIQUIDEZ`) | com carteira, os investimentos são **calculados** dela (`ENGINE.sincronizaPatrimonio`: soma dos ativos por instituição, titular e tipo, linhas `daCarteira`, só leitura); fundo de pensão, FGTS e empréstimos continuam fonte, digitados. Sem carteira, fonte | `initialWealth` (simulação), sucessão, seguros |
 | De quem é cada instituição do financeiro | `patrimonio.financeiro[].titularidade` (titular, cônjuge; vazio num casal: do casal, conjunta) | fonte | quem é a família (onde cada pessoa investe); base futura do % do patrimônio de cada pessoa nos seguros |
 | Participações (nome, valor de hoje) | `patrimonio.participacoes[]`: `nome`, `valor` | fonte | `partValue`, sucessão |
 | Valorização da participação (ao ano, pontual, valor esperado numa data) e venda planejada | `patrimonio.participacoes[].valorizacao[]` (`tipo`: `taxa`, `pontual` ou `alvo` com `em` e `valor`: o valuation esperado), `.venda` (data, preço, custos) | fonte (consultor); o preço de venda informado vale também como valor esperado no mês da venda | evolução patrimonial (participações), Fluxo de caixa (custos da venda), financeiro (o líquido da venda) |
@@ -152,6 +152,20 @@ por outra página (parcela de dívida, plano de saúde) aparecem com a média e 
 | Patrimônio e aporte de cada objetivo | `objectives[].dedicated`, `objectives[].planned` | fonte: a mesma variável no cartão do objetivo e na política | simulação, Política de investimentos |
 | As caixinhas: patrimônio, aporte, horizonte e estratégia de cada uma; a liberdade com o restante; a renda líquida e o padrão de vida (renda − sobra) | `ENGINE.politicaDeInvestimentos` (`renda`, `padrao`, `caixinhas`), `ENGINE.horizonteDe` | calculada (não gravada) | Política de investimentos (portal e cliente), resumo do caso |
 
+## Carteira (atual, macroalocação e microalocação)
+
+| Variável | Caminho no plano | Situação | Quem usa |
+|---|---|---|---|
+| A carteira de hoje, ativo a ativo | `carteira.ativos[]`: `id`, `instituicao`, `titular` ('titular', 'conjuge' ou 'dep:' + o nome do dependente; vazio num casal = do casal), `nome`, `classe` (um id de `ENGINE.CLASSES_CARTEIRA`; vazio = a classificar), `subclasse`, `vencimento` (o texto da planilha: Diária, D + 30, Previdência…), `tipo` ('' investimento, 'pgbl', 'vgbl'), `valor`, `obs` | fonte: colada da planilha do consultor e editada na página Carteira atual; é a fonte dos investimentos do financeiro | Macroalocação, Microalocação, `patrimonio.financeiro`, `initialWealth` |
+| Classe de cada ativo já classificado | base de ativos (no protótipo, `localStorage['nl-base-ativos']`, nome do ativo → classe; na plataforma, a base da Nord) | fonte (consultor), compartilhada entre clientes | classificação dos ativos colados sem classe |
+| Perfil da carteira modelo e alocação ideal | `carteira.modelo` (conservador, moderado, sofisticado ou agressivo: os perfis 0 a 3), `carteira.ideal` (frações por classe, como 0.37) | fonte (consultor); escolher o perfil preenche a ideal com `ENGINE.CARTEIRAS_MODELO` (ref. abr/26) | Macroalocação |
+| Alocação recomendada | `carteira.recomendada` (frações por classe); a classe sem valor segue a ideal | fonte (consultor) | Macroalocação, Microalocação |
+| Os motivos da recomendação | `carteira.justificativa` (texto, um motivo por linha) | fonte (consultor), na Macroalocação | capítulo Carteira do cliente (a carteira recomendada e o resumo do caso) |
+| Recursos novos a alocar | `carteira.aporte` | fonte (consultor); a referência é a sobra do mês × 12, com o botão "usar" | total da ideal e da recomendada (carteira de hoje + aporte) |
+| O que fazer com cada ativo de hoje | `carteira.ativos[].acao` ('manter', 'parcial', 'integral', 'portabilidade'; nomes em `ENGINE.ACOES_ATIVO`; a coluna Ação da planilha é lida), `.resgate` (R$, no resgate parcial) | fonte (consultor) | Microalocação |
+| Os ativos novos | `carteira.novos[]`: `id`, `instituicao`, `nome`, `classe`, `valor` | fonte (consultor) | Microalocação |
+| Liquidez diária (o restante), diferenças, o que fica, o resultado por classe e o caixa | `ENGINE.carteiraDoPlano` | calculada (não gravada) | Macroalocação, Microalocação, pendências |
+
 ## Diagnóstico
 
 | Variável | Caminho | Situação | Quem usa |
@@ -190,8 +204,14 @@ por outra página (parcela de dívida, plano de saúde) aparecem com a média e 
 2. **Nome e idade das vidas do plano de saúde**: abrir com o titular, o cônjuge e os dependentes da Cliente.
 3. **% do patrimônio de cada pessoa nos seguros**: pela titularidade, que já existe nos bens e no financeiro (este
    só usado, por enquanto, no retrato da família) e falta nas participações.
-4. **Liquidez de cada aplicação** (quando a carteira do cliente for recebida): a escada de D+0 a 1 ano sai dela.
+4. **Liquidez de cada aplicação**: a carteira já chega com o vencimento de cada ativo (`carteira.ativos[].vencimento`);
+   falta ler dele a escada de D+0 a 1 ano (`riscos.liquidez`, hoje digitada).
+5. **Classes da carteira × classes da experiência**: `ENGINE.CLASSES_CARTEIRA` (15 classes da macro alocação) e
+   `ENGINE.CLASSES_ATIVOS` (11, na experiência com investimentos da página Cliente) dizem quase a mesma coisa com cortes
+   diferentes.
 
+Resolvida em 18/10/2026, por decisão do usuário: carteira × patrimônio financeiro (a carteira colada manda no financeiro
+por instituição; fundo de pensão, FGTS e empréstimos a amigos e familiares continuam digitados na página Patrimônio).
 Resolvidas em 07/10/2026: renda tributável, INSS, pró-labore e dividendos (do Fluxo); nomes do casal (Cliente); bens da
 gestão de riscos (Patrimônio); plano de saúde no Fluxo (só o que sai do bolso); idade dos geradores de renda (Cliente).
 Não são repetição, por decisão do usuário: despesas médicas e instrução no IR (o consultor decide o que é dedutível).

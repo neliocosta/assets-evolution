@@ -946,6 +946,58 @@ body.fluxo .legend,body.fluxo #segView,body.fluxo #segLiq,body.fluxo #btnPlay,bo
 .tb-campo input[type=range]::-webkit-slider-runnable-track{background:linear-gradient(90deg,#F6A06B var(--p,50%),#EEF1F5 var(--p,50%))}
 .tb-campo input[type=range]::-webkit-slider-thumb{border-color:#F6A06B}
 .degraus .cheio{background:#F6A06B}
+/* capítulo Carteira: o sunburst com destaque, a legenda ao lado, as abas e as decisões */
+.ct-hero{display:grid;grid-template-columns:minmax(0,460px) minmax(0,1fr);gap:44px;align-items:center}
+.ct-sb{width:100%;max-width:460px;aspect-ratio:1}
+.ct-leg{display:flex;flex-direction:column;gap:16px;min-width:0}
+.ct-tot span{display:block;font:600 11px 'DM Sans',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#6b6a66}
+.ct-tot b{display:block;font:600 34px/1.1 Sora,sans-serif;color:var(--nl-navy-900);margin-top:4px;font-variant-numeric:tabular-nums}
+.ct-tot small{font:500 13px 'DM Sans',sans-serif;color:#6b6a66}
+.ct-lg{border-top:1px solid #EFECE6;padding-top:10px}
+.ct-lgc{display:flex;align-items:center;gap:10px;margin-bottom:6px} .ct-lgc i{width:12px;height:12px;border-radius:3px}
+.ct-lgc b{font:600 14px Sora,sans-serif;color:var(--nl-navy-900);flex:1} .ct-lgc span{font:600 14px Sora,sans-serif;color:var(--nl-navy-900)}
+.ct-lgl{display:grid;grid-template-columns:10px minmax(0,1fr) 72px 52px 104px;gap:10px;align-items:baseline;padding:3px 0 3px 2px;font:500 13.5px 'DM Sans',sans-serif;color:var(--nl-gray-700)}
+.ct-lgl i{width:8px;height:8px;border-radius:50%;align-self:center} .ct-lgl b{text-align:right;font-weight:600;color:var(--nl-navy-900);font-variant-numeric:tabular-nums}
+.ct-lgl small{text-align:right;font-size:12.5px;color:#8a867e;font-variant-numeric:tabular-nums}
+.ct-lgl .d{text-align:right;font-size:12px;font-weight:600} .ct-lgl .d.mais{color:#22794A} .ct-lgl .d.menos{color:#964400}
+.ct-abas{display:inline-flex;gap:4px;background:#F1EEE8;border-radius:9999px;padding:4px;margin-bottom:22px}
+.ct-abas button{border:0;background:none;border-radius:9999px;padding:8px 18px;font:600 13.5px 'DM Sans',sans-serif;color:#6b6a66;cursor:pointer;transition:background .2s,color .2s}
+.ct-abas button[aria-pressed=true]{background:#fff;color:var(--nl-navy-900);box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.ct-contas{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+.gf-c.ct-conta b{font-size:22px}
+.ct-motivos{margin:10px 0 0;padding:0;list-style:none;counter-reset:m;display:grid;gap:10px}
+.ct-motivos li{counter-increment:m;display:flex;gap:14px;align-items:flex-start;background:#fff;border-radius:14px;box-shadow:var(--shadow-card);padding:14px 18px;font:500 15px/1.5 'DM Sans',sans-serif;color:var(--nl-gray-700)}
+.ct-motivos li::before{content:counter(m);flex:none;width:26px;height:26px;border-radius:50%;background:var(--nl-peach-100);color:var(--nl-navy-900);display:grid;place-items:center;font:600 13px Sora,sans-serif}
+.ct-muda2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+.gf-c.ct-lado{padding:0;overflow:hidden} .ct-lado.sai .ct-dt{background:#FBEDE7} .ct-lado.entra .ct-dt{background:#E8F4EC}
+.gf-c.ct-lado .ct-dt b{margin:0;font:600 18px Sora,sans-serif} .ct-lado.sai .ct-dt b{color:#964400} .ct-lado.entra .ct-dt b{color:#22794A}
+.ct-ml{position:relative;display:grid;grid-template-columns:8px minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 18px 12px;border-top:1px solid #F1EEE8;font:500 14px 'DM Sans',sans-serif;color:var(--nl-gray-700)}
+.ct-ml i{width:8px;height:8px;border-radius:50%} .ct-ml .n small{display:block;font-size:12px;color:#8a867e}
+.gf-c.ct-lado .ct-ml b{display:block;margin:0;font:600 14px 'DM Sans',sans-serif;color:var(--nl-navy-900);font-variant-numeric:tabular-nums}
+.gf-c .ct-ml em{position:absolute;left:36px;bottom:5px;height:3px;border-radius:2px;max-width:calc(100% - 54px);margin:0;padding:0;border:0} .ct-ml em.sai{background:#E9B48C} .ct-ml em.entra{background:#8CCBA2}
+.ct-ml.vazio{display:block;color:#8a867e}
+@media (max-width:1100px){ .ct-muda2{grid-template-columns:1fr} }
+.ct-kpis{grid-template-columns:repeat(4,minmax(0,1fr))}
+.ct-decs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:start}
+.gf-c.ct-dec{padding:0;overflow:hidden}
+.ct-dt{display:flex;justify-content:space-between;align-items:baseline;padding:14px 18px;background:#F4F1EB}
+.ct-dt span{font:600 11px 'DM Sans',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--nl-navy-900)}
+.gf-c.ct-dec .ct-dt b{margin:0;font:600 18px Sora,sans-serif}
+.ct-dec.sai .ct-dt{background:#FBEDE7} .ct-dec.entra .ct-dt{background:#FFF3EB}
+.ct-al{display:grid;grid-template-columns:8px minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 18px;border-top:1px solid #F1EEE8}
+.ct-al i{width:8px;height:8px;border-radius:50%}
+.gf-c.ct-dec .ct-al b{display:block;margin:0;font:600 14px 'DM Sans',sans-serif;color:var(--nl-navy-900)}
+.ct-al .n{min-width:0} .ct-al .n b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gf-c.ct-dec .ct-al small{display:block;font-size:12px;color:#8a867e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gf-c.ct-dec .ct-al b.v{font-variant-numeric:tabular-nums;white-space:nowrap}
+@media (max-width:1100px){ .ct-hero{grid-template-columns:1fr} .ct-decs{grid-template-columns:1fr} .ct-kpis{grid-template-columns:repeat(2,minmax(0,1fr))} }
+/* o sunburst (o mesmo desenho no portal) */
+.sunburst{display:block;width:100%;height:auto;overflow:visible}
+.sunburst path{stroke:#fff;stroke-width:1.5;cursor:pointer;transition:opacity .15s} .sunburst path.apaga{opacity:.35}
+.sunburst .sb-c1{fill:#6b6a66;font-family:'DM Sans',sans-serif;font-weight:600;letter-spacing:.06em;text-transform:uppercase;pointer-events:none}
+.sunburst .sb-c2{fill:var(--nl-navy-900);font-family:Sora,sans-serif;font-weight:600;pointer-events:none}
+.sunburst .sb-c3{fill:#6b6a66;font-family:'DM Sans',sans-serif;font-weight:500;pointer-events:none}
+.sunburst .sb-volta{cursor:pointer}
 </style>
 </head>
 <body>
@@ -1957,6 +2009,19 @@ const ENGINE = (() => {
   }
   function sincronizaPatrimonio(plan) {
     const P = plan && plan.patrimonio; if (!P) return plan;
+    // a carteira de hoje, quando preenchida, é a fonte dos investimentos do financeiro: cada instituição, titular e tipo
+    // (investimentos, PGBL, VGBL) vira uma linha com a soma dos ativos (daCarteira). Fundo de pensão, FGTS e empréstimos a
+    // amigos e familiares não são da carteira e continuam como foram informados. Sem carteira, vale o que foi digitado; ao
+    // limpar a carteira, saem só as linhas que vieram dela.
+    const A = plan.carteira && plan.carteira.ativos, foraDaCarteira = f => SEM_LIQUIDEZ.includes(f.tipo);
+    if (Array.isArray(A) && A.length) {
+      const antes = Array.isArray(P.financeiro) ? P.financeiro : [], grupos = new Map();
+      A.forEach(a => { const k = String(a.instituicao || '').trim().toLowerCase() + '|' + (a.titular || '') + '|' + (a.tipo || '');
+        if (!grupos.has(k)) grupos.set(k, { nome: String(a.instituicao || '').trim() || 'Sem instituição', valor: 0, tipo: a.tipo || '', titularidade: a.titular || '', daCarteira: true });
+        grupos.get(k).valor += +a.valor || 0; });
+      grupos.forEach(g => { g.valor = Math.round(g.valor * 100) / 100; });
+      P.financeiro = [...grupos.values(), ...antes.filter(f => !f.daCarteira && foraDaCarteira(f))];
+    } else if (Array.isArray(P.financeiro) && P.financeiro.some(f => f.daCarteira)) P.financeiro = P.financeiro.filter(f => !f.daCarteira);
     if (Array.isArray(P.financeiro)) plan.initialWealth = somaDe(P.financeiro, 'valor');
     if (Array.isArray(P.participacoes)) plan.partValue = somaDe(P.participacoes, 'valor');
     if (Array.isArray(P.bens)) plan.initialBens = somaDe(P.bens, 'mercado');
@@ -2179,6 +2244,50 @@ const ENGINE = (() => {
     const pct = entradas > 0 ? sobra / entradas : -1;
     return { entradas, saidas, sobra, pct, estado: pct > ORCAMENTO_ZERO ? 'superavitario' : pct < -ORCAMENTO_ZERO ? 'deficitario' : 'zero' };
   }
+  // ---- Carteira: a de hoje, a macroalocação (ideal e recomendada) e a microalocação ----
+  // A carteira de hoje é a fotografia das posições (plan.carteira.ativos: instituição, titular, ativo, classe, subclasse,
+  // vencimento, tipo, valor, observações), colada da planilha do consultor. A ideal é a alocação do zero, com tudo em
+  // dinheiro; a recomendada é o ajuste possível agora (um fundo que não se consegue vender fica). As duas são frações por
+  // classe (plan.carteira.ideal e .recomendada) sobre o total: a carteira de hoje mais os recursos novos (plan.carteira.aporte).
+  // A liquidez diária fica com o restante, como a liberdade financeira na política; a classe sem recomendada segue a ideal.
+  // Na microalocação, cada ativo de hoje é mantido, resgatado em parte ou por inteiro, ou portabilizado (ativos[].acao e
+  // .resgate), e os ativos novos (plan.carteira.novos) entram no lugar.
+  const CLASSES_CARTEIRA = [
+    { id: 'liquidez', nome: 'Liquidez diária', grupo: 'Renda fixa', cor: '#8FD0F5' }, { id: 'posFixado', nome: 'Pós-fixado', grupo: 'Renda fixa', cor: '#3D79D1' },
+    { id: 'preFixado', nome: 'Pré-fixado', grupo: 'Renda fixa', cor: '#1F4E9C' }, { id: 'inflacao', nome: 'Indexado à inflação', grupo: 'Renda fixa', cor: '#2BB0C9' },
+    { id: 'multimercado', nome: 'Fundos multimercado', grupo: 'Renda variável', cor: '#E9A23B' }, { id: 'imobiliarios', nome: 'Fundos imobiliários', grupo: 'Renda variável', cor: '#C8655A' },
+    { id: 'acoesBrasil', nome: 'Ações Brasil', grupo: 'Renda variável', cor: '#E5743A' }, { id: 'fundoAcoesBrasil', nome: 'Fundo de ações Brasil', grupo: 'Renda variável', cor: '#F0B27A' },
+    { id: 'ouro', nome: 'Ouro', grupo: 'Renda variável', cor: '#C9A227' }, { id: 'cripto', nome: 'Criptoativos', grupo: 'Renda variável', cor: '#C060A1' },
+    { id: 'alternativos', nome: 'Alternativos', grupo: 'Renda variável', cor: '#8D6E57' },
+    { id: 'cambial', nome: 'Cambial', grupo: 'Internacional', cor: '#8BC34A' }, { id: 'rfGlobal', nome: 'Renda fixa global', grupo: 'Internacional', cor: '#3DA66A' },
+    { id: 'acoesGlobais', nome: 'Ações globais', grupo: 'Internacional', cor: '#1E7F5C' }, { id: 'fundoAcoesGlobais', nome: 'Fundo de ações globais', grupo: 'Internacional', cor: '#6FCF97' }];
+  // as carteiras modelo da Nord por perfil, do 0 (o mais conservador) ao 3 (planilha de alocação, referência abr/26)
+  const CARTEIRAS_MODELO = { ref: 'abr/26',
+    conservador: { nome: 'Perfil 0', perfil: 'Conservador', posFixado: 0.47, preFixado: 0.03, inflacao: 0.30, multimercado: 0.10, rfGlobal: 0.06, fundoAcoesGlobais: 0.04 },
+    moderado: { nome: 'Perfil 1', perfil: 'Moderado', posFixado: 0.37, preFixado: 0.02, inflacao: 0.27, multimercado: 0.12, fundoAcoesBrasil: 0.08, rfGlobal: 0.06, fundoAcoesGlobais: 0.08 },
+    sofisticado: { nome: 'Perfil 2', perfil: 'Sofisticado', posFixado: 0.32, preFixado: 0.02, inflacao: 0.22, multimercado: 0.12, fundoAcoesBrasil: 0.13, rfGlobal: 0.09, fundoAcoesGlobais: 0.10 },
+    agressivo: { nome: 'Perfil 3', perfil: 'Agressivo', posFixado: 0.25, preFixado: 0.01, inflacao: 0.18, multimercado: 0.10, fundoAcoesBrasil: 0.21, rfGlobal: 0.11, fundoAcoesGlobais: 0.14 } };
+  const ACOES_ATIVO = { manter: 'Manter', parcial: 'Resgate parcial', integral: 'Resgate integral', portabilidade: 'Portabilidade' };
+  function carteiraDoPlano(plan) {
+    const C = plan.carteira || {}, ativos = C.ativos || [], novos = C.novos || [], ideal = C.ideal || {}, rec = C.recomendada || {};
+    const val = a => Math.max(0, +a.valor || 0), soma = (l, f) => l.reduce((s, x) => s + f(x), 0);
+    // o que sai de cada ativo de hoje: nada (manter ou a decidir), uma parte ou tudo (resgate integral e portabilidade)
+    const sai = a => a.acao === 'integral' || a.acao === 'portabilidade' ? val(a) : a.acao === 'parcial' ? Math.min(val(a), Math.max(0, +a.resgate || 0)) : 0;
+    const atual = soma(ativos, val), aporte = Math.max(0, +C.aporte || 0), total = atual + aporte;
+    const pI = id => +ideal[id] || 0, segue = id => rec[id] == null, pR = id => segue(id) ? pI(id) : +rec[id] || 0;
+    const outras = CLASSES_CARTEIRA.filter(k => k.id !== 'liquidez'), restoI = 1 - soma(outras, k => pI(k.id)), restoR = 1 - soma(outras, k => pR(k.id));
+    const classes = CLASSES_CARTEIRA.map(k => {
+      const delas = ativos.filter(a => a.classe === k.id), v = soma(delas, val), liq = k.id === 'liquidez';
+      const pIdeal = liq ? Math.max(0, restoI) : pI(k.id), pRec = liq ? Math.max(0, restoR) : pR(k.id);
+      const fica = soma(delas, a => val(a) - sai(a)), novo = soma(novos.filter(n => n.classe === k.id), val);
+      return Object.assign({}, k, { atual: v, pAtual: atual > 0 ? v / atual : 0, pIdeal, ideal: pIdeal * total, pRec, rec: pRec * total, segue: !liq && segue(k.id), resto: liq,
+        dif: pRec * total - v, fica, novos: novo, resultado: fica + novo, falta: pRec * total - fica - novo });
+    });
+    const resgatado = soma(ativos, sai), aplicado = soma(novos, val);
+    return { classes, atual, aporte, total, excessoIdeal: Math.max(0, -restoI), excessoRec: Math.max(0, -restoR),
+      semClasse: ativos.filter(a => !CLASSES_CARTEIRA.some(k => k.id === a.classe)), semAcao: ativos.filter(a => !ACOES_ATIVO[a.acao]),
+      resgatado, aplicado, caixa: resgatado + aporte - aplicado, sai };
+  }
   // ---- Política de investimentos: para onde vai o patrimônio financeiro de hoje e a sobra de cada mês ----
   // As caixinhas, na ordem: os compromissos (plan.compromissos), a reserva de emergência, cada objetivo e a liberdade
   // financeira, que fica com o restante. O que vai para cada objetivo é o próprio objetivo (dedicated e planned): a política
@@ -2339,8 +2448,8 @@ const ENGINE = (() => {
   const PREVIDENCIA = ['pgbl', 'vgbl', 'fechada'];
   // os tipos do patrimônio financeiro (patrimonio.financeiro[].tipo; vazio = investimentos). O FGTS e a previdência fechada
   // contam no patrimônio, mas não têm liquidez: na política de investimentos, ficam na liberdade financeira.
-  const TIPOS_FINANCEIRO = { '': 'Investimentos', pgbl: 'Previdência PGBL', vgbl: 'Previdência VGBL', fechada: 'Previdência fechada', fgts: 'FGTS' };
-  const SEM_LIQUIDEZ = ['fgts', 'fechada'];
+  const TIPOS_FINANCEIRO = { '': 'Investimentos', pgbl: 'Previdência PGBL', vgbl: 'Previdência VGBL', fechada: 'Previdência fechada', fgts: 'FGTS', emprestimo: 'Empréstimo a amigos e familiares' };
+  const SEM_LIQUIDEZ = ['fgts', 'fechada', 'emprestimo'];   // fora da carteira de investimentos, sem liquidez
   function sucessao(plan) {
     const P = (plan || {}).patrimonio || {}, S = ((plan || {}).tributario || {}).sucessao || {}, fin = P.financeiro || [];
     const prev = fin.filter(x => PREVIDENCIA.includes(x.tipo)).reduce((a, x) => a + pos(x.valor), 0), inv = fin.filter(x => !PREVIDENCIA.includes(x.tipo)).reduce((a, x) => a + pos(x.valor), 0);
@@ -2444,7 +2553,7 @@ const ENGINE = (() => {
     return mis.map(mi => ({ mi, mes: M[mi].mes, saldo: M[mi].saldo, aportado: M.slice(0, mi + 1).reduce((a, m) => a + m.aporte, 0), extra: M.slice(0, mi + 1).reduce((a, m) => a + m.extra, 0), data: mi === n }));
   }
   OBJ.forEach(derive);   // os objetivos do exemplo (aqui, depois dos bens: derive lê as vendas)
-  return { TODAY, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, PASSIVE, PROFILES, STATUS, trajetoriaDoBem, trajetoriaDaParticipacao, vendasDoObjetivo, partilhaDaVenda, HORIZONTES, horizonteDe, politicaDeInvestimentos, TIPOS_FINANCEIRO, SEM_LIQUIDEZ, get COMPROMISSOS() { return COMPROMISSOS; }, saldoDasVendas, precoDoObjetivo, mesISO, orcadoDoObjetivo, cortesDoObjetivo, saldoDevedorEm, contratoDaDivida, restantesDaDivida, mesDe, get BENS() { return bensDoPlano(); }, get PARTS() { return partsDoPlano(); }, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, serieCusto, desiredAt, aplicaAlteracoes, fraseDaLinha, descreveAlteracao, valorAtual, mesDoPlano, RISCOS, NATUREZAS, ITENS_RUINA, RISCOS_EXEMPLO, avaliaRiscos, custoDeVida, mediaDe12Meses, SEGURO, RELACOES, idadeLimiteDe, calculaSeguros, mesesAteIdade, FASES_VIDA, faseDaVida, sincronizaPatrimonio, PATRIMONIO_EXEMPLO, padraoDeVida, lerCaminho, gravaCaminho, IR, calculaIR, irDaFamilia, REGIMES, calculaRetirada, retiradaDosSocios, PREVIDENCIA, sucessao, simulaPrevidencia, aliqRegressiva, TRIBUTARIO_EXEMPLO, FAMILIA_EXEMPLO, casalDe, nomesDaFamilia, pessoasDaFamilia, rendaDaPessoa, bensDoRisco, titularidadeDoBem, setRetireAge: a => { RETIRE_AGE = a == null ? null : Math.max(CURRENT_AGE, +a); }, paradaMi, trabalhaEm, idadeDaLiberdade, dataNasc, idadeExata, sincronizaIdades, fraseDoProposito, ordemDoProposito, objetivosDoProposito, rendasAtivasDe, naturezaDe, naturezaDaReserva, CLASSES_ATIVOS, ORCAMENTO_IDEAL, VEZES_POUPOU, gestaoFinanceira, horasDoTrabalho, familiaDoPlano, ESTADOS_DIAGNOSTICO, orcamentoDoFluxo, concentracaoDoPatrimonio, diagnosticoDaFamilia, financiamentoValido, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
+  return { TODAY, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, PASSIVE, PROFILES, STATUS, trajetoriaDoBem, trajetoriaDaParticipacao, vendasDoObjetivo, partilhaDaVenda, HORIZONTES, horizonteDe, politicaDeInvestimentos, TIPOS_FINANCEIRO, SEM_LIQUIDEZ, get COMPROMISSOS() { return COMPROMISSOS; }, saldoDasVendas, precoDoObjetivo, mesISO, orcadoDoObjetivo, cortesDoObjetivo, saldoDevedorEm, contratoDaDivida, restantesDaDivida, mesDe, get BENS() { return bensDoPlano(); }, get PARTS() { return partsDoPlano(); }, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, serieCusto, desiredAt, aplicaAlteracoes, fraseDaLinha, descreveAlteracao, valorAtual, mesDoPlano, RISCOS, NATUREZAS, ITENS_RUINA, RISCOS_EXEMPLO, avaliaRiscos, custoDeVida, mediaDe12Meses, SEGURO, RELACOES, idadeLimiteDe, calculaSeguros, mesesAteIdade, FASES_VIDA, faseDaVida, sincronizaPatrimonio, PATRIMONIO_EXEMPLO, padraoDeVida, lerCaminho, gravaCaminho, IR, calculaIR, irDaFamilia, REGIMES, calculaRetirada, retiradaDosSocios, PREVIDENCIA, sucessao, simulaPrevidencia, aliqRegressiva, TRIBUTARIO_EXEMPLO, FAMILIA_EXEMPLO, casalDe, nomesDaFamilia, pessoasDaFamilia, rendaDaPessoa, bensDoRisco, titularidadeDoBem, setRetireAge: a => { RETIRE_AGE = a == null ? null : Math.max(CURRENT_AGE, +a); }, paradaMi, trabalhaEm, idadeDaLiberdade, dataNasc, idadeExata, sincronizaIdades, fraseDoProposito, ordemDoProposito, objetivosDoProposito, rendasAtivasDe, naturezaDe, naturezaDaReserva, CLASSES_ATIVOS, ORCAMENTO_IDEAL, VEZES_POUPOU, gestaoFinanceira, horasDoTrabalho, familiaDoPlano, ESTADOS_DIAGNOSTICO, orcamentoDoFluxo, CLASSES_CARTEIRA, CARTEIRAS_MODELO, ACOES_ATIVO, carteiraDoPlano, concentracaoDoPatrimonio, diagnosticoDaFamilia, financiamentoValido, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
 })();
 if (typeof module !== 'undefined') module.exports = ENGINE;
 </script>
@@ -2510,6 +2619,98 @@ const ARMAZEM = (() => {
     },
     get nuvem() { return !!db; },
   };
+})();
+</script>
+<script id="graficos">
+// ===================== GRÁFICOS COMPARTILHADOS (o sync-motor.js copia este bloco para o portal) =====================
+// O sunburst da carteira, no desenho do exemplo "Portfolio" do Flourish: o anel de dentro são os grupos (renda fixa, renda
+// variável, internacional) em tons pastel, e o de fora, as classes, em cores vivas (nenhuma igual às de dentro); o nome e o % ficam na legenda ao
+// lado e, com o mouse, no centro. Trocar de carteira
+// (hoje, ideal, recomendada) e clicar num grupo (que passa a ocupar a volta inteira, com só as classes dele; o centro volta)
+// são animados: cada arco vai do ângulo em que estava ao novo. A última forma de cada gráfico fica guardada pela chave, e
+// redesenhar a página continua de onde parou, em vez de recomeçar. Na primeira vez, os arcos abrem em leque a partir do alto.
+const SUNBURST = (() => {
+  const GRUPO_COR = { 'Renda fixa': '#B3CAEE', 'Renda variável': '#F1CA9C', 'Internacional': '#B5DFC1' };
+  const memoria = {}, INI = -Math.PI / 2, VOLTA = 2 * Math.PI;
+  const pt = (cx, cy, r, a) => [cx + r * Math.cos(a), cy + r * Math.sin(a)];
+  const n2 = v => Math.round(v * 100) / 100;
+  function arco(cx, cy, r0, r1, a0, a1) {
+    if (!(a1 - a0 > 1e-4)) return '';
+    if (a1 - a0 > VOLTA - 1e-4) a1 = a0 + VOLTA - 1e-4;
+    const g = a1 - a0 > Math.PI ? 1 : 0, [x0, y0] = pt(cx, cy, r1, a0), [x1, y1] = pt(cx, cy, r1, a1), [x2, y2] = pt(cx, cy, r0, a1), [x3, y3] = pt(cx, cy, r0, a0);
+    return `M${n2(x0)} ${n2(y0)}A${r1} ${r1} 0 ${g} 1 ${n2(x1)} ${n2(y1)}L${n2(x2)} ${n2(y2)}A${r0} ${r0} 0 ${g} 0 ${n2(x3)} ${n2(y3)}Z`;
+  }
+  // os arcos de destino: os grupos no anel de dentro, as classes no de fora; com um grupo em foco, ele ocupa a volta toda
+  function alvo(classes, foco) {
+    const vivas = classes.filter(c => c.v > 0), grupos = [...new Set(vivas.map(c => c.grupo))];
+    const totalDe = g => vivas.filter(c => c.grupo === g).reduce((s, c) => s + c.v, 0), total = vivas.reduce((s, c) => s + c.v, 0) || 1;
+    const base = foco && grupos.includes(foco) ? totalDe(foco) : total, arcos = [];
+    let a = INI;
+    grupos.forEach(g => { const tg = totalDe(g), dentro = !foco || foco === g || !grupos.includes(foco), span = dentro ? tg / base * VOLTA : 0, g0 = a;
+      arcos.push({ id: 'g:' + g, nivel: 0, nome: g, cor: GRUPO_COR[g] || '#C9C4BB', v: tg, p: tg / total, a0: g0, a1: g0 + span });
+      let b = g0; vivas.filter(c => c.grupo === g).forEach(c => { const s = dentro ? c.v / base * VOLTA : 0; arcos.push({ id: 'c:' + c.id, nivel: 1, nome: c.nome, cor: c.cor, v: c.v, p: c.v / total, grupo: g, a0: b, a1: b + s }); b += s; });
+      a += span; });
+    return arcos;
+  }
+  const ease = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  function quadro(st) {
+    const { el, arcos, op } = st, T = op.tamanho, c = T / 2, r0 = T * 0.2, r1 = T * 0.34, r2 = T * 0.495, hov = st.hover;
+    const pct = p => (p * 100).toLocaleString('pt-BR', { maximumFractionDigits: p < 0.1 ? 1 : 0 }) + '%';
+    let g = '';
+    arcos.forEach(x => {
+      const d = arco(c, c, x.nivel ? r1 : r0, x.nivel ? r2 : r1, x.a0, x.a1); if (!d) return;
+      g += `<path d="${d}" fill="${x.cor}" data-sb="${x.id}" class="${hov && hov !== x.id && !(hov.startsWith('g:') && x.grupo === hov.slice(2)) ? 'apaga' : ''}"><title>${x.nome}: ${pct(x.p)}</title></path>`;
+    });
+    // o centro: o título e o valor; com o mouse num arco, o nome, o % e o valor dele; com um grupo aberto, volta
+    const h = hov && arcos.find(x => x.id === hov), fs = T * 0.058;
+    const centro = h ? [h.nome, pct(h.p), op.total ? op.fmt(h.p * op.total) : ''] : st.foco ? [st.foco, 'voltar', ''] : [op.rot || '', op.valor || '', op.sub || ''];
+    g += `<circle cx="${c}" cy="${c}" r="${r0 - 2}" fill="transparent" class="${st.foco ? 'sb-volta' : ''}" data-sb-centro="1"/>`
+      + `<text class="sb-c1" x="${c}" y="${c - fs * 0.95}" text-anchor="middle" font-size="${n2(fs * 0.62)}">${centro[0]}</text>`
+      + `<text class="sb-c2" x="${c}" y="${c + fs * 0.35}" text-anchor="middle" font-size="${n2(fs)}">${centro[1]}</text>`
+      + (centro[2] ? `<text class="sb-c3" x="${c}" y="${c + fs * 1.25}" text-anchor="middle" font-size="${n2(fs * 0.55)}">${centro[2]}</text>` : '');
+    el.innerHTML = `<svg viewBox="0 0 ${T} ${T}" class="sunburst" role="img" aria-label="${op.rot || 'Carteira'}: ${arcos.filter(x => x.nivel === 1 && x.a1 > x.a0).map(x => x.nome + ' ' + pct(x.p)).join(', ')}">${g}</svg>`;
+  }
+  // anima de onde o gráfico estava até o destino
+  function anima(st, destino, ms) {
+    cancelAnimationFrame(st.raf);
+    const de = {}; st.arcos.forEach(x => { de[x.id] = x; });
+    const fim = destino, t0 = performance.now();
+    const passo = agora => {
+      const t = ms > 0 ? Math.min(1, (agora - t0) / ms) : 1, e = ease(t);
+      st.arcos = fim.map(x => { const o = de[x.id] || { a0: INI, a1: INI }; return Object.assign({}, x, { a0: o.a0 + (x.a0 - o.a0) * e, a1: o.a1 + (x.a1 - o.a1) * e }); });
+      quadro(st);
+      if (t < 1) st.raf = requestAnimationFrame(passo);
+    };
+    st.raf = requestAnimationFrame(passo);
+  }
+  // desenha (ou redesenha) o gráfico da chave no elemento. op: tamanho, rot, valor, sub, total (R$, para o centro
+  // mostrar o valor de cada arco), fmt, duracao (ms)
+  function desenha(el, chave, classes, op) {
+    const st = memoria[chave] = memoria[chave] || { arcos: [], foco: null, hover: null };
+    st.el = el; st.op = Object.assign({ tamanho: 400, duracao: 900, fmt: v => v }, op); st.classes = classes;
+    if (st.foco && !classes.some(c => c.grupo === st.foco && c.v > 0)) st.foco = null;
+    st.hover = null; el.dataset.sbChave = chave;
+    const nova = !st.arcos.length;
+    anima(st, alvo(classes, st.foco), nova ? st.op.duracao * 1.4 : st.op.duracao);
+  }
+  // o mouse e o clique: acende o arco (e as classes do grupo), abre o grupo, volta pelo centro
+  document.addEventListener('pointerover', e => {
+    const box = e.target.closest && e.target.closest('[data-sb-chave]'); if (!box) return; const st = memoria[box.dataset.sbChave]; if (!st) return;
+    const p = e.target.closest('[data-sb]'), id = p ? p.dataset.sb : null; if (id === st.hover) return; st.hover = id; quadro(st);
+  });
+  document.addEventListener('pointerout', e => {
+    const box = e.target.closest && e.target.closest('[data-sb-chave]'); if (!box || (e.relatedTarget && box.contains(e.relatedTarget))) return;
+    const st = memoria[box.dataset.sbChave]; if (st && st.hover) { st.hover = null; quadro(st); }
+  });
+  document.addEventListener('click', e => {
+    const box = e.target.closest && e.target.closest('[data-sb-chave]'); if (!box) return; const st = memoria[box.dataset.sbChave]; if (!st) return;
+    const p = e.target.closest('[data-sb]');
+    if (p && p.dataset.sb.startsWith('g:') && !st.foco) st.foco = p.dataset.sb.slice(2);
+    else if (st.foco && (e.target.closest('[data-sb-centro]') || (p && p.dataset.sb.startsWith('g:')))) st.foco = null;
+    else return;
+    st.hover = null; anima(st, alvo(st.classes, st.foco), 750);
+  });
+  return { desenha, GRUPO_COR };
 })();
 </script>
 
@@ -3928,6 +4129,7 @@ const PAG_PORTAL = { proposito: 'cliente', 'proposito-nos': 'cliente', diagnosti
   'capa-gestao': 'fluxo', 'renda-custo': 'fluxo', tempo: 'fluxo', orcamento: 'fluxo',
   'capa-tributario': 'tributario', 'resumo-tributario': 'tributario', ir: 'tributario', prolabore: 'tributario', sucessao: 'tributario', previdencia: 'tributario',
   'capa-patrimonio': 'patrimonio', 'resumo-patrimonio': 'patrimonio', patrimonio: 'patrimonio', 'capa-riscos': 'riscos', 'resumo-riscos': 'riscos', riscos: 'riscos',
+  'capa-carteira': 'carteira', 'resumo-carteira': 'macro', 'carteira-hoje': 'carteira', 'carteira-recomendada': 'macro', 'carteira-decisoes': 'micro',
   'capa-evolucao': 'objetivos', 'resumo-evolucao': 'objetivos', evolucao: 'objetivos', caminho: 'objetivos' };
 // a aba do portal que abriu esta tela vai para a página e fica à frente (esta fecha); aberta de outro jeito, vai na mesma aba
 document.getElementById('btnEditar').onclick = () => {
@@ -3953,12 +4155,14 @@ const CAPITULOS = [{ id: 'proposito', titulo: 'Propósito', semAbertura: true, p
     { id: 'riscos', titulo: 'Gestão de riscos', sub: 'As oito ameaças ao padrão de vida da família e quanto de cada uma já está protegido.', paginas: [{ id: 'riscos', titulo: 'As ameaças ao padrão de vida' }] },
     { id: 'objetivos', titulo: 'Objetivos', sub: 'Como cada objetivo vai ser realizado: a estratégia, o que é preciso na data, de onde vem o dinheiro e o caminho até lá.', paginas: [{ id: 'realizacao', titulo: 'Como realizar cada objetivo' }] },
     { id: 'politica', titulo: 'Política de investimentos', sub: 'Para onde vai o seu dinheiro: o patrimônio de hoje e o que sobra no orçamento, cada parte numa caixinha com o seu prazo e a sua estratégia.', paginas: [{ id: 'politica', titulo: 'Para onde vai o seu dinheiro' }] },
+    { id: 'carteira', titulo: 'Carteira', sub: 'Como os seus investimentos estão hoje, como recomendamos que fiquem e o que muda, investimento a investimento.',
+      paginas: [{ id: 'carteira-hoje', titulo: 'A carteira de hoje' }, { id: 'carteira-recomendada', titulo: 'A carteira recomendada' }, { id: 'carteira-decisoes', titulo: 'O que muda na carteira' }] },
     { id: 'evolucao', titulo: 'Evolução patrimonial', sub: 'A trajetória do seu patrimônio ao longo da vida, com os seus objetivos e a liberdade financeira.', paginas: [{ id: 'evolucao', titulo: 'A trajetória do patrimônio' }, { id: 'caminho', titulo: 'O caminho daqui para frente' }] });
 var PAGINAS_TRIB = ['ir', 'prolabore', 'sucessao', 'previdencia'];   // as páginas do capítulo 3, que dividem o mesmo painel
 const PAGINAS = CAPITULOS.flatMap((c, ci) => c.mock ? [] : (c.semAbertura ? [] : [{ id: 'capa-' + c.id, titulo: c.titulo, capa: true }].concat(c.semResumo ? [] : [{ id: 'resumo-' + c.id, titulo: 'Resumo do seu caso', resumo: true }])).concat(c.paginas).map(p => Object.assign({ cap: ci + 1, capTitulo: c.titulo, capId: c.id }, p)));
 const paginaDe = id => PAGINAS.find(p => p.id === id);
 const abertura = pg => pg.capa || pg.resumo;   // as duas páginas que abrem o capítulo, no painel #pagina
-const noPainel = pg => abertura(pg) || pg.id === 'caminho' || ['proposito', 'diagnostico', 'gestao', 'objetivos', 'politica'].includes(pg.capId);   // e as páginas do Propósito, do Diagnóstico, da Gestão financeira e dos Objetivos
+const noPainel = pg => abertura(pg) || pg.id === 'caminho' || ['proposito', 'diagnostico', 'gestao', 'objetivos', 'politica', 'carteira'].includes(pg.capId);   // e as páginas do Propósito, do Diagnóstico, da Gestão financeira e dos Objetivos
 // páginas já vistas, para o sumário marcar
 const VISTAS = (() => { try { return new Set(JSON.parse(localStorage.getItem('nl-vistas') || '[]')); } catch (e) { return new Set(); } })();
 let FASE = (() => { const q = new URLSearchParams(location.search).get('fase'); if (paginaDe(q)) return q; try { const f = localStorage.getItem('nl-fase'); if (paginaDe(f)) return f; } catch (e) { } return PAGINAS[0].id; })();
@@ -3986,7 +4190,7 @@ function mostraFase(f) {
   document.getElementById('sumario').hidden = true;
   const el = document.getElementById(f === 'riscos' || f === 'patrimonio' ? f : noPainel(pg) ? 'pagina' : PAGINAS_TRIB.includes(f) ? 'tributos' : 'wrap'), mudou = f !== FASE_ANT;
   FASE_ANT = f; if (mudou && el.id !== 'wrap') el.scrollTop = 0;
-  if (f === 'riscos') renderRiscos(); else if (f === 'patrimonio') renderPatrimonio(); else if (PAGINAS_TRIB.includes(f)) renderTributos(); else if (pg.capId === 'proposito') (f === 'proposito' ? renderProposito : renderPropositoNos)(pg); else if (pg.capId === 'diagnostico') (f === 'diagnostico' ? renderFamilia : renderHojeDepois)(pg); else if (pg.capId === 'gestao' && !pg.capa) ({ 'renda-custo': renderRendaCusto, tempo: renderTempo, orcamento: renderOrcamento })[f](pg); else if (f === 'caminho') renderCaminho(pg); else if (f === 'realizacao') renderRealizacao(pg); else if (f === 'politica') renderPolitica(pg); else if (pg.capa) renderCapa(pg); else if (pg.resumo) renderResumo(pg); else requestAnimationFrame(resize);
+  if (f === 'riscos') renderRiscos(); else if (f === 'patrimonio') renderPatrimonio(); else if (PAGINAS_TRIB.includes(f)) renderTributos(); else if (pg.capId === 'proposito') (f === 'proposito' ? renderProposito : renderPropositoNos)(pg); else if (pg.capId === 'diagnostico') (f === 'diagnostico' ? renderFamilia : renderHojeDepois)(pg); else if (pg.capId === 'gestao' && !pg.capa) ({ 'renda-custo': renderRendaCusto, tempo: renderTempo, orcamento: renderOrcamento })[f](pg); else if (f === 'caminho') renderCaminho(pg); else if (f === 'realizacao') renderRealizacao(pg); else if (f === 'politica') renderPolitica(pg); else if (pg.capId === 'carteira' && !pg.capa && !pg.resumo) renderCarteiraCli(pg); else if (pg.capa) renderCapa(pg); else if (pg.resumo) renderResumo(pg); else requestAnimationFrame(resize);
   if (mudou && el.id !== 'wrap') { el.classList.add('entra'); setTimeout(() => el.classList.remove('entra'), 300); }
 }
 const passaPagina = d => { const k = PAGINAS.findIndex(p => p.id === FASE) + d; if (PAGINAS[k]) mostraFase(PAGINAS[k].id); };
@@ -4044,6 +4248,14 @@ function destaques(id, P) {
         { rot: 'Sobra' + un, valor: fmt(Pz.sobra * f), txt: paraObj > 0.5 ? fmt(paraObj) + ' para os objetivos' : 'para a liberdade financeira' },
         { rot: 'Liberdade financeira', valor: fmt(lib.patrimonio), txt: 'e ' + fmt(lib.mensal * f) + un + ', para o longo prazo', tom: 'fut' }],
       faz: [res.patrimonio > 0.5 ? 'Manter ' + fmt(res.patrimonio) + ' na reserva, longe dos objetivos.' : '', c('compromissos').patrimonio > 0.5 ? 'Separar ' + fmt(c('compromissos').patrimonio) + ' para os compromissos já marcados.' : '', 'Todo mês, levar a sobra para as caixinhas, cada uma com a sua estratégia.'].filter(Boolean).join(' ') }; }
+  if (id.startsWith('carteira-')) { const K = ENGINE.carteiraDoPlano(P), C = P.carteira || {}; if (!(K.atual > 0)) return null;
+    if (id === 'carteira-hoje') { const maior = K.classes.slice().sort((a, b) => b.atual - a.atual)[0];
+      return { nums: [{ rot: 'Carteira de hoje', valor: fmt(K.atual), txt: (C.ativos || []).length + ' investimentos' }, { rot: 'Maior classe', valor: maior.nome, txt: ctPct(maior.pAtual) + ' da carteira' }], faz: null }; }
+    if (id === 'carteira-recomendada') { const m = K.classes.filter(c => Math.abs(c.dif) >= 0.5).sort((a, b) => Math.abs(b.dif) - Math.abs(a.dif))[0], mot = String(C.justificativa || '').split(/\n+/).map(x => x.trim()).filter(Boolean);
+      return m ? { nums: [{ rot: 'Maior mudança', valor: m.nome, txt: ctPct(m.pAtual) + ' hoje, ' + ctPct(m.pRec) + ' na recomendada' }], faz: mot.length ? mot[0].replace(/\.?$/, '.') : 'Rebalancear a carteira para a recomendada.' } : null; }
+    const nRes = (C.ativos || []).filter(a => a.acao === 'integral' || a.acao === 'parcial').length, nPort = (C.ativos || []).filter(a => a.acao === 'portabilidade').length, nNov = (C.novos || []).length;
+    return { nums: [{ rot: 'Sai', valor: fmt(K.resgatado), txt: 'em resgates e portabilidades' }, { rot: 'Entra', valor: fmt(K.aplicado), txt: nNov + (nNov === 1 ? ' investimento novo' : ' investimentos novos'), tom: 'fut' }],
+      faz: [nRes ? 'Resgatar ' + nRes + (nRes === 1 ? ' investimento' : ' investimentos') : '', nPort ? 'levar ' + nPort + ' por portabilidade' : '', nNov ? 'aplicar ' + fmt(K.aplicado) + ' em ' + nNov + (nNov === 1 ? ' novo' : ' novos') : ''].filter(Boolean).join(', ').replace(/^./, x => x.toUpperCase()) + '.' }; }
   if (id === 'realizacao') { const obj = ENGINE.OBJ.filter(o => o.amount > 0); if (!obj.length) return null;
     const ap = obj.reduce((a, o) => a + (+o.planned || 0), 0), prox = obj.slice().sort((a, b) => a.months - b.months)[0], nums = [];
     nums.push({ rot: 'Objetivos', valor: String(obj.length), txt: obj.filter(o => o.status === 'ok').length + ' alcançáveis com o plano' });
@@ -4401,6 +4613,86 @@ function renderPolitica(pg) {
 // passar o mouse numa linha da tabela acende as fitas daquela caixinha nos dois fluxos
 document.addEventListener('pointerover', e => { if (FASE !== 'politica') return; const l = e.target.closest && e.target.closest('[data-pi-l], [data-pi]'), id = l ? l.dataset.piL || l.dataset.pi : null;
   document.querySelectorAll('#pagina .fita').forEach(x => x.classList.toggle('on', x.dataset.pi === id)); });
+// ===================== CAPÍTULO CARTEIRA =====================
+// Três páginas, depois da Política de investimentos: a carteira de hoje (o sunburst grande, as classes e as instituições),
+// a recomendada (as abas Hoje, Ideal e Recomendada, que animam de uma para a outra, e os motivos do consultor) e o que muda
+// (o que fica, o que sai, o que vai por portabilidade e o que entra). Tudo sai de ENGINE.carteiraDoPlano. O sunburst é o
+// mesmo do portal (o bloco de gráficos compartilhado): clicar num grupo abre só as classes dele.
+let CT_ABA = 'rec', CT_TOCOU = false;
+const CT_ABAS = { atual: 'Hoje', ideal: 'O ideal', rec: 'Recomendada' };
+const ctPct = p => (p * 100).toLocaleString('pt-BR', { maximumFractionDigits: p > 0 && p < 0.1 ? 1 : 0 }) + '%';
+const ctDados = (K, chave) => K.classes.map(c => ({ id: c.id, nome: c.nome, cor: c.cor, grupo: c.grupo, v: c[chave] }));
+function ctTitular(P, t) { const nm = ENGINE.nomesDaFamilia(P); return t === 'titular' ? nm.titular : t === 'conjuge' ? nm.conjuge : String(t || '').startsWith('dep:') ? t.slice(4) : ''; }
+// a legenda ao lado do gráfico: os grupos e, dentro, as classes com o % e o valor; com a aba, a diferença para hoje
+function ctLegenda(K, chave) {
+  const tot = chave === 'atual' ? K.atual : K.total, grupos = [...new Set(K.classes.map(c => c.grupo))];
+  return grupos.map(g => { const cs = K.classes.filter(c => c.grupo === g && (c[chave] > 0.5 || (chave !== 'atual' && c.atual > 0.5))); if (!cs.length) return '';
+    const vg = cs.reduce((s, c) => s + c[chave], 0);
+    return `<div class="ct-lg"><div class="ct-lgc"><i style="background:${SUNBURST.GRUPO_COR[g]}"></i><b>${g}</b><span>${ctPct(tot > 0 ? vg / tot : 0)}</span></div>
+      ${cs.map(c => { const p = tot > 0 ? c[chave] / tot : 0, d = chave === 'atual' ? 0 : p - c.pAtual;
+        return `<div class="ct-lgl"><i style="background:${c.cor}"></i><span class="n">${c.nome}</span>${chave !== 'atual' && Math.abs(d) >= 0.0005 ? `<span class="d ${d > 0 ? 'mais' : 'menos'}">${d > 0 ? '+' : '−'}${(Math.abs(d) * 100).toLocaleString('pt-BR', { maximumFractionDigits: 1 })} p.p.</span>` : '<span class="d"></span>'}<b>${ctPct(p)}</b><small>${fmt(c[chave])}</small></div>`; }).join('')}</div>`; }).join('');
+}
+function renderCarteiraCli(pg) {
+  const P = planoVista(), K = ENGINE.carteiraDoPlano(P), C = P.carteira || {}, el = document.getElementById('pagina'), casal = ENGINE.casalDe(P);
+  if (!(K.atual > 0)) { el.innerHTML = `<div class="rc lp">${cabPagina(pg)}<section class="gf-sec"><div class="pf-nao">O seu consultor ainda está montando a carteira.</div></section>${rodapeNav(pg)}</div>`; return; }
+  const ativos = C.ativos || [];
+  if (pg.id === 'carteira-hoje') {
+    const contas = new Map(); ativos.forEach(a => { const k = (a.instituicao || 'Sem instituição') + '|' + (a.titular || ''); if (!contas.has(k)) contas.set(k, { inst: a.instituicao || 'Sem instituição', titular: a.titular, v: 0, n: 0 }); const x = contas.get(k); x.v += +a.valor || 0; x.n++; });
+    el.innerHTML = `<div class="rc lp">${cabPagina(pg, `Os seus investimentos de hoje, somados por classe: no centro, os grandes grupos; por fora, cada classe. Toque num grupo para abrir só as classes dele.`)}
+      <section class="gf-sec rev"><div class="ct-hero"><div class="ct-sb" id="ctSbHoje"></div><div class="ct-leg"><div class="ct-tot"><span>A carteira de hoje</span><b>${fmt(K.atual)}</b><small>${ativos.length} ${ativos.length > 1 ? 'investimentos' : 'investimento'} em ${contas.size} ${contas.size > 1 ? 'contas' : 'conta'}</small></div>${ctLegenda(K, 'atual')}</div></div></section>
+      <section class="gf-sec rev"><div class="lp-rot">Onde está</div><div class="ct-contas">${[...contas.values()].sort((a, b) => b.v - a.v).map(x => `<div class="gf-c ct-conta"><span>${escH(x.inst)}${ctTitular(P, x.titular) ? ` · ${escH(ctTitular(P, x.titular))}` : casal ? ' · do casal' : ''}</span><b>${fmt(x.v)}</b><small>${ctPct(x.v / K.atual)} da carteira · ${x.n} ${x.n > 1 ? 'investimentos' : 'investimento'}</small></div>`).join('')}</div></section>
+      ${rodapeNav(pg)}</div>`;
+    revelar();
+    SUNBURST.desenha(document.getElementById('ctSbHoje'), 'cli-hoje', ctDados(K, 'atual'), { tamanho: 440, rot: 'Hoje', valor: 'R$ ' + fmtC(K.atual), total: K.atual, fmt, duracao: 1100 });
+    return;
+  }
+  if (pg.id === 'carteira-recomendada') {
+    const motivos = String(C.justificativa || '').split(/\n+/).map(s => s.trim()).filter(Boolean);
+    const muda = K.classes.filter(c => Math.abs(c.dif) >= 0.5 && (c.atual > 0.5 || c.rec > 0.5)).sort((a, b) => Math.abs(b.dif) - Math.abs(a.dif));
+    el.innerHTML = `<div class="rc lp">${cabPagina(pg, `Como recomendamos que a sua carteira fique. O ideal é como ela seria se tudo estivesse em dinheiro e fôssemos montar do zero; a recomendada é o ajuste possível agora, para caminhar até lá.`)}
+      <section class="gf-sec rev"><nav class="ct-abas" aria-label="Carteira">${Object.keys(CT_ABAS).map(k => `<button data-ct-aba="${k}" aria-pressed="${CT_ABA === k}">${CT_ABAS[k]}</button>`).join('')}</nav>
+        <div class="ct-hero"><div class="ct-sb" id="ctSbRec"></div><div class="ct-leg" id="ctLegRec"></div></div></section>
+      ${motivos.length ? `<section class="gf-sec rev"><div class="lp-rot">Por que esta recomendação</div><ol class="ct-motivos">${motivos.map(m => `<li>${escH(m)}</li>`).join('')}</ol></section>` : ''}
+      ${muda.length ? (() => { const sai = muda.filter(c => c.dif < 0), entra = muda.filter(c => c.dif > 0), max = Math.max(...muda.map(c => Math.abs(c.dif))), soma = l => l.reduce((t, c) => t + Math.abs(c.dif), 0);
+        // o que muda em duas colunas: à esquerda, o que sai de cada classe; à direita, o que entra; a barra mostra o tamanho
+        const lado = (l, cls) => l.map(c => `<div class="ct-ml"><i style="background:${c.cor}"></i><span class="n">${c.nome}<small>${ctPct(c.pAtual)} → ${ctPct(c.pRec)}</small></span><b>${fmt(Math.abs(c.dif))}</b><em class="${cls}" style="width:${(Math.abs(c.dif) / max * 100).toFixed(1)}%"></em></div>`).join('') || '<div class="ct-ml vazio">nada</div>';
+        return `<section class="gf-sec rev"><div class="lp-rot">O que muda, por classe</div><div class="ct-muda2">
+          <div class="gf-c ct-lado sai"><div class="ct-dt"><span>Resgatar</span><b>${fmt(soma(sai))}</b></div>${lado(sai, 'sai')}</div>
+          <div class="gf-c ct-lado entra"><div class="ct-dt"><span>Aplicar</span><b>${fmt(soma(entra))}</b></div>${lado(entra, 'entra')}</div></div>
+          ${K.aporte > 0.5 ? `<p class="gf-nota">Aplica ${fmt(soma(entra) - soma(sai))} a mais do que resgata: são os recursos novos, além dos ${fmt(K.atual)} de hoje.</p>` : ''}</section>`; })() : ''}
+      ${rodapeNav(pg)}</div>`;
+    revelar(); ctMostraAba(K);
+    // ao chegar na página, a carteira de hoje vira a recomendada diante do cliente (uma vez por visita)
+    if (!CT_TOCOU && CT_ABA === 'rec') { CT_TOCOU = true; ctMostraAba(K, 'atual', 0); setTimeout(() => { if (FASE === 'carteira-recomendada') ctMostraAba(ENGINE.carteiraDoPlano(planoVista())); }, 900); }
+    return;
+  }
+  // o que muda: o que fica, o que sai, o que vai por portabilidade e o que entra
+  const val = a => +a.valor || 0, clDe = id => K.classes.find(c => c.id === id);
+  const ficam = ativos.filter(a => a.acao === 'manter' || a.acao === 'parcial'), saem = ativos.filter(a => a.acao === 'integral' || a.acao === 'parcial'), port = ativos.filter(a => a.acao === 'portabilidade'), aDecidir = ativos.filter(a => !ENGINE.ACOES_ATIVO[a.acao]), novos = C.novos || [];
+  const linha = (a, v, nota) => { const c = clDe(a.classe); return `<div class="ct-al"><i style="background:${c ? c.cor : '#E9C9B0'}"></i><span class="n"><b>${escH(a.nome || 'sem nome')}</b><small>${[a.instituicao, c ? c.nome : '', nota].filter(Boolean).map(escH).join(' · ')}</small></span><b class="v">${fmt(v)}</b></div>`; };
+  const soma = (l, f) => l.reduce((s, a) => s + f(a), 0);
+  const bloco = (rot, cls, total, corpo) => corpo ? `<div class="gf-c ct-dec ${cls}"><div class="ct-dt"><span>${rot}</span><b>${fmt(total)}</b></div>${corpo}</div>` : '';
+  el.innerHTML = `<div class="rc lp">${cabPagina(pg, `Investimento a investimento: o que fica como está, o que vamos resgatar ou levar por portabilidade e o que entra no lugar, para a carteira chegar à recomendada.`)}
+    <section class="gf-sec rev"><div class="gf-cards ct-kpis">
+      <div class="gf-c"><span>Fica</span><b>${fmt(soma(ativos, a => val(a) - K.sai(a)))}</b><small>${ficam.length} ${ficam.length === 1 ? 'investimento' : 'investimentos'}${aDecidir.length ? ` e ${aDecidir.length} em análise` : ''}</small></div>
+      <div class="gf-c"><span>Sai em resgates</span><b>${fmt(soma(saem, a => K.sai(a)))}</b><small>${saem.length} ${saem.length === 1 ? 'investimento' : 'investimentos'}</small></div>
+      <div class="gf-c"><span>Vai por portabilidade</span><b>${fmt(soma(port, val))}</b><small>sem imposto na troca de plano</small></div>
+      <div class="gf-c fut"><span>Entra</span><b>${fmt(K.aplicado)}</b><small>${novos.length} ${novos.length === 1 ? 'investimento novo' : 'investimentos novos'}${K.aporte > 0.5 ? `, com ${fmt(K.aporte)} de recursos novos` : ''}</small></div></div></section>
+    <section class="gf-sec rev"><div class="ct-decs">
+      ${bloco('O que fica', 'fica', soma(ativos, a => val(a) - K.sai(a)), ficam.map(a => linha(a, val(a) - K.sai(a), a.acao === 'parcial' ? 'resgate de parte' : '')).join('') + aDecidir.map(a => linha(a, val(a), 'em análise')).join(''))}
+      ${bloco('O que sai', 'sai', soma(saem, a => K.sai(a)) + soma(port, val), saem.map(a => linha(a, K.sai(a), a.acao === 'parcial' ? 'resgate parcial' : 'resgate integral')).join('') + port.map(a => linha(a, val(a), 'portabilidade')).join(''))}
+      ${bloco('O que entra', 'entra', K.aplicado, novos.map(n => linha(n, val(n), '')).join(''))}</div></section>
+    ${rodapeNav(pg)}</div>`;
+  revelar();
+}
+// troca a aba da recomendada: o sunburst anima de uma carteira para a outra e a legenda acompanha
+function ctMostraAba(K, aba, ms) {
+  const k = aba || CT_ABA, tot = k === 'atual' ? K.atual : K.total, sb = document.getElementById('ctSbRec'), lg = document.getElementById('ctLegRec'); if (!sb) return;
+  document.querySelectorAll('[data-ct-aba]').forEach(b => b.setAttribute('aria-pressed', b.dataset.ctAba === k));
+  lg.innerHTML = `<div class="ct-tot"><span>${k === 'atual' ? 'A carteira de hoje' : k === 'ideal' ? 'O ideal' : 'A carteira recomendada'}</span><b>${fmt(tot)}</b><small>${k === 'atual' ? 'como está' : k === 'ideal' ? 'tudo em dinheiro, alocando do zero' : 'o ajuste possível agora'}${k !== 'atual' && K.aporte > 0.5 ? ', com os recursos novos' : ''}</small></div>${ctLegenda(K, k)}`;
+  SUNBURST.desenha(sb, 'cli-rec', ctDados(K, k), { tamanho: 440, rot: CT_ABAS[k], valor: 'R$ ' + fmtC(tot), total: tot, fmt, duracao: ms == null ? 1100 : ms });
+}
+document.addEventListener('click', e => { const b = e.target.closest('[data-ct-aba]'); if (!b) return; CT_ABA = b.dataset.ctAba; ctMostraAba(ENGINE.carteiraDoPlano(planoVista())); });
 function renderRealizacao(pg) {
   const P = planoVista(), casal = ENGINE.casalDe(P), s = sim(), objs = ENGINE.OBJ.filter(o => o.amount > 0);
   if (!objs.length) { document.getElementById('pagina').innerHTML = `<div class="rc lp">${cabPagina(pg)}<section class="gf-sec"><div class="pf-nao">O seu consultor ainda está desenhando os objetivos.</div></section>${rodapeNav(pg)}</div>`; return; }
