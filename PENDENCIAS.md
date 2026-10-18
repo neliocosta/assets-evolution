@@ -150,6 +150,30 @@ Sankey saia da renda líquida da família, com o padrão de vida separado sem de
 agora se cadastram na tabela das caixinhas, logo abaixo da linha deles (`politicaDeInvestimentos` devolve `renda` e `padrao`).
 Por fim, o Sankey da renda ficou em dois níveis: a renda vai para o futuro (em cima) e para o padrão de vida (embaixo, mais
 curto); só o futuro se abre nos objetivos e na liberdade, e o movimento segue a mesma ordem.
+Revisão do usuário (18/10/2026): a página do portal não estava fluida nem organizada. Com as skills de UX e o Impeccable,
+foi proposta e aprovada a **mesa de distribuição** (protótipo em `ux/prototipos/politica-mesa.html`, com capturas): uma
+tabela só, caixinhas nas linhas e as duas fontes nas colunas, o total e a barra da divisão no cabeçalho de cada coluna, a
+liberdade (o restante) no rodapé com o estado da coluna, cada valor digitado com a faixa e a referência curta com o botão
+"usar", a estratégia num controle de três posições e o horizonte sob o nome. Saíram os dois cartões do alto e a
+coluna de referência em prosa. O motor e as variáveis não mudaram. Dois ajustes dele em seguida: cada compromisso fica
+recolhido numa linha só (abre ao clicar, recolhe com OK ou Enter), para a tela não crescer com oito compromissos; e a faixa
+sob cada valor voltou a ser um controle deslizante (a mesma escala da raiz de antes, com ímã na referência e o trecho
+listrado), para ajustar um pouco com o mouse além de digitar.
+Terceiro ajuste dele: ao aumentar o aporte de um objetivo, o aviso "O orçamento não comporta este aporte" abria antes de a
+liberdade financeira ter sido consumida (o aviso confere o orçamento mês a mês no Fluxo; a política usa a sobra média ou a
+capacidade informada). Agora o aumento sai da liberdade sem aviso, e o aviso só abre quando os aportes passam da sobra da
+política (`excessoMensal`, a liberdade zerada); aí o consultor escolhe de onde reduzir (`conferirOrcamento`).
+Duas brechas fechadas em seguida: o aporte mensal da reserva de emergência entrou na conferência como um aporte a mais
+(`objetivoDoAporte("reserva")` lê e grava `politica.reservaMensal`), e o chip "passa em R$ X por mês · reduzir" do rodapé da
+mesa abre a janela do orçamento do mês em que mais falta, contando toda a falta (`abrirEstouroDaMesa`), para quando a sobra
+cai depois de os aportes estarem gravados.
+Base única (decisão do usuário, 18/10/2026, entre a janela na média ou a mesa mês a mês): a janela do orçamento passou para a
+sobra média dos 12 meses (`orcamentoDosAportes`, sobre `ENGINE.politicaDeInvestimentos`), a mesma da mesa; a falta da janela
+é o excesso do rodapé, e as reduções de despesa valem a partir de hoje, no equivalente mensal. Saiu o caso "depois da
+liberdade" da janela (o status do objetivo e a coluna Entregue/mês já o cobrem). No caminho, os chips do topo (capacidade
+de poupança) usavam uma média própria do portal (`valorEm` mês a mês), que diferia da do motor em R$ 172 no exemplo; agora
+`media12` lê `ENGINE.orcamentoDoFluxo`. Em aberto: o motor entrega o aporte mês a mês, e o bônus não compensa o mês fraco;
+fazer o motor recuperar o atraso tornaria a média a verdade da simulação também.
 Em aberto:
 
 1. **Planejamento anual na simulação**: hoje só muda como a política mostra a sobra e os aportes (por ano). O aporte anual

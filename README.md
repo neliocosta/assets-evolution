@@ -41,12 +41,23 @@ objetivo: a política só os reúne) e a liberdade financeira, que fica sempre c
 estratégia (o perfil de rentabilidade do objetivo; conservadora na reserva e nos compromissos). O FGTS e a previdência
 fechada contam no patrimônio, mas sem liquidez: ficam na liberdade. Na simulação, a reserva continua dentro da liberdade.
 
-No portal, é o primeiro passo do Planejamento: os dois cartões do alto (o patrimônio e a sobra) mostram a divisão em escala
-real; a distribuição se faz na tabela das caixinhas, digitando ou com um controle deslizante por valor (também pelas setas do
-teclado), e a liberdade fica com a diferença. O controle é não linear (a posição é a raiz do valor), para R$ 3 mil e R$ 600
-mil terem a mesma precisão no mesmo trilho; tem ímã e marca na reserva ideal e no aporte necessário de cada objetivo, e o
-trecho listrado é o que a liberdade já não tem para dar. Os compromissos se cadastram na própria tabela, logo abaixo da
-caixinha deles (na versão final, chegam da coleta, e continuam editáveis). Na área do cliente, é o capítulo depois de
+No portal, é o primeiro passo do Planejamento, e a página é a mesa de distribuição: uma tabela só, com as caixinhas nas
+linhas (a reserva e os compromissos antes, depois os objetivos) e as duas fontes nas colunas. O cabeçalho de cada coluna tem o
+total (o patrimônio de hoje, a sobra do mês), de onde ele vem e a barra da divisão em escala real; o rodapé é a liberdade
+financeira, com o que fica para ela e o estado da coluna ("fecha a conta" ou "passa em R$ X"). Cada valor é um campo
+digitado com um controle deslizante fino abaixo (também pelas setas do teclado; a escala é a raiz do valor, para R$ 3 mil e
+R$ 600 mil terem a mesma precisão; a marca é a referência, com ímã, e o trecho listrado é o que a liberdade já não tem para
+dar) e uma linha de referência curta (a reserva ideal, o aporte necessário) com o botão "usar"; a estratégia de cada objetivo é um controle de três posições, e a
+data, o horizonte e o valor do objetivo ficam sob o nome. Os compromissos se cadastram na própria tabela, logo abaixo da
+caixinha deles (na versão final, chegam da coleta, e continuam editáveis): cada um fica recolhido numa linha só, abre ao
+clicar e recolhe com o OK ou Enter. O protótipo da mesa fica em
+`ux/prototipos/politica-mesa.html`. A sobra do mês é uma conta só em todo o portal: a média dos próximos 12 meses do Fluxo de caixa
+(`ENGINE.orcamentoDoFluxo`) ou a capacidade informada; é a mesma dos chips do topo (capacidade de poupança), da mesa, da
+janela "O orçamento não comporta" e da área do cliente. Aumentar um aporte consome a liberdade financeira sem aviso;
+quando a soma dos aportes (objetivos e reserva) passa da sobra, a janela abre com entradas, despesas e sobra na média, a
+falta igual ao excesso do rodapé, e as reduções por despesa (a partir de hoje, no equivalente mensal) ou por outro aporte.
+O chip "passa em R$ X por mês · reduzir" do rodapé abre a mesma janela quando a sobra caiu depois. O mês a mês fica com a
+simulação: a coluna Entregue/mês da página Objetivos e o aviso do cartão dizem quando o orçamento não entrega o definido. Na área do cliente, é o capítulo depois de
 Objetivos: dois Sankeys, cada um na sua escala: o patrimônio de hoje e a renda líquida da família, em dois níveis: a renda se divide
 entre o futuro (em cima, a sobra) e o padrão de vida (embaixo, em ardósia, sem destaque, terminando na coluna do meio), e o
 futuro se abre nas caixinhas. Embaixo, a tabela. Ao aparecer, cada

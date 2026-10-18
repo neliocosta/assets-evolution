@@ -398,49 +398,63 @@ circle.pv-hit{cursor:ns-resize}
 .custo-res{font-size:12px;color:#5d5c58;margin-top:6px;line-height:1.5}
 .custo-res summary{font-size:11.5px;color:var(--nl-navy-900);cursor:pointer;margin-top:4px}
 .chips-add{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-/* Política de investimentos: os dois cartões do alto (o número e a barra da divisão, em escala real), a tabela das
-   caixinhas, com um controle deslizante não linear por valor, e os compromissos */
-.pol-topo{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
-.pol-num{background:#fff;border-radius:16px;box-shadow:var(--shadow-card);padding:18px 22px 16px}
-.pol-num>span{display:block;font:600 11px 'DM Sans',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--nl-navy-900)}
-.pol-num>b{display:block;font:600 30px Sora,sans-serif;color:var(--nl-navy-900);margin:6px 0 2px;letter-spacing:-.01em}
-.pol-num>small{display:block;font-size:12.5px;color:#6b6a66;line-height:1.5;min-height:38px}
-.pol-barra{display:flex;height:12px;border-radius:6px;overflow:hidden;margin:14px 0 10px;background:#EEF1F5}
-.pol-barra i{min-width:3px;height:100%;border-right:2px solid #fff;transition:flex-grow .25s ease,filter .15s}
-.pol-barra i:last-child{border-right:0} .pol-barra i.sel{filter:brightness(.88)}
-.pol-leg{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:#555}
-.pol-leg span{display:inline-flex;align-items:center;gap:6px;cursor:default} .pol-leg i{width:9px;height:9px;border-radius:3px}
-.pol-leg em{font-style:normal;font:600 12px Sora,sans-serif;color:var(--nl-navy-900)}
-.pol-aviso{background:#FFF1E6;color:#964400;border-radius:10px;padding:8px 12px;font-size:12.5px;margin:0 0 16px;line-height:1.5}
-.pol-vazio{font-size:13px;color:#6b6a66;padding:12px 0}
-.pol-tab{min-width:0;width:100%} .pol-tab th{font:600 11px 'DM Sans',sans-serif;color:#8a8a8a;text-align:left;padding:6px 10px;letter-spacing:.04em;text-transform:uppercase}
-.pol-tab th.v,.pol-tab td.v{text-align:right} .pol-tab td{padding:12px 10px;vertical-align:middle;font-size:13px;border-top:1px solid #F1EEE8}
-.pol-tab tr.sel td{background:#FBF9F6}
-.pol-cx{display:flex;align-items:center;gap:10px} .pol-cx i{width:12px;height:30px;border-radius:4px;flex:none}
-.pol-cx b{display:block;font:600 13.5px 'DM Sans',sans-serif;color:var(--nl-navy-900)} .pol-cx small{display:block;color:#6b6a66;font-size:11.5px;margin-top:1px}
-.pol-hz{display:inline-block;font:600 11px 'DM Sans',sans-serif;padding:4px 9px;border-radius:9px;background:#EEF1F5;color:var(--nl-navy-900);white-space:nowrap}
-.pol-hz small{display:block;font-weight:500;color:#6b6a66;margin-top:1px}
-.pol-tab select{padding:6px 8px;font-size:12.5px}
-.pol-v{display:flex;flex-direction:column;align-items:stretch;gap:6px;width:210px;margin-left:auto}
-.pol-v input{width:100%;text-align:right;padding:7px 9px}
-.pol-tab .ro{font:600 13px Sora,sans-serif;color:var(--nl-navy-900)} .pol-tab .ro small{display:block;font:500 11.5px 'DM Sans',sans-serif;color:#6b6a66}
-.pol-tab tr.tot td{border-top:2px solid #F1EEE8;font:600 13px Sora,sans-serif;color:var(--nl-navy-900)}
-.pol-ref{font-size:12px;color:#6b6a66;line-height:1.45;max-width:240px} .pol-ref .usarnec{margin-top:3px}
-/* o controle: trilho, o que já foi, a marca da referência, o trecho que a liberdade não alcança e o pino */
-.pol-sl{position:relative;height:20px;cursor:pointer;touch-action:none;outline:none;user-select:none}
-.pol-sl i{position:absolute;top:8px;height:4px;border-radius:2px}
-.pol-sl .tr{left:0;right:0;background:#EEF1F5}
-.pol-sl .bl{right:0;background:repeating-linear-gradient(135deg,#DCD6CC 0 3px,#F6F3EE 3px 6px);border-radius:0 2px 2px 0}
-.pol-sl .ch{left:0;background:var(--cor)}
-.pol-sl .rf{top:3px;width:2px;height:14px;margin-left:-1px;background:var(--nl-navy-900);opacity:.4;border-radius:1px}
-.pol-sl .pn{position:absolute;top:2px;width:16px;height:16px;margin-left:-8px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.18),inset 0 0 0 4px var(--cor);transition:transform .12s}
-.pol-sl:hover .pn,.pol-sl.on .pn{transform:scale(1.18)} .pol-sl:focus-visible .pn{box-shadow:0 0 0 3px #fff,0 0 0 5px var(--nl-orange-500),inset 0 0 0 4px var(--cor)}
-.pol-tab tr.pol-comp-tr>td{border-top:0;padding:0 10px 12px 32px}
-.pol-comp-lista{background:#FAF8F5;border-radius:12px;padding:10px 14px}
-.pol-comp{display:grid;grid-template-columns:1.4fr 172px 160px 1.6fr 32px;gap:10px;align-items:center;padding:6px 0}
-.pol-comp.cab span{font:600 10.5px 'DM Sans',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#8a8a8a}
+/* Política de investimentos: a mesa de distribuição. As caixinhas nas linhas e as duas fontes (o patrimônio de hoje e a
+   sobra do mês) nas colunas: o total e a barra da divisão no cabeçalho de cada coluna, o que fica para a liberdade no
+   rodapé. Cada valor é um campo digitado com a faixa (a parte na fonte, em escala real, com a marca da referência). */
+.pol-mesa{background:#fff;border-radius:16px;box-shadow:var(--shadow-card);overflow:hidden;margin-bottom:16px}
+.pol-tab{width:100%;min-width:900px;border-collapse:collapse}
+.pol-tab th{text-align:left;vertical-align:bottom;padding:20px 14px 12px;border-bottom:1px solid #F1EEE8;font-weight:400;text-transform:none;letter-spacing:0}
+.pol-tab th.cx{width:27%;padding-left:22px} .pol-tab th.est{width:19%} .pol-tab th.fonte{width:27%}
+.pol-tab th .rot{display:block;font:600 11px 'DM Sans',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--nl-navy-900)}
+.pol-tab th .tot{display:block;font:600 24px/1.1 Sora,sans-serif;color:var(--nl-navy-900);margin-top:6px;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+.pol-tab th .de{display:block;font:500 12px/1.45 'DM Sans',sans-serif;color:#6b6a66;margin-top:3px;min-height:18px;text-transform:none;letter-spacing:0}
+.pol-soma{display:flex;height:10px;border-radius:5px;overflow:hidden;background:#EEF1F5;margin-top:10px;gap:2px}
+.pol-soma i{display:block;height:100%;min-width:2px;transition:flex-grow .2s ease-out,filter .15s} .pol-soma i.sel{filter:brightness(.86)}
+.pol-soma.vazia{background:repeating-linear-gradient(135deg,#F6F3EE 0 4px,#EEF1F5 4px 8px)}
+.pol-tab td{padding:12px 14px;vertical-align:top;border-top:1px solid #F1EEE8;border-bottom:0;font-size:13px}
+.pol-tab td.cx{padding-left:22px}
+.pol-tab tr.grupo td{padding:16px 14px 4px 22px;font:600 11px 'DM Sans',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#6b6a66}
+.pol-tab tbody tr.grupo:first-child td,.pol-tab tr.grupo+tr td{border-top:0}
+.pol-tab tr.linha:hover td,.pol-tab tr.linha.sel td{background:#FBF9F6}
+.pol-cx{display:flex;gap:12px;align-items:flex-start} .pol-cx i{width:10px;height:34px;border-radius:4px;flex:none;margin-top:1px}
+.pol-cx b{display:block;font:600 14px 'DM Sans',sans-serif;color:var(--nl-navy-900);line-height:1.3}
+.pol-cx small{display:block;font:500 12.5px 'DM Sans',sans-serif;color:#6b6a66;margin-top:3px} .pol-cx small em{font-style:normal;color:var(--nl-navy-900)}
+.pol-seg{display:inline-flex;border:1px solid #DDDDDD;border-radius:9px;overflow:hidden;background:#fff;margin-top:3px}
+.pol-seg button{border:0;background:none;font:500 12px 'DM Sans',sans-serif;color:var(--nl-navy-900);padding:5px 10px;cursor:pointer;min-height:28px;border-right:1px solid #F1EEE8}
+.pol-seg button:last-child{border-right:0} .pol-seg button[aria-pressed=true]{background:var(--nl-navy-900);color:#fff;font-weight:600}
+.pol-seg button:hover:not([aria-pressed=true]){background:#FBF9F6}
+.pol-fixo{display:block;font:500 13.5px 'DM Sans',sans-serif;color:var(--nl-gray-700);padding-top:6px} .pol-fixo small{display:block;font-size:12px;color:#6b6a66}
+.pol-v input{width:100%;text-align:right;padding:7px 10px;font:600 14px Sora,sans-serif;color:var(--nl-navy-900);font-variant-numeric:tabular-nums}
+.pol-v .ro{display:block;text-align:right;font:600 14px Sora,sans-serif;color:var(--nl-navy-900);padding:7px 11px 0}
+.pol-fx{position:relative;height:16px;margin-top:4px;cursor:pointer;touch-action:none;user-select:none;outline:none} .pol-fx.ro{cursor:default}
+.pol-fx>em,.pol-fx>i,.pol-fx>s{position:absolute;top:6px;height:4px;border-radius:2px}
+.pol-fx>em{left:0;right:0;background:#EEF1F5} .pol-fx>i{left:0;background:var(--cor);transition:width .12s ease-out}
+.pol-fx>s{right:0;background:repeating-linear-gradient(135deg,#DCD6CC 0 3px,#F6F3EE 3px 6px);border-radius:0 2px 2px 0}
+.pol-fx>b{position:absolute;top:2px;width:2px;height:12px;margin-left:-1px;background:var(--nl-navy-900);opacity:.45;border-radius:1px}
+.pol-fx>u{position:absolute;top:1px;width:14px;height:14px;margin-left:-7px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.18),inset 0 0 0 3px var(--cor);transition:transform .12s}
+.pol-fx:hover>u,.pol-fx.on>u{transform:scale(1.15)} .pol-fx:focus-visible>u{box-shadow:0 0 0 3px #fff,0 0 0 5px var(--nl-orange-500),inset 0 0 0 3px var(--cor)}
+.pol-ref{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-top:2px;font:500 12px/1.45 'DM Sans',sans-serif;color:#6b6a66;min-height:18px}
+.pol-ref .pc{font:600 12px Sora,sans-serif;color:#6b6a66;white-space:nowrap}
+.pol-ref .usar{border:0;background:var(--nl-peach-100);color:var(--nl-navy-900);font:600 11.5px 'DM Sans',sans-serif;padding:2px 9px;border-radius:9999px;cursor:pointer;white-space:nowrap}
+.pol-ref .usar:hover{filter:brightness(.96)}
+.pol-ref .ok{color:#22794A;font-weight:600} .pol-ref .falta{color:#964400;font-weight:600}
+.pol-ref .ok::before,.pol-ref .falta::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:currentColor;margin:0 6px 1px 0}
+.pol-tab tr.pol-comp-tr>td{border-top:0;padding:0 14px 12px 44px}
+.pol-comp-lista{background:#FAF8F5;border-radius:12px;padding:10px 14px;margin-bottom:8px}
+.pol-comp{display:grid;grid-template-columns:1.4fr 172px 150px 1.6fr auto 32px;gap:10px;align-items:center;padding:6px 0}
 .pol-comp input{padding:7px 9px} .pol-comp-nota{font-size:11.5px;color:#6b6a66;margin-top:6px;line-height:1.45}
-@media (prefers-reduced-motion:reduce){.pol-barra i,.pol-sl .pn{transition:none}}
+.pol-comp-min{display:grid;grid-template-columns:1.4fr 120px 120px 1.6fr 32px;gap:10px;align-items:center;padding:5px 10px;margin:0 -10px;border-radius:9px;cursor:pointer;font-size:12.5px;color:#6b6a66}
+.pol-comp-min:hover{background:#F3F0EA} .pol-comp-min b{font:600 13px 'DM Sans',sans-serif;color:var(--nl-navy-900);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pol-comp-min em{font:600 13px Sora,sans-serif;font-style:normal;color:var(--nl-navy-900);text-align:right;font-variant-numeric:tabular-nums} .pol-comp-min small{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pol-tab tfoot td{border-top:2px solid #F1EEE8;padding:16px 14px 18px;background:#FDFCFA}
+.pol-tab tfoot .pol-cx b{font:600 15px Sora,sans-serif}
+.pol-resto{display:block;text-align:right;font:600 22px/1.1 Sora,sans-serif;color:var(--nl-navy-900);letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+.pol-resto.neg{color:#964400} .pol-resto small{display:block;font:500 12px 'DM Sans',sans-serif;color:#6b6a66;margin-top:2px;letter-spacing:0}
+.pol-estado{display:inline-flex;align-items:center;gap:6px;margin-top:8px;float:right;font:600 12px 'DM Sans',sans-serif;padding:4px 11px;border-radius:9999px;background:#E3F3E9;color:#22794A}
+.pol-estado.at{background:#FFF1E6;color:#964400} .pol-estado i{width:6px;height:6px;border-radius:50%;background:currentColor}
+button.pol-estado{border:0;cursor:pointer;font-family:'DM Sans',sans-serif} button.pol-estado:hover{filter:brightness(.95)}
+.pol-vazio{padding:14px 22px 18px;font-size:13px;color:#6b6a66}
+@media (prefers-reduced-motion:reduce){.pol-soma i,.pol-fx>i,.pol-fx>u{transition:none}}
 .chipadd{background:#fff;border:1px dashed #d9d6cf;border-radius:999px;padding:5px 12px;font:600 11.5px 'DM Sans',sans-serif;color:var(--nl-navy-900);cursor:pointer}
 .chipadd:hover{border-color:var(--nl-orange-500);color:var(--nl-orange-600)}
 .cronog{max-height:240px;overflow:auto;margin-top:6px;border:1px solid #efeeea;border-radius:8px}
@@ -848,7 +862,7 @@ aside nav a.feito i::before{content:'✓';font-size:13px}
   <section class="page" data-page="politica">
     <div class="kicker">Planejamento · passo 5 de 11</div>
     <h2>Política de investimentos</h2>
-    <div class="hint">Para onde vai cada real: o patrimônio financeiro de hoje e a sobra do orçamento, divididos entre os compromissos, a reserva de emergência, cada objetivo e a liberdade financeira, que fica com o restante. Arraste os controles ou digite os valores na tabela.</div>
+    <div class="hint">Para onde vai cada real: o patrimônio financeiro de hoje e a sobra de cada mês, divididos entre a reserva, os compromissos e cada objetivo. A liberdade financeira fica com o que restar.</div>
     <div id="politicaC"></div>
     <div class="pagenav"><button class="btn btn-tertiary" data-ir="riscos">Próximo: Gestão de riscos →</button></div>
   </section>
@@ -2565,13 +2579,9 @@ const stepAt = (it, mm) => { let v = 0; for (const st of (it.steps || [])) { if 
 // equivalente mensal (uma renda anual de 12 mil pesa mil por mês), com a mesma regra do motor
 const livingTotal = (mm) => plano.expenses.reduce((a, c) => a + ENGINE.mensalizado(c, mm || 0), 0);
 const incomeTotal = (mm) => plano.incomes.reduce((a, c) => a + ENGINE.mensalizado(c, mm || 0), 0);
-// capacidade de poupança hoje = entradas − saídas (o aluguel é uma linha de saída)
-// média dos próximos 12 meses, com tudo o que de fato acontece neles (distribuição semestral, IPVA, guia de imposto)
-function media12() {
-  let t = 0;
-  for (let mm = 0; mm < 12; mm++) t += plano.incomes.reduce((a, c) => a + ENGINE.valorEm(c, mm, false), 0) - plano.expenses.reduce((a, c) => a + ENGINE.valorEm(c, mm, true), 0);
-  return t / 12;
-}
+// capacidade de poupança hoje = entradas − saídas (o aluguel é uma linha de saída), na média dos próximos 12 meses: a mesma
+// conta do motor (ENGINE.orcamentoDoFluxo) que a mesa da política, a janela do orçamento e a área do cliente usam
+const media12 = () => { const o = ENGINE.orcamentoDoFluxo(plano); return o ? o.sobra : 0; };
 const comValorLinha = it => (it.steps || []).some(s => +s.value > 0);
 const temFluxo = () => plano.incomes.some(comValorLinha);
 const livreParaReservar = () => Math.max(0, (+plano.initialWealth || 0) - plano.objectives.reduce((t, x) => t + (+x.dedicated || 0), 0));
@@ -2580,67 +2590,70 @@ const capacity = () => plano.capacityOverride != null && plano.capacityOverride 
   ? +plano.capacityOverride : Math.max(0, media12());
 
 // ---------- orçamento dos aportes: não se guarda mais do que sobra ----------
-// A mesma conta que o motor faz em cada mês antes da liberdade: entradas − despesas − gastos dos objetivos já
-// realizados (tudo no equivalente mensal) é o que pode ir para os aportes. Depois da liberdade, nada.
-function orcamentoDoMes(mi) {
-  const realizado = o => o.months <= mi;
-  const ent = plano.incomes.reduce((a, c) => a + ENGINE.mensalizado(c, mi), 0) + plano.passive.reduce((a, p) => a + (p.startMi != null && ENGINE.rendaAtiva(p, mi, 0) ? +p.net || 0 : 0), 0);
-  const desp = plano.expenses.map(c => { const fim = c.endObj && plano.objectives.find(o => o.id === c.endObj); return { it: c, v: fim && realizado(fim) && !fim.naoComprado ? 0 : ENGINE.mensalizado(c, mi) }; });
-  const custos = [];
-  plano.objectives.forEach(o => { if (!realizado(o) || o.naoComprado) return; (o.costs || []).forEach(c => { const v = ENGINE.serieCusto(c, mi - o.months + 1)[mi - o.months]; if (v > 0) custos.push({ o, c, v }); }); });
-  const aportes = plano.objectives.filter(o => mi < o.months && +o.planned > 0).map(o => ({ o, v: +o.planned }));
-  const miFF = SIM && SIM.ff ? SIM.weeks[SIM.ff.week].mi : Infinity;
-  let disp = ent - desp.reduce((a, d) => a + d.v, 0) - custos.reduce((a, c) => a + c.v, 0);
-  if (plano.capacityOverride != null && plano.capacityOverride !== '') disp = Math.min(disp, +plano.capacityOverride);
-  disp = mi >= miFF ? 0 : Math.max(0, disp);
+// A base é a mesma da mesa da política e dos chips do topo: a sobra média dos próximos 12 meses do Fluxo de caixa
+// (ENGINE.orcamentoDoFluxo) ou, se informada, a capacidade de poupança; é o que ENGINE.politicaDeInvestimentos devolve em
+// sobra. Os aportes são os dos objetivos (planned) e o da reserva de emergência (politica.reservaMensal). O mês a mês fica
+// com a simulação: a coluna Entregue/mês e o aviso do cartão do objetivo dizem quando o orçamento não entrega o definido.
+function orcamentoDosAportes() {
+  const Pz = ENGINE.politicaDeInvestimentos(plano, SIM), orc = ENGINE.orcamentoDoFluxo(plano) || { entradas: 0, saidas: 0 };
+  const desp = plano.expenses.map(c => ({ it: c, v: ENGINE.mediaDe12Meses([c]) })).filter(d => d.v > 0.5);
+  const aportes = plano.objectives.filter(o => +o.planned > 0).map(o => ({ o, v: +o.planned }));
+  if (aporteReserva() > 0) aportes.push({ o: objetivoDoAporte('reserva'), v: aporteReserva() });
   const pedido = aportes.reduce((a, x) => a + x.v, 0);
-  return { mi, ent, desp, custos, aportes, disp, pedido, falta: Math.max(0, pedido - disp), depoisDaLiberdade: mi >= miFF };
+  return { ent: orc.entradas, saidas: orc.saidas, desp, informada: plano.capacityOverride != null && plano.capacityOverride !== '', disp: Pz.sobra, aportes, pedido, falta: Math.max(0, pedido - Pz.sobra) };
 }
-const faltasOrcamento = () => { const fim = Math.max(0, ...plano.objectives.map(o => o.months)), out = []; for (let mi = 0; mi < fim; mi++) out.push(orcamentoDoMes(mi).falta); return out; };
-// O último estado aceito: aumentar um aporte que piora a falta de algum mês abre o orçamento daquele mês.
+// A reserva de emergência entra na conferência como um aporte a mais (plano.politica.reservaMensal), com o id 'reserva':
+// objetivoDoAporte devolve o objetivo ou, para a reserva, um objeto com o mesmo planned (lido e gravado na política).
+const aporteReserva = () => Math.max(0, +((plano.politica || {}).reservaMensal) || 0);
+const objetivoDoAporte = id => id === 'reserva'
+  ? { id: 'reserva', name: 'Reserva de emergência', get planned() { return aporteReserva(); }, set planned(v) { plano.politica = plano.politica || {}; plano.politica.reservaMensal = Math.max(0, +v || 0); } }
+  : plano.objectives.find(x => x.id === id);
+// O último estado aceito: aumentar um aporte que faz a soma passar da sobra abre a janela; enquanto a liberdade financeira
+// ainda tem sobra para dar, o aumento sai dela, sem aviso (pedido do usuário, 18/10/2026).
 let aceito = null, pendente = null;
-const fotoAportes = faltas => ({ planned: Object.fromEntries(plano.objectives.map(o => [o.id, +o.planned || 0])), faltas });
+const fotoAportes = () => ({ planned: Object.fromEntries(plano.objectives.map(o => [o.id, +o.planned || 0]).concat([['reserva', aporteReserva()]])), falta: orcamentoDosAportes().falta });
 function conferirOrcamento() {
   if (pendente) return;
-  if (aguardaOrcamento()) { aceito = fotoAportes([]); return; }
+  if (aguardaOrcamento()) { aceito = fotoAportes(); return; }
   const a = document.activeElement; if (a && a.dataset && a.dataset.k === 'planned') return;   // confere ao sair do campo
-  const agora = faltasOrcamento();
-  if (!aceito) { aceito = fotoAportes(agora); return; }
-  const subiu = plano.objectives.filter(o => (+o.planned || 0) > (aceito.planned[o.id] || 0) + 0.5);
-  const mi = agora.findIndex((f, k) => f > (aceito.faltas[k] || 0) + 1);
-  if (subiu.length && mi >= 0) { pendente = { mi, subiu: subiu.map(o => o.id) }; mostrarEstouro(); return; }
-  aceito = fotoAportes(agora);
+  const agora = fotoAportes();
+  if (!aceito) { aceito = agora; return; }
+  const subiu = plano.objectives.concat([objetivoDoAporte('reserva')]).filter(o => (+o.planned || 0) > (aceito.planned[o.id] || 0) + 0.5);
+  if (subiu.length && agora.falta > aceito.falta + 1) { pendente = { subiu: subiu.map(o => o.id) }; mostrarEstouro(); return; }
+  aceito = agora;
+}
+// pelo chip "passa em R$ X" da mesa de distribuição: abre a janela contando toda a falta (não só a que um aumento criou),
+// para quando a sobra caiu depois de os aportes estarem gravados; fechar não muda nada
+function abrirEstouroDaMesa() {
+  if (pendente || aguardaOrcamento() || !(orcamentoDosAportes().falta > 0.5)) return;
+  aceito = Object.assign(fotoAportes(), { falta: 0 }); pendente = { subiu: [] }; mostrarEstouro();
 }
 function mostrarEstouro() {
-  const el = document.getElementById('estouro'), { mi, subiu } = pendente, b = orcamentoDoMes(mi), antes = aceito.faltas[mi] || 0, falta = Math.ceil(b.falta - antes);   // só a falta que o aumento criou
-  const nomes = subiu.map(id => esc((plano.objectives.find(o => o.id === id) || {}).name || 'objetivo')).join(', ');
-  const cabe = subiu.reduce((a, id) => { const o = plano.objectives.find(x => x.id === id); return a + Math.max(0, (+o.planned || 0) - (aceito.planned[id] || 0)); }, 0) - (b.falta - antes);
+  const el = document.getElementById('estouro'), { subiu } = pendente, b = orcamentoDosAportes(), antes = aceito.falta || 0, falta = Math.ceil(b.falta - antes);   // só a falta que o aumento criou
+  const nomes = subiu.map(id => esc((objetivoDoAporte(id) || {}).name || 'objetivo')).join(', ');
+  const cabe = subiu.reduce((a, id) => { const o = objetivoDoAporte(id); return a + Math.max(0, (+o.planned || 0) - (aceito.planned[id] || 0)); }, 0) - (b.falta - antes);
   const opc = [];
-  if (!b.depoisDaLiberdade) {
-    b.desp.filter(d => d.v > 0.5 && ENGINE.stepAt(d.it, mi) > 0).sort((x, y) => (x.it.group === 'adj' ? 0 : 1) - (y.it.group === 'adj' ? 0 : 1) || y.v - x.v)
-      .forEach(d => opc.push({ id: 'e:' + d.it.id, rot: esc(d.it.label || 'sem nome'), tag: d.it.group === 'adj' ? 'despesa ajustável' : 'despesa fixa', v: d.v }));
-    b.aportes.filter(x => !subiu.includes(x.o.id)).forEach(x => opc.push({ id: 'o:' + x.o.id, rot: 'Aporte de ' + esc(x.o.name || 'objetivo'), tag: 'outro objetivo', v: x.v }));
-  }
+  b.desp.slice().sort((x, y) => (x.it.group === 'adj' ? 0 : 1) - (y.it.group === 'adj' ? 0 : 1) || y.v - x.v)
+    .forEach(d => opc.push({ id: 'e:' + d.it.id, rot: esc(d.it.label || 'sem nome'), tag: d.it.group === 'adj' ? 'despesa ajustável' : 'despesa fixa', v: d.v }));
+  b.aportes.filter(x => !subiu.includes(x.o.id)).forEach(x => opc.push({ id: 'o:' + x.o.id, rot: 'Aporte de ' + esc(x.o.name || 'objetivo'), tag: x.o.id === 'reserva' ? 'reserva' : 'outro objetivo', v: x.v }));
   const linhaAp = b.aportes.map(x => `<div class="eo-l"><span>${esc(x.o.name || 'objetivo')}${subiu.includes(x.o.id) ? ' <b class="novo">aumentado</b>' : ''}</span><b>${fmt(x.v)}</b></div>`).join('');
   el.innerHTML = `<div class="eo-card" role="dialog" aria-modal="true">
-    <h3>O orçamento não comporta este aporte a partir de ${monthsLabel(mi)}</h3>
-    <p class="muted">Para guardar mais em ${nomes}, alguma coisa do orçamento do cliente precisa diminuir. Escolha o quê.</p>
+    <h3>O orçamento não comporta ${subiu.length ? 'este aporte' : 'os aportes'}</h3>
+    <p class="muted">${subiu.length ? `Para guardar mais em ${nomes}, alguma` : 'Os aportes pedidos passam do que sobra: alguma'} coisa do orçamento do cliente precisa diminuir. Escolha o quê. Os valores são a média dos próximos 12 meses do Fluxo de caixa.</p>
     <div class="eo-grid">
-      <div class="eo-l"><span>Entradas do mês</span><b>${fmt(b.ent)}</b></div>
-      <div class="eo-l"><span>Despesas</span><b>− ${fmt(b.desp.reduce((a, d) => a + d.v, 0))}</b></div>
-      ${b.custos.length ? `<div class="eo-l"><span>Gastos de objetivos já realizados</span><b>− ${fmt(b.custos.reduce((a, c) => a + c.v, 0))}</b></div>` : ''}
-      <div class="eo-l forte"><span>Sobra para aportes${plano.capacityOverride != null && plano.capacityOverride !== '' ? ' (limitada à capacidade informada)' : ''}</span><b>${fmt(b.disp)}</b></div>
-      <div class="eo-sep">Aportes pedidos em ${monthsLabel(mi)}</div>${linhaAp}
-      <div class="eo-l forte low"><span>Faltam por mês com o aumento${antes > 1 ? ` <small>(fora os ${fmt(antes)} que já faltavam)</small>` : ''}</span><b>${fmt(falta)}</b></div>
+      <div class="eo-l"><span>Entradas por mês</span><b>${fmt(b.ent)}</b></div>
+      <div class="eo-l"><span>Despesas</span><b>− ${fmt(b.saidas)}</b></div>
+      <div class="eo-l forte"><span>Sobra para aportes${b.informada ? ' (a capacidade informada no Fluxo de caixa)' : ''}</span><b>${fmt(b.disp)}</b></div>
+      <div class="eo-sep">Aportes pedidos por mês</div>${linhaAp}
+      <div class="eo-l forte low"><span>Faltam por mês${subiu.length ? ' com o aumento' : ''}${antes > 1 ? ` <small>(fora os ${fmt(antes)} que já faltavam)</small>` : ''}</span><b>${fmt(falta)}</b></div>
     </div>
-    ${b.depoisDaLiberdade ? `<div class="warn">${monthsLabel(mi)} já é depois da liberdade financeira: a renda do trabalho parou e não há sobra para aportes. Antecipe a data do objetivo ou guarde só o que cabe.</div>` : `
-    <div class="eo-sep">Reduzir a partir de ${monthsLabel(mi)}</div>
-    <div class="eo-opc">${opc.map(x => `<div class="eo-o"><span>${x.rot} <small>${x.tag}</small></span><b>${fmt(x.v)}/mês</b><label class="eo-menos">− <input data-eo="${x.id}" data-eo-max="${x.v}" data-money type="text" inputmode="decimal" placeholder="R$ 0"></label></div>`).join('') || '<div class="muted">Não há despesas nem outros aportes neste mês para reduzir.</div>'}</div>
-    <div class="eo-red" id="eoSoma"></div>`}
+    <div class="eo-sep">Reduzir a partir de hoje</div>
+    <div class="eo-opc">${opc.map(x => `<div class="eo-o"><span>${x.rot} <small>${x.tag}</small></span><b>${fmt(x.v)}/mês</b><label class="eo-menos">− <input data-eo="${x.id}" data-eo-max="${x.v}" data-money type="text" inputmode="decimal" placeholder="R$ 0"></label></div>`).join('') || '<div class="muted">Não há despesas nem outros aportes para reduzir.</div>'}</div>
+    <div class="eo-red" id="eoSoma"></div>
     <div class="eo-bts">
-      ${b.depoisDaLiberdade ? '' : '<button class="btn btn-primary" id="eoReduzir" disabled>Reduzir e guardar</button>'}
+      <button class="btn btn-primary" id="eoReduzir" disabled>Reduzir e guardar</button>
       ${cabe >= 1 ? `<button class="btn btn-secondary" id="eoCabe">Guardar só o que cabe (+${fmt(cabe)}/mês)</button>` : ''}
-      <button class="btn btn-secondary" id="eoCancelar">Cancelar o aumento</button>
+      <button class="btn btn-secondary" id="eoCancelar">${subiu.length ? 'Cancelar o aumento' : 'Fechar'}</button>
     </div>
   </div>`;
   el.hidden = false; somaEstouro();
@@ -2648,10 +2661,10 @@ function mostrarEstouro() {
 // quanto as reduções digitadas já cobrem da falta; o botão libera quando cobrem tudo
 function somaEstouro() {
   const s = document.getElementById('eoSoma'); if (!s || !pendente) return;
-  const falta = Math.ceil(orcamentoDoMes(pendente.mi).falta - (aceito.faltas[pendente.mi] || 0));
+  const falta = Math.ceil(orcamentoDosAportes().falta - (aceito.falta || 0));
   let tot = 0; document.querySelectorAll('[data-eo]').forEach(i => { const v = Math.min(unmoney(i.value), +i.dataset.eoMax); tot += v; i.classList.toggle('acima', unmoney(i.value) > +i.dataset.eoMax + 0.005); });
   const resta = Math.max(0, falta - tot);
-  s.innerHTML = `Reduções: <b>${fmt(tot)}</b> de ${fmt(falta)} por mês` + (resta > 0.5 ? ` · <span class="low">faltam ${fmt(resta)}</span>` : ' · <span class="good">cobre o aumento</span>');
+  s.innerHTML = `Reduções: <b>${fmt(tot)}</b> de ${fmt(falta)} por mês` + (resta > 0.5 ? ` · <span class="low">faltam ${fmt(resta)}</span>` : ' · <span class="good">cobre a falta</span>');
   const b = document.getElementById('eoReduzir'); if (b) b.disabled = resta > 0.5;
 }
 document.addEventListener('input', e => { if (e.target.dataset && e.target.dataset.eo != null) somaEstouro(); });
@@ -2659,26 +2672,26 @@ document.addEventListener('input', e => { if (e.target.dataset && e.target.datas
 document.addEventListener('change', e => { if (e.target.dataset && e.target.dataset.k === 'planned') setTimeout(renderAll, 0); });
 document.addEventListener('click', e => {
   const t = e.target.closest('#eoReduzir, #eoCabe, #eoCancelar'); if (!t || !pendente) return;
-  const { mi, subiu } = pendente, b = orcamentoDoMes(mi);
+  const { subiu } = pendente, b = orcamentoDosAportes();
   // cancelar fixa o aporte no valor aceito: se voltasse a acompanhar o necessário, o aumento voltaria e o aviso reabriria
-  if (t.id === 'eoCancelar') subiu.forEach(id => { const o = plano.objectives.find(x => x.id === id); if (o) { o.planned = aceito.planned[id] || 0; o.segueNecessario = false; } });
+  if (t.id === 'eoCancelar') subiu.forEach(id => { const o = objetivoDoAporte(id); if (o) { o.planned = aceito.planned[id] || 0; o.segueNecessario = false; } });
   if (t.id === 'eoCabe') {   // tira a falta do aumento, sem voltar abaixo do que estava aceito
-    let resto = b.falta - (aceito.faltas[mi] || 0);
-    subiu.forEach(id => { const o = plano.objectives.find(x => x.id === id), ant = aceito.planned[id] || 0, tira = Math.min(resto, (+o.planned || 0) - ant); o.planned = Math.floor((+o.planned - tira) * 100) / 100; o.segueNecessario = false; resto -= tira; });
+    let resto = b.falta - (aceito.falta || 0);
+    subiu.forEach(id => { const o = objetivoDoAporte(id), ant = aceito.planned[id] || 0, tira = Math.min(resto, (+o.planned || 0) - ant); o.planned = Math.floor((+o.planned - tira) * 100) / 100; o.segueNecessario = false; resto -= tira; });
   }
   if (t.id === 'eoReduzir') {
-    // cada item com valor digitado é reduzido a partir do mês (nunca abaixo de zero)
+    // cada item com valor digitado é reduzido a partir de hoje (nunca abaixo de zero)
     document.querySelectorAll('[data-eo]').forEach(inp => {
       const R = Math.min(unmoney(inp.value), +inp.dataset.eoMax); if (!(R > 0)) return;
       const [tipo, id] = inp.dataset.eo.split(':');
-      if (tipo === 'e') {   // um degrau a partir do mês: o valor de cada ocorrência cai o equivalente a R por mês
-        const it = plano.expenses.find(x => x.id === id), v = ENGINE.stepAt(it, mi), fator = ENGINE.mensalizado(it, mi) / (v || 1);
-        setStep(it, mi, Math.max(0, Math.round((v - R / (fator || 1)) * 100) / 100));
-      } else { const o = plano.objectives.find(x => x.id === id); o.planned = Math.max(0, (+o.planned || 0) - R); o.segueNecessario = false; }
+      if (tipo === 'e') {   // um degrau a partir de hoje: o valor de cada ocorrência cai o equivalente a R por mês na média
+        const it = plano.expenses.find(x => x.id === id), v = ENGINE.stepAt(it, 0), fator = ENGINE.mediaDe12Meses([it]) / (v || 1);
+        setStep(it, 0, Math.max(0, Math.round((v - R / (fator || 1)) * 100) / 100));
+      } else { const o = objetivoDoAporte(id); o.planned = Math.max(0, (+o.planned || 0) - R); o.segueNecessario = false; }
     });
   }
   pendente = null; document.getElementById('estouro').hidden = true;
-  renderAll();   // confere de novo: se ainda faltar em outro mês, o orçamento daquele mês abre em seguida
+  renderAll();   // confere de novo
 });
 // objetivos sem aporte definido que ainda precisam de aporte (um objetivo já coberto pelo patrimônio reservado não entra)
 const semAporte = () => plano.objectives.filter(o => !(o.planned > 0) && o.required > 0.5);
@@ -4980,110 +4993,138 @@ function renderApresentacaoC() {
 document.addEventListener('click', e => { if (e.target.closest('[data-como-cliente]')) gravarNuvem(true); });
 
 // ===================== POLÍTICA DE INVESTIMENTOS =====================
-// O patrimônio financeiro de hoje e a sobra do orçamento divididos em caixinhas (ENGINE.politicaDeInvestimentos): os
-// compromissos (plano.compromissos, a lista da coleta), a reserva (plano.politica), cada objetivo (o próprio dedicated e o
-// planned: é a mesma variável do cartão do objetivo) e a liberdade, que fica com o restante. Os dois cartões do alto mostram
-// a divisão em escala real (a soma); a distribuição se faz na tabela, com um controle deslizante por valor. O controle é
-// não linear (a posição é a raiz do valor), para R$ 3 mil e R$ 600 mil terem a mesma precisão no mesmo trilho; o trecho
-// listrado é o que não dá para alcançar, porque a liberdade já não tem o que dar. Num planejamento anual, a sobra e os
-// aportes aparecem por ano.
+// A mesa de distribuição: o patrimônio financeiro de hoje e a sobra do orçamento (ENGINE.politicaDeInvestimentos) divididos
+// nas caixinhas, que ficam nas linhas: a reserva (plano.politica), os compromissos (plano.compromissos, a lista da coleta),
+// cada objetivo (o próprio dedicated e o planned: é a mesma variável do cartão do objetivo) e, no rodapé, a liberdade, que
+// fica com o restante. As duas fontes são as colunas: o cabeçalho de cada uma tem o total e a barra da divisão, em escala
+// real; o rodapé diz o que fica para a liberdade e se a conta fecha. Cada valor é um campo digitado, com a faixa (a parte
+// dele na fonte) e a referência (a reserva ideal, o aporte necessário) logo abaixo, com o botão "usar". Num planejamento
+// anual, a sobra e os aportes aparecem por ano.
 const NOME_ESTRATEGIA = { conservador: 'Conservadora', moderado: 'Moderada', agressivo: 'Agressiva' };
-let polSel = null, polArr = null;   // a caixinha em destaque e o controle sendo arrastado
+let polSel = null;   // a caixinha em destaque
 const polFator = Pz => Pz.periodicidade === 'anual' ? 12 : 1;
-const polPasso = (q, tot) => q === 'p' ? (tot >= 200000 ? 1000 : tot >= 20000 ? 100 : 10) : (tot >= 20000 ? 100 : 10);
-const polP = (v, max) => max > 0 ? Math.sqrt(Math.max(0, Math.min(v, max)) / max) : 0;   // valor → posição no trilho
-const polV = (p, max) => max * p * p;                                                      // posição → valor
-// as caixinhas de cada barra, com o valor na unidade mostrada (a sobra, por mês ou por ano)
-function polSegs(q, Pz) {
-  const f = q === 'm' ? polFator(Pz) : 1;
-  return Pz.caixinhas.filter(c => q === 'p' || c.tipo !== 'compromissos').map(c => ({ c, v: (q === 'p' ? c.patrimonio : c.mensal) * f }));
-}
+const polUn = (q, f) => q === 'm' ? (f === 12 ? ' por ano' : ' por mês') : '';
+const polPct = (v, t) => t > 0 && v > 0.5 ? (v / t < 0.005 ? '&lt;1%' : Math.round(v / t * 100) + '%') : '';
 // grava o valor de uma caixinha (na unidade mostrada); a liberdade é o restante e não se grava
 function polGrava(c, q, v, Pz) {
   v = Math.max(0, Math.round(v * 100) / 100); const f = q === 'm' ? polFator(Pz) : 1;
   if (c.tipo === 'objetivo') { if (q === 'p') c.obj.dedicated = v; else { c.obj.planned = Math.round(v / f * 100) / 100; c.obj.segueNecessario = false; } }
   else if (c.tipo === 'reserva') { plano.politica = plano.politica || {}; if (q === 'p') plano.politica.reserva = v; else plano.politica.reservaMensal = Math.round(v / f * 100) / 100; }
 }
-// o trilho de cada valor: vai de zero ao total (o patrimônio ou a sobra); dá para chegar até o valor de hoje mais o que a
-// liberdade ainda tem (sem o FGTS e a previdência fechada); a marca é a referência (a reserva ideal, o aporte necessário)
+// o controle sob cada valor: um trilho de zero ao total da fonte, em escala não linear (a posição é a raiz do valor), para
+// R$ 3 mil e R$ 600 mil terem a mesma precisão; dá para chegar até o valor de hoje mais o que a liberdade ainda tem (sem o
+// FGTS e a previdência fechada), e o trecho listrado é o que não dá para alcançar. A marca é a referência, com ímã. Nos
+// compromissos, que não se arrastam, a faixa só mostra a parte deles na fonte, em escala real.
+let polArr = null;   // o controle sendo arrastado
+const polPasso = (q, tot) => q === 'p' ? (tot >= 200000 ? 1000 : tot >= 20000 ? 100 : 10) : (tot >= 20000 ? 100 : 10);
+const polP = (v, max) => max > 0 ? Math.sqrt(Math.max(0, Math.min(v, max)) / max) : 0;   // valor → posição no trilho
+const polV = (p, max) => max * p * p;                                                      // posição → valor
 function polLimites(c, q, Pz) {
-  const f = q === 'm' ? polFator(Pz) : 1, lib = Pz.caixinhas.find(x => x.tipo === 'liberdade'), max = q === 'p' ? Pz.total : Pz.sobra * f, v = q === 'p' ? c.patrimonio : c.mensal * f;
+  const f = q === 'm' ? polFator(Pz) : 1, lib = Pz.caixinhas.find(x => x.tipo === 'liberdade'), max = q === 'p' ? Pz.total : Pz.sobra * f, v = (q === 'p' ? c.patrimonio : c.mensal) * f;
   const livre = q === 'p' ? Math.max(0, lib.patrimonio - lib.semLiquidez) : lib.mensal * f;
-  const ref = q === 'p' && c.tipo === 'reserva' && c.sugerido > 0 ? Math.ceil(c.sugerido / 100) * 100 : q === 'm' && c.tipo === 'objetivo' && c.obj.amount > 0 ? Math.ceil(c.necessario || 0) * f : null;
+  const ref = q === 'p' && c.tipo === 'reserva' && c.sugerido > 0 ? Math.ceil(c.sugerido / 100) * 100 : q === 'm' && c.tipo === 'objetivo' && c.obj.amount > 0 ? Math.ceil(c.necessario || 0) * f : 0;
   return { max, v, ate: Math.min(max, v + livre), ref, passo: polPasso(q, max) };
 }
-function polSlider(c, q, Pz) {
-  const L = polLimites(c, q, Pz); if (!(L.max > 0)) return '';
-  const p = polP(L.v, L.max), pa = polP(L.ate, L.max), pr = L.ref > 0 && L.ref <= L.max ? polP(L.ref, L.max) : null;
-  return `<div class="pol-sl${polArr && polArr.q === q && polArr.id === c.id ? ' on' : ''}" data-pol-sl="${q}:${c.id}" style="--cor:${c.cor}" role="slider" tabindex="0" aria-label="${q === 'p' ? 'Patrimônio' : 'Aporte'} para ${esc(c.nome)}" aria-valuemin="0" aria-valuemax="${Math.round(L.ate)}" aria-valuenow="${Math.round(L.v)}" aria-valuetext="${fmt(L.v)}">
-    <i class="tr"></i>${pa < 0.999 ? `<i class="bl" style="left:${(pa * 100).toFixed(2)}%" title="Até aqui a liberdade financeira não tem mais o que dar"></i>` : ''}<i class="ch" style="width:${(p * 100).toFixed(2)}%"></i>${pr != null ? `<i class="rf" style="left:${(pr * 100).toFixed(2)}%" title="${c.tipo === 'reserva' ? 'A reserva ideal' : 'O aporte necessário'}: ${fmt(L.ref)}"></i>` : ''}<b class="pn" style="left:${(p * 100).toFixed(2)}%"></b></div>`;
+function polFaixa(q, c, v, tot, ref, titulo, Pz) {
+  if (c.tipo === 'compromissos') return `<div class="pol-fx ro" style="--cor:${c.cor}"><em></em><i style="width:${tot > 0 ? Math.min(100, v / tot * 100).toFixed(2) : 0}%"></i></div>`;
+  const L = polLimites(c, q, Pz); if (!(L.max > 0)) return `<div class="pol-fx ro" style="--cor:${c.cor}"><em></em></div>`;
+  const p = polP(L.v, L.max), pa = polP(L.ate, L.max), pr = ref > 0 && ref <= L.max ? polP(ref, L.max) : null, on = polArr && polArr.q === q && polArr.id === c.id;
+  return `<div class="pol-fx${on ? ' on' : ''}" data-pol-sl="${q}:${c.id}" style="--cor:${c.cor}" role="slider" tabindex="0" aria-label="${q === 'p' ? 'Patrimônio' : 'Aporte'} para ${esc(c.nome)}" aria-valuemin="0" aria-valuemax="${Math.round(L.ate)}" aria-valuenow="${Math.round(L.v)}" aria-valuetext="${fmt(L.v)}"><em></em>${pa < 0.999 ? `<s style="left:${(pa * 100).toFixed(2)}%" title="Até aqui a liberdade financeira não tem mais o que dar"></s>` : ''}<i style="width:${(p * 100).toFixed(2)}%"></i>${pr != null ? `<b style="left:${(pr * 100).toFixed(2)}%" title="${titulo}: ${fmt(ref)}"></b>` : ''}<u style="left:${(p * 100).toFixed(2)}%"></u></div>`;
 }
-// a barra de cada cartão do alto: a soma, em escala real, só para ver o todo
-function polBarra(q, Pz) {
-  const f = q === 'm' ? polFator(Pz) : 1, tot = (q === 'p' ? Pz.total : Pz.sobra) * f, segs = polSegs(q, Pz).filter(x => x.v > 0.5), un = q === 'm' ? (f === 12 ? '/ano' : '/mês') : '';
-  if (!(tot > 0)) return `<div class="pol-vazio">${q === 'p' ? 'Nenhum patrimônio financeiro ainda. Ele vem da página <button class="link" data-ir="patrimonio">Patrimônio</button>.' : 'Sem sobra no orçamento: as despesas cobrem as entradas. Confira o <button class="link" data-ir="fluxo">Fluxo de caixa</button>.'}</div>`;
+// a célula de uma caixinha numa fonte: o campo (ou o valor fixo), o controle (a faixa, com a marca da referência) e a
+// referência em uma linha, com o botão "usar" quando o valor é outro
+function polCelula(q, c, Pz) {
+  const f = q === 'm' ? polFator(Pz) : 1, un = polUn(q, f), tot = q === 'p' ? Pz.total : Pz.sobra * f, v = (q === 'p' ? c.patrimonio : c.mensal) * f;
+  if (c.tipo === 'compromissos' && q === 'm') return '<span class="pol-fixo" style="text-align:right;color:#B3AFA7">—</span>';
+  let ref = 0, txt = '', titulo = '';
+  if (c.tipo === 'reserva') {
+    if (q === 'p') { const ideal = c.sugerido > 0 ? Math.ceil(c.sugerido / 100) * 100 : 0; ref = ideal; titulo = 'A reserva ideal';
+      txt = ideal > 0 ? (Math.abs(c.patrimonio - ideal) < 1 ? '<span class="ok">na reserva ideal</span>' : `ideal ${fmt(ideal)}, pela Gestão de riscos <button type="button" class="usar" data-pol-usar="reserva">usar</button>`) : 'a ideal sai da Gestão de riscos'; }
+    else txt = v > 0.5 ? 'até completar a ideal' : 'já completa; nada' + un;
+  } else if (c.tipo === 'compromissos') txt = c.itens.length ? 'saem no mês marcado' : 'nenhum cadastrado';
+  else if (q === 'p') txt = (c.patrimonio > 0.5 ? 'rendendo até a data' : 'nada separado hoje') + (c.vendas > 0.5 ? `<br>+ ${fmt(c.vendas)} de vendas de bens, na data` : '');
+  else { const nec = Math.ceil(c.necessario || 0) * f; ref = nec; titulo = 'O aporte necessário';
+    txt = !(c.obj.amount > 0) ? 'falta o valor do objetivo' : v >= nec - 0.5 ? '<span class="ok">cobre o necessário</span>' : `<span class="falta">precisa de ${fmt(nec)}</span> <button type="button" class="usar" data-pol-usar="${c.id}">usar</button>`; }
+  const campo = c.tipo === 'compromissos' ? `<span class="ro">${v > 0.5 ? fmt(v) : '—'}</span>`
+    : `<input data-pol="${q}:${c.id}" data-money-opt inputmode="decimal" value="${v > 0.005 ? money(v) : ''}" placeholder="R$ 0" aria-label="${q === 'p' ? 'Patrimônio' : 'Aporte'} para ${esc(c.nome)}">`;
+  const faixa = polFaixa(q, c, v, tot, ref, titulo, Pz);
+  return `<div class="pol-v">${campo}${faixa}<div class="pol-ref"><span>${txt}</span><span class="pc">${polPct(v, tot)}</span></div></div>`;
+}
+// o cabeçalho de uma coluna: o total, de onde ele vem e a barra da divisão, em escala real (o que não tem liquidez, listrado)
+function polCab(q, Pz) {
+  const f = q === 'm' ? polFator(Pz) : 1, un = polUn(q, f), tot = (q === 'p' ? Pz.total : Pz.sobra) * f, cap = plano.capacityOverride != null && plano.capacityOverride !== '';
+  const de = q === 'p' ? (tot > 0 ? `da página <button class="link" data-ir="patrimonio">Patrimônio</button>: investimentos e previdência${Pz.semLiquidez > 0.5 ? `; ${fmt(Pz.semLiquidez)} sem liquidez (FGTS e previdência fechada), que ficam na liberdade` : ''}` : 'nenhum patrimônio financeiro ainda; ele vem da página <button class="link" data-ir="patrimonio">Patrimônio</button>')
+    : (tot > 0 ? (cap ? 'a capacidade de poupança informada no ' : 'a média dos próximos 12 meses do ') + '<button class="link" data-ir="fluxo">Fluxo de caixa</button>' + (f === 12 ? ', vezes 12: o planejamento é anual (página Cliente)' : '') : 'as despesas cobrem as entradas no <button class="link" data-ir="fluxo">Fluxo de caixa</button>');
+  const segs = Pz.caixinhas.filter(c => q === 'p' || c.tipo !== 'compromissos').map(c => ({ c, v: (q === 'p' ? c.patrimonio : c.mensal) * f })).filter(x => x.v > 0.5);
   const base = Math.max(tot, segs.reduce((a, x) => a + x.v, 0));
-  const fundo = x => { const liq = q === 'p' && x.c.tipo === 'liberdade' && x.c.semLiquidez > 0.5 ? (1 - x.c.semLiquidez / x.v) * 100 : null;   // o que não tem liquidez, listrado
+  const fundo = x => { const liq = q === 'p' && x.c.tipo === 'liberdade' && x.c.semLiquidez > 0.5 ? (1 - x.c.semLiquidez / x.v) * 100 : null;
     return liq == null ? x.c.cor : `linear-gradient(90deg,${x.c.cor} ${liq.toFixed(2)}%,transparent ${liq.toFixed(2)}%),repeating-linear-gradient(135deg,${x.c.cor} 0 4px,#FCD9C2 4px 8px)`; };
-  return `<div class="pol-barra">${segs.map(x => `<i data-pol-seg="${x.c.id}" class="${polSel === x.c.id ? 'sel' : ''}" style="flex:${(x.v / base).toFixed(6)} 0 0;background:${fundo(x)}" title="${esc(x.c.nome)}: ${fmt(x.v)}${un}"></i>`).join('')}</div>
-    <div class="pol-leg">${segs.map(x => `<span data-pol-seg="${x.c.id}"><i style="background:${x.c.cor}"></i>${esc(x.c.nome)} <em>${x.v / tot < 0.005 ? '&lt;1' : Math.round(x.v / tot * 100)}%</em></span>`).join('')}</div>`;
+  return `<span class="rot">${q === 'p' ? 'Patrimônio de hoje' : 'Sobra' + un}</span><span class="tot">${fmt(tot)}</span><span class="de">${de}</span>
+    <div class="pol-soma${tot > 0 ? '' : ' vazia'}">${segs.map(x => `<i data-pol-seg="${x.c.id}" class="${polSel === x.c.id ? 'sel' : ''}" style="flex:${(x.v / base).toFixed(5)} 0 0;background:${fundo(x)}" title="${esc(x.c.nome)}: ${fmt(x.v)}${un}"></i>`).join('')}</div>`;
 }
-function polTopo(Pz) {
-  const f = polFator(Pz), cap = plano.capacityOverride != null && plano.capacityOverride !== '';
-  return `<div class="pol-num"><span>Patrimônio financeiro de hoje</span><b>${fmt(Pz.total)}</b><small>${Pz.semLiquidez > 0.5 ? fmt(Pz.semLiquidez) + ' sem liquidez (FGTS e previdência fechada), que ficam na liberdade financeira' : 'Da página Patrimônio, somando investimentos e previdência'}</small>${polBarra('p', Pz)}</div>
-    <div class="pol-num"><span>Sobra de caixa ${f === 12 ? 'por ano' : 'por mês'}</span><b>${fmt(Pz.sobra * f)}</b><small>${cap ? 'A capacidade de poupança informada no Fluxo de caixa' : 'A média dos próximos 12 meses do Fluxo de caixa'}${f === 12 ? ', vezes 12. O planejamento é anual (página Cliente)' : ''}</small>${polBarra('m', Pz)}</div>`;
+// o rodapé de uma coluna: o que fica para a liberdade e se a conta fecha
+function polRodape(q, Pz) {
+  const f = q === 'm' ? polFator(Pz) : 1, un = polUn(q, f), lib = Pz.caixinhas.find(c => c.tipo === 'liberdade');
+  const tot = q === 'p' ? Pz.total : Pz.sobra * f, v = (q === 'p' ? lib.patrimonio : lib.mensal) * f, exc = q === 'p' ? Pz.excessoLiquido : Pz.excessoMensal * f, p = polPct(v, tot);
+  const nota = exc > 0.5 ? (q === 'p' ? 'não sobra patrimônio com liquidez' : 'não sobra nada para a liberdade')
+    : p ? p + ' da ' + (q === 'p' ? 'carteira de hoje' : 'sobra' + un) : (q === 'p' ? 'nada ainda' : 'sem sobra' + un);
+  const liq = q === 'p' && lib.semLiquidez > 0.5 ? ` · ${fmt(lib.semLiquidez)} sem liquidez` : '';
+  const estado = exc > 0.5 ? (q === 'm' ? `<button type="button" class="pol-estado at" data-pol-estouro title="Abrir o orçamento e escolher o que diminuir"><i></i>passa em ${fmt(exc)}${un} · reduzir</button>` : `<span class="pol-estado at"><i></i>passa em ${fmt(exc)} do que tem liquidez</span>`) : '<span class="pol-estado"><i></i>fecha a conta</span>';
+  return `<span class="pol-resto${exc > 0.5 ? ' neg' : ''}">${fmt(v)}<small>${nota}${liq}</small></span>${estado}`;
 }
-function polAvisos(Pz) {
-  const f = polFator(Pz), a = [];
-  if (Pz.excessoLiquido > 0.5) a.push(`Os compromissos, a reserva e os objetivos passam do patrimônio com liquidez em <b>${fmt(Pz.excessoLiquido)}</b>${Pz.semLiquidez > 0.5 ? ' (o FGTS e a previdência fechada não podem ir para eles)' : ''}.`);
-  if (Pz.excessoMensal > 0.5) a.push(`Os aportes passam da sobra em <b>${fmt(Pz.excessoMensal * f)}${f === 12 ? ' por ano' : ' por mês'}</b>.`);
-  return a.length ? `<div class="pol-aviso">${a.join(' ')}</div>` : '';
-}
+// a linha de uma caixinha: o nome (com a data, o horizonte e o valor do objetivo), a estratégia e as duas células
 function polLinha(c, Pz) {
-  const f = polFator(Pz), un = f === 12 ? '/ano' : '/mês', hz = c.horizonte ? `<span class="pol-hz">${c.horizonte.nome}<small>${c.horizonte.faixa}</small></span>` : '<span class="muted">—</span>';
-  const est = c.tipo === 'objetivo' ? `<select data-pol-perfil="${c.id}">${Object.keys(plano.profiles).map(k => `<option value="${k}"${c.estrategia === k ? ' selected' : ''}>${NOME_ESTRATEGIA[k] || k}</option>`).join('')}</select>`
-    : c.estrategia ? NOME_ESTRATEGIA[c.estrategia] : c.taxa != null ? (c.taxa * 100).toLocaleString('pt-BR', { maximumFractionDigits: 2 }) + '% ao mês' : '—';
-  const din = (q, v) => `<div class="pol-v"><input data-pol="${q}:${c.id}" data-money-opt inputmode="decimal" value="${v > 0.005 ? money(v) : ''}" placeholder="R$ 0">${polSlider(c, q, Pz)}</div>`;
-  const sub = c.tipo === 'objetivo' ? (c.obj.months ? 'até ' + monthsLabel(c.obj.months) : '') : c.tipo === 'reserva' ? 'para imprevistos; não vai para os objetivos' : c.tipo === 'compromissos' ? (c.itens.length ? c.itens.length + (c.itens.length > 1 ? ' compromissos, abaixo' : ' compromisso, abaixo') : 'nenhum cadastrado') : 'fica com o restante';
-  let pat, men = '', ref = '';
-  if (c.tipo === 'compromissos') { pat = `<span class="ro">${fmt(c.patrimonio)}</span>`; men = '<span class="muted">—</span>'; ref = 'separados do restante da carteira até a data <button class="usarnec" data-comp-add>+ Compromisso</button>'; }
-  else if (c.tipo === 'liberdade') { pat = `<span class="ro">${fmt(c.patrimonio)}${c.semLiquidez > 0.5 ? `<small>${fmt(c.semLiquidez)} sem liquidez</small>` : ''}</span>`; men = `<span class="ro">${fmt(c.mensal * f)}<small>${un}</small></span>`; ref = c.meses != null ? 'até a liberdade, em ' + monthsLabel(c.meses) : ''; }
-  else { pat = din('p', c.patrimonio); men = din('m', c.mensal * f); }
-  if (c.tipo === 'reserva') ref = c.sugerido > 0 ? `a ideal é ${fmt(c.sugerido)}, pela Gestão de riscos${Math.abs(c.patrimonio - Math.ceil(c.sugerido / 100) * 100) >= 1 ? ` <button class="usarnec" data-pol-usar="reserva">usar a ideal</button>` : ''}` : 'a ideal sai da Gestão de riscos (custo de vida e natureza do trabalho)';
-  if (c.tipo === 'objetivo') { const nec = Math.ceil(c.necessario || 0);
-    ref = (c.obj.amount > 0 ? `precisa de ${fmt(nec * f)}${un} com este patrimônio${Math.abs(c.mensal - nec) >= 1 ? ` <button class="usarnec" data-pol-usar="${c.id}">usar ${fmt(nec * f)}</button>` : ''}` : 'falta o valor do objetivo')
-      + (c.vendas > 0.5 ? `<br>+ ${fmt(c.vendas)} de vendas de bens, na data (entram na evolução patrimonial)` : ''); }
-  return `<tr class="${polSel === c.id ? 'sel' : ''}" data-pol-linha="${c.id}"><td><div class="pol-cx"><i style="background:${c.cor}"></i><div><b>${esc(c.nome)}</b><small>${sub}</small></div></div></td><td>${hz}</td><td>${est}</td><td class="v">${pat}</td><td class="v">${men}</td><td class="pol-ref">${ref}</td></tr>`;
+  const hz = c.horizonte ? c.horizonte.nome.toLowerCase() : null;
+  const sub = c.tipo === 'objetivo' ? [c.obj.months ? `<em>${monthsLabel(c.obj.months)}</em>` : '', hz, c.obj.amount > 0 ? fmt(c.obj.amount) : 'sem valor'].filter(Boolean).join(' · ')
+    : c.tipo === 'reserva' ? 'para imprevistos · não vai para os objetivos' : c.itens.length ? c.itens.length + (c.itens.length > 1 ? ' compromissos, abaixo' : ' compromisso, abaixo') : 'gastos já marcados, com data e valor';
+  const est = c.tipo === 'objetivo' ? `<div class="pol-seg" role="group" aria-label="Estratégia de ${esc(c.nome)}">${Object.keys(plano.profiles).map(k => `<button type="button" data-pol-perfil="${c.id}" data-k="${k}" aria-pressed="${c.estrategia === k}">${NOME_ESTRATEGIA[k] || k}</button>`).join('')}</div>`
+    : `<span class="pol-fixo">${NOME_ESTRATEGIA[c.estrategia] || 'Conservadora'}<small>${c.tipo === 'reserva' ? 'liquidez imediata' : 'separados até a data'}</small></span>`;
+  return `<tr class="linha${polSel === c.id ? ' sel' : ''}" data-pol-linha="${c.id}"><td class="cx"><div class="pol-cx"><i style="background:${c.cor}"></i><div><b>${esc(c.nome)}</b><small>${sub}</small></div></div></td><td>${est}</td><td data-pol-cel="p:${c.id}">${polCelula('p', c, Pz)}</td><td data-pol-cel="m:${c.id}">${polCelula('m', c, Pz)}</td></tr>`;
 }
-const polTotal = Pz => { const f = polFator(Pz); return `<tr class="tot"><td>Total</td><td></td><td></td><td class="v">${fmt(Pz.total)}</td><td class="v">${fmt(Pz.sobra * f)}${f === 12 ? '/ano' : '/mês'}</td><td></td></tr>`; };
 // a lista dos compromissos, numa linha da tabela logo abaixo da caixinha deles. Na versão final, eles chegam da coleta
-// (os compromissos financeiros); aqui continuam editáveis.
+// (os compromissos financeiros); aqui continuam editáveis. Cada um fica recolhido numa linha só; clicar abre os campos, e o
+// OK (ou Enter) recolhe de novo. O que está aberto é só estado da tela (polCompAberto), não do plano.
+const polCompAberto = new Set();
+const polCompChave = (c, i) => c.id || 'i' + i;
 function polCompromissos() {
-  const L = plano.compromissos || []; if (!L.length) return '';
-  return `<tr class="pol-comp-tr"><td colspan="6"><div class="pol-comp-lista">
-    <div class="pol-comp cab"><span>Compromisso</span><span>Quando</span><span>Valor</span><span>Descrição</span><span></span></div>
-    ${L.map((c, i) => `<div class="pol-comp">${campoR(`compromissos.${i}.titulo`, 'texto', ' placeholder="ex.: Reforma da cozinha"')}<span>${seletorMes(`data-r="compromissos.${i}.em"`, c.em == null ? null : +c.em)}</span>${campoR(`compromissos.${i}.valor`, 'reais', ' placeholder="R$ 0"')}${campoR(`compromissos.${i}.descricao`, 'texto', ' placeholder="opcional"')}<button class="btn btn-icon" data-rrm="compromissos.${i}" title="Remover">×</button></div>`).join('')}
-    <div class="pol-comp-nota">Gastos já marcados, com valor e data: uma reforma, um imposto a pagar, uma festa. Saem do patrimônio financeiro no mês marcado. Na versão final, chegam da coleta de dados.</div></div></td></tr>`;
+  const L = plano.compromissos || [];
+  const um = (c, i) => polCompAberto.has(polCompChave(c, i))
+    ? `<div class="pol-comp aberto" data-comp-item="${polCompChave(c, i)}">${campoR(`compromissos.${i}.titulo`, 'texto', ' placeholder="ex.: Reforma da cozinha"')}<span>${seletorMes(`data-r="compromissos.${i}.em"`, c.em == null ? null : +c.em)}</span>${campoR(`compromissos.${i}.valor`, 'reais', ' placeholder="R$ 0"')}${campoR(`compromissos.${i}.descricao`, 'texto', ' placeholder="descrição (opcional)"')}<button class="btn btn-tertiary btn-small" data-comp-ok="${polCompChave(c, i)}" title="Recolher">OK</button><button class="btn btn-icon" data-rrm="compromissos.${i}" title="Remover">×</button></div>`
+    : `<div class="pol-comp-min" data-comp-abrir="${polCompChave(c, i)}" role="button" tabindex="0" title="Clique para editar"><b>${esc(c.titulo) || 'Compromisso sem nome'}</b><span>${c.em == null ? '—' : monthsLabel(+c.em)}</span><em>${fmt(c.valor)}</em><small>${esc(c.descricao)}</small><button class="btn btn-icon" data-rrm="compromissos.${i}" title="Remover">×</button></div>`;
+  const lista = L.length ? `<div class="pol-comp-lista">${L.map(um).join('')}<div class="pol-comp-nota">Gastos já marcados, com valor e data: uma reforma, um imposto a pagar, uma festa. Saem do patrimônio financeiro no mês marcado. Na versão final, chegam da coleta de dados.</div></div>` : '';
+  return `<tr class="pol-comp-tr"><td colspan="4">${lista}<button class="link" data-comp-add>+ Compromisso</button></td></tr>`;
 }
 function renderPoliticaC(soValores) {
   const el = document.getElementById('politicaC'); if (!el) return;
-  const Pz = ENGINE.politicaDeInvestimentos(plano, SIM), f = polFator(Pz);
-  if (soValores && el.querySelector('.pol-topo')) {   // durante o arraste e a digitação: os cartões, os avisos, a liberdade, os campos e os controles
-    el.querySelector('.pol-topo').innerHTML = polTopo(Pz); el.querySelector('[data-pol-avisos]').innerHTML = polAvisos(Pz);
-    const lib = el.querySelector('[data-pol-linha="liberdade"]'); if (lib) lib.outerHTML = polLinha(Pz.caixinhas.find(c => c.tipo === 'liberdade'), Pz);
-    el.querySelectorAll('[data-pol]').forEach(inp => { if (inp === document.activeElement) return; const [q, id] = inp.dataset.pol.split(':'), c = Pz.caixinhas.find(x => x.id === id);
-      if (c) { const v = q === 'p' ? c.patrimonio : c.mensal * f; inp.value = v > 0.005 ? money(v) : ''; } });
-    el.querySelectorAll('[data-pol-sl]').forEach(s => { const [q, id] = s.dataset.polSl.split(':'), c = Pz.caixinhas.find(x => x.id === id), foco = s === document.activeElement;
-      if (!c) return; s.outerHTML = polSlider(c, q, Pz); if (foco) { const n = el.querySelector(`[data-pol-sl="${q}:${id}"]`); if (n) n.focus(); } });
+  const Pz = ENGINE.politicaDeInvestimentos(plano, SIM);
+  if (soValores && el.querySelector('.pol-tab')) {   // durante a digitação: os cabeçalhos, o rodapé e as células (no campo em foco, só a faixa e a referência)
+    ['p', 'm'].forEach(q => { el.querySelector(`[data-pol-cab="${q}"]`).innerHTML = polCab(q, Pz); el.querySelector(`[data-pol-rodape="${q}"]`).innerHTML = polRodape(q, Pz); });
+    const foco = document.activeElement && document.activeElement.dataset ? document.activeElement.dataset.polSl : null;
+    Pz.caixinhas.forEach(c => ['p', 'm'].forEach(q => { const cel = el.querySelector(`[data-pol-cel="${q}:${c.id}"]`); if (!cel) return;
+      const inp = cel.querySelector('[data-pol]');
+      if (inp && inp === document.activeElement) { const novo = document.createElement('div'); novo.innerHTML = polCelula(q, c, Pz);
+        ['.pol-fx', '.pol-ref'].forEach(s => { const a = cel.querySelector(s), b = novo.querySelector(s); if (a && b) a.replaceWith(b); }); }
+      else cel.innerHTML = polCelula(q, c, Pz); }));
+    if (foco) { const n = el.querySelector(`[data-pol-sl="${foco}"]`); if (n) n.focus(); }
     return;
   }
-  el.innerHTML = `<div class="pol-topo">${polTopo(Pz)}</div><div data-pol-avisos>${polAvisos(Pz)}</div>
-    <div class="bloco"><h3>As caixinhas <span class="dir">arraste os controles ou digite; a liberdade financeira fica com o restante</span></h3>
-      <div class="sub">O controle é mais fino perto do zero, para os valores pequenos terem a mesma precisão que os grandes. A marca no trilho é a referência (a reserva ideal, o aporte necessário) e o trecho listrado é o que a liberdade já não tem para dar. O patrimônio e o aporte de cada objetivo são os mesmos do cartão do objetivo.</div>
-      <div class="tablewrap"><table class="pol-tab"><thead><tr><th>Caixinha</th><th>Horizonte</th><th>Estratégia</th><th class="v">Patrimônio de hoje</th><th class="v">Aporte ${f === 12 ? 'por ano' : 'por mês'}</th><th>Referência</th></tr></thead>
-      <tbody>${Pz.caixinhas.map(c => polLinha(c, Pz) + (c.tipo === 'compromissos' ? polCompromissos() : '')).join('')}${polTotal(Pz)}</tbody></table></div></div>`;
+  const por = t => Pz.caixinhas.find(c => c.tipo === t), objs = Pz.caixinhas.filter(c => c.tipo === 'objetivo'), lib = por('liberdade');
+  el.innerHTML = `<div class="pol-mesa"><div class="tablewrap"><table class="pol-tab">
+    <thead><tr><th class="cx"><span class="rot">Caixinha</span></th><th class="est"><span class="rot">Estratégia</span></th><th class="fonte" data-pol-cab="p">${polCab('p', Pz)}</th><th class="fonte" data-pol-cab="m">${polCab('m', Pz)}</th></tr></thead>
+    <tbody><tr class="grupo"><td colspan="4">Antes dos objetivos</td></tr>${polLinha(por('reserva'), Pz)}${polLinha(por('compromissos'), Pz)}${polCompromissos()}
+      <tr class="grupo"><td colspan="4">Os objetivos</td></tr>${objs.length ? objs.map(c => polLinha(c, Pz)).join('') : '<tr><td colspan="4" class="pol-vazio">Nenhum objetivo ainda. Eles entram na página <button class="link" data-ir="objetivos">Objetivos</button>.</td></tr>'}</tbody>
+    <tfoot><tr><td class="cx"><div class="pol-cx"><i style="background:${lib.cor}"></i><div><b>Liberdade financeira</b><small>fica com o restante${lib.meses != null ? ` · até ${monthsLabel(lib.meses)}` : ''}${lib.horizonte ? ' · ' + lib.horizonte.nome.toLowerCase() : ''}</small></div></div></td>
+      <td><span class="pol-fixo">${lib.estrategia ? NOME_ESTRATEGIA[lib.estrategia] : 'Carteira'}<small>${lib.taxa != null ? (lib.taxa * 100).toLocaleString('pt-BR', { maximumFractionDigits: 2 }) + '% ao mês' : ''}</small></span></td>
+      <td data-pol-rodape="p">${polRodape('p', Pz)}</td><td data-pol-rodape="m">${polRodape('m', Pz)}</td></tr></tfoot></table></div></div>`;
 }
-// arrastar um controle: a posição do mouse no trilho vira o valor (na escala da raiz), com passo e ímã na referência
+// passar o mouse numa caixinha destaca a linha e o trecho dela nas barras do cabeçalho
+document.addEventListener('pointerover', e => {
+  if (polArr) return; const s = e.target.closest && e.target.closest('#politicaC [data-pol-seg], #politicaC [data-pol-linha]'), id = s ? s.dataset.polSeg || s.dataset.polLinha : null;
+  if (id === polSel) return; polSel = id;
+  document.querySelectorAll('#politicaC .pol-soma [data-pol-seg]').forEach(x => x.classList.toggle('sel', x.dataset.polSeg === id));
+  document.querySelectorAll('#politicaC [data-pol-linha]').forEach(x => x.classList.toggle('sel', x.dataset.polLinha === id));
+});
+// arrastar o controle: a posição do mouse no trilho vira o valor (na escala da raiz), com passo e ímã na referência
 function polArrasta(q, id, x) {
   const s = document.querySelector(`[data-pol-sl="${q}:${id}"]`), Pz = ENGINE.politicaDeInvestimentos(plano, SIM), c = Pz.caixinhas.find(y => y.id === id); if (!s || !c) return;
   const r = s.getBoundingClientRect(), L = polLimites(c, q, Pz), p = Math.max(0, Math.min(1, (x - r.left) / Math.max(1, r.width)));
@@ -5096,7 +5137,7 @@ document.addEventListener('pointerdown', e => {
   const [q, id] = s.dataset.polSl.split(':'); polArr = { q, id }; polSel = id; e.preventDefault(); s.focus(); polArrasta(q, id, e.clientX);
 });
 addEventListener('pointermove', e => { if (polArr) polArrasta(polArr.q, polArr.id, e.clientX); });
-addEventListener('pointerup', () => { if (!polArr) return; polArr = null; renderAll(); });
+addEventListener('pointerup', () => { if (!polArr) return; const a = polArr; polArr = null; renderAll(); const n = document.querySelector(`[data-pol-sl="${a.q}:${a.id}"]`); if (n) n.focus(); });
 // pelo teclado: as setas andam um passo (com Shift, dez); Home zera
 document.addEventListener('keydown', e => {
   const s = e.target.closest && e.target.closest('[data-pol-sl]'); if (!s || !['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home'].includes(e.key)) return;
@@ -5105,14 +5146,12 @@ document.addEventListener('keydown', e => {
   polGrava(c, q, Math.max(0, Math.min(L.ate, Math.round((L.v + d) / L.passo) * L.passo)), Pz); renderAll();
   const n = document.querySelector(`[data-pol-sl="${q}:${id}"]`); if (n) n.focus();
 });
-// passar o mouse numa caixinha destaca a linha e o trecho dela nas barras
-document.addEventListener('pointerover', e => {
-  if (polArr) return; const s = e.target.closest && e.target.closest('#politicaC [data-pol-seg], #politicaC [data-pol-linha]'), id = s ? s.dataset.polSeg || s.dataset.polLinha : null;
-  if (id === polSel) return; polSel = id;
-  document.querySelectorAll('#politicaC .pol-barra [data-pol-seg]').forEach(x => x.classList.toggle('sel', x.dataset.polSeg === id));
-  document.querySelectorAll('#politicaC [data-pol-linha]').forEach(x => x.classList.toggle('sel', x.dataset.polLinha === id));
+// Enter num campo do compromisso recolhe; Enter ou espaço na linha recolhida abre
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.target.closest && e.target.closest('.pol-comp.aberto')) { e.preventDefault(); const id = e.target.closest('.pol-comp.aberto').dataset.compItem; e.target.blur(); polCompAberto.delete(id); setTimeout(renderAll, 0); }
+  else if ((e.key === 'Enter' || e.key === ' ') && e.target.dataset && e.target.dataset.compAbrir != null) { e.preventDefault(); e.target.click(); }
 });
-// digitar na tabela: grava e redesenha os valores; ao sair do campo, a simulação inteira
+// digitar na mesa: grava e redesenha os valores; ao sair do campo, a simulação inteira
 document.addEventListener('input', e => {
   const t = e.target; if (!t.dataset || t.dataset.pol == null) return;
   const [q, id] = t.dataset.pol.split(':'), Pz = ENGINE.politicaDeInvestimentos(plano, SIM), c = Pz.caixinhas.find(x => x.id === id); if (!c) return;
@@ -5121,19 +5160,20 @@ document.addEventListener('input', e => {
   else polGrava(c, q, vazio ? 0 : unmoney(t.value), Pz);
   renderPoliticaC(true); save();
 });
-document.addEventListener('change', e => {
-  const t = e.target; if (!t.dataset) return;
-  if (t.dataset.pol != null) setTimeout(renderAll, 0);
-  if (t.dataset.polPerfil != null) { const o = plano.objectives.find(x => x.id === t.dataset.polPerfil); if (o) { o.profile = t.value; o.rateM = plano.profiles[t.value]; } renderAll(); }
-});
+document.addEventListener('change', e => { const t = e.target; if (t.dataset && t.dataset.pol != null) setTimeout(renderAll, 0); });
 document.addEventListener('click', e => {
+  if (e.target.closest('[data-pol-estouro]')) { abrirEstouroDaMesa(); return; }
   const u = e.target.closest('[data-pol-usar]');
   if (u) { const id = u.dataset.polUsar, Pz = ENGINE.politicaDeInvestimentos(plano, SIM), c = Pz.caixinhas.find(x => x.id === id);
     if (c && c.tipo === 'reserva') { plano.politica = plano.politica || {}; plano.politica.reserva = Math.ceil(c.sugerido / 100) * 100; }
     if (c && c.tipo === 'objetivo') { c.obj.planned = Math.ceil(c.necessario || 0); c.obj.segueNecessario = true; }
     renderAll(); return; }
-  if (e.target.closest('[data-comp-add]')) { const L = plano.compromissos = plano.compromissos || []; L.push({ id: 'comp' + Date.now().toString(36), titulo: '', descricao: '', em: 6, valor: 0 }); renderAll();
-    const n = document.querySelector(`[data-r="compromissos.${L.length - 1}.titulo"]`); if (n) n.focus(); }
+  const p = e.target.closest('[data-pol-perfil]');
+  if (p) { const o = plano.objectives.find(x => x.id === p.dataset.polPerfil); if (o) { o.profile = p.dataset.k; o.rateM = plano.profiles[p.dataset.k]; } renderAll(); return; }
+  if (e.target.closest('[data-comp-add]')) { const L = plano.compromissos = plano.compromissos || []; const id = 'comp' + Date.now().toString(36); L.push({ id, titulo: '', descricao: '', em: 6, valor: 0 }); polCompAberto.add(id); renderAll();
+    const n = document.querySelector(`[data-r="compromissos.${L.length - 1}.titulo"]`); if (n) n.focus(); return; }
+  const ok = e.target.closest('[data-comp-ok]'); if (ok) { polCompAberto.delete(ok.dataset.compOk); renderAll(); return; }
+  const ab = e.target.closest('[data-comp-abrir]'); if (ab && !e.target.closest('[data-rrm]')) { polCompAberto.add(ab.dataset.compAbrir); renderAll(); const n = document.querySelector(`[data-comp-item="${ab.dataset.compAbrir}"] input`); if (n) n.focus(); }
 });
 
 // ===================== GESTÃO DE RISCOS =====================
