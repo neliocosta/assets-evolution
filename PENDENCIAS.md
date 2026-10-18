@@ -132,6 +132,82 @@ que leva à página correspondente do portal (veja o README, "Quem vê o quê").
 para a aba do portal que abriu a apresentação (que fica à frente, e a apresentação fecha) não deu para testar no
 navegador de testes, que abre tudo na mesma aba: conferir no Chrome.
 
+## Política de investimentos — feito (17/10/2026)
+
+Pedido do usuário: um capítulo para dizer ao cliente para onde vai cada real do patrimônio de hoje e da sobra do orçamento
+(compromissos, reserva, cada objetivo e liberdade financeira), com um capricho de UX para o consultor distribuir arrastando,
+e um Sankey animado para o cliente. Decisões dele: no portal, é o primeiro passo do Planejamento (antes da Gestão de
+riscos), mesmo com os objetivos cadastrados depois, no passo 7 (confirmado por ele); no cliente, vem depois de Objetivos. A reserva fica separada dos objetivos, mas conta na liberdade. Os compromissos
+são a lista da coleta e ficam separados até a data. A liberdade fica sempre com o restante. O planejamento mensal ou anual
+é escolhido na página Cliente. Horizontes: curtíssimo (abaixo de 6 meses), curto (6 a 24), médio (24 a 60), longo (60 a 120)
+e longuíssimo (mais de 120). O FGTS e a previdência (aberta e fechada) entram no patrimônio; o FGTS e a fechada sem liquidez.
+O Sankey trata só do patrimônio e da sobra de hoje; as vendas futuras ficam na evolução patrimonial.
+Revisão do usuário: a barra arrastável ficava ilegível com valores muito diferentes (R$ 15 mil ao lado de R$ 600 mil). Agora
+cada valor tem o seu controle deslizante na tabela, em escala não linear (a raiz), e a liberdade fica com a diferença; as
+barras ficaram só nos cartões do alto, em escala real, para ver a soma. No cliente, ele pediu o Sankey se dividindo em
+movimento: o bloco aparece, se desfaz nas cores das caixinhas e cada fatia escorre até a sua. Depois, pediu que o segundo
+Sankey saia da renda líquida da família, com o padrão de vida separado sem destaque, e que os compromissos ficassem à vista:
+agora se cadastram na tabela das caixinhas, logo abaixo da linha deles (`politicaDeInvestimentos` devolve `renda` e `padrao`).
+Por fim, o Sankey da renda ficou em dois níveis: a renda vai para o futuro (em cima) e para o padrão de vida (embaixo, mais
+curto); só o futuro se abre nos objetivos e na liberdade, e o movimento segue a mesma ordem.
+Em aberto:
+
+1. **Planejamento anual na simulação**: hoje só muda como a política mostra a sobra e os aportes (por ano). O aporte anual
+   de verdade (uma vez por ano, no mês do bônus) ainda não existe no motor.
+2. **FGTS para a casa**: o FGTS fica na liberdade, sem liquidez; usá-lo na compra do imóvel ainda não é possível.
+3. **Importar da coleta** os compromissos, o FGTS, a previdência fechada e a periodicidade.
+
+## Uma venda para vários objetivos — feito (17/10/2026)
+
+Pedido do usuário: o líquido do terreno de São Sebastião (R$ 100 mil) ia R$ 80 mil para a Casa própria e R$ 20 mil para a
+Viagem à Europa, mas a venda só financiava um objetivo, e escolher o terreno na viagem tirava a venda inteira da casa (o
+necessário da casa disparava e o aviso do orçamento abria). Agora a venda tem uma lista de destinos (`venda.destinos`): cada
+um leva o valor informado, vazio leva o que sobra, e juntos nunca passam do líquido. O cartão do objetivo e a gaveta do bem
+mostram o que ainda está livre, os outros objetivos que a venda financia e avisam quando o valor pedido passa do que sobra.
+Junto, o "Cancelar o aumento" do aviso do orçamento deixou de reabrir o aviso quando o aporte acompanhava o necessário.
+
+## Objetivo financiado com patrimônio — feito (17/10/2026)
+
+Pedido do usuário, com um cliente que vende o apartamento de São Paulo daqui a três anos para comprar um menor em São José
+dos Campos. O chip "+ Patrimônio já reservado" virou **"+ Financiar com patrimônio"**, uma seção com três fontes: o
+patrimônio financeiro de hoje (o antigo `dedicated`), a venda de um bem e a venda de uma participação. A venda continua
+programada só no bem (uma informação num lugar só); o objetivo aponta para ela (hoje, `venda.destinos`). Escolher um bem sem
+venda cria a venda na data do objetivo e abre a gaveta do bem (ou da participação, gaveta nova) para programá-la. No mês da
+venda, o líquido (ou a parte de cada objetivo) vai para o saldo do objetivo; o que sobra na data volta ao
+financeiro. Uma venda depois da data não financia, e o cartão oferece trazer a data do objetivo para o mês da venda. No
+motor, os objetivos passaram a ser realizados depois das vendas do mês, para a venda e a compra no mesmo mês funcionarem.
+Em aberto: o cliente ainda não propõe essa ligação; a venda de um bem comprado por um objetivo continua fora.
+
+## Capítulo Objetivos (17/10/2026)
+
+Pedido do usuário: antes da evolução patrimonial, um capítulo para apresentar com calma como cada objetivo vai ser
+realizado (o modal da evolução passa rápido demais), e a engenharia para acompanhar o plano nas revisões: orçado x
+realizado por objetivo, os aportes cumpridos ("20 de 24") e os cobertos com dinheiro de outro objetivo. Feito: o capítulo
+(capa, resumo e a página, um objetivo por vez), o orçado e os cortes no motor, a foto do plano (Apresentação) e a conta do
+acompanhamento, testada no `verificar.js`. Escolha: os três cortes ficam a um quarto, à metade e a três quartos do prazo.
+**O acompanhamento saiu da ferramenta** (decisão do usuário, 17/10/2026): esta ferramenta é para desenhar e apresentar o
+plano; revisitar os objetivos (o guardado, o realizado) é da futura área logada do cliente. Saíram a foto do plano (página
+Apresentação), a seção "Acompanhamento" do cartão do objetivo no portal e o bloco "O acompanhamento" com os saldos do
+extrato na área do cliente. Tudo guardado em `reaproveitar/acompanhamento.js`. Quando a área logada vier: o "hoje" do
+motor ainda é fixo em 19/09/2026 (item 20), e o dinheiro remanejado de um objetivo para outro no realizado deveria baixar
+o saldo do de origem.
+
+## Eventos menores na evolução patrimonial — feito (17/10/2026)
+
+Pedido do usuário: os rótulos das vendas, quitações e rendas que começam ou terminam ficavam encavalados ("Venda: Terreno"
+sobre "Venda: Apartamento") e encostados na curva. Agora ficam numa faixa própria, entre a linha dos objetivos e o alto da
+curva (que desceu para abrir o espaço). Os do mesmo ponto viram um só ("2 vendas"); cada rótulo vai no primeiro lugar livre
+(linha de cima ou de baixo, à direita ou à esquerda do ponto), sem encostar em outro nem cruzar a linha de um objetivo; sem
+lugar, vira o rótulo curto ("Dívida quitada") ou só o ponto. O detalhe continua no tooltip ao passar o mouse.
+
+## Preço do bem e necessário na data — feito (17/10/2026)
+
+Pedido do usuário: na casa própria, os R$ 180 mil do objetivo eram a entrada de um imóvel de R$ 600 mil. Num objetivo que
+vira bem, o cartão passou a ter "Valor do objetivo" (o preço, `preco`) e "Necessário na data" (o `amount` de sempre). É
+só visual: o cabeçalho mostra "R$ 600.000 (R$ 180.000 na data)" e a tela do cliente mostra o valor do bem e o necessário
+na data. Em aberto: o bem ainda entra no patrimônio pela entrada (e cresce com a amortização do financiamento), não pelo
+preço com a dívida ao lado.
+
 ## Fluxo de caixa do cliente: linha inteira e faixa de meses (17/10/2026)
 
 Feito: na janela do fluxo, desbloqueada, o nome da linha abre a linha inteira num painel do lado (frequência, datas,

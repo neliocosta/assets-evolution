@@ -17,6 +17,44 @@ além das fontes do Google, e abrem direto no navegador.
 - `node sync-motor.js` copia o motor da tela do cliente para a do consultor. **Rode sempre que mexer no motor**:
   as duas telas são autocontidas e por isso carregam uma cópia cada.
 
+## A realização de cada objetivo
+
+O capítulo **Objetivos** vem antes da evolução patrimonial. A página "Como realizar cada objetivo" (`?fase=realizacao`)
+mostra um objetivo por vez, escolhido nas abas: a estratégia (`strategy`, em texto corrido); o que é preciso na data (o
+necessário, o preço do bem e as novas despesas mensais depois); de onde vem o dinheiro (a caixinha reservada hoje, as vendas
+e os aportes mensais, cada um pelo que vale na data); e o caminho até lá, com a curva do saldo e três cortes antes da data
+(a um quarto, à metade e a três quartos do prazo). Tudo sai da simulação (`ENGINE.orcadoDoObjetivo`, `cortesDoObjetivo`).
+
+**O acompanhamento não entra nesta ferramenta.** Ela serve para o consultor desenhar o plano e apresentá-lo ao cliente; o
+orçado x realizado (a foto do plano, o realizado mês a mês, os aportes cumpridos e o saldo do extrato) é da futura área
+logada do cliente. O que já foi feito está guardado em `reaproveitar/acompanhamento.js`, que nenhuma das telas carrega: a
+conta (testada no `verificar.js`) e as telas como estavam no protótipo.
+
+## A política de investimentos
+
+Para onde vai cada real: o patrimônio financeiro de hoje e a sobra do orçamento, divididos em caixinhas
+(`ENGINE.politicaDeInvestimentos`). As caixinhas são os compromissos (`compromissos`, a lista da coleta: gastos já marcados,
+com valor e data, que saem do patrimônio financeiro no mês marcado), a reserva de emergência (`politica.reserva` e
+`politica.reservaMensal`; vazia, a reserva ideal da Gestão de riscos), cada objetivo (o próprio `dedicated` e `planned` do
+objetivo: a política só os reúne) e a liberdade financeira, que fica sempre com o restante. Cada caixinha tem o horizonte
+(curtíssimo, abaixo de 6 meses; curto, de 6 a 24; médio, de 24 a 60; longo, de 60 a 120; longuíssimo, mais de 120) e a
+estratégia (o perfil de rentabilidade do objetivo; conservadora na reserva e nos compromissos). O FGTS e a previdência
+fechada contam no patrimônio, mas sem liquidez: ficam na liberdade. Na simulação, a reserva continua dentro da liberdade.
+
+No portal, é o primeiro passo do Planejamento: os dois cartões do alto (o patrimônio e a sobra) mostram a divisão em escala
+real; a distribuição se faz na tabela das caixinhas, digitando ou com um controle deslizante por valor (também pelas setas do
+teclado), e a liberdade fica com a diferença. O controle é não linear (a posição é a raiz do valor), para R$ 3 mil e R$ 600
+mil terem a mesma precisão no mesmo trilho; tem ímã e marca na reserva ideal e no aporte necessário de cada objetivo, e o
+trecho listrado é o que a liberdade já não tem para dar. Os compromissos se cadastram na própria tabela, logo abaixo da
+caixinha deles (na versão final, chegam da coleta, e continuam editáveis). Na área do cliente, é o capítulo depois de
+Objetivos: dois Sankeys, cada um na sua escala: o patrimônio de hoje e a renda líquida da família, em dois níveis: a renda se divide
+entre o futuro (em cima, a sobra) e o padrão de vida (embaixo, em ardósia, sem destaque, terminando na coluna do meio), e o
+futuro se abre nas caixinhas. Embaixo, a tabela. Ao aparecer, cada
+Sankey começa como um bloco só, que se divide nas cores das caixinhas, e cada fatia escorre até a sua caixinha (toca mesmo
+com menos movimento no sistema, como a trajetória da evolução).
+As vendas futuras de bens não entram aqui: aparecem na evolução patrimonial. Num planejamento anual (`periodicidade`, na
+página Cliente), a sobra e os aportes aparecem por ano; o motor continua mensal.
+
 ## Como as duas telas se conectam
 
 O consultor configura o plano no portal, e ele é gravado sozinho no armazém compartilhado (veja "Quem vê o quê e
@@ -44,9 +82,9 @@ Os vídeos são links do YouTube, do Vimeo ou do arquivo, em `plano.videos['cap-
 páginas de detalhe, sem vídeo: mostram só os resultados e terminam com "anterior" e "próximo". O cabeçalho mostra a página atual ("Otimização tributária / Imposto de renda da
 família"; os capítulos têm só o título, sem número, porque nem todo cliente terá todos), com anterior, próxima e uma barra de progresso dividida por capítulo; um clique nela abre o sumário, que marca
 as páginas já vistas. Hoje existem, nesta ordem, **Propósito**, **Diagnóstico**, **Gestão financeira** (capa e três páginas), **Otimização tributária** (quatro páginas), **Patrimônio**
-(página "Fase da vida e patrimônio"), **Gestão de riscos** e **Evolução patrimonial** (a trajetória do patrimônio e, por último, "O caminho daqui para frente");
+(página "Fase da vida e patrimônio"), **Gestão de riscos**, **Objetivos** (capa, resumo e "Como realizar cada objetivo") e **Evolução patrimonial** (a trajetória do patrimônio e, por último, "O caminho daqui para frente");
 um capítulo ainda por construir (`mock`) aparece só no sumário, como "em breve", fora da sequência. A página pode
-vir no endereço (`?fase=proposito`, `?fase=diagnostico`, `?fase=hoje-depois`, `?fase=capa-gestao`, `?fase=renda-custo`, `?fase=tempo`, `?fase=orcamento`, `?fase=capa-tributario`, `?fase=resumo-tributario`, `?fase=ir`, `?fase=patrimonio`, `?fase=riscos`, `?fase=evolucao`, `?fase=caminho`); senão, a tela abre na
+vir no endereço (`?fase=proposito`, `?fase=diagnostico`, `?fase=hoje-depois`, `?fase=capa-gestao`, `?fase=renda-custo`, `?fase=tempo`, `?fase=orcamento`, `?fase=capa-tributario`, `?fase=resumo-tributario`, `?fase=ir`, `?fase=patrimonio`, `?fase=riscos`, `?fase=realizacao`, `?fase=evolucao`, `?fase=caminho`); senão, a tela abre na
 última vista, ou no Propósito na primeira vez.
 
 **Propósito**, o primeiro capítulo, abre a reunião com duas páginas, sem capa nem resumo, desenhadas como uma landing page que o

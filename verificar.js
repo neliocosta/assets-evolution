@@ -548,6 +548,101 @@ console.log('\n12b. Participações ao longo do tempo e liquidez ideal');
   ok('liquidez ideal: num plano antigo, o valor em reais', Ep.faseDaVida({ age: 35, patrimonio: { liquidezIdeal: 300000 } }).liquidezIdeal === 300000);
 }
 
+console.log('\n12c. Objetivo financiado pela venda de um bem');
+{
+  const Ev = carregar(srcCliente);
+  const sp = { nome: 'Apartamento SP', mercado: 1200000, venda: { em: 36, custos: [{ nome: 'Corretagem', pct: 6 }], objetivo: 'sjc' } };
+  const sjc = { id: 'sjc', name: 'Apartamento SJC', kind: 'bem', months: 36, amount: 700000, dedicated: 0, planned: 0, profile: 'moderado', costs: [] };
+  const plano = v => ({ patrimonio: { bens: [Object.assign({}, sp, { venda: Object.assign({}, sp.venda, v) })] }, initialBens: 1200000, initialWealth: 100000, passive: [],
+    objectives: [Object.assign({}, sjc)],
+    incomes: [{ id: 'sal', label: 'Salário', kind: 'ativa', frequency: 'mensal', days: [5], steps: [{ from: 0, value: 20000 }] }],
+    expenses: [{ id: 'vida', label: 'Vida', group: 'adj', frequency: 'mensal', days: [10], steps: [{ from: 0, value: 15000 }] }] });
+  Ev.configure(plano({}));
+  const o = Ev.OBJ[0], liq = Ev.trajetoriaDoBem(sp).venda.liquido, vs = Ev.vendasDoObjetivo(o);
+  ok('a venda aparece no objetivo, com todo o líquido', vs.length === 1 && Math.abs(vs[0].usado - liq) < 0.01 && !vs[0].depois, 'R$ ' + Math.round(liq));
+  ok('com a venda cobrindo o valor, o aporte necessário é zero', o.required === 0);
+  const s = Ev.run('desej'); let erro = 0;
+  s.buckets.month.forEach(b => { if (b.w1 <= Ev.W0) return; let i = 0, x = 0, v = 0;
+    for (const k in b.f) { if (k.startsWith('in_')) i += b.f[k]; else if (k.startsWith('out_')) x += b.f[k]; else if (k.startsWith('mov_')) v += b.f[k]; }
+    erro = Math.max(erro, Math.abs(i - x - v)); });
+  ok('com a venda no objetivo, movimentações = entradas − saídas', erro < 0.01, 'erro máximo ' + erro.toFixed(6));
+  ok('venda e compra no mesmo mês: o objetivo é realizado e comprado', o.status === 'ok' && !o.naoComprado && Math.abs(o.real - liq) < 1, 'juntou R$ ' + Math.round(o.real));
+  const ev = s.events.find(e => e.type === 'venda');
+  ok('o marco da venda diz para onde vai o dinheiro', /Apartamento SJC/.test(ev.detail), ev.detail);
+  Ev.configure(plano({ paraObjetivo: 500000 }));
+  ok('só parte do líquido: o resto vai para o financeiro e o objetivo pede aporte', Ev.vendasDoObjetivo(Ev.OBJ[0])[0].usado === 500000 && Ev.OBJ[0].required > 0 && /mercado financeiro/.test(Ev.run('desej').events.find(e => e.type === 'venda').detail));
+  Ev.configure(plano({ em: 40 }));
+  ok('venda depois da data não financia o objetivo', Ev.vendasDoObjetivo(Ev.OBJ[0])[0].depois && Ev.OBJ[0].required > 0);
+  // uma venda para dois objetivos: o primeiro leva o valor informado, o segundo o que sobra; juntos, nunca passam do líquido
+  const viagem = { id: 'viagem', name: 'Viagem', kind: 'consumo', months: 40, amount: 300000, dedicated: 0, planned: 0, profile: 'moderado', costs: [] };
+  const dois = destinos => { const p = plano({}); delete p.patrimonio.bens[0].venda.objetivo; p.patrimonio.bens[0].venda.destinos = destinos; p.objectives.push(Object.assign({}, viagem)); return p; };
+  const pD = dois([{ objetivo: 'sjc', valor: 800000 }, { objetivo: 'viagem', valor: null }]); Ev.configure(pD);
+  const uS = Ev.vendasDoObjetivo(Ev.OBJ[0])[0].usado, uV = Ev.vendasDoObjetivo(Ev.OBJ[1])[0].usado;
+  ok('dividida entre dois objetivos: cada um recebe a sua parte', uS === 800000 && Math.abs(uV - (liq - 800000)) < 0.01, 'R$ ' + Math.round(uS) + ' + R$ ' + Math.round(uV));
+  const evD = Ev.run('desej').events.find(e => e.type === 'venda');
+  ok('cada objetivo junta a sua parte, e o marco diz as duas', Math.abs(Ev.OBJ[0].real - 800000) < 1 && Ev.OBJ[1].real >= liq - 800000 - 1 && /Apartamento SJC/.test(evD.detail) && /Viagem/.test(evD.detail), evD.detail);
+  Ev.configure(dois([{ objetivo: 'sjc', valor: 800000 }, { objetivo: 'viagem', valor: 900000 }]));
+  ok('o segundo destino não passa do que sobra do líquido', Math.abs(Ev.vendasDoObjetivo(Ev.OBJ[1])[0].usado - (liq - 800000)) < 0.01);
+  const antigo = plano({ paraObjetivo: 500000 }); Ev.configure(antigo);
+  ok('plano antigo (venda.objetivo) vira a lista de destinos', !('objetivo' in antigo.patrimonio.bens[0].venda) && antigo.patrimonio.bens[0].venda.destinos[0].valor === 500000);
+}
+
+console.log('\n12d. A realização de cada objetivo: orçado e cortes (e o acompanhamento guardado em reaproveitar/)');
+{
+  const Eo = carregar(srcCliente), s = Eo.run('desej'), o = Eo.OBJ.find(x => x.id === 'casa'), M = Eo.orcadoDoObjetivo(o, s);
+  ok('o orçado vai de hoje até a data do objetivo, mês a mês', M.length === o.months + 1 && M[0].mes === Eo.mesISO(0) && M[M.length - 1].mes === Eo.mesISO(o.months));
+  ok('o reservado hoje entra de uma vez, não como aporte', M[0].extra === o.dedicated && M[0].aporte <= o.planned + 0.01);
+  ok('no mês da data, o saldo é o que o objetivo juntou', Math.abs(M[M.length - 1].saldo - o.real) < 0.01);
+  const aportes = M.reduce((a, m) => a + m.aporte, 0), mov = s.weeks.slice(Eo.W0).reduce((a, w) => a + Math.max(0, w.f['mov_obj_casa'] || 0), 0);
+  ok('aportes mais o que entrou de uma vez = o que foi para o objetivo na simulação', Math.abs(aportes + o.dedicated - mov) < 0.01);
+  const C = Eo.cortesDoObjetivo(o, s);
+  ok('três cortes antes da data e a própria data', C.length === 4 && C[3].data && C[0].mi < C[1].mi && C[1].mi < C[2].mi && C[2].mi < o.months, C.map(c => c.mes).join(', '));
+  ok('o saldo esperado cresce até a data', C.every((c, i) => !i || c.saldo > C[i - 1].saldo));
+  // acompanhamento (fora das telas, guardado em reaproveitar/acompanhamento.js): a foto de hoje e 24 meses de realizado,
+  // com 4 aportes cobertos por outro objetivo e 2 que faltaram
+  const Ac = require('./reaproveitar/acompanhamento.js');
+  o.foto = Ac.fotoDoObjetivo(o, Eo.orcadoDoObjetivo(o, s), '2026-09-19');
+  o.realizado = o.foto.meses.slice(0, 24).map((m, i) => i % 6 === 5 ? { mes: m.mes, aporte: 0, deOutro: [{ objetivo: 'europa', valor: m.aporte }] }
+    : i === 10 || i === 16 ? { mes: m.mes, aporte: m.aporte / 2 } : { mes: m.mes, aporte: m.aporte });
+  o.realizado[23].saldo = o.foto.meses[23].saldo - 5000;
+  const A = Ac.acompanhamentoDoObjetivo(o);
+  ok('de 24 oportunidades de aporte: 18 cumpridos, 4 cobertos por outro objetivo, 2 faltaram', A.oportunidades === 24 && A.cumpridos === 18 && A.cobertos === 4 && A.faltaram === 2, A.cumpridos + '/' + A.cobertos + '/' + A.faltaram);
+  ok('o saldo do extrato comparado com o orçado no mesmo mês', A.saldo && A.saldo.mes === o.foto.meses[23].mes && Math.abs(A.saldo.diferenca + 5000) < 0.01);
+  o.amount = 999999; Eo.derive(o);
+  ok('a foto não muda quando o plano muda', o.foto.valor === 180000 && Ac.acompanhamentoDoObjetivo(o).foto.meses.length === 47);
+  ok('sem foto, não há acompanhamento', Ac.acompanhamentoDoObjetivo({ id: 'x' }) === null);
+}
+
+console.log('\n12e. Política de investimentos: patrimônio e sobra por caixinha, compromissos');
+{
+  const Ep = carregar(srcCliente), H = Ep.horizonteDe;
+  ok('horizontes: abaixo de 6, de 6 a 24, de 24 a 60, de 60 a 120 e mais de 120 meses', [5, 6, 23, 24, 59, 60, 120, 121].map(m => H(m).id).join() === 'curtissimo,curto,curto,medio,medio,longo,longo,longuissimo');
+  const base = () => ({ initialWealth: 0, initialBens: 0, passive: [], patrimonio: { financeiro: [{ nome: 'Banco', valor: 500000 }, { nome: 'FGTS', valor: 100000, tipo: 'fgts' }], bens: [], participacoes: [], dividas: [] },
+    riscos: { reserva: { alvo: 60000 } },
+    objectives: [{ id: 'casa', name: 'Casa', kind: 'bem', months: 48, amount: 300000, dedicated: 150000, planned: 2000, profile: 'moderado', costs: [] },
+      { id: 'viagem', name: 'Viagem', kind: 'consumo', months: 18, amount: 40000, dedicated: 10000, planned: 1000, profile: 'conservador', costs: [] }],
+    compromissos: [{ id: 'reforma', titulo: 'Reforma', em: 6, valor: 30000 }],
+    incomes: [{ id: 'sal', label: 'Salário', kind: 'ativa', frequency: 'mensal', days: [5], steps: [{ from: 0, value: 20000 }] }],
+    expenses: [{ id: 'vida', label: 'Vida', group: 'adj', frequency: 'mensal', days: [10], steps: [{ from: 0, value: 14000 }] }] });
+  const pl = base(); Ep.configure(pl); const Pz = Ep.politicaDeInvestimentos(pl), c = id => Pz.caixinhas.find(x => x.id === id);
+  ok('o patrimônio das caixinhas soma o financeiro de hoje (com o FGTS)', Pz.total === 600000 && Math.abs(Pz.caixinhas.reduce((a, x) => a + x.patrimonio, 0) - 600000) < 0.01);
+  ok('compromissos, reserva (o alvo da Gestão de riscos) e objetivos; a liberdade fica com o restante', c('compromissos').patrimonio === 30000 && c('reserva').patrimonio === 60000 && c('casa').patrimonio === 150000 && c('liberdade').patrimonio === 600000 - 30000 - 60000 - 160000);
+  ok('a sobra do mês vai para os aportes e o resto para a liberdade', Math.abs(Pz.sobra - 6000) < 0.01 && Math.abs(c('liberdade').mensal - 3000) < 0.01);
+  ok('o FGTS fica na liberdade (sem liquidez)', c('liberdade').semLiquidez === 100000 && Pz.excessoLiquido === 0);
+  pl.objectives[0].dedicated = 480000; const Px = Ep.politicaDeInvestimentos(pl);
+  ok('passar do patrimônio com liquidez é apontado', Px.excessoLiquido > 0 && Px.caixinhas.find(x => x.id === 'liberdade').patrimonio >= 0, 'excesso R$ ' + Math.round(Px.excessoLiquido));
+  ok('a reserva vazia é a ideal até onde o patrimônio com liquidez dá', Math.abs(Px.caixinhas.find(x => x.id === 'reserva').patrimonio - 0) < 0.01);
+  // o compromisso sai do patrimônio financeiro no mês marcado
+  const comC = base(); Ep.configure(comC); const s1 = Ep.run('desej'), ev = s1.events.find(e => /Compromisso: Reforma/.test(e.label));
+  const semC = base(); semC.compromissos = []; Ep.configure(semC); const s0 = Ep.run('desej');
+  ok('o compromisso aparece na linha do tempo, no mês marcado', ev && s1.weeks[ev.week].mi === 6);
+  ok('e o patrimônio financeiro cai o valor dele', ev && Math.abs((s0.weeks[ev.week].fin - s1.weeks[ev.week].fin) - 30000) < 50, ev ? 'diferença R$ ' + Math.round(s0.weeks[ev.week].fin - s1.weeks[ev.week].fin) : '');
+  let erro = 0; s1.buckets.month.forEach(b => { if (b.w1 <= Ep.W0) return; let i = 0, x = 0, v = 0;
+    for (const k in b.f) { if (k.startsWith('in_')) i += b.f[k]; else if (k.startsWith('out_')) x += b.f[k]; else if (k.startsWith('mov_')) v += b.f[k]; }
+    erro = Math.max(erro, Math.abs(i - x - v)); });
+  ok('com o compromisso, movimentações = entradas − saídas', erro < 0.01, 'erro máximo ' + erro.toFixed(6));
+}
+
 console.log('\n13. Dívidas: contrato, CET e saldo ao longo do tempo');
 {
   const Ed = carregar(srcCliente);
