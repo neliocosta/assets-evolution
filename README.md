@@ -31,6 +31,36 @@ orçado x realizado (a foto do plano, o realizado mês a mês, os aportes cumpri
 logada do cliente. O que já foi feito está guardado em `reaproveitar/acompanhamento.js`, que nenhuma das telas carrega: a
 conta (testada no `verificar.js`) e as telas como estavam no protótipo.
 
+## As rendas no Orçamento
+
+Cada renda é a linha principal do Fluxo de caixa e aparece no Orçamento numa linha recolhida (o tipo, o nome, a categoria,
+quem a gera, o líquido e o bruto, e o que vem junto) que abre ao clicar e recolhe com o OK. Aberta, tem o tipo (ativa ou
+passiva, `kind`), a categoria (`origin`), o nome, quem a gera (uma pessoa, `pessoa`, ou, numa passiva, um bem, que é
+gravado do lado do bem em `patrimonio.bens[].renda`), o bruto (`gross`), os descontos (calculados como bruto menos
+líquido; digitar os descontos muda o líquido), o líquido e se é tributável no IR. Numa renda ativa, "Além do salário"
+reúne o que vem junto: o 13º (só no salário), as comissões por mês e cada bônus (trimestral, semestral ou anual, com o
+mês). Cada um é uma linha própria do Fluxo, presa à renda por `de`, e aparece no Fluxo como as outras. O 13º cai em 20 de
+dezembro e segue o líquido do salário (`segue`, que o motor lê em `stepAt`): um aumento no salário muda o 13º sozinho.
+Remover a renda remove o que vem junto. Datas, degraus e mudanças ao longo do tempo continuam no Fluxo. Na versão
+final, as rendas chegam da coleta, e aqui o consultor corrige ou acrescenta o que faltou.
+
+## A média dos próximos 12 meses
+
+A sobra do mês, a capacidade de poupança, o custo de vida e a renda do Orçamento saem de uma conta só,
+`ENGINE.mediaDe12Meses`: o que cada linha de fato paga ou recebe em cada um dos próximos 12 meses, dividido por 12. Um
+bônus anual de R$ 30 mil que cai em março pesa R$ 2.500 por mês, mesmo que a linha comece depois de hoje. Ficam fora o que
+acontece uma vez só (frequência pontual) e os ajustes de uma ocorrência. Num planejamento anual (`periodicidade`, na página
+Cliente), o placar do topo mostra a capacidade, os aportes e a folga por ano, como a Política de investimentos; o motor
+continua mensal.
+
+## A ordem das linhas do fluxo de caixa
+
+Nas duas planilhas do fluxo (a do portal e a que fica embaixo do gráfico, na área do cliente), as linhas de cada grupo
+vêm na ordem de quantos meses, de hoje em diante, elas têm valor (`ENGINE.frequenciaDasLinhas`, uma conta por simulação):
+as que aparecem em mais meses ficam em cima. Como as linhas sem valor na janela à vista somem, ao andar no tempo são as de
+baixo que entram e saem, e as de sempre não mudam de lugar. O empate mantém a ordem do cadastro; um grupo que reúne
+subgrupos (as Saídas: fixas, ajustáveis, compromissos…) mantém a ordem deles, e a "+ nova linha" continua no fim.
+
 ## A política de investimentos
 
 Para onde vai cada real: o patrimônio financeiro de hoje e a sobra do orçamento, divididos em caixinhas
@@ -48,7 +78,7 @@ total (o patrimônio de hoje, a sobra do mês), de onde ele vem e a barra da div
 financeira, com o que fica para ela e o estado da coluna ("fecha a conta" ou "passa em R$ X"). Cada valor é um campo
 digitado com um controle deslizante fino abaixo (também pelas setas do teclado; a escala é a raiz do valor, para R$ 3 mil e
 R$ 600 mil terem a mesma precisão; a marca é a referência, com ímã, e o trecho listrado é o que a liberdade já não tem para
-dar) e uma linha de referência curta (a reserva ideal, o aporte necessário) com o botão "usar"; a estratégia de cada objetivo é um controle de três posições, e a
+dar) e uma linha de referência curta (a reserva ideal, o aporte necessário) com o botão "usar"; a estratégia de cada objetivo é uma etiqueta que se clica para trocar (conservadora, moderada, agressiva), como a classe na Carteira atual, e a
 data, o horizonte e o valor do objetivo ficam sob o nome. Os compromissos se cadastram na própria tabela, logo abaixo da
 caixinha deles (na versão final, chegam da coleta, e continuam editáveis): cada um fica recolhido numa linha só, abre ao
 clicar e recolhe com o OK ou Enter. O protótipo da mesa fica em
@@ -157,8 +187,14 @@ abre com duas páginas, um vídeo em cada:
   críticas; a idade da liberdade e os objetivos alcançáveis) e, embaixo, o que fazer, página a página, com o caminho para o
   detalhe (`destaques`, na tela do cliente).
 
+Cada capítulo pode sair da apresentação: na página Apresentação do portal, um interruptor antes do nome de cada capítulo
+grava `plano.capitulosOcultos`. Desligado, o bloco do capítulo recolhe e mostra "fora da apresentação". A área do cliente
+monta o livro sem esses capítulos (tira-os de `CAPITULOS` antes de montar `PAGINAS`): somem a capa, o resumo e as páginas,
+e o sumário, os "Próximo", a numeração ("capítulo 3 de 8") e os próximos passos da última página seguem sem eles. Fica
+pelo menos um. Como o livro é montado ao abrir, a área do cliente aberta recarrega quando o consultor muda essa lista.
+
 Os vídeos são links do YouTube, do Vimeo ou do arquivo, em `plano.videos['cap-<capítulo>-teoria']` e
-`['cap-<capítulo>-caso']`, cadastrados na página Apresentação do portal; vazio, o espaço fica reservado. Depois vêm as
+`['cap-<capítulo>-caso']`, cadastrados na página Apresentação do portal. Sem vídeo, o bloco não aparece: a capa vira a lista das páginas do capítulo, cada uma com o resultado principal ao lado (o primeiro número de `destaques`), e o resumo mostra os principais números lado a lado, na largura toda. O mesmo vale para o vídeo de boas-vindas do Propósito. Depois vêm as
 páginas de detalhe, sem vídeo: mostram só os resultados e terminam com "anterior" e "próximo". O cabeçalho mostra a página atual ("Otimização tributária / Imposto de renda da
 família"; os capítulos têm só o título, sem número, porque nem todo cliente terá todos), com anterior, próxima e uma barra de progresso dividida por capítulo; um clique nela abre o sumário, que marca
 as páginas já vistas. Hoje existem, nesta ordem, **Propósito**, **Diagnóstico**, **Gestão financeira** (capa e três páginas), **Otimização tributária** (quatro páginas), **Patrimônio**
@@ -381,10 +417,10 @@ está resolvido (`pct`: a parte coberta quando há um valor a cobrir, como reser
 status, em dia 100%, atenção 50%, crítico 0%). Embaixo, um cartão por ameaça com o essencial (reserva em % do ideal;
 saúde "plano atual é o ideal" ou "possível melhorar"; terceiros, investimentos e bens como lista com a marca de
 protegido, parcial ou desprotegido; liquidez em D+0, D+30 e 1 ano, em vezes o padrão de vida; renda e família, quanto
-falta de cobertura ou "proteção adequada"). As ameaças vêm num **carrossel**, uma por vez, com o essencial no
-alto e o detalhe embaixo; os vizinhos aparecem nas bordas. Todos os slides têm a altura do mais alto, para a página não
-subir e descer ao passar de uma ameaça para outra. Passa-se com as setas, arrastando, pelo teclado ou pelos
-pontos de progresso, e o clique num nome da teia leva à ameaça. O status verde se chama **Protegido**. A regra de cada
+falta de cobertura ou "proteção adequada"). As ameaças vêm numa **lista**, da mais urgente à protegida (crítica,
+atenção, não avaliada, protegida): cada uma é uma linha com o ícone, o nome e o status, e abre com o essencial e o detalhe.
+A mais urgente abre sozinha na primeira visita; as que o cliente abre continuam abertas quando a página se redesenha
+(`rkAbertos`). O clique num nome da teia abre a ameaça e a traz à vista. O status verde se chama **Protegido**. A regra de cada
 status:
 
 | Ameaça | Protegido | Atenção | Crítico |
@@ -516,6 +552,33 @@ pelo `sync-motor.js`). Na área logada da Nord Liberta, ele é a API da platafor
 
 Não há troca de arquivos: o consultor grava o plano (sozinho, a cada pausa na edição), o cliente grava a proposta, e
 cada tela ouve o que a outra gravou.
+
+## Cenários (portal)
+
+Para decidir o plano, o consultor testa decisões em **cenários**: cópias do plano inteiro, com nome, guardadas neste
+navegador em `nl-cenarios` (até três por plano). "+ Testar um cenário", no topo de toda página, duplica o que está aberto
+e abre a cópia. Com um cenário aberto, a faixa do topo diz "Editando o cenário …" (e a página ganha um filete aurora no
+alto), todas as páginas editam o cenário como se fosse o plano, e o `save()` grava no cenário: o plano em `nl-plano` não
+muda e nada vai para o armazém, então o cliente continua vendo o plano. O envio ao armazém confere o cenário na hora de
+gravar, porque ele é agendado 1,5 s depois da última mudança.
+
+- **Voltar ao plano** fecha o cenário e reabre o plano.
+- **Tornar o plano** (pede um segundo clique) grava o cenário como plano, envia ao cliente e guarda o plano anterior como
+  um cenário "Plano até dd/mm hh:mm". É também o desfazer: tornar esse cenário o plano devolve tudo como estava.
+- **Apresentar este cenário**: com um cenário aberto, o botão de apresentar leva o cenário à área do cliente só naquela
+  apresentação (pelo endereço), para a conversa "e se".
+- As propostas do cliente se respondem no plano: com um cenário aberto, a página Propostas pede para voltar ao plano.
+- Trocar de cliente ("+ Novo cliente", "ver exemplo") apaga os cenários do anterior.
+
+A página **Cenários** (grupo Com o cliente, fora da sequência do "Próximo") põe o plano e os cenários lado a lado:
+liberdade financeira, investido na liberdade, renda por mês, objetivos alcançáveis, aportes, capacidade de poupança,
+folga e percentual de proteção, com a diferença para o plano em verde (melhor) ou no texto de atenção (pior). Embaixo,
+as trajetórias do patrimônio (o que a família tem, menos o que deve, ano a ano), sobrepostas, com um ponto na liberdade
+de cada uma; o plano em marinho, os cenários tracejados nas cores do ponto. Os números saem de `metricasDe`, que roda a
+mesma simulação das páginas com o outro plano e devolve o plano aberto como estava.
+
+O **placar do topo** (capacidade de poupança, aportes, folga, objetivos abaixo da meta, liberdade) fica à vista em todas
+as páginas em que se decide o plano (`COM_INDICADORES`); num cenário, cada indicador mostra embaixo o valor do plano.
 ## Formato do plano
 
 ```jsonc
@@ -666,9 +729,12 @@ patrimônio). Um plano antigo, sem a data, continua com a idade inteira e o aniv
 - **Rendas programadas**: o cadastro das rendas da aposentadoria, com de quem é cada uma e a idade de começar dessa pessoa
   ("idade de Marcos"), e as rendas passivas do Fluxo de caixa, só para ler.
 - **Renda em cada período**: no alto, três botões: a renda escolhida (a dos sliders e de cada período) ou uma das duas
-  alternativas, com a mesma renda em todos os períodos: consumir o patrimônio até a expectativa de vida (a renda cujos saques
-  valem o patrimônio da liberdade) e preservá-lo (o rendimento mais as rendas da fase em que elas são menores); escolher uma
-  troca a renda desejada e apaga as mudanças por período. Depois, uma linha por período (um período novo começa quando uma
+  alternativas. Consumir o patrimônio até a expectativa de vida põe a mesma renda em todos os períodos (a renda cujos saques
+  valem o patrimônio da liberdade) e apaga as mudanças por período. Preservar o patrimônio trava o **saque**, não a renda:
+  em todos os períodos o patrimônio paga só o rendimento (o patrimônio depois de contratar as rendas vezes a rentabilidade
+  da reserva, arredondado para baixo em R$ 100), e a renda de cada período é esse saque mais as rendas dele. A renda do
+  primeiro período vai para o alto da página e cada período em que ela muda ganha a sua (`PRESERVAR`); o patrimônio chega
+  à expectativa de vida com o mesmo valor da liberdade. Depois, uma linha por período (um período novo começa quando uma
   renda começa ou termina, ou quando a renda desejada muda), com as datas e a idade dos dois, a renda desejada e de onde ela
   vem, numa barra e por escrito: "Fundo de pensão vitalício R$ 5.000 + Fundo por 5 anos R$ 7.000 + Pró-labore do Marcos (até
   Marcos parar) + saque do patrimônio". O primeiro período é a renda desejada do alto; nos outros, um slider muda a renda
@@ -772,7 +838,11 @@ oferece usar como valor o que o cliente de fato junta até a data.
 ## Decisões de projeto
 
 - Escala de tempo logarítmica leve, `u = sinal(t)·ln(1+|t|/6 anos)`, mais densa perto de hoje.
-- Eixo de valores em `asinh(P / 500 mil)`, para não achatar os primeiros anos.
+- Eixo de valores linear, com marcas redondas (o primeiro passo de `PASSOS_Y` que dá até cinco marcas): a altura é proporcional ao valor. Com dívida, o zero sobe e a dívida desce abaixo dele, na mesma escala.
+- A tabela do fluxo embaixo ocupa só as linhas que tem (até seis; com mais, rola), e o gráfico fica com o resto, nunca menos que 62% da altura (`layoutY`, a cada quadro). A linha de hoje termina na última linha da tabela.
+- Parado, o plano aparece inteiro; só a reprodução apaga o futuro e o revela. Parado, cada faixa tem o nome e o valor escritos na ponta direita, na cor da série em tom de texto (`rotulosDiretos`), e a legenda do alto fica só com os estados dos objetivos.
+- Os marcos dos objetivos com foto mostram a foto num círculo de 32 px, com o anel na cor do status (`objFoto`); sem foto, o ícone de sempre.
+- Na coluna da esquerda, embaixo dos botões, o destino da trajetória (`destinoDaTrajetoria`): o mês e a idade da liberdade financeira, quanto haverá investido na data e a renda por mês.
 - Cores: financeiro `#2E9E5B`, bens `#3B6FCB`, participações `#D9952A`, movimentações `#7C5CBF`.
 - Status: verde `#2E9E5B`, laranja `#FA7A35`, vermelho `#D64545`. O laranja da marca substitui o amarelo,
   que não teria contraste suficiente sobre fundo branco.

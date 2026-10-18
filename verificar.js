@@ -702,5 +702,24 @@ console.log('\n13. Dívidas: contrato, CET e saldo ao longo do tempo');
   ok('a quitação aparece na linha do tempo', s.events.some(e => e.type === 'note' && e.label === 'Dívida quitada: Consignado'));
 }
 
+console.log('\nO 13º segue o salário');
+{
+  const Es = carregar(srcCliente);
+  const sal = { id: 'sal', label: 'Salário', kind: 'ativa', origin: 'Salário', frequency: 'mensal', days: [5], steps: [{ from: 0, value: 10000 }, { from: 12, value: 12000 }] };
+  const dec = { id: 'dec', label: '13º salário', kind: 'ativa', origin: '13º salário', de: 'sal', segue: 'sal', frequency: 'anual', dates: [{ m: 11, d: 20 }], steps: [{ from: 0, value: 1 }] };
+  Es.configure({ patrimonio: { financeiro: [{ nome: 'Banco', valor: 100000 }], bens: [], dividas: [] }, initialWealth: 100000, initialBens: 0, objectives: [], passive: [], incomes: [sal, dec], expenses: [] });
+  ok('o 13º vale o líquido do salário de cada mês', Es.stepAt(dec, 0) === 10000 && Es.stepAt(dec, 20) === 12000, Es.stepAt(dec, 0) + ' / ' + Es.stepAt(dec, 20));
+  ok('no orçamento, o 13º pesa um doze avos do salário por mês', Math.abs(Es.mensalizado(dec, 0) - 10000 / 12) < 0.01);
+  const dez = Array.from({ length: 12 }, (_, mm) => mm).filter(mm => Es.valorEm(dec, mm) > 0);
+  ok('o 13º cai uma vez por ano, em dezembro', dez.length === 1 && Es.valorEm(dec, dez[0]) === 10000, 'mês ' + dez.join(','));
+}
+
+console.log('\nA ordem das linhas do fluxo');
+{
+  const Ef = carregar(srcCliente), sf = Ef.run('perp'), fr = Ef.frequenciaDasLinhas(sf);
+  ok('o salário (todo mês) aparece em mais meses que o bônus anual', fr.in_salario > fr.in_bonus && fr.in_bonus > 0, 'salário ' + fr.in_salario + ', bônus ' + fr.in_bonus);
+  ok('a mesma simulação devolve a mesma contagem, sem refazer a conta', Ef.frequenciaDasLinhas(sf) === fr);
+}
+
 console.log('\n' + (falhas ? falhas + ' verificação(ões) falharam.' : 'Tudo certo.') + '\n');
 process.exit(falhas ? 1 : 0);

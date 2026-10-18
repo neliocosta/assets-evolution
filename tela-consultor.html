@@ -404,7 +404,8 @@ circle.pv-hit{cursor:ns-resize}
 .pol-mesa{background:#fff;border-radius:16px;box-shadow:var(--shadow-card);overflow:hidden;margin-bottom:16px}
 .pol-tab{width:100%;min-width:900px;border-collapse:collapse}
 .pol-tab th{text-align:left;vertical-align:bottom;padding:20px 14px 12px;border-bottom:1px solid #F1EEE8;font-weight:400;text-transform:none;letter-spacing:0}
-.pol-tab th.cx{width:27%;padding-left:22px} .pol-tab th.est{width:19%} .pol-tab th.fonte{width:27%}
+.pol-tab th.cx{width:34%;padding-left:22px} .pol-tab th.est{width:12%} .pol-tab th.fonte{width:27%}
+.pol-tab select.car-tag.pol-estr{height:24px;line-height:20px;padding:2px 22px 2px 10px;font:600 12px 'DM Sans',sans-serif;margin-top:2px;width:auto}
 .pol-tab th .rot{display:block;font:600 11px 'DM Sans',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--nl-navy-900)}
 .pol-tab th .tot{display:block;font:600 24px/1.1 Sora,sans-serif;color:var(--nl-navy-900);margin-top:6px;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
 .pol-tab th .de{display:block;font:500 12px/1.45 'DM Sans',sans-serif;color:#6b6a66;margin-top:3px;min-height:18px;text-transform:none;letter-spacing:0}
@@ -482,7 +483,7 @@ details.ajuda>summary::before{content:'?';display:inline-flex;align-items:center
 details.ajuda[open]{background:var(--nl-cream-50);border-radius:10px;padding:10px 13px}
 details.ajuda[open]>summary{margin-bottom:6px}
 details.ajuda.solta{margin:-10px 0 18px}
-.nav-g{font:600 10px 'DM Sans',sans-serif;text-transform:uppercase;letter-spacing:.09em;color:rgba(255,255,255,.36);padding:14px 12px 5px}
+.nav-g{font:600 11px 'DM Sans',sans-serif;text-transform:uppercase;letter-spacing:.09em;color:rgba(255,255,255,.6);padding:14px 12px 5px}
 aside nav{overflow-y:auto;scrollbar-width:none} aside nav::-webkit-scrollbar{display:none}
 aside .brand{position:relative;justify-content:center} aside .recolher{position:absolute;right:14px;top:2px;width:26px;height:26px;border-radius:7px;border:0;background:transparent;color:rgba(255,255,255,.55);display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
 aside .recolher:hover{background:rgba(255,255,255,.08);color:#fff} aside .recolher svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s}
@@ -615,6 +616,16 @@ details.pesos{margin-top:14px}
 /* apresentação: as páginas do cliente */
 .ap-cap{border-top:1px solid #f1efea;padding:16px 0 4px} .ap-cap:first-of-type{border-top:0;padding-top:4px}
 .ap-cab{display:flex;align-items:center;gap:12px;margin-bottom:12px} .ap-cab b{font:600 15px Sora,sans-serif;color:var(--nl-navy-900);flex:1}
+/* mostrar ou não o capítulo ao cliente: um interruptor antes do nome; desligado, o bloco recolhe */
+.ap-mostra{position:relative;flex:none;width:34px;height:20px;cursor:pointer}
+.ap-mostra input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer}
+.ap-mostra span{position:absolute;inset:0;border-radius:9999px;background:#D9D4CA;transition:background .15s}
+.ap-mostra span::after{content:'';position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2);transition:transform .15s}
+.ap-mostra input:checked+span{background:var(--nl-navy-900)} .ap-mostra input:checked+span::after{transform:translateX(14px)}
+.ap-mostra input:focus-visible+span{outline:2px solid var(--nl-orange-500);outline-offset:2px}
+.ap-cab b small{font:500 12px 'DM Sans',sans-serif;color:var(--nl-legenda);margin-left:10px}
+.ap-cap.oculto{padding-bottom:12px} .ap-cap.oculto .ap-cab{margin-bottom:0} .ap-cap.oculto .ap-cab b{color:var(--nl-legenda)}
+.ap-cap.oculto>:not(.ap-cab),.ap-cap.oculto .ap-cab .btn{display:none}
 .ap-cap .grid{margin-bottom:6px}
 .ap-pg{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;padding:10px 0 10px 42px;border-bottom:1px solid #f6f4f0}
 .ap-pg:last-child{border-bottom:0}
@@ -718,6 +729,32 @@ thead th:first-child,thead th:last-child{border-radius:0}
 .ra-h{position:relative} .ra-h .btn-icon{position:absolute;right:6px;top:50%;transform:translateY(-50%)} .ra-h .btn-icon ~ input,.ra-h input:has(+ .btn-icon){padding-right:36px}
 #goalSum:not(:empty){background:#fff;border-radius:16px;box-shadow:var(--shadow-card);padding:16px 22px 20px;margin-bottom:16px}
 .orc-res{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+/* as rendas do Orçamento: uma linha recolhida por renda, que abre com os campos e o que vem junto (13º, comissões, bônus) */
+.orc-rendas{display:flex;flex-direction:column;gap:8px;margin-top:4px}
+.orc-r{position:relative;border:1px solid #EFECE6;border-radius:12px;background:#fff}
+.orc-r.on{border-color:#E3DED5;box-shadow:var(--shadow-card)}
+.orc-r-min{display:grid;grid-template-columns:76px minmax(0,1fr) 180px 18px;gap:14px;align-items:center;padding:11px 50px 11px 14px;cursor:pointer;border-radius:12px}
+.orc-r-min:hover{background:#FBF9F6} .orc-r-min:focus-visible{outline:2px solid var(--nl-orange-500);outline-offset:-2px}
+.orc-tipo{justify-self:start;font:600 11px 'DM Sans',sans-serif;border-radius:9999px;padding:3px 10px} .orc-tipo.at{background:#DDE5F0;color:var(--nl-navy-900)} .orc-tipo.pa{background:#E3F3E9;color:#22794A}
+.orc-r-nome{min-width:0} .orc-r-nome b{display:block;font:600 14px Sora,sans-serif;color:var(--nl-navy-900);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.orc-r-nome small,.orc-r-v small{display:block;font:500 12px 'DM Sans',sans-serif;color:var(--nl-legenda);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+.orc-r-v{text-align:right} .orc-r-v b{font:600 15px Sora,sans-serif;color:var(--nl-navy-900);font-variant-numeric:tabular-nums}
+.orc-chev{width:8px;height:8px;border-right:1.5px solid #4B6584;border-bottom:1.5px solid #4B6584;transform:rotate(-45deg);transition:transform .15s} .orc-r.on .orc-chev{transform:rotate(45deg)}
+.orc-rm{position:absolute;right:10px;top:12px}
+.orc-r-c{padding:6px 16px 14px;border-top:1px solid #F1EEE8}
+.orc-r-c .grid{margin-top:10px}
+.orc-r-c .orc-fx{font:600 14px 'DM Sans',sans-serif;color:var(--nl-navy-900);padding-top:8px} .orc-r-c .orc-fx small{display:block;font-weight:500;font-size:11.5px;color:var(--nl-legenda);margin-top:2px}
+.orc-ex{margin-top:14px;background:#FAF8F5;border-radius:12px;padding:12px 14px}
+.orc-ex h4{font:600 12px 'DM Sans',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--nl-legenda);margin-bottom:8px}
+.orc-ex-l{display:flex;flex-wrap:wrap;gap:12px 28px;align-items:center}
+.orc-ck{display:inline-flex;align-items:center;gap:8px;font:500 13.5px 'DM Sans',sans-serif;color:var(--nl-navy-900);cursor:pointer} .orc-ck input{width:auto}
+.orc-ck small{font-size:12px;color:var(--nl-legenda)}
+.orc-ex-c{display:inline-flex;align-items:center;gap:10px;font:500 13.5px 'DM Sans',sans-serif;color:var(--nl-navy-900)} .orc-ex-c input{width:150px}
+.orc-bonus{display:flex;align-items:center;gap:10px;margin-top:10px;font:500 13.5px 'DM Sans',sans-serif;color:var(--nl-navy-900)}
+.orc-bonus input{width:150px} .orc-bonus select{width:auto} .orc-em{color:var(--nl-legenda)}
+.orc-ex .btn-step{margin-top:10px}
+.orc-r-pe{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:12px} .orc-r-pe small{font-size:12px;color:var(--nl-legenda)}
+.orc-adds{display:flex;gap:10px;margin-top:10px}
 .orc-tab{width:100%;border-collapse:collapse} .orc-tab th{text-align:left;font:600 11px 'DM Sans',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#8d8d8d;padding:0 8px 8px}
 .orc-tab td{padding:5px 8px;border-top:1px solid #efece6;vertical-align:middle} .orc-tab td.v{width:270px} .orc-tab td.x{width:36px;text-align:right} .orc-tab th.v{width:270px}
 .orc-tab td.q{width:180px} .orc-tab .orc-fx{font:600 13.5px 'DM Sans',sans-serif;color:var(--nl-navy-900)} .orc-tab .orc-fx small{display:block;white-space:nowrap;font-weight:500;font-size:11.5px;color:#8d8d8d}
@@ -726,6 +763,36 @@ thead th:first-child,thead th:last-child{border-radius:0}
 .pr-ini input[type=number]{width:84px}
 .pr-tab th{white-space:nowrap}
 .gravado{font:500 12px 'DM Sans',sans-serif;color:var(--nl-legenda);white-space:nowrap}
+/* cenários: a faixa do topo, o placar com o valor do plano e a página de comparação */
+.cen-bar{display:flex;align-items:center;gap:8px}
+.cen-novo{border:1px dashed #D9D4CA;background:transparent;border-radius:9999px;padding:5px 12px;font:600 12px 'DM Sans',sans-serif;color:var(--nl-navy-900);cursor:pointer}
+.cen-novo:hover{background:var(--nl-peach-100);border-color:var(--nl-peach-100)} .cen-novo:disabled{opacity:.5;cursor:default;background:transparent}
+.cen-tag{display:inline-flex;align-items:center;gap:7px;font:500 12.5px 'DM Sans',sans-serif;color:var(--nl-navy-900);background:var(--nl-peach-100);border-radius:9999px;padding:6px 12px}
+.cen-tag i,.cen-nome i,.cen-leg i{width:9px;height:9px;border-radius:50%;flex:none;display:inline-block}
+.cen-bar .armed,.cen-acoes .armed{color:#B53434}
+body.em-cenario main{box-shadow:inset 0 3px 0 #F6A06B}
+.chip-plano{display:block;font:500 11px 'DM Sans',sans-serif;color:var(--nl-legenda);margin-top:2px}
+.cen-vazio b{display:block;font:600 16px Sora,sans-serif;color:var(--nl-navy-900);margin-bottom:6px} .cen-vazio div{margin-top:16px}
+.cen-bloco{overflow-x:auto}
+.cen-tab{width:100%;border-collapse:collapse;font-size:14px}
+.cen-tab th,.cen-tab td{padding:12px 14px;border-bottom:1px solid #F1EEE8;text-align:left;vertical-align:top}
+.cen-tab tbody th{font:500 13px 'DM Sans',sans-serif;color:var(--nl-gray-700);width:200px}
+.cen-tab td{font:600 15px Sora,sans-serif;color:var(--nl-navy-900)}
+.cen-tab tbody tr:last-child>*{border-bottom:0}
+.cen-col{min-width:180px} .cen-col.on{background:#FFF8F2}
+.cen-tab thead th{text-transform:none;letter-spacing:0;font-weight:inherit} .cen-col small{text-transform:none;letter-spacing:0}
+#btnOpen svg{flex:none}
+.cen-nome{display:flex;align-items:center;gap:8px;font:600 15px Sora,sans-serif;color:var(--nl-navy-900)}
+.cen-nome input{font:600 15px Sora,sans-serif;color:var(--nl-navy-900);border:1px solid transparent;border-radius:8px;padding:3px 6px;margin-left:-7px;width:100%;background:transparent}
+.cen-nome input:hover,.cen-nome input:focus{border-color:var(--nl-gray-300);background:#fff}
+.cen-col small{display:block;font:500 11.5px 'DM Sans',sans-serif;color:var(--nl-legenda);margin-top:3px}
+.cen-acoes{display:flex;gap:12px;margin-top:6px} .cen-acoes .link,.cen-col>.link{font-size:12px} .cen-acoes .apagar{color:var(--nl-legenda)}
+.cen-d{display:block;font:600 12px 'DM Sans',sans-serif;color:var(--nl-legenda);margin-top:3px} .cen-d.bom{color:#22794A} .cen-d.pior{color:#964400}
+.cen-nota{display:block;font:500 11.5px 'DM Sans',sans-serif;color:var(--nl-legenda);margin-top:3px}
+.cen-mais{margin-top:14px}
+.cen-svg{width:100%;height:auto;display:block}
+.cen-svg text{font:11px 'DM Sans',sans-serif;fill:#6B6A66} .cen-svg .cen-gr{stroke:#F1EEE8}
+.cen-leg{display:flex;gap:18px;flex-wrap:wrap;margin-top:10px;font:500 12.5px 'DM Sans',sans-serif;color:var(--nl-gray-700)} .cen-leg span{display:inline-flex;align-items:center;gap:7px}
 .gravado::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:#22794A;margin-right:7px;vertical-align:1px}
 /* sliders finos: trilho claro, o trecho preenchido em laranja e o botão branco com aro marinho */
 input[type=range],.lf-sl input[type=range],.lf-r,.pv-taxa input[type=range]{-webkit-appearance:none;appearance:none;height:4px;border-radius:9999px;padding:0;border:0;box-shadow:none;
@@ -742,7 +809,7 @@ input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 4px rgba(
 .goal-empty{border:0;background:#fff;box-shadow:var(--shadow-card);border-radius:16px;padding:28px 32px;text-align:left;color:var(--nl-gray-700)}
 /* barra lateral */
 aside .brand img{border-radius:6px}
-aside nav a i{font:600 11px 'DM Sans',sans-serif;border:0;opacity:1;color:rgba(255,255,255,.45)}
+aside nav a i{font:600 11px 'DM Sans',sans-serif;border:0;opacity:1;color:rgba(255,255,255,.6)}
 aside nav a.on i{color:#fff}
 aside nav a.feito i{background:transparent;border:0;color:#8FD9AE;font-size:0}
 aside nav a.feito i::before{content:'✓';font-size:13px}
@@ -932,6 +999,7 @@ aside nav a.feito i::before{content:'✓';font-size:13px}
     <a data-nav="tributario" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M6 2h9l5 5v15H6zM14 2v6h6M9 13h8M9 17h5"/></svg>Otimização tributária<i>12</i></a>
     <a data-nav="premissas" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg>Premissas<i>13</i></a>
     <div class="nav-g">Com o cliente</div>
+    <a data-nav="cenarios" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M6 3v12M18 9a3 3 0 100-6 3 3 0 000 6zM6 21a3 3 0 100-6 3 3 0 000 6zM18 9a9 9 0 01-9 9"/></svg>Cenários<i id="navCen"></i></a>
     <a data-nav="apresentacao" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M3 4h18v12H3zM8 20h8M12 16v4M10 8l4 2-4 2z"/></svg>Apresentação<i>14</i></a>
     <a data-nav="propostas" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M22 12h-6l-2 3h-4l-2-3H2M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/></svg>Propostas do cliente<i class="contador" id="navProp"></i></a>
   </nav>
@@ -942,7 +1010,7 @@ aside nav a.feito i::before{content:'✓';font-size:13px}
 </aside>
 
 <main>
-  <div class="pagehead"><span class="gravado" id="gravado">O plano grava sozinho</span><div class="chips" id="chips"></div></div>
+  <div class="pagehead"><span class="gravado" id="gravado">O plano grava sozinho</span><div class="cen-bar" id="cenBar"></div><div class="chips" id="chips"></div></div>
 
   <section class="page" data-page="cliente">
     <div class="kicker">Dados do cliente · passo 1 de 14</div>
@@ -958,7 +1026,7 @@ aside nav a.feito i::before{content:'✓';font-size:13px}
         <div class="field"><label>Data de nascimento <em>obrigatório</em> <span class="tip" tabindex="0" data-tip="Mês e ano obrigatórios; o dia é opcional (sem ele, vale o dia 1). A idade de hoje e a idade em cada marco do plano saem desta data.">?</span></label><div class="nasc" id="f-nasc"></div><div class="deriv" id="idNasc"></div></div>
       </div>
       <div class="grid g3 quem" id="f-casal">
-        <div class="field"><label>Nome do cônjuge <span class="tip" tabindex="0" data-tip="O nome completo: as iniciais aparecem no alto da área do cliente (Planejamento de Vida N. O. C. e J. I. C.), e o primeiro nome nas páginas que tratam de cada um (imposto de renda, sócios, seguros). Vazio: o segundo nome do cliente, em nomes como Camila e Rafael Souza.">?</span></label><input id="f-conjugeNome" data-r="conjugeNome" data-rt="texto" type="text" placeholder="ex.: Rafael Souza"></div>
+        <div class="field"><label>Nome do cônjuge <span class="tip" tabindex="0" data-tip="O nome completo: o primeiro nome aparece no alto da área do cliente (Planejamento de Vida · Ana e Marcos) e nas páginas que tratam de cada um (imposto de renda, sócios, seguros). Vazio: o segundo nome do cliente, em nomes como Camila e Rafael Souza.">?</span></label><input id="f-conjugeNome" data-r="conjugeNome" data-rt="texto" type="text" placeholder="ex.: Rafael Souza"></div>
         <div class="field" id="f-spouse"><label>Data de nascimento do cônjuge <em>obrigatório</em></label><div class="nasc" id="f-nascConj"></div><div class="deriv" id="idNascConj"></div></div>
       </div>
       <details class="ajuda" id="notaCasal"><summary>Casal: quem é o titular?</summary>O titular é o primeiro nome do cliente; o outro é o cônjuge, com o nome e a data de nascimento dele nos campos próprios. A idade em que cada um para de trabalhar fica na página Liberdade financeira: a liberdade começa quando o primeiro para. A renda de cada um entra como uma linha própria no Fluxo de caixa, e o INSS de cada um como uma renda na página Liberdade financeira.</details>
@@ -1121,6 +1189,13 @@ aside nav a.feito i::before{content:'✓';font-size:13px}
     <div class="pagenav"><button class="btn btn-tertiary" data-ir="apresentacao">Próximo: Apresentação →</button></div>
   </section>
 
+  <section class="page" data-page="cenarios">
+    <div class="kicker">Com o cliente</div>
+    <h2>Cenários</h2>
+    <div class="hint">Teste uma decisão sem mexer no plano que o cliente vê. Duplique o plano num cenário, mude o que quiser em qualquer página e compare aqui. O plano só muda quando você escolhe "tornar o plano"; o plano anterior fica guardado como cenário.</div>
+    <div id="cenPag"></div>
+  </section>
+
   <section class="page" data-page="apresentacao">
     <div class="kicker">Com o cliente · passo 14 de 14</div>
     <h2>Apresentação</h2>
@@ -1255,7 +1330,7 @@ const ENGINE = (() => {
   // e o último vale indefinidamente. "week" diz em que semana do mês a despesa cai (0 = diluída nas quatro).
   // Uma renda é ativa (trabalho) ou passiva (patrimônio). O fluxo usa sempre o valor líquido,
   // que é o que está nos degraus; o bruto e o resto são cadastro.
-  const ORIGENS = ['Salário', 'Pró-labore', 'Distribuição de lucros', 'Bônus', 'Comissões', 'Honorários (autônomo)', 'Aluguéis', 'Rendimentos recorrentes', 'Outras receitas'];
+  const ORIGENS = ['Salário', 'Pró-labore', 'Distribuição de lucros', 'Bônus', 'Comissões', '13º salário', 'Honorários (autônomo)', 'Aluguéis', 'Rendimentos recorrentes', 'Outras receitas'];
   // meses entre ocorrências; semanal e anual com datas têm regra própria em ocorrencias()
   const FREQ = { semanal: 1, mensal: 1, trimestral: 3, semestral: 6, anual: 12, pontual: 0 };
   let INCOMES = [
@@ -1265,7 +1340,7 @@ const ENGINE = (() => {
     { id: 'prolabore', label: 'Pró-labore do Marcos', kind: 'ativa', origin: 'Pró-labore', gross: 7800, frequency: 'mensal', pessoa: 'conjuge',
       day: 5, description: 'Pró-labore líquido do Marcos na papelaria.', taxable: true,
       steps: [{ from: 0, value: 6000 }, { from: 24, value: 7200 }, { from: 60, value: 9200 }, { from: 120, value: 11200 }] },
-    { id: 'bonus', label: 'Bônus anual', kind: 'ativa', origin: 'Bônus', gross: 18000, frequency: 'anual', pessoa: 'titular',
+    { id: 'bonus', label: 'Bônus anual', kind: 'ativa', origin: 'Bônus', de: 'salario', gross: 18000, frequency: 'anual', pessoa: 'titular',
       day: 20, description: 'Participação nos resultados da Ana, paga em março (tributação exclusiva na fonte).', taxable: false,
       steps: [{ from: 6, value: 12000 }] },
   ];
@@ -1288,7 +1363,10 @@ const ENGINE = (() => {
   ];
   const sortSteps = it => { it.steps = (it.steps || []).slice().sort((a, b) => a.from - b.from); return it; };
   // valor de um item no mês mm (0 = hoje); antes do primeiro degrau, zero
-  const stepAt = (it, mm) => { let v = 0; for (const st of it.steps) { if (mm >= st.from) v = +st.value || 0; else break; } return v; };
+  const stepBase = (it, mm) => { let v = 0; for (const st of it.steps) { if (mm >= st.from) v = +st.value || 0; else break; } return v; };
+  // uma linha que segue outra (o 13º segue o líquido do salário: `segue` é o id da linha): o valor de cada mês é o da
+  // outra, então um aumento no salário muda o 13º sozinho. As datas, a frequência e os ajustes (exc) continuam da linha.
+  const stepAt = (it, mm) => { if (it.segue) { const p = INCOMES.find(x => x.id === it.segue); if (p && p !== it && !p.segue) return stepBase(p, mm); } return stepBase(it, mm); };
   const inicio = it => (it.steps && it.steps.length) ? it.steps[0].from : 0;
   // O mês do motor começa na semana do salário do dia 5 e tem 4 ou 5 semanas. O dia d do mês mm cai na semana
   // do calendário que contém a data: d/m se d ≥ 5, ou d/(m+1) se d < 5, porque os dias 1 a 4 fecham o ciclo.
@@ -1526,6 +1604,18 @@ const ENGINE = (() => {
   const cortaLinha = (it, mi) => Object.assign({}, it, { steps: (it.steps || []).filter(s => s.from < mi).concat({ from: mi, value: 0 }),
     exc: it.exc ? Object.fromEntries(Object.entries(it.exc).filter(([k]) => parseInt(k, 10) < mi)) : it.exc });
 
+  // Em quantos meses, de hoje em diante, cada linha do fluxo tem valor (as chaves de weeks[].f). As duas planilhas do fluxo
+  // põem no alto de cada grupo as linhas que aparecem em mais meses: as que entram e saem ao andar no tempo ficam embaixo,
+  // e as de sempre não mudam de lugar. Uma conta por simulação.
+  const FREQ_LINHAS = new WeakMap();
+  function frequenciaDasLinhas(s) {
+    if (!s || !s.weeks) return {};
+    if (FREQ_LINHAS.has(s)) return FREQ_LINHAS.get(s);
+    const meses = {};
+    for (let i = W0; i < s.weeks.length; i++) { const w = s.weeks[i], f = w.f || {}; for (const k in f) if (Math.abs(f[k]) >= 0.5) (meses[k] || (meses[k] = new Set())).add(w.mi); }
+    const out = {}; for (const k in meses) out[k] = meses[k].size;
+    FREQ_LINHAS.set(s, out); return out;
+  }
   function run(mode) {
     const weeks = new Array(NW), events = [];
     let cofre = 0, obj = OBJ.map(() => 0), done = OBJ.map(() => false), bens = 0, part = PART_VALUE;
@@ -1914,12 +2004,12 @@ const ENGINE = (() => {
   const NATUREZAS = [['Servidor público', 3], ['Aposentado', 3], ['Estagiário', 5], ['CLT (empresa privada)', 5], ['Profissional liberal ou autônomo', 7], ['Empresário', 7]];
   const ITENS_RUINA = [['fraude', 'Investimento fraudulento identificado'], ['classe', 'Alta concentração em classe de ativo'], ['ativo', 'Alta concentração em ativo específico'], ['corrosao', 'Possibilidade de corrosão do poder de compra']];
   const NOTA = { ok: 1, atencao: 0.5, critico: 0 };
-  // média mensal de uma lista do fluxo nos próximos 12 meses (equivalente mensal de cada linha)
-  function mediaDe12Meses(lista) {
-    const its = (lista || []).map(it => sortSteps(Object.assign({}, it)));
-    let t = 0; for (let mm = 0; mm < 12; mm++) its.forEach(it => { t += mensalizado(it, mm); });
-    return t / 12;
-  }
+  // Média mensal de uma lista do fluxo nos próximos 12 meses: o que cada linha de fato paga ou recebe em cada um dos 12
+  // meses, dividido por 12. Um bônus anual de R$ 30 mil que cai em março, dentro da janela, pesa R$ 2.500 por mês, mesmo que
+  // a linha comece depois de hoje (18/10/2026: antes, o equivalente mensal só contava os meses a partir do início, e esse
+  // bônus pesava R$ 1.250). Ficam fora, como sempre, o que acontece uma vez só (pontual) e os ajustes de uma ocorrência.
+  const pagoNos12Meses = it => { if ((it.frequency || 'mensal') === 'pontual') return 0; const x = sortSteps(Object.assign({}, it, { exc: null })); let t = 0; for (let mm = 0; mm < 12; mm++) t += valorEm(x, mm); return t; };
+  function mediaDe12Meses(lista) { return (lista || []).reduce((t, it) => t + pagoNos12Meses(it), 0) / 12; }
   // custo de vida mensal do plano: média das saídas dos próximos 12 meses
   const custoDeVida = plan => mediaDe12Meses(plan.expenses);
   const num = v => v == null || v === '' || isNaN(+v) ? null : +v;
@@ -1941,11 +2031,7 @@ const ENGINE = (() => {
   const mesesAteIdade = (nasc, idade) => { const m = /^(\d{4})-(\d{2})/.exec(nasc || ''); return m ? (+m[1] + idade) * 12 + (+m[2] - 1) - (TODAY.getFullYear() * 12 + TODAY.getMonth()) : null; };
   const valorPresente = (mensal, n, i) => mensal > 0 && n > 0 ? mensal * (1 - Math.pow(1 + i, -n)) / i : 0;
   // equivalente mensal das entradas dos próximos 12 meses: renda do trabalho (ativa) ou passiva
-  function rendaDoFluxo(plan, passiva) {
-    const its = (plan.incomes || []).filter(it => ativo(it) !== passiva).map(it => sortSteps(Object.assign({}, it)));
-    let t = 0; for (let mm = 0; mm < 12; mm++) its.forEach(it => { t += mensalizado(it, mm); });
-    return t / 12;
-  }
+  function rendaDoFluxo(plan, passiva) { return mediaDe12Meses((plan.incomes || []).filter(it => ativo(it) !== passiva)); }
   // Os bens da proteção dos bens (ameaça 6) são os da página Patrimônio, com a proteção gravada no próprio bem. Um plano
   // antigo, com a lista própria da gestão de riscos (riscos.bens.itens), aproveita a proteção do bem de mesmo nome; sem
   // bens no patrimônio, vale a lista antiga.
@@ -2641,7 +2727,7 @@ const ENGINE = (() => {
     return mis.map(mi => ({ mi, mes: M[mi].mes, saldo: M[mi].saldo, aportado: M.slice(0, mi + 1).reduce((a, m) => a + m.aporte, 0), extra: M.slice(0, mi + 1).reduce((a, m) => a + m.extra, 0), data: mi === n }));
   }
   OBJ.forEach(derive);   // os objetivos do exemplo (aqui, depois dos bens: derive lê as vendas)
-  return { TODAY, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, PASSIVE, PROFILES, STATUS, trajetoriaDoBem, trajetoriaDaParticipacao, vendasDoObjetivo, partilhaDaVenda, HORIZONTES, horizonteDe, politicaDeInvestimentos, TIPOS_FINANCEIRO, SEM_LIQUIDEZ, get COMPROMISSOS() { return COMPROMISSOS; }, saldoDasVendas, precoDoObjetivo, mesISO, orcadoDoObjetivo, cortesDoObjetivo, saldoDevedorEm, contratoDaDivida, restantesDaDivida, mesDe, get BENS() { return bensDoPlano(); }, get PARTS() { return partsDoPlano(); }, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, serieCusto, desiredAt, aplicaAlteracoes, fraseDaLinha, descreveAlteracao, valorAtual, mesDoPlano, RISCOS, NATUREZAS, ITENS_RUINA, RISCOS_EXEMPLO, avaliaRiscos, custoDeVida, mediaDe12Meses, SEGURO, RELACOES, idadeLimiteDe, calculaSeguros, mesesAteIdade, FASES_VIDA, faseDaVida, sincronizaPatrimonio, PATRIMONIO_EXEMPLO, padraoDeVida, lerCaminho, gravaCaminho, IR, calculaIR, irDaFamilia, REGIMES, calculaRetirada, retiradaDosSocios, PREVIDENCIA, sucessao, simulaPrevidencia, aliqRegressiva, TRIBUTARIO_EXEMPLO, FAMILIA_EXEMPLO, casalDe, nomesDaFamilia, pessoasDaFamilia, rendaDaPessoa, bensDoRisco, titularidadeDoBem, setRetireAge: a => { RETIRE_AGE = a == null ? null : Math.max(CURRENT_AGE, +a); }, paradaMi, trabalhaEm, idadeDaLiberdade, dataNasc, idadeExata, sincronizaIdades, fraseDoProposito, ordemDoProposito, objetivosDoProposito, rendasAtivasDe, naturezaDe, naturezaDaReserva, CLASSES_ATIVOS, ORCAMENTO_IDEAL, VEZES_POUPOU, gestaoFinanceira, horasDoTrabalho, familiaDoPlano, ESTADOS_DIAGNOSTICO, orcamentoDoFluxo, CLASSES_CARTEIRA, CARTEIRAS_MODELO, ACOES_ATIVO, carteiraDoPlano, concentracaoDoPatrimonio, diagnosticoDaFamilia, financiamentoValido, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
+  return { TODAY, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, PASSIVE, PROFILES, STATUS, trajetoriaDoBem, trajetoriaDaParticipacao, vendasDoObjetivo, partilhaDaVenda, HORIZONTES, horizonteDe, politicaDeInvestimentos, TIPOS_FINANCEIRO, SEM_LIQUIDEZ, get COMPROMISSOS() { return COMPROMISSOS; }, saldoDasVendas, precoDoObjetivo, mesISO, orcadoDoObjetivo, cortesDoObjetivo, saldoDevedorEm, contratoDaDivida, restantesDaDivida, mesDe, get BENS() { return bensDoPlano(); }, get PARTS() { return partsDoPlano(); }, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, serieCusto, desiredAt, aplicaAlteracoes, fraseDaLinha, descreveAlteracao, valorAtual, mesDoPlano, desejoDoPlano, frequenciaDasLinhas, RISCOS, NATUREZAS, ITENS_RUINA, RISCOS_EXEMPLO, avaliaRiscos, custoDeVida, mediaDe12Meses, SEGURO, RELACOES, idadeLimiteDe, calculaSeguros, mesesAteIdade, FASES_VIDA, faseDaVida, sincronizaPatrimonio, PATRIMONIO_EXEMPLO, padraoDeVida, lerCaminho, gravaCaminho, IR, calculaIR, irDaFamilia, REGIMES, calculaRetirada, retiradaDosSocios, PREVIDENCIA, sucessao, simulaPrevidencia, aliqRegressiva, TRIBUTARIO_EXEMPLO, FAMILIA_EXEMPLO, casalDe, nomesDaFamilia, pessoasDaFamilia, rendaDaPessoa, bensDoRisco, titularidadeDoBem, setRetireAge: a => { RETIRE_AGE = a == null ? null : Math.max(CURRENT_AGE, +a); }, paradaMi, trabalhaEm, idadeDaLiberdade, dataNasc, idadeExata, sincronizaIdades, fraseDoProposito, ordemDoProposito, objetivosDoProposito, rendasAtivasDe, naturezaDe, naturezaDaReserva, CLASSES_ATIVOS, ORCAMENTO_IDEAL, VEZES_POUPOU, gestaoFinanceira, horasDoTrabalho, familiaDoPlano, ESTADOS_DIAGNOSTICO, orcamentoDoFluxo, CLASSES_CARTEIRA, CARTEIRAS_MODELO, ACOES_ATIVO, carteiraDoPlano, concentracaoDoPatrimonio, diagnosticoDaFamilia, financiamentoValido, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
 })();
 if (typeof module !== 'undefined') module.exports = ENGINE;
 </script>
@@ -2868,11 +2954,148 @@ function load() {
   try { const raw = localStorage.getItem('nl-plano'); if (raw) return doSalvo(JSON.parse(raw)); } catch (e) { }
   return structuredClone(PLANO_PADRAO);
 }
+// ---------- cenários ----------
+// Um cenário é uma foto nomeada do plano inteiro, para testar uma decisão ("adiar a casa dois anos") sem mexer no que o
+// cliente vê. Ficam neste navegador, em nl-cenarios: { lista: [{ id, nome, em, dados }], ativo }. Com um cenário aberto,
+// todas as páginas editam o cenário: o save() grava nele, o plano (nl-plano) não muda e nada vai para o armazém do
+// cliente. "Tornar o plano" grava o cenário como plano e guarda o plano anterior como um cenário datado: é também o
+// desfazer. Até três cenários por plano; trocar de cliente apaga os cenários do anterior.
+const CEN_MAX = 3, CEN_CORES = ['#E9A23B', '#3D79D1', '#2E9E5B'];
+let CEN = (() => { try { const c = JSON.parse(localStorage.getItem('nl-cenarios') || 'null'); if (c && Array.isArray(c.lista)) return c; } catch (e) { } return { lista: [], ativo: null }; })();
+const cenAtivo = () => (CEN.ativo && CEN.lista.find(c => c.id === CEN.ativo)) || null;
+const gravaCen = () => { try { localStorage.setItem('nl-cenarios', JSON.stringify(CEN)); } catch (e) { } };
+if (CEN.ativo && !cenAtivo()) { CEN.ativo = null; gravaCen(); }
+if (cenAtivo()) plano = doSalvo(structuredClone(cenAtivo().dados));
+// o plano que o cliente vê: com um cenário aberto, é o que está gravado em nl-plano
+const planoBase = () => cenAtivo() ? load() : plano;
+const idCen = () => 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+const quandoCurto = iso => { const d = new Date(iso); return String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + ' ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); };
+
+// troca o que as páginas editam (o plano ou um cenário) sem gravar nada: quem chama já gravou o que estava aberto
+function abrePlano(dados) {
+  if (gaveta) { gaveta = null; renderGaveta(); } aceito = null; pendente = null; document.getElementById('estouro').hidden = true;
+  plano = doSalvo(structuredClone(dados)); fx.t0 = null; ultimoSalvo = JSON.stringify(plano);
+  fillFields(); renderAll();
+}
+function novoCenario() {
+  if (CEN.lista.length >= CEN_MAX) return;
+  save(); if (!cenAtivo()) gravarNuvem(true);   // o que está aberto fica gravado (e o plano, enviado) antes de sair dele
+  const usados = new Set(CEN.lista.map(c => c.nome)); let k = 1; while (usados.has('Cenário ' + k)) k++;
+  const c = { id: idCen(), nome: 'Cenário ' + k, em: new Date().toISOString(), dados: JSON.parse(JSON.stringify(plano)) };
+  CEN.lista.push(c); CEN.ativo = c.id; gravaCen(); abrePlano(c.dados);
+}
+function abrirCenario(id) { if (CEN.ativo === id || !CEN.lista.some(c => c.id === id)) return; save(); if (!cenAtivo()) gravarNuvem(true); CEN.ativo = id; gravaCen(); abrePlano(cenAtivo().dados); }
+function voltarAoPlano() { if (!cenAtivo()) return; save(); CEN.ativo = null; gravaCen(); abrePlano(load()); }
+function tornarPlano(id) {
+  if (cenAtivo()) save();
+  const c = CEN.lista.find(x => x.id === id); if (!c) return;
+  const anterior = load(), agora = new Date().toISOString();
+  CEN.lista = CEN.lista.map(x => x.id === id ? { id: idCen(), nome: 'Plano até ' + quandoCurto(agora), em: agora, dados: anterior, anterior: true } : x);
+  CEN.ativo = null; gravaCen();
+  try { localStorage.setItem('nl-plano', JSON.stringify(c.dados)); } catch (e) { }
+  abrePlano(c.dados); save(); gravarNuvem(true);
+}
+function apagarCenario(id) {
+  if (CEN.ativo === id) voltarAoPlano();
+  CEN.lista = CEN.lista.filter(c => c.id !== id); gravaCen(); renderAll();
+}
+
+// Os números de um plano (o de agora ou outro): roda a mesma simulação das páginas com ele no lugar do plano aberto e
+// devolve o plano aberto do jeito que estava. Guardado pela foto do plano, para não simular de novo o que não mudou.
+const METRICAS = new Map();
+function metricasDe(P) {
+  const chave = JSON.stringify(P); if (METRICAS.has(chave)) return METRICAS.get(chave);
+  const salvo = plano; let m = null;
+  try {
+    plano = doSalvo(structuredClone(P)); recompute();
+    const cap = capacity(), pl = plannedTotal(), ff = SIM.ff, objs = plano.objectives, conta = st => objs.filter(o => o.status === st).length;
+    const ffMi = ff ? SIM.weeks[ff.week].mi : null, rk = ENGINE.avaliaRiscos(plano), traj = [];
+    for (let i = ENGINE.W0; i < ENGINE.NW; i += Math.round(ENGINE.WPY)) { const w = SIM.weeks[i]; traj.push([ENGINE.weekDate(i).getFullYear(), (w.fin || 0) + (w.bens || 0) + (w.part || 0) - (w.div || 0)]); }
+    m = { cap, pl, livre: cap - pl, temFluxo: temFluxo() || (plano.capacityOverride != null && plano.capacityOverride !== ''),
+      ok: conta('ok'), adj: conta('adj'), risco: conta('risk'), total: objs.length,
+      ff: ff ? { idade: Math.floor(ff.age), ano: ENGINE.weekDate(ff.week).getFullYear(), mes: ENGINE.mesDoPlano(ffMi), forced: !!ff.forced } : null,
+      investido: ff ? SIM.weeks[ff.week].fin || 0 : null, renda: ff ? ENGINE.desejoDoPlano(plano, ffMi) : null,
+      protecao: rk.nota == null ? null : Math.round(rk.nota * 100), traj };
+  } finally { plano = salvo; recompute(); }
+  if (METRICAS.size > 12) METRICAS.clear();
+  METRICAS.set(chave, m); return m;
+}
+
+// a faixa do topo diz o que se está editando; o menu, quantos cenários há; o botão de apresentar, o que vai ser apresentado
+function renderCen() {
+  const c = cenAtivo(), bar = document.getElementById('cenBar');
+  document.body.classList.toggle('em-cenario', !!c);
+  if (bar) bar.innerHTML = c
+    ? `<span class="cen-tag"><i style="background:${CEN_CORES[CEN.lista.indexOf(c) % 3]}"></i>Editando o cenário <b>${esc(c.nome)}</b></span><button class="btn btn-secondary btn-small" data-cen-voltar>Voltar ao plano</button><button class="btn btn-small btn-tertiary" data-cen-tornar="${c.id}" title="O cenário passa a ser o plano que o cliente vê; o plano de agora fica guardado como cenário">Tornar o plano</button>`
+    : `<button class="cen-novo" data-cen-novo ${CEN.lista.length >= CEN_MAX ? 'disabled title="Já há três cenários: apague um na página Cenários"' : 'title="Duplica o plano num cenário para testar uma decisão; o cliente continua vendo o plano"'}>+ Testar um cenário</button>`;
+  const n = document.getElementById('navCen'); if (n) n.textContent = CEN.lista.length || '';
+  const o = document.getElementById('btnOpen'); if (o) { o.lastChild.textContent = c ? 'Apresentar este cenário' : 'Apresentar ao cliente'; o.title = c ? 'Abre a área do cliente com este cenário, só nesta apresentação' : 'Apresentar ao cliente'; }
+  if (paginaAtual === 'cenarios') renderCenarios();
+}
+
+// a página Cenários: o plano e os cenários lado a lado, com a diferença para o plano, e as trajetórias sobrepostas
+function renderCenarios() {
+  const el = document.getElementById('cenPag'); if (!el) return;
+  if (!CEN.lista.length) {
+    el.innerHTML = `<div class="goal-empty cen-vazio"><b>Nenhum cenário ainda.</b> Um cenário é uma cópia do plano para testar uma decisão: adiar um objetivo, mudar a renda desejada, vender um bem. Você muda o que quiser, em qualquer página, e compara aqui. O cliente continua vendo o plano até você escolher "Tornar o plano".
+      <div><button class="btn btn-primary" data-cen-novo>Duplicar o plano como cenário</button></div></div>`;
+    return;
+  }
+  const base = metricasDe(planoBase()), cols = [{ nome: 'Plano', sub: 'o que o cliente vê', m: base, cor: '#20344C', base: true }]
+    .concat(CEN.lista.map((c, k) => ({ c, nome: c.nome, m: metricasDe(c.id === CEN.ativo ? plano : c.dados), cor: CEN_CORES[k % 3] })));
+  const dif = (v, b, fmtD, melhorMaior) => { if (v == null || b == null || Math.abs(v - b) < 0.5) return ''; const d = v - b, bom = melhorMaior == null ? null : (d > 0) === melhorMaior;
+    return `<small class="cen-d ${bom == null ? '' : bom ? 'bom' : 'pior'}">${d > 0 ? '+' : '−'}${fmtD(Math.abs(d))}</small>`; };
+  const anos = v => v + (v === 1 ? ' ano' : ' anos');
+  const LINHAS = [
+    ['Liberdade financeira', m => m.ff ? `${m.ff.idade} anos · ${m.ff.mes}${m.ff.forced ? '<small class="cen-nota">renda parcial</small>' : ''}` : 'não alcançada', (m, b) => m.ff && b.ff ? dif(m.ff.idade, b.ff.idade, anos, false) : ''],
+    ['Investido na liberdade', m => m.investido == null ? '—' : fmtC(m.investido), (m, b) => dif(m.investido, b.investido, fmtC, true)],
+    ['Renda por mês na liberdade', m => m.renda == null ? '—' : fmt(m.renda), (m, b) => dif(m.renda, b.renda, fmt, true)],
+    ['Objetivos alcançáveis', m => m.total ? `${m.ok} de ${m.total}${m.adj || m.risco ? `<small class="cen-nota">${[m.adj ? m.adj + ' com ajustes' : '', m.risco ? m.risco + ' para rever' : ''].filter(Boolean).join(', ')}</small>` : ''}` : '—', (m, b) => dif(m.ok, b.ok, v => String(v), true)],
+    ['Aportes por mês', m => fmt(m.pl), (m, b) => dif(m.pl, b.pl, fmt, null)],
+    ['Capacidade de poupança', m => m.temFluxo ? fmt(m.cap) : '—', (m, b) => dif(m.cap, b.cap, fmt, true)],
+    ['Folga mensal', m => m.temFluxo ? fmt(m.livre) : '—', (m, b) => dif(m.livre, b.livre, fmt, true)],
+    ['Percentual de proteção', m => m.protecao == null ? '—' : m.protecao + '%', (m, b) => dif(m.protecao, b.protecao, v => v + ' p.p.', true)]];
+  const cab = cols.map(col => col.base
+    ? `<th class="cen-col"><span class="cen-nome"><i style="background:${col.cor}"></i>Plano</span><small>o que o cliente vê${cenAtivo() ? '' : ' · aberto'}</small>${cenAtivo() ? '<button class="link" data-cen-voltar>abrir</button>' : ''}</th>`
+    : `<th class="cen-col${col.c.id === CEN.ativo ? ' on' : ''}"><span class="cen-nome"><i style="background:${col.cor}"></i><input value="${esc(col.nome)}" data-cen-nome="${col.c.id}" aria-label="Nome do cenário"></span>
+        <small>${col.c.anterior ? 'guardado em ' : 'criado em '}${quandoCurto(col.c.em)}${col.c.id === CEN.ativo ? ' · aberto' : ''}</small>
+        <span class="cen-acoes">${col.c.id === CEN.ativo ? '' : `<button class="link" data-cen-abrir="${col.c.id}">abrir</button>`}<button class="link" data-cen-tornar="${col.c.id}">tornar o plano</button><button class="link apagar" data-cen-apagar="${col.c.id}">apagar</button></span></th>`).join('');
+  const corpo = LINHAS.map(([rot, val, d]) => `<tr><th scope="row">${rot}</th>${cols.map(col => `<td>${val(col.m)}${col.base ? '' : d(col.m, base)}</td>`).join('')}</tr>`).join('');
+  el.innerHTML = `<div class="bloco cen-bloco"><table class="cen-tab"><thead><tr><th></th>${cab}</tr></thead><tbody>${corpo}</tbody></table>
+      ${CEN.lista.length < CEN_MAX ? `<div class="cen-mais"><button class="btn btn-tertiary btn-small" data-cen-novo>+ ${cenAtivo() ? 'Duplicar este cenário' : 'Novo cenário a partir do plano'}</button></div>` : '<div class="cen-mais muted">Três cenários é o máximo: apague um para testar outro.</div>'}</div>
+    <div class="bloco"><h3>O patrimônio ao longo do tempo <span class="dir">o que a família tem, menos o que deve; o ponto marca a liberdade financeira</span></h3>${graficoCenarios(cols)}</div>`;
+}
+function graficoCenarios(cols) {
+  const W = 900, H = 280, L = 70, R = 20, T = 14, B = 30, todos = cols.flatMap(c => c.m.traj);
+  if (!todos.length) return '';
+  const a0 = todos[0][0], a1 = Math.max(...todos.map(p => p[0])), vMax = Math.max(1, ...todos.map(p => p[1])), vMin = Math.min(0, ...todos.map(p => p[1]));
+  const passo = [5e4, 1e5, 2.5e5, 5e5, 1e6, 2e6, 2.5e6, 5e6, 1e7, 2e7, 5e7].find(p => vMax / p <= 5) || 1e8;
+  const x = a => L + (a - a0) / Math.max(1, a1 - a0) * (W - L - R), y = v => T + (vMax - v) / (vMax - vMin) * (H - T - B);
+  let g = '';
+  for (let v = 0; v <= vMax; v += passo) g += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" class="cen-gr"/><text x="${L - 8}" y="${y(v) + 4}" text-anchor="end">${v ? fmtC(v) : 'R$ 0'}</text>`;
+  for (let a = Math.ceil(a0 / 10) * 10; a <= a1; a += 10) g += `<text x="${x(a)}" y="${H - 8}" text-anchor="middle">${a}</text>`;
+  const linhas = cols.slice().reverse().map(col => `<polyline points="${col.m.traj.map(p => x(p[0]).toFixed(1) + ',' + y(p[1]).toFixed(1)).join(' ')}" fill="none" stroke="${col.cor}" stroke-width="${col.base ? 2.5 : 2}" stroke-linejoin="round"${col.base ? '' : ' stroke-dasharray="6 4"'}/>`
+    + (col.m.ff ? `<circle cx="${x(col.m.ff.ano)}" cy="${y((col.m.traj.find(p => p[0] === col.m.ff.ano) || [0, 0])[1])}" r="5" fill="#fff" stroke="${col.cor}" stroke-width="2.5"/>` : '')).join('');
+  const leg = cols.map(col => `<span><i style="background:${col.cor}"></i>${esc(col.nome)}${col.m.ff ? ' · liberdade aos ' + col.m.ff.idade : ''}</span>`).join('');
+  return `<svg class="cen-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Trajetória do patrimônio no plano e em cada cenário">${g}${linhas}</svg><div class="cen-leg">${leg}</div>`;
+}
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-cen-novo],[data-cen-voltar],[data-cen-abrir],[data-cen-tornar],[data-cen-apagar]'); if (!t || t.disabled) return;
+  const d = t.dataset;
+  if ('cenNovo' in d) novoCenario();
+  else if ('cenVoltar' in d) voltarAoPlano();
+  else if (d.cenAbrir) abrirCenario(d.cenAbrir);
+  else if (d.cenTornar) { if (!t.dataset.armed) { t.dataset.armed = '1'; t.dataset.txt = t.textContent; t.textContent = 'O cliente passa a ver este cenário. Clique de novo'; t.classList.add('armed'); setTimeout(() => { if (t.isConnected && t.dataset.armed) { delete t.dataset.armed; t.textContent = t.dataset.txt; t.classList.remove('armed'); } }, 5000); return; } tornarPlano(d.cenTornar); }
+  else if (d.cenApagar) { if (!t.dataset.armed) { t.dataset.armed = '1'; t.textContent = 'apagar? clique de novo'; t.classList.add('armed'); return; } apagarCenario(d.cenApagar); }
+});
+document.addEventListener('change', e => { const t = e.target; if (!t.dataset || !t.dataset.cenNome) return; const c = CEN.lista.find(x => x.id === t.dataset.cenNome); if (!c) return; c.nome = t.value.trim() || c.nome; gravaCen(); renderCen(); });
+
 // "Gravado às…" no topo: o consultor vê que o que digitou ficou guardado (muda só quando o plano muda)
 let ultimoSalvo = null;
 function save() {
-  const txt = JSON.stringify(plano);
-  try { localStorage.setItem('nl-plano', txt); } catch (e) { }
+  const txt = JSON.stringify(plano), c = cenAtivo();
+  if (c) { c.dados = JSON.parse(txt); gravaCen(); }
+  else try { localStorage.setItem('nl-plano', txt); } catch (e) { }
   if (ultimoSalvo != null && txt !== ultimoSalvo) { const d = new Date(), g = document.getElementById('gravado'); if (g) g.textContent = 'Gravado às ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); }
   ultimoSalvo = txt; gravarNuvem(false);
 }
@@ -2881,9 +3104,10 @@ function save() {
 // num computador novo, o plano do armazém é que vale.
 let nuvemPronta = false, nuvemTimer = null, nuvemUltimo = null;
 function gravarNuvem(agora) {
-  if (!nuvemPronta) return;
+  if (!nuvemPronta || cenAtivo()) return;   // um cenário nunca vai para o cliente
   clearTimeout(nuvemTimer);
-  const vai = () => { const txt = JSON.stringify(plano); if (txt === nuvemUltimo) return; nuvemUltimo = txt; ARMAZEM.gravar('plano', JSON.parse(txt)).catch(() => { nuvemUltimo = null; }); };
+  const vai = () => { if (cenAtivo()) return;   // agendado antes de abrir um cenário: o cenário nunca vai para o cliente
+    const txt = JSON.stringify(plano); if (txt === nuvemUltimo) return; nuvemUltimo = txt; ARMAZEM.gravar('plano', JSON.parse(txt)).catch(() => { nuvemUltimo = null; }); };
   if (agora) vai(); else nuvemTimer = setTimeout(vai, 1500);
 }
 
@@ -3083,7 +3307,7 @@ function renderAll() {
     if (el) { el.focus(); if (el.type === 'text' || el.tagName === 'TEXTAREA') { el.value = txt; try { el.setSelectionRange(txt.length, txt.length); } catch (e) { } } }
   }
   conferirOrcamento();   // depois de devolver o foco: enquanto o aporte está sendo digitado, não confere
-  pintaSliders(); marcaPendentes();
+  pintaSliders(); marcaPendentes(); renderCen();
 }
 // o campo obrigatório vazio mostra que falta (depois de todas as páginas desenhadas, porque várias são refeitas a cada vez)
 function marcaPendentes() {
@@ -3138,17 +3362,21 @@ function renderTop() {
   const cap = capacity(), pl = plannedTotal(), livre = cap - pl, informada = plano.capacityOverride != null && plano.capacityOverride !== '';
   const risco = plano.objectives.filter(o => o.status !== 'ok').length;
   const ff = SIM && SIM.ff;
+  const bp = cenAtivo() ? metricasDe(planoBase()) : null, doPlano = t => bp ? '<small class="chip-plano">plano: ' + t + '</small>' : '';
+  // num planejamento anual, a capacidade, os aportes e a folga aparecem por ano, como na Política de investimentos; o motor
+  // continua mensal
+  const ano = plano.periodicidade === 'anual', k = ano ? 12 : 1, fmtP = v => fmt(v * k);
   document.getElementById('chips').innerHTML =
-    `<div class="chip" data-ir="fluxo" title="${informada ? 'Valor informado no Fluxo de caixa' : 'Entradas menos saídas do Fluxo de caixa, média dos próximos 12 meses'}"><span>Capacidade de poupança</span><b>${temFluxo() || informada ? fmt(cap) : '—'}</b></div>` +
-    `<div class="chip" data-ir="objetivos"><span>Aportes definidos</span><b class="${pl > cap && temFluxo() ? 'low' : ''}">${fmt(pl)}</b></div>` +
-    `<div class="chip"><span>Folga mensal</span><b class="${livre < 0 ? 'low' : 'good'}">${temFluxo() || informada ? fmt(livre) : '—'}</b></div>` +
-    `<div class="chip" data-ir="objetivos"><span>Objetivos abaixo da meta</span><b class="${risco && !aguardaOrcamento() ? 'low' : 'good'}">${aguardaOrcamento() || !plano.objectives.length ? '—' : plano.objectives.every(o => !(o.planned > 0)) ? 'aportes a definir' : risco + ' de ' + plano.objectives.length}</b></div>` +
-    `<div class="chip" data-ir="liberdade" title="${ff && ff.forced ? 'Nessa idade o patrimônio não sustenta toda a renda desejada' : ''}"><span>Liberdade financeira</span><b class="${ff && !ff.forced ? 'good' : 'low'}">${ff && planoDaLiberdade() && temFluxo() ? Math.floor(ff.age) + ' anos · ' + ENGINE.weekDate(ff.week).getFullYear() + (ff.forced ? ' · renda parcial' : '') : '—'}</b></div>`;
+    `<div class="chip" data-ir="fluxo" title="${informada ? 'Valor informado no Fluxo de caixa' : 'Entradas menos saídas do Fluxo de caixa, média dos próximos 12 meses'}"><span>Capacidade de poupança${ano ? ' por ano' : ''}</span><b>${temFluxo() || informada ? fmtP(cap) : '—'}</b>${bp ? doPlano(bp.temFluxo ? fmtP(bp.cap) : '—') : ''}</div>` +
+    `<div class="chip" data-ir="objetivos"><span>Aportes definidos${ano ? ' por ano' : ''}</span><b class="${pl > cap && temFluxo() ? 'low' : ''}">${fmtP(pl)}</b>${bp ? doPlano(fmtP(bp.pl)) : ''}</div>` +
+    `<div class="chip"><span>${ano ? 'Folga anual' : 'Folga mensal'}</span><b class="${livre < 0 ? 'low' : 'good'}">${temFluxo() || informada ? fmtP(livre) : '—'}</b>${bp ? doPlano(bp.temFluxo ? fmtP(bp.livre) : '—') : ''}</div>` +
+    `<div class="chip" data-ir="objetivos"><span>Objetivos abaixo da meta</span><b class="${risco && !aguardaOrcamento() ? 'low' : 'good'}">${aguardaOrcamento() || !plano.objectives.length ? '—' : plano.objectives.every(o => !(o.planned > 0)) ? 'aportes a definir' : risco + ' de ' + plano.objectives.length}</b>${bp ? doPlano(bp.total ? (bp.total - bp.ok) + ' de ' + bp.total : '—') : ''}</div>` +
+    `<div class="chip" data-ir="liberdade" title="${ff && ff.forced ? 'Nessa idade o patrimônio não sustenta toda a renda desejada' : ''}"><span>Liberdade financeira</span><b class="${ff && !ff.forced ? 'good' : 'low'}">${ff && planoDaLiberdade() && temFluxo() ? Math.floor(ff.age) + ' anos · ' + ENGINE.weekDate(ff.week).getFullYear() + (ff.forced ? ' · renda parcial' : '') : '—'}</b>${bp ? doPlano(bp.ff ? bp.ff.idade + ' anos · ' + bp.ff.ano : '—') : ''}</div>`;
   document.getElementById('f-cap').placeholder = temFluxo() ? 'automático: média de 12 meses (' + fmt(media12()) + ')' : 'automático: calculada pelo Fluxo de caixa';
   // o que falta: uma resposta só, lida pela linha do "Próximo" de cada página, pelo ✓ da barra lateral e pelo topo da
   // Apresentação. O "Próximo" nunca trava: o dado pode vir depois, da coleta.
   const PEND = pendencias();
-  document.querySelectorAll('#nav a[data-nav]').forEach(a => { const n = (PEND[a.dataset.nav] || []).length; a.classList.toggle('feito', !n && a.dataset.nav !== 'propostas'); const nome = a.dataset.nome || (a.dataset.nome = a.textContent.replace(/\d+$/, '').trim());   // o nome da página, que é o que se vê no menu recolhido
+  document.querySelectorAll('#nav a[data-nav]').forEach(a => { const n = (PEND[a.dataset.nav] || []).length; a.classList.toggle('feito', !n && a.dataset.nav !== 'propostas' && a.dataset.nav !== 'cenarios'); const nome = a.dataset.nome || (a.dataset.nome = a.textContent.replace(/\d+$/, '').trim());   // o nome da página, que é o que se vê no menu recolhido
     a.title = nome + (n ? ' · ' + n + (n > 1 ? ' pendências' : ' pendência') : ''); });
   document.querySelectorAll('.pagenav').forEach(nv => {
     const aqui = nv.closest('.page').dataset.page, ps = PEND[aqui] || [], b = nv.querySelector('[data-ir]');
@@ -3387,7 +3615,19 @@ function linhasFluxo() {
       L.push({ id: 'out_quita_' + k, label: 'Saldo devedor transferido: ' + nome, t: 'ro', keys: ['out_quita_' + k], depth: 2, bem: true, pai: 'out_venda', tag: 'bem' }); });
     L.push({ id: 'out_rendas', label: 'Contratação de rendas (fundos de pensão)', t: 'ro', keys: ['out_rendas'], depth: 1, pai: 'out', tag: 'aposentadoria' });
   }
-  return L;
+  return ordenaPorFrequencia(L);
+}
+// dentro de cada grupo, as linhas que aparecem em mais meses ficam em cima (ENGINE.frequenciaDasLinhas): ao andar no tempo,
+// as que entram e saem são as de baixo, e a "+ nova linha" continua no fim; o empate mantém a ordem do cadastro
+function ordenaPorFrequencia(L) {
+  const fr = SIM ? ENGINE.frequenciaDasLinhas(SIM) : {}, n = r => Math.max(0, ...(r.keys || []).map(k => fr[k] || 0)), fixo = r => r.t === 'grp' || r.t === 'ghost';
+  const out = [];
+  for (let i = 0; i < L.length;) {
+    if (fixo(L[i])) { out.push(L[i++]); continue; }
+    let j = i; while (j < L.length && !fixo(L[j]) && L[j].pai === L[i].pai) j++;
+    out.push(...L.slice(i, j).sort((a, b) => n(b) - n(a))); i = j;
+  }
+  return out;
 }
 const valorLinha = (r, b) => {
   if (r.keys) { let t = 0; for (const k of r.keys) t += b.f[k] || 0; return t; }
@@ -3838,13 +4078,18 @@ const somaR = j => j.camadas.reduce((a, c) => a + c.v, 0);
 const mesesDaLiberdade = js => js.flatMap(j => Array.from({ length: j.m1 - j.m0 }, () => ({ D: j.D, R: somaR(j) })));
 // valor, na liberdade, dos saques mês a mês (o saque do mês k é descontado k meses); D fixo ou a renda desejada de cada mês
 const vpSaques = (ms, D) => { const r = +plano.rate || 0; let v = 0, g = 1; ms.forEach(m => { v += Math.max(0, (D == null ? m.D : D) - m.R) / g; g *= 1 + r; }); return v; };
-// as alternativas, com a mesma renda em todos os períodos: consumir o patrimônio até a expectativa de vida (a renda cujos
-// saques valem o patrimônio de hoje) e preservá-lo (o rendimento mais as rendas da fase em que elas são menores)
+// as alternativas: consumir o patrimônio até a expectativa de vida (a mesma renda em todos os períodos, a renda cujos
+// saques valem o patrimônio de hoje) e preservá-lo. Preservar trava o saque, não a renda: em todos os períodos o
+// patrimônio paga só o rendimento (o mesmo valor), e a renda de cada período é esse saque mais as rendas dele, então ela
+// sobe e desce de janela em janela (pedido do usuário, 18/10/2026; antes, a renda era igual em todos os períodos e o
+// patrimônio crescia nos períodos com mais rendas)
 function alternativas(f, js) {
   const ms = mesesDaLiberdade(js), P = f.ff.finAfter, cem = v => Math.floor(v / 100) * 100;
   let a = 0, b = 1e7; for (let k = 0; k < 60; k++) { const m = (a + b) / 2; if (vpSaques(ms, m) > P) b = m; else a = m; }
-  return { precisa: vpSaques(ms), consumo: cem(a), perp: cem(P * plano.rate + Math.min(...ms.map(m => m.R))) };
+  const perpSaque = cem(P * plano.rate);
+  return { precisa: vpSaques(ms), consumo: cem(a), perpSaque, perpPassos: js.map(j => ({ from: j.m0, value: Math.round(somaR(j) + perpSaque) })) };
 }
+let PRESERVAR = null;   // as rendas de cada período no modo "Preservar o patrimônio", da última vez que a página foi desenhada
 // o patrimônio financeiro da liberdade até a expectativa de vida, pela simulação do plano, com a marca de onde ele acaba
 function htmlCurvaPlano(f, wEsg) {
   const w0 = f.ff.week, w1 = Math.min(ENGINE.NW - 1, Math.round(+plano.lifeExp * ENGINE.WPY)); if (w1 <= w0) return '';
@@ -3903,10 +4148,11 @@ function htmlPeriodos(f, js) {
   }).join('');
   // a renda do plano: a escolhida nos sliders, ou uma das alternativas com a mesma renda em todos os períodos
   const A = alternativas(f, js), igual = !passos.length, D0 = js[0].D;
-  const modo = igual && Math.abs(D0 - A.consumo) < 1 ? 'consumo' : igual && Math.abs(D0 - A.perp) < 1 ? 'perp' : 'propria';
+  const ehPerp = js.every(j => j.semPatr || Math.abs(j.D - (somaR(j) + A.perpSaque)) < 1); PRESERVAR = A.perpPassos;
+  const modo = igual && Math.abs(D0 - A.consumo) < 1 ? 'consumo' : ehPerp ? 'perp' : 'propria';
   const botao = (id, rot, v, nota) => `<button class="lf-modo${modo === id ? ' on' : ''}"${v != null && modo !== id ? ` data-usar-renda="${v}"` : ''} title="${nota}">${rot}<small>${v != null ? fmt(v) + ' por mês' : 'nos sliders e em cada período'}</small></button>`;
   return `<div class="bloco"><h3>Renda em cada período</h3><div class="sub">Um período novo começa quando uma renda começa ou termina, ou quando a renda desejada muda. Em cada um, o saque do patrimônio completa o que as rendas não pagam.</div>
-    <div class="lf-modos">${botao('propria', 'Renda escolhida', null, 'A renda desejada do alto e a de cada período')}${botao('consumo', 'Consumir o patrimônio até os ' + plano.lifeExp, A.consumo, 'A maior renda igual em todos os períodos que o patrimônio paga até a expectativa de vida')}${botao('perp', 'Preservar o patrimônio', A.perp, 'Saca só o rendimento: a renda igual em todos os períodos que o patrimônio paga sem ser consumido')}</div>
+    <div class="lf-modos">${botao('propria', 'Renda escolhida', null, 'A renda desejada do alto e a de cada período')}${botao('consumo', 'Consumir o patrimônio até os ' + plano.lifeExp, A.consumo, 'A maior renda igual em todos os períodos que o patrimônio paga até a expectativa de vida')}<button class="lf-modo${modo === 'perp' ? ' on' : ''}"${modo !== 'perp' ? ' data-usar-preservar' : ''} title="Saca só o rendimento do patrimônio, o mesmo valor em todos os períodos; a renda de cada período é esse saque mais as rendas dele">Preservar o patrimônio<small>saque de ${fmt(A.perpSaque)} por mês</small></button></div>
     <div class="tablewrap"><table class="lf-tab"><thead><tr><th style="width:21%">Período</th><th style="width:17%">Renda desejada</th><th>De onde vem</th></tr></thead><tbody>${linhas}</tbody></table></div>
     <div class="lf-div">Novo período a partir dos <input type="number" id="lfIdade" min="18" max="110" style="width:70px"> anos ${casal ? `de <select id="lfQuem"><option value="titular">${esc(nm.titular)}</option><option value="conjuge">${esc(nm.conjuge)}</option></select>` : 'de ' + esc(nm.titular)}, com renda de <input id="lfValor" data-money type="text" inputmode="decimal" placeholder="ex.: R$ 18.000" style="width:140px"><button class="btn btn-secondary btn-small" id="lfMudar">Criar período</button><span id="lfAviso" class="low"></span></div></div>`;
 }
@@ -3993,6 +4239,13 @@ document.addEventListener('click', e => {
   const r = e.target.closest('[data-del-pas]'); if (r) armar(r, () => plano.passive.splice(+r.dataset.delPas, 1));
 });
 document.addEventListener('click', e => { const b = e.target.closest('[data-usar-renda]'); if (!b) return; plano.desired = +b.dataset.usarRenda; plano.desiredSteps = []; fillFields(); renderAll(); });
+// preservar: a renda do primeiro período vai para o alto da página e cada período seguinte ganha a sua, só onde ela muda
+document.addEventListener('click', e => {
+  if (!e.target.closest('[data-usar-preservar]') || !PRESERVAR || !PRESERVAR.length) return;
+  const passos = []; let ant = PRESERVAR[0].value;
+  PRESERVAR.slice(1).forEach(st => { if (st.value !== ant) { passos.push(st); ant = st.value; } });
+  plano.desired = PRESERVAR[0].value; plano.desiredSteps = passos; fillFields(); renderAll();
+});
 // o plano da liberdade pede a renda desejada e a idade em que cada um para de trabalhar (num casal, as duas)
 const vazioL = v => v == null || v === '';
 const temIdadeAlvo = () => !vazioL(plano.retireAge) && (!conjuge() || !vazioL(plano.spouseRetireAge));
@@ -4787,6 +5040,116 @@ function ligadaA(it) {
   if (S.linha === it.id && S.linhaPropria) return ['Gestão de riscos', 'riscos'];
   return null;
 }
+// ---------- as rendas do Orçamento ----------
+// Cada renda é a linha principal do Fluxo de caixa (plano.incomes): o tipo (ativa ou passiva, `kind`), a categoria
+// (`origin`), quem a gera (uma pessoa, `pessoa`, ou um bem: `patrimonio.bens[].renda` aponta para a linha), o bruto
+// (`gross`), os descontos (calculados: bruto menos líquido) e o líquido (os degraus, que são o que o fluxo usa). O que vem
+// junto de uma renda ativa são linhas próprias do Fluxo, presas a ela por `de`: o 13º (que segue o líquido do salário, com
+// `segue`, em dezembro), as comissões (mensais) e cada bônus (trimestral, semestral ou anual). No Orçamento elas aparecem
+// dentro da renda; no Fluxo, cada uma é uma linha, onde ganha datas e degraus. Na versão final, tudo chega da coleta.
+const orcAberto = new Set();   // as rendas abertas: só estado da tela
+const ORIGENS_ATIVA = ['Salário', 'Pró-labore', 'Honorários (autônomo)', 'Distribuição de lucros', 'Outras receitas'];
+const ORIGENS_PASSIVA = ['Aluguéis', 'Rendimentos recorrentes', 'Distribuição de lucros', 'Outras receitas'];
+const FREQ_BONUS = [['trimestral', 'trimestral'], ['semestral', 'semestral'], ['anual', 'anual']];
+const ehExtra = it => !!it.de && plano.incomes.some(x => x.id === it.de && x !== it);
+const extrasDe = it => plano.incomes.filter(x => x.de === it.id && x !== it);
+const bensDoPlano = () => ((plano.patrimonio || {}).bens || []);
+const geradorDe = it => { const b = bensDoPlano().findIndex(x => x.renda === it.id); return b >= 0 ? 'bem:' + b : it.pessoa === 'conjuge' ? 'conjuge' : 'titular'; };
+const liquidoHoje = it => ENGINE.stepAt(it, 0);
+// o valor de cada pagamento de uma linha que começa depois (o bônus de março): o do primeiro degrau, e não o de hoje
+const valorDoPagamento = it => ENGINE.stepAt(it, Math.max(0, ((it.steps || [])[0] || { from: 0 }).from));
+// o mês de um bônus: a data da anual; nas outras, o mês do primeiro pagamento (o primeiro degrau, contado de hoje)
+const mesDoBonus = b => b.frequency === 'anual' && Array.isArray(b.dates) && b.dates.length ? b.dates[0].m : (MES0.m + ((b.steps || [])[0] || { from: 0 }).from) % 12;
+function poeMesNoBonus(b, m) {
+  if (b.frequency === 'anual') { b.dates = [{ m, d: 20 }]; delete b.days; }
+  else { delete b.dates; b.days = [20]; if ((b.steps || []).length === 1) b.steps[0].from = (m - MES0.m + 12) % 12; }
+}
+function novaExtra(pai, origin, campos) {
+  const it = Object.assign({ id: novoId('ent'), kind: 'ativa', origin, de: pai.id, pessoa: pai.pessoa === 'conjuge' ? 'conjuge' : 'titular', gross: 0, taxable: true, description: '',
+    steps: [{ from: ((pai.steps || [])[0] || { from: 0 }).from, value: 0 }] }, campos);
+  plano.incomes.push(it); return it;
+}
+const tiraLinha = it => { plano.incomes = plano.incomes.filter(x => x !== it); bensDoPlano().forEach(b => { if (b.renda === it.id) b.renda = null; }); };
+
+function rendaCartao(it, nm, casal) {
+  const i = plano.incomes.indexOf(it), aberto = orcAberto.has(it.id), ativa = ENGINE.ativo(it), lig = ligadaA(it), simples = linhaSimples(it) && !lig;
+  const liq = liquidoHoje(it), media = ENGINE.mediaDe12Meses([it]), bruto = +it.gross || 0, ex = extrasDe(it);
+  const bens = bensDoPlano(), ger = geradorDe(it), nomeGer = ger.startsWith('bem:') ? (bens[+ger.slice(4)].nome || 'bem sem nome') : nm[ger];
+  const dec = ex.find(x => x.origin === '13º salário'), com = ex.find(x => x.origin === 'Comissões'), bonus = ex.filter(x => x !== dec && x !== com);
+  const resumoEx = [dec ? '13º' : '', com ? 'comissões ' + fmt(valorDoPagamento(com)) + ' por mês' : '', ...bonus.map(b => 'bônus ' + (b.frequency || 'anual') + ' ' + fmt(valorDoPagamento(b)))].filter(Boolean).join(' · ');
+  const linhaMin = `<div class="orc-r-min" data-orc-abre="${it.id}" role="button" tabindex="0" aria-expanded="${aberto}">
+      <span class="orc-tipo ${ativa ? 'at' : 'pa'}">${ativa ? 'Ativa' : 'Passiva'}</span>
+      <span class="orc-r-nome"><b>${esc(it.label || 'Renda sem nome')}</b><small>${esc(it.origin || '')}${casal || ger.startsWith('bem:') ? ' · ' + esc(nomeGer) : ''}${resumoEx ? ' · ' + esc(resumoEx) : ''}</small></span>
+      <span class="orc-r-v"><b>${fmt(simples ? liq : media)}</b><small>${bruto > 0 ? 'bruto ' + fmt(bruto) : simples ? 'líquido por mês' : 'média líquida por mês'}</small></span>
+      <i class="orc-chev" aria-hidden="true"></i></div>`;
+  if (!aberto) return `<div class="orc-r">${linhaMin}${lig ? '' : `<button class="btn btn-icon orc-rm" data-orc-rm="${it.id}" title="Remover a renda${ex.length ? ' e o que vem junto dela' : ''}">×</button>`}</div>`;
+  const cp = (n, h, dica) => `<div class="field"><label>${n}${dica ? ' ' + tip(dica) : ''}</label>${h}</div>`;
+  const origens = (ativa ? ORIGENS_ATIVA : ORIGENS_PASSIVA).concat(it.origin && !(ativa ? ORIGENS_ATIVA : ORIGENS_PASSIVA).includes(it.origin) ? [it.origin] : []);
+  const opsGer = [['titular', nm.titular]].concat(casal ? [['conjuge', nm.conjuge]] : []).concat(ativa ? [] : bens.map((b, k) => ['bem:' + k, 'Bem: ' + (b.nome || 'sem nome')]));
+  const liqCampo = simples ? campoR(`incomes.${i}.steps.0.value`, 'reais0', ' placeholder="R$ por mês"')
+    : `<div class="orc-fx">${fmt(media)}<small>média · ${lig ? 'da página ' + lig[0] + ' · <button class="link" data-ir="' + lig[1] + '">mudar</button>' : 'detalhada no <button class="link" data-ir="fluxo">Fluxo de caixa</button>'}</small></div>`;
+  const descCampo = simples && bruto > 0 ? `<input data-orc-desc="${it.id}" data-money-opt inputmode="decimal" value="${money(Math.max(0, bruto - liq))}">` : `<div class="orc-fx">${bruto > 0 ? fmt(Math.max(0, bruto - liq)) : '—'}<small>${bruto > 0 ? 'bruto menos líquido' : 'informe o bruto'}</small></div>`;
+  const extras = ativa || ex.length ? `<div class="orc-ex"><h4>Além ${it.origin === 'Salário' ? 'do salário' : 'desta renda'}</h4>
+      <div class="orc-ex-l">${it.origin === 'Salário' || dec ? `<label class="orc-ck"><input type="checkbox" data-orc-dec="${it.id}"${dec ? ' checked' : ''}> Recebe 13º salário <small>em dezembro, no valor do líquido do mês</small></label>` : ''}
+        <div class="orc-ex-c"><span>Comissões por mês</span><input data-orc-com="${it.id}" data-money-opt inputmode="decimal" placeholder="R$ 0" value="${com ? money(valorDoPagamento(com)) : ''}"></div></div>
+      ${bonus.map(b => { const j = plano.incomes.indexOf(b); return `<div class="orc-bonus"><span>Bônus</span>${campoR(`incomes.${j}.steps.0.value`, 'reais0', ' placeholder="R$ líquido"')}
+        <select data-orc-bfq="${b.id}" aria-label="Frequência do bônus">${FREQ_BONUS.map(([k, n]) => `<option value="${k}"${(b.frequency || 'anual') === k ? ' selected' : ''}>${n}</option>`).join('')}</select>
+        <span class="orc-em">${b.frequency === 'anual' ? 'em' : 'a partir de'}</span><select data-orc-bmes="${b.id}" aria-label="Mês do bônus">${MESES.map((m, k) => `<option value="${k}"${mesDoBonus(b) === k ? ' selected' : ''}>${m}</option>`).join('')}</select>
+        <button class="btn btn-icon" data-orc-rm="${b.id}" title="Remover o bônus">×</button></div>`; }).join('')}
+      <button class="btn btn-step" data-orc-bonus="${it.id}">+ bônus</button></div>` : '';
+  return `<div class="orc-r on">${linhaMin}
+    <div class="orc-r-c">
+      <div class="grid g4">${cp('Tipo', `<select data-orc-tipo="${it.id}"><option value="ativa"${ativa ? ' selected' : ''}>Ativa (trabalho)</option><option value="passiva"${ativa ? '' : ' selected'}>Passiva (patrimônio)</option></select>`)}
+        ${cp('Categoria', selR(`incomes.${i}.origin`, origens.map(o => [o, o])))}
+        ${cp('Nome', lig ? `<div class="orc-fx">${esc(it.label || '')}</div>` : campoR(`incomes.${i}.label`, 'texto', ' placeholder="ex.: Salário da Ana"'))}
+        ${cp('Quem gera', `<select data-orc-ger="${it.id}">${opsGer.map(([k, n]) => `<option value="${k}"${ger === k ? ' selected' : ''}>${esc(n)}</option>`).join('')}</select>`, ativa ? 'A pessoa que trabalha. Uma renda passiva também pode vir de um bem (um aluguel).' : 'A pessoa dona da renda ou o bem que a gera (um aluguel, por exemplo).')}</div>
+      <div class="grid g4">${cp('Bruto por mês', campoR(`incomes.${i}.gross`, 'reais0', ' placeholder="R$ 0"'), 'Antes dos descontos. Entra nos rendimentos tributáveis do imposto de renda.')}
+        ${cp('Descontos', descCampo, 'INSS, imposto retido e outros descontos: o bruto menos o líquido.')}
+        ${cp('Líquido por mês', liqCampo, 'O que cai na conta. É o valor que o fluxo e a simulação usam.')}
+        ${cp('Tributável no IR', selR(`incomes.${i}.taxable`, [['sim', 'sim'], ['nao', 'não']], 'bool'))}</div>
+      ${extras}
+      <div class="orc-r-pe"><small>Datas, degraus e mudanças ao longo do tempo ficam no <button class="link" data-ir="fluxo">Fluxo de caixa</button>${ativa ? '; o regime e as horas de trabalho, na página <button class="link" data-ir="cliente">Cliente</button>' : ''}.</small>
+        <button class="btn btn-secondary btn-small" data-orc-fecha="${it.id}">OK</button></div>
+    </div></div>`;
+}
+function rendasBloco(g, nm, casal) {
+  const lista = plano.incomes.filter(it => !ehExtra(it));
+  return `<div class="bloco"><h3>Rendas<span class="dir">${fmt(g.mes.renda)} por mês, na média dos próximos 12 meses</span></h3>
+    ${lista.length ? `<div class="orc-rendas">${lista.map(it => rendaCartao(it, nm, casal)).join('')}</div>` : '<div class="sub">Nenhuma renda ainda. Elas vão chegar da coleta; aqui você corrige ou acrescenta o que faltou.</div>'}
+    <div class="orc-adds"><button class="btn btn-step" data-orc-nova="ativa">+ renda ativa</button><button class="btn btn-step" data-orc-nova="passiva">+ renda passiva</button></div></div>`;
+}
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-orc-abre],[data-orc-fecha],[data-orc-rm],[data-orc-bonus],[data-orc-nova]'); if (!t) return;
+  const d = t.dataset, acha = id => plano.incomes.find(x => x.id === id);
+  if (d.orcAbre) { if (orcAberto.has(d.orcAbre)) orcAberto.delete(d.orcAbre); else orcAberto.add(d.orcAbre); renderOrcamentoC(); pintaSliders(); return; }
+  if (d.orcFecha) { orcAberto.delete(d.orcFecha); renderOrcamentoC(); return; }
+  if (d.orcRm) { const it = acha(d.orcRm); if (!it) return; extrasDe(it).forEach(tiraLinha); tiraLinha(it); renderAll(); return; }
+  if (d.orcBonus) { const pai = acha(d.orcBonus); if (!pai) return; const b = novaExtra(pai, 'Bônus', { label: 'Bônus · ' + (pai.label || 'renda'), frequency: 'anual', taxable: true }); poeMesNoBonus(b, 2); renderAll(); return; }
+  if (d.orcNova) {
+    const ativa = d.orcNova === 'ativa', it = { id: novoId('ent'), label: '', kind: ativa ? 'ativa' : 'passiva', origin: ativa ? 'Salário' : 'Aluguéis', pessoa: 'titular', gross: 0, taxable: true, frequency: 'mensal', days: [5], description: '', steps: [{ from: 0, value: 0 }] };
+    plano.incomes.push(it); orcAberto.add(it.id); renderAll();
+    const n = document.querySelector(`#orcC [data-r="incomes.${plano.incomes.length - 1}.label"]`); if (n) n.focus();
+  }
+});
+document.addEventListener('keydown', e => { const t = e.target.closest && e.target.closest('[data-orc-abre]'); if (t && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); t.click(); } });
+document.addEventListener('change', e => {
+  const t = e.target, d = t.dataset || {}, acha = id => plano.incomes.find(x => x.id === id);
+  if (d.orcTipo) { const it = acha(d.orcTipo); if (!it) return; it.kind = t.value; const ok = t.value === 'ativa' ? ORIGENS_ATIVA : ORIGENS_PASSIVA; if (!ok.includes(it.origin)) it.origin = ok[0];
+    if (t.value === 'ativa') bensDoPlano().forEach(b => { if (b.renda === it.id) b.renda = null; }); renderAll(); return; }
+  if (d.orcGer) { const it = acha(d.orcGer); if (!it) return; bensDoPlano().forEach(b => { if (b.renda === it.id) b.renda = null; });
+    if (t.value.startsWith('bem:')) bensDoPlano()[+t.value.slice(4)].renda = it.id; else { it.pessoa = t.value; extrasDe(it).forEach(x => { x.pessoa = t.value; }); }
+    renderAll(); return; }
+  if (d.orcDesc) { const it = acha(d.orcDesc); if (!it || !linhaSimples(it)) return; it.steps[0].value = Math.max(0, Math.round(((+it.gross || 0) - unmoney(t.value)) * 100) / 100); renderAll(); return; }
+  if (d.orcDec) { const it = acha(d.orcDec); if (!it) return; const dec = extrasDe(it).find(x => x.origin === '13º salário');
+    if (t.checked && !dec) novaExtra(it, '13º salário', { label: '13º salário · ' + (it.label || 'salário'), segue: it.id, taxable: false, gross: +it.gross || 0, frequency: 'anual', dates: [{ m: 11, d: 20 }], steps: [{ from: ((it.steps || [])[0] || { from: 0 }).from, value: liquidoHoje(it) }] });
+    if (!t.checked && dec) tiraLinha(dec); renderAll(); return; }
+  if (d.orcCom) { const it = acha(d.orcCom); if (!it) return; const com = extrasDe(it).find(x => x.origin === 'Comissões'), v = unmoney(t.value);
+    if (v > 0) { if (com) { com.steps = [{ from: com.steps[0].from, value: v }]; } else novaExtra(it, 'Comissões', { label: 'Comissões · ' + (it.label || 'renda'), frequency: 'mensal', days: (it.days || [5]).slice(0, 1), steps: [{ from: ((it.steps || [])[0] || { from: 0 }).from, value: v }] }); }
+    else if (com) tiraLinha(com);
+    renderAll(); return; }
+  if (d.orcBfq) { const b = acha(d.orcBfq); if (!b) return; const m = mesDoBonus(b); b.frequency = t.value; poeMesNoBonus(b, m); renderAll(); return; }
+  if (d.orcBmes) { const b = acha(d.orcBmes); if (!b) return; poeMesNoBonus(b, +t.value); renderAll(); }
+});
 function renderOrcamentoC() {
   const el = document.getElementById('orcC'); if (!el) return;
   const g = ENGINE.gestaoFinanceira(plano), nm = ENGINE.nomesDaFamilia(plano), casal = ENGINE.pessoasDaFamilia(plano).length > 1;
@@ -4806,7 +5169,7 @@ function renderOrcamentoC() {
       <button class="btn btn-step" data-orcadd="${add}">+ ${rotulo}</button></div>`;
   };
   el.innerHTML = `<div class="orc-res">${tile('Renda', g.mes.renda, 'média dos próximos 12 meses')}${tile('Despesas fixas', g.grupos.fixas, pct(g.grupos.fixas) + ' · referência 50%')}${tile('Despesas ajustáveis', g.grupos.ajustaveis, pct(g.grupos.ajustaveis) + ' · referência 30%')}${tile('Para o futuro', g.mes.futuro, pct(g.mes.futuro) + ' · mínimo 20%')}</div>
-    ${bloco('Rendas', 'incomes', () => true, 'inc', 'renda', g.mes.renda)}
+    ${rendasBloco(g, nm, casal)}
     ${bloco('Despesas fixas', 'expenses', it => it.group === 'fix', 'fix', 'despesa fixa', g.grupos.fixas, '50%')}
     ${bloco('Despesas ajustáveis', 'expenses', it => it.group !== 'fix', 'adj', 'despesa ajustável', g.grupos.ajustaveis, '30%')}
     <div class="bloco"><h3>Poupança</h3><div class="grid g3"><div class="field"><label>Quantas vezes poupou nos últimos 12 meses ${tip('A pergunta do exame. Aparece no capítulo Gestão financeira, ao lado de quanto sobra para o futuro.')}</label>${selR('orcamento.vezesPoupou', [['', 'não informado']].concat(ENGINE.VEZES_POUPOU))}</div></div></div>`;
@@ -5280,11 +5643,24 @@ function renderPremissas() {
 }
 
 // ===================== APRESENTAÇÃO =====================
+// Cada capítulo pode sair da apresentação: o interruptor ao lado do nome grava plano.capitulosOcultos (os ids dos
+// capítulos), e a área do cliente monta o livro sem eles (a capa, o resumo e as páginas, também no sumário, nos "Próximo"
+// e nos próximos passos da última página). Fica pelo menos um. Desligado, o bloco recolhe e mostra só o nome.
+const capOculto = id => (plano.capitulosOcultos || []).includes(id);
+const cabCap = (id, nome) => `<div class="ap-cap${capOculto(id) ? ' oculto' : ''}"><div class="ap-cab"><label class="ap-mostra" title="${capOculto(id) ? 'Fora da apresentação: clique para mostrar ao cliente' : 'O cliente vê este capítulo: clique para tirar da apresentação'}"><input type="checkbox" data-cap-mostra="${id}"${capOculto(id) ? '' : ' checked'} aria-label="Mostrar o capítulo ${esc(nome)} ao cliente"><span></span></label><b>${esc(nome)}${capOculto(id) ? '<small>fora da apresentação</small>' : ''}</b>`;
+const TODOS_CAPITULOS = ['proposito', 'diagnostico', 'gestao', 'tributario', 'patrimonio', 'riscos', 'objetivos', 'politica', 'carteira', 'evolucao'];
+document.addEventListener('change', e => {
+  const t = e.target; if (!t.dataset || !t.dataset.capMostra) return;
+  const id = t.dataset.capMostra, ocultos = new Set(plano.capitulosOcultos || []);
+  if (t.checked) ocultos.delete(id); else if (TODOS_CAPITULOS.filter(c => !ocultos.has(c)).length > 1) ocultos.add(id);
+  plano.capitulosOcultos = TODOS_CAPITULOS.filter(c => ocultos.has(c));
+  save(); renderAll();
+});
 // O capítulo 1 é uma página só, sem capa nem resumo: o vídeo de boas-vindas, quem cuida do planejamento (plano.consultor;
 // na plataforma, viria do cadastro do planejador) e a data do relatório (plano.dataRelatorio; vazia, a de hoje).
 function capitulo1() {
   const cp = (n, h) => `<div class="field"><label>${n}</label>${h}</div>`, link = ' placeholder="link do YouTube, do Vimeo ou do arquivo"';
-  return `<div class="ap-cap"><div class="ap-cab"><b>Propósito</b><button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="proposito">Abrir a página 1</button><button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="proposito-nos">Abrir a página 2</button></div>
+  return `${cabCap('proposito', 'Propósito')}<button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="proposito">Abrir a página 1</button><button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="proposito-nos">Abrir a página 2</button></div>
     <div class="sub" style="margin:0 0 12px">Duas páginas, como uma landing page. Na primeira, boas-vindas com o seu vídeo, a frase do propósito em destaque e os objetivos na ordem do cliente (no bloco Propósito da página Objetivos). Na segunda, quem cuida do planejamento, como vamos caminhar juntos e quem somos.</div>
     <div class="grid g3">${cp('Vídeo de boas-vindas', campoR('videos.cap-proposito-caso', 'texto', link))}${cp('Data do relatório', campoR('dataRelatorio', 'texto', ' type="date"'))}<div></div>
       ${cp('Planejador', campoR('consultor.nome', 'texto', ' placeholder="nome completo"'))}${cp('Certificação', campoR('consultor.certificacao', 'texto', ' placeholder="ex.: CFP®"'))}${cp('Foto (link)', campoR('consultor.foto', 'texto', ' placeholder="automático: as iniciais"'))}
@@ -5299,7 +5675,7 @@ function capitulo2() {
   const valor = t => `<b>${t ? esc(t) : '—'}</b>`, ir = (pg, nome) => ` <button class="link" data-ir="${pg}">${nome}</button>`;
   const linha = (nome, pres, fut) => `<tr><th>${nome}</th><td>${pres}</td><td>${fut}</td></tr>`;
   const objs = (plano.objectives || []).map((x, i) => `<tr class="dg-obj"><th>${esc(x.name || 'Objetivo sem nome')}</th><td>${sel('objectives.' + i + '.diagnostico.presente', 'objetivo')}</td><td>${sel('objectives.' + i + '.diagnostico.futuro', 'objetivo')}</td></tr>`).join('');
-  return `<div class="ap-cap"><div class="ap-cab"><b>Diagnóstico</b><button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="diagnostico">Abrir a página 1</button><button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="hoje-depois">Abrir a página 2</button></div>
+  return `${cabCap('diagnostico', 'Diagnóstico')}<button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="diagnostico">Abrir a página 1</button><button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="hoje-depois">Abrir a página 2</button></div>
     <div class="sub" style="margin:0 0 12px">Duas páginas. Na primeira, quem é a família (das páginas Cliente e Patrimônio, com a experiência com investimentos). Na segunda, a família hoje e depois do planejamento, em dois cartões: o hoje sempre à vista e o depois entrando em cascata. O presente do orçamento, da reserva e da proteção é calculado; o resto, e todo o futuro, você marca aqui.</div>
     <table class="dg-t"><thead><tr><th></th><th>Presente</th><th>Futuro</th></tr></thead><tbody>
       ${linha('Status do orçamento', valor(L('orcamento').presenteTxt) + `<small>${o ? (o.sobra >= 0 ? 'Sobra' : 'Falta') + ' de ' + fmt(Math.abs(o.sobra)) + ' por mês (' + pc(Math.abs(o.pct)) + ' das entradas), no' : 'Falta o'}${ir('fluxo', 'Fluxo de caixa')}</small>`, sel('diagnostico.orcamento.futuro', 'orcamento'))}
@@ -5319,7 +5695,7 @@ function capitulo2() {
 function capituloGestao() {
   const g = ENGINE.gestaoFinanceira(plano), cp = (n, h) => `<div class="field"><label>${n}</label>${h}</div>`, link = ' placeholder="link do YouTube, do Vimeo ou do arquivo"';
   const C = g.combinado, red = k => { const c = C && C[k]; return c && c.meta > 0.5 ? fmt(c.meta) + ' a menos por mês' + (c.cortes.length ? ' (' + c.cortes.map(x => esc(x.nome || 'sem nome')).join(', ') + ')' : '') : 'sem redução'; };
-  return `<div class="ap-cap"><div class="ap-cab"><b>Gestão financeira</b><button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="capa-gestao">Abrir a capa</button><button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="orcamento">Abrir o orçamento</button></div>
+  return `${cabCap('gestao', 'Gestão financeira')}<button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="capa-gestao">Abrir a capa</button><button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="orcamento">Abrir o orçamento</button></div>
     <div class="sub" style="margin:0 0 12px">A capa tem só o vídeo teórico. Depois, três páginas: a renda, o custo de vida e o que vai para o futuro; o tempo de trabalho de cada pessoa (as horas ficam na página Cliente); e o orçamento combinado, que vocês decidem e gravam juntos na apresentação: quanto liberar das despesas fixas e das ajustáveis, e de quais despesas sai.</div>
     <div class="grid g2">${cp('Vídeo teórico, na capa (o mesmo para todos os clientes)', campoR('videos.cap-gestao-teoria', 'texto', link))}<div></div></div>
     <div class="sub" style="margin:0">${C ? `Orçamento combinado: despesas fixas, ${red('fixas')}; despesas ajustáveis, ${red('ajustaveis')}.` : 'Ainda sem orçamento combinado.'} Para mudar, abra o orçamento.</div></div>`;
@@ -5357,7 +5733,7 @@ function renderApresentacaoC() {
     ${capitulo1()}
     ${capitulo2()}
     ${capituloGestao()}
-    ${caps.filter(([cid]) => cid !== 'proposito').map(([cid, n, nome, ids]) => `<div class="ap-cap"><div class="ap-cab"><b>${nome}</b><button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="capa-${cid}">Abrir a capa</button><button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="resumo-${cid}">Abrir o resumo</button>${cid === 'evolucao' ? '<button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="caminho">Abrir a última página</button>' : ''}</div>
+    ${caps.filter(([cid]) => cid !== 'proposito').map(([cid, n, nome, ids]) => `${cabCap(cid, nome)}<button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="capa-${cid}">Abrir a capa</button><button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="resumo-${cid}">Abrir o resumo</button>${cid === 'evolucao' ? '<button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="caminho">Abrir a última página</button>' : ''}</div>
       <div class="grid g2">${cp('Vídeo teórico, na capa (o mesmo para todos os clientes)', campoR('videos.cap-' + cid + '-teoria', 'texto', link))}${cp('Vídeo do caso deste cliente, no resumo', campoR('videos.cap-' + cid + '-caso', 'texto', link))}</div>
       ${cid === 'evolucao' ? `<div class="grid" style="margin-top:14px">${cp('Mensagem final, na última página do cliente (O caminho daqui para frente)', campoR('mensagemFinal', 'texto', ' placeholder="ex.: Nos vemos na revisão de abril. Até lá, qualquer dúvida, é só chamar."'))}</div>` : ''}
       ${pgs.filter(p => ids.includes(p[0])).map(([id, , nomeP, ok, falta, ir]) => `<div class="ap-pg"><div><b>${nomeP}</b>${ok ? `<small>${ok}</small>` : `<small class="falta">${falta} <button class="link" data-ir="${ir}">Resolver</button></small>`}</div>
@@ -5374,6 +5750,9 @@ document.addEventListener('click', e => { if (e.target.closest('[data-como-clien
 // dele na fonte) e a referência (a reserva ideal, o aporte necessário) logo abaixo, com o botão "usar". Num planejamento
 // anual, a sobra e os aportes aparecem por ano.
 const NOME_ESTRATEGIA = { conservador: 'Conservadora', moderado: 'Moderada', agressivo: 'Agressiva' };
+// a estratégia de cada objetivo é uma etiqueta que se clica para trocar, como a classe na Carteira atual; o tom sobe com o risco
+const COR_ESTRATEGIA = { conservador: '#B3CAEE', moderado: '#F1CA9C', agressivo: '#EDB3A2' };
+document.addEventListener('change', e => { const t = e.target; if (!t.dataset || !t.dataset.polPerfilSel) return; const o = plano.objectives.find(x => x.id === t.dataset.polPerfilSel); if (o && plano.profiles[t.value] != null) { o.profile = t.value; o.rateM = plano.profiles[t.value]; renderAll(); } });
 let polSel = null;   // a caixinha em destaque
 const polFator = Pz => Pz.periodicidade === 'anual' ? 12 : 1;
 const polUn = (q, f) => q === 'm' ? (f === 12 ? ' por ano' : ' por mês') : '';
@@ -5450,7 +5829,7 @@ function polLinha(c, Pz) {
   const hz = c.horizonte ? c.horizonte.nome.toLowerCase() : null;
   const sub = c.tipo === 'objetivo' ? [c.obj.months ? `<em>${monthsLabel(c.obj.months)}</em>` : '', hz, c.obj.amount > 0 ? fmt(c.obj.amount) : 'sem valor'].filter(Boolean).join(' · ')
     : c.tipo === 'reserva' ? 'para imprevistos · não vai para os objetivos' : c.itens.length ? c.itens.length + (c.itens.length > 1 ? ' compromissos, abaixo' : ' compromisso, abaixo') : 'gastos já marcados, com data e valor';
-  const est = c.tipo === 'objetivo' ? `<div class="pol-seg" role="group" aria-label="Estratégia de ${esc(c.nome)}">${Object.keys(plano.profiles).map(k => `<button type="button" data-pol-perfil="${c.id}" data-k="${k}" aria-pressed="${c.estrategia === k}">${NOME_ESTRATEGIA[k] || k}</button>`).join('')}</div>`
+  const est = c.tipo === 'objetivo' ? `<select class="car-tag pol-estr" data-pol-perfil-sel="${c.id}" style="--c:${COR_ESTRATEGIA[c.estrategia] || '#E6E3DD'}" aria-label="Estratégia de ${esc(c.nome)}">${Object.keys(plano.profiles).map(k => `<option value="${k}"${c.estrategia === k ? ' selected' : ''}>${NOME_ESTRATEGIA[k] || k}</option>`).join('')}</select>`
     : `<span class="pol-fixo">${NOME_ESTRATEGIA[c.estrategia] || 'Conservadora'}<small>${c.tipo === 'reserva' ? 'liquidez imediata' : 'separados até a data'}</small></span>`;
   return `<tr class="linha${polSel === c.id ? ' sel' : ''}" data-pol-linha="${c.id}"><td class="cx"><div class="pol-cx"><i style="background:${c.cor}"></i><div><b>${esc(c.nome)}</b><small>${sub}</small></div></div></td><td>${est}</td><td data-pol-cel="p:${c.id}">${polCelula('p', c, Pz)}</td><td data-pol-cel="m:${c.id}">${polCelula('m', c, Pz)}</td></tr>`;
 }
@@ -5541,8 +5920,6 @@ document.addEventListener('click', e => {
     if (c && c.tipo === 'reserva') { plano.politica = plano.politica || {}; plano.politica.reserva = Math.ceil(c.sugerido / 100) * 100; }
     if (c && c.tipo === 'objetivo') { c.obj.planned = Math.ceil(c.necessario || 0); c.obj.segueNecessario = true; }
     renderAll(); return; }
-  const p = e.target.closest('[data-pol-perfil]');
-  if (p) { const o = plano.objectives.find(x => x.id === p.dataset.polPerfil); if (o) { o.profile = p.dataset.k; o.rateM = plano.profiles[p.dataset.k]; } renderAll(); return; }
   if (e.target.closest('[data-comp-add]')) { const L = plano.compromissos = plano.compromissos || []; const id = 'comp' + Date.now().toString(36); L.push({ id, titulo: '', descricao: '', em: 6, valor: 0 }); polCompAberto.add(id); renderAll();
     const n = document.querySelector(`[data-r="compromissos.${L.length - 1}.titulo"]`); if (n) n.focus(); return; }
   const ok = e.target.closest('[data-comp-ok]'); if (ok) { polCompAberto.delete(ok.dataset.compOk); renderAll(); return; }
@@ -6110,6 +6487,7 @@ function renderPropostas() {
   nav.textContent = pend ? propC.ops.length : ''; nav.classList.toggle('tem', !!pend);
   nav.title = pend ? 'Proposta do cliente aguardando sua resposta' : '';
   const el = document.getElementById('propC'); if (!el) return;
+  if (propC && pend && cenAtivo()) { el.innerHTML = `<div class="goal-empty">Há uma proposta do cliente esperando resposta, mas você está editando o cenário <b>${esc(cenAtivo().nome)}</b>. A resposta vale para o plano. <div style="margin-top:12px"><button class="btn btn-secondary btn-small" data-cen-voltar>Voltar ao plano para responder</button></div></div>`; return; }
   if (!propC) { el.innerHTML = `<div class="goal-empty">Nenhuma proposta aguardando resposta. Quando o cliente enviar uma, ela aparece aqui, de onde ele estiver.</div>`; return; }
   const outro = (propC.planoNome || '') !== (plano.name || '');
   if (propC.id !== decC.id) decC = { id: propC.id, dec: propC.status === 'respondida' ? (propC.decisoes || []).slice() : [], nota: propC.status === 'respondida' ? propC.nota || '' : '' };
@@ -6142,6 +6520,7 @@ document.addEventListener('click', e => {
 const guardaNota = () => { const n = document.getElementById('pcNota'); if (n) decC.nota = n.value; };
 // aplica as aprovadas ao plano e registra a resposta no plano (para o cliente em outro computador) e na proposta
 function concluirResposta() {
+  if (cenAtivo()) return;
   if (!propC || propC.status !== 'pendente' || propC.ops.some((a, i) => !decC.dec[i]) || (propC.planoNome || '') !== (plano.name || '')) return;
   const aprovadas = propC.ops.filter((a, i) => decC.dec[i] === 'aprovada'), em = new Date().toISOString();
   ENGINE.aplicaAlteracoes(plano, aprovadas);
@@ -6152,14 +6531,18 @@ function concluirResposta() {
 }
 // a proposta chegou ou mudou (enviada pelo cliente, de onde ele estiver)
 ARMAZEM.ouvir('proposta', () => renderPropostas());
-ARMAZEM.ouvir('plano', novo => { if (novo && JSON.stringify(novo.orcamento || null) !== JSON.stringify(plano.orcamento || null)) { plano.orcamento = novo.orcamento; renderAll(); } });
+ARMAZEM.ouvir('plano', novo => {
+  if (!novo) return;
+  if (cenAtivo()) { const b = load(); if (JSON.stringify(novo.orcamento || null) !== JSON.stringify(b.orcamento || null)) { b.orcamento = novo.orcamento; try { localStorage.setItem('nl-plano', JSON.stringify(b)); } catch (e) { } renderAll(); } return; }
+  if (JSON.stringify(novo.orcamento || null) !== JSON.stringify(plano.orcamento || null)) { plano.orcamento = novo.orcamento; renderAll(); } });
 
 // páginas do portal: cada assunto numa página, na ordem em que o plano é montado
 // (dados do cliente: Cliente, Fluxo, Patrimônio; planejamento: Riscos, Objetivos, Liberdade, Tributário, Premissas; com o cliente)
-const PAGINAS = ['cliente', 'orcamento', 'fluxo', 'patrimonio', 'carteira', 'politica', 'macro', 'micro', 'riscos', 'objetivos', 'liberdade', 'tributario', 'premissas', 'apresentacao', 'propostas'];
-const NOMES_PAGINA = { cliente: 'Cliente', patrimonio: 'Patrimônio', politica: 'Política de investimentos', carteira: 'Carteira atual', macro: 'Macroalocação', micro: 'Microalocação', objetivos: 'Objetivos', fluxo: 'Fluxo de caixa', liberdade: 'Liberdade financeira', riscos: 'Gestão de riscos', tributario: 'Otimização tributária', premissas: 'Premissas', apresentacao: 'Apresentação', propostas: 'Propostas do cliente' };
-// os indicadores do topo só aparecem onde ajudam a decidir: orçamento, objetivos e liberdade
-const COM_INDICADORES = ['fluxo', 'objetivos', 'liberdade'];
+const PAGINAS = ['cliente', 'orcamento', 'fluxo', 'patrimonio', 'carteira', 'politica', 'macro', 'micro', 'riscos', 'objetivos', 'liberdade', 'tributario', 'premissas', 'apresentacao', 'propostas', 'cenarios'];   // Cenários fica fora da sequência do "Próximo"
+const NOMES_PAGINA = { cenarios: 'Cenários', cliente: 'Cliente', orcamento: 'Orçamento', patrimonio: 'Patrimônio', politica: 'Política de investimentos', carteira: 'Carteira atual', macro: 'Macroalocação', micro: 'Microalocação', objetivos: 'Objetivos', fluxo: 'Fluxo de caixa', liberdade: 'Liberdade financeira', riscos: 'Gestão de riscos', tributario: 'Otimização tributária', premissas: 'Premissas', apresentacao: 'Apresentação', propostas: 'Propostas do cliente' };
+// os indicadores do topo ficam à vista em todas as páginas em que se decide o plano (Onda 2, 18/10/2026); saem só dos
+// dados que não mudam a simulação (Cliente, carteira) e das páginas com o cliente que não são decisão
+const COM_INDICADORES = ['orcamento', 'fluxo', 'patrimonio', 'politica', 'riscos', 'objetivos', 'liberdade', 'tributario', 'premissas', 'cenarios'];
 let paginaAtual = null;
 function irPara(p) {
   if (!PAGINAS.includes(p)) p = 'cliente';
@@ -6188,7 +6571,7 @@ const planoVazio = () => ({ name: '', age: '', nascimento: '', conjugeNascimento
   patrimonio: { comecou: null, liquidezIdealPct: null, financeiro: [], participacoes: [], bens: [] } });
 const temConteudo = () => !!(plano.name || plano.incomes.length || plano.expenses.length || plano.objectives.length);
 function trocarPlano(b, novo, rotulo) {
-  const aplicar = () => { if (gaveta) { gaveta = null; renderGaveta(); } aceito = null; pendente = null; document.getElementById('estouro').hidden = true; plano = novo(); fx.t0 = null; save(); fillFields(); renderAll(); irPara('cliente'); document.getElementById('f-name').focus(); };
+  const aplicar = () => { CEN = { lista: [], ativo: null }; gravaCen(); if (gaveta) { gaveta = null; renderGaveta(); } aceito = null; pendente = null; document.getElementById('estouro').hidden = true; plano = novo(); fx.t0 = null; save(); fillFields(); renderAll(); irPara('cliente'); document.getElementById('f-name').focus(); };
   if (!temConteudo() || b.dataset.armed) { delete b.dataset.armed; b.classList.remove('armed'); b.textContent = rotulo; aplicar(); return; }
   b.dataset.rotulo = rotulo; b.dataset.armed = '1'; b.classList.add('armed'); b.textContent = 'Apagar o plano atual? Clique de novo';
 }
@@ -6250,7 +6633,9 @@ fillFields(); renderAll(); irPara(location.hash.slice(1));
 ARMAZEM.iniciar().then(info => {
   if (!info.dono) { location.replace('evolucao-patrimonial.html'); return; }
   const doArmazem = ARMAZEM.ler('plano');
-  if (info.modo === 'nuvem' && doArmazem && JSON.stringify(doArmazem) !== JSON.stringify(plano)) { plano = doSalvo(doArmazem); fx.t0 = null; fillFields(); }
+  if (info.modo === 'nuvem' && doArmazem && JSON.stringify(doArmazem) !== JSON.stringify(planoBase())) {
+    if (cenAtivo()) { try { localStorage.setItem('nl-plano', JSON.stringify(doArmazem)); } catch (e) { } }   // o cenário aberto continua; o plano é o do armazém
+    else { plano = doSalvo(doArmazem); fx.t0 = null; fillFields(); } }
   nuvemPronta = true; renderAll();
   if (info.modo === 'nuvem') gravarNuvem(true);   // banco ainda vazio: o plano deste navegador passa a ser o do cliente
   else document.getElementById('notaArmazem').textContent = 'Neste computador, o plano e as propostas ficam no navegador: abra a área do cliente aqui mesmo para testar. No link publicado, cada um usa o seu computador.';

@@ -529,6 +529,54 @@ Onde ela ficou ansiosa, e que vale vigiar em qualquer mudança futura:
 
 # Decisões tomadas, e por quê
 
+- **A média de 12 meses conta o que acontece (18/10/2026).** Pedido do usuário: num planejamento anual, com um bônus
+  grande no ano, a Política mostrava sobra zero. A média usava o equivalente mensal só a partir do mês em que a linha
+  começa, e um bônus anual que cai dentro da janela pesava a metade. Agora ela soma o que cada linha paga em cada um dos
+  12 meses. No plano de teste do usuário, a sobra passou de −R$ 498 para +R$ 663 por mês (R$ 7.960 por ano); no exemplo,
+  a capacidade passou de R$ 2.822 para R$ 3.233 por mês, porque o bônus de março conta inteiro. As entradas pontuais
+  continuam fora. Num planejamento anual, o placar mostra os valores por ano.
+- **Linhas do fluxo pela frequência (18/10/2026).** Pedido do usuário: ao andar para o lado, uma linha que entrava ou saía
+  empurrava as outras e ficava difícil achar cada uma. Agora, em cada grupo, as linhas que aparecem em mais meses (de hoje
+  até o fim do plano) ficam em cima, nas duas telas. Como a conta é sobre o plano inteiro, uma renda longa da aposentadoria
+  (o fundo de pensão vitalício, 516 meses) fica acima do salário (260 meses); ela só aparece quando o salário já saiu.
+- **Rendas no Orçamento como na coleta (18/10/2026).** Pedido do usuário, com a imagem do formulário de coleta (renda
+  ativa e renda passiva). Cada renda abre com o tipo, quem a gera (uma pessoa ou um bem), o bruto, os descontos e o líquido;
+  numa ativa, o 13º, as comissões e os bônus. O que vem junto é linha própria do Fluxo, presa à renda por `de`; o 13º segue
+  o líquido do salário (`segue`, no motor). No exemplo, o "Bônus anual" passou a ser da renda "Salário da Ana". Em aberto:
+  um plano gravado antes desta mudança mostra o bônus como uma renda à parte, até o consultor ligá-lo de novo; o regime e
+  as horas, que a coleta pede na renda ativa, continuam na página Cliente (`rendasAtivas`).
+- **Capítulos fora da apresentação (18/10/2026).** Pedido do usuário: escolher, na Apresentação, quais capítulos o
+  cliente vê. Um interruptor antes do nome de cada capítulo (`plano.capitulosOcultos`); o livro do cliente se monta sem
+  eles. Na mesma mudança, a dica do campo "Nome do cônjuge" deixou de falar das iniciais, que a Onda 1 trocou pelo nome.
+- **Preservar o patrimônio trava o saque (18/10/2026).** Pedido do usuário: o botão travava a renda total (o rendimento mais
+  as rendas da fase em que elas eram menores), e o patrimônio crescia nos períodos com mais rendas. Agora o saque é o
+  rendimento, igual em todos os períodos, e a renda de cada período é esse saque mais as rendas dele. No exemplo, o saque
+  é de R$ 20.900 e o patrimônio chega aos 95 anos com os R$ 5,2 mi da liberdade. No mesmo pedido, a estratégia de cada
+  objetivo na Política de investimentos virou uma etiqueta que se clica, como a classe na Carteira atual, no lugar do
+  controle de três posições: a coluna ficou estreita e o nome do objetivo cabe numa linha.
+- **Onda 2 da auditoria de UX: cenários (18/10/2026).** Pedido do usuário ("faça esta tarefa aqui"), a partir do achado
+  K1 de `ux/research/auditoria-ux-2026-10-18.md`. Feito com o desenho proposto na auditoria, sem rodada de aprovação
+  antes de codar: a confirmar com o usuário. Cenários são fotografias do plano, fora dele (`nl-cenarios`), e só no
+  portal; o cliente vê o plano, salvo quando o consultor apresenta um cenário. Até três. O placar do topo deixou de
+  aparecer só no Fluxo, nos Objetivos e na Liberdade (revê a decisão "os indicadores do topo só aparecem onde ajudam a
+  decidir"): agora fica em todas as páginas em que se decide o plano. Em aberto: no link publicado, os cenários ficam no
+  navegador de quem os criou (não vão para o banco); se o consultor usar dois computadores, eles não o acompanham.
+- **Onda 1 da auditoria de UX (18/10/2026).** Pedido do usuário, a partir de `ux/research/auditoria-ux-2026-10-18.md`.
+  Revê três decisões anteriores, registradas abaixo com a data original:
+  - **Riscos em lista, não em carrossel** (revê "Carrossel das ameaças", de 01/10, e "Carrossel de riscos sem sobe e
+    desce", de 07/10 e 16/10). O carrossel cortava os vizinhos na borda e deixava até 700 px vazios embaixo da ameaça
+    curta. A lista, da mais urgente à protegida, mostra as oito de uma vez e já diz o que resolver primeiro; o cliente
+    ainda passa por todas, porque cada uma é uma linha com o status.
+  - **Eixo de valor linear** (revê o `asinh` da evolução). Com o eixo comprimido, a faixa de R$ 0 a R$ 500 mil ocupava
+    quase metade da altura e o crescimento parecia um traço reto; a família lê a altura ao pé da letra.
+  - **O nome no cabeçalho, não as iniciais** (revê "Topo da evolução patrimonial mais enxuto", de 14/10). "A. R. e M. R."
+    parecia um código; agora é "Planejamento de Vida · Ana e Marcos", os mesmos primeiros nomes da página de boas-vindas.
+  Também entraram: a pílula diz "capítulo 6 de 10"; as capas e os resumos sem vídeo não mostram mais o bloco "Aqui vai
+  entrar o vídeo"; o "Hoje e depois" trata o lado de hoje como ponto de partida (o placar em cinza, o vermelho só na
+  proteção, "A ajustar", "Ainda não" e "Concentrada" no lugar de "Inadequado", "Não" e "Preocupante"; o portal continua
+  com os nomes do motor); o livro termina no cartão da liberdade financeira, antes da mensagem do planejador; e, no
+  portal, a barra lateral passou a 5,6:1 de contraste, com os rótulos dos grupos em 11 px.
+
 Registradas aqui porque não são óbvias no código:
 
 - **Laranja no lugar de amarelo** no status intermediário: amarelo puro sobre fundo branco não tem

@@ -67,6 +67,9 @@ por outra página (parcela de dívida, plano de saúde) aparecem com a média e 
 | Bruto de cada recebimento | `incomes[].gross` | fonte | rendimentos tributáveis e INSS (IR), pró-labore (sócios) |
 | Tributável no IR | `incomes[].taxable` | fonte (lucros: não, sozinho) | rendimentos tributáveis (IR) |
 | Categoria (salário, pró-labore, lucros, aluguel…) | `incomes[].origin`, `kind` | fonte | ativa ou passiva, INSS, sócios |
+| Descontos de uma renda | bruto menos líquido | calculada (digitar os descontos muda o líquido) | Orçamento |
+| O que vem junto de uma renda (13º, comissões, bônus) | linhas próprias em `incomes[]`, presas à renda por `de` | fonte (cada uma é uma linha do Fluxo) | simulação, Orçamento |
+| Valor do 13º | `incomes[].segue`: o id do salário | ligada ao líquido do salário, mês a mês | simulação |
 | Despesas | `expenses[]` | fonte | simulação, custo de vida, padrão de vida |
 | Parcela de uma dívida | linha "Parcela: nome" em `expenses` | ligada ao Patrimônio (a dívida cria e acerta a linha) | fluxo |
 | Renda que um bem gera | `patrimonio.bens[].renda` → linha de entrada | ligada ao Fluxo | patrimônio do cliente |
@@ -194,7 +197,19 @@ por outra página (parcela de dívida, plano de saúde) aparecem com a média e 
 
 | Variável | Caminho | Situação |
 |---|---|---|
+| Capítulos fora da apresentação | `capitulosOcultos` (ids: `proposito`, `diagnostico`, `gestao`, `tributario`, `patrimonio`, `riscos`, `objetivos`, `politica`, `carteira`, `evolucao`) | fonte; o interruptor de cada capítulo na página Apresentação. Fica pelo menos um |
 | Vídeos teórico e do caso de cada capítulo | `videos['cap-<capítulo>-teoria']`, `['cap-<capítulo>-caso']` | fonte; o teórico é o mesmo para todos e deveria ficar numa biblioteca do escritório |
+
+## Cenários (portal)
+
+Um cenário não cria variável nova: é uma **fotografia** do plano inteiro, com nome, que o consultor edita no lugar do plano
+para testar uma decisão. Fica fora do plano, em `nl-cenarios` neste navegador, e nunca vai para o cliente.
+
+| Variável | Caminho | Situação |
+|---|---|---|
+| Os cenários do plano (até três) | `nl-cenarios.lista[]`: `id`, `nome`, `em`, `dados` (o plano inteiro) e `anterior` (o plano guardado ao promover outro) | fonte; nome digitado na página Cenários |
+| O cenário aberto | `nl-cenarios.ativo` | fonte; com ele, todas as páginas editam `dados` do cenário |
+| Os números da comparação e o "plano: X" do placar | `metricasDe(plano)` | calculada, a cada vez, pela mesma simulação das páginas |
 
 ## Repetições a resolver, em ordem
 
