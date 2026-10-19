@@ -650,17 +650,26 @@ body.sem-grafico .legend,body.sem-grafico #segView,body.sem-grafico #segLiq,body
 .contagem{display:flex;flex-direction:column;gap:6px;font-size:12.5px;color:var(--nl-gray-700)}
 .contagem span{display:flex;align-items:center;gap:8px} .contagem i{width:10px;height:10px;border-radius:50%;display:inline-block}
 /* carrossel das ameaças: o slide do meio inteiro e um pedaço dos vizinhos */
-/* a lista das ameaças: da mais urgente à protegida, cada uma abre com o essencial e o detalhe */
-.rk-ams{margin-top:18px}
-.rk-am{margin-bottom:10px} .rk-am>summary{padding:18px 22px;gap:14px} .rk-am>summary:hover{background:#FDFCFA}
-.rk-am>summary h3{font-size:16px} .rk-am>summary .st{align-self:center}
-.rk-am .rk-ic{width:20px;height:20px;flex:none;fill:none;stroke:#4B6584;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.rk-am.critico .rk-ic{stroke:#B53434} .rk-am.atencao .rk-ic{stroke:#964400} .rk-am.ok .rk-ic{stroke:#22794a}
-.rk-card.rk-am>summary .chev{width:8px;height:8px;border-right:1.5px solid #4B6584;border-bottom:1.5px solid #4B6584;transform:rotate(-45deg);transition:transform .2s;margin:0 4px 0 6px}
-.rk-card.rk-am[open]>summary .chev{transform:rotate(45deg)}
-.rk-am>summary:focus-visible{outline:2px solid var(--nl-orange-500);outline-offset:-2px;border-radius:16px}
-.rk-am[open]>.rk-resumo{margin-top:2px}
+.rk-pontos{display:flex;align-items:center;gap:7px;margin:4px 0 12px}
+.rk-ponto{position:relative;width:10px;height:10px;border-radius:50%;border:0;padding:0;cursor:pointer;background:#cfcbc3;opacity:.55;transition:all .2s}
+.rk-ponto.ok{background:var(--nl-score-good)} .rk-ponto.atencao{background:var(--nl-score-medium)} .rk-ponto.critico{background:var(--nl-score-low)}
+.rk-ponto.on{opacity:1;width:26px;border-radius:5px} .rk-ponto::before{content:'';position:absolute;inset:-7px -3px}
+.rk-seta-p{border:0;background:transparent;font:600 18px 'DM Sans',sans-serif;color:var(--nl-navy-900);cursor:pointer;padding:0 4px;line-height:1;min-width:28px;min-height:28px}
+.rk-seta-p:disabled{color:#d3cfc7;cursor:default}
+#rkPos{margin-left:8px;font:600 12.5px 'DM Sans',sans-serif;color:#6b6a66}
+/* todos os slides têm a altura do mais alto: passar de uma ameaça para outra não mexe na página */
+.rk-car{position:relative;overflow:hidden;margin:0 -24px}
+.rk-trilha{display:flex;align-items:flex-start;gap:20px;will-change:transform;touch-action:pan-y}
+.rk-slide{flex:0 0 min(860px,76%);margin:0;opacity:.4;transform:scale(.97);transition:opacity .3s,transform .3s;cursor:pointer;user-select:none}
+.rk-slide.atual{opacity:1;transform:none;cursor:default;user-select:auto}
+.rk-slide.atual .corpo{cursor:auto}
+body.arrastando-car,body.arrastando-car *{cursor:grabbing!important;user-select:none!important}
+.rk-num{margin-left:auto;font:500 11.5px 'DM Sans',sans-serif;color:#6b6a66}
 .rk-resumo{margin:0 20px 4px;background:var(--nl-cream-50);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:10px;max-width:420px}
+.rk-seta{position:absolute;top:110px;width:44px;height:44px;border-radius:50%;border:0;background:#fff;box-shadow:var(--shadow-card-module);font:600 22px 'DM Sans',sans-serif;color:var(--nl-navy-900);cursor:pointer;z-index:3}
+.rk-seta.ant{left:calc(12% - 22px)} .rk-seta.prox{right:calc(12% - 22px)}
+.rk-seta:disabled{opacity:0;pointer-events:none}
+.rk-seta:hover{background:var(--nl-peach-100);color:var(--nl-orange-600)}
 .rk-big{font:600 28px Sora,sans-serif;color:var(--nl-navy-900);line-height:1.05}
 .rk-big small{display:block;font:500 11.5px 'DM Sans',sans-serif;color:#6b6a66;margin-top:5px}
 .rk-sub{font-size:11.5px;color:#6b6a66;line-height:1.4}
@@ -681,6 +690,10 @@ body.sem-grafico .legend,body.sem-grafico #segView,body.sem-grafico #segLiq,body
 .mk.pendente circle{fill:none;stroke:#cfcbc3;stroke-width:1.6;stroke-dasharray:2.5 2}
 .rk-trio{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
 .rk-trio div{display:flex;flex-direction:column;gap:2px} .rk-trio b{font:600 20px Sora,sans-serif;color:var(--nl-navy-900)} .rk-trio span{font-size:11px;color:#6b6a66}
+/* o detalhe da ameaça escolhida */
+.rk-det-h{display:flex;align-items:center;gap:10px;padding:16px 20px}
+.rk-det-h h3{font:600 15px Sora,sans-serif;color:var(--nl-navy-900);flex:0 1 auto}
+.rk-det-h svg{width:18px;height:18px;fill:none;stroke:var(--nl-orange-500);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 @media (max-width:1100px){ .rk-hero{flex-direction:column;align-items:stretch} .rk-hero-t{flex:none} }
 .st{display:inline-flex;align-items:center;gap:5px;font:600 11px 'DM Sans',sans-serif;padding:3px 9px;border-radius:9999px;align-self:flex-start;white-space:nowrap}
 .st.ok{background:#E7F5EC;color:#22794a} .st.atencao{background:#FFF1E6;color:#964400} .st.critico{background:#FDECEC;color:#B83A3A} .st.pendente{background:#F0EEE9;color:#6b6a66}
@@ -5398,19 +5411,15 @@ function corpoCartao(id, a, R) {
   return x.status === 'ok' ? `<div class="rk-frase">${MARCA.ok}Proteção adequada</div>` : `<div class="rk-big">${fmtK(x.falta)}<small>falta de cobertura</small></div>
     <div class="rk-trilho"><i style="width:${x.pct * 100}%;background:${COR_ST[x.status]}"></i></div>`;
 }
-// As oito ameaças numa lista, da mais urgente à protegida (crítica, atenção, não avaliada, protegida): cada uma recolhida
-// numa linha (o nome e o estado) e aberta com o essencial e o detalhe. A mais urgente abre sozinha na primeira visita; as
-// que o cliente abrir continuam abertas quando a página se redesenha. Substitui o carrossel de 07/10 (revisto em 18/10):
-// sem o vazio embaixo da ameaça curta, sem vizinhos cortados, e a ordem já diz o que resolver primeiro.
-const ORDEM_RISCO = { critico: 0, atencao: 1, pendente: 2, ok: 3 };
-let rkAbertos = null;   // ids das ameaças abertas; null até a primeira visita
+// Carrossel: um slide por ameaça (o essencial no alto, o detalhe embaixo), na ordem, para o cliente passar por todas.
+// O slide do meio fica inteiro e os vizinhos aparecem pela metade nos lados; setas, arraste, teclado ou os pontos.
+let riscoSel = 0;   // índice do slide à vista
 function renderRiscos() {
   const el = document.getElementById('riscos'); if (!el || FASE !== 'riscos') return;
   const P = planoVista(), R = P.riscos || {}, a = ENGINE.avaliaRiscos(P), cont = { ok: 0, atencao: 0, critico: 0, pendente: 0 };
   ENGINE.RISCOS.forEach(x => cont[a.itens[x.id].status]++);
-  const nota = a.nota == null ? null : Math.round(a.nota * 100);
-  const ordem = ENGINE.RISCOS.slice().sort((x, y) => ORDEM_RISCO[a.itens[x.id].status] - ORDEM_RISCO[a.itens[y.id].status]);
-  if (!rkAbertos) rkAbertos = new Set(ordem.length ? [ordem[0].id] : []);
+  const nota = a.nota == null ? null : Math.round(a.nota * 100), n = ENGINE.RISCOS.length;
+  riscoSel = Math.max(0, Math.min(n - 1, riscoSel));
   const rolagem = el.scrollTop;
   let h = `<div class="rc">${cabPagina(paginaDe('riscos'), 'Quanto de cada uma das oito ameaças ao padrão de vida já está resolvido.')}<div class="rk-topo um">
     <div class="nota-card rk-hero"><div class="rk-hero-t">
@@ -5418,16 +5427,61 @@ function renderRiscos() {
       <div class="contagem"><span><i style="background:${COR_ST.ok}"></i>${cont.ok} ${cont.ok === 1 ? 'protegida' : 'protegidas'}</span><span><i style="background:${COR_ST.atencao}"></i>${cont.atencao} pedem atenção</span><span><i style="background:${COR_ST.critico}"></i>${cont.critico} críticas</span>${cont.pendente ? `<span><i style="background:${COR_ST.pendente}"></i>${cont.pendente} não avaliadas</span>` : ''}</div></div>
       ${teiaSvg(a)}</div>
     </div>
-    <div class="rk-ams">${ordem.map(x => { const st = a.itens[x.id].status;
-      return `<details class="rk-card rk-am ${st}" id="rk-${x.id}" data-am="${x.id}"${rkAbertos.has(x.id) ? ' open' : ''}><summary><svg class="rk-ic" viewBox="0 0 24 24"><path d="${ICONE_RISCO[x.id]}"/></svg><h3>${x.nome}</h3>${stHtml(st)}<span class="chev" aria-hidden="true"></span></summary>
-        <div class="rk-resumo">${corpoCartao(x.id, a, R)}</div><div class="corpo">${corpoRisco(x.id, P, a)}</div></details>`; }).join('')}</div>`;
+    <div class="rk-pontos"><button class="rk-seta-p" data-car="-1" title="Ameaça anterior">‹</button>${ENGINE.RISCOS.map((x, k) => `<button class="rk-ponto ${a.itens[x.id].status}" data-car-ir="${k}" title="${escH(x.nome)}"></button>`).join('')}<button class="rk-seta-p" data-car="1" title="Próxima ameaça">›</button><span id="rkPos"></span></div>
+    <div class="rk-car" id="rkCar"><div class="rk-trilha" id="rkTrilha">${ENGINE.RISCOS.map((x, k) => { const st = a.itens[x.id].status;
+      return `<section class="rk-card rk-slide" data-slide="${k}"><div class="rk-det-h"><svg viewBox="0 0 24 24"><path d="${ICONE_RISCO[x.id]}"/></svg><h3>${x.nome}</h3>${stHtml(st)}<span class="rk-num">${k + 1} de ${n}</span></div>
+        <div class="rk-resumo">${corpoCartao(x.id, a, R)}</div><div class="corpo">${corpoRisco(x.id, P, a)}</div></section>`; }).join('')}</div>
+      <button class="rk-seta ant" data-car="-1" title="Ameaça anterior">‹</button><button class="rk-seta prox" data-car="1" title="Próxima ameaça">›</button></div>`;
   el.innerHTML = h + rodapeNav(paginaDe('riscos')) + '</div>'; el.scrollTop = rolagem;
+  posicionaCarrossel(false);
+  if (obsCarrossel) { obsCarrossel.disconnect(); [...document.getElementById('rkTrilha').children].forEach(e => obsCarrossel.observe(e)); }
 }
-// abrir ou fechar uma ameaça só guarda a escolha (o toggle não sobe: escuta na captura)
-document.getElementById('riscos').addEventListener('toggle', e => {
-  const d = e.target; if (!d.dataset || !d.dataset.am || !rkAbertos) return;
-  if (d.open) rkAbertos.add(d.dataset.am); else rkAbertos.delete(d.dataset.am);
+// leva o slide riscoSel ao meio; a altura é a do slide mais alto, a mesma para todos
+function posicionaCarrossel(anima, arraste) {
+  const car = document.getElementById('rkCar'), tr = document.getElementById('rkTrilha'); if (!car || !tr) return;
+  const sl = tr.children, s = sl[riscoSel]; if (!s) return;
+  const x = (car.clientWidth - s.offsetWidth) / 2 - s.offsetLeft + (arraste || 0);
+  tr.style.transition = anima ? 'transform .35s ease' : 'none'; tr.style.transform = `translateX(${x}px)`;
+  // o cartão fica da altura da ameaça à vista (sem o vazio da mais alta). Para a tela não pular ao trocar, a página
+  // guarda embaixo do rodapé a diferença até a ameaça mais alta: a altura total não muda e a rolagem fica onde estava.
+  if (arraste == null) alturaDoCarrossel(anima);
+  [...sl].forEach((e, k) => e.classList.toggle('atual', k === riscoSel));
+  document.querySelectorAll('[data-car-ir]').forEach(b => b.classList.toggle('on', +b.dataset.carIr === riscoSel));
+  document.querySelectorAll('[data-car="-1"]').forEach(b => { b.disabled = riscoSel === 0; });
+  document.querySelectorAll('[data-car="1"]').forEach(b => { b.disabled = riscoSel === sl.length - 1; });
+  const pos = document.getElementById('rkPos'); if (pos) pos.textContent = (riscoSel + 1) + ' de ' + sl.length + ' · ' + ENGINE.RISCOS[riscoSel].nome;
+}
+// a altura do cartão acompanha a ameaça à vista, também quando algo abre ou fecha dentro dela (16px para a sombra)
+function alturaDoCarrossel(anima) {
+  const car = document.getElementById('rkCar'), tr = document.getElementById('rkTrilha'); if (!car || !tr || !tr.children[riscoSel]) return;
+  const sl = [...tr.children], h = sl[riscoSel].offsetHeight, maxH = Math.max(...sl.map(e => e.offsetHeight)), pag = document.getElementById('riscos');
+  car.style.transition = anima ? 'height .35s ease' : 'none'; car.style.height = (h + 16) + 'px';
+  if (pag) pag.style.paddingBottom = (maxH - h) + 'px';
+}
+const obsCarrossel = typeof ResizeObserver === 'function' ? new ResizeObserver(() => alturaDoCarrossel(false)) : null;
+const vaiPara = k => { riscoSel = Math.max(0, Math.min(ENGINE.RISCOS.length - 1, k)); posicionaCarrossel(true); };
+// arrastar o carrossel para os lados (fora dos campos e botões)
+let carArr = null;
+document.getElementById('riscos').addEventListener('pointerdown', e => {
+  if (!e.target.closest('#rkTrilha') || e.target.closest('input,textarea,select,button,a,iframe,video') || e.button !== 0) return;
+  carArr = { x: e.clientX, y: e.clientY, dx: 0, ativo: false };
+});
+addEventListener('pointermove', e => {
+  if (!carArr) return;
+  carArr.dx = e.clientX - carArr.x;
+  if (!carArr.ativo && Math.abs(carArr.dx) > 8 && Math.abs(carArr.dx) > Math.abs(e.clientY - carArr.y)) { carArr.ativo = true; document.body.classList.add('arrastando-car'); }
+  if (carArr.ativo) posicionaCarrossel(false, carArr.dx);
+});
+addEventListener('pointerup', () => {
+  if (!carArr) return;
+  const { dx, ativo } = carArr; carArr = null; document.body.classList.remove('arrastando-car');
+  if (ativo) vaiPara(riscoSel + (dx < -60 ? 1 : dx > 60 ? -1 : 0));
+});
+addEventListener('keydown', e => {
+  if (FASE !== 'riscos' || e.target.closest && e.target.closest('input,textarea,select')) return;
+  if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); e.stopImmediatePropagation(); vaiPara(riscoSel + (e.key === 'ArrowRight' ? 1 : -1)); }
 }, true);
+addEventListener('resize', () => { if (FASE === 'riscos') posicionaCarrossel(false); });
 const podeProp = () => PAPEL === 'cliente' && !(PROP && PROP.status === 'pendente');
 function corpoRisco(id, P, a) {
   const R = P.riscos || {}, x = a.itens[id];
@@ -5540,7 +5594,10 @@ function reservaHtml(P, sim) {
 }
 document.getElementById('riscos').addEventListener('click', e => {
   const t = e.target.closest('[data-risco]');
-  if (t) { const d = document.getElementById('rk-' + t.dataset.risco); if (d) { d.open = true; d.scrollIntoView({ behavior: 'smooth', block: 'start' }); } return; }
+  if (t) { vaiPara(ENGINE.RISCOS.findIndex(x => x.id === t.dataset.risco)); document.getElementById('rkCar').scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
+  const cs = e.target.closest('[data-car]'); if (cs) { vaiPara(riscoSel + +cs.dataset.car); return; }
+  const ci = e.target.closest('[data-car-ir]'); if (ci) { vaiPara(+ci.dataset.carIr); return; }
+  const vz = e.target.closest('.rk-slide:not(.atual)'); if (vz) { vaiPara(+vz.dataset.slide); return; }
   const ap = e.target.closest('[data-apolice]'); if (ap) { const r = document.getElementById('ap-' + ap.dataset.apolice); r.hidden = !r.hidden; return; }
 });
 

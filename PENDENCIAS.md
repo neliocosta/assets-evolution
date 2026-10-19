@@ -568,7 +568,9 @@ Onde ela ficou ansiosa, e que vale vigiar em qualquer mudança futura:
   - **Riscos em lista, não em carrossel** (revê "Carrossel das ameaças", de 01/10, e "Carrossel de riscos sem sobe e
     desce", de 07/10 e 16/10). O carrossel cortava os vizinhos na borda e deixava até 700 px vazios embaixo da ameaça
     curta. A lista, da mais urgente à protegida, mostra as oito de uma vez e já diz o que resolver primeiro; o cliente
-    ainda passa por todas, porque cada uma é uma linha com o status.
+    ainda passa por todas, porque cada uma é uma linha com o status. **Revertido em 19/10/2026:** o usuário prefere o
+    carrossel, e a ordem das ameaças tem de ser sempre a de `ENGINE.RISCOS` (reserva, saúde, danos a terceiros, …),
+    nunca a do status. Voltou o carrossel de 16/10.
   - **Eixo de valor linear** (revê o `asinh` da evolução). Com o eixo comprimido, a faixa de R$ 0 a R$ 500 mil ocupava
     quase metade da altura e o crescimento parecia um traço reto; a família lê a altura ao pé da letra.
   - **O nome no cabeçalho, não as iniciais** (revê "Topo da evolução patrimonial mais enxuto", de 14/10). "A. R. e M. R."

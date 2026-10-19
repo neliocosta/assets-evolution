@@ -442,11 +442,12 @@ está resolvido (`pct`: a parte coberta quando há um valor a cobrir, como reser
 status, em dia 100%, atenção 50%, crítico 0%). Embaixo, um cartão por ameaça com o essencial (reserva em % do ideal;
 saúde "plano atual é o ideal" ou "possível melhorar"; terceiros, investimentos e bens como lista com a marca de
 protegido, parcial ou desprotegido; liquidez em D+0, D+30 e 1 ano, em vezes o padrão de vida; renda e família, quanto
-falta de cobertura ou "proteção adequada"). As ameaças vêm numa **lista**, da mais urgente à protegida (crítica,
-atenção, não avaliada, protegida): cada uma é uma linha com o ícone, o nome e o status, e abre com o essencial e o detalhe.
-A mais urgente abre sozinha na primeira visita; as que o cliente abre continuam abertas quando a página se redesenha
-(`rkAbertos`). O clique num nome da teia abre a ameaça e a traz à vista. O status verde se chama **Protegido**. A regra de cada
-status:
+falta de cobertura ou "proteção adequada"). As ameaças vêm num **carrossel**, uma por vez, com o essencial no
+alto e o detalhe embaixo; os vizinhos aparecem nas bordas. A ordem é sempre a de `ENGINE.RISCOS` (reserva, saúde,
+danos a terceiros, ruína, liquidez, bens, renda, família), e não a do status. O cartão fica da altura da ameaça à
+vista, e a página guarda embaixo do rodapé a diferença até a mais alta, para não subir e descer ao passar de uma
+ameaça para outra. Passa-se com as setas, arrastando, pelo teclado ou pelos pontos de progresso, e o clique num nome
+da teia leva à ameaça. O status verde se chama **Protegido**. A regra de cada status:
 
 | Ameaça | Protegido | Atenção | Crítico |
 |---|---|---|---|
