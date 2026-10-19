@@ -2624,10 +2624,25 @@ if (typeof module !== 'undefined') module.exports = ENGINE;
 //          consultor; quem recebeu o link compartilhado (como Contribuidor) é o cliente.
 //   local  sem esse banco (localhost): o armazenamento do navegador, com as duas telas no mesmo computador.
 // A cópia local também guarda o último estado, para a tela abrir na hora enquanto a nuvem responde.
+// Cada cliente tem o seu plano e a sua proposta (planos/<id> e propostas/<id>). O cliente vem no endereço
+// (?cliente=<id>), posto pela página Clientes (index.html); sem ele, a tela volta para lá. Na plataforma, o cliente
+// vem da sessão (escolhido no /internal) e este bloco inteiro é trocado pelo armazém dela, com a mesma interface.
 const ARMAZEM = (() => {
-  const CHAVE = { plano: 'nl-plano', proposta: 'nl-proposta' }, DOC = { plano: 'plano/atual', proposta: 'propostas/atual' };
+  const CLIENTE = typeof location !== 'undefined' ? new URLSearchParams(location.search).get('cliente') : 'teste';
+  if (!CLIENTE) { location.replace('index.html'); }
+  const CHAVE = { plano: 'nl-plano', proposta: 'nl-proposta' }, DOC = { plano: 'planos/' + CLIENTE, proposta: 'propostas/' + CLIENTE };
   const ouvintes = { plano: [], proposta: [] }, ultimo = {};
   let db = null, info = null;
+  // a cópia de trabalho deste navegador (nl-plano, nl-proposta, cenários, páginas vistas) é de um cliente só: outro
+  // cliente começa dela limpa. Sem a nuvem (localhost), cada cliente guarda o seu plano em nl-db:<documento>.
+  const DB_LOCAL = k => 'nl-db:' + DOC[k];
+  try {
+    if (CLIENTE && localStorage.getItem('nl-cliente') !== CLIENTE) {
+      ['nl-plano', 'nl-proposta', 'nl-cenarios', 'nl-vistas', 'nl-fase'].forEach(k => localStorage.removeItem(k));
+      for (const k in CHAVE) { const d = JSON.parse(localStorage.getItem(DB_LOCAL(k)) || 'null'); if (d && d.dados) localStorage.setItem(CHAVE[k], JSON.stringify(d.dados)); }
+      localStorage.setItem('nl-cliente', CLIENTE);
+    }
+  } catch (e) { }
   const lerLocal = k => { try { return JSON.parse(localStorage.getItem(CHAVE[k]) || 'null'); } catch (e) { return null; } };
   const gravarLocal = (k, v) => { try { if (v == null) localStorage.removeItem(CHAVE[k]); else localStorage.setItem(CHAVE[k], JSON.stringify(v)); } catch (e) { } };
   const avisa = (k, v) => { const txt = JSON.stringify(v); if (txt === ultimo[k]) return; ultimo[k] = txt; ouvintes[k].forEach(f => { try { f(v == null ? null : JSON.parse(txt)); } catch (e) { console.error(e); } }); };
@@ -2646,11 +2661,13 @@ const ARMAZEM = (() => {
             await new Promise(pronto => {
               let primeiro = true;
               db.doc(DOC[k]).onSnapshot(snap => {
+                const m = snap.metadata || {};
+                // a primeira entrega pode vir do cache, com um plano antigo: a tela só começa com a do servidor
+                if (m.fromCache && primeiro) return;
+                if (m.hasPendingWrites) return;   // a própria gravação, ainda a caminho
                 const v = snap.exists ? structuredClone(snap.data().dados) : null;
+                if (snap.exists || k !== 'plano') { gravarLocal(k, v); avisa(k, v); }   // banco ainda sem plano: vale o que o consultor tem aqui
                 if (primeiro) { primeiro = false; pronto(); }
-                if (snap.metadata && snap.metadata.hasPendingWrites) return;   // a própria gravação, ainda a caminho
-                if (!snap.exists && k === 'plano') return;   // banco ainda sem plano: vale o que o consultor tem aqui
-                gravarLocal(k, v); avisa(k, v);
               }, () => { if (primeiro) { primeiro = false; pronto(); } });
               setTimeout(() => { if (primeiro) { primeiro = false; pronto(); } }, 8000);
             });
@@ -2670,7 +2687,7 @@ const ARMAZEM = (() => {
     ouvir(k, f) { ouvintes[k].push(f); },             // mudanças feitas por outra pessoa ou outra aba
     async gravar(k, v) {
       gravarLocal(k, v); ultimo[k] = JSON.stringify(v);
-      if (!db) return;
+      if (!db) { try { if (v == null) localStorage.removeItem(DB_LOCAL(k)); else localStorage.setItem(DB_LOCAL(k), JSON.stringify({ dados: v, em: new Date().toISOString() })); } catch (e) { } return; }
       const ref = db.doc(DOC[k]);
       try { if (v == null) await ref.delete(); else await ref.set({ dados: v, em: new Date().toISOString() }); }
       catch (e) { if (e && e.code === 'unavailable') { await new Promise(r => setTimeout(r, 400 + Math.random() * 600)); if (v == null) await ref.delete(); else await ref.set({ dados: v, em: new Date().toISOString() }); } else throw e; }
@@ -2779,6 +2796,8 @@ const FLUXO = new URLSearchParams(location.search).has('fluxo');
 // Quem está vendo: o cliente, na área logada dele (padrão), ou o consultor apresentando o plano (?apresentar).
 // O cliente só vê esta tela e propõe alterações; o consultor, apresentando, vê o que o cliente propôs sem editar.
 const PAPEL = new URLSearchParams(location.search).has('apresentar') ? 'apresentar' : 'cliente';
+// o cliente do plano viaja no endereço entre as telas (?cliente=…); na plataforma ele vem da sessão e nada muda aqui
+const comCliente = url => { const c = new URLSearchParams(location.search).get('cliente'); if (!c) return url; const [u, h] = url.split('#'); return u + (u.includes('?') ? '&' : '?') + 'cliente=' + encodeURIComponent(c) + (h != null ? '#' + h : ''); };
 let PLANO = null;   // plano recebido, para repassar à janela do fluxo com o que o cliente mudou aqui
 // Plano vindo da tela do consultor: #plano=<base64 do JSON>, ou o último salvo no navegador
 // plano da família: nascimento do cônjuge, para o eixo do tempo mostrar a idade de cada um
@@ -3577,12 +3596,12 @@ document.getElementById('ajuda').title = FLUXO
   : 'Rodinha anda no tempo · Ctrl + rodinha dá zoom · Shift + rodinha também anda · Arraste para navegar · A tecla Home volta para hoje · Clique numa linha do fluxo para detalhar · Clique num marco para ver o objetivo e arraste-o para mudar a data · Arraste a Liberdade Financeira para mudar a idade de parar';
 // "Fluxo de caixa": abre a tabela numa janela própria, com o mesmo plano e a mesma proposta
 document.getElementById('btnFluxo').onclick = () => {
-  const url = '?fluxo' + (PAPEL === 'apresentar' ? '&apresentar' : '');   // mesma página e mesmo papel; plano e proposta vêm do armazém
+  const url = comCliente('?fluxo' + (PAPEL === 'apresentar' ? '&apresentar' : ''));   // mesma página e mesmo papel; plano e proposta vêm do armazém
   let w = null; try { w = window.open(url, 'nl-fluxo', 'popup,width=' + screen.availWidth + ',height=' + screen.availHeight); } catch (e) { }
   if (!w) location.href = url;   // janela bloqueada: abre na mesma aba
 };
 // voltar: numa janela própria, fecha; na mesma aba (o link publicado), vai direto ao gráfico, e não à página lembrada
-document.getElementById('btnVoltar').onclick = () => { if (window.opener) window.close(); else location.href = '?fase=evolucao' + (PAPEL === 'apresentar' ? '&apresentar' : ''); };
+document.getElementById('btnVoltar').onclick = () => { if (window.opener) window.close(); else location.href = comCliente('?fase=evolucao' + (PAPEL === 'apresentar' ? '&apresentar' : '')); };
 if (FLUXO) { document.body.classList.add('fluxo'); document.title = 'Fluxo de caixa — Nord Liberta'; document.querySelector('.brand small').textContent = 'Fluxo de caixa'; }
 document.querySelectorAll('#segView button').forEach(b => b.onclick = () => { document.querySelectorAll('#segView button').forEach(x => x.classList.remove('on')); b.classList.add('on'); state.viewKind = b.dataset.v; });
 // o liga e desliga da linha tracejada: só nas visões com dívida (total e financeiro e dívidas)
@@ -3794,7 +3813,7 @@ function desenhaPropBar() {
   const seg = `<div class="seg"><button data-ver="atual" class="${VER === 'atual' ? 'on' : ''}">Plano atual</button><button data-ver="proposta" class="${VER === 'proposta' ? 'on' : ''}">Com as alterações</button></div>`;
   bar.className = PROP.status; bar.hidden = false;
   if (PAPEL === 'apresentar') {   // o consultor vê o que o cliente enviou e responde no portal
-    if (PROP.status === 'pendente') bar.innerHTML = `<span>✉ <b>${escH(PROP.planoNome || 'O cliente')} enviou uma proposta</b> com ${alts}${dataCurta(PROP.enviadaEm) ? ' em ' + dataCurta(PROP.enviadaEm) : ''}.</span><div class="acoes">${seg}<button class="btn btn-secondary btn-small" data-prop="revisar">Ver proposta</button><a class="btn btn-primary btn-small" href="tela-consultor.html#propostas" style="text-decoration:none">Responder no portal</a></div>`;
+    if (PROP.status === 'pendente') bar.innerHTML = `<span>✉ <b>${escH(PROP.planoNome || 'O cliente')} enviou uma proposta</b> com ${alts}${dataCurta(PROP.enviadaEm) ? ' em ' + dataCurta(PROP.enviadaEm) : ''}.</span><div class="acoes">${seg}<button class="btn btn-secondary btn-small" data-prop="revisar">Ver proposta</button><a class="btn btn-primary btn-small" href="${comCliente('tela-consultor.html#propostas')}" style="text-decoration:none">Responder no portal</a></div>`;
     else bar.hidden = true;
     return;
   }
@@ -4265,7 +4284,7 @@ function trocaBase(plan) {
 }
 // na nuvem, só o dono do link é consultor: quem mais abrir a apresentação cai na visão do cliente
 ARMAZEM.iniciar().then(info => {
-  if (PAPEL === 'apresentar' && !info.dono) { location.replace(location.pathname + (FLUXO ? '?fluxo' : '')); return; }
+  if (PAPEL === 'apresentar' && !info.dono) { location.replace(location.pathname + comCliente(FLUXO ? '?fluxo' : '')); return; }
   // o consultor (apresentando, ou vendo como o cliente vê, que o portal abre com ?consultor) volta à edição daqui
   document.getElementById('btnEditar').hidden = !(info.dono && (PAPEL === 'apresentar' || new URLSearchParams(location.search).has('consultor')));
 });
@@ -4280,7 +4299,7 @@ const PAG_PORTAL = { proposito: 'cliente', 'proposito-nos': 'cliente', diagnosti
 document.getElementById('btnEditar').onclick = () => {
   const pg = FLUXO ? 'fluxo' : PAG_PORTAL[FASE] || 'cliente';
   try { const o = window.opener; if (o && !o.closed && /tela-consultor\.html/.test(o.location.pathname)) { o.location.hash = pg; o.focus(); window.close(); return; } } catch (e) { }
-  location.href = 'tela-consultor.html#' + pg;
+  location.href = comCliente('tela-consultor.html#' + pg);
 };
 
 // ===================== JORNADA DO CLIENTE: CAPÍTULOS E PÁGINAS =====================

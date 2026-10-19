@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Clientes — Nord Liberta</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap');
+:root{
+  --nl-orange-500:#FA7A35; --nl-orange-600:#E06600; --nl-peach-100:#FFF3EB;
+  --nl-navy-900:#20344C; --nl-navy-950:#131F2E;
+  --nl-gray-700:#555555; --nl-gray-500:#6B6A66; --nl-gray-300:#DDDDDD; --nl-sand:#F1EEE8; --nl-cream-50:#FDFCFA; --nl-white:#FFFFFF;
+  --shadow-card:0 1px 3px rgba(0,0,0,.06),0 4px 12px rgba(0,0,0,.04);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--nl-cream-50);color:var(--nl-gray-700);font-family:'DM Sans',system-ui,sans-serif;font-size:14px;min-height:100vh}
+header{background:var(--nl-navy-900);color:#fff;padding:18px 34px;display:flex;align-items:center;gap:12px}
+header img{width:30px;height:30px}
+header b{font:600 15px Sora,sans-serif}
+header span{font-size:12.5px;color:rgba(255,255,255,.6)}
+main{max-width:920px;margin:0 auto;padding:34px 34px 80px}
+.topo{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin-bottom:22px}
+.eyebrow{font:600 11px 'DM Sans',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--nl-gray-500);margin-bottom:6px}
+h1{font:700 28px Sora,sans-serif;color:var(--nl-navy-900);line-height:1.15}
+.sub{margin-top:8px;font-size:15px;line-height:1.6;max-width:560px}
+.btn{display:inline-flex;align-items:center;gap:6px;border:0;border-radius:11px;padding:10px 16px;font:600 13.5px 'DM Sans',sans-serif;cursor:pointer;text-decoration:none;white-space:nowrap}
+.btn-primary{background:var(--nl-navy-900);color:#fff}
+.btn-primary:hover{background:var(--nl-navy-950)}
+.btn-secondary{background:var(--nl-white);color:var(--nl-navy-900);box-shadow:inset 0 0 0 1px var(--nl-gray-300)}
+.btn-secondary:hover{box-shadow:inset 0 0 0 1px var(--nl-navy-900)}
+.btn-novo{background:var(--nl-orange-500);color:#fff}
+.btn-novo:hover{background:var(--nl-orange-600)}
+.btn[aria-disabled="true"]{opacity:.45;pointer-events:none}
+.lista{display:flex;flex-direction:column;gap:12px}
+.cli{background:var(--nl-white);border-radius:16px;box-shadow:var(--shadow-card);padding:18px 22px;display:flex;align-items:center;gap:18px}
+.ini{width:42px;height:42px;flex:0 0 42px;border-radius:50%;background:var(--nl-peach-100);color:var(--nl-orange-600);display:flex;align-items:center;justify-content:center;font:600 15px Sora,sans-serif}
+.cli .nome{flex:1;min-width:0}
+.cli .nome b{display:block;font:600 16px Sora,sans-serif;color:var(--nl-navy-900);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cli .nome small{display:block;margin-top:3px;font-size:12.5px;color:var(--nl-gray-500)}
+.tag{display:inline-block;margin-left:8px;padding:2px 8px;border-radius:9999px;background:var(--nl-sand);color:var(--nl-gray-500);font:600 10.5px 'DM Sans',sans-serif;letter-spacing:.06em;text-transform:uppercase;vertical-align:3px}
+.acoes{display:flex;gap:8px}
+.vazio{background:var(--nl-white);border-radius:16px;box-shadow:var(--shadow-card);padding:28px;text-align:center;line-height:1.6}
+.nota{margin-top:26px;font-size:12.5px;color:var(--nl-gray-500);line-height:1.6;max-width:640px}
+</style>
+</head>
+<body>
+<header><img src="marca/nord-icone-negativo-64.png" alt="Nord Liberta"><div><b>Nord Liberta</b><br><span>Planejamento de vida</span></div></header>
+<main>
+  <div class="topo">
+    <div>
+      <div class="eyebrow">Área do consultor</div>
+      <h1>Clientes</h1>
+      <p class="sub">Escolha o cliente para ver o relatório como ele vê ou para editar o plano.</p>
+    </div>
+    <a class="btn btn-novo" id="btnNovo" href="#">+ Novo cliente</a>
+  </div>
+  <div class="lista" id="lista"><div class="vazio">Carregando os clientes…</div></div>
+  <p class="nota" id="nota"></p>
+</main>
+<script>
+// ===================== CLIENTES: a porta de entrada do protótipo =====================
+// Lista os planos guardados (planos/<id> no banco do link publicado; nl-db:planos/<id> no navegador, em localhost) e
+// abre as duas telas com ?cliente=<id>. Na plataforma, esta página é o /internal: o consultor escolhe o cliente e vai
+// para "Área do cliente" (evolucao-patrimonial.html) ou "Montagem de relatório" (tela-consultor.html), e o cliente
+// passa a vir da sessão. O "exemplo" é o plano de demonstração da Ana Ribeiro, sempre na lista.
+const EXEMPLO = 'exemplo';
+const escH = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const dataHora = iso => { const d = new Date(iso); if (isNaN(d)) return ''; const p = n => String(n).padStart(2, '0'); return p(d.getDate()) + '/' + p(d.getMonth() + 1) + '/' + d.getFullYear() + ' às ' + p(d.getHours()) + ':' + p(d.getMinutes()); };
+const iniciais = n => (n || '?').trim().split(/\s+/).filter(Boolean).slice(0, 2).map(p => p[0].toUpperCase()).join('') || '?';
+const url = (pagina, id, extra) => pagina + '?cliente=' + encodeURIComponent(id) + (extra || '');
+
+// { id, nome, conjuge, em } de cada plano guardado; dono: quem abriu é o consultor (o dono do link)
+async function carregar() {
+  const c = window.claude && window.claude.use ? window.claude : null;
+  if (c) {
+    const espera = (pr, ms) => Promise.race([pr, new Promise(r => setTimeout(() => r(null), ms))]);
+    let db = null, dono = true;
+    try { db = await espera(c.use('db'), 8000); } catch (e) { }
+    try { const u = await espera(c.use('user'), 4000); if (u) dono = await u.isOwner(); } catch (e) { }
+    if (!dono) return { dono: false, planos: [] };
+    if (db) {
+      const snap = await db.collection('planos').get();
+      return { dono: true, nuvem: true, planos: snap.docs.map(d => { const v = d.data() || {}, p = v.dados || {}; return { id: d.id, nome: p.name, conjuge: p.conjugeNome, em: v.em }; }) };
+    }
+  }
+  const planos = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i); if (!k || !k.startsWith('nl-db:planos/')) continue;
+    try { const v = JSON.parse(localStorage.getItem(k)) || {}, p = v.dados || {}; planos.push({ id: k.slice('nl-db:planos/'.length), nome: p.name, conjuge: p.conjugeNome, em: v.em }); } catch (e) { }
+  }
+  return { dono: true, nuvem: false, planos };
+}
+
+function desenhar({ dono, nuvem, planos }) {
+  const lista = document.getElementById('lista');
+  if (!dono) {
+    document.getElementById('btnNovo').hidden = true;
+    lista.innerHTML = '<div class="vazio">Esta página é do consultor. O seu planejamento é apresentado pelo seu consultor na área logada da Nord Liberta.</div>';
+    return;
+  }
+  // o exemplo sempre aparece, mesmo antes de ser aberto pela primeira vez; os clientes reais vêm antes, o mais recente primeiro
+  const ex = planos.find(p => p.id === EXEMPLO) || { id: EXEMPLO, nome: 'Ana Ribeiro', conjuge: 'Marcos Ribeiro' };
+  const reais = planos.filter(p => p.id !== EXEMPLO).sort((a, b) => String(b.em || '').localeCompare(String(a.em || '')));
+  const linha = (p, exemplo) => {
+    const nome = p.nome || 'Cliente sem nome', conj = p.conjuge ? ' e ' + p.conjuge.split(' ')[0] : '';
+    return `<div class="cli"><div class="ini">${escH(iniciais(nome))}</div>
+      <div class="nome"><b>${escH(nome + conj)}${exemplo ? '<span class="tag">exemplo</span>' : ''}</b><small>${p.em ? 'Atualizado em ' + dataHora(p.em) : 'Plano de demonstração, com dados fictícios'}</small></div>
+      <div class="acoes"><a class="btn btn-secondary" href="${url('evolucao-patrimonial.html', p.id, '&consultor')}">Ver relatório</a><a class="btn btn-primary" href="${url('tela-consultor.html', p.id)}">Editar relatório</a></div></div>`;
+  };
+  lista.innerHTML = reais.map(p => linha(p, false)).join('') + linha(ex, true);
+  document.getElementById('nota').textContent = nuvem
+    ? 'Os planos ficam no banco deste link e abrem em qualquer computador com a sua conta. Só você, dono do link, vê esta lista.'
+    : 'Neste computador, os planos ficam no navegador. No link publicado, ficam no banco do link e abrem em qualquer computador.';
+}
+
+// novo cliente: um código novo e o plano em branco no portal; ele entra na lista quando o primeiro dado for gravado
+document.getElementById('btnNovo').addEventListener('click', e => {
+  e.preventDefault();
+  location.href = url('tela-consultor.html', 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5));
+});
+
+carregar().then(desenhar).catch(err => {
+  console.error(err);
+  document.getElementById('lista').innerHTML = '<div class="vazio">Não consegui carregar os clientes. Recarregue a página.</div>';
+});
+</script>
+</body>
+</html>

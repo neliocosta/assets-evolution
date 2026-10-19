@@ -1,6 +1,7 @@
 // Gera a cópia publicada a partir de uma pasta com as duas telas: abre na mesma aba e usa o Font Awesome local.
-// uso: node gerar-publicacao.js . <pasta-destino>   (depois publique <destino>/index.html como a página e
-//      <destino>/evolucao-patrimonial.html como arquivo de apoio, no mesmo link; fa/ e fotos/ já estão lá)
+// uso: node gerar-publicacao.js . <pasta-destino>   (depois publique <destino>/index.html, a página Clientes, como a
+//      página e tela-consultor.html e evolucao-patrimonial.html como arquivos de apoio, no mesmo link, com marca/,
+//      fa/ e fotos/)
 const fs = require('fs'), path = require('path');
 const [src, out] = process.argv.slice(2);
 fs.mkdirSync(out, { recursive: true });
@@ -17,7 +18,9 @@ const m = c.match(/function abrirCliente\([\s\S]*?\n}\n/); if (!m) throw new Err
 const nova = m[0].replace(/window\.open\(([^,]+),\s*'_blank'[^)]*\)/, 'location.href = $1');
 if (nova === m[0]) throw new Error('window.open em abrirCliente não encontrado');
 c = c.replace(m[0], nova);
-fs.writeFileSync(path.join(out, 'index.html'), c);
+fs.writeFileSync(path.join(out, 'tela-consultor.html'), c);
+// a página Clientes, a porta de entrada
+fs.copyFileSync(path.join(src, 'index.html'), path.join(out, 'index.html'));
 // tela do cliente
 let e = fs.readFileSync(path.join(src, 'evolucao-patrimonial.html'), 'utf8').replace(/\r\n/g, '\n');
 e = troca(e, CDN, 'fa/css/all.min.css', 'cliente: font awesome');

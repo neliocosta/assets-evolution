@@ -5,6 +5,7 @@ além das fontes do Google, e abrem direto no navegador.
 
 | Arquivo | Para quem | O que faz |
 |---|---|---|
+| `index.html` | Consultor | Clientes: a porta de entrada. Lista os planos guardados e abre, para cada cliente, "Ver relatório" ou "Editar relatório". Na plataforma, é o `/internal`. |
 | `tela-consultor.html` | Consultor | Configura o plano em nove passos, em três grupos: dados do cliente (Cliente, Fluxo de caixa, Patrimônio), planejamento (Gestão de riscos, Objetivos, Liberdade financeira, Otimização tributária, Premissas) e com o cliente (Apresentação, Propostas). |
 | `evolucao-patrimonial.html` | Cliente | Mostra a trajetória do patrimônio ao longo da vida, apresentada ao vivo pelo consultor. |
 
@@ -569,10 +570,28 @@ e a resposta fica registrada nele (`propostas: [{ id, em, decisoes, nota }]`).
 O plano e a proposta ficam num armazém (`<script id="armazem">`, duplicado nas duas telas como o motor e sincronizado
 pelo `sync-motor.js`). Na área logada da Nord Liberta, ele é a API da plataforma. No protótipo:
 
-- **no link publicado no Claude**, é o banco compartilhado do próprio link (documentos `plano/atual` e
-  `propostas/atual`): o consultor (dono do link) e o cliente (com quem o link foi compartilhado, como Contribuidor)
-  usam cada um o seu computador e veem as mudanças do outro na hora. Quem não é dono cai na área do cliente;
-- **em localhost**, é o armazenamento do navegador, com as duas telas no mesmo computador.
+- **no link publicado no Claude**, é o banco compartilhado do próprio link: um documento por cliente,
+  `planos/<id>` e `propostas/<id>`. Só o dono do link lê e grava (regras `admin`), porque o mesmo link guarda
+  clientes reais; quem não é dono vê na página Clientes um aviso e nada mais;
+- **em localhost**, é o armazenamento do navegador, com as duas telas no mesmo computador: o plano de cada cliente
+  fica em `nl-db:planos/<id>`.
+
+**Vários clientes.** A página Clientes (`index.html`) abre as telas com `?cliente=<id>`, e o armazém lê e grava os
+documentos desse cliente. Sem `?cliente`, a tela volta para a página Clientes. As duas telas levam o cliente adiante
+em toda navegação entre elas (`comCliente`). A cópia de trabalho do navegador (`nl-plano`, `nl-proposta`, os
+cenários, as páginas vistas) é de um cliente só, guardado em `nl-cliente`: abrir outro cliente começa dela limpa.
+Um cliente sem plano começa em branco (`planoVazio`); só o cliente `exemplo` começa com o plano da Ana Ribeiro, que é
+gravado ao abrir para a área do cliente ter o que mostrar. "+ Novo cliente" cria um código novo e abre o portal em
+branco; o cliente entra na lista quando o primeiro dado é gravado.
+
+**Abrir não grava.** O portal só grava o que o consultor muda (`nuvemUltimo` começa igual ao plano aberto). A primeira
+leitura do banco pode vir do cache, com um plano antigo (`fromCache`): o armazém espera a do servidor antes de a tela
+começar. Antes, o portal gravava ao abrir, e o cache antigo apagou um plano real com o exemplo.
+
+**Na plataforma.** O desenvolvedor troca o bloco `armazem` inteiro pelo da plataforma, com a mesma interface
+(`iniciar`, `ler`, `ouvir`, `gravar`, `nuvem`); o plano vem do cliente escolhido no `/internal` (`window.__MONTAGEM__`)
+e volta por `/montagemController`. Sem `?cliente` no endereço, `comCliente` não muda nada, e um cliente sem plano
+começa em branco, e não com o exemplo.
 
 Não há troca de arquivos: o consultor grava o plano (sozinho, a cada pausa na edição), o cliente grava a proposta, e
 cada tela ouve o que a outra gravou.
@@ -875,13 +894,14 @@ oferece usar como valor o que o cliente de fato junta até a data.
 
 ## Fora de escopo
 
-Herança, versão mobile, múltiplos clientes no portal e persistência em servidor.
+Herança, versão mobile e persistência em servidor (no protótipo, os vários clientes ficam no banco do link).
 A planilha do fluxo de caixa foi feita para mouse e trackpad; não há gesto de pinça em tela de toque.
 
 ## Arquivos
 
 | Arquivo | O que é |
 |---|---|
+| `index.html` | Clientes: a lista de planos e a entrada nas duas telas. Só do protótipo (na plataforma, é o `/internal`). |
 | `evolucao-patrimonial.html` | Tela do cliente. Contém o motor de simulação, que é a fonte de verdade. |
 | `tela-consultor.html` | Portal do consultor. Carrega uma cópia do mesmo motor. |
 | `sync-motor.js` | Copia o motor, o armazém e os gráficos compartilhados (o sunburst) de uma tela para a outra. |

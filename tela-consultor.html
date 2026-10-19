@@ -991,7 +991,7 @@ aside nav a.feito i::before{content:'✓';font-size:13px}
 <aside>
   <div class="brand"><img src="marca/nord-icone-negativo-64.png" alt="Nord Liberta" width="30" height="30"><button class="recolher" id="btnRecolher" aria-expanded="true" title="Recolher o menu"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button></div>
   <div class="who"><b id="sbName">Ana Ribeiro</b><span id="sbMeta">35 anos · plano ativo</span>
-    <div class="whoact"><button class="btn btn-new" id="btnNovo">+ Novo cliente</button><button class="linkw" id="btnExemplo" title="Carrega o plano de demonstração da Ana Ribeiro">ver exemplo</button></div></div>
+    <div class="whoact"><a class="btn btn-new" id="btnClientes" href="index.html" style="text-decoration:none" title="Escolher outro cliente ou começar um novo">← Clientes</a></div></div>
   <nav id="nav">
     <div class="nav-g">Dados do cliente</div>
     <a data-nav="cliente" role="button" tabindex="0"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg>Cliente<i>1</i></a>
@@ -2879,10 +2879,25 @@ const SUNBURST = (() => {
 //          consultor; quem recebeu o link compartilhado (como Contribuidor) é o cliente.
 //   local  sem esse banco (localhost): o armazenamento do navegador, com as duas telas no mesmo computador.
 // A cópia local também guarda o último estado, para a tela abrir na hora enquanto a nuvem responde.
+// Cada cliente tem o seu plano e a sua proposta (planos/<id> e propostas/<id>). O cliente vem no endereço
+// (?cliente=<id>), posto pela página Clientes (index.html); sem ele, a tela volta para lá. Na plataforma, o cliente
+// vem da sessão (escolhido no /internal) e este bloco inteiro é trocado pelo armazém dela, com a mesma interface.
 const ARMAZEM = (() => {
-  const CHAVE = { plano: 'nl-plano', proposta: 'nl-proposta' }, DOC = { plano: 'plano/atual', proposta: 'propostas/atual' };
+  const CLIENTE = typeof location !== 'undefined' ? new URLSearchParams(location.search).get('cliente') : 'teste';
+  if (!CLIENTE) { location.replace('index.html'); }
+  const CHAVE = { plano: 'nl-plano', proposta: 'nl-proposta' }, DOC = { plano: 'planos/' + CLIENTE, proposta: 'propostas/' + CLIENTE };
   const ouvintes = { plano: [], proposta: [] }, ultimo = {};
   let db = null, info = null;
+  // a cópia de trabalho deste navegador (nl-plano, nl-proposta, cenários, páginas vistas) é de um cliente só: outro
+  // cliente começa dela limpa. Sem a nuvem (localhost), cada cliente guarda o seu plano em nl-db:<documento>.
+  const DB_LOCAL = k => 'nl-db:' + DOC[k];
+  try {
+    if (CLIENTE && localStorage.getItem('nl-cliente') !== CLIENTE) {
+      ['nl-plano', 'nl-proposta', 'nl-cenarios', 'nl-vistas', 'nl-fase'].forEach(k => localStorage.removeItem(k));
+      for (const k in CHAVE) { const d = JSON.parse(localStorage.getItem(DB_LOCAL(k)) || 'null'); if (d && d.dados) localStorage.setItem(CHAVE[k], JSON.stringify(d.dados)); }
+      localStorage.setItem('nl-cliente', CLIENTE);
+    }
+  } catch (e) { }
   const lerLocal = k => { try { return JSON.parse(localStorage.getItem(CHAVE[k]) || 'null'); } catch (e) { return null; } };
   const gravarLocal = (k, v) => { try { if (v == null) localStorage.removeItem(CHAVE[k]); else localStorage.setItem(CHAVE[k], JSON.stringify(v)); } catch (e) { } };
   const avisa = (k, v) => { const txt = JSON.stringify(v); if (txt === ultimo[k]) return; ultimo[k] = txt; ouvintes[k].forEach(f => { try { f(v == null ? null : JSON.parse(txt)); } catch (e) { console.error(e); } }); };
@@ -2901,11 +2916,13 @@ const ARMAZEM = (() => {
             await new Promise(pronto => {
               let primeiro = true;
               db.doc(DOC[k]).onSnapshot(snap => {
+                const m = snap.metadata || {};
+                // a primeira entrega pode vir do cache, com um plano antigo: a tela só começa com a do servidor
+                if (m.fromCache && primeiro) return;
+                if (m.hasPendingWrites) return;   // a própria gravação, ainda a caminho
                 const v = snap.exists ? structuredClone(snap.data().dados) : null;
+                if (snap.exists || k !== 'plano') { gravarLocal(k, v); avisa(k, v); }   // banco ainda sem plano: vale o que o consultor tem aqui
                 if (primeiro) { primeiro = false; pronto(); }
-                if (snap.metadata && snap.metadata.hasPendingWrites) return;   // a própria gravação, ainda a caminho
-                if (!snap.exists && k === 'plano') return;   // banco ainda sem plano: vale o que o consultor tem aqui
-                gravarLocal(k, v); avisa(k, v);
               }, () => { if (primeiro) { primeiro = false; pronto(); } });
               setTimeout(() => { if (primeiro) { primeiro = false; pronto(); } }, 8000);
             });
@@ -2925,7 +2942,7 @@ const ARMAZEM = (() => {
     ouvir(k, f) { ouvintes[k].push(f); },             // mudanças feitas por outra pessoa ou outra aba
     async gravar(k, v) {
       gravarLocal(k, v); ultimo[k] = JSON.stringify(v);
-      if (!db) return;
+      if (!db) { try { if (v == null) localStorage.removeItem(DB_LOCAL(k)); else localStorage.setItem(DB_LOCAL(k), JSON.stringify({ dados: v, em: new Date().toISOString() })); } catch (e) { } return; }
       const ref = db.doc(DOC[k]);
       try { if (v == null) await ref.delete(); else await ref.set({ dados: v, em: new Date().toISOString() }); }
       catch (e) { if (e && e.code === 'unavailable') { await new Promise(r => setTimeout(r, 400 + Math.random() * 600)); if (v == null) await ref.delete(); else await ref.set({ dados: v, em: new Date().toISOString() }); } else throw e; }
@@ -2996,10 +3013,17 @@ const PLANO_PADRAO = Object.assign(
 // plano salvo completado com o padrão; o patrimônio detalhado e a tributação não vêm do exemplo (um plano antigo só tem os totais)
 const doSalvo = p => Object.assign(structuredClone(PLANO_PADRAO), { patrimonio: null, tributario: null, carteira: null, diagnostico: null, experiencia: null, profissao: '', conjugeProfissao: '', conjugeNatureza: '', horas: null, conjugeHoras: null, rendasAtivas: null, orcamento: null,
   natureza: ((p.riscos || {}).reserva || {}).natureza || '', tipo: null, consultor: null, nascimento: '', conjugeNascimento: '', spouseAge: null, spouseRetireAge: null, conjugeNome: '' }, p);
+// o cliente do plano viaja no endereço entre as telas (?cliente=…); na plataforma ele vem da sessão e nada muda aqui
+const CLIENTE_ID = new URLSearchParams(location.search).get('cliente');
+const comCliente = url => { if (!CLIENTE_ID) return url; const [u, h] = url.split('#'); return u + (u.includes('?') ? '&' : '?') + 'cliente=' + encodeURIComponent(CLIENTE_ID) + (h != null ? '#' + h : ''); };
+// Cliente novo: plano em branco, sem nada do exemplo. Só o cliente "exemplo" começa com o plano da Ana Ribeiro.
+const planoVazio = () => ({ name: '', age: '', nascimento: '', conjugeNascimento: '', lifeExp: 95, desired: 0, retireAge: null, spouseAge: null, spouseRetireAge: null, initialWealth: 0, initialBens: 0, partValue: 0, capacityOverride: null,
+  rate: PLANO_PADRAO.rate, profiles: Object.assign({}, PLANO_PADRAO.profiles), incomes: [], expenses: [], objectives: [], passive: [], riscos: {}, videos: {},
+  patrimonio: { comecou: null, liquidezIdealPct: null, financeiro: [], participacoes: [], bens: [] } });
 let plano = load();
 function load() {
   try { const raw = localStorage.getItem('nl-plano'); if (raw) return doSalvo(JSON.parse(raw)); } catch (e) { }
-  return structuredClone(PLANO_PADRAO);
+  return CLIENTE_ID === 'exemplo' ? structuredClone(PLANO_PADRAO) : planoVazio();
 }
 // ---------- cenários ----------
 // Um cenário é uma foto nomeada do plano inteiro, para testar uma decisão ("adiar a casa dois anos") sem mexer no que o
@@ -5890,7 +5914,7 @@ function renderApresentacaoC() {
   const cp = (n, h) => `<div class="field"><label>${n}</label>${h}</div>`, link = ' placeholder="link do YouTube, do Vimeo ou do arquivo"';
   const tudo = Object.entries(pendencias()), revisar = temFluxo() ? plano.objectives.filter(o => o.status !== 'ok') : [];
   const resumoPend = tudo.length || revisar.length ? '<div class="pn-falta">' + tudo.map(([p, ps]) => '<b><button class="link" data-ir="' + p + '">' + NOMES_PAGINA[p] + '</button>:</b> ' + ps.map(x => x.t).join(', ')).concat(revisar.length ? ['<b><button class="link" data-ir="objetivos">Objetivos</button>:</b> ' + revisar.map(o => esc(o.name || 'sem nome')).join(', ') + (revisar.length > 1 ? ' não chegam' : ' não chega') + ' à meta na data com o aporte definido (o cliente vai ver isso)'] : []).join('<br>') + '</div>' : '<span class="pn-ok">✓ Tudo preenchido</span>';
-  el.innerHTML = `<div class="bloco"><h3>Antes de apresentar</h3>${resumoPend}<div class="ap-bts" style="margin-top:12px"><button class="btn btn-primary" data-abrir-cliente data-fase="proposito">Apresentar desde o começo</button><a class="btn btn-secondary" href="evolucao-patrimonial.html?fase=proposito&consultor" target="_blank" style="text-decoration:none" data-como-cliente>Ver como o cliente vê ↗</a></div>
+  el.innerHTML = `<div class="bloco"><h3>Antes de apresentar</h3>${resumoPend}<div class="ap-bts" style="margin-top:12px"><button class="btn btn-primary" data-abrir-cliente data-fase="proposito">Apresentar desde o começo</button><a class="btn btn-secondary" href="${comCliente('evolucao-patrimonial.html?fase=proposito&consultor')}" target="_blank" style="text-decoration:none" data-como-cliente>Ver como o cliente vê ↗</a></div>
       <div class="sub" style="margin:12px 0 0">Apresentar abre a área do cliente sem as ferramentas de proposta. "Ver como o cliente vê" abre exatamente o que o cliente tem.</div></div>
     <div class="bloco"><h3>Os capítulos do cliente</h3><div class="sub">Cada capítulo abre com duas páginas: a capa, com o vídeo teórico, que explica o tema e é o mesmo para todos os clientes; e o resumo do caso, com o vídeo em que você explica o planejamento deste cliente, os principais números e o que fazer. Depois vêm as páginas de detalhe, só com os resultados.</div>
     ${capitulo1()}
@@ -6728,19 +6752,7 @@ document.addEventListener('click', e => {
 });
 document.getElementById('nav').addEventListener('keydown', e => { const a = e.target.closest('[data-nav]'); if (a && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); irPara(a.dataset.nav); } });
 
-// Novo cliente: plano em branco, sem nada do exemplo. Com um plano em andamento, pede confirmação no próprio botão.
-const planoVazio = () => ({ name: '', age: '', nascimento: '', conjugeNascimento: '', lifeExp: 95, desired: 0, retireAge: null, spouseAge: null, spouseRetireAge: null, initialWealth: 0, initialBens: 0, partValue: 0, capacityOverride: null,
-  rate: PLANO_PADRAO.rate, profiles: Object.assign({}, PLANO_PADRAO.profiles), incomes: [], expenses: [], objectives: [], passive: [], riscos: {}, videos: {},
-  patrimonio: { comecou: null, liquidezIdealPct: null, financeiro: [], participacoes: [], bens: [] } });
-const temConteudo = () => !!(plano.name || plano.incomes.length || plano.expenses.length || plano.objectives.length);
-function trocarPlano(b, novo, rotulo) {
-  const aplicar = () => { CEN = { lista: [], ativo: null }; gravaCen(); if (gaveta) { gaveta = null; renderGaveta(); } aceito = null; pendente = null; ajusteCredito = null; document.getElementById('estouro').hidden = true; plano = novo(); fx.t0 = null; save(); fillFields(); renderAll(); irPara('cliente'); document.getElementById('f-name').focus(); };
-  if (!temConteudo() || b.dataset.armed) { delete b.dataset.armed; b.classList.remove('armed'); b.textContent = rotulo; aplicar(); return; }
-  b.dataset.rotulo = rotulo; b.dataset.armed = '1'; b.classList.add('armed'); b.textContent = 'Apagar o plano atual? Clique de novo';
-}
 document.addEventListener('click', e => { const b = e.target.closest('[data-abrir-cliente]'); if (b) abrirCliente(b.dataset.fase); });
-document.getElementById('btnNovo').onclick = e => trocarPlano(e.currentTarget, planoVazio, '+ Novo cliente');
-document.getElementById('btnExemplo').onclick = e => trocarPlano(e.currentTarget, () => structuredClone(PLANO_PADRAO), 'ver exemplo');
 
 // abrir a visão do cliente para apresentar: o plano vai gravado e também no endereço, e as ferramentas de proposta ficam de fora
 // a página do cliente que corresponde à página do portal à vista (ou a pedida pelo botão)
@@ -6750,11 +6762,12 @@ function abrirCliente(fase) {
   const json = JSON.stringify(plano);
   const b64 = btoa(String.fromCharCode(...new TextEncoder().encode(json))).replace(/\+/g, '-').replace(/\//g, '_');
   save(); gravarNuvem(true);
-  window.open('evolucao-patrimonial.html?apresentar&fase=' + (fase || FASE_CLIENTE[paginaAtual] || 'evolucao') + '#plano=' + b64, '_blank');
+  window.open(comCliente('evolucao-patrimonial.html?apresentar&fase=' + (fase || FASE_CLIENTE[paginaAtual] || 'evolucao') + '#plano=' + b64), '_blank');
 }
 
 // "Ver como o cliente vê": a mesma tela que o cliente tem na área logada, com as ferramentas de proposta
 document.getElementById('btnComoCliente').addEventListener('click', () => gravarNuvem(true));
+document.getElementById('btnComoCliente').href = comCliente('evolucao-patrimonial.html?fase=proposito&consultor');
 
 // preencher os campos fixos e desenhar
 // plano de uma pessoa: o campo e a orientação do cônjuge saem da página Cliente
@@ -6794,14 +6807,16 @@ fillFields(); renderAll(); irPara(location.hash.slice(1));
 // Armazém: na nuvem, só o dono do link é consultor (quem mais abrir vai para a área do cliente), e o plano gravado lá
 // substitui o deste navegador; depois disso, cada mudança do consultor volta a ser gravada.
 ARMAZEM.iniciar().then(info => {
-  if (!info.dono) { location.replace('evolucao-patrimonial.html'); return; }
+  if (!info.dono) { location.replace(comCliente('evolucao-patrimonial.html')); return; }
   const doArmazem = ARMAZEM.ler('plano');
   if (info.modo === 'nuvem' && doArmazem && JSON.stringify(doArmazem) !== JSON.stringify(planoBase())) {
     if (cenAtivo()) { try { localStorage.setItem('nl-plano', JSON.stringify(doArmazem)); } catch (e) { } }   // o cenário aberto continua; o plano é o do armazém
     else { plano = doSalvo(doArmazem); fx.t0 = null; fillFields(); } }
   nuvemPronta = true; renderAll();
-  if (info.modo === 'nuvem') gravarNuvem(true);   // banco ainda vazio: o plano deste navegador passa a ser o do cliente
-  else document.getElementById('notaArmazem').textContent = 'Neste computador, o plano e as propostas ficam no navegador: abra a área do cliente aqui mesmo para testar. No link publicado, cada um usa o seu computador.';
+  // abrir não grava nada: só o que o consultor mudar vai para o armazém. A exceção é o exemplo, gravado ao abrir para a
+  // área do cliente ter o que mostrar (sem mudança, a gravação repete o que já está lá).
+  if (CLIENTE_ID === 'exemplo') gravarNuvem(true); else nuvemUltimo = JSON.stringify(plano);
+  if (info.modo !== 'nuvem') document.getElementById('notaArmazem').textContent = 'Neste computador, o plano e as propostas ficam no navegador: abra a área do cliente aqui mesmo para testar. No link publicado, cada um usa o seu computador.';
   document.documentElement.style.visibility = '';
 });
 // no link publicado, a página só aparece depois de saber quem está vendo (o cliente não vê o portal)
