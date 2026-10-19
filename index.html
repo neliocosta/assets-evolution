@@ -69,7 +69,8 @@ const dataHora = iso => { const d = new Date(iso); if (isNaN(d)) return ''; cons
 const iniciais = n => (n || '?').trim().split(/\s+/).filter(Boolean).slice(0, 2).map(p => p[0].toUpperCase()).join('') || '?';
 const url = (pagina, id, extra) => pagina + '?cliente=' + encodeURIComponent(id) + (extra || '');
 
-// { id, nome, conjuge, em } de cada plano guardado; dono: quem abriu é o consultor (o dono do link)
+// { id, nome, conjuge, em } de cada plano guardado; dono: quem abriu é o consultor (o dono do link). Na nuvem, a lista
+// é ouvida: a primeira entrega pode vir do cache (até vazia), e a do servidor redesenha a lista logo depois.
 async function carregar() {
   const c = window.claude && window.claude.use ? window.claude : null;
   if (c) {
@@ -79,8 +80,10 @@ async function carregar() {
     try { const u = await espera(c.use('user'), 4000); if (u) dono = await u.isOwner(); } catch (e) { }
     if (!dono) return { dono: false, planos: [] };
     if (db) {
-      const snap = await db.collection('planos').get();
-      return { dono: true, nuvem: true, planos: snap.docs.map(d => { const v = d.data() || {}, p = v.dados || {}; return { id: d.id, nome: p.name, conjuge: p.conjugeNome, em: v.em }; }) };
+      const doc = d => { const v = d.data() || {}, p = v.dados || {}; return { id: d.id, nome: p.name, conjuge: p.conjugeNome, em: v.em }; };
+      db.collection('planos').onSnapshot(snap => desenhar({ dono: true, nuvem: true, planos: snap.docs.map(doc) }),
+        () => { document.getElementById('lista').innerHTML = '<div class="vazio">Não consegui carregar os clientes. Recarregue a página.</div>'; });
+      return null;   // quem desenha é a assinatura
     }
   }
   const planos = [];
@@ -119,7 +122,7 @@ document.getElementById('btnNovo').addEventListener('click', e => {
   location.href = url('tela-consultor.html', 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5));
 });
 
-carregar().then(desenhar).catch(err => {
+carregar().then(r => { if (r) desenhar(r); }).catch(err => {
   console.error(err);
   document.getElementById('lista').innerHTML = '<div class="vazio">Não consegui carregar os clientes. Recarregue a página.</div>';
 });
