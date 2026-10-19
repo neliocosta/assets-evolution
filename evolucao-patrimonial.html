@@ -2643,8 +2643,11 @@ const ARMAZEM = (() => {
       localStorage.setItem('nl-cliente', CLIENTE);
     }
   } catch (e) { }
-  const lerLocal = k => { try { return JSON.parse(localStorage.getItem(CHAVE[k]) || 'null'); } catch (e) { return null; } };
-  const gravarLocal = (k, v) => { try { if (v == null) localStorage.removeItem(CHAVE[k]); else localStorage.setItem(CHAVE[k], JSON.stringify(v)); } catch (e) { } };
+  // O último estado fica também na memória da página: no link publicado o localStorage pode não existir (o acesso falha
+  // ou não guarda), e sem esta cópia a tela receberia "sem plano" mesmo com o plano já lido do banco.
+  const memoria = {};
+  const lerLocal = k => { if (k in memoria) return memoria[k] == null ? null : JSON.parse(memoria[k]); try { return JSON.parse(localStorage.getItem(CHAVE[k]) || 'null'); } catch (e) { return null; } };
+  const gravarLocal = (k, v) => { memoria[k] = v == null ? null : JSON.stringify(v); try { if (v == null) localStorage.removeItem(CHAVE[k]); else localStorage.setItem(CHAVE[k], JSON.stringify(v)); } catch (e) { } };
   const avisa = (k, v) => { const txt = JSON.stringify(v); if (txt === ultimo[k]) return; ultimo[k] = txt; ouvintes[k].forEach(f => { try { f(v == null ? null : JSON.parse(txt)); } catch (e) { console.error(e); } }); };
   // resolve { modo: 'nuvem' | 'local', dono }; na nuvem, passa a ouvir o plano e a proposta ao vivo
   function iniciar() {
@@ -2678,7 +2681,7 @@ const ARMAZEM = (() => {
         }
       }
       // local: outra aba deste navegador mudou o plano ou a proposta
-      addEventListener('storage', e => { for (const k in CHAVE) if (e.key === CHAVE[k]) avisa(k, lerLocal(k)); });
+      addEventListener('storage', e => { for (const k in CHAVE) if (e.key === CHAVE[k]) { memoria[k] = e.newValue; avisa(k, lerLocal(k)); } });
       return { modo: 'local', dono: true };
     })();
     return info;
@@ -2812,7 +2815,7 @@ const outroHoje = plan => { const a = ENGINE.idadeExata(plan.nascimento); return
 (function loadPlan() {
   try {
     // o consultor apresentando pode trazer o plano no endereço; o cliente sempre lê o plano gravado pelo consultor
-    const m = PAPEL === 'apresentar' && location.hash.match(/plano=([^&]+)/);
+    const m = (PAPEL === 'apresentar' && location.hash.match(/plano=([^&]+)/)) || location.hash.match(/armazem=([^&]+)/);   // armazem=: o plano do banco, numa recarga sem localStorage
     let json = null;
     if (m) json = new TextDecoder().decode(Uint8Array.from(atob(decodeURIComponent(m[1]).replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0)));
     else { const p = ARMAZEM.ler('plano'); json = p ? JSON.stringify(p) : null; }
@@ -2869,11 +2872,21 @@ function updateStats() {
   mostraLiq();
   if (!div && state.viewKind === 'findiv') document.querySelector('#segView button[data-v="fin"]').click();
 }
+// Recarrega a tela com outro plano (o livro e a linha do tempo são montados ao abrir). O plano vai pelo navegador; no
+// link publicado, onde o localStorage pode não existir, vai no endereço (#armazem=…), que o loadPlan lê. Devolve false
+// se não der para recarregar com ele (já veio pelo endereço): quem chama segue sem recarregar, e não entra em laço.
+function recarregaCom(plan) {
+  const txt = JSON.stringify(plan);
+  try { localStorage.setItem('nl-plano', txt); if (localStorage.getItem('nl-plano') === txt) { history.replaceState(null, '', location.pathname + location.search); location.reload(); return true; } } catch (e) { }
+  if (/armazem=/.test(location.hash)) return false;
+  const b = new TextEncoder().encode(txt); let s = ''; for (let i = 0; i < b.length; i += 8192) s += String.fromCharCode.apply(null, b.subarray(i, i + 8192));
+  history.replaceState(null, '', location.pathname + location.search + '#armazem=' + btoa(s).replace(/\+/g, '-').replace(/\//g, '_')); location.reload(); return true;
+}
 // Plano novo gravado pelo consultor (ou a resposta a uma proposta)
 function applyPlan(plan) {
   // outra data de nascimento muda onde está "hoje" na linha do tempo: recarrega a tela com o plano salvo
   if (outroHoje(plan)) {
-    try { localStorage.setItem('nl-plano', JSON.stringify(plan)); history.replaceState(null, '', location.pathname + location.search); location.reload(); return; } catch (e) { }
+    if (recarregaCom(plan)) return;
   }
   ENGINE.configure(plan); PLANO = plan; PLANO_MOTOR = plan;
   try { localStorage.setItem('nl-plano', JSON.stringify(plan)); } catch (e) { }
@@ -4279,10 +4292,12 @@ ARMAZEM.ouvir('proposta', () => { PROP = lerProposta(); respostaNoPlano(); aplic
 ARMAZEM.ouvir('plano', plan => { if (plan) trocaBase(plan); });
 // plano novo sem mudar a idade: troca a base sem mexer no que está à vista (zoom, linhas abertas)
 function trocaBase(plan) {
+  // a tela abriu sem plano (no link publicado, ele chega do banco depois): recarrega já com ele
+  if (!PLANO && recarregaCom(plan)) return;
   if (outroHoje(plan)) { applyPlan(plan); return; }
   // o consultor mostrou ou tirou um capítulo: o livro é montado ao abrir, então a tela recarrega com o plano novo
   if (PAPEL === 'cliente' && JSON.stringify(plan.capitulosOcultos || []) !== JSON.stringify((PLANO || {}).capitulosOcultos || [])) {
-    try { localStorage.setItem('nl-plano', JSON.stringify(plan)); location.reload(); return; } catch (e) { } }
+    if (recarregaCom(plan)) return; }
   ENGINE.configure(structuredClone(plan)); PLANO = plan; BASE = baseDe(plan); saudar(plan);
   PROP = lerProposta(); respostaNoPlano(); aplicaVista();
 }

@@ -2898,8 +2898,11 @@ const ARMAZEM = (() => {
       localStorage.setItem('nl-cliente', CLIENTE);
     }
   } catch (e) { }
-  const lerLocal = k => { try { return JSON.parse(localStorage.getItem(CHAVE[k]) || 'null'); } catch (e) { return null; } };
-  const gravarLocal = (k, v) => { try { if (v == null) localStorage.removeItem(CHAVE[k]); else localStorage.setItem(CHAVE[k], JSON.stringify(v)); } catch (e) { } };
+  // O último estado fica também na memória da página: no link publicado o localStorage pode não existir (o acesso falha
+  // ou não guarda), e sem esta cópia a tela receberia "sem plano" mesmo com o plano já lido do banco.
+  const memoria = {};
+  const lerLocal = k => { if (k in memoria) return memoria[k] == null ? null : JSON.parse(memoria[k]); try { return JSON.parse(localStorage.getItem(CHAVE[k]) || 'null'); } catch (e) { return null; } };
+  const gravarLocal = (k, v) => { memoria[k] = v == null ? null : JSON.stringify(v); try { if (v == null) localStorage.removeItem(CHAVE[k]); else localStorage.setItem(CHAVE[k], JSON.stringify(v)); } catch (e) { } };
   const avisa = (k, v) => { const txt = JSON.stringify(v); if (txt === ultimo[k]) return; ultimo[k] = txt; ouvintes[k].forEach(f => { try { f(v == null ? null : JSON.parse(txt)); } catch (e) { console.error(e); } }); };
   // resolve { modo: 'nuvem' | 'local', dono }; na nuvem, passa a ouvir o plano e a proposta ao vivo
   function iniciar() {
@@ -2933,7 +2936,7 @@ const ARMAZEM = (() => {
         }
       }
       // local: outra aba deste navegador mudou o plano ou a proposta
-      addEventListener('storage', e => { for (const k in CHAVE) if (e.key === CHAVE[k]) avisa(k, lerLocal(k)); });
+      addEventListener('storage', e => { for (const k in CHAVE) if (e.key === CHAVE[k]) { memoria[k] = e.newValue; avisa(k, lerLocal(k)); } });
       return { modo: 'local', dono: true };
     })();
     return info;

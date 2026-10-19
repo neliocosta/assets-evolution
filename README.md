@@ -584,9 +584,16 @@ Um cliente sem plano começa em branco (`planoVazio`); só o cliente `exemplo` c
 gravado ao abrir para a área do cliente ter o que mostrar. "+ Novo cliente" cria um código novo e abre o portal em
 branco; o cliente entra na lista quando o primeiro dado é gravado.
 
-**Abrir não grava.** O portal só grava o que o consultor muda (`nuvemUltimo` começa igual ao plano aberto). A primeira
-leitura do banco pode vir do cache, com um plano antigo (`fromCache`): o armazém espera a do servidor antes de a tela
-começar. Antes, o portal gravava ao abrir, e o cache antigo apagou um plano real com o exemplo.
+**Abrir não grava.** O portal só grava o que o consultor muda (`nuvemUltimo` começa igual ao plano aberto), e nunca
+um plano sem nome. O armazém recusa gravar (`nao_lido`) enquanto não leu o documento do cliente no banco: assim, uma
+tela que abriu em branco não apaga um plano real. Antes, o portal gravava ao abrir, e isso apagou um plano real duas
+vezes. "Não existe" vindo do cache espera o servidor; um documento que existe vale já, porque o servidor não
+reentrega um documento igual.
+
+**Sem localStorage.** No link publicado, o localStorage pode não funcionar. Por isso o armazém guarda o último estado
+também na memória da página, e `ler` devolve essa cópia. A área do cliente monta o livro ao abrir, então, quando o
+plano chega depois (ou muda a data de nascimento), ela recarrega com ele: pelo localStorage, se ele guardar; senão,
+pelo endereço (`#armazem=<base64>`, lido no `loadPlan`), sem entrar em laço.
 
 **Na plataforma.** O desenvolvedor troca o bloco `armazem` inteiro pelo da plataforma, com a mesma interface
 (`iniciar`, `ler`, `ouvir`, `gravar`, `nuvem`); o plano vem do cliente escolhido no `/internal` (`window.__MONTAGEM__`)
