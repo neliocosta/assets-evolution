@@ -41,6 +41,8 @@ h1{font:700 28px Sora,sans-serif;color:var(--nl-navy-900);line-height:1.15}
 .acoes{display:flex;gap:8px}
 .vazio{background:var(--nl-white);border-radius:16px;box-shadow:var(--shadow-card);padding:28px;text-align:center;line-height:1.6}
 .nota{margin-top:26px;font-size:12.5px;color:var(--nl-gray-500);line-height:1.6;max-width:640px}
+.tela{position:fixed;inset:0;width:100%;height:100%;border:0;background:var(--nl-white);z-index:10}
+body.com-tela{overflow:hidden}
 </style>
 </head>
 <body>
@@ -75,9 +77,10 @@ async function carregar() {
   const c = window.claude && window.claude.use ? window.claude : null;
   if (c) {
     const espera = (pr, ms) => Promise.race([pr, new Promise(r => setTimeout(() => r(null), ms))]);
-    let db = null, dono = true;
+    let db = null, dono = true, u = null;
     try { db = await espera(c.use('db'), 8000); } catch (e) { }
-    try { const u = await espera(c.use('user'), 4000); if (u) dono = await u.isOwner(); } catch (e) { }
+    try { u = await espera(c.use('user'), 4000); if (u) dono = await u.isOwner(); } catch (e) { }
+    PONTE.db = db; PONTE.user = u; PONTE.pronta();
     if (!dono) return { dono: false, planos: [] };
     if (db) {
       const doc = d => { const v = d.data() || {}, p = v.dados || {}; return { id: d.id, nome: p.name, conjuge: p.conjugeNome, em: v.em }; };
@@ -119,8 +122,67 @@ function desenhar({ dono, nuvem, planos }) {
 // novo cliente: um código novo e o plano em branco no portal; ele entra na lista quando o primeiro dado for gravado
 document.getElementById('btnNovo').addEventListener('click', e => {
   e.preventDefault();
-  location.href = url('tela-consultor.html', 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5));
+  abrir(url('tela-consultor.html', 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5)));
 });
+
+// ===================== PONTE: no link publicado, as telas usam o banco desta página =====================
+// No link publicado, só a página principal (esta) recebe o runtime do Claude (window.claude): uma tela aberta por
+// navegação fica sem banco e abre em branco. Por isso, lá, "Ver relatório" e "Editar relatório" abrem a tela num quadro
+// por cima desta página, e o armazém da tela lê e grava pelo banco daqui, por mensagens (a ponte(), no armazém). A
+// navegação entre as telas continua dentro do quadro; "← Clientes" fecha o quadro. Se a tela não responder (o quadro
+// não carregou), ela abre na própria aba, como antes. Em localhost e na plataforma, nada disto acontece: as telas abrem
+// por navegação e cada uma tem o seu armazém.
+const PONTE = { db: null, user: null, subs: new Map() };
+PONTE.espera = new Promise(r => { PONTE.pronta = r; });
+const HOSPEDA = !!(window.claude && window.claude.use);
+let QUADRO = null;
+const soltaTudo = () => { PONTE.subs.forEach(u => { try { u(); } catch (e) { } }); PONTE.subs.clear(); };
+function abrir(href) {
+  if (!HOSPEDA) { location.href = href; return; }
+  fechar();
+  const q = QUADRO = document.createElement('iframe');
+  q.className = 'tela'; q.src = href; q.allow = 'fullscreen'; q.title = 'Relatório';
+  q.addEventListener('load', () => { try { if (/(^|\/)index\.html$/.test(q.contentWindow.location.pathname)) fechar(); } catch (e) { } });   // "← Clientes" dentro do quadro
+  document.body.appendChild(q); document.body.classList.add('com-tela');
+  setTimeout(() => { if (QUADRO === q && !q.dataset.falou) location.href = href; }, 8000);
+}
+function fechar() {
+  soltaTudo();
+  if (QUADRO) { QUADRO.remove(); QUADRO = null; }
+  document.body.classList.remove('com-tela');
+}
+document.getElementById('lista').addEventListener('click', e => {
+  const a = e.target.closest('a[href]'); if (!a || !HOSPEDA) return;
+  e.preventDefault(); abrir(a.getAttribute('href'));
+});
+addEventListener('message', async e => {
+  const m = e.data; if (!QUADRO || e.source !== QUADRO.contentWindow || !m || m.nl !== 1) return;
+  const q = QUADRO; q.dataset.falou = '1';
+  const responde = r => { try { q.contentWindow.postMessage(Object.assign({ nl: 1 }, r), '*'); } catch (err) { } };
+  await PONTE.espera;
+  if (m.t === 'ola') { soltaTudo(); responde({ t: 'ola', db: !!PONTE.db, user: !!PONTE.user }); }   // outra tela no quadro: as assinaturas da anterior saem
+  else if (m.t === 'voltar') fechar();
+  else if (m.t === 'ouve' && PONTE.db) {
+    const meta = s => s.metadata || {};
+    PONTE.subs.set(m.sub, PONTE.db.doc(m.path).onSnapshot(
+      s => responde({ t: 'snap', sub: m.sub, exists: s.exists, corpo: s.exists ? s.data() : null, fromCache: !!meta(s).fromCache, hasPendingWrites: !!meta(s).hasPendingWrites }),
+      err => responde({ t: 'snapErro', sub: m.sub, erro: { code: err && err.code, message: String(err && err.message) } })));
+  }
+  else if (m.t === 'solta') { const u = PONTE.subs.get(m.sub); if (u) { u(); PONTE.subs.delete(m.sub); } }
+  else if (m.t === 'chama') {
+    try {
+      let valor = null;
+      if (m.metodo === 'isOwner') valor = PONTE.user ? await PONTE.user.isOwner() : true;
+      else if (m.metodo === 'set') await PONTE.db.doc(m.path).set(m.data);
+      else if (m.metodo === 'delete') await PONTE.db.doc(m.path).delete();
+      else throw { code: 'invalid_argument', message: 'método desconhecido' };
+      responde({ t: 'resp', id: m.id, ok: true, valor });
+    } catch (err) { responde({ t: 'resp', id: m.id, ok: false, erro: { code: err && err.code, message: String(err && err.message) } }); }
+  }
+});
+// esta página aberta dentro do quadro ("← Clientes" numa tela): fecha o quadro e mostra a lista de baixo
+const doMesmoLink = () => { try { return new URL(document.referrer).host === location.host; } catch (e) { return false; } };
+if (window.parent !== window && doMesmoLink()) { try { parent.postMessage({ nl: 1, t: 'voltar' }, '*'); } catch (e) { } }
 
 // em localhost: ?importar=<id> traz o plano de clientes/<id>/plano.json (a cópia no OneDrive) para este navegador
 async function importar() {

@@ -590,6 +590,14 @@ tela que abriu em branco não apaga um plano real. Antes, o portal gravava ao ab
 vezes. "Não existe" vindo do cache espera o servidor; um documento que existe vale já, porque o servidor não
 reentrega um documento igual.
 
+**As telas num quadro da página Clientes.** No link publicado, só a página principal (a página Clientes) recebe o
+runtime do Claude e, com ele, o banco. Uma tela aberta por navegação fica sem banco, cai no modo local e abre em
+branco. Por isso, no link, "Ver relatório", "Editar relatório" e "+ Novo cliente" abrem a tela num quadro por cima da
+página Clientes. O armazém da tela fala com ela por mensagens (`ponte()`, no armazém; `PONTE`, no `index.html`) e
+lê, ouve e grava pelo banco dela. A navegação entre as telas continua dentro do quadro, e "← Clientes" fecha o
+quadro. Se a tela não responder em 8 s, ela abre na própria aba, como antes. Em localhost (a página Clientes sem
+runtime) e na plataforma, as telas abrem por navegação e nada disso acontece.
+
 **Sem localStorage.** No link publicado, o localStorage pode não funcionar. Por isso o armazém guarda o último estado
 também na memória da página, e `ler` devolve essa cópia. A área do cliente monta o livro ao abrir, então, quando o
 plano chega depois (ou muda a data de nascimento), ela recarrega com ele: pelo localStorage, se ele guardar; senão,

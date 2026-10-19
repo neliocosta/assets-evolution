@@ -2888,10 +2888,6 @@ const ARMAZEM = (() => {
   const CHAVE = { plano: 'nl-plano', proposta: 'nl-proposta' }, DOC = { plano: 'planos/' + CLIENTE, proposta: 'propostas/' + CLIENTE };
   const ouvintes = { plano: [], proposta: [] }, ultimo = {}, visto = {};
   let db = null, info = null;
-  // DIAGNÓSTICO TEMPORÁRIO: o que acontece ao abrir no link publicado, gravado em diag/<cliente>-<página> 15 s depois
-  const DIAG = { pagina: typeof location !== 'undefined' ? location.pathname.split('/').pop() : '', busca: typeof location !== 'undefined' ? location.search : '', cliente: CLIENTE, inicio: new Date().toISOString(), eventos: [] };
-  const marca = o => { try { DIAG.eventos.push(Object.assign({ t: Math.round(performance.now()) }, o)); } catch (e) { } };
-  try { localStorage.setItem('nl-teste', '1'); marca({ e: 'localStorage', ok: localStorage.getItem('nl-teste') === '1' }); } catch (e) { marca({ e: 'localStorage', erro: String(e && e.message) }); }
   // a cópia de trabalho deste navegador (nl-plano, nl-proposta, cenários, páginas vistas) é de um cliente só: outro
   // cliente começa dela limpa. Sem a nuvem (localhost), cada cliente guarda o seu plano em nl-db:<documento>.
   const DB_LOCAL = k => 'nl-db:' + DOC[k];
@@ -2908,17 +2904,44 @@ const ARMAZEM = (() => {
   const lerLocal = k => { if (k in memoria) return memoria[k] == null ? null : JSON.parse(memoria[k]); try { return JSON.parse(localStorage.getItem(CHAVE[k]) || 'null'); } catch (e) { return null; } };
   const gravarLocal = (k, v) => { memoria[k] = v == null ? null : JSON.stringify(v); try { if (v == null) localStorage.removeItem(CHAVE[k]); else localStorage.setItem(CHAVE[k], JSON.stringify(v)); } catch (e) { } };
   const avisa = (k, v) => { const txt = JSON.stringify(v); if (txt === ultimo[k]) return; ultimo[k] = txt; ouvintes[k].forEach(f => { try { f(v == null ? null : JSON.parse(txt)); } catch (e) { console.error(e); } }); };
+  // No link publicado, só a página principal (a página Clientes) recebe o runtime do Claude: uma tela aberta por
+  // navegação fica sem banco e abre em branco. Por isso, lá, a página Clientes abre esta tela num quadro e empresta o
+  // banco dela por mensagens. ponte() devolve um objeto com o mesmo use('db') e use('user') (só o que este armazém usa),
+  // ou null fora do quadro (localhost, ou a tela aberta sozinha).
+  function ponte() {
+    if (typeof window === 'undefined' || window.parent === window) return Promise.resolve(null);
+    return new Promise(fim => {
+      const esperas = {}, subs = {}; let n = 0, respondeu = false;
+      const manda = m => { try { parent.postMessage(Object.assign({ nl: 1 }, m), '*'); } catch (e) { } };
+      const chama = (metodo, path, data) => new Promise((ok, erro) => { const id = ++n; esperas[id] = [ok, erro]; manda({ t: 'chama', id, metodo, path, data }); });
+      addEventListener('message', e => {
+        const m = e.data; if (e.source !== parent || !m || m.nl !== 1) return;
+        if (m.t === 'ola' && !respondeu) {
+          respondeu = true;
+          const db = m.db ? { doc: path => ({
+            onSnapshot(prox, erro) { const sub = 's' + (++n) + Math.random().toString(36).slice(2, 7); subs[sub] = [prox, erro]; manda({ t: 'ouve', sub, path }); return () => { delete subs[sub]; manda({ t: 'solta', sub }); }; },
+            set: data => chama('set', path, data), delete: () => chama('delete', path) }) } : null;
+          const user = m.user ? { isOwner: () => chama('isOwner') } : null;
+          fim({ use: nome => Promise.resolve(nome === 'db' ? db : nome === 'user' ? user : null) });
+        }
+        else if (m.t === 'resp' && esperas[m.id]) { const [ok, erro] = esperas[m.id]; delete esperas[m.id]; if (m.ok) ok(m.valor); else erro(m.erro); }
+        else if (m.t === 'snap' && subs[m.sub]) subs[m.sub][0]({ exists: m.exists, data: () => m.corpo == null ? undefined : m.corpo, metadata: { fromCache: m.fromCache, hasPendingWrites: m.hasPendingWrites } });
+        else if (m.t === 'snapErro' && subs[m.sub]) { const f = subs[m.sub][1]; delete subs[m.sub]; if (f) f(m.erro); }
+      });
+      addEventListener('pagehide', () => { for (const s in subs) manda({ t: 'solta', sub: s }); });
+      manda({ t: 'ola' });
+      setTimeout(() => { if (!respondeu) { respondeu = true; fim(null); } }, 3000);
+    });
+  }
   // resolve { modo: 'nuvem' | 'local', dono }; na nuvem, passa a ouvir o plano e a proposta ao vivo
   function iniciar() {
     if (info) return info;
     info = (async () => {
-      const c = typeof window !== 'undefined' && window.claude && window.claude.use ? window.claude : null;
+      const c = (await ponte()) || (typeof window !== 'undefined' && window.claude && window.claude.use ? window.claude : null);
       if (c) {
         const espera = (pr, ms) => Promise.race([pr, new Promise(r => setTimeout(() => r(null), ms))]);
-        try { db = await espera(c.use('db'), 8000); } catch (e) { db = null; marca({ e: 'db erro', erro: String(e && e.message) }); }
+        try { db = await espera(c.use('db'), 8000); } catch (e) { db = null; }
         let dono = true; try { const u = await espera(c.use('user'), 4000); if (u) dono = await u.isOwner(); } catch (e) { }
-        marca({ e: 'use', db: !!db, dono, doc: DOC.plano });
-        if (db) setTimeout(() => { try { DIAG.planoNaMemoria = (lerLocal('plano') || {}).name || null; DIAG.portal = window.__diagPortal || null; db.doc('diag/' + CLIENTE + '-' + DIAG.pagina.replace(/[^A-Za-z0-9_-]/g, '_')).set(JSON.parse(JSON.stringify(DIAG))).catch(() => { }); } catch (e) { } }, 15000);
         if (db) {
           for (const k of ['plano', 'proposta']) {
             ultimo[k] = JSON.stringify(lerLocal(k));
@@ -2926,7 +2949,6 @@ const ARMAZEM = (() => {
               let primeiro = true;
               db.doc(DOC[k]).onSnapshot(snap => {
                 const m = snap.metadata || {};
-                marca({ e: 'snapshot', k, existe: snap.exists, cache: m.fromCache, pendente: m.hasPendingWrites, nome: snap.exists ? ((snap.data() || {}).dados || {}).name || null : null });
                 if (m.hasPendingWrites) return;   // a própria gravação, ainda a caminho
                 // "não existe" vindo do cache não é confiável (o cache pode só não ter o documento ainda): espera o servidor.
                 // Um documento que existe vale já, venha de onde vier; o servidor não reentrega um documento igual.
@@ -2935,11 +2957,10 @@ const ARMAZEM = (() => {
                 visto[k] = true;   // daqui em diante a gravação sabe o que está substituindo
                 if (snap.exists || k !== 'plano') { gravarLocal(k, v); avisa(k, v); }   // banco ainda sem plano: vale o que o consultor tem aqui
                 if (primeiro) { primeiro = false; pronto(); }
-              }, err => { marca({ e: 'snapshot erro', k, erro: String(err && (err.code || err.message)) }); if (primeiro) { primeiro = false; pronto(); } });
-              setTimeout(() => { if (primeiro) { primeiro = false; marca({ e: 'tempo esgotado', k }); pronto(); } }, 8000);
+              }, () => { if (primeiro) { primeiro = false; pronto(); } });
+              setTimeout(() => { if (primeiro) { primeiro = false; pronto(); } }, 8000);
             });
           }
-          marca({ e: 'iniciar pronto', planoLido: (lerLocal('plano') || {}).name || null });
           return { modo: 'nuvem', dono };
         }
       }
@@ -2956,7 +2977,6 @@ const ARMAZEM = (() => {
     async gravar(k, v) {
       gravarLocal(k, v); ultimo[k] = JSON.stringify(v);
       if (!db) { try { if (v == null) localStorage.removeItem(DB_LOCAL(k)); else localStorage.setItem(DB_LOCAL(k), JSON.stringify({ dados: v, em: new Date().toISOString() })); } catch (e) { } return; }
-      marca({ e: 'gravar', k, nome: v && v.name || null, visto: !!visto[k] });
       // sem ter visto o que o banco tem (a leitura demorou ou falhou), gravar poderia apagar um plano real com uma tela vazia
       if (!visto[k]) { const e = new Error('o armazém ainda não leu este cliente'); e.code = 'nao_lido'; throw e; }
       const ref = db.doc(DOC[k]);
@@ -6837,13 +6857,13 @@ ARMAZEM.iniciar().then(info => {
   // abrir não grava nada: só o que o consultor mudar vai para o armazém. A exceção é o exemplo, gravado ao abrir para a
   // área do cliente ter o que mostrar (sem mudança, a gravação repete o que já está lá).
   semPlanoAoAbrir = !doArmazem;
-  window.__diagPortal = { versao: 'v6', modo: info.modo, doArmazem: doArmazem ? doArmazem.name || '(sem nome)' : null, plano: plano.name || '(sem nome)', cenario: !!cenAtivo(), clienteId: CLIENTE_ID };   // DIAGNÓSTICO TEMPORÁRIO
   if (CLIENTE_ID === 'exemplo') gravarNuvem(true); else nuvemUltimo = JSON.stringify(plano);
   if (info.modo !== 'nuvem') document.getElementById('notaArmazem').textContent = 'Neste computador, o plano e as propostas ficam no navegador: abra a área do cliente aqui mesmo para testar. No link publicado, cada um usa o seu computador.';
   document.documentElement.style.visibility = '';
 });
-// no link publicado, a página só aparece depois de saber quem está vendo (o cliente não vê o portal)
-if (window.claude) { document.documentElement.style.visibility = 'hidden'; setTimeout(() => { document.documentElement.style.visibility = ''; }, 6000); }
+// no link publicado, a página só aparece depois de saber quem está vendo (o cliente não vê o portal); lá, ela abre
+// num quadro da página Clientes
+if (window.claude || window.parent !== window) { document.documentElement.style.visibility = 'hidden'; setTimeout(() => { document.documentElement.style.visibility = ''; }, 6000); }
 addEventListener('resize', () => renderFluxo());
 </script>
 </body>
