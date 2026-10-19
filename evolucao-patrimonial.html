@@ -2631,7 +2631,7 @@ const ARMAZEM = (() => {
   const CLIENTE = typeof location !== 'undefined' ? new URLSearchParams(location.search).get('cliente') : 'teste';
   if (!CLIENTE) { location.replace('index.html'); }
   const CHAVE = { plano: 'nl-plano', proposta: 'nl-proposta' }, DOC = { plano: 'planos/' + CLIENTE, proposta: 'propostas/' + CLIENTE };
-  const ouvintes = { plano: [], proposta: [] }, ultimo = {};
+  const ouvintes = { plano: [], proposta: [] }, ultimo = {}, visto = {};
   let db = null, info = null;
   // a cópia de trabalho deste navegador (nl-plano, nl-proposta, cenários, páginas vistas) é de um cliente só: outro
   // cliente começa dela limpa. Sem a nuvem (localhost), cada cliente guarda o seu plano em nl-db:<documento>.
@@ -2662,10 +2662,12 @@ const ARMAZEM = (() => {
               let primeiro = true;
               db.doc(DOC[k]).onSnapshot(snap => {
                 const m = snap.metadata || {};
-                // a primeira entrega pode vir do cache, com um plano antigo: a tela só começa com a do servidor
-                if (m.fromCache && primeiro) return;
                 if (m.hasPendingWrites) return;   // a própria gravação, ainda a caminho
+                // "não existe" vindo do cache não é confiável (o cache pode só não ter o documento ainda): espera o servidor.
+                // Um documento que existe vale já, venha de onde vier; o servidor não reentrega um documento igual.
+                if (!snap.exists && m.fromCache) return;
                 const v = snap.exists ? structuredClone(snap.data().dados) : null;
+                visto[k] = true;   // daqui em diante a gravação sabe o que está substituindo
                 if (snap.exists || k !== 'plano') { gravarLocal(k, v); avisa(k, v); }   // banco ainda sem plano: vale o que o consultor tem aqui
                 if (primeiro) { primeiro = false; pronto(); }
               }, () => { if (primeiro) { primeiro = false; pronto(); } });
@@ -2688,6 +2690,8 @@ const ARMAZEM = (() => {
     async gravar(k, v) {
       gravarLocal(k, v); ultimo[k] = JSON.stringify(v);
       if (!db) { try { if (v == null) localStorage.removeItem(DB_LOCAL(k)); else localStorage.setItem(DB_LOCAL(k), JSON.stringify({ dados: v, em: new Date().toISOString() })); } catch (e) { } return; }
+      // sem ter visto o que o banco tem (a leitura demorou ou falhou), gravar poderia apagar um plano real com uma tela vazia
+      if (!visto[k]) { const e = new Error('o armazém ainda não leu este cliente'); e.code = 'nao_lido'; throw e; }
       const ref = db.doc(DOC[k]);
       try { if (v == null) await ref.delete(); else await ref.set({ dados: v, em: new Date().toISOString() }); }
       catch (e) { if (e && e.code === 'unavailable') { await new Promise(r => setTimeout(r, 400 + Math.random() * 600)); if (v == null) await ref.delete(); else await ref.set({ dados: v, em: new Date().toISOString() }); } else throw e; }

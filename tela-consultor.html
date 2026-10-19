@@ -2886,7 +2886,7 @@ const ARMAZEM = (() => {
   const CLIENTE = typeof location !== 'undefined' ? new URLSearchParams(location.search).get('cliente') : 'teste';
   if (!CLIENTE) { location.replace('index.html'); }
   const CHAVE = { plano: 'nl-plano', proposta: 'nl-proposta' }, DOC = { plano: 'planos/' + CLIENTE, proposta: 'propostas/' + CLIENTE };
-  const ouvintes = { plano: [], proposta: [] }, ultimo = {};
+  const ouvintes = { plano: [], proposta: [] }, ultimo = {}, visto = {};
   let db = null, info = null;
   // a cópia de trabalho deste navegador (nl-plano, nl-proposta, cenários, páginas vistas) é de um cliente só: outro
   // cliente começa dela limpa. Sem a nuvem (localhost), cada cliente guarda o seu plano em nl-db:<documento>.
@@ -2917,10 +2917,12 @@ const ARMAZEM = (() => {
               let primeiro = true;
               db.doc(DOC[k]).onSnapshot(snap => {
                 const m = snap.metadata || {};
-                // a primeira entrega pode vir do cache, com um plano antigo: a tela só começa com a do servidor
-                if (m.fromCache && primeiro) return;
                 if (m.hasPendingWrites) return;   // a própria gravação, ainda a caminho
+                // "não existe" vindo do cache não é confiável (o cache pode só não ter o documento ainda): espera o servidor.
+                // Um documento que existe vale já, venha de onde vier; o servidor não reentrega um documento igual.
+                if (!snap.exists && m.fromCache) return;
                 const v = snap.exists ? structuredClone(snap.data().dados) : null;
+                visto[k] = true;   // daqui em diante a gravação sabe o que está substituindo
                 if (snap.exists || k !== 'plano') { gravarLocal(k, v); avisa(k, v); }   // banco ainda sem plano: vale o que o consultor tem aqui
                 if (primeiro) { primeiro = false; pronto(); }
               }, () => { if (primeiro) { primeiro = false; pronto(); } });
@@ -2943,6 +2945,8 @@ const ARMAZEM = (() => {
     async gravar(k, v) {
       gravarLocal(k, v); ultimo[k] = JSON.stringify(v);
       if (!db) { try { if (v == null) localStorage.removeItem(DB_LOCAL(k)); else localStorage.setItem(DB_LOCAL(k), JSON.stringify({ dados: v, em: new Date().toISOString() })); } catch (e) { } return; }
+      // sem ter visto o que o banco tem (a leitura demorou ou falhou), gravar poderia apagar um plano real com uma tela vazia
+      if (!visto[k]) { const e = new Error('o armazém ainda não leu este cliente'); e.code = 'nao_lido'; throw e; }
       const ref = db.doc(DOC[k]);
       try { if (v == null) await ref.delete(); else await ref.set({ dados: v, em: new Date().toISOString() }); }
       catch (e) { if (e && e.code === 'unavailable') { await new Promise(r => setTimeout(r, 400 + Math.random() * 600)); if (v == null) await ref.delete(); else await ref.set({ dados: v, em: new Date().toISOString() }); } else throw e; }
@@ -3173,12 +3177,15 @@ function save() {
 // O plano também vai para o armazém compartilhado, de onde a área do cliente lê. Grava depois de uma pausa na
 // digitação (ou já, ao abrir a visão do cliente), só quando mudou, e só depois de ler o que o armazém tinha:
 // num computador novo, o plano do armazém é que vale.
-let nuvemPronta = false, nuvemTimer = null, nuvemUltimo = null;
+// Um plano sem nome não vai para o armazém: um cliente novo entra quando ganha nome, e uma tela que abriu em branco
+// (a leitura do banco demorou) nunca apaga o plano de um cliente. semPlanoAoAbrir: a tela abriu sem plano do armazém.
+let nuvemPronta = false, nuvemTimer = null, nuvemUltimo = null, semPlanoAoAbrir = false;
 function gravarNuvem(agora) {
   if (!nuvemPronta || cenAtivo()) return;   // um cenário nunca vai para o cliente
   clearTimeout(nuvemTimer);
-  const vai = () => { if (cenAtivo()) return;   // agendado antes de abrir um cenário: o cenário nunca vai para o cliente
-    const txt = JSON.stringify(plano); if (txt === nuvemUltimo) return; nuvemUltimo = txt; ARMAZEM.gravar('plano', JSON.parse(txt)).catch(() => { nuvemUltimo = null; }); };
+  const vai = () => { if (cenAtivo() || !String(plano.name || '').trim()) return;   // agendado antes de abrir um cenário: o cenário nunca vai para o cliente
+    const txt = JSON.stringify(plano); if (txt === nuvemUltimo) return; const antes = nuvemUltimo; nuvemUltimo = txt;
+    ARMAZEM.gravar('plano', JSON.parse(txt)).then(() => { semPlanoAoAbrir = false; }, e => { nuvemUltimo = e && e.code === 'nao_lido' ? antes : null; }); };
   if (agora) vai(); else nuvemTimer = setTimeout(vai, 1500);
 }
 
@@ -6721,6 +6728,8 @@ ARMAZEM.ouvir('proposta', () => renderPropostas());
 ARMAZEM.ouvir('plano', novo => {
   if (!novo) return;
   if (cenAtivo()) { const b = load(); if (JSON.stringify(novo.orcamento || null) !== JSON.stringify(b.orcamento || null)) { b.orcamento = novo.orcamento; try { localStorage.setItem('nl-plano', JSON.stringify(b)); } catch (e) { } renderAll(); } return; }
+  // o plano do banco chegou depois de a tela abrir sem ele (a leitura demorou): ele é o plano, e não a tela em branco
+  if (semPlanoAoAbrir) { semPlanoAoAbrir = false; plano = doSalvo(novo); fx.t0 = null; nuvemUltimo = JSON.stringify(plano); fillFields(); renderAll(); return; }
   if (JSON.stringify(novo.orcamento || null) !== JSON.stringify(plano.orcamento || null)) { plano.orcamento = novo.orcamento; renderAll(); } });
 
 // páginas do portal: cada assunto numa página, na ordem em que o plano é montado
@@ -6815,6 +6824,7 @@ ARMAZEM.iniciar().then(info => {
   nuvemPronta = true; renderAll();
   // abrir não grava nada: só o que o consultor mudar vai para o armazém. A exceção é o exemplo, gravado ao abrir para a
   // área do cliente ter o que mostrar (sem mudança, a gravação repete o que já está lá).
+  semPlanoAoAbrir = !doArmazem;
   if (CLIENTE_ID === 'exemplo') gravarNuvem(true); else nuvemUltimo = JSON.stringify(plano);
   if (info.modo !== 'nuvem') document.getElementById('notaArmazem').textContent = 'Neste computador, o plano e as propostas ficam no navegador: abra a área do cliente aqui mesmo para testar. No link publicado, cada um usa o seu computador.';
   document.documentElement.style.visibility = '';
