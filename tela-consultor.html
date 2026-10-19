@@ -131,6 +131,16 @@ aside nav .sep-nav{height:1px;background:rgba(255,255,255,.1);margin:8px 10px}
 .fxcap.warn{background:#FDF3F3;color:#9b3a3a}
 .fxcap.vazio{background:var(--nl-peach-100);color:var(--nl-orange-600)}
 .fxcap .btn{margin-left:auto}
+/* o crédito novo: o alerta de quando o dinheiro acaba e os créditos contratados, no alto do Fluxo de caixa */
+.cr-alerta{display:flex;align-items:center;gap:14px;flex-wrap:wrap;border-radius:10px;padding:12px 14px;margin-bottom:12px;font-size:12.5px;line-height:1.5;background:#FDF3F3;color:#9b3a3a}
+.cr-alerta>div{flex:1;min-width:280px} .cr-alerta b{color:#B83A3A}
+.cr-alerta.ok{background:#F1F8F3;color:#2b6e45} .cr-alerta.ok b{color:#1f7a45}
+.cr-card{border:1px solid #F0E9E1;border-radius:12px;padding:12px 14px;margin-bottom:12px;background:#fff}
+.cr-card h4{display:flex;align-items:center;gap:10px;margin:0 0 8px;font:600 13px Sora,sans-serif;color:var(--nl-navy-900)}
+.cr-card h4 .btn{margin-left:auto}
+.cr-card .grid{grid-template-columns:1.4fr 1fr 1.3fr .7fr .8fr 1.1fr}
+.cr-mes{margin-top:8px;font-size:12px;color:#2b6e45} .cr-mes.falta{color:#9b3a3a} .cr-mes b{color:#B83A3A}
+.cr-conta{display:grid;grid-template-columns:repeat(4,1fr) auto;gap:8px;margin-top:10px;align-items:stretch}
 .goal-empty{border:1.5px dashed #e3e0d9;border-radius:12px;padding:22px;text-align:center;color:#8d8d8d;font-size:13px}
 .calcv{padding:9px 0 2px;font:600 15px Sora,sans-serif;color:var(--nl-navy-900)}
 .usarnec{background:none;border:0;color:var(--nl-orange-600);font:600 11.5px 'DM Sans',sans-serif;cursor:pointer;padding:3px 0 0;text-decoration:underline}
@@ -729,7 +739,7 @@ thead th:first-child,thead th:last-child{border-radius:0}
 .ra-h{position:relative} .ra-h .btn-icon{position:absolute;right:6px;top:50%;transform:translateY(-50%)} .ra-h .btn-icon ~ input,.ra-h input:has(+ .btn-icon){padding-right:36px}
 #goalSum:not(:empty){background:#fff;border-radius:16px;box-shadow:var(--shadow-card);padding:16px 22px 20px;margin-bottom:16px}
 .orc-res{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
-/* as rendas do Orçamento: uma linha recolhida por renda, que abre com os campos e o que vem junto (13º, comissões, bônus) */
+/* as rendas do Orçamento: uma linha recolhida por renda, que abre com os campos e o que vem junto (13º, remuneração variável, bônus) */
 .orc-rendas{display:flex;flex-direction:column;gap:8px;margin-top:4px}
 .orc-r{position:relative;border:1px solid #EFECE6;border-radius:12px;background:#fff}
 .orc-r.on{border-color:#E3DED5;box-shadow:var(--shadow-card)}
@@ -748,7 +758,7 @@ thead th:first-child,thead th:last-child{border-radius:0}
 .orc-ex h4{font:600 12px 'DM Sans',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--nl-legenda);margin-bottom:8px}
 .orc-ex-l{display:flex;flex-wrap:wrap;gap:12px 28px;align-items:center}
 .orc-ck{display:inline-flex;align-items:center;gap:8px;font:500 13.5px 'DM Sans',sans-serif;color:var(--nl-navy-900);cursor:pointer} .orc-ck input{width:auto}
-.orc-ck small{font-size:12px;color:var(--nl-legenda)}
+.orc-ck small{font-size:12px;color:var(--nl-legenda)} .orc-dec{display:inline-flex;align-items:center;gap:10px} .orc-dec select{width:auto}
 .orc-ex-c{display:inline-flex;align-items:center;gap:10px;font:500 13.5px 'DM Sans',sans-serif;color:var(--nl-navy-900)} .orc-ex-c input{width:150px}
 .orc-bonus{display:flex;align-items:center;gap:10px;margin-top:10px;font:500 13.5px 'DM Sans',sans-serif;color:var(--nl-navy-900)}
 .orc-bonus input{width:150px} .orc-bonus select{width:auto} .orc-em{color:var(--nl-legenda)}
@@ -1056,6 +1066,7 @@ aside nav a.feito i::before{content:'✓';font-size:13px}
     <h2>Fluxo de caixa</h2>
     <div class="hint">Entradas e despesas mês a mês. O <b>+</b> de cada grupo cria uma linha; clique numa célula para mudar o valor dali em diante.</div>
     <div id="fxCap"></div>
+    <div id="fxCredito"></div>
     <div class="bloco fxbloco">
       <div class="fxbar">
         <span class="fxnivel" id="fxNivel">Mês</span>
@@ -1236,6 +1247,8 @@ const ENGINE = (() => {
   // ---- Configuração: tudo o que a tela do consultor define. Os valores abaixo são o padrão do mock. ----
   let PLAN_MODE = 'desej';
   let R_M = 0.004, GW = Math.pow(1 + R_M, 7 / 30.4375);
+  // quando o dinheiro acaba, o que falta para as contas vira dívida no cheque especial, com juros de 8% ao mês
+  const CHEQUE_M = 0.08, CHEQUE_W = Math.pow(1 + CHEQUE_M, 7 / 30.4375) - 1;
   let PART_VALUE = 50000;   // participações societárias: o valor de hoje (a valorização e a venda vêm de cada participação)
   let LIFE_EXP = 95, DESIRED = 25000, SALARY = 15000, SAL_G = 0.045;
   let DESIRED_STEPS = [];      // mudanças da renda desejada a partir de um mês: [{ from, value }]
@@ -1330,7 +1343,7 @@ const ENGINE = (() => {
   // e o último vale indefinidamente. "week" diz em que semana do mês a despesa cai (0 = diluída nas quatro).
   // Uma renda é ativa (trabalho) ou passiva (patrimônio). O fluxo usa sempre o valor líquido,
   // que é o que está nos degraus; o bruto e o resto são cadastro.
-  const ORIGENS = ['Salário', 'Pró-labore', 'Distribuição de lucros', 'Bônus', 'Comissões', '13º salário', 'Honorários (autônomo)', 'Aluguéis', 'Rendimentos recorrentes', 'Outras receitas'];
+  const ORIGENS = ['Salário', 'Pró-labore', 'Distribuição de lucros', 'Bônus', 'Remuneração variável', '13º salário', 'Honorários (autônomo)', 'Aluguéis', 'Rendimentos recorrentes', 'Outras receitas'];
   // meses entre ocorrências; semanal e anual com datas têm regra própria em ocorrencias()
   const FREQ = { semanal: 1, mensal: 1, trimestral: 3, semestral: 6, anual: 12, pontual: 0 };
   let INCOMES = [
@@ -1366,7 +1379,8 @@ const ENGINE = (() => {
   const stepBase = (it, mm) => { let v = 0; for (const st of it.steps) { if (mm >= st.from) v = +st.value || 0; else break; } return v; };
   // uma linha que segue outra (o 13º segue o líquido do salário: `segue` é o id da linha): o valor de cada mês é o da
   // outra, então um aumento no salário muda o 13º sozinho. As datas, a frequência e os ajustes (exc) continuam da linha.
-  const stepAt = (it, mm) => { if (it.segue) { const p = INCOMES.find(x => x.id === it.segue); if (p && p !== it && !p.segue) return stepBase(p, mm); } return stepBase(it, mm); };
+  // O valor se reparte entre as datas do ano: o 13º em duas parcelas (novembro e dezembro) paga metade em cada uma.
+  const stepAt = (it, mm) => { if (it.segue) { const p = INCOMES.find(x => x.id === it.segue); if (p && p !== it && !p.segue) return stepBase(p, mm) / (Array.isArray(it.dates) && it.dates.length || 1); } return stepBase(it, mm); };
   const inicio = it => (it.steps && it.steps.length) ? it.steps[0].from : 0;
   // O mês do motor começa na semana do salário do dia 5 e tem 4 ou 5 semanas. O dia d do mês mm cai na semana
   // do calendário que contém a data: d/m se d ≥ 5, ou d/(m+1) se d < 5, porque os dias 1 a 4 fecham o ciclo.
@@ -1541,6 +1555,20 @@ const ENGINE = (() => {
   // os compromissos financeiros já marcados (a reforma, um imposto a pagar): [{ id, titulo, descricao, em, valor }], com o
   // mês em `em` (meses a partir de hoje). Saem do patrimônio financeiro no mês marcado, não da sobra do orçamento.
   let COMPROMISSOS = [];
+  // ---- Créditos novos (plano.creditos): o empréstimo que a família contrata no futuro, quando o dinheiro acabaria ----
+  //   { id, nome, em: o mês do plano em que o dinheiro cai (0 = este), valor: o liberado, parcelas, juros: % ao mês,
+  //     sistema: 'price' (vazio) ou 'sac', linha: o id da despesa da parcela no Fluxo (criada pelo portal) }
+  // No mês em, o valor entra no financeiro (uma movimentação: o patrimônio não muda, porque a dívida cresce junto); as
+  // parcelas começam no mês seguinte e são a despesa da linha; o saldo devedor entra nas dívidas e cai com as parcelas.
+  let CREDITOS = [];
+  const contratoDoCredito = c => {
+    if (!(c && +c.valor > 0 && +c.parcelas > 0 && num(c.em) != null)) return null;
+    const i = Math.max(0, +c.juros || 0) / 100, n = Math.round(+c.parcelas), linhas = tabelaDaDivida(+c.valor, i, n, c.sistema === 'sac', 0);
+    return { em: Math.max(0, Math.round(+c.em)), n, i, linhas, parcela: linhas[0].pay, ultima: linhas[linhas.length - 1].pay,
+      total: linhas.reduce((a, l) => a + l.pay, 0), juros: linhas.reduce((a, l) => a + l.juros, 0) };
+  };
+  // o saldo devedor no mês mi, depois da parcela do mês
+  const saldoDoCredito = (c, mi) => { const ct = contratoDoCredito(c); if (!ct || mi < ct.em) return 0; const k = mi - ct.em; return k === 0 ? +c.valor : k > ct.linhas.length ? 0 : ct.linhas[k - 1].saldo; };
   const bensDoPlano = () => BENS || PATRIMONIO_EXEMPLO.bens, dividasDoPlano = () => DIVS || PATRIMONIO_EXEMPLO.dividas, partsDoPlano = () => PARTS || PATRIMONIO_EXEMPLO.participacoes;
   function trajetoriaDoBem(b) {
     const H = Math.round((100 - CURRENT_AGE) * 12), ev = Array.isArray(b.valorizacao) ? b.valorizacao : [], vd = b.venda && num(b.venda.em) != null ? b.venda : null;
@@ -1619,12 +1647,13 @@ const ENGINE = (() => {
   function run(mode) {
     const weeks = new Array(NW), events = [];
     let cofre = 0, obj = OBJ.map(() => 0), done = OBJ.map(() => false), bens = 0, part = PART_VALUE;
+    let cheque = 0, ruina = null;            // a dívida no cheque especial e a semana em que o dinheiro acabou
     const saldoNaData = OBJ.map(() => 0);   // quanto cada objetivo de fato juntou até a data alvo
     const compPago = new Set();             // os compromissos já pagos
     const traj = bensDoPlano().map(trajetoriaDoBem), ultimo = traj.map(x => x.serie[0]), vendido = traj.map(() => false);   // os bens da página Patrimônio
     const trajP = partsDoPlano().map(trajetoriaDaParticipacao), ultimoP = trajP.map(x => x.serie[0]), vendidoP = trajP.map(() => false);   // e as participações
     // o que a família deve no mês: o saldo de cada dívida, que cai com as parcelas (a de um bem vendido foi quitada na venda)
-    const divMes = new Map(), dividaEm = mi => { if (!divMes.has(mi)) divMes.set(mi, bensDoPlano().reduce((a, b, k) => a + (vendido[k] ? 0 : saldoDevedorEm(b, mi)), 0) + dividasDoPlano().reduce((a, d) => a + saldoDevedorEm(d, mi), 0)); return divMes.get(mi); };
+    const divMes = new Map(), dividaEm = mi => { if (!divMes.has(mi)) divMes.set(mi, bensDoPlano().reduce((a, b, k) => a + (vendido[k] ? 0 : saldoDevedorEm(b, mi)), 0) + dividasDoPlano().reduce((a, d) => a + saldoDevedorEm(d, mi), 0) + CREDITOS.reduce((a, c) => a + saldoDoCredito(c, mi), 0)); return divMes.get(mi); };
     const quitacoes = bensDoPlano().map((b, k) => [b, k]).concat(dividasDoPlano().map(d => [d, -1])).filter(([d]) => +d.saldoDevedor > 0).map(([d, k]) => ({ d, k, mi: restantesDaDivida(d) })).filter(q => q.mi > 0);
     let offset = 99, streams = [], ff = null, prevActive = '', allocated = false, ks = [];
     const recurTotal = () => streams.reduce((a, st) => a + (st.left === 0 ? 0 : st.value), 0);
@@ -1683,9 +1712,12 @@ const ENGINE = (() => {
       if (i === W0 && INITIAL_WEALTH != null) cofre = Math.max(0, INITIAL_WEALTH - obj.reduce((a, b) => a + b, 0));
       if (i === W0) { bens = INITIAL_BENS; allocated = true; OBJ.forEach((o, k) => { obj[k] += o.dedicated; cofre -= o.dedicated; transfer(f, 'mov_cofre', 'mov_obj_' + o.id, o.dedicated); }); }
       cofre *= GW; obj = obj.map((b, k) => b * Math.pow(1 + OBJ[k].rate, 7 / 30.4375));
+      if (cheque > 0) add(f, 'out_cheque', cheque * CHEQUE_W);   // os juros da semana: uma saída, que o próprio cheque paga se faltar dinheiro
       let incomeWeek = false, incDate = null;   // o salário cai no dia 5; a semana que o contém abre o mês
       for (let k = 0; k < 7; k++) { const dd = new Date(d.getTime() + k * 864e5); if (dd.getDate() === 5) { incomeWeek = true; incDate = dd; } }
       const working = i >= W0 - 6;   // simula de hoje em diante: começa no ciclo do salário deste mês
+      // um ano depois da ruína o plano para: só os meses andam, e o resto fica como estava (a dívida do alerta)
+      if (ruina && i > ruina.week + 52) { weeks[i] = Object.assign({}, weeks[i - 1], { mi: incomeWeek ? (incDate.getFullYear() - 2026) * 12 + incDate.getMonth() - 8 : weeks[i - 1].mi, ks: [], f: {} }); continue; }
       if (working && incomeWeek) {
         offset = 1;
         if (!allocated && t >= 0) { allocated = true; OBJ.forEach((o, k) => { obj[k] += o.dedicated; cofre -= o.dedicated; transfer(f, 'mov_cofre', 'mov_obj_' + o.id, o.dedicated); }); }
@@ -1747,6 +1779,11 @@ const ENGINE = (() => {
           compPago.add(k); add(f, 'out_comp_' + (c.id || k), +c.valor);
           events.push({ week: i, type: 'note', label: 'Compromisso: ' + (c.titulo || 'sem nome'), detail: reais(c.valor) });
         });
+        if (t >= 0) CREDITOS.forEach(c => {   // o crédito novo: o dinheiro cai no mês contratado
+          const ct = contratoDoCredito(c); if (!ct || ct.em !== mIdx) return;
+          cofre += +c.valor; transfer(f, 'mov_credito', 'mov_cofre', +c.valor);
+          events.push({ week: i, type: 'note', label: 'Crédito: ' + (c.nome || 'crédito novo'), detail: reais(c.valor) + ' em ' + ct.n + ' parcelas de ' + reais(ct.parcela), credito: +c.valor });
+        });
         if (t >= 0) {   // as dívidas que terminam no mês, num marco só
           const qs = quitacoes.filter(q => q.mi === mIdx && !(q.k >= 0 && vendido[q.k])), nomes = qs.map(q => q.d.nome || (q.k >= 0 ? 'financiamento' : 'dívida'));
           if (qs.length) events.push({ week: i, type: 'note', label: (qs.length > 1 ? 'Quitados: ' + nomes.slice(0, -1).join(', ') + ' e ' + nomes[nomes.length - 1] : (qs[0].k >= 0 ? 'Financiamento quitado: ' : 'Dívida quitada: ') + nomes[0]) });
@@ -1755,7 +1792,7 @@ const ENGINE = (() => {
         // sem idade-alvo, a liberdade acontece assim que o patrimônio sustenta a renda (a partir dos 50, no máximo aos 68);
         // com idade-alvo, acontece nela, sustentando ou não
         const alvoLib = idadeDaLiberdade();
-        if (!ff && t > 0 && age >= (alvoLib != null ? alvoLib : 50)) {
+        if (!ff && !ruina && t > 0 && age >= (alvoLib != null ? alvoLib : 50)) {   // sem dinheiro, não há rendas para contratar
           const horizon = Math.round((LIFE_EXP - age) * 12);
           let maxGap = 0; for (let mm = 0; mm < horizon; mm++) maxGap = Math.max(maxGap, gapAt(mm, mIdx));
           const pending = OBJ.reduce((a, o, k) => a + (done[k] ? 0 : o.amount), 0) + COMPROMISSOS.reduce((a, c, k) => a + (compPago.has(k) ? 0 : Math.max(0, +c.valor || 0)), 0); // objetivos e compromissos ainda por pagar
@@ -1808,8 +1845,15 @@ const ENGINE = (() => {
       // fechamento da semana: o que entrou menos o que saiu vai para (ou sai do) cofre
       let R = 0; for (const k in f) { if (k.startsWith('in_')) R += f[k]; else if (k.startsWith('out_')) R -= f[k]; }
       cofre += R; if (R) add(f, 'mov_cofre', R);
-      if (cofre < 0) cofre = 0;
-      weeks[i] = { fin: fin(), cofre, obj: obj.slice(), bens, part, div: dividaEm(Math.max(0, m ? m.mIdx : 0)), pas: m ? (m.pas || 0) : 0, saque: m ? (m.saque || 0) : 0, mi: m ? m.mIdx : -1, ks, f: i < W0 ? {} : f };   // o que aconteceu antes de hoje já está no patrimônio
+      // faltou dinheiro: primeiro saem as caixinhas dos objetivos; sem elas, o cheque especial. O primeiro mês em que o
+      // cheque é usado é a ruína: as contas não fecham mais com o que a família tem. A sobra de depois paga o cheque primeiro.
+      if (cofre < 0) OBJ.forEach((o, k) => { if (cofre >= 0 || done[k] || obj[k] <= 0) return; const v = Math.min(obj[k], -cofre); obj[k] -= v; cofre += v; transfer(f, 'mov_obj_' + o.id, 'mov_cofre', v); });
+      if (cofre < -0.5 && i >= W0) {
+        cheque -= cofre; transfer(f, 'mov_cheque', 'mov_cofre', -cofre); cofre = 0;
+        if (!ruina) { ruina = { week: i, mi: m ? m.mIdx : 0 }; events.push({ week: i, type: 'ruina', label: 'O dinheiro acaba' }); }
+      } else if (cofre < 0) cofre = 0;   // centavos
+      if (cofre > 0 && cheque > 0) { const v = Math.min(cofre, cheque); cheque -= v; cofre -= v; transfer(f, 'mov_cofre', 'mov_cheque', v); }
+      weeks[i] = { fin: fin(), cofre, obj: obj.slice(), bens, part, div: dividaEm(Math.max(0, m ? m.mIdx : 0)) + cheque, cheque, pas: m ? (m.pas || 0) : 0, saque: m ? (m.saque || 0) : 0, mi: m ? m.mIdx : -1, ks, f: i < W0 ? {} : f };   // o que aconteceu antes de hoje já está no patrimônio
     }
     // agregações
     const bucketize = keyFn => { const out = []; let cur = null; for (let i = 0; i < NW; i++) { const k = weeks[i].mi < 0 ? 'antes de hoje' : keyFn(i); if (!cur || cur.key !== k) { cur = { key: k, w0: i, w1: i + 1, mi: weeks[i].mi, f: {} }; out.push(cur); } cur.w1 = i + 1; const f = weeks[i].f; for (const key in f) cur.f[key] = (cur.f[key] || 0) + f[key]; } return out; };
@@ -1824,8 +1868,10 @@ const ENGINE = (() => {
     const decadeB = bucketize(i => Math.floor(cmOf(i) / 120));
     // o status de cada objetivo vem da simulação (o que o orçamento de fato entrega), não da fórmula fechada;
     // as duas telas leem este mesmo número
+    // a dívida no cheque doze meses depois da ruína, para o alerta
+    if (ruina) { const w12 = weeks.find(w => w.mi >= ruina.mi + 12) || weeks[NW - 1]; ruina.cheque12 = w12.cheque; }
     OBJ.forEach((o, k) => { o.real = saldoNaData[k]; o.ratio = o.amount > 0 ? o.real / o.amount : 1; o.status = o.ratio >= 0.98 ? 'ok' : o.ratio >= 0.7 ? 'adj' : 'risk'; });
-    return { weeks, events, ff, buckets: { week: weekB, month: monthB, quarter: quarterB, year: yearB, multi: multiB, decade: decadeB } };
+    return { weeks, events, ff, ruina, buckets: { week: weekB, month: monthB, quarter: quarterB, year: yearB, multi: multiB, decade: decadeB } };
   }
   // Aplica um plano vindo da tela do consultor (JSON no hash da URL ou em localStorage)
   // aceita o formato antigo (weeks: [v,v,v,v]) convertendo para degraus
@@ -1882,6 +1928,7 @@ const ENGINE = (() => {
     if (plan.patrimonio) { BENS = Array.isArray(plan.patrimonio.bens) ? plan.patrimonio.bens : []; DIVS = Array.isArray(plan.patrimonio.dividas) ? plan.patrimonio.dividas : []; PARTS = Array.isArray(plan.patrimonio.participacoes) ? plan.patrimonio.participacoes : []; }
     else if (plan.initialBens != null) { BENS = []; DIVS = []; PARTS = []; }
     COMPROMISSOS = Array.isArray(plan.compromissos) ? plan.compromissos : [];
+    CREDITOS = Array.isArray(plan.creditos) ? plan.creditos : [];
     if (Array.isArray(plan.objectives)) { OBJ.length = 0; plan.objectives.forEach(o => OBJ.push(o)); OBJ.forEach(migraCustos); OBJ.forEach(derive); }
     if (Array.isArray(plan.passive)) { PASSIVE.length = 0; plan.passive.forEach(p => PASSIVE.push(p)); }
     // a renda que um bem vendido gera e a parcela dele terminam no mês da venda
@@ -2727,7 +2774,7 @@ const ENGINE = (() => {
     return mis.map(mi => ({ mi, mes: M[mi].mes, saldo: M[mi].saldo, aportado: M.slice(0, mi + 1).reduce((a, m) => a + m.aporte, 0), extra: M.slice(0, mi + 1).reduce((a, m) => a + m.extra, 0), data: mi === n }));
   }
   OBJ.forEach(derive);   // os objetivos do exemplo (aqui, depois dos bens: derive lê as vendas)
-  return { TODAY, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, PASSIVE, PROFILES, STATUS, trajetoriaDoBem, trajetoriaDaParticipacao, vendasDoObjetivo, partilhaDaVenda, HORIZONTES, horizonteDe, politicaDeInvestimentos, TIPOS_FINANCEIRO, SEM_LIQUIDEZ, get COMPROMISSOS() { return COMPROMISSOS; }, saldoDasVendas, precoDoObjetivo, mesISO, orcadoDoObjetivo, cortesDoObjetivo, saldoDevedorEm, contratoDaDivida, restantesDaDivida, mesDe, get BENS() { return bensDoPlano(); }, get PARTS() { return partsDoPlano(); }, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, serieCusto, desiredAt, aplicaAlteracoes, fraseDaLinha, descreveAlteracao, valorAtual, mesDoPlano, desejoDoPlano, frequenciaDasLinhas, RISCOS, NATUREZAS, ITENS_RUINA, RISCOS_EXEMPLO, avaliaRiscos, custoDeVida, mediaDe12Meses, SEGURO, RELACOES, idadeLimiteDe, calculaSeguros, mesesAteIdade, FASES_VIDA, faseDaVida, sincronizaPatrimonio, PATRIMONIO_EXEMPLO, padraoDeVida, lerCaminho, gravaCaminho, IR, calculaIR, irDaFamilia, REGIMES, calculaRetirada, retiradaDosSocios, PREVIDENCIA, sucessao, simulaPrevidencia, aliqRegressiva, TRIBUTARIO_EXEMPLO, FAMILIA_EXEMPLO, casalDe, nomesDaFamilia, pessoasDaFamilia, rendaDaPessoa, bensDoRisco, titularidadeDoBem, setRetireAge: a => { RETIRE_AGE = a == null ? null : Math.max(CURRENT_AGE, +a); }, paradaMi, trabalhaEm, idadeDaLiberdade, dataNasc, idadeExata, sincronizaIdades, fraseDoProposito, ordemDoProposito, objetivosDoProposito, rendasAtivasDe, naturezaDe, naturezaDaReserva, CLASSES_ATIVOS, ORCAMENTO_IDEAL, VEZES_POUPOU, gestaoFinanceira, horasDoTrabalho, familiaDoPlano, ESTADOS_DIAGNOSTICO, orcamentoDoFluxo, CLASSES_CARTEIRA, CARTEIRAS_MODELO, ACOES_ATIVO, carteiraDoPlano, concentracaoDoPatrimonio, diagnosticoDaFamilia, financiamentoValido, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
+  return { TODAY, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, PASSIVE, PROFILES, STATUS, trajetoriaDoBem, trajetoriaDaParticipacao, vendasDoObjetivo, partilhaDaVenda, HORIZONTES, horizonteDe, politicaDeInvestimentos, TIPOS_FINANCEIRO, SEM_LIQUIDEZ, get COMPROMISSOS() { return COMPROMISSOS; }, saldoDasVendas, precoDoObjetivo, mesISO, orcadoDoObjetivo, cortesDoObjetivo, saldoDevedorEm, contratoDaDivida, restantesDaDivida, mesDe, get BENS() { return bensDoPlano(); }, get PARTS() { return partsDoPlano(); }, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, serieCusto, desiredAt, aplicaAlteracoes, fraseDaLinha, descreveAlteracao, valorAtual, mesDoPlano, desejoDoPlano, frequenciaDasLinhas, RISCOS, NATUREZAS, ITENS_RUINA, RISCOS_EXEMPLO, avaliaRiscos, custoDeVida, mediaDe12Meses, SEGURO, RELACOES, idadeLimiteDe, calculaSeguros, mesesAteIdade, FASES_VIDA, faseDaVida, sincronizaPatrimonio, PATRIMONIO_EXEMPLO, padraoDeVida, lerCaminho, gravaCaminho, IR, calculaIR, irDaFamilia, REGIMES, calculaRetirada, retiradaDosSocios, PREVIDENCIA, sucessao, simulaPrevidencia, aliqRegressiva, TRIBUTARIO_EXEMPLO, FAMILIA_EXEMPLO, casalDe, nomesDaFamilia, pessoasDaFamilia, rendaDaPessoa, bensDoRisco, titularidadeDoBem, setRetireAge: a => { RETIRE_AGE = a == null ? null : Math.max(CURRENT_AGE, +a); }, paradaMi, trabalhaEm, idadeDaLiberdade, dataNasc, idadeExata, sincronizaIdades, fraseDoProposito, ordemDoProposito, objetivosDoProposito, rendasAtivasDe, naturezaDe, naturezaDaReserva, CLASSES_ATIVOS, ORCAMENTO_IDEAL, VEZES_POUPOU, gestaoFinanceira, horasDoTrabalho, familiaDoPlano, ESTADOS_DIAGNOSTICO, orcamentoDoFluxo, CLASSES_CARTEIRA, CARTEIRAS_MODELO, ACOES_ATIVO, carteiraDoPlano, concentracaoDoPatrimonio, diagnosticoDaFamilia, financiamentoValido, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, CHEQUE_M, contratoDoCredito, saldoDoCredito, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
 })();
 if (typeof module !== 'undefined') module.exports = ENGINE;
 </script>
@@ -2973,7 +3020,7 @@ const quandoCurto = iso => { const d = new Date(iso); return String(d.getDate())
 
 // troca o que as páginas editam (o plano ou um cenário) sem gravar nada: quem chama já gravou o que estava aberto
 function abrePlano(dados) {
-  if (gaveta) { gaveta = null; renderGaveta(); } aceito = null; pendente = null; document.getElementById('estouro').hidden = true;
+  if (gaveta) { gaveta = null; renderGaveta(); } aceito = null; pendente = null; ajusteCredito = null; document.getElementById('estouro').hidden = true;
   plano = doSalvo(structuredClone(dados)); fx.t0 = null; ultimoSalvo = JSON.stringify(plano);
   fillFields(); renderAll();
 }
@@ -3133,6 +3180,7 @@ function recompute() {
   // e os saldos da simulação são lidos por esse mesmo índice.
   plano.objectives.sort((a, b) => a.months - b.months);
   ENGINE.sincronizaPatrimonio(plano);            // a carteira colada refaz o financeiro por instituição
+  (plano.creditos || []).forEach(lancaCredito);   // a parcela de cada crédito novo acompanha o contrato
   ENGINE.configure(plano);                      // deriva o aporte necessário e a projeção teórica
   // aporte escolhido como "o necessário" acompanha mudanças de custo, data e patrimônio reservado
   plano.objectives.forEach(o => { if (o.segueNecessario) { o.planned = Math.ceil(o.required); ENGINE.derive(o); } });
@@ -3300,7 +3348,7 @@ function renderAll() {
   // o campo em edição volta com o foco e com o texto exatamente como estava sendo digitado
   const foco = document.activeElement, fg = foco && foco.dataset ? foco.dataset.g : null, fk = foco && foco.dataset ? foco.dataset.k : null;
   const oid = fg != null && plano.objectives[+fg] ? plano.objectives[+fg].id : null, txt = foco ? foco.value : null;
-  recompute(); renderTop(); renderFluxo(); renderGoals(); renderPropositoC(); renderLiberdade(); renderClienteC(); renderOrcamentoC(); renderPatrimonioC(); renderPoliticaC(); renderCarteiraC(); renderMacroC(); renderMicroC(); renderRiscosC(); renderTributarioC(); renderPremissas(); renderApresentacaoC(); renderPropostas(); save();
+  recompute(); renderTop(); renderFluxo(); renderCreditoC(); renderGoals(); renderPropositoC(); renderLiberdade(); renderClienteC(); renderOrcamentoC(); renderPatrimonioC(); renderPoliticaC(); renderCarteiraC(); renderMacroC(); renderMicroC(); renderRiscosC(); renderTributarioC(); renderPremissas(); renderApresentacaoC(); renderPropostas(); save();
   if (gaveta && (gaveta.t === 'bem' || gaveta.t === 'div')) renderGaveta();   // o detalhe do bem e a evolução da dívida acompanham o que mudou neles
   if (oid && fk) {
     const i = plano.objectives.findIndex(o => o.id === oid), el = document.querySelector('[data-g="' + i + '"][data-k="' + fk + '"]');
@@ -3371,7 +3419,8 @@ function renderTop() {
     `<div class="chip" data-ir="objetivos"><span>Aportes definidos${ano ? ' por ano' : ''}</span><b class="${pl > cap && temFluxo() ? 'low' : ''}">${fmtP(pl)}</b>${bp ? doPlano(fmtP(bp.pl)) : ''}</div>` +
     `<div class="chip"><span>${ano ? 'Folga anual' : 'Folga mensal'}</span><b class="${livre < 0 ? 'low' : 'good'}">${temFluxo() || informada ? fmtP(livre) : '—'}</b>${bp ? doPlano(bp.temFluxo ? fmtP(bp.livre) : '—') : ''}</div>` +
     `<div class="chip" data-ir="objetivos"><span>Objetivos abaixo da meta</span><b class="${risco && !aguardaOrcamento() ? 'low' : 'good'}">${aguardaOrcamento() || !plano.objectives.length ? '—' : plano.objectives.every(o => !(o.planned > 0)) ? 'aportes a definir' : risco + ' de ' + plano.objectives.length}</b>${bp ? doPlano(bp.total ? (bp.total - bp.ok) + ' de ' + bp.total : '—') : ''}</div>` +
-    `<div class="chip" data-ir="liberdade" title="${ff && ff.forced ? 'Nessa idade o patrimônio não sustenta toda a renda desejada' : ''}"><span>Liberdade financeira</span><b class="${ff && !ff.forced ? 'good' : 'low'}">${ff && planoDaLiberdade() && temFluxo() ? Math.floor(ff.age) + ' anos · ' + ENGINE.weekDate(ff.week).getFullYear() + (ff.forced ? ' · renda parcial' : '') : '—'}</b>${bp ? doPlano(bp.ff ? bp.ff.idade + ' anos · ' + bp.ff.ano : '—') : ''}</div>`;
+    (SIM && SIM.ruina ? `<div class="chip" data-ir="fluxo" title="Pelo plano atual, as contas do mês deixam de fechar nesse mês. Veja no Fluxo de caixa."><span>O dinheiro acaba</span><b class="low">${monthsLabel(SIM.ruina.mi)}</b></div>` :
+    `<div class="chip" data-ir="liberdade" title="${ff && ff.forced ? 'Nessa idade o patrimônio não sustenta toda a renda desejada' : ''}"><span>Liberdade financeira</span><b class="${ff && !ff.forced ? 'good' : 'low'}">${ff && planoDaLiberdade() && temFluxo() ? Math.floor(ff.age) + ' anos · ' + ENGINE.weekDate(ff.week).getFullYear() + (ff.forced ? ' · renda parcial' : '') : '—'}</b>${bp ? doPlano(bp.ff ? bp.ff.idade + ' anos · ' + bp.ff.ano : '—') : ''}</div>`);
   document.getElementById('f-cap').placeholder = temFluxo() ? 'automático: média de 12 meses (' + fmt(media12()) + ')' : 'automático: calculada pelo Fluxo de caixa';
   // o que falta: uma resposta só, lida pela linha do "Próximo" de cada página, pelo ✓ da barra lateral e pelo topo da
   // Apresentação. O "Próximo" nunca trava: o dado pode vir depois, da coleta.
@@ -5038,6 +5087,7 @@ function ligadaA(it) {
   const P = plano.patrimonio || {}, S = (plano.riscos || {}).saude || {};
   if ([].concat(P.bens || [], P.dividas || []).some(d => d.linha === it.id && d.linhaPropria)) return ['Patrimônio', 'patrimonio'];
   if (S.linha === it.id && S.linhaPropria) return ['Gestão de riscos', 'riscos'];
+  if ((plano.creditos || []).some(c => c.linha === it.id)) return ['Fluxo de caixa (crédito novo)', 'fluxo'];
   return null;
 }
 // ---------- as rendas do Orçamento ----------
@@ -5045,11 +5095,16 @@ function ligadaA(it) {
 // (`origin`), quem a gera (uma pessoa, `pessoa`, ou um bem: `patrimonio.bens[].renda` aponta para a linha), o bruto
 // (`gross`), os descontos (calculados: bruto menos líquido) e o líquido (os degraus, que são o que o fluxo usa). O que vem
 // junto de uma renda ativa são linhas próprias do Fluxo, presas a ela por `de`: o 13º (que segue o líquido do salário, com
-// `segue`, em dezembro), as comissões (mensais) e cada bônus (trimestral, semestral ou anual). No Orçamento elas aparecem
+// `segue`, em dezembro ou metade em novembro e metade em dezembro), as outras remunerações variáveis (comissões, adicional por
+// performance ou por viagens: um valor por mês) e cada bônus (trimestral, semestral ou anual). No Orçamento elas aparecem
 // dentro da renda; no Fluxo, cada uma é uma linha, onde ganha datas e degraus. Na versão final, tudo chega da coleta.
 const orcAberto = new Set();   // as rendas abertas: só estado da tela
 const ORIGENS_ATIVA = ['Salário', 'Pró-labore', 'Honorários (autônomo)', 'Distribuição de lucros', 'Outras receitas'];
 const ORIGENS_PASSIVA = ['Aluguéis', 'Rendimentos recorrentes', 'Distribuição de lucros', 'Outras receitas'];
+// o 13º em dezembro ou em duas parcelas; o motor reparte o líquido do salário entre as datas
+const DATAS_13 = { dez: [{ m: 11, d: 20 }], novdez: [{ m: 10, d: 30 }, { m: 11, d: 20 }] };
+// remuneração variável: as comissões e os adicionais (por performance, por viagens); "Comissões" é o nome antigo
+const ehVariavel = x => x.origin === 'Remuneração variável' || x.origin === 'Comissões';
 const FREQ_BONUS = [['trimestral', 'trimestral'], ['semestral', 'semestral'], ['anual', 'anual']];
 const ehExtra = it => !!it.de && plano.incomes.some(x => x.id === it.de && x !== it);
 const extrasDe = it => plano.incomes.filter(x => x.de === it.id && x !== it);
@@ -5075,8 +5130,8 @@ function rendaCartao(it, nm, casal) {
   const i = plano.incomes.indexOf(it), aberto = orcAberto.has(it.id), ativa = ENGINE.ativo(it), lig = ligadaA(it), simples = linhaSimples(it) && !lig;
   const liq = liquidoHoje(it), media = ENGINE.mediaDe12Meses([it]), bruto = +it.gross || 0, ex = extrasDe(it);
   const bens = bensDoPlano(), ger = geradorDe(it), nomeGer = ger.startsWith('bem:') ? (bens[+ger.slice(4)].nome || 'bem sem nome') : nm[ger];
-  const dec = ex.find(x => x.origin === '13º salário'), com = ex.find(x => x.origin === 'Comissões'), bonus = ex.filter(x => x !== dec && x !== com);
-  const resumoEx = [dec ? '13º' : '', com ? 'comissões ' + fmt(valorDoPagamento(com)) + ' por mês' : '', ...bonus.map(b => 'bônus ' + (b.frequency || 'anual') + ' ' + fmt(valorDoPagamento(b)))].filter(Boolean).join(' · ');
+  const dec = ex.find(x => x.origin === '13º salário'), com = ex.find(ehVariavel), bonus = ex.filter(x => x !== dec && x !== com);
+  const resumoEx = [dec ? (dec.dates || []).length > 1 ? '13º em nov. e dez.' : '13º' : '', com ? 'variável ' + fmt(valorDoPagamento(com)) + ' por mês' : '', ...bonus.map(b => 'bônus ' + (b.frequency || 'anual') + ' ' + fmt(valorDoPagamento(b)))].filter(Boolean).join(' · ');
   const linhaMin = `<div class="orc-r-min" data-orc-abre="${it.id}" role="button" tabindex="0" aria-expanded="${aberto}">
       <span class="orc-tipo ${ativa ? 'at' : 'pa'}">${ativa ? 'Ativa' : 'Passiva'}</span>
       <span class="orc-r-nome"><b>${esc(it.label || 'Renda sem nome')}</b><small>${esc(it.origin || '')}${casal || ger.startsWith('bem:') ? ' · ' + esc(nomeGer) : ''}${resumoEx ? ' · ' + esc(resumoEx) : ''}</small></span>
@@ -5090,8 +5145,8 @@ function rendaCartao(it, nm, casal) {
     : `<div class="orc-fx">${fmt(media)}<small>média · ${lig ? 'da página ' + lig[0] + ' · <button class="link" data-ir="' + lig[1] + '">mudar</button>' : 'detalhada no <button class="link" data-ir="fluxo">Fluxo de caixa</button>'}</small></div>`;
   const descCampo = simples && bruto > 0 ? `<input data-orc-desc="${it.id}" data-money-opt inputmode="decimal" value="${money(Math.max(0, bruto - liq))}">` : `<div class="orc-fx">${bruto > 0 ? fmt(Math.max(0, bruto - liq)) : '—'}<small>${bruto > 0 ? 'bruto menos líquido' : 'informe o bruto'}</small></div>`;
   const extras = ativa || ex.length ? `<div class="orc-ex"><h4>Além ${it.origin === 'Salário' ? 'do salário' : 'desta renda'}</h4>
-      <div class="orc-ex-l">${it.origin === 'Salário' || dec ? `<label class="orc-ck"><input type="checkbox" data-orc-dec="${it.id}"${dec ? ' checked' : ''}> Recebe 13º salário <small>em dezembro, no valor do líquido do mês</small></label>` : ''}
-        <div class="orc-ex-c"><span>Comissões por mês</span><input data-orc-com="${it.id}" data-money-opt inputmode="decimal" placeholder="R$ 0" value="${com ? money(valorDoPagamento(com)) : ''}"></div></div>
+      <div class="orc-ex-l">${it.origin === 'Salário' || dec ? `<label class="orc-ck"><input type="checkbox" data-orc-dec="${it.id}"${dec ? ' checked' : ''}> Recebe 13º salário</label>${dec ? `<span class="orc-dec"><select data-orc-dec13="${dec.id}" aria-label="Quando o 13º é pago"><option value="dez">em dezembro</option><option value="novdez"${(dec.dates || []).length > 1 ? ' selected' : ''}>metade em novembro, metade em dezembro</option></select><small>no valor do líquido do mês</small></span>` : ''}` : ''}
+        <div class="orc-ex-c"><span>Outras remunerações variáveis por mês ${tip('Comissões, adicional por performance, por viagens e outros valores que variam: a média do mês, líquida.')}</span><input data-orc-com="${it.id}" data-money-opt inputmode="decimal" placeholder="R$ 0" value="${com ? money(valorDoPagamento(com)) : ''}"></div></div>
       ${bonus.map(b => { const j = plano.incomes.indexOf(b); return `<div class="orc-bonus"><span>Bônus</span>${campoR(`incomes.${j}.steps.0.value`, 'reais0', ' placeholder="R$ líquido"')}
         <select data-orc-bfq="${b.id}" aria-label="Frequência do bônus">${FREQ_BONUS.map(([k, n]) => `<option value="${k}"${(b.frequency || 'anual') === k ? ' selected' : ''}>${n}</option>`).join('')}</select>
         <span class="orc-em">${b.frequency === 'anual' ? 'em' : 'a partir de'}</span><select data-orc-bmes="${b.id}" aria-label="Mês do bônus">${MESES.map((m, k) => `<option value="${k}"${mesDoBonus(b) === k ? ' selected' : ''}>${m}</option>`).join('')}</select>
@@ -5143,10 +5198,11 @@ document.addEventListener('change', e => {
   if (d.orcDec) { const it = acha(d.orcDec); if (!it) return; const dec = extrasDe(it).find(x => x.origin === '13º salário');
     if (t.checked && !dec) novaExtra(it, '13º salário', { label: '13º salário · ' + (it.label || 'salário'), segue: it.id, taxable: false, gross: +it.gross || 0, frequency: 'anual', dates: [{ m: 11, d: 20 }], steps: [{ from: ((it.steps || [])[0] || { from: 0 }).from, value: liquidoHoje(it) }] });
     if (!t.checked && dec) tiraLinha(dec); renderAll(); return; }
-  if (d.orcCom) { const it = acha(d.orcCom); if (!it) return; const com = extrasDe(it).find(x => x.origin === 'Comissões'), v = unmoney(t.value);
-    if (v > 0) { if (com) { com.steps = [{ from: com.steps[0].from, value: v }]; } else novaExtra(it, 'Comissões', { label: 'Comissões · ' + (it.label || 'renda'), frequency: 'mensal', days: (it.days || [5]).slice(0, 1), steps: [{ from: ((it.steps || [])[0] || { from: 0 }).from, value: v }] }); }
+  if (d.orcCom) { const it = acha(d.orcCom); if (!it) return; const com = extrasDe(it).find(ehVariavel), v = unmoney(t.value);
+    if (v > 0) { if (com) { com.steps = [{ from: com.steps[0].from, value: v }]; } else novaExtra(it, 'Remuneração variável', { label: 'Remuneração variável · ' + (it.label || 'renda'), frequency: 'mensal', days: (it.days || [5]).slice(0, 1), steps: [{ from: ((it.steps || [])[0] || { from: 0 }).from, value: v }] }); }
     else if (com) tiraLinha(com);
     renderAll(); return; }
+  if (d.orcDec13) { const dec = acha(d.orcDec13); if (!dec || !DATAS_13[t.value]) return; dec.dates = DATAS_13[t.value].map(x => ({ ...x })); renderAll(); return; }
   if (d.orcBfq) { const b = acha(d.orcBfq); if (!b) return; const m = mesDoBonus(b); b.frequency = t.value; poeMesNoBonus(b, m); renderAll(); return; }
   if (d.orcBmes) { const b = acha(d.orcBmes); if (!b) return; poeMesNoBonus(b, +t.value); renderAll(); }
 });
@@ -5321,6 +5377,113 @@ function lancaParcela(d, criar) {
   else if (+d.parcela > 0 || d.linhaPropria) setStep(it, 0, +d.parcela || 0);
   if (d.linhaPropria) setFim(it, rest > 0 ? rest - 1 : null);
 }
+// ---------- o crédito novo (plano.creditos) ----------
+// Quando o dinheiro acaba (a ruína da simulação: as contas do mês não fecham mais), o Fluxo de caixa avisa e sugere um
+// crédito. O consultor informa o valor, o mês, as parcelas, os juros ao mês e o sistema; o motor põe o dinheiro no
+// financeiro naquele mês e o saldo devedor nas dívidas, e a parcela entra aqui como uma despesa fixa própria ("Parcela:
+// nome"), mantida igual ao contrato. Se mesmo assim o dinheiro acaba, a parcela não cabe: é preciso cortar despesas na
+// tabela abaixo, ou o cliente não consegue o crédito.
+const MAX_CREDITOS = 3;   // ao longo do plano inteiro: depois do terceiro, só cortando despesas
+function lancaCredito(c) {
+  const ct = ENGINE.contratoDoCredito(c); let it = c.linha ? plano.expenses.find(x => x.id === c.linha) : null;
+  if (!ct) return;
+  if (!it) { it = { id: novoId('cat'), label: '', group: 'fix', frequency: 'mensal', days: [10], description: 'Parcela de crédito novo, lançada no alto do Fluxo de caixa', steps: [] }; plano.expenses.push(it); c.linha = it.id; }
+  it.label = 'Parcela: ' + (c.nome || 'crédito novo');
+  const st = []; ct.linhas.forEach((l, k) => { const v = Math.round(l.pay * 100) / 100; if (!st.length || Math.abs(v - st[st.length - 1].value) >= 0.5) st.push({ from: ct.em + 1 + k, value: v }); });
+  it.steps = st.concat({ from: ct.em + 1 + ct.linhas.length, value: 0 }); it.exc = {};
+}
+function renderCreditoC() {
+  const el = document.getElementById('fxCredito'); if (!el) return;
+  const ru = SIM && SIM.ruina, cs = plano.creditos || [];
+  if (!ru && !cs.length) { el.innerHTML = ''; return; }
+  const idade = ru ? Math.floor(ENGINE.ageOf(ru.week)) : null, varios = cs.length > 1 ? 'os créditos' : 'o crédito';
+  let h = ru
+    ? `<div class="cr-alerta"><div>${cs.length ? 'Mesmo com ' + varios + ', o dinheiro' : 'Pelo plano atual, o dinheiro'} <b>acaba em ${monthsLabel(ru.mi)}</b>${idade ? ' (' + esc(ENGINE.nomesDaFamilia(plano).titular) + ' com ' + idade + ' anos)' : ''}: as contas do mês deixam de fechar.
+        Sem ajuste, a família entraria no cheque especial (${Math.round(ENGINE.CHEQUE_M * 100)}% ao mês)${ru.cheque12 >= 1 ? ` e deveria <b>${fmt(ru.cheque12)}</b> em 12 meses` : ", mesmo que por poucos meses"}.
+        ${!cs.length ? 'Sugestão: simular um crédito e fazer a parcela caber no fluxo.'
+          : cs.length < MAX_CREDITOS ? 'Corte mais despesas na tabela abaixo ou simule outro crédito nesse mês (o plano aceita até ' + MAX_CREDITOS + '; ' + (MAX_CREDITOS - cs.length === 1 ? 'resta 1' : 'restam ' + (MAX_CREDITOS - cs.length)) + ').'
+          : 'O plano já tem ' + MAX_CREDITOS + ' créditos, o limite: não dá para simular outro. Só cortando despesas o plano fecha.'}</div>
+        ${cs.length < MAX_CREDITOS ? '<button class="btn btn-primary btn-small" data-cr-novo>Simular contratação de ' + (cs.length ? 'um novo crédito' : 'um crédito') + '</button>' : ''}</div>`
+    : `<div class="cr-alerta ok"><div><b>✓ A parcela cabe:</b> com ${varios}, as contas fecham em todos os meses do plano.</div></div>`;
+  const t = (rot, v, sub) => `<div class="dv-t"><span>${rot}</span><b>${v}</b><small>${sub}</small></div>`;
+  h += cs.map((c, k) => { const ct = ENGINE.contratoDoCredito(c), p = 'creditos.' + k + '.';
+    return `<div class="cr-card"><h4>Crédito novo${c.nome ? ': ' + esc(c.nome) : ''}<button class="btn btn-icon" data-cr-rm="${k}" title="Remover o crédito e a parcela">×</button></h4>
+      <div class="grid"><div class="field"><label>Nome</label>${campoR(p + 'nome', 'texto', ' placeholder="ex.: Empréstimo pessoal"')}</div>
+        <div class="field"><label>Valor liberado</label>${campoR(p + 'valor', 'reais0', ' placeholder="R$ 0"')}</div>
+        <div class="field"><label>O dinheiro cai em</label>${seletorMes('data-r="' + p + 'em"', +c.em || 1)}</div>
+        <div class="field"><label>Parcelas</label>${campoR(p + 'parcelas', 'num', ' min="1"')}</div>
+        <div class="field"><label>Juros ao mês (%)</label>${campoR(p + 'juros', 'num', ' step="0.01" min="0"')}</div>
+        <div class="field"><label>Sistema</label>${selR(p + 'sistema', [['', 'Price (parcela fixa)'], ['sac', 'SAC (parcela cai)']])}</div></div>
+      ${ct ? `<div class="cr-conta">${t('Parcela', fmt(ct.parcela), Math.abs(ct.parcela - ct.ultima) >= 0.5 ? 'caindo até ' + fmt(ct.ultima) : 'fixa')}
+        ${t('Quando', monthsLabel(ct.em + 1) + ' a ' + monthsLabel(ct.em + ct.n), ct.n + ' parcelas')}
+        ${t('Total pago', fmt(ct.total), fmt(ct.juros) + ' de juros')}${t('Juros ao ano', pctBR(Math.pow(1 + ct.i, 12) - 1), pctBR(ct.i) + ' ao mês')}
+        ${c.linha ? `<button class="btn btn-secondary btn-small" data-div-abrir="${esc(c.linha)}">Ver a parcela no fluxo</button>` : ''}</div>
+        ${(() => { const mi = ct.em + 1, f = faltaDoMes(mi); return f > 0.5
+          ? `<div class="cr-mes falta">Em ${monthsLabel(mi)}, com a parcela, as despesas passam das entradas em <b>${fmt(f)} por mês</b>. <button class="link" data-cr-ajusta="${k}">Escolher de onde sai</button></div>`
+          : `<div class="cr-mes">✓ Em ${monthsLabel(mi)}, o mês fecha com a parcela.</div>`; })()}` : '<div class="dv-conta vazio">Informe o valor, o mês e as parcelas para ver a parcela.</div>'}</div>`; }).join('');
+  el.innerHTML = h;
+}
+document.addEventListener('click', e => {
+  const n = e.target.closest('[data-cr-novo]'), rm = e.target.closest('[data-cr-rm]'), aj = e.target.closest('[data-cr-ajusta]'); if (!n && !rm && !aj) return;
+  if (aj) { abreAjusteDoCredito(plano.creditos[+aj.dataset.crAjusta]); return; }
+  if (n && (plano.creditos || []).length >= MAX_CREDITOS) return;
+  if (n) { const ru = SIM && SIM.ruina;
+    plano.creditos = (plano.creditos || []).concat({ id: novoId('cr'), nome: 'Empréstimo pessoal', em: ru ? Math.max(1, ru.mi) : 1, valor: ru ? Math.max(10000, Math.ceil((ru.cheque12 || 0) / 10000) * 10000) : 50000, parcelas: 48, juros: 2, sistema: '' });
+    fx.aberto.add('out'); fx.aberto.add('out_fix'); }   // a parcela aparece aberta na tabela, entre as despesas fixas
+  else tiraCredito(plano.creditos[+rm.dataset.crRm]);
+  renderAll();
+  if (n) abreAjusteDoCredito(plano.creditos[plano.creditos.length - 1]);   // a parcela precisa caber: escolher de onde sai
+});
+const tiraCredito = c => { if (!c) return; if (c.linha) plano.expenses = plano.expenses.filter(x => x.id !== c.linha); plano.creditos = plano.creditos.filter(x => x !== c); };
+// o mês fecha? as despesas menos as entradas do mês, pelo equivalente mensal (a anual pesa um doze avos), com a parcela
+const faltaDoMes = mi => Math.max(0, livingTotal(mi) - incomeTotal(mi));
+// A parcela começa no mês seguinte ao crédito e, com ela, o orçamento muda: a janela (a mesma da Política de investimentos)
+// lista as despesas daquele mês e o consultor escolhe quanto reduzir em cada uma, a partir daquele mês. Ela não fecha
+// sozinha: ou as reduções cobrem a falta (pode sobrar folga), ou o crédito sai do plano. As parcelas de dívidas e de
+// outros créditos não entram na lista, porque são contrato.
+let ajusteCredito = null;
+function abreAjusteDoCredito(c) {
+  const ct = c && ENGINE.contratoDoCredito(c); if (!ct) return;
+  const mi = ct.em + 1, falta = faltaDoMes(mi); if (!(falta > 0.5)) return;
+  ajusteCredito = { id: c.id, mi };
+  const desp = plano.expenses.filter(it => !ligadaA(it)).map(it => ({ it, v: ENGINE.mensalizado(it, mi) })).filter(d => d.v > 0.5)
+    .sort((x, y) => (x.it.group === 'adj' ? 0 : 1) - (y.it.group === 'adj' ? 0 : 1) || y.v - x.v);
+  const el = document.getElementById('estouro');
+  el.innerHTML = `<div class="eo-card" role="dialog" aria-modal="true">
+    <h3>A parcela precisa caber a partir de ${monthsLabel(mi)}</h3>
+    <p class="muted">O crédito de ${fmt(c.valor)} cai em ${monthsLabel(ct.em)} e a parcela de ${fmt(ct.parcela)} começa no mês seguinte. Para o plano seguir, alguma despesa precisa diminuir a partir de ${monthsLabel(mi)}. Escolha de onde sai; pode deixar uma folga.</p>
+    <div class="eo-grid">
+      <div class="eo-l"><span>Entradas em ${monthsLabel(mi)}</span><b>${fmt(incomeTotal(mi))}</b></div>
+      <div class="eo-l"><span>Despesas, com a parcela</span><b>− ${fmt(livingTotal(mi))}</b></div>
+      <div class="eo-l forte low"><span>Faltam por mês</span><b>${fmt(Math.ceil(falta))}</b></div>
+    </div>
+    <div class="eo-sep">Reduzir a partir de ${monthsLabel(mi)}</div>
+    <div class="eo-opc">${desp.map(d => `<div class="eo-o"><span>${esc(d.it.label || 'sem nome')} <small>${d.it.group === 'adj' ? 'despesa ajustável' : 'despesa fixa'}</small></span><b>${fmt(d.v)}/mês</b><label class="eo-menos">− <input data-ec="${d.it.id}" data-ec-max="${d.v}" data-money type="text" inputmode="decimal" placeholder="R$ 0"></label></div>`).join('') || '<div class="muted">Não há despesas para reduzir.</div>'}</div>
+    <div class="eo-red" id="ecSoma"></div>
+    <div class="eo-bts"><button class="btn btn-primary" id="ecReduzir" disabled>Reduzir e seguir</button><button class="btn btn-secondary" id="ecDesistir">Desistir do crédito</button></div>
+  </div>`;
+  el.hidden = false; somaAjusteCredito();
+}
+function somaAjusteCredito() {
+  const s = document.getElementById('ecSoma'); if (!s || !ajusteCredito) return;
+  const falta = Math.ceil(faltaDoMes(ajusteCredito.mi));
+  let tot = 0; document.querySelectorAll('[data-ec]').forEach(i => { tot += Math.min(unmoney(i.value), +i.dataset.ecMax); i.classList.toggle('acima', unmoney(i.value) > +i.dataset.ecMax + 0.005); });
+  const resta = Math.max(0, falta - tot);
+  s.innerHTML = `Reduções: <b>${fmt(tot)}</b> de ${fmt(falta)} por mês` + (resta > 0.5 ? ` · <span class="low">faltam ${fmt(resta)}</span>` : tot > falta + 0.5 ? ` · <span class="good">cobre a falta e deixa ${fmt(tot - falta)} de folga</span>` : ' · <span class="good">cobre a falta</span>');
+  document.getElementById('ecReduzir').disabled = resta > 0.5;
+}
+document.addEventListener('input', e => { if (e.target.dataset && e.target.dataset.ec != null) somaAjusteCredito(); });
+document.addEventListener('click', e => {
+  const t = e.target.closest('#ecReduzir, #ecDesistir'); if (!t || !ajusteCredito) return;
+  const { id, mi } = ajusteCredito, c = (plano.creditos || []).find(x => x.id === id);
+  if (t.id === 'ecDesistir') tiraCredito(c);
+  else document.querySelectorAll('[data-ec]').forEach(inp => {   // um degrau no mês: cada ocorrência cai o equivalente a R por mês
+    const R = Math.min(unmoney(inp.value), +inp.dataset.ecMax); if (!(R > 0)) return;
+    const it = plano.expenses.find(x => x.id === inp.dataset.ec), v = ENGINE.stepAt(it, mi), fator = ENGINE.mensalizado(it, mi) / (v || 1);
+    setStep(it, mi, Math.max(0, Math.round((v - R / (fator || 1)) * 100) / 100));
+  });
+  ajusteCredito = null; document.getElementById('estouro').hidden = true; renderAll();
+});
 // a parcela pelo contrato, de hoje em diante: muda no SAC e com o seguro sobre o saldo (revista a cada 12 meses) e no mês
 // seguinte a um adiantamento que reduz a parcela
 function degrausDaParcela(ct) {
@@ -6571,7 +6734,7 @@ const planoVazio = () => ({ name: '', age: '', nascimento: '', conjugeNascimento
   patrimonio: { comecou: null, liquidezIdealPct: null, financeiro: [], participacoes: [], bens: [] } });
 const temConteudo = () => !!(plano.name || plano.incomes.length || plano.expenses.length || plano.objectives.length);
 function trocarPlano(b, novo, rotulo) {
-  const aplicar = () => { CEN = { lista: [], ativo: null }; gravaCen(); if (gaveta) { gaveta = null; renderGaveta(); } aceito = null; pendente = null; document.getElementById('estouro').hidden = true; plano = novo(); fx.t0 = null; save(); fillFields(); renderAll(); irPara('cliente'); document.getElementById('f-name').focus(); };
+  const aplicar = () => { CEN = { lista: [], ativo: null }; gravaCen(); if (gaveta) { gaveta = null; renderGaveta(); } aceito = null; pendente = null; ajusteCredito = null; document.getElementById('estouro').hidden = true; plano = novo(); fx.t0 = null; save(); fillFields(); renderAll(); irPara('cliente'); document.getElementById('f-name').focus(); };
   if (!temConteudo() || b.dataset.armed) { delete b.dataset.armed; b.classList.remove('armed'); b.textContent = rotulo; aplicar(); return; }
   b.dataset.rotulo = rotulo; b.dataset.armed = '1'; b.classList.add('armed'); b.textContent = 'Apagar o plano atual? Clique de novo';
 }

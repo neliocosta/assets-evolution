@@ -68,8 +68,8 @@ por outra página (parcela de dívida, plano de saúde) aparecem com a média e 
 | Tributável no IR | `incomes[].taxable` | fonte (lucros: não, sozinho) | rendimentos tributáveis (IR) |
 | Categoria (salário, pró-labore, lucros, aluguel…) | `incomes[].origin`, `kind` | fonte | ativa ou passiva, INSS, sócios |
 | Descontos de uma renda | bruto menos líquido | calculada (digitar os descontos muda o líquido) | Orçamento |
-| O que vem junto de uma renda (13º, comissões, bônus) | linhas próprias em `incomes[]`, presas à renda por `de` | fonte (cada uma é uma linha do Fluxo) | simulação, Orçamento |
-| Valor do 13º | `incomes[].segue`: o id do salário | ligada ao líquido do salário, mês a mês | simulação |
+| O que vem junto de uma renda (13º, remuneração variável, bônus) | linhas próprias em `incomes[]`, presas à renda por `de` | fonte (cada uma é uma linha do Fluxo) | simulação, Orçamento |
+| Valor do 13º | `incomes[].segue`: o id do salário | ligada ao líquido do salário, mês a mês, repartida entre as datas (`dates`: dezembro, ou novembro e dezembro) | simulação |
 | Despesas | `expenses[]` | fonte | simulação, custo de vida, padrão de vida |
 | Parcela de uma dívida | linha "Parcela: nome" em `expenses` | ligada ao Patrimônio (a dívida cria e acerta a linha) | fluxo |
 | Renda que um bem gera | `patrimonio.bens[].renda` → linha de entrada | ligada ao Fluxo | patrimônio do cliente |
@@ -94,6 +94,7 @@ por outra página (parcela de dívida, plano de saúde) aparecem com a média e 
 | Outras dívidas | `patrimonio.dividas[]` | fonte | patrimônio total, sucessão |
 | Saldo devedor de hoje (do extrato) | `saldoDevedor` (em `bens[]` e `dividas[]`) | fonte | patrimônio total, evolução patrimonial (cai no ritmo do contrato), sucessão |
 | Contrato da dívida: valor liberado, parcelas contratadas, mês da 1ª parcela, parcela atual, juros (ao ano ou ao mês), sistema, IOF, seguro prestamista, tarifas | `credito`, `parcelas`, `inicio` (AAAA-MM), `parcela`, `juros` e `jurosPeriodo` (vazio: ao ano; `mes`), `sistema`, `iof`, `seguro.{modo,valor,pct}`, `tarifas` (em `bens[]` e `dividas[]`) | fonte | `ENGINE.contratoDaDivida`, linha da parcela no Fluxo de caixa |
+| Crédito novo, contratado no futuro: nome, valor liberado, mês em que o dinheiro cai, parcelas, juros ao mês, sistema | `creditos[].{nome,valor,em,parcelas,juros,sistema}` e `linha` (o id da despesa da parcela) | fonte (consultor, no alto do Fluxo de caixa) | simulação (o valor entra no financeiro, o saldo nas dívidas), linha da parcela no Fluxo de caixa (`ENGINE.contratoDoCredito`) |
 | Adiantamentos da dívida: daqui a quantos meses, valor, o que reduz (prazo ou parcela) | `amortizacoes[].{em,valor,modo}` (em `bens[]` e `dividas[]`) | fonte (consultor, na gaveta de evolução) | saldo e quitação (`ENGINE.contratoDaDivida`), linha da parcela no Fluxo de caixa (o valor sai no mês) |
 | Parcelas que faltam | `restantes` | calculada pelo mês da 1ª parcela e pelos adiantamentos (`ENGINE.restantesDaDivida`); digitada só sem o mês da 1ª parcela | fim da linha da parcela, saldo ao longo do tempo, quitação |
 | CET, taxa pela parcela, IOF, valor financiado, saldo pelo contrato, o que falta pagar | `ENGINE.contratoDaDivida` | calculada (não gravada) | cartão da dívida, gaveta de evolução |

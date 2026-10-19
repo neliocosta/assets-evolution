@@ -712,6 +712,10 @@ console.log('\nO 13º segue o salário');
   ok('no orçamento, o 13º pesa um doze avos do salário por mês', Math.abs(Es.mensalizado(dec, 0) - 10000 / 12) < 0.01);
   const dez = Array.from({ length: 12 }, (_, mm) => mm).filter(mm => Es.valorEm(dec, mm) > 0);
   ok('o 13º cai uma vez por ano, em dezembro', dez.length === 1 && Es.valorEm(dec, dez[0]) === 10000, 'mês ' + dez.join(','));
+  dec.dates = [{ m: 10, d: 30 }, { m: 11, d: 20 }];
+  const nd = Array.from({ length: 12 }, (_, mm) => mm).filter(mm => Es.valorEm(dec, mm) > 0);
+  ok('em duas parcelas, metade em novembro e metade em dezembro', nd.length === 2 && nd.every(mm => Es.valorEm(dec, mm) === 5000), 'meses ' + nd.join(','));
+  ok('em duas parcelas, o orçamento continua com um doze avos', Math.abs(Es.mensalizado(dec, 0) - 10000 / 12) < 0.01);
 }
 
 console.log('\nA ordem das linhas do fluxo');
@@ -719,6 +723,34 @@ console.log('\nA ordem das linhas do fluxo');
   const Ef = carregar(srcCliente), sf = Ef.run('perp'), fr = Ef.frequenciaDasLinhas(sf);
   ok('o salário (todo mês) aparece em mais meses que o bônus anual', fr.in_salario > fr.in_bonus && fr.in_bonus > 0, 'salário ' + fr.in_salario + ', bônus ' + fr.in_bonus);
   ok('a mesma simulação devolve a mesma contagem, sem refazer a conta', Ef.frequenciaDasLinhas(sf) === fr);
+}
+
+console.log('\nQuando o dinheiro acaba');
+{
+  const Er = carregar(srcCliente);
+  const base = { patrimonio: { financeiro: [{ nome: 'Banco', valor: 20000 }], bens: [], dividas: [] }, initialWealth: 20000, initialBens: 0, objectives: [], passive: [],
+    incomes: [{ id: 'sal', label: 'Salário', kind: 'ativa', origin: 'Salário', frequency: 'mensal', days: [5], steps: [{ from: 0, value: 10000 }] }] };
+  Er.configure(Object.assign({}, base, { expenses: [{ id: 'x', label: 'Tudo', group: 'fix', week: 1, frequency: 'mensal', steps: [{ from: 0, value: 15000 }] }] }));
+  const s = Er.run('desej'), ru = s.ruina;
+  ok('com 5 mil de falta por mês, 20 mil acabam no quinto mês', ru && ru.mi >= 3 && ru.mi <= 5, ru ? 'mês ' + ru.mi : 'sem ruína');
+  ok('depois da ruína o que falta vira cheque especial, que entra na dívida', ru && s.weeks[ru.week + 8].cheque > 0 && s.weeks[ru.week + 8].div >= s.weeks[ru.week + 8].cheque);
+  ok('em 12 meses, a dívida passa da soma do que faltou (os juros de 8% ao mês)', ru && ru.cheque12 > 12 * 5000, ru && Math.round(ru.cheque12));
+  ok('sem dinheiro, a liberdade financeira não acontece', !s.ff);
+  const fim = s.weeks[Er.NW - 1];
+  ok('um ano depois da ruína o plano para: a dívida fica como estava', fim.cheque === s.weeks[ru.week + 60].cheque && !Object.keys(fim.f).length);
+  Er.configure(Object.assign({}, base, { expenses: [{ id: 'x', label: 'Tudo', group: 'fix', week: 1, frequency: 'mensal', steps: [{ from: 0, value: 8000 }] }] }));
+  ok('com sobra todo mês, não há ruína', !Er.run('desej').ruina);
+
+  // o crédito novo: 100 mil no mês 4, em 24 parcelas a 2% ao mês, e a parcela numa despesa que começa no mês 5
+  const cred = { id: 'c1', nome: 'Empréstimo', em: 4, valor: 100000, parcelas: 24, juros: 2, sistema: '' };
+  const ct = Er.contratoDoCredito(cred);
+  ok('o crédito: parcela Price de 100 mil em 24 vezes a 2% ao mês', ct && Math.abs(ct.parcela - 5287.11) < 0.05, ct && ct.parcela.toFixed(2));
+  ok('o saldo do crédito: o valor no mês em, zero depois da última', Er.saldoDoCredito(cred, 3) === 0 && Er.saldoDoCredito(cred, 4) === 100000 && Er.saldoDoCredito(cred, 28) < 0.01 && Er.saldoDoCredito(cred, 40) === 0 && Er.saldoDoCredito(cred, 16) > 0);
+  const parcela = { id: 'p1', label: 'Parcela: Empréstimo', group: 'fix', frequency: 'mensal', days: [10], steps: [{ from: 5, value: ct.parcela }, { from: 29, value: 0 }] };
+  Er.configure(Object.assign({}, base, { creditos: [cred], expenses: [{ id: 'x', label: 'Tudo', group: 'fix', week: 1, frequency: 'mensal', steps: [{ from: 0, value: 15000 }] }, parcela] }));
+  const sc = Er.run('desej'), wC = sc.weeks.find(w => w.mi === 4);
+  ok('no mês do crédito o dinheiro entra no financeiro e a dívida cresce junto', sc.events.some(e => e.credito === 100000) && wC.div >= 100000 - 0.5);
+  ok('o crédito adia a ruína, mas com a parcela as contas continuam sem fechar', sc.ruina && sc.ruina.mi > ru.mi, sc.ruina && 'mês ' + sc.ruina.mi);
 }
 
 console.log('\n' + (falhas ? falhas + ' verificação(ões) falharam.' : 'Tudo certo.') + '\n');

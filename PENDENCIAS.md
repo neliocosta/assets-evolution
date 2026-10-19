@@ -450,7 +450,9 @@ O arquivo enviado pelo consultor funciona offline.
 
 ### 16. Emojis do fluxo
 A cliente leu 💳 como "gastei no cartão" e achou as setas verde e vermelha mais claras. Os emojis foram um
-pedido explícito, então fica registrado como ponto a reavaliar, não como erro.
+pedido explícito, então fica registrado como ponto a reavaliar, não como erro. Nas movimentações de patrimônio, o
+ícone de setas circulares (igual para entrar e sair) virou uma seta horizontal entrando no colchete (roxa, entra no
+patrimônio) ou saindo dele (vermelha, sai), para não confundir com as setas verticais de entrada e saída de caixa.
 
 ### 17. Área do fluxo em telas baixas
 Num notebook, a tabela de fluxo mostra poucas linhas. Considerar um divisor arrastável entre o gráfico e a

@@ -278,7 +278,7 @@ Cada seguro abre o detalhe quando "Protegido?" é Sim.
 | Horas de trabalho/mês | `ra_horas[]` | número | somadas por pessoa: `horas`, `conjugeHoras` (o valor da hora, na Gestão financeira) |
 | Renda bruta mensal | `ra_rendaBruta[]` | R$ | `gross` |
 | Renda líquida mensal | `ra_rendaLiquida[]` | R$ | `steps[0].value` |
-| Comissões (mensal) | `ra_comissoes[]` | R$ | uma linha "Comissões" |
+| Comissões (mensal) | `ra_comissoes[]` | R$ | uma linha "Remuneração variável" (comissões, adicionais por performance ou por viagens) |
 | Recebe 13º salário? | `ra_decimo_N` | Sim, Não | uma linha anual de 13º (hoje o 13º só entra se for linha do Fluxo) |
 | Bônus anual, PLR anual | `ra_bonus[]`, `ra_plr[]` | R$ | linhas anuais "Bônus" e "PLR" (a PLR não é tributável no ajuste) |
 | Observações | `ra_obs[]` | texto longo | não usado |

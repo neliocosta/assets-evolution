@@ -38,10 +38,11 @@ quem a gera, o líquido e o bruto, e o que vem junto) que abre ao clicar e recol
 passiva, `kind`), a categoria (`origin`), o nome, quem a gera (uma pessoa, `pessoa`, ou, numa passiva, um bem, que é
 gravado do lado do bem em `patrimonio.bens[].renda`), o bruto (`gross`), os descontos (calculados como bruto menos
 líquido; digitar os descontos muda o líquido), o líquido e se é tributável no IR. Numa renda ativa, "Além do salário"
-reúne o que vem junto: o 13º (só no salário), as comissões por mês e cada bônus (trimestral, semestral ou anual, com o
+reúne o que vem junto: o 13º (só no salário), as outras remunerações variáveis
+por mês (comissões, adicional por performance ou por viagens) e cada bônus (trimestral, semestral ou anual, com o
 mês). Cada um é uma linha própria do Fluxo, presa à renda por `de`, e aparece no Fluxo como as outras. O 13º cai em 20 de
-dezembro e segue o líquido do salário (`segue`, que o motor lê em `stepAt`): um aumento no salário muda o 13º sozinho.
-Remover a renda remove o que vem junto. Datas, degraus e mudanças ao longo do tempo continuam no Fluxo. Na versão
+dezembro, ou metade em 30 de novembro e metade em 20 de dezembro, e segue o líquido do salário (`segue`, que o motor lê em `stepAt`): um aumento no salário muda o 13º sozinho;
+com duas datas, o motor reparte o valor entre elas. Remover a renda remove o que vem junto. Datas, degraus e mudanças ao longo do tempo continuam no Fluxo. Na versão
 final, as rendas chegam da coleta, e aqui o consultor corrige ou acrescenta o que faltou.
 
 ## A média dos próximos 12 meses
@@ -60,6 +61,29 @@ vêm na ordem de quantos meses, de hoje em diante, elas têm valor (`ENGINE.freq
 as que aparecem em mais meses ficam em cima. Como as linhas sem valor na janela à vista somem, ao andar no tempo são as de
 baixo que entram e saem, e as de sempre não mudam de lugar. O empate mantém a ordem do cadastro; um grupo que reúne
 subgrupos (as Saídas: fixas, ajustáveis, compromissos…) mantém a ordem deles, e a "+ nova linha" continua no fim.
+
+## Quando o dinheiro acaba
+
+Antes, o motor zerava o saldo negativo da reserva, como se o que faltou aparecesse do nada. Agora, num mês em que as
+contas não fecham, o que falta sai primeiro das caixinhas dos objetivos e, sem elas, vira dívida no cheque especial
+(`CHEQUE_M`, 8% ao mês, com os juros como saída "Juros do cheque especial" e o saque como movimentação "Cheque especial").
+A primeira semana em que o cheque é usado é a ruína (`run().ruina`: a semana, o mês e `cheque12`, a dívida doze meses
+depois). Daí em diante o plano para: a liberdade financeira não acontece, um ano depois a simulação congela (a dívida fica
+em `cheque12`), as curvas e os marcos param no mês da ruína, o fundo do gráfico e da tabela do fluxo fica vermelho, a
+reprodução termina ali e o destino ao lado do gráfico vira o alerta, com o mês, a idade e a dívida em 12 meses.
+
+No portal, a faixa de indicadores troca a Liberdade financeira por "O dinheiro acaba" e leva ao Fluxo de caixa, onde o
+alto da página repete o alerta e sugere **simular a contratação de um crédito** (`plano.creditos`: nome, valor liberado, o mês em que o
+dinheiro cai, parcelas, juros ao mês e sistema Price ou SAC). O motor (`contratoDoCredito`, `saldoDoCredito`) põe o valor
+no financeiro naquele mês (a movimentação "Crédito contratado" e um marco no gráfico) e o saldo devedor nas dívidas; a
+parcela entra no Fluxo como uma despesa fixa própria ("Parcela: nome"), refeita a cada mudança do contrato e removida com
+ele. Simular um crédito abre a janela "A parcela precisa caber a partir de <mês>" (a mesma da Política de investimentos): as
+despesas do mês seguinte ao crédito, pelo equivalente mensal, sem as parcelas de dívidas e de outros créditos, e quanto
+reduzir em cada uma a partir daquele mês (um degrau). Ela não fecha sozinha: "Reduzir e seguir" libera quando as reduções
+cobrem o que falta para o mês fechar (pode sobrar folga); "Desistir do crédito" tira o crédito e a parcela. O cartão do
+crédito diz se o mês seguinte fecha e reabre a janela. Se o dinheiro voltar a acabar mais adiante, o aviso oferece outro
+crédito, no novo mês da ruína, até três no plano inteiro (`MAX_CREDITOS`); no limite, só cortando despesas. Quando as
+contas fecham em todos os meses, o aviso fica verde.
 
 ## A política de investimentos
 
