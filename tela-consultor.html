@@ -2513,7 +2513,7 @@ const ENGINE = (() => {
   // As caixinhas, na ordem: os compromissos (plan.compromissos), a reserva de emergência, cada objetivo e a liberdade
   // financeira, que fica com o restante. O que vai para cada objetivo é o próprio objetivo (dedicated e planned): a política
   // só os reúne. A reserva é decisão do consultor (plan.politica.reserva e .reservaMensal; a reserva vazia é a ideal da Gestão
-  // de riscos, até onde o patrimônio com liquidez dá). Na simulação, a reserva continua dentro da liberdade (o dinheiro é o
+  // de riscos), sempre até onde o patrimônio com liquidez dá: nunca passa do que a família tem hoje. Na simulação, a reserva continua dentro da liberdade (o dinheiro é o
   // mesmo); aqui fica à parte, para dizer ao cliente que ela não vai para os objetivos. O FGTS e a previdência fechada contam
   // no patrimônio, mas sem liquidez: ficam na liberdade. A sobra é a média dos próximos 12 meses do Fluxo (ou a capacidade
   // informada); num planejamento anual (plan.periodicidade), as telas a mostram por ano. A renda líquida é a média das entradas
@@ -2530,7 +2530,7 @@ const ENGINE = (() => {
     const comps = (Array.isArray(plan.compromissos) ? plan.compromissos : []).filter(c => c && +c.valor > 0), objs = Array.isArray(plan.objectives) ? plan.objectives : OBJ;
     const emComp = comps.reduce((a, c) => a + +c.valor, 0), emObj = objs.reduce((a, o) => a + Math.max(0, +o.dedicated || 0), 0);
     const ideal = avaliaRiscos(plan).itens.reserva.ideal, livre = Math.max(0, total - semLiquidez - emComp - emObj);
-    const reserva = num(pol.reserva) != null ? Math.max(0, +pol.reserva) : Math.min(Math.ceil(Math.max(0, ideal || 0) / 100) * 100, livre), reservaMensal = Math.max(0, num(pol.reservaMensal) || 0);
+    const reserva = Math.min(num(pol.reserva) != null ? Math.max(0, +pol.reserva) : Math.ceil(Math.max(0, ideal || 0) / 100) * 100, livre), reservaMensal = Math.max(0, num(pol.reservaMensal) || 0);
     const perfilDe = r => Object.keys(PROFILES).find(k => Math.abs(PROFILES[k] - r) < 1e-9) || null;
     const miLib = s && s.ff ? s.ff.mi : idadeDaLiberdade() != null ? Math.max(0, Math.round((idadeDaLiberdade() - CURRENT_AGE) * 12)) : null;
     const cx = [{ id: 'compromissos', tipo: 'compromissos', nome: 'Compromissos', cor: CORES_CAIXINHA.compromissos, patrimonio: emComp, mensal: 0, itens: comps,
@@ -5987,7 +5987,7 @@ const polPct = (v, t) => t > 0 && v > 0.5 ? (v / t < 0.005 ? '&lt;1%' : Math.rou
 function polGrava(c, q, v, Pz) {
   v = Math.max(0, Math.round(v * 100) / 100); const f = q === 'm' ? polFator(Pz) : 1;
   if (c.tipo === 'objetivo') { if (q === 'p') c.obj.dedicated = v; else { c.obj.planned = Math.round(v / f * 100) / 100; c.obj.segueNecessario = false; } }
-  else if (c.tipo === 'reserva') { plano.politica = plano.politica || {}; if (q === 'p') plano.politica.reserva = v; else plano.politica.reservaMensal = Math.round(v / f * 100) / 100; }
+  else if (c.tipo === 'reserva') { plano.politica = plano.politica || {}; if (q === 'p') plano.politica.reserva = Math.min(v, polLimites(c, 'p', Pz).ate); else plano.politica.reservaMensal = Math.round(v / f * 100) / 100; }   // a reserva nunca passa do patrimônio que a família tem
 }
 // o controle sob cada valor: um trilho de zero ao total da fonte, em escala não linear (a posição é a raiz do valor), para
 // R$ 3 mil e R$ 600 mil terem a mesma precisão; dá para chegar até o valor de hoje mais o que a liberdade ainda tem (sem o
@@ -6016,8 +6016,8 @@ function polCelula(q, c, Pz) {
   if (c.tipo === 'compromissos' && q === 'm') return '<span class="pol-fixo" style="text-align:right;color:#B3AFA7">—</span>';
   let ref = 0, txt = '', titulo = '';
   if (c.tipo === 'reserva') {
-    if (q === 'p') { const ideal = c.sugerido > 0 ? Math.ceil(c.sugerido / 100) * 100 : 0; ref = ideal; titulo = 'A reserva ideal';
-      txt = ideal > 0 ? (Math.abs(c.patrimonio - ideal) < 1 ? '<span class="ok">na reserva ideal</span>' : `ideal ${fmt(ideal)}, pela Gestão de riscos <button type="button" class="usar" data-pol-usar="reserva">usar</button>`) : 'a ideal sai da Gestão de riscos'; }
+    if (q === 'p') { const ideal = c.sugerido > 0 ? Math.ceil(c.sugerido / 100) * 100 : 0, ate = polLimites(c, 'p', Pz).ate; ref = ideal; titulo = 'A reserva ideal';
+      txt = ideal > 0 ? (Math.abs(c.patrimonio - ideal) < 1 ? '<span class="ok">na reserva ideal</span>' : `ideal ${fmt(ideal)}, pela Gestão de riscos${ideal > ate + 0.5 ? `; o patrimônio de hoje dá até ${fmt(ate)}` : ''}${Math.abs(c.patrimonio - Math.min(ideal, ate)) >= 1 ? ' <button type="button" class="usar" data-pol-usar="reserva">usar</button>' : ''}`) : 'a ideal sai da Gestão de riscos'; }
     else txt = v > 0.5 ? 'até completar a ideal' : 'já completa; nada' + un;
   } else if (c.tipo === 'compromissos') txt = c.itens.length ? 'saem no mês marcado' : 'nenhum cadastrado';
   else if (q === 'p') txt = (c.patrimonio > 0.5 ? 'rendendo até a data' : 'nada separado hoje') + (c.vendas > 0.5 ? `<br>+ ${fmt(c.vendas)} de vendas de bens, na data` : '');
@@ -6143,7 +6143,7 @@ document.addEventListener('click', e => {
   if (e.target.closest('[data-pol-estouro]')) { abrirEstouroDaMesa(); return; }
   const u = e.target.closest('[data-pol-usar]');
   if (u) { const id = u.dataset.polUsar, Pz = ENGINE.politicaDeInvestimentos(plano, SIM), c = Pz.caixinhas.find(x => x.id === id);
-    if (c && c.tipo === 'reserva') { plano.politica = plano.politica || {}; plano.politica.reserva = Math.ceil(c.sugerido / 100) * 100; }
+    if (c && c.tipo === 'reserva') polGrava(c, 'p', Math.ceil(c.sugerido / 100) * 100, Pz);   // a ideal, até onde o patrimônio de hoje dá
     if (c && c.tipo === 'objetivo') { c.obj.planned = Math.ceil(c.necessario || 0); c.obj.segueNecessario = true; }
     renderAll(); return; }
   if (e.target.closest('[data-comp-add]')) { const L = plano.compromissos = plano.compromissos || []; const id = 'comp' + Date.now().toString(36); L.push({ id, titulo: '', descricao: '', em: 6, valor: 0 }); polCompAberto.add(id); renderAll();

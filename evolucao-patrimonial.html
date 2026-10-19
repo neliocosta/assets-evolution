@@ -2363,7 +2363,7 @@ const ENGINE = (() => {
   // As caixinhas, na ordem: os compromissos (plan.compromissos), a reserva de emergência, cada objetivo e a liberdade
   // financeira, que fica com o restante. O que vai para cada objetivo é o próprio objetivo (dedicated e planned): a política
   // só os reúne. A reserva é decisão do consultor (plan.politica.reserva e .reservaMensal; a reserva vazia é a ideal da Gestão
-  // de riscos, até onde o patrimônio com liquidez dá). Na simulação, a reserva continua dentro da liberdade (o dinheiro é o
+  // de riscos), sempre até onde o patrimônio com liquidez dá: nunca passa do que a família tem hoje. Na simulação, a reserva continua dentro da liberdade (o dinheiro é o
   // mesmo); aqui fica à parte, para dizer ao cliente que ela não vai para os objetivos. O FGTS e a previdência fechada contam
   // no patrimônio, mas sem liquidez: ficam na liberdade. A sobra é a média dos próximos 12 meses do Fluxo (ou a capacidade
   // informada); num planejamento anual (plan.periodicidade), as telas a mostram por ano. A renda líquida é a média das entradas
@@ -2380,7 +2380,7 @@ const ENGINE = (() => {
     const comps = (Array.isArray(plan.compromissos) ? plan.compromissos : []).filter(c => c && +c.valor > 0), objs = Array.isArray(plan.objectives) ? plan.objectives : OBJ;
     const emComp = comps.reduce((a, c) => a + +c.valor, 0), emObj = objs.reduce((a, o) => a + Math.max(0, +o.dedicated || 0), 0);
     const ideal = avaliaRiscos(plan).itens.reserva.ideal, livre = Math.max(0, total - semLiquidez - emComp - emObj);
-    const reserva = num(pol.reserva) != null ? Math.max(0, +pol.reserva) : Math.min(Math.ceil(Math.max(0, ideal || 0) / 100) * 100, livre), reservaMensal = Math.max(0, num(pol.reservaMensal) || 0);
+    const reserva = Math.min(num(pol.reserva) != null ? Math.max(0, +pol.reserva) : Math.ceil(Math.max(0, ideal || 0) / 100) * 100, livre), reservaMensal = Math.max(0, num(pol.reservaMensal) || 0);
     const perfilDe = r => Object.keys(PROFILES).find(k => Math.abs(PROFILES[k] - r) < 1e-9) || null;
     const miLib = s && s.ff ? s.ff.mi : idadeDaLiberdade() != null ? Math.max(0, Math.round((idadeDaLiberdade() - CURRENT_AGE) * 12)) : null;
     const cx = [{ id: 'compromissos', tipo: 'compromissos', nome: 'Compromissos', cor: CORES_CAIXINHA.compromissos, patrimonio: emComp, mensal: 0, itens: comps,

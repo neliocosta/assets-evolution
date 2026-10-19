@@ -649,6 +649,8 @@ console.log('\n12e. Política de investimentos: patrimônio e sobra por caixinha
   pl.objectives[0].dedicated = 480000; const Px = Ep.politicaDeInvestimentos(pl);
   ok('passar do patrimônio com liquidez é apontado', Px.excessoLiquido > 0 && Px.caixinhas.find(x => x.id === 'liberdade').patrimonio >= 0, 'excesso R$ ' + Math.round(Px.excessoLiquido));
   ok('a reserva vazia é a ideal até onde o patrimônio com liquidez dá', Math.abs(Px.caixinhas.find(x => x.id === 'reserva').patrimonio - 0) < 0.01);
+  const pr = base(); pr.politica = { reserva: 463900 }; const Pr = Ep.politicaDeInvestimentos(pr);
+  ok('a reserva definida também nunca passa do patrimônio com liquidez livre', Pr.caixinhas.find(x => x.id === 'reserva').patrimonio === 600000 - 100000 - 30000 - 160000, 'reserva R$ ' + Math.round(Pr.caixinhas.find(x => x.id === 'reserva').patrimonio));
   // o compromisso sai do patrimônio financeiro no mês marcado
   const comC = base(); Ep.configure(comC); const s1 = Ep.run('desej'), ev = s1.events.find(e => /Compromisso: Reforma/.test(e.label));
   const semC = base(); semC.compromissos = []; Ep.configure(semC); const s0 = Ep.run('desej');

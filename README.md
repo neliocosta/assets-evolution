@@ -91,7 +91,8 @@ contas fecham em todos os meses, o aviso fica verde.
 Para onde vai cada real: o patrimônio financeiro de hoje e a sobra do orçamento, divididos em caixinhas
 (`ENGINE.politicaDeInvestimentos`). As caixinhas são os compromissos (`compromissos`, a lista da coleta: gastos já marcados,
 com valor e data, que saem do patrimônio financeiro no mês marcado), a reserva de emergência (`politica.reserva` e
-`politica.reservaMensal`; vazia, a reserva ideal da Gestão de riscos), cada objetivo (o próprio `dedicated` e `planned` do
+`politica.reservaMensal`; vazia, a reserva ideal da Gestão de riscos; nunca passa do patrimônio com liquidez que sobra
+depois dos compromissos e dos objetivos, nem pelo campo, nem pelo controle, nem pelo "usar"), cada objetivo (o próprio `dedicated` e `planned` do
 objetivo: a política só os reúne) e a liberdade financeira, que fica sempre com o restante. Cada caixinha tem o horizonte
 (curtíssimo, abaixo de 6 meses; curto, de 6 a 24; médio, de 24 a 60; longo, de 60 a 120; longuíssimo, mais de 120) e a
 estratégia (o perfil de rentabilidade do objetivo; conservadora na reserva e nos compromissos). O FGTS e a previdência
