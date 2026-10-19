@@ -2633,6 +2633,10 @@ const ARMAZEM = (() => {
   const CHAVE = { plano: 'nl-plano', proposta: 'nl-proposta' }, DOC = { plano: 'planos/' + CLIENTE, proposta: 'propostas/' + CLIENTE };
   const ouvintes = { plano: [], proposta: [] }, ultimo = {}, visto = {};
   let db = null, info = null;
+  // DIAGNÓSTICO TEMPORÁRIO: o que acontece ao abrir no link publicado, gravado em diag/<cliente>-<página> 15 s depois
+  const DIAG = { pagina: typeof location !== 'undefined' ? location.pathname.split('/').pop() : '', busca: typeof location !== 'undefined' ? location.search : '', cliente: CLIENTE, inicio: new Date().toISOString(), eventos: [] };
+  const marca = o => { try { DIAG.eventos.push(Object.assign({ t: Math.round(performance.now()) }, o)); } catch (e) { } };
+  try { localStorage.setItem('nl-teste', '1'); marca({ e: 'localStorage', ok: localStorage.getItem('nl-teste') === '1' }); } catch (e) { marca({ e: 'localStorage', erro: String(e && e.message) }); }
   // a cópia de trabalho deste navegador (nl-plano, nl-proposta, cenários, páginas vistas) é de um cliente só: outro
   // cliente começa dela limpa. Sem a nuvem (localhost), cada cliente guarda o seu plano em nl-db:<documento>.
   const DB_LOCAL = k => 'nl-db:' + DOC[k];
@@ -2656,8 +2660,10 @@ const ARMAZEM = (() => {
       const c = typeof window !== 'undefined' && window.claude && window.claude.use ? window.claude : null;
       if (c) {
         const espera = (pr, ms) => Promise.race([pr, new Promise(r => setTimeout(() => r(null), ms))]);
-        try { db = await espera(c.use('db'), 8000); } catch (e) { db = null; }
+        try { db = await espera(c.use('db'), 8000); } catch (e) { db = null; marca({ e: 'db erro', erro: String(e && e.message) }); }
         let dono = true; try { const u = await espera(c.use('user'), 4000); if (u) dono = await u.isOwner(); } catch (e) { }
+        marca({ e: 'use', db: !!db, dono, doc: DOC.plano });
+        if (db) setTimeout(() => { try { DIAG.planoNaMemoria = (lerLocal('plano') || {}).name || null; DIAG.portal = window.__diagPortal || null; db.doc('diag/' + CLIENTE + '-' + DIAG.pagina.replace(/[^A-Za-z0-9_-]/g, '_')).set(JSON.parse(JSON.stringify(DIAG))).catch(() => { }); } catch (e) { } }, 15000);
         if (db) {
           for (const k of ['plano', 'proposta']) {
             ultimo[k] = JSON.stringify(lerLocal(k));
@@ -2665,6 +2671,7 @@ const ARMAZEM = (() => {
               let primeiro = true;
               db.doc(DOC[k]).onSnapshot(snap => {
                 const m = snap.metadata || {};
+                marca({ e: 'snapshot', k, existe: snap.exists, cache: m.fromCache, pendente: m.hasPendingWrites, nome: snap.exists ? ((snap.data() || {}).dados || {}).name || null : null });
                 if (m.hasPendingWrites) return;   // a própria gravação, ainda a caminho
                 // "não existe" vindo do cache não é confiável (o cache pode só não ter o documento ainda): espera o servidor.
                 // Um documento que existe vale já, venha de onde vier; o servidor não reentrega um documento igual.
@@ -2673,10 +2680,11 @@ const ARMAZEM = (() => {
                 visto[k] = true;   // daqui em diante a gravação sabe o que está substituindo
                 if (snap.exists || k !== 'plano') { gravarLocal(k, v); avisa(k, v); }   // banco ainda sem plano: vale o que o consultor tem aqui
                 if (primeiro) { primeiro = false; pronto(); }
-              }, () => { if (primeiro) { primeiro = false; pronto(); } });
-              setTimeout(() => { if (primeiro) { primeiro = false; pronto(); } }, 8000);
+              }, err => { marca({ e: 'snapshot erro', k, erro: String(err && (err.code || err.message)) }); if (primeiro) { primeiro = false; pronto(); } });
+              setTimeout(() => { if (primeiro) { primeiro = false; marca({ e: 'tempo esgotado', k }); pronto(); } }, 8000);
             });
           }
+          marca({ e: 'iniciar pronto', planoLido: (lerLocal('plano') || {}).name || null });
           return { modo: 'nuvem', dono };
         }
       }
@@ -2693,6 +2701,7 @@ const ARMAZEM = (() => {
     async gravar(k, v) {
       gravarLocal(k, v); ultimo[k] = JSON.stringify(v);
       if (!db) { try { if (v == null) localStorage.removeItem(DB_LOCAL(k)); else localStorage.setItem(DB_LOCAL(k), JSON.stringify({ dados: v, em: new Date().toISOString() })); } catch (e) { } return; }
+      marca({ e: 'gravar', k, nome: v && v.name || null, visto: !!visto[k] });
       // sem ter visto o que o banco tem (a leitura demorou ou falhou), gravar poderia apagar um plano real com uma tela vazia
       if (!visto[k]) { const e = new Error('o armazém ainda não leu este cliente'); e.code = 'nao_lido'; throw e; }
       const ref = db.doc(DOC[k]);

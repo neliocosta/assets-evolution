@@ -122,7 +122,14 @@ document.getElementById('btnNovo').addEventListener('click', e => {
   location.href = url('tela-consultor.html', 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5));
 });
 
-carregar().then(r => { if (r) desenhar(r); }).catch(err => {
+// em localhost: ?importar=<id> traz o plano de clientes/<id>/plano.json (a cópia no OneDrive) para este navegador
+async function importar() {
+  const id = new URLSearchParams(location.search).get('importar'); if (!id || (window.claude && window.claude.use)) return;
+  try { const v = await fetch('clientes/' + encodeURIComponent(id) + '/plano.json').then(r => r.ok ? r.json() : Promise.reject(r.status)); localStorage.setItem('nl-db:planos/' + id, JSON.stringify(v)); }
+  catch (e) { alert('Não encontrei clientes/' + id + '/plano.json'); }
+  history.replaceState(null, '', location.pathname);
+}
+importar().then(carregar).then(r => { if (r) desenhar(r); }).catch(err => {
   console.error(err);
   document.getElementById('lista').innerHTML = '<div class="vazio">Não consegui carregar os clientes. Recarregue a página.</div>';
 });
