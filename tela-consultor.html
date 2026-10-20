@@ -528,7 +528,9 @@ button.pol-estado{border:0;cursor:pointer;font-family:'DM Sans',sans-serif} butt
 .pol-toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);max-width:min(560px,calc(100vw - 32px));line-height:1.45;z-index:90;background:var(--nl-navy-900);color:#fff;font:500 13px 'DM Sans',sans-serif;padding:10px 16px;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.2)}
 @media (prefers-reduced-motion:reduce){.pol-liga,.pol-liga::after{transition:none}}
 @media (prefers-reduced-motion:reduce){.pol-soma i,.pol-fx>i,.pol-fx>u{transition:none}}
-.arq-bar{display:flex;gap:6px;align-items:center} .arq-bar label.cen-novo{display:inline-flex;align-items:center}
+/* importar e exportar ao lado do "+ Testar um cenário": a mesma altura e o mesmo espaço entre os três */
+.arq-bar{display:flex;gap:8px;align-items:center;margin-left:-8px}
+.pagehead .cen-novo{display:inline-flex;align-items:center;box-sizing:border-box;height:28px;line-height:1;margin:0}
 .arq-vazio{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin:0 0 16px;padding:14px 18px;border-radius:14px;background:var(--nl-peach-100)}
 .arq-vazio[hidden]{display:none} .arq-vazio b{font:600 14px Sora,sans-serif;color:var(--nl-navy-900)} .arq-vazio span{flex:1;min-width:260px;font-size:12.5px;line-height:1.5;color:var(--nl-gray-700)} .arq-vazio a{color:var(--nl-navy-900)}
 .chipadd{background:#fff;border:1px dashed #d9d6cf;border-radius:999px;padding:5px 12px;font:600 11.5px 'DM Sans',sans-serif;color:var(--nl-navy-900);cursor:pointer}
