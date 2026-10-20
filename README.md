@@ -709,8 +709,10 @@ as páginas em que se decide o plano (`COM_INDICADORES`); num cenário, cada ind
 guarda (`{ "dados": plano, "em": data }`). Serve para trazer um plano de outro lugar (o portal em produção, por exemplo) ou
 um que uma IA extraiu dos documentos do cliente; o modelo completo é `ux/plano-exemplo.json`.
 - **Na página Clientes,** "Importar JSON" cria um cliente novo, com código novo (nunca por cima de outro), e abre o portal.
-- **No portal, na página Cliente,** "Exportar o plano (JSON)" baixa o plano aberto (ou o cenário aberto), e "Importar de
-  um JSON…" troca o plano aberto pelo do arquivo; o de antes fica na página Cenários, como "Plano antes da importação".
+- **No portal, no alto de todas as páginas** (em produção não há a página Clientes: o consultor entra direto na montagem
+  do relatório de um cliente), "Exportar JSON" baixa o plano aberto (ou o cenário aberto), e "Importar JSON" troca o
+  plano aberto pelo do arquivo; o de antes fica na página Cenários, como "Plano antes da importação". Num plano em branco
+  (o cliente recém-aberto), não pergunta nem guarda nada, e a página Cliente mostra o convite "Começar de um arquivo".
 
 O arquivo precisa do nome do cliente (`name`) e de ao menos rendas, despesas, objetivos ou patrimônio; o que faltar o
 portal completa ao abrir (`doSalvo`). Objetivos, rendas e despesas sem `id` ganham um, e uma renda ou despesa só com

@@ -528,7 +528,9 @@ button.pol-estado{border:0;cursor:pointer;font-family:'DM Sans',sans-serif} butt
 .pol-toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);max-width:min(560px,calc(100vw - 32px));line-height:1.45;z-index:90;background:var(--nl-navy-900);color:#fff;font:500 13px 'DM Sans',sans-serif;padding:10px 16px;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.2)}
 @media (prefers-reduced-motion:reduce){.pol-liga,.pol-liga::after{transition:none}}
 @media (prefers-reduced-motion:reduce){.pol-soma i,.pol-fx>i,.pol-fx>u{transition:none}}
-.arq-plano{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:-4px 0 16px} .arq-plano small{font-size:12px;color:#6b6a66} .arq-plano a{color:var(--nl-navy-900)}
+.arq-bar{display:flex;gap:6px;align-items:center} .arq-bar label.cen-novo{display:inline-flex;align-items:center}
+.arq-vazio{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin:0 0 16px;padding:14px 18px;border-radius:14px;background:var(--nl-peach-100)}
+.arq-vazio[hidden]{display:none} .arq-vazio b{font:600 14px Sora,sans-serif;color:var(--nl-navy-900)} .arq-vazio span{flex:1;min-width:260px;font-size:12.5px;line-height:1.5;color:var(--nl-gray-700)} .arq-vazio a{color:var(--nl-navy-900)}
 .chipadd{background:#fff;border:1px dashed #d9d6cf;border-radius:999px;padding:5px 12px;font:600 11.5px 'DM Sans',sans-serif;color:var(--nl-navy-900);cursor:pointer}
 .chipadd:hover{border-color:var(--nl-orange-500);color:var(--nl-orange-600)}
 .cronog{max-height:240px;overflow:auto;margin-top:6px;border:1px solid #efeeea;border-radius:8px}
@@ -1084,15 +1086,13 @@ aside nav a.feito i::before{content:'✓';font-size:13px}
 </aside>
 
 <main>
-  <div class="pagehead"><span class="gravado" id="gravado">O plano grava sozinho</span><div class="cen-bar" id="cenBar"></div><div class="chips" id="chips"></div></div>
+  <div class="pagehead"><span class="gravado" id="gravado">O plano grava sozinho</span><div class="cen-bar" id="cenBar"></div><div class="arq-bar"><label class="cen-novo" title="Preenche o plano com um arquivo JSON (exportado de outra montagem ou extraído por uma IA); o plano de agora fica guardado como cenário, para desfazer">Importar JSON<input type="file" accept=".json,application/json" id="arqPlano" hidden></label><button class="cen-novo" id="btnExportar" title="Baixa o plano aberto num arquivo JSON">Exportar JSON</button></div><div class="chips" id="chips"></div></div>
 
   <section class="page" data-page="cliente">
     <div class="kicker">Dados do cliente · passo 1 de 14</div>
     <h2>Cliente</h2>
     <div class="hint">Quem é o cliente, como trabalha, quem depende dele e como lida com investimentos. É o ponto de partida do plano.</div>
-    <div class="arq-plano"><button class="btn btn-secondary btn-small" id="btnExportar" title="Baixa o plano aberto num arquivo JSON, para guardar, levar para outro lugar ou importar de novo">Exportar o plano (JSON)</button>
-      <label class="btn btn-secondary btn-small" title="Troca este plano pelo do arquivo; o de agora fica guardado como cenário, para desfazer">Importar de um JSON…<input type="file" accept=".json,application/json" id="arqPlano" hidden></label>
-      <small>Para preparar um arquivo (por exemplo, extraído por uma IA dos documentos do cliente), use o formato do <a href="ux/plano-exemplo.json" download="modelo-plano.json">modelo</a>.</small></div>
+    <div class="arq-vazio" id="arqVazio" hidden><b>Começar de um arquivo</b><span>Se os dados do cliente já estão num JSON (exportado de outra montagem ou extraído por uma IA dos documentos do cliente), importe e o plano se preenche. O formato é o do <a href="ux/plano-exemplo.json" download="modelo-plano.json">modelo</a>.</span><label class="btn btn-primary btn-small" for="arqPlano">Importar JSON…</label></div>
     <div class="bloco"><h3>Quem é</h3>
       <div class="grid g3 quem">
         <div class="field"><label>O plano é de</label><select id="f-tipo"><option value="individual">Uma pessoa</option><option value="familia">Um casal ou uma família</option></select></div>
@@ -3455,6 +3455,8 @@ function planoDoArquivo(txt) {
   });
   return p;
 }
+// um plano em branco: sem nome e sem nenhuma renda, despesa ou objetivo (o cliente recém-aberto na montagem)
+const planoEmBranco = () => !String(plano.name || '').trim() && !plano.incomes.length && !plano.expenses.length && !plano.objectives.length;
 // exportar: o plano aberto (ou o cenário aberto), no formato do armazém, com o nome do cliente no arquivo
 document.getElementById('btnExportar').addEventListener('click', () => {
   const nome = String(plano.name || 'plano').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^\w]+/g, '-').replace(/^-|-$/g, '').toLowerCase() || 'plano';
@@ -3466,8 +3468,8 @@ document.getElementById('arqPlano').addEventListener('change', async e => {
   const f = e.target.files[0]; e.target.value = ''; if (!f) return;
   if (cenAtivo()) { alert('Há um cenário aberto: volte ao plano para importar.'); return; }
   let p; try { p = planoDoArquivo(await f.text()); } catch (err) { alert(err.message); return; }
-  const guarda = CEN.lista.length < CEN_MAX;
-  if (!confirm('Trocar o plano' + (plano.name ? ' de ' + plano.name : '') + ' pelo do arquivo (' + p.name + ')?' + (guarda ? ' O plano de agora fica guardado na página Cenários, para desfazer.' : ' Já há três cenários: o plano de agora não fica guardado. Exporte antes, se quiser.'))) return;
+  const branco = planoEmBranco(), guarda = !branco && CEN.lista.length < CEN_MAX;
+  if (!branco && !confirm('Trocar o plano' + (plano.name ? ' de ' + plano.name : '') + ' pelo do arquivo (' + p.name + ')?' + (guarda ? ' O plano de agora fica guardado na página Cenários, para desfazer.' : ' Já há três cenários: o plano de agora não fica guardado. Exporte antes, se quiser.'))) return;
   if (guarda) { CEN.lista.push({ id: idCen(), nome: 'Plano antes da importação', em: new Date().toISOString(), dados: JSON.parse(JSON.stringify(plano)), anterior: true }); gravaCen(); }
   abrePlano(p); save(); gravarNuvem(true);
   mostraAviso('Plano importado: ' + p.name + '.');
@@ -3721,6 +3723,7 @@ function pintaSliders(el) {
 document.addEventListener('input', e => { if (e.target.type === 'range') pintaSliders(e.target); });
 
 function renderTop() {
+  const av = document.getElementById('arqVazio'); if (av) av.hidden = !planoEmBranco() || !!cenAtivo();
   const nome = plano.name || 'Novo cliente';
   document.getElementById('sbName').textContent = nome;
   document.getElementById('sbMeta').textContent = (plano.age ? plano.age + ' anos · ' : 'idade não informada · ') + plano.objectives.length + ' objetivo' + (plano.objectives.length === 1 ? '' : 's');
