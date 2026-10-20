@@ -91,6 +91,40 @@ E.OBJ.forEach(o => {
   ok(o.name, coerente, 'necessário ' + Math.round(o.required) + ' / definido ' + o.planned + ' → ' + o.status);
 });
 
+{ // quando o objetivo começa a receber (aporteDe, dedicadoEm) e o objetivo desligado
+  const Eo = carregar(srcCliente);
+  const base = () => ({ initialWealth: 100000, incomes: [{ id: 's', label: 'Salário', steps: [{ from: 0, value: 20000 }] }], expenses: [{ id: 'd', label: 'Tudo', group: 'fix', week: 1, frequency: 'mensal', steps: [{ from: 0, value: 10000 }] }],
+    objectives: [{ id: 'a', name: 'A', icon: 'sun', kind: 'consumo', months: 24, amount: 50000, costs: [], dedicated: 20000, profile: 'moderado', planned: 1000, strategy: '' }] });
+  const aportes = (P, de, ate) => { Eo.configure(P); const s = Eo.run('desej'); return s.buckets.month.filter(b => b.mi >= de && b.mi < ate && b.w1 > Eo.W0).reduce((t, b) => t + Math.max(0, b.f.mov_obj_a || 0), 0); };
+  const P1 = base(); P1.objectives[0].aporteDe = 6;
+  ok('objetivos: com aporteDe, nada é aportado antes do mês marcado', aportes(P1, 1, 6) < 0.5, Math.round(aportes(P1, 1, 6)));
+  ok('objetivos: com aporteDe, o aporte começa no mês marcado', Math.abs(aportes(P1, 6, 7) - 1000) < 0.5, Math.round(aportes(P1, 6, 7)));
+  const P2 = base(); P2.objectives[0].dedicadoEm = 6; P2.objectives[0].planned = 0;
+  ok('objetivos: com dedicadoEm, o patrimônio entra no mês marcado', aportes(P2, 0, 6) < 0.5 && Math.abs(aportes(P2, 6, 7) - 20000) < 0.5, Math.round(aportes(P2, 0, 6)) + ' / ' + Math.round(aportes(P2, 6, 7)));
+  const P3 = base(), P4 = base(); P4.objectives[0].aporteDe = 12; Eo.configure(P3); const n3 = P3.objectives[0].required; Eo.configure(P4);
+  ok('objetivos: começar a guardar depois pede um aporte mensal maior', P4.objectives[0].required > n3 * 1.5, Math.round(n3) + ' → ' + Math.round(P4.objectives[0].required));
+  const P5 = base(); P5.objectives[0].ligado = false; Eo.configure(P5);
+  // a política confere mês a mês: o aporte que começa em 6 meses cabe se a sobra de daqui a 6 meses der conta
+  const P6 = () => ({ initialWealth: 0, incomes: [{ id: 's', label: 'Salário', steps: [{ from: 0, value: 10000 }, { from: 6, value: 13000 }] }], expenses: [{ id: 'd', label: 'Tudo', group: 'fix', week: 1, frequency: 'mensal', steps: [{ from: 0, value: 5000 }] }],
+    objectives: [{ id: 'a', name: 'A', icon: 'sun', kind: 'consumo', months: 30, amount: 300000, costs: [], dedicated: 0, profile: 'moderado', planned: 5000, strategy: '' },
+      { id: 'b', name: 'B', icon: 'sun', kind: 'consumo', months: 30, amount: 30000, costs: [], dedicated: 0, profile: 'moderado', planned: 500, aporteDe: 6, strategy: '' }] });
+  const pol = P => { Eo.configure(P); return Eo.politicaDeInvestimentos(P, Eo.run('desej')); };
+  const Q1 = pol(P6());
+  ok('política: o aporte que começa quando a sobra sobe fecha em todos os meses (18 de 24 meses: média de 375)', Q1.excessoMensal < 0.5 && Math.abs(Q1.caixinhas.find(c => c.id === 'b').mensal - 375) < 0.5, 'excesso ' + Math.round(Q1.excessoMensal));
+  const P7 = P6(); delete P7.objectives[1].aporteDe; const Q2 = pol(P7), pb = Q2.meses.map(m => (m.aportes.find(x => x.id === 'b') || { v: 0 }).v);
+  ok('fluxo planejado: sem sobra, o objetivo de menor prioridade fica sem nada e recupera o atraso quando a sobra sobe', Q2.excessoMensal < 0.5 && pb[0] === 0 && Math.abs(pb[6] - 3000) < 0.5 && Math.abs(pb[7] - 1000) < 0.5, pb.slice(0, 9).join(' '));
+  // o mês negativo (um imposto) é coberto pelo que se guarda no mês anterior, e nele nada vai para os objetivos
+  const P8 = P6(); P8.expenses.push({ id: 'ir', label: 'Imposto', group: 'fix', frequency: 'pontual', days: [10], steps: [{ from: 3, value: 7000 }] }); P8.objectives[0].planned = 3000; delete P8.objectives[1].aporteDe; P8.objectives[1].planned = 1000;
+  const Q3 = pol(P8), mi3 = Q3.meses.findIndex(m => m.sobra < 0), a3 = Q3.meses[mi3 - 1], b3 = Q3.meses[mi3];
+  ok('fluxo planejado: no mês antes do imposto, guarda o que falta; no mês do imposto, nada para os objetivos', mi3 > 0 && Math.abs(a3.guardado - 2000) < 0.5 && b3.total < 0.5 && !Q3.meses.some(m => m.negativo), 'mês ' + mi3 + ': guardado ' + Math.round(a3.guardado) + ', aportes no mês ' + Math.round(b3.total));
+  // a caixinha que, rendendo até a data, já cobre o valor para de receber; o último aporte é só o que falta
+  const P9 = P6(); P9.initialWealth = 50000; P9.objectives = [{ id: 'c', name: 'C', icon: 'sun', kind: 'consumo', months: 24, amount: 20000, costs: [], dedicated: 0, profile: 'moderado', planned: 3000, strategy: '' }];
+  const Q9 = pol(P9), a9 = Q9.meses.map(m => (m.aportes.find(x => x.id === 'c') || { v: 0 }).v), ult = a9.findIndex((v, k) => v > 0.5 && !(a9[k + 1] > 0.5)), o9 = Eo.OBJ.find(o => o.id === 'c');
+  ok('fluxo planejado: quando a caixinha já basta, os aportes param (o último é só o que falta) e o objetivo chega ao valor', ult > 0 && ult < 10 && a9.slice(ult + 1).every(v => v < 0.5) && a9[ult] < 3000 - 0.5 && o9.real >= 20000 * 0.98 && o9.real < 20000 * 1.02,
+    'aportes até o mês ' + ult + ' (o último de ' + Math.round(a9[ult]) + '); na data ' + Math.round(o9.real));
+  ok('objetivos: o desligado fica fora da simulação e da política', (Eo.configure(P5), Eo.OBJ.length === 0) && aportes(P5, 0, 24) < 0.5 && Eo.politicaDeInvestimentos(P5, null).desligadas.length === 1);
+}
+
 console.log('\n4. Planos alternativos (não pode quebrar)');
 const casos = [
   ['sem objetivos', { objectives: [{ id: 'z', name: 'Nada', icon: 'sun', kind: 'consumo', months: 1, amount: 0, recurring: null, dedicated: 0, profile: 'moderado', planned: 0, strategy: '' }] }],
@@ -620,10 +654,10 @@ console.log('\n12d. A realização de cada objetivo: orçado e cortes (e o acomp
   const Ac = require('./reaproveitar/acompanhamento.js');
   o.foto = Ac.fotoDoObjetivo(o, Eo.orcadoDoObjetivo(o, s), '2026-09-19');
   o.realizado = o.foto.meses.slice(0, 24).map((m, i) => i % 6 === 5 ? { mes: m.mes, aporte: 0, deOutro: [{ objetivo: 'europa', valor: m.aporte }] }
-    : i === 10 || i === 16 ? { mes: m.mes, aporte: m.aporte / 2 } : { mes: m.mes, aporte: m.aporte });
+    : i === 10 || i === 14 ? { mes: m.mes, aporte: m.aporte / 2 } : { mes: m.mes, aporte: m.aporte });
   o.realizado[23].saldo = o.foto.meses[23].saldo - 5000;
   const A = Ac.acompanhamentoDoObjetivo(o);
-  ok('de 24 oportunidades de aporte: 18 cumpridos, 4 cobertos por outro objetivo, 2 faltaram', A.oportunidades === 24 && A.cumpridos === 18 && A.cobertos === 4 && A.faltaram === 2, A.cumpridos + '/' + A.cobertos + '/' + A.faltaram);
+  ok('de 22 oportunidades de aporte (os 2 meses do IPTU não pedem aporte no fluxo planejado): 16 cumpridos, 4 cobertos por outro objetivo, 2 faltaram', A.oportunidades === 22 && A.cumpridos === 16 && A.cobertos === 4 && A.faltaram === 2, A.oportunidades + ': ' + A.cumpridos + '/' + A.cobertos + '/' + A.faltaram);
   ok('o saldo do extrato comparado com o orçado no mesmo mês', A.saldo && A.saldo.mes === o.foto.meses[23].mes && Math.abs(A.saldo.diferenca + 5000) < 0.01);
   o.amount = 999999; Eo.derive(o);
   ok('a foto não muda quando o plano muda', o.foto.valor === 180000 && Ac.acompanhamentoDoObjetivo(o).foto.meses.length === 47);
@@ -644,7 +678,7 @@ console.log('\n12e. Política de investimentos: patrimônio e sobra por caixinha
   const pl = base(); Ep.configure(pl); const Pz = Ep.politicaDeInvestimentos(pl), c = id => Pz.caixinhas.find(x => x.id === id);
   ok('o patrimônio das caixinhas soma o financeiro de hoje (com o FGTS)', Pz.total === 600000 && Math.abs(Pz.caixinhas.reduce((a, x) => a + x.patrimonio, 0) - 600000) < 0.01);
   ok('compromissos, reserva (o alvo da Gestão de riscos) e objetivos; a liberdade fica com o restante', c('compromissos').patrimonio === 30000 && c('reserva').patrimonio === 60000 && c('casa').patrimonio === 150000 && c('liberdade').patrimonio === 600000 - 30000 - 60000 - 160000);
-  ok('a sobra do mês vai para os aportes e o resto para a liberdade', Math.abs(Pz.sobra - 6000) < 0.01 && Math.abs(c('liberdade').mensal - 3000) < 0.01);
+  ok('a sobra do mês vai para os aportes (pela média dos 24 meses: a viagem recebe em 18) e o resto para a liberdade', Math.abs(Pz.sobra - 6000) < 0.01 && Math.abs(c('liberdade').mensal - 3250) < 0.01, Math.round(c('liberdade').mensal));
   ok('o FGTS fica na liberdade (sem liquidez)', c('liberdade').semLiquidez === 100000 && Pz.excessoLiquido === 0);
   pl.objectives[0].dedicated = 480000; const Px = Ep.politicaDeInvestimentos(pl);
   ok('passar do patrimônio com liquidez é apontado', Px.excessoLiquido > 0 && Px.caixinhas.find(x => x.id === 'liberdade').patrimonio >= 0, 'excesso R$ ' + Math.round(Px.excessoLiquido));

@@ -6,7 +6,7 @@ além das fontes do Google, e abrem direto no navegador.
 | Arquivo | Para quem | O que faz |
 |---|---|---|
 | `index.html` | Consultor | Clientes: a porta de entrada. Lista os planos guardados e abre, para cada cliente, "Ver relatório" ou "Editar relatório". Na plataforma, é o `/internal`. |
-| `tela-consultor.html` | Consultor | Configura o plano em nove passos, em três grupos: dados do cliente (Cliente, Fluxo de caixa, Patrimônio), planejamento (Gestão de riscos, Objetivos, Liberdade financeira, Otimização tributária, Premissas) e com o cliente (Apresentação, Propostas). |
+| `tela-consultor.html` | Consultor | Configura o plano em 15 passos, na ordem em que se monta um planejamento: dados do cliente (Cliente, Orçamento, Patrimônio, Carteira atual), planejamento (Objetivos, Política de investimentos, Fluxo de 24 meses, Fluxo vida toda, Gestão de riscos, Liberdade financeira, Otimização tributária, Macro e Microalocação, Premissas) e com o cliente (Cenários, Apresentação, Propostas). |
 | `evolucao-patrimonial.html` | Cliente | Mostra a trajetória do patrimônio ao longo da vida, apresentada ao vivo pelo consultor. |
 
 ## Por onde começar
@@ -110,18 +110,82 @@ caixinha deles (na versão final, chegam da coleta, e continuam editáveis): cad
 clicar e recolhe com o OK ou Enter. O protótipo da mesa fica em
 `ux/prototipos/politica-mesa.html`. A sobra do mês é uma conta só em todo o portal: a média dos próximos 12 meses do Fluxo de caixa
 (`ENGINE.orcamentoDoFluxo`) ou a capacidade informada; é a mesma dos chips do topo (capacidade de poupança), da mesa, da
-janela "O orçamento não comporta" e da área do cliente. Aumentar um aporte consome a liberdade financeira sem aviso;
-quando a soma dos aportes (objetivos e reserva) passa da sobra, a janela abre com entradas, despesas e sobra na média, a
-falta igual ao excesso do rodapé, e as reduções por despesa (a partir de hoje, no equivalente mensal) ou por outro aporte.
-O chip "passa em R$ X por mês · reduzir" do rodapé abre a mesma janela quando a sobra caiu depois. O mês a mês fica com a
-simulação: a coluna Entregue/mês da página Objetivos e o aviso do cartão dizem quando o orçamento não entrega o definido. Na área do cliente, é o capítulo depois de
-Objetivos: dois Sankeys, cada um na sua escala: o patrimônio de hoje e a renda líquida da família, em dois níveis: a renda se divide
-entre o futuro (em cima, a sobra) e o padrão de vida (embaixo, em ardósia, sem destaque, terminando na coluna do meio), e o
-futuro se abre nas caixinhas. Embaixo, a tabela. Ao aparecer, cada
-Sankey começa como um bloco só, que se divide nas cores das caixinhas, e cada fatia escorre até a sua caixinha (toca mesmo
-com menos movimento no sistema, como a trajetória da evolução).
-As vendas futuras de bens não entram aqui: aparecem na evolução patrimonial. Num planejamento anual (`periodicidade`, na
-página Cliente), a sobra e os aportes aparecem por ano; o motor continua mensal.
+janela "O orçamento não comporta" e da área do cliente. Aumentar um aporte consome a liberdade financeira sem aviso,
+enquanto cabe.
+
+**Os próximos 24 meses, mês a mês: o fluxo planejado.** Na mesa, cada objetivo tem o aporte definido (o teórico, um
+valor por mês, que o motor usa depois dos 24 meses); a sobra e os aportes da coluna são a média do fluxo planejado dos
+próximos 24 meses (`run().programa`, `ENGINE.programaDosAportes`). Ele parte do que de fato entra e sai em cada mês (o 13º
+em dezembro, o IPTU em janeiro, o imposto no mês dele, os gastos dos objetivos depois de realizados: `ENGINE.linhasDosMeses`),
+não do equivalente mensal, e divide a sobra de cada mês em ordem:
+1. o que os meses seguintes vão precisar: um mês negativo é coberto pelo que se guarda antes, e nele nada vai para os
+   objetivos;
+2. o aporte da reserva;
+3. os objetivos, na ordem de prioridade do cliente, cada um do mês em que começa a receber até a data, até o definido mais
+   o que deixou de receber antes (o atraso, que ele recupera quando sobra), e só enquanto precisa: quando o que está na
+   caixinha (mais o que ainda entra de uma vez), rendendo até a data, cobre o valor, a sugestão vira zero, e o último aporte
+   é só o que falta (depois dos 24 meses, o motor faz o mesmo com o aporte definido);
+4. o resto, a liberdade financeira.
+
+Se o dinheiro acaba no objetivo 2, o 3 fica sem nada naquele mês. O motor roda em duas passadas: a primeira dá a sobra de
+cada mês, a segunda segue o programa nos 24 meses. No alto do Fluxo de 24 meses, os 24 meses em colunas (a sobra, os
+aportes empilhados e o que fica no mês). O rodapé da mesa avisa o mês em que o caixa fica negativo (sai do
+patrimônio), que só acontece com um valor digitado.
+
+**O Fluxo de 24 meses (a página depois da política; o Fluxo de caixa de antes, com a vida toda, vem logo depois, como Fluxo vida toda).** É onde o consultor passa mais tempo: os 24 meses numa tabela, com as
+entradas e as despesas (abrem por linha; digitar um valor muda aquela linha daquele mês em diante, como no Fluxo de caixa),
+os gastos dos objetivos, a sobra, a reserva, cada objetivo na ordem de prioridade (a data com uma estrela), o que fica
+guardado para os meses seguintes e a liberdade. Os aportes em cinza são sugestões; o que o consultor digita
+(`objectives[].programa[mês]`) vale como está, fica em negrito, e "voltar à sugestão" apaga.
+
+**A prioridade dos objetivos.** É a ordem do Propósito (`objetivosOrdem`, as setas na página Objetivos;
+`ENGINE.prioridadeDosObjetivos`). Ela ordena a divisão da sobra, os cartões da página Objetivos, as linhas da mesa e do
+Fluxo de 24 meses e as abas de "Como realizar cada objetivo" na área do cliente.
+
+**O objetivo é realista?** Pela simulação: o que junta o valor na data é realista. O que não junta mostra, curto na mesa e
+no Fluxo de 24 meses e explicado no cartão do objetivo, "Respeitando o fluxo de caixa atual, este objetivo só é realista em
+<mês>" (o saldo da data continua rendendo e recebendo o que o fluxo entregou em média) e quanto o custo mensal precisaria
+cair entre o mês em que ele começa a receber e o mês antes da data para manter a data. O cartão diz por quê (o aporte
+definido abaixo do necessário, os objetivos de prioridade maior que levam a sobra, o mês que não fecha). A decisão é do
+cliente: cada saída vira um cenário, para mostrar ao lado do plano na página Cenários:
+- **Adiar:** o objetivo vai para a data em que fica realista.
+- **Reduzir custos:** a janela pede até onde as despesas ajustáveis e as fixas podem cair (`politica.cortes`, em %; 30% e
+  0% de início) e reparte a redução, primeiro nas ajustáveis, na proporção do valor de cada uma, depois nas fixas; as
+  parcelas de contrato ficam de fora. O cenário reduz cada despesa entre os dois meses (depois, ela volta ao valor de
+  antes) e aumenta o aporte do objetivo no que a redução cobre.
+
+Na área do cliente, é o capítulo depois de Objetivos: dois Sankeys, cada um na sua escala: o patrimônio de hoje e a renda
+líquida da família, em dois níveis: a renda se divide entre o futuro (em cima, a sobra) e o padrão de vida (embaixo, em
+ardósia, sem destaque, terminando na coluna do meio), e o futuro se abre nas caixinhas. O objetivo que não recebe nos 12
+meses inteiros mostra, ao lado do nome, o aporte e quando ("R$ 350 por mês a partir de jul/2027"); a fita tem a largura da
+média. Embaixo, a tabela, com a mesma data. Ao aparecer, cada Sankey começa como um bloco só, que se divide nas cores das
+caixinhas, e cada fatia escorre até a sua caixinha (toca mesmo com menos movimento no sistema, como a trajetória da
+evolução). As vendas futuras de bens não entram aqui: aparecem na evolução patrimonial. Num planejamento anual
+(`periodicidade`, na página Cliente), a sobra e os aportes aparecem por ano; o motor continua mensal.
+
+**Ligar cada objetivo.** Um objetivo novo nasce desligado (`objectives[].ligado: false`; sem o campo, os planos de antes
+continuam ligados): fica na mesa, apagado, com a data, o valor e os campos, mas fora da simulação, das fontes da mesa, do
+topo e da área do cliente (`ENGINE.ligado`, `ENGINE.objetivosLigados`; a política devolve os desligados à parte, em
+`desligadas`). A chave à esquerda do nome liga. Antes, a tela roda a simulação com ele (`simulaCom`) e compara com a de
+agora (`efeitoNoFluxo`), pelo orçamento de cada mês antes da liberdade (`run().resultado`: entradas menos despesas e
+gastos dos objetivos, no equivalente mensal; o que sai do patrimônio de uma vez, como o próprio objetivo, não entra):
+- **O fluxo comporta:** liga, e um aviso diz como o objetivo fica na data (inclusive quando um bem não chega a 70% e não é
+  comprado).
+- **O orçamento fica negativo em algum mês, mas o patrimônio cobre:** a janela mostra a janela de meses, o pior mês e o
+  menor patrimônio financeiro nela. O consultor reduz despesas, liga assim mesmo ou deixa desligado.
+- **O dinheiro acaba (a ruína):** não liga. A janela pede reduções de despesas, a partir de hoje quando falta dinheiro para
+  pagar o objetivo, ou do primeiro mês negativo quando são os gastos depois dele; cada valor digitado refaz a simulação,
+  e "Reduzir e ligar" só libera quando o dinheiro deixa de acabar. Se o plano já quebrava sem o objetivo, a janela diz isso.
+
+Desligar não pede nada. Mudar o valor, a data ou o aporte de um objetivo já ligado não passa pela janela: a ruína continua
+avisada no topo e no Fluxo de caixa.
+
+**Quando cada objetivo começa a receber.** No cartão do objetivo, "Guardar por mês" tem "a partir de" (`aporteDe`) e o
+patrimônio de hoje tem "separar em" (`dedicadoEm`), em meses a partir de hoje; vazio é hoje. Assim a sobra vai toda para um
+objetivo e só depois começa a ir para os outros. O motor (`ENGINE.inicioDoAporte`, `inicioDoDedicado`) aporta só a partir
+do mês marcado e separa o patrimônio naquele mês, até onde o financeiro livre dá; o necessário e a curva do cartão usam a
+mesma conta (`ENGINE.saldoNoMes`, `necessarioDe`). O que começa depois dos 12 meses aparece na mesa com o mês, fora das
+contas (`separadoDepois` e `aporteDepois` na caixinha).
 
 ## A carteira: atual, macroalocação e microalocação
 
@@ -717,6 +781,7 @@ as páginas em que se decide o plano (`COM_INDICADORES`); num cenário, cada ind
   "objectives": [
     {
       "id": "casa", "name": "Casa própria", "icon": "home",
+      "ligado": true,          // false: fora da simulação, da política e da área do cliente (os novos nascem assim); sem o campo, ligado
       "kind": "bem",           // "bem" migra para patrimônio; "consumo" é uma saída
       "months": 46,            // data alvo, em meses a partir de set/2026
       "amount": 180000,        // custo pontual
@@ -728,6 +793,8 @@ as páginas em que se decide o plano (`COM_INDICADORES`); num cenário, cada ind
       "profile": "moderado",   // nome da faixa; a taxa usada é rateM quando existe
       "rateM": 0.005,          // rentabilidade própria do objetivo, ao mês (o portal vai de 0,35% a 0,65%)
       "planned": 1500,         // aporte mensal definido pelo consultor
+      "aporteDe": 6,           // o mês em que os aportes começam (vazio = hoje; até o mês antes da data)
+      "dedicadoEm": null,      // o mês em que o dedicated sai do financeiro (vazio = hoje; até onde o financeiro livre dá)
       "photo": "",             // endereço de uma imagem, opcional; sem foto o card usa o ícone
       "iconData": "",          // SVG ou PNG enviado pelo consultor, embutido como data URL
       "iconFA": "",            // ou uma classe do Font Awesome, por exemplo "fa-solid fa-car"
