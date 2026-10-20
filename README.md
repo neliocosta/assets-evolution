@@ -705,6 +705,17 @@ O **placar do topo** (capacidade de poupança, aportes, folga, objetivos abaixo 
 as páginas em que se decide o plano (`COM_INDICADORES`); num cenário, cada indicador mostra embaixo o valor do plano.
 ## Formato do plano
 
+**Importar e exportar em JSON.** O plano inteiro vai e volta num arquivo JSON, neste formato, solto ou como o armazém
+guarda (`{ "dados": plano, "em": data }`). Serve para trazer um plano de outro lugar (o portal em produção, por exemplo) ou
+um que uma IA extraiu dos documentos do cliente; o modelo completo é `ux/plano-exemplo.json`.
+- **Na página Clientes,** "Importar JSON" cria um cliente novo, com código novo (nunca por cima de outro), e abre o portal.
+- **No portal, na página Cliente,** "Exportar o plano (JSON)" baixa o plano aberto (ou o cenário aberto), e "Importar de
+  um JSON…" troca o plano aberto pelo do arquivo; o de antes fica na página Cenários, como "Plano antes da importação".
+
+O arquivo precisa do nome do cliente (`name`) e de ao menos rendas, despesas, objetivos ou patrimônio; o que faltar o
+portal completa ao abrir (`doSalvo`). Objetivos, rendas e despesas sem `id` ganham um, e uma renda ou despesa só com
+`value` vira uma linha mensal a partir de hoje (`planoDoArquivo`, igual nas duas páginas).
+
 ```jsonc
 {
   "name": "Ana Ribeiro", "nascimento": "1991-05-12", "lifeExp": 95,   // "AAAA-MM" ou "AAAA-MM-DD" (sem o dia, o dia 1)

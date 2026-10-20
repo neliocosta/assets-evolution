@@ -31,6 +31,8 @@ h1{font:700 28px Sora,sans-serif;color:var(--nl-navy-900);line-height:1.15}
 .btn-novo{background:var(--nl-orange-500);color:#fff}
 .btn-novo:hover{background:var(--nl-orange-600)}
 .btn[aria-disabled="true"]{opacity:.45;pointer-events:none}
+.botoes{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.btn input[type=file]{display:none}
 .lista{display:flex;flex-direction:column;gap:12px}
 .cli{background:var(--nl-white);border-radius:16px;box-shadow:var(--shadow-card);padding:18px 22px;display:flex;align-items:center;gap:18px}
 .ini{width:42px;height:42px;flex:0 0 42px;border-radius:50%;background:var(--nl-peach-100);color:var(--nl-orange-600);display:flex;align-items:center;justify-content:center;font:600 15px Sora,sans-serif}
@@ -54,7 +56,8 @@ body.com-tela{overflow:hidden}
       <h1>Clientes</h1>
       <p class="sub">Escolha o cliente para ver o relatório como ele vê ou para editar o plano.</p>
     </div>
-    <a class="btn btn-novo" id="btnNovo" href="#">+ Novo cliente</a>
+    <div class="botoes" id="botoes"><label class="btn btn-secondary" title="Um plano em JSON (o do portal, exportado, ou um que uma IA extraiu dos documentos do cliente) entra como um cliente novo">Importar JSON<input type="file" accept=".json,application/json" id="arqImportar"></label>
+      <a class="btn btn-novo" id="btnNovo" href="#">+ Novo cliente</a></div>
   </div>
   <div class="lista" id="lista"><div class="vazio">Carregando os clientes…</div></div>
   <p class="nota" id="nota"></p>
@@ -100,7 +103,7 @@ async function carregar() {
 function desenhar({ dono, nuvem, planos }) {
   const lista = document.getElementById('lista');
   if (!dono) {
-    document.getElementById('btnNovo').hidden = true;
+    document.getElementById('botoes').hidden = true;
     lista.innerHTML = '<div class="vazio">Esta página é do consultor. O seu planejamento é apresentado pelo seu consultor na área logada da Nord Liberta.</div>';
     return;
   }
@@ -117,12 +120,42 @@ function desenhar({ dono, nuvem, planos }) {
   document.getElementById('nota').textContent = nuvem
     ? 'Os planos ficam no banco deste link e abrem em qualquer computador com a sua conta. Só você, dono do link, vê esta lista.'
     : 'Neste computador, os planos ficam no navegador. No link publicado, ficam no banco do link e abrem em qualquer computador.';
+  document.getElementById('nota').insertAdjacentHTML('beforeend', ' Para importar um plano em JSON (por exemplo, extraído por uma IA dos documentos do cliente), siga o <a href="ux/plano-exemplo.json" download="modelo-plano.json">modelo</a> e a seção "Formato do plano" do README.');
 }
 
 // novo cliente: um código novo e o plano em branco no portal; ele entra na lista quando o primeiro dado for gravado
 document.getElementById('btnNovo').addEventListener('click', e => {
   e.preventDefault();
   abrir(url('tela-consultor.html', 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5)));
+});
+
+// O plano num arquivo JSON: o formato do plano (README, "Formato do plano"; o modelo é ux/plano-exemplo.json), solto ou como
+// o armazém guarda ({ dados, em }). Serve para trazer um plano de outro lugar ou um que uma IA extraiu de documentos do
+// cliente. Precisa de um nome; o que faltar o portal completa ao abrir. Objetivos, rendas e despesas sem id ganham um, e uma
+// renda ou despesa com só o valor (value) vira uma linha mensal a partir de hoje.
+function planoDoArquivo(txt) {
+  let v; try { v = JSON.parse(txt); } catch (e) { throw new Error('O arquivo não é um JSON válido.'); }
+  const p = v && typeof v === 'object' && v.dados && typeof v.dados === 'object' ? v.dados : v;
+  if (!p || typeof p !== 'object' || Array.isArray(p) || !['name', 'incomes', 'expenses', 'objectives', 'patrimonio'].some(k => k in p)) throw new Error('O arquivo não parece um plano: faltam o nome, as rendas, as despesas, os objetivos e o patrimônio.');
+  if (!String(p.name || '').trim()) throw new Error('O plano precisa do nome do cliente (o campo "name").');
+  const base = Date.now().toString(36);
+  [['objectives', 'obj'], ['incomes', 'inc'], ['expenses', 'cat']].forEach(([k, pre]) => {
+    if (p[k] != null && !Array.isArray(p[k])) throw new Error('O campo "' + k + '" precisa ser uma lista.');
+    (p[k] || []).forEach((x, i) => {
+      if (!x.id) x.id = pre + base + i;
+      if (k !== 'objectives' && !Array.isArray(x.steps)) x.steps = [{ from: 0, value: +x.value || 0 }];
+    });
+  });
+  return p;
+}
+// importar: o plano do arquivo entra como um cliente novo, com um código novo (nunca por cima de outro), e abre no portal
+document.getElementById('arqImportar').addEventListener('change', async e => {
+  const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+  try {
+    const p = planoDoArquivo(await f.text()), id = 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), doc = { dados: p, em: new Date().toISOString() };
+    if (PONTE.db) await PONTE.db.doc('planos/' + id).set(doc); else localStorage.setItem('nl-db:planos/' + id, JSON.stringify(doc));
+    abrir(url('tela-consultor.html', id));
+  } catch (err) { alert(err.message || 'Não consegui importar o arquivo.'); }
 });
 
 // ===================== PONTE: no link publicado, as telas usam o banco desta página =====================

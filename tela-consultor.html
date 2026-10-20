@@ -528,6 +528,7 @@ button.pol-estado{border:0;cursor:pointer;font-family:'DM Sans',sans-serif} butt
 .pol-toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);max-width:min(560px,calc(100vw - 32px));line-height:1.45;z-index:90;background:var(--nl-navy-900);color:#fff;font:500 13px 'DM Sans',sans-serif;padding:10px 16px;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.2)}
 @media (prefers-reduced-motion:reduce){.pol-liga,.pol-liga::after{transition:none}}
 @media (prefers-reduced-motion:reduce){.pol-soma i,.pol-fx>i,.pol-fx>u{transition:none}}
+.arq-plano{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:-4px 0 16px} .arq-plano small{font-size:12px;color:#6b6a66} .arq-plano a{color:var(--nl-navy-900)}
 .chipadd{background:#fff;border:1px dashed #d9d6cf;border-radius:999px;padding:5px 12px;font:600 11.5px 'DM Sans',sans-serif;color:var(--nl-navy-900);cursor:pointer}
 .chipadd:hover{border-color:var(--nl-orange-500);color:var(--nl-orange-600)}
 .cronog{max-height:240px;overflow:auto;margin-top:6px;border:1px solid #efeeea;border-radius:8px}
@@ -1089,6 +1090,9 @@ aside nav a.feito i::before{content:'✓';font-size:13px}
     <div class="kicker">Dados do cliente · passo 1 de 14</div>
     <h2>Cliente</h2>
     <div class="hint">Quem é o cliente, como trabalha, quem depende dele e como lida com investimentos. É o ponto de partida do plano.</div>
+    <div class="arq-plano"><button class="btn btn-secondary btn-small" id="btnExportar" title="Baixa o plano aberto num arquivo JSON, para guardar, levar para outro lugar ou importar de novo">Exportar o plano (JSON)</button>
+      <label class="btn btn-secondary btn-small" title="Troca este plano pelo do arquivo; o de agora fica guardado como cenário, para desfazer">Importar de um JSON…<input type="file" accept=".json,application/json" id="arqPlano" hidden></label>
+      <small>Para preparar um arquivo (por exemplo, extraído por uma IA dos documentos do cliente), use o formato do <a href="ux/plano-exemplo.json" download="modelo-plano.json">modelo</a>.</small></div>
     <div class="bloco"><h3>Quem é</h3>
       <div class="grid g3 quem">
         <div class="field"><label>O plano é de</label><select id="f-tipo"><option value="individual">Uma pessoa</option><option value="familia">Um casal ou uma família</option></select></div>
@@ -3431,6 +3435,43 @@ function gravarNuvem(agora) {
     ARMAZEM.gravar('plano', JSON.parse(txt)).then(() => { semPlanoAoAbrir = false; }, e => { nuvemUltimo = e && e.code === 'nao_lido' ? antes : null; }); };
   if (agora) vai(); else nuvemTimer = setTimeout(vai, 1500);
 }
+
+// O plano num arquivo JSON: o formato do plano (README, "Formato do plano"; o modelo é ux/plano-exemplo.json), solto ou como
+// o armazém guarda ({ dados, em }). Serve para trazer um plano de outro lugar ou um que uma IA extraiu de documentos do
+// cliente. Precisa de um nome; o que faltar o portal completa ao abrir. Objetivos, rendas e despesas sem id ganham um, e uma
+// renda ou despesa com só o valor (value) vira uma linha mensal a partir de hoje.
+function planoDoArquivo(txt) {
+  let v; try { v = JSON.parse(txt); } catch (e) { throw new Error('O arquivo não é um JSON válido.'); }
+  const p = v && typeof v === 'object' && v.dados && typeof v.dados === 'object' ? v.dados : v;
+  if (!p || typeof p !== 'object' || Array.isArray(p) || !['name', 'incomes', 'expenses', 'objectives', 'patrimonio'].some(k => k in p)) throw new Error('O arquivo não parece um plano: faltam o nome, as rendas, as despesas, os objetivos e o patrimônio.');
+  if (!String(p.name || '').trim()) throw new Error('O plano precisa do nome do cliente (o campo "name").');
+  const base = Date.now().toString(36);
+  [['objectives', 'obj'], ['incomes', 'inc'], ['expenses', 'cat']].forEach(([k, pre]) => {
+    if (p[k] != null && !Array.isArray(p[k])) throw new Error('O campo "' + k + '" precisa ser uma lista.');
+    (p[k] || []).forEach((x, i) => {
+      if (!x.id) x.id = pre + base + i;
+      if (k !== 'objectives' && !Array.isArray(x.steps)) x.steps = [{ from: 0, value: +x.value || 0 }];
+    });
+  });
+  return p;
+}
+// exportar: o plano aberto (ou o cenário aberto), no formato do armazém, com o nome do cliente no arquivo
+document.getElementById('btnExportar').addEventListener('click', () => {
+  const nome = String(plano.name || 'plano').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^\w]+/g, '-').replace(/^-|-$/g, '').toLowerCase() || 'plano';
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify({ dados: plano, em: new Date().toISOString() }, null, 2)], { type: 'application/json' }));
+  a.download = nome + (cenAtivo() ? '-cenario' : '') + '.json'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+});
+// importar por cima do plano aberto: o de agora fica como cenário ("Plano antes da importação"), para desfazer
+document.getElementById('arqPlano').addEventListener('change', async e => {
+  const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+  if (cenAtivo()) { alert('Há um cenário aberto: volte ao plano para importar.'); return; }
+  let p; try { p = planoDoArquivo(await f.text()); } catch (err) { alert(err.message); return; }
+  const guarda = CEN.lista.length < CEN_MAX;
+  if (!confirm('Trocar o plano' + (plano.name ? ' de ' + plano.name : '') + ' pelo do arquivo (' + p.name + ')?' + (guarda ? ' O plano de agora fica guardado na página Cenários, para desfazer.' : ' Já há três cenários: o plano de agora não fica guardado. Exporte antes, se quiser.'))) return;
+  if (guarda) { CEN.lista.push({ id: idCen(), nome: 'Plano antes da importação', em: new Date().toISOString(), dados: JSON.parse(JSON.stringify(plano)), anterior: true }); gravaCen(); }
+  abrePlano(p); save(); gravarNuvem(true);
+  mostraAviso('Plano importado: ' + p.name + '.');
+});
 
 // ---------- utilidades ----------
 const MESES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
