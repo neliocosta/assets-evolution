@@ -132,6 +132,156 @@ que leva à página correspondente do portal (veja o README, "Quem vê o quê").
 para a aba do portal que abriu a apresentação (que fica à frente, e a apresentação fecha) não deu para testar no
 navegador de testes, que abre tudo na mesma aba: conferir no Chrome.
 
+## Carteira: atual, macroalocação e microalocação (18/10/2026)
+
+Pedido do usuário: a macroalocação do relatório (hoje a planilha "Alocação" do Excel da Nord, com as 15 classes) dentro
+da ferramenta, com uma terceira coluna: além de hoje e da recomendação, a **ideal** (o mundo perfeito, tudo em dinheiro,
+alocando do zero). A recomendada é o ajuste intermediário: o fundo alternativo que não se consegue vender fica nela, mesmo
+com a ideal zerada. Entrada por colagem das linhas do Excel (escolhida no lugar do modelo para baixar e subir: o Excel já
+copia como texto com tabulação, então não há arquivo nem biblioteca de leitura de .xlsx).
+
+Decisões do usuário, na ordem:
+1. A carteira colada é a fonte do patrimônio financeiro; sem carteira, vale o digitado no Patrimônio.
+2. Três capítulos: **Carteira atual** em Dados do cliente (a fotografia, com instituição, titular, incluindo dependentes,
+   vencimento, subclasse e observações); **Macroalocação** e **Microalocação** no Planejamento.
+3. Fundo de pensão, FGTS e empréstimos a amigos e familiares (tipo novo, `emprestimo`) ficam no patrimônio financeiro, fora
+   da carteira; limpar a carteira tira só os investimentos.
+4. A macroalocação usa o desenho da mesa da política (campo e controle deslizante), e o restante fica na liquidez diária,
+   como a liberdade financeira na política.
+5. As carteiras modelo se chamam perfil 0, 1, 2 e 3.
+
+Feito e testado (verificar.js e no navegador): a colagem das 14 linhas da tabela de posições do Excel da Aline e do Leônidas,
+com e sem cabeçalho (o total bate com a planilha, R$ 234.489,49, e a previdência da XP com a linha Previdência, R$ 123.178,27);
+o financeiro trocado pela carteira e devolvido ao limpar; a mesa da macroalocação (digitar, arrastar, "usar" e o "passa em X
+p.p."); a microalocação (decisão por ativo, resgate parcial, "+ incluir" com o que falta e o caixa).
+
+Premissas que o usuário pode querer mudar:
+- a ordem dos perfis: 0 = Conservador, 1 = Moderado, 2 = Sofisticado, 3 = Agressivo (os portfólios 1 a 4 da planilha);
+- Macroalocação e Microalocação vêm depois da Política de investimentos, não antes;
+- a ideal também tem a liquidez diária como restante (não só a recomendada);
+- portabilidade conta como saída do ativo, e o destino é um ativo novo como os outros.
+
+A tela da Carteira atual foi refeita a pedido do usuário (a tabela de dez colunas "estava bem ruim"): contas que abrem e
+fecham, como a posição de uma corretora; classe e subclasse em etiquetas; previdência num botão de três estados; observação
+num ícone. Alternativa feita junto: a visão por classe. Alternativas que ficaram de fora, para conversar:
+- arrastar um ativo de uma conta para outra (hoje, só mudando a conta inteira no cabeçalho);
+- selecionar vários ativos e trocar a classe de todos de uma vez;
+
+A Microalocação passou para o mesmo desenho (feito a pedido do usuário): indicadores, placar recolhível, cartões por conta
+com a decisão na linha e os ativos novos no mesmo formato.
+
+O capítulo Carteira na área do cliente está montado (estrutura pedida pelo usuário): a carteira de hoje, a recomendada com
+os motivos e o que muda. O sunburst veio da sugestão dele (o exemplo "Portfolio" do Flourish), com as animações; no portal,
+substituiu as barras do cabeçalho da Macroalocação, que também ganhou a carteira modelo num bloco à parte.
+
+Em aberto:
+- "outros elementos que eu vou mandar depois" na página do que muda (o usuário anunciou mais conteúdo para ela);
+- o que fazer quando um ativo é trocado (hoje, um resgate seguido de um ativo novo; não há vínculo entre os dois);
+- a lista de ativos recomendados da Nord para escolher os novos (a aba `Ativos_Recomendados` da planilha); hoje o nome é
+  digitado;
+- levar a base de ativos classificados para a plataforma;
+- as carteiras modelo mudam todo mês: hoje estão fixas no motor com a referência abr/26.
+
+## Política de investimentos — feito (17/10/2026)
+
+Pedido do usuário: um capítulo para dizer ao cliente para onde vai cada real do patrimônio de hoje e da sobra do orçamento
+(compromissos, reserva, cada objetivo e liberdade financeira), com um capricho de UX para o consultor distribuir arrastando,
+e um Sankey animado para o cliente. Decisões dele: no portal, é o primeiro passo do Planejamento (antes da Gestão de
+riscos), mesmo com os objetivos cadastrados depois, no passo 7 (confirmado por ele); no cliente, vem depois de Objetivos. A reserva fica separada dos objetivos, mas conta na liberdade. Os compromissos
+são a lista da coleta e ficam separados até a data. A liberdade fica sempre com o restante. O planejamento mensal ou anual
+é escolhido na página Cliente. Horizontes: curtíssimo (abaixo de 6 meses), curto (6 a 24), médio (24 a 60), longo (60 a 120)
+e longuíssimo (mais de 120). O FGTS e a previdência (aberta e fechada) entram no patrimônio; o FGTS e a fechada sem liquidez.
+O Sankey trata só do patrimônio e da sobra de hoje; as vendas futuras ficam na evolução patrimonial.
+Revisão do usuário: a barra arrastável ficava ilegível com valores muito diferentes (R$ 15 mil ao lado de R$ 600 mil). Agora
+cada valor tem o seu controle deslizante na tabela, em escala não linear (a raiz), e a liberdade fica com a diferença; as
+barras ficaram só nos cartões do alto, em escala real, para ver a soma. No cliente, ele pediu o Sankey se dividindo em
+movimento: o bloco aparece, se desfaz nas cores das caixinhas e cada fatia escorre até a sua. Depois, pediu que o segundo
+Sankey saia da renda líquida da família, com o padrão de vida separado sem destaque, e que os compromissos ficassem à vista:
+agora se cadastram na tabela das caixinhas, logo abaixo da linha deles (`politicaDeInvestimentos` devolve `renda` e `padrao`).
+Por fim, o Sankey da renda ficou em dois níveis: a renda vai para o futuro (em cima) e para o padrão de vida (embaixo, mais
+curto); só o futuro se abre nos objetivos e na liberdade, e o movimento segue a mesma ordem.
+Revisão do usuário (18/10/2026): a página do portal não estava fluida nem organizada. Com as skills de UX e o Impeccable,
+foi proposta e aprovada a **mesa de distribuição** (protótipo em `ux/prototipos/politica-mesa.html`, com capturas): uma
+tabela só, caixinhas nas linhas e as duas fontes nas colunas, o total e a barra da divisão no cabeçalho de cada coluna, a
+liberdade (o restante) no rodapé com o estado da coluna, cada valor digitado com a faixa e a referência curta com o botão
+"usar", a estratégia num controle de três posições e o horizonte sob o nome. Saíram os dois cartões do alto e a
+coluna de referência em prosa. O motor e as variáveis não mudaram. Dois ajustes dele em seguida: cada compromisso fica
+recolhido numa linha só (abre ao clicar, recolhe com OK ou Enter), para a tela não crescer com oito compromissos; e a faixa
+sob cada valor voltou a ser um controle deslizante (a mesma escala da raiz de antes, com ímã na referência e o trecho
+listrado), para ajustar um pouco com o mouse além de digitar.
+Terceiro ajuste dele: ao aumentar o aporte de um objetivo, o aviso "O orçamento não comporta este aporte" abria antes de a
+liberdade financeira ter sido consumida (o aviso confere o orçamento mês a mês no Fluxo; a política usa a sobra média ou a
+capacidade informada). Agora o aumento sai da liberdade sem aviso, e o aviso só abre quando os aportes passam da sobra da
+política (`excessoMensal`, a liberdade zerada); aí o consultor escolhe de onde reduzir (`conferirOrcamento`).
+Duas brechas fechadas em seguida: o aporte mensal da reserva de emergência entrou na conferência como um aporte a mais
+(`objetivoDoAporte("reserva")` lê e grava `politica.reservaMensal`), e o chip "passa em R$ X por mês · reduzir" do rodapé da
+mesa abre a janela do orçamento do mês em que mais falta, contando toda a falta (`abrirEstouroDaMesa`), para quando a sobra
+cai depois de os aportes estarem gravados.
+Base única (decisão do usuário, 18/10/2026, entre a janela na média ou a mesa mês a mês): a janela do orçamento passou para a
+sobra média dos 12 meses (`orcamentoDosAportes`, sobre `ENGINE.politicaDeInvestimentos`), a mesma da mesa; a falta da janela
+é o excesso do rodapé, e as reduções de despesa valem a partir de hoje, no equivalente mensal. Saiu o caso "depois da
+liberdade" da janela (o status do objetivo e a coluna Entregue/mês já o cobrem). No caminho, os chips do topo (capacidade
+de poupança) usavam uma média própria do portal (`valorEm` mês a mês), que diferia da do motor em R$ 172 no exemplo; agora
+`media12` lê `ENGINE.orcamentoDoFluxo`. Em aberto: o motor entrega o aporte mês a mês, e o bônus não compensa o mês fraco;
+fazer o motor recuperar o atraso tornaria a média a verdade da simulação também.
+Em aberto:
+
+1. **Planejamento anual na simulação**: hoje só muda como a política mostra a sobra e os aportes (por ano). O aporte anual
+   de verdade (uma vez por ano, no mês do bônus) ainda não existe no motor.
+2. **FGTS para a casa**: o FGTS fica na liberdade, sem liquidez; usá-lo na compra do imóvel ainda não é possível.
+3. **Importar da coleta** os compromissos, o FGTS, a previdência fechada e a periodicidade.
+
+## Uma venda para vários objetivos — feito (17/10/2026)
+
+Pedido do usuário: o líquido do terreno de São Sebastião (R$ 100 mil) ia R$ 80 mil para a Casa própria e R$ 20 mil para a
+Viagem à Europa, mas a venda só financiava um objetivo, e escolher o terreno na viagem tirava a venda inteira da casa (o
+necessário da casa disparava e o aviso do orçamento abria). Agora a venda tem uma lista de destinos (`venda.destinos`): cada
+um leva o valor informado, vazio leva o que sobra, e juntos nunca passam do líquido. O cartão do objetivo e a gaveta do bem
+mostram o que ainda está livre, os outros objetivos que a venda financia e avisam quando o valor pedido passa do que sobra.
+Junto, o "Cancelar o aumento" do aviso do orçamento deixou de reabrir o aviso quando o aporte acompanhava o necessário.
+
+## Objetivo financiado com patrimônio — feito (17/10/2026)
+
+Pedido do usuário, com um cliente que vende o apartamento de São Paulo daqui a três anos para comprar um menor em São José
+dos Campos. O chip "+ Patrimônio já reservado" virou **"+ Financiar com patrimônio"**, uma seção com três fontes: o
+patrimônio financeiro de hoje (o antigo `dedicated`), a venda de um bem e a venda de uma participação. A venda continua
+programada só no bem (uma informação num lugar só); o objetivo aponta para ela (hoje, `venda.destinos`). Escolher um bem sem
+venda cria a venda na data do objetivo e abre a gaveta do bem (ou da participação, gaveta nova) para programá-la. No mês da
+venda, o líquido (ou a parte de cada objetivo) vai para o saldo do objetivo; o que sobra na data volta ao
+financeiro. Uma venda depois da data não financia, e o cartão oferece trazer a data do objetivo para o mês da venda. No
+motor, os objetivos passaram a ser realizados depois das vendas do mês, para a venda e a compra no mesmo mês funcionarem.
+Em aberto: o cliente ainda não propõe essa ligação; a venda de um bem comprado por um objetivo continua fora.
+
+## Capítulo Objetivos (17/10/2026)
+
+Pedido do usuário: antes da evolução patrimonial, um capítulo para apresentar com calma como cada objetivo vai ser
+realizado (o modal da evolução passa rápido demais), e a engenharia para acompanhar o plano nas revisões: orçado x
+realizado por objetivo, os aportes cumpridos ("20 de 24") e os cobertos com dinheiro de outro objetivo. Feito: o capítulo
+(capa, resumo e a página, um objetivo por vez), o orçado e os cortes no motor, a foto do plano (Apresentação) e a conta do
+acompanhamento, testada no `verificar.js`. Escolha: os três cortes ficam a um quarto, à metade e a três quartos do prazo.
+**O acompanhamento saiu da ferramenta** (decisão do usuário, 17/10/2026): esta ferramenta é para desenhar e apresentar o
+plano; revisitar os objetivos (o guardado, o realizado) é da futura área logada do cliente. Saíram a foto do plano (página
+Apresentação), a seção "Acompanhamento" do cartão do objetivo no portal e o bloco "O acompanhamento" com os saldos do
+extrato na área do cliente. Tudo guardado em `reaproveitar/acompanhamento.js`. Quando a área logada vier: o "hoje" do
+motor ainda é fixo em 19/09/2026 (item 20), e o dinheiro remanejado de um objetivo para outro no realizado deveria baixar
+o saldo do de origem.
+
+## Eventos menores na evolução patrimonial — feito (17/10/2026)
+
+Pedido do usuário: os rótulos das vendas, quitações e rendas que começam ou terminam ficavam encavalados ("Venda: Terreno"
+sobre "Venda: Apartamento") e encostados na curva. Agora ficam numa faixa própria, entre a linha dos objetivos e o alto da
+curva (que desceu para abrir o espaço). Os do mesmo ponto viram um só ("2 vendas"); cada rótulo vai no primeiro lugar livre
+(linha de cima ou de baixo, à direita ou à esquerda do ponto), sem encostar em outro nem cruzar a linha de um objetivo; sem
+lugar, vira o rótulo curto ("Dívida quitada") ou só o ponto. O detalhe continua no tooltip ao passar o mouse.
+
+## Preço do bem e necessário na data — feito (17/10/2026)
+
+Pedido do usuário: na casa própria, os R$ 180 mil do objetivo eram a entrada de um imóvel de R$ 600 mil. Num objetivo que
+vira bem, o cartão passou a ter "Valor do objetivo" (o preço, `preco`) e "Necessário na data" (o `amount` de sempre). É
+só visual: o cabeçalho mostra "R$ 600.000 (R$ 180.000 na data)" e a tela do cliente mostra o valor do bem e o necessário
+na data. Em aberto: o bem ainda entra no patrimônio pela entrada (e cresce com a amortização do financiamento), não pelo
+preço com a dívida ao lado.
+
 ## Fluxo de caixa do cliente: linha inteira e faixa de meses (17/10/2026)
 
 Feito: na janela do fluxo, desbloqueada, o nome da linha abre a linha inteira num painel do lado (frequência, datas,
@@ -300,7 +450,9 @@ O arquivo enviado pelo consultor funciona offline.
 
 ### 16. Emojis do fluxo
 A cliente leu 💳 como "gastei no cartão" e achou as setas verde e vermelha mais claras. Os emojis foram um
-pedido explícito, então fica registrado como ponto a reavaliar, não como erro.
+pedido explícito, então fica registrado como ponto a reavaliar, não como erro. Nas movimentações de patrimônio, o
+ícone de setas circulares (igual para entrar e sair) virou uma seta horizontal entrando no colchete (roxa, entra no
+patrimônio) ou saindo dele (vermelha, sai), para não confundir com as setas verticais de entrada e saída de caixa.
 
 ### 17. Área do fluxo em telas baixas
 Num notebook, a tabela de fluxo mostra poucas linhas. Considerar um divisor arrastável entre o gráfico e a
@@ -378,6 +530,56 @@ Onde ela ficou ansiosa, e que vale vigiar em qualquer mudança futura:
 ---
 
 # Decisões tomadas, e por quê
+
+- **A média de 12 meses conta o que acontece (18/10/2026).** Pedido do usuário: num planejamento anual, com um bônus
+  grande no ano, a Política mostrava sobra zero. A média usava o equivalente mensal só a partir do mês em que a linha
+  começa, e um bônus anual que cai dentro da janela pesava a metade. Agora ela soma o que cada linha paga em cada um dos
+  12 meses. No plano de teste do usuário, a sobra passou de −R$ 498 para +R$ 663 por mês (R$ 7.960 por ano); no exemplo,
+  a capacidade passou de R$ 2.822 para R$ 3.233 por mês, porque o bônus de março conta inteiro. As entradas pontuais
+  continuam fora. Num planejamento anual, o placar mostra os valores por ano.
+- **Linhas do fluxo pela frequência (18/10/2026).** Pedido do usuário: ao andar para o lado, uma linha que entrava ou saía
+  empurrava as outras e ficava difícil achar cada uma. Agora, em cada grupo, as linhas que aparecem em mais meses (de hoje
+  até o fim do plano) ficam em cima, nas duas telas. Como a conta é sobre o plano inteiro, uma renda longa da aposentadoria
+  (o fundo de pensão vitalício, 516 meses) fica acima do salário (260 meses); ela só aparece quando o salário já saiu.
+- **Rendas no Orçamento como na coleta (18/10/2026).** Pedido do usuário, com a imagem do formulário de coleta (renda
+  ativa e renda passiva). Cada renda abre com o tipo, quem a gera (uma pessoa ou um bem), o bruto, os descontos e o líquido;
+  numa ativa, o 13º, as comissões e os bônus. O que vem junto é linha própria do Fluxo, presa à renda por `de`; o 13º segue
+  o líquido do salário (`segue`, no motor). No exemplo, o "Bônus anual" passou a ser da renda "Salário da Ana". Em aberto:
+  um plano gravado antes desta mudança mostra o bônus como uma renda à parte, até o consultor ligá-lo de novo; o regime e
+  as horas, que a coleta pede na renda ativa, continuam na página Cliente (`rendasAtivas`).
+- **Capítulos fora da apresentação (18/10/2026).** Pedido do usuário: escolher, na Apresentação, quais capítulos o
+  cliente vê. Um interruptor antes do nome de cada capítulo (`plano.capitulosOcultos`); o livro do cliente se monta sem
+  eles. Na mesma mudança, a dica do campo "Nome do cônjuge" deixou de falar das iniciais, que a Onda 1 trocou pelo nome.
+- **Preservar o patrimônio trava o saque (18/10/2026).** Pedido do usuário: o botão travava a renda total (o rendimento mais
+  as rendas da fase em que elas eram menores), e o patrimônio crescia nos períodos com mais rendas. Agora o saque é o
+  rendimento, igual em todos os períodos, e a renda de cada período é esse saque mais as rendas dele. No exemplo, o saque
+  é de R$ 20.900 e o patrimônio chega aos 95 anos com os R$ 5,2 mi da liberdade. No mesmo pedido, a estratégia de cada
+  objetivo na Política de investimentos virou uma etiqueta que se clica, como a classe na Carteira atual, no lugar do
+  controle de três posições: a coluna ficou estreita e o nome do objetivo cabe numa linha.
+- **Onda 2 da auditoria de UX: cenários (18/10/2026).** Pedido do usuário ("faça esta tarefa aqui"), a partir do achado
+  K1 de `ux/research/auditoria-ux-2026-10-18.md`. Feito com o desenho proposto na auditoria, sem rodada de aprovação
+  antes de codar: a confirmar com o usuário. Cenários são fotografias do plano, fora dele (`nl-cenarios`), e só no
+  portal; o cliente vê o plano, salvo quando o consultor apresenta um cenário. Até três. O placar do topo deixou de
+  aparecer só no Fluxo, nos Objetivos e na Liberdade (revê a decisão "os indicadores do topo só aparecem onde ajudam a
+  decidir"): agora fica em todas as páginas em que se decide o plano. Em aberto: no link publicado, os cenários ficam no
+  navegador de quem os criou (não vão para o banco); se o consultor usar dois computadores, eles não o acompanham.
+- **Onda 1 da auditoria de UX (18/10/2026).** Pedido do usuário, a partir de `ux/research/auditoria-ux-2026-10-18.md`.
+  Revê três decisões anteriores, registradas abaixo com a data original:
+  - **Riscos em lista, não em carrossel** (revê "Carrossel das ameaças", de 01/10, e "Carrossel de riscos sem sobe e
+    desce", de 07/10 e 16/10). O carrossel cortava os vizinhos na borda e deixava até 700 px vazios embaixo da ameaça
+    curta. A lista, da mais urgente à protegida, mostra as oito de uma vez e já diz o que resolver primeiro; o cliente
+    ainda passa por todas, porque cada uma é uma linha com o status. **Revertido em 19/10/2026:** o usuário prefere o
+    carrossel, e a ordem das ameaças tem de ser sempre a de `ENGINE.RISCOS` (reserva, saúde, danos a terceiros, …),
+    nunca a do status. Voltou o carrossel de 16/10.
+  - **Eixo de valor linear** (revê o `asinh` da evolução). Com o eixo comprimido, a faixa de R$ 0 a R$ 500 mil ocupava
+    quase metade da altura e o crescimento parecia um traço reto; a família lê a altura ao pé da letra.
+  - **O nome no cabeçalho, não as iniciais** (revê "Topo da evolução patrimonial mais enxuto", de 14/10). "A. R. e M. R."
+    parecia um código; agora é "Planejamento de Vida · Ana e Marcos", os mesmos primeiros nomes da página de boas-vindas.
+  Também entraram: a pílula diz "capítulo 6 de 10"; as capas e os resumos sem vídeo não mostram mais o bloco "Aqui vai
+  entrar o vídeo"; o "Hoje e depois" trata o lado de hoje como ponto de partida (o placar em cinza, o vermelho só na
+  proteção, "A ajustar", "Ainda não" e "Concentrada" no lugar de "Inadequado", "Não" e "Preocupante"; o portal continua
+  com os nomes do motor); o livro termina no cartão da liberdade financeira, antes da mensagem do planejador; e, no
+  portal, a barra lateral passou a 5,6:1 de contraste, com os rótulos dos grupos em 11 px.
 
 Registradas aqui porque não são óbvias no código:
 

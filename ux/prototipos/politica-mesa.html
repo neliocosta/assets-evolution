@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Política de investimentos: a mesa de distribuição (protótipo)</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap');
+/* Protótipo isolado da página Política de investimentos do portal do consultor. Não faz parte do app: serve para
+   explorar a "mesa de distribuição": uma tabela só, com as caixinhas nas linhas e as duas fontes (o patrimônio de
+   hoje e a sobra de cada mês) nas colunas. Cada coluna tem o total e a divisão no cabeçalho e o que fica para a
+   liberdade no rodapé, ao lado de onde o consultor digita. Os números são da família de exemplo (Ana Ribeiro);
+   o aporte necessário é calculado aqui mesmo, com a mesma conta do motor. Só desktop. */
+:root{--laranja:#FA7A35;--laranja-tx:#E06600;--pessego:#FFF3EB;--marinho:#20344C;--creme:#FDFCFA;--grafite:#555;--legenda:#6B6A66;
+  --areia:#F1EEE8;--borda:#DDDDDD;--atencao:#964400;--atencao-fundo:#FFF1E6;--verde-tx:#22794A;--verde-fundo:#E3F3E9;--trilho:#EEF1F5;--hover:#FBF9F6;
+  --sombra:0 1px 3px rgba(0,0,0,.06),0 4px 12px rgba(0,0,0,.04)}
+*{box-sizing:border-box}
+html{scrollbar-color:#CFC8BC var(--creme)}
+body{margin:0;background:var(--creme);color:var(--grafite);font:400 15px/1.6 'DM Sans',system-ui,sans-serif}
+::selection{background:#FCD9C2;color:var(--marinho)}
+.pg{max-width:1120px;margin:0 auto;padding:28px 28px 60px}
+.kicker{font:600 11px 'DM Sans',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--marinho)}
+h1{font:600 32px/1.15 Sora,sans-serif;color:var(--marinho);margin:6px 0 8px;letter-spacing:-.01em}
+.hint{max-width:760px;margin:0;font-size:14.5px}
+.hint a{color:var(--marinho);font-weight:600;text-decoration:underline;text-underline-offset:3px}
+.num,input{font-variant-numeric:tabular-nums}
+button:focus-visible{outline:2px solid var(--laranja);outline-offset:2px}
+input:focus{outline:none;border-color:var(--marinho);box-shadow:0 0 0 3px rgba(250,122,53,.35)}
+
+/* controle do protótipo: os cenários */
+.cen{display:flex;align-items:center;gap:12px;margin:18px 0 0;font:500 12.5px 'DM Sans';color:var(--legenda)}
+.alt{display:inline-flex;border:1px solid var(--borda);border-radius:8px;overflow:hidden;background:#fff}
+.alt button{border:0;background:none;font:600 12.5px 'DM Sans';color:var(--marinho);padding:5px 14px;min-height:30px;cursor:pointer}
+.alt button[aria-pressed=true]{background:var(--marinho);color:#fff}
+
+/* a mesa */
+.card{background:#fff;border-radius:16px;box-shadow:var(--sombra);margin-top:18px;overflow:hidden}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;vertical-align:bottom;padding:22px 16px 14px;border-bottom:1px solid var(--areia);font-weight:400}
+th.cx{width:322px;padding-left:24px} th.est{width:226px} th.fonte{width:256px}
+th .rot{display:block;font:600 11px 'DM Sans';letter-spacing:.14em;text-transform:uppercase;color:var(--marinho)}
+th .tot{display:block;font:600 24px/1.1 Sora,sans-serif;color:var(--marinho);margin-top:6px;letter-spacing:-.01em}
+th .de{display:block;font:500 12px 'DM Sans';color:var(--legenda);margin-top:3px;min-height:18px}
+th .de a{color:var(--marinho);text-decoration:underline;text-underline-offset:2px}
+.soma{display:flex;height:10px;border-radius:5px;overflow:hidden;background:var(--trilho);margin-top:10px;gap:2px}
+.soma i{display:block;height:100%;min-width:2px;transition:flex-grow .2s ease-out,filter .15s} .soma i.sel{filter:brightness(.86)}
+.soma.vazia{background:repeating-linear-gradient(135deg,#F6F3EE 0 4px,var(--trilho) 4px 8px)}
+.grupo td{padding:16px 16px 4px 24px;font:600 11px 'DM Sans';letter-spacing:.12em;text-transform:uppercase;color:var(--legenda);border-top:1px solid var(--areia)}
+tr.grupo:first-of-type td{border-top:0}
+td{padding:12px 16px;vertical-align:top;border-top:1px solid var(--areia)}
+tr.linha:hover td,tr.linha.sel td{background:var(--hover)}
+tr.grupo+tr.linha td{border-top:0}
+td.cx{padding-left:24px} .nome{display:flex;gap:12px;align-items:flex-start}
+.nome i{width:10px;height:34px;border-radius:4px;flex:none;margin-top:1px}
+.nome b{display:block;font:600 14px 'DM Sans';color:var(--marinho);line-height:1.3}
+.nome small{display:block;font:500 12.5px 'DM Sans';color:var(--legenda);margin-top:3px}
+.nome small em{font-style:normal;color:var(--marinho)}
+/* estratégia: um controle de três posições, só nos objetivos */
+.seg{display:inline-flex;border:1px solid var(--borda);border-radius:9px;overflow:hidden;background:#fff;margin-top:3px}
+.seg button{border:0;background:none;font:500 12px 'DM Sans';color:var(--marinho);padding:5px 10px;cursor:pointer;min-height:28px;border-right:1px solid var(--areia)}
+.seg button:last-child{border-right:0} .seg button[aria-pressed=true]{background:var(--marinho);color:#fff;font-weight:600}
+.seg button:hover:not([aria-pressed=true]){background:var(--hover)}
+.fixo{font:500 13.5px 'DM Sans';color:var(--grafite);padding-top:6px;display:block} .fixo small{display:block;font-size:12px;color:var(--legenda)}
+/* a célula de valor: o campo, a faixa e a referência */
+.v{width:100%} .v input{width:100%;text-align:right;padding:7px 10px;border:1px solid var(--borda);border-radius:9px;font:600 14px Sora,sans-serif;color:var(--marinho);background:#fff;transition:border-color .15s,box-shadow .15s}
+.v input::placeholder{color:#B3AFA7;font-weight:500}
+.v .ro{display:block;text-align:right;font:600 14px Sora,sans-serif;color:var(--marinho);padding:7px 11px 0}
+.faixa{position:relative;height:4px;border-radius:2px;background:var(--trilho);margin:8px 0 0}
+.faixa>i{position:absolute;left:0;top:0;bottom:0;border-radius:2px;background:var(--c);transition:width .2s ease-out}
+.faixa>b{position:absolute;top:-4px;width:2px;height:12px;margin-left:-1px;background:var(--marinho);opacity:.45;border-radius:1px}
+.ref{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-top:6px;font:500 12px 'DM Sans';color:var(--legenda);min-height:18px}
+.ref .pc{font:600 12px Sora,sans-serif;color:var(--legenda);white-space:nowrap}
+.ref button{border:0;background:var(--pessego);color:var(--marinho);font:600 11.5px 'DM Sans';padding:2px 9px;border-radius:9999px;cursor:pointer;white-space:nowrap}
+.ref button:hover{filter:brightness(.96)} .ref .ok{color:var(--verde-tx);font-weight:600} .ref .falta{color:var(--atencao);font-weight:600}
+.ref .ok::before,.ref .falta::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:currentColor;margin:0 6px 1px 0}
+/* compromissos: as linhas de cadastro, logo abaixo */
+.comp td{padding:0 16px 10px 46px;border-top:0}
+.comp-l{display:grid;grid-template-columns:1.5fr 150px 150px 28px;gap:8px;align-items:center;padding:4px 0}
+.comp-l input{padding:6px 9px;border:1px solid var(--borda);border-radius:8px;font:500 13px 'DM Sans';color:var(--marinho)} .comp-l input.r{text-align:right;font:600 13px Sora,sans-serif}
+.comp-l button{border:0;background:none;color:#b9b9b9;font-size:16px;cursor:pointer;border-radius:6px;padding:2px 4px} .comp-l button:hover{color:#B53434;background:#fdf0f0}
+.mais{border:0;background:none;color:var(--laranja-tx);font:600 12px 'DM Sans';padding:4px 0;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+/* o rodapé: a liberdade fica com o restante */
+tfoot td{border-top:2px solid var(--areia);padding:16px 16px 18px;background:#FDFCFA}
+tfoot td.cx{padding-left:24px}
+tfoot .nome b{font:600 15px Sora,sans-serif}
+.resto{display:block;text-align:right;font:600 22px/1.1 Sora,sans-serif;color:var(--marinho);letter-spacing:-.01em;transition:color .2s}
+.resto.neg{color:var(--atencao)}
+.resto small{display:block;font:500 12px 'DM Sans';color:var(--legenda);margin-top:2px;letter-spacing:0}
+.estado{display:inline-flex;align-items:center;gap:6px;margin-top:8px;float:right;font:600 12px 'DM Sans';padding:4px 11px;border-radius:9999px;background:var(--verde-fundo);color:var(--verde-tx)}
+.estado.at{background:var(--atencao-fundo);color:var(--atencao)} .estado a{color:inherit}
+.estado i{width:6px;height:6px;border-radius:50%;background:currentColor}
+.pagenav{display:flex;justify-content:flex-end;margin-top:18px}
+.btn{border:0;cursor:pointer;font:600 13px 'DM Sans';background:var(--pessego);color:var(--laranja-tx);border-radius:11px;padding:9px 16px}
+@media (prefers-reduced-motion:reduce){.soma i,.faixa>i{transition:none}}
+</style>
+</head>
+<body>
+<div class="pg">
+  <div class="kicker">Planejamento · passo 5 de 11</div>
+  <h1>Política de investimentos</h1>
+  <p class="hint">Para onde vai cada real: o patrimônio financeiro de hoje e a sobra de cada mês, divididos entre a reserva, os compromissos e os objetivos. A liberdade financeira fica com o que restar.</p>
+  <div class="cen">Cenário do protótipo: <span class="alt" role="group" aria-label="Sobra do mês"><button data-cen="3100" aria-pressed="true">sobra de R$ 3.100</button><button data-cen="0" aria-pressed="false">sem sobra (o exemplo de hoje)</button></span></div>
+
+  <div class="card">
+    <table id="mesa">
+      <thead><tr>
+        <th class="cx"><span class="rot">Caixinha</span></th>
+        <th class="est"><span class="rot">Estratégia</span></th>
+        <th class="fonte"><span class="rot">Patrimônio de hoje</span><span class="tot num" data-tot="p"></span><span class="de">da página <a href="#">Patrimônio</a>: investimentos e previdência</span><div class="soma" data-soma="p"></div></th>
+        <th class="fonte"><span class="rot">Sobra por mês</span><span class="tot num" data-tot="m"></span><span class="de" data-de="m"></span><div class="soma" data-soma="m"></div></th>
+      </tr></thead>
+      <tbody id="corpo"></tbody>
+      <tfoot><tr>
+        <td class="cx"><div class="nome"><i style="background:#F6A06B"></i><div><b>Liberdade financeira</b><small>fica com o restante · até jun/2048 · longuíssimo prazo</small></div></div></td>
+        <td><span class="fixo">Conservadora<small>0,4% ao mês</small></span></td>
+        <td><span class="resto num" data-resto="p"></span><span data-estado="p"></span></td>
+        <td><span class="resto num" data-resto="m"></span><span data-estado="m"></span></td>
+      </tr></tfoot>
+    </table>
+  </div>
+  <div class="pagenav"><button class="btn">Próximo: Gestão de riscos →</button></div>
+</div>
+
+<script>
+// ---- os dados do exemplo (a família Ana Ribeiro) ----
+const TAXAS = { conservador: 0.004, moderado: 0.005, agressivo: 0.006 }, NOME = { conservador: 'Conservadora', moderado: 'Moderada', agressivo: 'Agressiva' };
+const S = { total: 860000, sobra: 3100, reserva: 147600, ideal: 147582, reservaMensal: 0, compromissos: [],
+  objetivos: [
+    { id: 'fortaleza', nome: 'Viagem a Fortaleza', cor: '#7FA1DD', amount: 12000, meses: 20, data: 'mai/2028', hz: 'curto prazo', ded: 3000, apor: 450, perfil: 'conservador' },
+    { id: 'casa', nome: 'Casa própria', cor: '#E6BA74', amount: 180000, meses: 46, data: 'jul/2030', hz: 'médio prazo', ded: 45000, apor: 1500, perfil: 'moderado' },
+    { id: 'europa', nome: 'Viagem à Europa em família', cor: '#B5A2D8', amount: 60000, meses: 60, data: 'set/2031', hz: 'longo prazo', ded: 18000, apor: 300, perfil: 'moderado' },
+    { id: 'intercambio', nome: 'Intercâmbio do filho', cor: '#8CC3BE', amount: 150000, meses: 96, data: 'set/2034', hz: 'longo prazo', ded: 20000, apor: 150, perfil: 'moderado' },
+    { id: 'praia', nome: 'Casa de praia', cor: '#E3A79C', amount: 300000, meses: 132, data: 'set/2037', hz: 'longuíssimo prazo', ded: 25000, apor: 100, perfil: 'agressivo' }] };
+const COR = { reserva: '#77C094', compromissos: '#9FB0C4', liberdade: '#F6A06B' };
+const fmt = v => 'R$ ' + Math.round(v).toLocaleString('pt-BR'), un = v => +String(v).replace(/\D/g, '') || 0;
+const pct = (v, t) => t > 0 ? (v / t < 0.005 && v > 0 ? '<1%' : Math.round(v / t * 100) + '%') : '';
+// o aporte que falta para chegar ao valor na data, com o patrimônio de hoje rendendo à taxa da estratégia (a conta do motor)
+const necessario = o => { const r = TAXAS[o.perfil], f = Math.pow(1 + r, o.meses); return Math.max(0, Math.ceil((o.amount - o.ded * f) * r / (f - 1))); };
+
+// ---- a construção da mesa (uma vez) ----
+const campo = (q, id, v) => `<div class="v"><input data-q="${q}" data-id="${id}" inputmode="numeric" value="${v > 0 ? fmt(v) : ''}" placeholder="R$ 0" aria-label="${q === 'p' ? 'Patrimônio' : 'Aporte'} para ${id}"><div class="faixa" data-fx="${q}:${id}"><i></i></div><div class="ref" data-ref="${q}:${id}"></div></div>`;
+function linha(id, cor, nome, sub, est, p, m) {
+  return `<tr class="linha" data-linha="${id}"><td class="cx"><div class="nome"><i style="background:${cor}"></i><div><b>${nome}</b><small>${sub}</small></div></div></td><td>${est}</td><td>${p}</td><td>${m}</td></tr>`;
+}
+function monta() {
+  const seg = o => `<div class="seg" role="group" aria-label="Estratégia de ${o.nome}">${Object.keys(NOME).map(k => `<button data-perfil="${o.id}" data-k="${k}" aria-pressed="${o.perfil === k}">${NOME[k]}</button>`).join('')}</div>`;
+  document.getElementById('corpo').innerHTML =
+    `<tr class="grupo"><td colspan="4">Antes dos objetivos</td></tr>` +
+    linha('reserva', COR.reserva, 'Reserva de emergência', 'para imprevistos · não vai para os objetivos', '<span class="fixo">Conservadora<small>liquidez imediata</small></span>', campo('p', 'reserva', S.reserva), campo('m', 'reserva', 0)) +
+    linha('compromissos', COR.compromissos, 'Compromissos', '<span data-comp-sub>gastos já marcados, com data e valor</span>', '<span class="fixo">Conservadora<small>separados até a data</small></span>', `<div class="v"><span class="ro num" data-ro="compromissos"></span><div class="faixa" data-fx="p:compromissos"><i></i></div><div class="ref" data-ref="p:compromissos"></div></div>`, '<span class="fixo" style="text-align:right;color:#B3AFA7">—</span>') +
+    `<tr class="comp"><td colspan="4"><div data-comp-lista></div><button class="mais" data-comp-add>+ Compromisso</button></td></tr>` +
+    `<tr class="grupo"><td colspan="4">Os objetivos</td></tr>` +
+    S.objetivos.map(o => linha(o.id, o.cor, o.nome, `<em>${o.data}</em> · ${o.hz} · ${fmt(o.amount)}`, seg(o), campo('p', o.id, o.ded), campo('m', o.id, o.apor))).join('');
+  montaCompromissos(); atualiza();
+}
+function montaCompromissos() {
+  const L = S.compromissos, el = document.querySelector('[data-comp-lista]');
+  el.innerHTML = L.map((c, i) => `<div class="comp-l"><input data-c="${i}:titulo" value="${c.titulo}" placeholder="ex.: Reforma da cozinha"><input data-c="${i}:em" value="${c.em}" placeholder="quando (mês/ano)"><input class="r" data-c="${i}:valor" inputmode="numeric" value="${c.valor > 0 ? fmt(c.valor) : ''}" placeholder="R$ 0"><button data-comp-rm="${i}" title="Remover">×</button></div>`).join('');
+  document.querySelector('[data-comp-sub]').textContent = L.length ? L.length + (L.length > 1 ? ' compromissos, abaixo' : ' compromisso, abaixo') : 'gastos já marcados, com data e valor';
+}
+
+// ---- o que muda a cada toque: as faixas, as referências, as somas e o restante ----
+function atualiza() {
+  const comp = S.compromissos.reduce((a, c) => a + c.valor, 0);
+  const usadoP = S.reserva + comp + S.objetivos.reduce((a, o) => a + o.ded, 0), usadoM = S.objetivos.reduce((a, o) => a + o.apor, 0) + S.reservaMensal;
+  const restoP = S.total - usadoP, restoM = S.sobra - usadoM;
+  const q = s => document.querySelector(s);
+  q('[data-tot="p"]').textContent = fmt(S.total); q('[data-tot="m"]').textContent = fmt(S.sobra);
+  q('[data-de="m"]').innerHTML = S.sobra > 0 ? 'a média dos próximos 12 meses do <a href="#">Fluxo de caixa</a>' : 'as despesas cobrem as entradas no <a href="#">Fluxo de caixa</a>';
+  q('[data-ro="compromissos"]').textContent = comp > 0 ? fmt(comp) : '—';
+  // as faixas: a parte de cada caixinha na fonte, em escala real; a marca é a referência
+  const faixa = (k, v, tot, cor, ref) => { const f = q(`[data-fx="${k}"]`); if (!f) return; f.style.setProperty('--c', cor); f.querySelector('i').style.width = (tot > 0 ? Math.min(100, v / tot * 100) : 0) + '%';
+    let b = f.querySelector('b'); if (ref > 0 && ref <= tot) { if (!b) { b = document.createElement('b'); f.appendChild(b); } b.style.left = (ref / tot * 100) + '%'; } else if (b) b.remove(); };
+  const refTxt = (k, html, p) => { q(`[data-ref="${k}"]`).innerHTML = `<span>${html}</span><span class="pc">${p}</span>`; };
+  faixa('p:reserva', S.reserva, S.total, COR.reserva, S.ideal);
+  refTxt('p:reserva', Math.abs(S.reserva - Math.ceil(S.ideal / 100) * 100) < 1 ? '<span class="ok">na reserva ideal</span>' : `ideal ${fmt(S.ideal)} <button data-usar="reserva">usar</button>`, pct(S.reserva, S.total));
+  faixa('m:reserva', S.reservaMensal, S.sobra, COR.reserva, 0); refTxt('m:reserva', S.reservaMensal > 0 ? 'até completar a ideal' : 'já completa; nada por mês', pct(S.reservaMensal, S.sobra));
+  faixa('p:compromissos', comp, S.total, COR.compromissos, 0); refTxt('p:compromissos', comp > 0 ? 'saem no mês marcado' : 'nenhum cadastrado', pct(comp, S.total));
+  S.objetivos.forEach(o => { const nec = necessario(o);
+    faixa('p:' + o.id, o.ded, S.total, o.cor, 0); refTxt('p:' + o.id, o.ded > 0 ? 'rendendo até a data' : 'nada separado hoje', pct(o.ded, S.total));
+    faixa('m:' + o.id, o.apor, S.sobra, o.cor, nec);
+    refTxt('m:' + o.id, o.apor >= nec ? `<span class="ok">cobre o necessário</span>` : `<span class="falta">precisa de ${fmt(nec)}</span> <button data-usar="${o.id}">usar</button>`, pct(o.apor, S.sobra)); });
+  // as somas do cabeçalho: cada caixinha com a sua cor e a liberdade com o restante
+  const soma = (k, tot, partes) => { const el = q(`[data-soma="${k}"]`); el.classList.toggle('vazia', !(tot > 0));
+    el.innerHTML = tot > 0 ? partes.filter(x => x.v > 0).map(x => `<i data-seg="${x.id}" style="flex:${(x.v / tot).toFixed(5)} 0 0;background:${x.cor}" title="${x.nome}: ${fmt(x.v)}"></i>`).join('') : ''; };
+  soma('p', S.total, [{ id: 'reserva', nome: 'Reserva', cor: COR.reserva, v: S.reserva }, { id: 'compromissos', nome: 'Compromissos', cor: COR.compromissos, v: comp }].concat(S.objetivos.map(o => ({ id: o.id, nome: o.nome, cor: o.cor, v: o.ded })), [{ id: 'liberdade', nome: 'Liberdade financeira', cor: COR.liberdade, v: Math.max(0, restoP) }]));
+  soma('m', S.sobra, [{ id: 'reserva', nome: 'Reserva', cor: COR.reserva, v: S.reservaMensal }].concat(S.objetivos.map(o => ({ id: o.id, nome: o.nome, cor: o.cor, v: o.apor })), [{ id: 'liberdade', nome: 'Liberdade financeira', cor: COR.liberdade, v: Math.max(0, restoM) }]));
+  // o rodapé: o que fica para a liberdade, e o estado de cada coluna
+  const resto = (k, v, tot, un) => { const r = q(`[data-resto="${k}"]`), e = q(`[data-estado="${k}"]`); r.classList.toggle('neg', v < 0);
+    r.innerHTML = `${fmt(Math.max(0, v))}<small>${v < 0 ? 'não sobra nada para a liberdade' : pct(v, tot) + ' da ' + (k === 'p' ? 'carteira de hoje' : 'sobra do mês')}</small>`;
+    e.innerHTML = v < 0 ? `<span class="estado at"><i></i>passa em ${fmt(-v)}${un}</span>` : `<span class="estado"><i></i>fecha a conta</span>`; };
+  resto('p', restoP, S.total, ''); resto('m', restoM, S.sobra, ' por mês');
+}
+
+// ---- os toques ----
+document.addEventListener('input', e => {
+  const t = e.target; if (t.dataset.q) { const v = un(t.value), id = t.dataset.id;
+    if (id === 'reserva') { if (t.dataset.q === 'p') S.reserva = v; else S.reservaMensal = v; } else { const o = S.objetivos.find(x => x.id === id); if (o) o[t.dataset.q === 'p' ? 'ded' : 'apor'] = v; }
+    atualiza(); }
+  if (t.dataset.c) { const [i, k] = t.dataset.c.split(':'); S.compromissos[i][k] = k === 'valor' ? un(t.value) : t.value; atualiza(); }
+});
+document.addEventListener('change', e => { const t = e.target; if (t.dataset.q || (t.dataset.c || '').endsWith('valor')) { const v = un(t.value); t.value = v > 0 ? fmt(v) : ''; } });
+document.addEventListener('click', e => {
+  const u = e.target.closest('[data-usar]'); if (u) { const id = u.dataset.usar;
+    if (id === 'reserva') { S.reserva = Math.ceil(S.ideal / 100) * 100; document.querySelector('[data-q="p"][data-id="reserva"]').value = fmt(S.reserva); }
+    else { const o = S.objetivos.find(x => x.id === id); o.apor = necessario(o); document.querySelector(`[data-q="m"][data-id="${id}"]`).value = fmt(o.apor); }
+    atualiza(); return; }
+  const p = e.target.closest('[data-perfil]'); if (p) { const o = S.objetivos.find(x => x.id === p.dataset.perfil); o.perfil = p.dataset.k;
+    p.parentElement.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b === p)); atualiza(); return; }
+  if (e.target.closest('[data-comp-add]')) { S.compromissos.push({ titulo: '', em: '', valor: 0 }); montaCompromissos(); atualiza(); const ins = document.querySelectorAll('[data-c$=":titulo"]'); ins[ins.length - 1].focus(); return; }
+  const rm = e.target.closest('[data-comp-rm]'); if (rm) { S.compromissos.splice(+rm.dataset.compRm, 1); montaCompromissos(); atualiza(); return; }
+  const c = e.target.closest('[data-cen]'); if (c) { S.sobra = +c.dataset.cen; c.parentElement.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b === c)); atualiza(); }
+});
+// passar o mouse numa linha acende a parte dela nas somas do alto
+document.addEventListener('pointerover', e => { const l = e.target.closest('[data-linha]'), id = l ? l.dataset.linha : null;
+  document.querySelectorAll('[data-seg]').forEach(x => x.classList.toggle('sel', x.dataset.seg === id));
+  document.querySelectorAll('[data-linha]').forEach(x => x.classList.toggle('sel', x.dataset.linha === id)); });
+const CEN = new URLSearchParams(location.search).get('cen'); if (CEN != null) { S.sobra = +CEN; document.querySelectorAll('[data-cen]').forEach(b => b.setAttribute('aria-pressed', b.dataset.cen === CEN)); }
+monta();
+</script>
+</body>
+</html>

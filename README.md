@@ -5,7 +5,8 @@ além das fontes do Google, e abrem direto no navegador.
 
 | Arquivo | Para quem | O que faz |
 |---|---|---|
-| `tela-consultor.html` | Consultor | Configura o plano em nove passos, em três grupos: dados do cliente (Cliente, Fluxo de caixa, Patrimônio), planejamento (Gestão de riscos, Objetivos, Liberdade financeira, Otimização tributária, Premissas) e com o cliente (Apresentação, Propostas). |
+| `index.html` | Consultor | Clientes: a porta de entrada. Lista os planos guardados e abre, para cada cliente, "Ver relatório" ou "Editar relatório". Na plataforma, é o `/internal`. |
+| `tela-consultor.html` | Consultor | Configura o plano em 15 passos, na ordem em que se monta um planejamento: dados do cliente (Cliente, Orçamento, Patrimônio, Carteira atual), planejamento (Objetivos, Política de investimentos, Fluxo de 24 meses, Fluxo vida toda, Gestão de riscos, Liberdade financeira, Otimização tributária, Macro e Microalocação, Premissas) e com o cliente (Cenários, Apresentação, Propostas). |
 | `evolucao-patrimonial.html` | Cliente | Mostra a trajetória do patrimônio ao longo da vida, apresentada ao vivo pelo consultor. |
 
 ## Por onde começar
@@ -14,8 +15,245 @@ além das fontes do Google, e abrem direto no navegador.
 - `VARIAVEIS.md` é o inventário das variáveis do plano: onde cada uma é informada (um lugar só) e quem a usa. Consulte
   antes de criar um campo novo.
 - `PENDENCIAS.md` lista o que falta, em ordem de prioridade, com o contexto dos testes com usuários.
-- `node sync-motor.js` copia o motor da tela do cliente para a do consultor. **Rode sempre que mexer no motor**:
+- `node sync-motor.js` copia o motor (e o armazém e os gráficos compartilhados) da tela do cliente para a do consultor.
+  **Rode sempre que mexer no motor ou no sunburst**:
   as duas telas são autocontidas e por isso carregam uma cópia cada.
+
+## A realização de cada objetivo
+
+O capítulo **Objetivos** vem antes da evolução patrimonial. A página "Como realizar cada objetivo" (`?fase=realizacao`)
+mostra um objetivo por vez, escolhido nas abas: a estratégia (`strategy`, em texto corrido); o que é preciso na data (o
+necessário, o preço do bem e as novas despesas mensais depois); de onde vem o dinheiro (a caixinha reservada hoje, as vendas
+e os aportes mensais, cada um pelo que vale na data); e o caminho até lá, com a curva do saldo e três cortes antes da data
+(a um quarto, à metade e a três quartos do prazo). Tudo sai da simulação (`ENGINE.orcadoDoObjetivo`, `cortesDoObjetivo`).
+
+**O acompanhamento não entra nesta ferramenta.** Ela serve para o consultor desenhar o plano e apresentá-lo ao cliente; o
+orçado x realizado (a foto do plano, o realizado mês a mês, os aportes cumpridos e o saldo do extrato) é da futura área
+logada do cliente. O que já foi feito está guardado em `reaproveitar/acompanhamento.js`, que nenhuma das telas carrega: a
+conta (testada no `verificar.js`) e as telas como estavam no protótipo.
+
+## As rendas no Orçamento
+
+Cada renda é a linha principal do Fluxo de caixa e aparece no Orçamento numa linha recolhida (o tipo, o nome, a categoria,
+quem a gera, o líquido e o bruto, e o que vem junto) que abre ao clicar e recolhe com o OK. Aberta, tem o tipo (ativa ou
+passiva, `kind`), a categoria (`origin`), o nome, quem a gera (uma pessoa, `pessoa`, ou, numa passiva, um bem, que é
+gravado do lado do bem em `patrimonio.bens[].renda`), o bruto (`gross`), os descontos (calculados como bruto menos
+líquido; digitar os descontos muda o líquido), o líquido e se é tributável no IR. Numa renda ativa, "Além do salário"
+reúne o que vem junto: o 13º (só no salário), as outras remunerações variáveis
+por mês (comissões, adicional por performance ou por viagens) e cada bônus (trimestral, semestral ou anual, com o
+mês). Cada um é uma linha própria do Fluxo, presa à renda por `de`, e aparece no Fluxo como as outras. O 13º cai em 20 de
+dezembro, ou metade em 30 de novembro e metade em 20 de dezembro, e segue o líquido do salário (`segue`, que o motor lê em `stepAt`): um aumento no salário muda o 13º sozinho;
+com duas datas, o motor reparte o valor entre elas. Remover a renda remove o que vem junto. Datas, degraus e mudanças ao longo do tempo continuam no Fluxo. Na versão
+final, as rendas chegam da coleta, e aqui o consultor corrige ou acrescenta o que faltou.
+
+## A média dos próximos 12 meses
+
+A sobra do mês, a capacidade de poupança, o custo de vida e a renda do Orçamento saem de uma conta só,
+`ENGINE.mediaDe12Meses`: o que cada linha de fato paga ou recebe em cada um dos próximos 12 meses, dividido por 12. Um
+bônus anual de R$ 30 mil que cai em março pesa R$ 2.500 por mês, mesmo que a linha comece depois de hoje. Ficam fora o que
+acontece uma vez só (frequência pontual) e os ajustes de uma ocorrência. Num planejamento anual (`periodicidade`, na página
+Cliente), o placar do topo mostra a capacidade, os aportes e a folga por ano, como a Política de investimentos; o motor
+continua mensal.
+
+## A ordem das linhas do fluxo de caixa
+
+Nas duas planilhas do fluxo (a do portal e a que fica embaixo do gráfico, na área do cliente), as linhas de cada grupo
+vêm na ordem de quantos meses, de hoje em diante, elas têm valor (`ENGINE.frequenciaDasLinhas`, uma conta por simulação):
+as que aparecem em mais meses ficam em cima. Como as linhas sem valor na janela à vista somem, ao andar no tempo são as de
+baixo que entram e saem, e as de sempre não mudam de lugar. O empate mantém a ordem do cadastro; um grupo que reúne
+subgrupos (as Saídas: fixas, ajustáveis, compromissos…) mantém a ordem deles, e a "+ nova linha" continua no fim.
+
+## Quando o dinheiro acaba
+
+Antes, o motor zerava o saldo negativo da reserva, como se o que faltou aparecesse do nada. Agora, num mês em que as
+contas não fecham, o que falta sai primeiro das caixinhas dos objetivos e, sem elas, vira dívida no cheque especial
+(`CHEQUE_M`, 8% ao mês, com os juros como saída "Juros do cheque especial" e o saque como movimentação "Cheque especial").
+A primeira semana em que o cheque é usado é a ruína (`run().ruina`: a semana, o mês e `cheque12`, a dívida doze meses
+depois). Daí em diante o plano para: a liberdade financeira não acontece, um ano depois a simulação congela (a dívida fica
+em `cheque12`), as curvas e os marcos param no mês da ruína, o fundo do gráfico e da tabela do fluxo fica vermelho, a
+reprodução termina ali e o destino ao lado do gráfico vira o alerta, com o mês, a idade e a dívida em 12 meses.
+
+No portal, a faixa de indicadores troca a Liberdade financeira por "O dinheiro acaba" e leva ao Fluxo de caixa, onde o
+alto da página repete o alerta e sugere **simular a contratação de um crédito** (`plano.creditos`: nome, valor liberado, o mês em que o
+dinheiro cai, parcelas, juros ao mês e sistema Price ou SAC). O motor (`contratoDoCredito`, `saldoDoCredito`) põe o valor
+no financeiro naquele mês (a movimentação "Crédito contratado" e um marco no gráfico) e o saldo devedor nas dívidas; a
+parcela entra no Fluxo como uma despesa fixa própria ("Parcela: nome"), refeita a cada mudança do contrato e removida com
+ele. Simular um crédito abre a janela "A parcela precisa caber a partir de <mês>" (a mesma da Política de investimentos): as
+despesas do mês seguinte ao crédito, pelo equivalente mensal, sem as parcelas de dívidas e de outros créditos, e quanto
+reduzir em cada uma a partir daquele mês (um degrau). Ela não fecha sozinha: "Reduzir e seguir" libera quando as reduções
+cobrem o que falta para o mês fechar (pode sobrar folga); "Desistir do crédito" tira o crédito e a parcela. O cartão do
+crédito diz se o mês seguinte fecha e reabre a janela. Se o dinheiro voltar a acabar mais adiante, o aviso oferece outro
+crédito, no novo mês da ruína, até três no plano inteiro (`MAX_CREDITOS`); no limite, só cortando despesas. Quando as
+contas fecham em todos os meses, o aviso fica verde.
+
+## A política de investimentos
+
+Para onde vai cada real: o patrimônio financeiro de hoje e a sobra do orçamento, divididos em caixinhas
+(`ENGINE.politicaDeInvestimentos`). As caixinhas são os compromissos (`compromissos`, a lista da coleta: gastos já marcados,
+com valor e data, que saem do patrimônio financeiro no mês marcado), a reserva de emergência (`politica.reserva` e
+`politica.reservaMensal`; vazia, a reserva ideal da Gestão de riscos; nunca passa do patrimônio com liquidez que sobra
+depois dos compromissos e dos objetivos, nem pelo campo, nem pelo controle, nem pelo "usar"), cada objetivo (o próprio `dedicated` e `planned` do
+objetivo: a política só os reúne) e a liberdade financeira, que fica sempre com o restante. Cada caixinha tem o horizonte
+(curtíssimo, abaixo de 6 meses; curto, de 6 a 24; médio, de 24 a 60; longo, de 60 a 120; longuíssimo, mais de 120) e a
+estratégia (o perfil de rentabilidade do objetivo; conservadora na reserva e nos compromissos). O FGTS e a previdência
+fechada contam no patrimônio, mas sem liquidez: ficam na liberdade. Na simulação, a reserva continua dentro da liberdade.
+
+No portal, é o primeiro passo do Planejamento, e a página é a mesa de distribuição: uma tabela só, com as caixinhas nas
+linhas (a reserva e os compromissos antes, depois os objetivos) e as duas fontes nas colunas. O cabeçalho de cada coluna tem o
+total (o patrimônio de hoje, a sobra do mês), de onde ele vem e a barra da divisão em escala real; o rodapé é a liberdade
+financeira, com o que fica para ela e o estado da coluna ("fecha a conta" ou "passa em R$ X"). Cada valor é um campo
+digitado com um controle deslizante fino abaixo (também pelas setas do teclado; a escala é a raiz do valor, para R$ 3 mil e
+R$ 600 mil terem a mesma precisão; a marca é a referência, com ímã, e o trecho listrado é o que a liberdade já não tem para
+dar) e uma linha de referência curta (a reserva ideal, o aporte necessário) com o botão "usar"; a estratégia de cada objetivo é uma etiqueta que se clica para trocar (conservadora, moderada, agressiva), como a classe na Carteira atual, e a
+data, o horizonte e o valor do objetivo ficam sob o nome. Os compromissos se cadastram na própria tabela, logo abaixo da
+caixinha deles (na versão final, chegam da coleta, e continuam editáveis): cada um fica recolhido numa linha só, abre ao
+clicar e recolhe com o OK ou Enter. O protótipo da mesa fica em
+`ux/prototipos/politica-mesa.html`. A sobra do mês é uma conta só em todo o portal: a média dos próximos 12 meses do Fluxo de caixa
+(`ENGINE.orcamentoDoFluxo`) ou a capacidade informada; é a mesma dos chips do topo (capacidade de poupança), da mesa, da
+janela "O orçamento não comporta" e da área do cliente. Aumentar um aporte consome a liberdade financeira sem aviso,
+enquanto cabe.
+
+**Os próximos 24 meses, mês a mês: o fluxo planejado.** Na mesa, cada objetivo tem o aporte definido (o teórico, um
+valor por mês, que o motor usa depois dos 24 meses); a sobra e os aportes da coluna são a média do fluxo planejado dos
+próximos 24 meses (`run().programa`, `ENGINE.programaDosAportes`). Ele parte do que de fato entra e sai em cada mês (o 13º
+em dezembro, o IPTU em janeiro, o imposto no mês dele, os gastos dos objetivos depois de realizados: `ENGINE.linhasDosMeses`),
+não do equivalente mensal, e divide a sobra de cada mês em ordem:
+1. o que os meses seguintes vão precisar: um mês negativo é coberto pelo que se guarda antes, e nele nada vai para os
+   objetivos;
+2. o aporte da reserva;
+3. os objetivos, na ordem de prioridade do cliente, cada um do mês em que começa a receber até a data, até o definido mais
+   o que deixou de receber antes (o atraso, que ele recupera quando sobra), e só enquanto precisa: quando o que está na
+   caixinha (mais o que ainda entra de uma vez), rendendo até a data, cobre o valor, a sugestão vira zero, e o último aporte
+   é só o que falta (depois dos 24 meses, o motor faz o mesmo com o aporte definido);
+4. o resto, a liberdade financeira.
+
+Se o dinheiro acaba no objetivo 2, o 3 fica sem nada naquele mês. O motor roda em duas passadas: a primeira dá a sobra de
+cada mês, a segunda segue o programa nos 24 meses. No alto do Fluxo de 24 meses, os 24 meses em colunas (a sobra, os
+aportes empilhados e o que fica no mês). O rodapé da mesa avisa o mês em que o caixa fica negativo (sai do
+patrimônio), que só acontece com um valor digitado.
+
+**O Fluxo de 24 meses (a página depois da política; o Fluxo de caixa de antes, com a vida toda, vem logo depois, como Fluxo vida toda).** É onde o consultor passa mais tempo: os 24 meses numa tabela, com as
+entradas e as despesas (abrem por linha; digitar um valor muda aquela linha daquele mês em diante, como no Fluxo de caixa),
+os gastos dos objetivos, a sobra, a reserva, cada objetivo na ordem de prioridade (a data com uma estrela), o que fica
+guardado para os meses seguintes e a liberdade. Os aportes em cinza são sugestões; o que o consultor digita
+(`objectives[].programa[mês]`) vale como está, fica em negrito, e "voltar à sugestão" apaga.
+
+**A prioridade dos objetivos.** É a ordem do Propósito (`objetivosOrdem`, as setas na página Objetivos;
+`ENGINE.prioridadeDosObjetivos`). Ela ordena a divisão da sobra, os cartões da página Objetivos, as linhas da mesa e do
+Fluxo de 24 meses e as abas de "Como realizar cada objetivo" na área do cliente.
+
+**O objetivo é realista?** Pela simulação: o que junta o valor na data é realista. O que não junta mostra, curto na mesa e
+no Fluxo de 24 meses e explicado no cartão do objetivo, "Respeitando o fluxo de caixa atual, este objetivo só é realista em
+<mês>" (o saldo da data continua rendendo e recebendo o que o fluxo entregou em média) e quanto o custo mensal precisaria
+cair entre o mês em que ele começa a receber e o mês antes da data para manter a data. O cartão diz por quê (o aporte
+definido abaixo do necessário, os objetivos de prioridade maior que levam a sobra, o mês que não fecha). A decisão é do
+cliente: cada saída vira um cenário, para mostrar ao lado do plano na página Cenários:
+- **Adiar:** o objetivo vai para a data em que fica realista.
+- **Reduzir custos:** a janela pede até onde as despesas ajustáveis e as fixas podem cair (`politica.cortes`, em %; 30% e
+  0% de início) e reparte a redução, primeiro nas ajustáveis, na proporção do valor de cada uma, depois nas fixas; as
+  parcelas de contrato ficam de fora. O cenário reduz cada despesa entre os dois meses (depois, ela volta ao valor de
+  antes) e aumenta o aporte do objetivo no que a redução cobre.
+
+Na área do cliente, é o capítulo depois de Objetivos: dois Sankeys, cada um na sua escala: o patrimônio de hoje e a renda
+líquida da família, em dois níveis: a renda se divide entre o futuro (em cima, a sobra) e o padrão de vida (embaixo, em
+ardósia, sem destaque, terminando na coluna do meio), e o futuro se abre nas caixinhas. O objetivo que não recebe nos 12
+meses inteiros mostra, ao lado do nome, o aporte e quando ("R$ 350 por mês a partir de jul/2027"); a fita tem a largura da
+média. Embaixo, a tabela, com a mesma data. Ao aparecer, cada Sankey começa como um bloco só, que se divide nas cores das
+caixinhas, e cada fatia escorre até a sua caixinha (toca mesmo com menos movimento no sistema, como a trajetória da
+evolução). As vendas futuras de bens não entram aqui: aparecem na evolução patrimonial. Num planejamento anual
+(`periodicidade`, na página Cliente), a sobra e os aportes aparecem por ano; o motor continua mensal.
+
+**Ligar cada objetivo.** Um objetivo novo nasce desligado (`objectives[].ligado: false`; sem o campo, os planos de antes
+continuam ligados): fica na mesa, apagado, com a data, o valor e os campos, mas fora da simulação, das fontes da mesa, do
+topo e da área do cliente (`ENGINE.ligado`, `ENGINE.objetivosLigados`; a política devolve os desligados à parte, em
+`desligadas`). A chave à esquerda do nome liga. Antes, a tela roda a simulação com ele (`simulaCom`) e compara com a de
+agora (`efeitoNoFluxo`), pelo orçamento de cada mês antes da liberdade (`run().resultado`: entradas menos despesas e
+gastos dos objetivos, no equivalente mensal; o que sai do patrimônio de uma vez, como o próprio objetivo, não entra):
+- **O fluxo comporta:** liga, e um aviso diz como o objetivo fica na data (inclusive quando um bem não chega a 70% e não é
+  comprado).
+- **O orçamento fica negativo em algum mês, mas o patrimônio cobre:** a janela mostra a janela de meses, o pior mês e o
+  menor patrimônio financeiro nela. O consultor reduz despesas, liga assim mesmo ou deixa desligado.
+- **O dinheiro acaba (a ruína):** não liga. A janela pede reduções de despesas, a partir de hoje quando falta dinheiro para
+  pagar o objetivo, ou do primeiro mês negativo quando são os gastos depois dele; cada valor digitado refaz a simulação,
+  e "Reduzir e ligar" só libera quando o dinheiro deixa de acabar. Se o plano já quebrava sem o objetivo, a janela diz isso.
+
+Desligar não pede nada. Mudar o valor, a data ou o aporte de um objetivo já ligado não passa pela janela: a ruína continua
+avisada no topo e no Fluxo de caixa.
+
+**Quando cada objetivo começa a receber.** No cartão do objetivo, "Guardar por mês" tem "a partir de" (`aporteDe`) e o
+patrimônio de hoje tem "separar em" (`dedicadoEm`), em meses a partir de hoje; vazio é hoje. Assim a sobra vai toda para um
+objetivo e só depois começa a ir para os outros. O motor (`ENGINE.inicioDoAporte`, `inicioDoDedicado`) aporta só a partir
+do mês marcado e separa o patrimônio naquele mês, até onde o financeiro livre dá; o necessário e a curva do cartão usam a
+mesma conta (`ENGINE.saldoNoMes`, `necessarioDe`). O que começa depois dos 12 meses aparece na mesa com o mês, fora das
+contas (`separadoDepois` e `aporteDepois` na caixinha).
+
+## A carteira: atual, macroalocação e microalocação
+
+São três páginas do portal, nas 15 classes da planilha de alocação da Nord (`ENGINE.CLASSES_CARTEIRA`, em renda fixa, renda
+variável e internacional, cada uma com a sua cor em tom do meio). A conta é uma só, `ENGINE.carteiraDoPlano`.
+
+**Carteira atual** (Dados do cliente, passo 5): a fotografia das posições de hoje, ativo a ativo, com instituição, titular
+(o titular, o cônjuge ou um dependente), ativo, classe, subclasse, vencimento, tipo (investimento, PGBL ou VGBL), valor e
+observações. Entra colando as linhas do Excel (Ctrl+C, Ctrl+V na área da página): com o cabeçalho, as colunas são
+reconhecidas pelo nome; sem ele, pelo conteúdo. A tela segue a posição de uma corretora: no alto, os indicadores (o total
+com a barra das classes, contas, ativos, a parte em previdência e o que falta classificar); embaixo, cada conta (instituição
+e titular) é um cartão que abre e fecha, com uma faixa de cabeçalho em fundo próprio (instituição em Sora,
+titular, total, a parte da carteira e a barra das classes); recolhidas, as contas são a visão geral. Os ativos são linhas
+brancas com divisórias, o nome em destaque e a liquidez pequena embaixo; os títulos das colunas ficam presos no alto ao
+rolar. A mesma lista pode ser vista por classe. Na linha, os campos não têm borda até o mouse passar; classe e subclasse são
+etiquetas empilhadas, na altura de uma linha, que se clicam para trocar; o valor aparece sem centavos; a previdência é um botão de três estados (não é, PGBL, VGBL); a observação é um ícone,
+cheio quando há texto, que abre o campo embaixo da linha. Instituição e titular se mudam no cabeçalho da conta, para todos
+os ativos dela; dá para acrescentar um ativo na conta ou uma conta nova. A classe
+que não vier sai da base de ativos já classificados, que aprende a cada colagem e a cada classe escolhida; o titular sai da
+coluna Titular ou do primeiro nome da família que aparecer na instituição ("XP Aline"); o tipo, da palavra PGBL ou VGBL na
+linha.
+
+Preenchida, a carteira é a fonte dos investimentos do patrimônio financeiro: `ENGINE.sincronizaPatrimonio` soma os ativos
+por instituição, titular e tipo em `patrimonio.financeiro` (linhas `daCarteira`, só leitura na página Patrimônio), e daí
+sai o `initialWealth`. Sem carteira, vale o que foi digitado no Patrimônio. Fundo de pensão (previdência fechada), FGTS e
+empréstimos a amigos e familiares não são da carteira: ficam no Patrimônio, digitados, e não somem quando a carteira é
+preenchida ou limpa. Limpar a carteira tira só os investimentos que vieram dela.
+
+**Macroalocação** (Planejamento, passo 7, depois da Política de investimentos): a mesa da política com as classes nas linhas
+e três colunas: hoje, ideal (o mundo perfeito: tudo em dinheiro, alocando do zero) e recomendada (o ajuste possível agora).
+A última coluna é a diferença em reais entre a recomendada e hoje. Ideal e recomendada são % sobre a carteira de hoje mais os recursos
+novos (`carteira.aporte`, com a sobra de 12 meses como referência), cada uma com o campo e o controle deslizante fino (escala
+da raiz, com ímã na referência: o perfil escolhido na ideal, a ideal na recomendada). A liquidez diária é o rodapé e fica com
+o restante, como a liberdade financeira na política; o trecho listrado do trilho é o que ela já não tem para dar, e o rodapé
+diz "fecha a conta" ou "passa em X p.p.". A ideal parte de uma carteira modelo, do perfil 0 (conservador) ao 3 (agressivo),
+em `ENGINE.CARTEIRAS_MODELO`; a classe sem recomendada segue a ideal, então só se digita a exceção (o fundo alternativo que
+não se consegue vender). No alto da página, num bloco à parte da mesa: a carteira modelo (perfis 0 a 3, com o nome de
+cada um), os recursos novos e o total a alocar; embaixo deles, as três carteiras (hoje, ideal, recomendada) em sunburst,
+que acompanham a mesa enquanto se digita ou se arrasta. Os cabeçalhos da mesa têm só o rótulo e o total, alinhados; a
+explicação de cada coluna fica na dica. Depois da mesa, os motivos da recomendação (`carteira.justificativa`, um por
+linha), que o cliente vê.
+
+O **sunburst** (`SUNBURST`, no bloco `<script id="graficos">`, que o `sync-motor.js` copia para o portal) segue o exemplo
+"Portfolio" do Flourish: o anel de dentro são os grupos (renda fixa, renda variável, internacional), em pastel, e o de fora
+as classes, em cores vivas; sem rótulos no gráfico, porque a legenda ao lado já descreve cada classe. Trocar de carteira e clicar num grupo (que passa a ocupar a volta inteira;
+o centro volta) são animados, arco por arco; na primeira vez, os arcos abrem em leque. O centro mostra o total e, com o
+mouse num arco, o nome, o % e o valor dele.
+
+**Microalocação** (passo 8): cada ativo de hoje é mantido, resgatado em parte (com o valor), resgatado por inteiro ou
+portabilizado (`ativos[].acao`, `.resgate`), e os ativos novos (`carteira.novos`) entram no lugar. Segue o desenho da
+Carteira atual: no alto, os indicadores (o que há para aplicar, o aplicado nos novos, o saldo e os ativos sem decisão);
+depois, o placar por classe num cartão que recolhe (a recomendada, o que fica dos ativos de hoje, os novos, o resultado e
+quanto falta, sem as classes zeradas); o "+ incluir" cria um ativo novo da classe com o valor que falta. Os ativos de hoje
+vêm em cartões por conta, que abrem e fecham, com a decisão na própria linha, numa etiqueta clicável com a cor de cada uma
+(Manter, Resgate parcial, Resgate integral, Portabilidade; no parcial, o valor que sai se digita ao lado), o valor de
+hoje, o que sai e o que fica; o ativo ainda sem decisão leva a etiqueta "a decidir" tracejada e uma marca laranja à
+esquerda. Os ativos novos ficam
+num cartão no mesmo formato. Os recursos fecham quando resgates, portabilidades e recursos novos são iguais ao aplicado nos
+novos.
+
+Na área do cliente, o capítulo **Carteira** vem depois da Política de investimentos, com capa e resumo do caso, como os
+outros, e três páginas: **A carteira de hoje** (o sunburst grande, a legenda por grupo e classe e as contas, cada uma com o
+total e a parte da carteira); **A carteira recomendada** (as abas Hoje, O ideal e Recomendada: ao chegar, a carteira de
+hoje vira a recomendada diante do cliente; a legenda mostra a diferença para hoje em pontos percentuais; depois, os motivos
+do consultor e o que muda por classe em duas colunas, o que resgatar à esquerda e o que aplicar à direita, cada uma com o
+total, o valor de cada classe, o % de hoje para o recomendado e uma barra fina do tamanho; embaixo, a diferença entre as
+duas são os recursos novos); e **O que muda na carteira** (os indicadores do que fica,
+sai em resgates, vai por portabilidade e entra, e três cartões com os investimentos de cada lado).
 
 ## Como as duas telas se conectam
 
@@ -39,14 +277,20 @@ abre com duas páginas, um vídeo em cada:
   críticas; a idade da liberdade e os objetivos alcançáveis) e, embaixo, o que fazer, página a página, com o caminho para o
   detalhe (`destaques`, na tela do cliente).
 
+Cada capítulo pode sair da apresentação: na página Apresentação do portal, um interruptor antes do nome de cada capítulo
+grava `plano.capitulosOcultos`. Desligado, o bloco do capítulo recolhe e mostra "fora da apresentação". A área do cliente
+monta o livro sem esses capítulos (tira-os de `CAPITULOS` antes de montar `PAGINAS`): somem a capa, o resumo e as páginas,
+e o sumário, os "Próximo", a numeração ("capítulo 3 de 8") e os próximos passos da última página seguem sem eles. Fica
+pelo menos um. Como o livro é montado ao abrir, a área do cliente aberta recarrega quando o consultor muda essa lista.
+
 Os vídeos são links do YouTube, do Vimeo ou do arquivo, em `plano.videos['cap-<capítulo>-teoria']` e
-`['cap-<capítulo>-caso']`, cadastrados na página Apresentação do portal; vazio, o espaço fica reservado. Depois vêm as
+`['cap-<capítulo>-caso']`, cadastrados na página Apresentação do portal. Sem vídeo, o bloco não aparece: a capa vira a lista das páginas do capítulo, cada uma com o resultado principal ao lado (o primeiro número de `destaques`), e o resumo mostra os principais números lado a lado, na largura toda. O mesmo vale para o vídeo de boas-vindas do Propósito. Depois vêm as
 páginas de detalhe, sem vídeo: mostram só os resultados e terminam com "anterior" e "próximo". O cabeçalho mostra a página atual ("Otimização tributária / Imposto de renda da
 família"; os capítulos têm só o título, sem número, porque nem todo cliente terá todos), com anterior, próxima e uma barra de progresso dividida por capítulo; um clique nela abre o sumário, que marca
 as páginas já vistas. Hoje existem, nesta ordem, **Propósito**, **Diagnóstico**, **Gestão financeira** (capa e três páginas), **Otimização tributária** (quatro páginas), **Patrimônio**
-(página "Fase da vida e patrimônio"), **Gestão de riscos** e **Evolução patrimonial** (a trajetória do patrimônio e, por último, "O caminho daqui para frente");
+(página "Fase da vida e patrimônio"), **Gestão de riscos**, **Objetivos** (capa, resumo e "Como realizar cada objetivo") e **Evolução patrimonial** (a trajetória do patrimônio e, por último, "O caminho daqui para frente");
 um capítulo ainda por construir (`mock`) aparece só no sumário, como "em breve", fora da sequência. A página pode
-vir no endereço (`?fase=proposito`, `?fase=diagnostico`, `?fase=hoje-depois`, `?fase=capa-gestao`, `?fase=renda-custo`, `?fase=tempo`, `?fase=orcamento`, `?fase=capa-tributario`, `?fase=resumo-tributario`, `?fase=ir`, `?fase=patrimonio`, `?fase=riscos`, `?fase=evolucao`, `?fase=caminho`); senão, a tela abre na
+vir no endereço (`?fase=proposito`, `?fase=diagnostico`, `?fase=hoje-depois`, `?fase=capa-gestao`, `?fase=renda-custo`, `?fase=tempo`, `?fase=orcamento`, `?fase=capa-tributario`, `?fase=resumo-tributario`, `?fase=ir`, `?fase=patrimonio`, `?fase=riscos`, `?fase=realizacao`, `?fase=evolucao`, `?fase=caminho`); senão, a tela abre na
 última vista, ou no Propósito na primeira vez.
 
 **Propósito**, o primeiro capítulo, abre a reunião com duas páginas, sem capa nem resumo, desenhadas como uma landing page que o
@@ -264,10 +508,11 @@ status, em dia 100%, atenção 50%, crítico 0%). Embaixo, um cartão por ameaç
 saúde "plano atual é o ideal" ou "possível melhorar"; terceiros, investimentos e bens como lista com a marca de
 protegido, parcial ou desprotegido; liquidez em D+0, D+30 e 1 ano, em vezes o padrão de vida; renda e família, quanto
 falta de cobertura ou "proteção adequada"). As ameaças vêm num **carrossel**, uma por vez, com o essencial no
-alto e o detalhe embaixo; os vizinhos aparecem nas bordas. Todos os slides têm a altura do mais alto, para a página não
-subir e descer ao passar de uma ameaça para outra. Passa-se com as setas, arrastando, pelo teclado ou pelos
-pontos de progresso, e o clique num nome da teia leva à ameaça. O status verde se chama **Protegido**. A regra de cada
-status:
+alto e o detalhe embaixo; os vizinhos aparecem nas bordas. A ordem é sempre a de `ENGINE.RISCOS` (reserva, saúde,
+danos a terceiros, ruína, liquidez, bens, renda, família), e não a do status. O cartão fica da altura da ameaça à
+vista, e a página guarda embaixo do rodapé a diferença até a mais alta, para não subir e descer ao passar de uma
+ameaça para outra. Passa-se com as setas, arrastando, pelo teclado ou pelos pontos de progresso, e o clique num nome
+da teia leva à ameaça. O status verde se chama **Protegido**. A regra de cada status:
 
 | Ameaça | Protegido | Atenção | Crítico |
 |---|---|---|---|
@@ -391,14 +636,87 @@ e a resposta fica registrada nele (`propostas: [{ id, em, decisoes, nota }]`).
 O plano e a proposta ficam num armazém (`<script id="armazem">`, duplicado nas duas telas como o motor e sincronizado
 pelo `sync-motor.js`). Na área logada da Nord Liberta, ele é a API da plataforma. No protótipo:
 
-- **no link publicado no Claude**, é o banco compartilhado do próprio link (documentos `plano/atual` e
-  `propostas/atual`): o consultor (dono do link) e o cliente (com quem o link foi compartilhado, como Contribuidor)
-  usam cada um o seu computador e veem as mudanças do outro na hora. Quem não é dono cai na área do cliente;
-- **em localhost**, é o armazenamento do navegador, com as duas telas no mesmo computador.
+- **no link publicado no Claude**, é o banco compartilhado do próprio link: um documento por cliente,
+  `planos/<id>` e `propostas/<id>`. Só o dono do link lê e grava (regras `admin`), porque o mesmo link guarda
+  clientes reais; quem não é dono vê na página Clientes um aviso e nada mais;
+- **em localhost**, é o armazenamento do navegador, com as duas telas no mesmo computador: o plano de cada cliente
+  fica em `nl-db:planos/<id>`.
+
+**Vários clientes.** A página Clientes (`index.html`) abre as telas com `?cliente=<id>`, e o armazém lê e grava os
+documentos desse cliente. Sem `?cliente`, a tela volta para a página Clientes. As duas telas levam o cliente adiante
+em toda navegação entre elas (`comCliente`). A cópia de trabalho do navegador (`nl-plano`, `nl-proposta`, os
+cenários, as páginas vistas) é de um cliente só, guardado em `nl-cliente`: abrir outro cliente começa dela limpa.
+Um cliente sem plano começa em branco (`planoVazio`); só o cliente `exemplo` começa com o plano da Ana Ribeiro, que é
+gravado ao abrir para a área do cliente ter o que mostrar. "+ Novo cliente" cria um código novo e abre o portal em
+branco; o cliente entra na lista quando o primeiro dado é gravado.
+
+**Abrir não grava.** O portal só grava o que o consultor muda (`nuvemUltimo` começa igual ao plano aberto), e nunca
+um plano sem nome. O armazém recusa gravar (`nao_lido`) enquanto não leu o documento do cliente no banco: assim, uma
+tela que abriu em branco não apaga um plano real. Antes, o portal gravava ao abrir, e isso apagou um plano real duas
+vezes. "Não existe" vindo do cache espera o servidor; um documento que existe vale já, porque o servidor não
+reentrega um documento igual.
+
+**As telas num quadro da página Clientes.** No link publicado, só a página principal (a página Clientes) recebe o
+runtime do Claude e, com ele, o banco. Uma tela aberta por navegação fica sem banco, cai no modo local e abre em
+branco. Por isso, no link, "Ver relatório", "Editar relatório" e "+ Novo cliente" abrem a tela num quadro por cima da
+página Clientes. O armazém da tela fala com ela por mensagens (`ponte()`, no armazém; `PONTE`, no `index.html`) e
+lê, ouve e grava pelo banco dela. A navegação entre as telas continua dentro do quadro, e "← Clientes" fecha o
+quadro. Se a tela não responder em 8 s, ela abre na própria aba, como antes. Em localhost (a página Clientes sem
+runtime) e na plataforma, as telas abrem por navegação e nada disso acontece.
+
+**Sem localStorage.** No link publicado, o localStorage pode não funcionar. Por isso o armazém guarda o último estado
+também na memória da página, e `ler` devolve essa cópia. A área do cliente monta o livro ao abrir, então, quando o
+plano chega depois (ou muda a data de nascimento), ela recarrega com ele: pelo localStorage, se ele guardar; senão,
+pelo endereço (`#armazem=<base64>`, lido no `loadPlan`), sem entrar em laço.
+
+**Na plataforma.** O desenvolvedor troca o bloco `armazem` inteiro pelo da plataforma, com a mesma interface
+(`iniciar`, `ler`, `ouvir`, `gravar`, `nuvem`); o plano vem do cliente escolhido no `/internal` (`window.__MONTAGEM__`)
+e volta por `/montagemController`. Sem `?cliente` no endereço, `comCliente` não muda nada, e um cliente sem plano
+começa em branco, e não com o exemplo.
 
 Não há troca de arquivos: o consultor grava o plano (sozinho, a cada pausa na edição), o cliente grava a proposta, e
 cada tela ouve o que a outra gravou.
+
+## Cenários (portal)
+
+Para decidir o plano, o consultor testa decisões em **cenários**: cópias do plano inteiro, com nome, guardadas neste
+navegador em `nl-cenarios` (até três por plano). "+ Testar um cenário", no topo de toda página, duplica o que está aberto
+e abre a cópia. Com um cenário aberto, a faixa do topo diz "Editando o cenário …" (e a página ganha um filete aurora no
+alto), todas as páginas editam o cenário como se fosse o plano, e o `save()` grava no cenário: o plano em `nl-plano` não
+muda e nada vai para o armazém, então o cliente continua vendo o plano. O envio ao armazém confere o cenário na hora de
+gravar, porque ele é agendado 1,5 s depois da última mudança.
+
+- **Voltar ao plano** fecha o cenário e reabre o plano.
+- **Tornar o plano** (pede um segundo clique) grava o cenário como plano, envia ao cliente e guarda o plano anterior como
+  um cenário "Plano até dd/mm hh:mm". É também o desfazer: tornar esse cenário o plano devolve tudo como estava.
+- **Apresentar este cenário**: com um cenário aberto, o botão de apresentar leva o cenário à área do cliente só naquela
+  apresentação (pelo endereço), para a conversa "e se".
+- As propostas do cliente se respondem no plano: com um cenário aberto, a página Propostas pede para voltar ao plano.
+- Trocar de cliente ("+ Novo cliente", "ver exemplo") apaga os cenários do anterior.
+
+A página **Cenários** (grupo Com o cliente, fora da sequência do "Próximo") põe o plano e os cenários lado a lado:
+liberdade financeira, investido na liberdade, renda por mês, objetivos alcançáveis, aportes, capacidade de poupança,
+folga e percentual de proteção, com a diferença para o plano em verde (melhor) ou no texto de atenção (pior). Embaixo,
+as trajetórias do patrimônio (o que a família tem, menos o que deve, ano a ano), sobrepostas, com um ponto na liberdade
+de cada uma; o plano em marinho, os cenários tracejados nas cores do ponto. Os números saem de `metricasDe`, que roda a
+mesma simulação das páginas com o outro plano e devolve o plano aberto como estava.
+
+O **placar do topo** (capacidade de poupança, aportes, folga, objetivos abaixo da meta, liberdade) fica à vista em todas
+as páginas em que se decide o plano (`COM_INDICADORES`); num cenário, cada indicador mostra embaixo o valor do plano.
 ## Formato do plano
+
+**Importar e exportar em JSON.** O plano inteiro vai e volta num arquivo JSON, neste formato, solto ou como o armazém
+guarda (`{ "dados": plano, "em": data }`). Serve para trazer um plano de outro lugar (o portal em produção, por exemplo) ou
+um que uma IA extraiu dos documentos do cliente; o modelo completo é `ux/plano-exemplo.json`.
+- **Na página Clientes,** "Importar JSON" cria um cliente novo, com código novo (nunca por cima de outro), e abre o portal.
+- **No portal, no alto de todas as páginas** (em produção não há a página Clientes: o consultor entra direto na montagem
+  do relatório de um cliente), "Exportar JSON" baixa o plano aberto (ou o cenário aberto), e "Importar JSON" troca o
+  plano aberto pelo do arquivo; o de antes fica na página Cenários, como "Plano antes da importação". Num plano em branco
+  (o cliente recém-aberto), não pergunta nem guarda nada, e a página Cliente mostra o convite "Começar de um arquivo".
+
+O arquivo precisa do nome do cliente (`name`) e de ao menos rendas, despesas, objetivos ou patrimônio; o que faltar o
+portal completa ao abrir (`doSalvo`). Objetivos, rendas e despesas sem `id` ganham um, e uma renda ou despesa só com
+`value` vira uma linha mensal a partir de hoje (`planoDoArquivo`, igual nas duas páginas).
 
 ```jsonc
 {
@@ -476,6 +794,7 @@ cada tela ouve o que a outra gravou.
   "objectives": [
     {
       "id": "casa", "name": "Casa própria", "icon": "home",
+      "ligado": true,          // false: fora da simulação, da política e da área do cliente (os novos nascem assim); sem o campo, ligado
       "kind": "bem",           // "bem" migra para patrimônio; "consumo" é uma saída
       "months": 46,            // data alvo, em meses a partir de set/2026
       "amount": 180000,        // custo pontual
@@ -487,6 +806,8 @@ cada tela ouve o que a outra gravou.
       "profile": "moderado",   // nome da faixa; a taxa usada é rateM quando existe
       "rateM": 0.005,          // rentabilidade própria do objetivo, ao mês (o portal vai de 0,35% a 0,65%)
       "planned": 1500,         // aporte mensal definido pelo consultor
+      "aporteDe": 6,           // o mês em que os aportes começam (vazio = hoje; até o mês antes da data)
+      "dedicadoEm": null,      // o mês em que o dedicated sai do financeiro (vazio = hoje; até onde o financeiro livre dá)
       "photo": "",             // endereço de uma imagem, opcional; sem foto o card usa o ícone
       "iconData": "",          // SVG ou PNG enviado pelo consultor, embutido como data URL
       "iconFA": "",            // ou uma classe do Font Awesome, por exemplo "fa-solid fa-car"
@@ -548,9 +869,12 @@ patrimônio). Um plano antigo, sem a data, continua com a idade inteira e o aniv
 - **Rendas programadas**: o cadastro das rendas da aposentadoria, com de quem é cada uma e a idade de começar dessa pessoa
   ("idade de Marcos"), e as rendas passivas do Fluxo de caixa, só para ler.
 - **Renda em cada período**: no alto, três botões: a renda escolhida (a dos sliders e de cada período) ou uma das duas
-  alternativas, com a mesma renda em todos os períodos: consumir o patrimônio até a expectativa de vida (a renda cujos saques
-  valem o patrimônio da liberdade) e preservá-lo (o rendimento mais as rendas da fase em que elas são menores); escolher uma
-  troca a renda desejada e apaga as mudanças por período. Depois, uma linha por período (um período novo começa quando uma
+  alternativas. Consumir o patrimônio até a expectativa de vida põe a mesma renda em todos os períodos (a renda cujos saques
+  valem o patrimônio da liberdade) e apaga as mudanças por período. Preservar o patrimônio trava o **saque**, não a renda:
+  em todos os períodos o patrimônio paga só o rendimento (o patrimônio depois de contratar as rendas vezes a rentabilidade
+  da reserva, arredondado para baixo em R$ 100), e a renda de cada período é esse saque mais as rendas dele. A renda do
+  primeiro período vai para o alto da página e cada período em que ela muda ganha a sua (`PRESERVAR`); o patrimônio chega
+  à expectativa de vida com o mesmo valor da liberdade. Depois, uma linha por período (um período novo começa quando uma
   renda começa ou termina, ou quando a renda desejada muda), com as datas e a idade dos dois, a renda desejada e de onde ela
   vem, numa barra e por escrito: "Fundo de pensão vitalício R$ 5.000 + Fundo por 5 anos R$ 7.000 + Pró-labore do Marcos (até
   Marcos parar) + saque do patrimônio". O primeiro período é a renda desejada do alto; nos outros, um slider muda a renda
@@ -654,7 +978,11 @@ oferece usar como valor o que o cliente de fato junta até a data.
 ## Decisões de projeto
 
 - Escala de tempo logarítmica leve, `u = sinal(t)·ln(1+|t|/6 anos)`, mais densa perto de hoje.
-- Eixo de valores em `asinh(P / 500 mil)`, para não achatar os primeiros anos.
+- Eixo de valores linear, com marcas redondas (o primeiro passo de `PASSOS_Y` que dá até cinco marcas): a altura é proporcional ao valor. Com dívida, o zero sobe e a dívida desce abaixo dele, na mesma escala.
+- A tabela do fluxo embaixo ocupa só as linhas que tem (até seis; com mais, rola), e o gráfico fica com o resto, nunca menos que 62% da altura (`layoutY`, a cada quadro). A linha de hoje termina na última linha da tabela.
+- Parado, o plano aparece inteiro; só a reprodução apaga o futuro e o revela. Parado, cada faixa tem o nome e o valor escritos na ponta direita, na cor da série em tom de texto (`rotulosDiretos`), e a legenda do alto fica só com os estados dos objetivos.
+- Os marcos dos objetivos com foto mostram a foto num círculo de 32 px, com o anel na cor do status (`objFoto`); sem foto, o ícone de sempre.
+- Na coluna da esquerda, embaixo dos botões, o destino da trajetória (`destinoDaTrajetoria`): o mês e a idade da liberdade financeira, quanto haverá investido na data e a renda por mês.
 - Cores: financeiro `#2E9E5B`, bens `#3B6FCB`, participações `#D9952A`, movimentações `#7C5CBF`.
 - Status: verde `#2E9E5B`, laranja `#FA7A35`, vermelho `#D64545`. O laranja da marca substitui o amarelo,
   que não teria contraste suficiente sobre fundo branco.
@@ -663,16 +991,17 @@ oferece usar como valor o que o cliente de fato junta até a data.
 
 ## Fora de escopo
 
-Herança, versão mobile, múltiplos clientes no portal e persistência em servidor.
+Herança, versão mobile e persistência em servidor (no protótipo, os vários clientes ficam no banco do link).
 A planilha do fluxo de caixa foi feita para mouse e trackpad; não há gesto de pinça em tela de toque.
 
 ## Arquivos
 
 | Arquivo | O que é |
 |---|---|
+| `index.html` | Clientes: a lista de planos e a entrada nas duas telas. Só do protótipo (na plataforma, é o `/internal`). |
 | `evolucao-patrimonial.html` | Tela do cliente. Contém o motor de simulação, que é a fonte de verdade. |
 | `tela-consultor.html` | Portal do consultor. Carrega uma cópia do mesmo motor. |
-| `sync-motor.js` | Copia o motor de uma tela para a outra. |
+| `sync-motor.js` | Copia o motor, o armazém e os gráficos compartilhados (o sunburst) de uma tela para a outra. |
 | `verificar.js` | Roda a simulação em Node e confere as invariantes. |
 | `PENDENCIAS.md` | O que falta fazer e o contexto dos testes com usuários. |
 | `marca/` | O ícone da Nord (recortado do logo), em 64 e 256 px. As telas levam o de 64 px embutido. |

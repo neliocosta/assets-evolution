@@ -170,14 +170,14 @@ só aparece como dependente (relação "Cônjuge", com nome e idade).
 | Plano atual do cliente para este objetivo | `obj_planoAtual[]` | texto longo | não usado (apoio para `strategy`) |
 | Observações | `obj_obs[]` | texto longo | não usado |
 | Cliente não possui objetivos | `objNaoPossui` | marca | — |
-| **Compromissos financeiros** (`comprList`) | `comp_titulo[]`, `comp_descricao[]`, `comp_data[]` (mês), `comp_valor[]` | texto, mês, R$ | seriam despesas pontuais em `expenses[]`; hoje não ligados |
+| **Compromissos financeiros** (`comprList`) | `comp_titulo[]`, `comp_descricao[]`, `comp_data[]` (mês), `comp_valor[]` | texto, mês, R$ | `compromissos[]` (`titulo`, `descricao`, `em`, `valor`): saem do patrimônio financeiro no mês marcado; a importação ainda não está ligada |
 | Cliente não possui compromissos | `comprNaoPossui` | marca | — |
 
 ### 02 Orçamento doméstico
 
 | Campo | `name` | Tipo e opções | No plano |
 |---|---|---|---|
-| Periodicidade do orçamento | `orcamentoModo` | Mensal, Anual | unidade do valor abaixo |
+| Periodicidade do orçamento | `orcamentoModo` | Mensal, Anual | unidade do valor abaixo; é também `periodicidade` do plano (planejamento mensal ou anual) |
 | ★ Valor do orçamento doméstico (custo de vida) | `declaredstandardofliving` | R$ ("somente o valor de sua responsabilidade") | `riscos.reserva.custoVida` (ajuste); o plano calcula o custo de vida das despesas. É **só a parte do cliente** nas despesas |
 | ★ Quantas vezes poupou esse valor nos últimos 12 meses? | `recentsavingsfrequency` | Nenhuma, 1-3, 4-6, 7-9, 10 ou mais | `orcamento.vezesPoupou` (Gestão financeira) |
 | ★ Acompanha as despesas mensais do orçamento doméstico? | `doesbudgeting` | Sim em detalhes, Sim parcialmente, Não mas tenho ideia, Não faço ideia | diagnóstico |
@@ -258,7 +258,7 @@ Cada seguro abre o detalhe quando "Protegido?" é Sim.
 | Idade estimada para receber o benefício | `prevPublicaIdadeBeneficio` | anos | `passive[].startMi`, calculado da idade |
 | Valor estimado do benefício | `prevPublicaValorBeneficio` | R$ | `passive[].net` |
 | Detalhe: primeira contribuição, nº de contribuições, valor médio, valor atual, observações (RPPS) | `prevPublicaDataInicio`, `prevPublicaNContrib`, `prevPublicaValorMedioContrib`, `prevPublicaValorAtualContrib`, `prevPublicaObs` | mês, número, R$, R$, texto | não usado (o plano não estima o benefício) |
-| **Previdência fechada** (`prevFechadaList`) | `pf_entidade[]`, `pf_tipo[]` (PGBL, Fundo de Pensão), `pf_regime[]` (Regressivo, Progressivo), `pf_nomeFundo[]`, `pf_cnpj[]`, `pf_perfilRisco[]`, `pf_contribuicao[]`, `pf_contrapartida[]`, `pf_saldo[]`, `pf_dataEntrada[]`, `pf_nContrib[]`, `pf_vestingProprio[]`, `pf_vestingPatroc[]`, `pf_obs[]` | | o saldo iria para `patrimonio.financeiro[]`; o resto não é usado |
+| **Previdência fechada** (`prevFechadaList`) | `pf_entidade[]`, `pf_tipo[]` (PGBL, Fundo de Pensão), `pf_regime[]` (Regressivo, Progressivo), `pf_nomeFundo[]`, `pf_cnpj[]`, `pf_perfilRisco[]`, `pf_contribuicao[]`, `pf_contrapartida[]`, `pf_saldo[]`, `pf_dataEntrada[]`, `pf_nContrib[]`, `pf_vestingProprio[]`, `pf_vestingPatroc[]`, `pf_obs[]` | | o saldo iria para `patrimonio.financeiro[]` com `tipo` 'fechada' (sem liquidez); o resto não é usado |
 | **Previdência aberta** (`prevAbertaList`) | | | |
 | Tipo do plano | `pa_tipo[]` | PGBL, VGBL, FGB | `patrimonio.financeiro[].tipo` |
 | Saldo atual total | `pa_saldo[]` | R$ | `patrimonio.financeiro[].valor` (fora do inventário na sucessão) |
@@ -278,7 +278,7 @@ Cada seguro abre o detalhe quando "Protegido?" é Sim.
 | Horas de trabalho/mês | `ra_horas[]` | número | somadas por pessoa: `horas`, `conjugeHoras` (o valor da hora, na Gestão financeira) |
 | Renda bruta mensal | `ra_rendaBruta[]` | R$ | `gross` |
 | Renda líquida mensal | `ra_rendaLiquida[]` | R$ | `steps[0].value` |
-| Comissões (mensal) | `ra_comissoes[]` | R$ | uma linha "Comissões" |
+| Comissões (mensal) | `ra_comissoes[]` | R$ | uma linha "Remuneração variável" (comissões, adicionais por performance ou por viagens) |
 | Recebe 13º salário? | `ra_decimo_N` | Sim, Não | uma linha anual de 13º (hoje o 13º só entra se for linha do Fluxo) |
 | Bônus anual, PLR anual | `ra_bonus[]`, `ra_plr[]` | R$ | linhas anuais "Bônus" e "PLR" (a PLR não é tributável no ajuste) |
 | Observações | `ra_obs[]` | texto longo | não usado |
@@ -300,7 +300,7 @@ O "Resumo de renda mensal" da página é calculado (soma das líquidas das duas 
 | Estrutura de moradia atual | `moradiaEstrutura` | Aluguel, Imóvel Financiado, Imóvel Quitado, Com Terceiros | aluguel: a despesa "Moradia (aluguel)"; imóvel: um bem |
 | Valor do aluguel | `moradiaValorAluguel` | R$ (só aluguel) | `expenses[]` "Moradia (aluguel)" |
 | Valor do imóvel, saldo devedor, parcela | `moradiaValorImovel`, `moradiaSaldoDevedor`, `moradiaParcela` | R$ (só imóvel) | `bens[]` (**repete** o imóvel da lista de bens) |
-| Saldo de FGTS | `fgts` | R$ | não usado (o plano não tem FGTS) |
+| Saldo de FGTS | `fgts` | R$ | `patrimonio.financeiro[]` com `tipo` 'fgts' (sem liquidez); a importação ainda não está ligada |
 | Observações | `moradiaObs` | texto longo | não usado |
 | **Família e dependentes** (`depList`) | | | `riscos.dependentes[]` |
 | Relação | `dep_relacao[]` | Filho(a), Cônjuge, Companheiro(a), Pai/Mãe, Outro | `relacao`; "Cônjuge" daria `conjugeNome` e `spouseAge` |
