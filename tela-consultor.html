@@ -553,6 +553,7 @@ section.page>.hint{font-size:13.5px;color:#7d7d7d;line-height:1.5;max-width:780p
 .bloco h3{font:600 14.5px Sora,sans-serif;color:var(--nl-navy-900);margin-bottom:14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .bloco h3 .dir{margin-left:auto;font:500 12.5px 'DM Sans',sans-serif;color:#8a8a8a}
 .bloco .sub{font-size:12.5px;color:#8a8a8a;margin:-8px 0 14px;line-height:1.5}
+.md-dica{font-size:12px;color:#8a8a8a;margin-top:6px;line-height:1.6} .md-dica code{font:500 11.5px ui-monospace,Consolas,monospace;background:#F3F1EC;border-radius:4px;padding:1px 5px;color:#5a5a5a}
 details.ajuda{margin-top:12px;font-size:12.5px;color:#666;line-height:1.55}
 details.ajuda>summary{cursor:pointer;font:600 12px 'DM Sans',sans-serif;color:var(--nl-orange-600);list-style:none;display:inline-flex;align-items:center;gap:6px}
 details.ajuda>summary::-webkit-details-marker{display:none}
@@ -2608,7 +2609,22 @@ const ENGINE = (() => {
     const renda = mediaDe12Meses(plan.incomes), custo = tot(fixas) + tot(ajustaveis), futuro = renda - custo;
     const C = O.combinado || {}, grupo = c => c && num(c.meta) != null ? { meta: Math.max(0, +c.meta), cortes: (Array.isArray(c.cortes) ? c.cortes : []).map(x => Object.assign(x.id != null && x.id !== '' ? { id: String(x.id) } : {},
       { nome: String(x.nome || ''), valor: Math.max(0, +x.valor || 0), trava: !!x.trava })) } : null, combinado = { fixas: grupo(C.fixas), ajustaveis: grupo(C.ajustaveis) };
-    return { mes: { renda, custo, futuro }, ano: { renda: renda * 12, custo: custo * 12, futuro: futuro * 12 }, pctFuturo: renda > 0 ? futuro / renda : null,
+    // O mês de referência (pico): o de maior gasto dos próximos 12 (o primeiro, no empate), contando só as linhas que se
+    // repetem todo mês (mensais e semanais). A família se reconhece nele: antes de qualquer redução costuma ser o de hoje, e
+    // uma parcela aparece com o valor que ela paga (um seguro de R$ 580 em 10 vezes, não os R$ 483 da média). IPTU, 13º,
+    // bônus e as outras anuais ficam só na média dos 12 meses. As páginas de renda e custo e do orçamento partem dele.
+    const todoMes = it => ['mensal', 'semanal'].includes(it.frequency || 'mensal');
+    const noMes = (it, mm) => todoMes(it) ? valorEm(sortSteps(Object.assign({}, it, { exc: null })), mm) : 0;
+    const somaNoMes = (lista, mm) => (lista || []).reduce((t, it) => t + noMes(it, mm), 0);
+    let mmP = 0;
+    for (let mm = 1; mm < 12; mm++) if (somaNoMes(despesas, mm) > somaNoMes(despesas, mmP) + 0.5) mmP = mm;
+    const itensP = g => despesas.filter(e => g === 'fixas' ? e.group === 'fix' : e.group !== 'fix').map(e => ({ id: String(e.id), nome: e.label || 'Despesa sem nome', valor: noMes(e, mmP) }))
+      .filter(x => x.valor > 0.5).sort((a, b) => b.valor - a.valor);
+    const fixasP = itensP('fixas'), ajustaveisP = itensP('ajustaveis'), rendaP = somaNoMes(plan.incomes, mmP), custoP = tot(fixasP) + tot(ajustaveisP);
+    const pico = { mm: mmP, renda: rendaP, custo: custoP, futuro: rendaP - custoP, itens: { fixas: fixasP, ajustaveis: ajustaveisP },
+      grupos: { fixas: tot(fixasP), ajustaveis: tot(ajustaveisP), futuro: rendaP - custoP },
+      ideal: { fixas: rendaP * ORCAMENTO_IDEAL.fixas, ajustaveis: rendaP * ORCAMENTO_IDEAL.ajustaveis, futuro: rendaP * ORCAMENTO_IDEAL.futuro } };
+    return { mes: { renda, custo, futuro }, pico, ano: { renda: renda * 12, custo: custo * 12, futuro: futuro * 12 }, pctFuturo: renda > 0 ? futuro / renda : null,
       grupos: { fixas: tot(fixas), ajustaveis: tot(ajustaveis), futuro }, itens: { fixas, ajustaveis },
       ideal: { fixas: renda * ORCAMENTO_IDEAL.fixas, ajustaveis: renda * ORCAMENTO_IDEAL.ajustaveis, futuro: renda * ORCAMENTO_IDEAL.futuro },
       combinado: combinado.fixas || combinado.ajustaveis ? combinado : null, vezesPoupou: VEZES_POUPOU.some(v => v[0] === O.vezesPoupou) ? O.vezesPoupou : null };
@@ -4402,7 +4418,8 @@ function renderGoals() {
       ${temGasto ? `<div class="secao"><h4>Depois de realizado</h4>${cs.map(c => htmlCusto(o, i, c)).join('')}<button class="chipadd" data-add-c="${o.id}">+ outro gasto</button></div>` : ''}
       ${temMais ? htmlFinanciar(o, i) : ''}
       ${temApres ? `<div class="secao"><h4>Apresentação ao cliente</h4>
-        <textarea data-g="${i}" data-k="strategy" placeholder="Estratégia: como este objetivo será atingido, em linguagem de conversa com o cliente.">${esc(o.strategy)}</textarea>
+        <textarea data-g="${i}" data-k="strategy" rows="6" placeholder="Estratégia: como este objetivo será atingido, em linguagem de conversa com o cliente.">${esc(o.strategy)}</textarea>
+        ${MD_DICA}
         <div class="grid g2" style="margin-top:10px">
         <div class="field wide"><label>Foto (link da imagem) ${tip('Sem foto, o card do cliente usa o ícone.')}</label><input data-g="${i}" data-k="photo" value="${esc(o.photo || '')}" placeholder="https://…"><div class="fotoprev">${fotoHtml(o)}</div></div>
         <div class="field"><label>Ícone ${tip('Envie um SVG ou PNG, ou escreva o nome de um ícone do Font Awesome (precisa de internet).')}</label>
@@ -5613,7 +5630,7 @@ function renderExperienciaC() {
   el.innerHTML = `<table class="ex-t"><thead><tr><th></th>${quem.map(q => `<th colspan="3" class="ex-g">${esc(nm[q])}</th>`).join('')}</tr>
     <tr><th>Classe</th>${quem.map(() => '<th class="ex-g">Entende</th><th>Já investiu</th><th>Tem restrição</th>').join('')}</tr></thead><tbody>
     ${ENGINE.CLASSES_ATIVOS.map(([id, n]) => `<tr><td>${n}</td>${quem.map(q => `<td class="ex-g">${chk(q, id, 'entende')}</td><td>${chk(q, id, 'investiu')}</td><td>${chk(q, id, 'restricao')}</td>`).join('')}</tr>`).join('')}</tbody></table>
-    <div class="field"><label>Observações</label><textarea data-r="experiencia.observacoes" data-rt="texto" placeholder="comentários pertinentes sobre a família e os investimentos">${esc(lerR('experiencia.observacoes') || '')}</textarea></div>`;
+    <div class="field"><label>Observações</label><textarea data-r="experiencia.observacoes" data-rt="texto" placeholder="comentários pertinentes sobre a família e os investimentos">${esc(lerR('experiencia.observacoes') || '')}</textarea>${MD_DICA}</div>`;
 }
 function renderClienteC() {
   renderTrabalhoC(); renderExperienciaC();
@@ -6991,7 +7008,7 @@ function renderMacroC() {
     <tfoot><tr><td class="cx"><div class="pol-cx"><i style="background:${liq.cor}"></i><div><b>${liq.nome}</b><small>fica com o restante</small></div></div></td><td class="num">${hoje(liq)}</td>
       <td>${macRodape('i', K)}</td><td>${macRodape('r', K)}</td><td class="num mac-dif">${difCar(liq.dif)}</td></tr></tfoot></table></div></div>
     <div class="bloco mac-just"><h3>Por que esta recomendação<span class="dir">o cliente vê, um motivo por linha</span></h3>
-      <textarea data-r="carteira.justificativa" data-rt="texto" rows="4" placeholder="Ex.: reduzir o pós-fixado, que hoje passa de 60% da carteira&#10;proteger da inflação os objetivos de longo prazo&#10;manter o private equity, que não tem como sair antes do prazo">${esc(C.justificativa || '')}</textarea></div>`;
+      <textarea data-r="carteira.justificativa" data-rt="texto" rows="4" placeholder="Ex.: reduzir o pós-fixado, que hoje passa de 60% da carteira&#10;proteger da inflação os objetivos de longo prazo&#10;manter o private equity, que não tem como sair antes do prazo">${esc(C.justificativa || '')}</textarea>${MD_DICA_LINHA}</div>`;
   const chave = { h: 'atual', i: 'ideal', r: 'rec' }, totalDe = { h: K.atual, i: K.total, r: K.total };
   ['h', 'i', 'r'].forEach(q => SUNBURST.desenha(document.getElementById('macSb-' + q), 'portal-' + q,
     K.classes.map(c => ({ id: c.id, nome: c.nome, cor: c.cor, grupo: c.grupo, v: c[chave[q]] })),
@@ -7099,6 +7116,9 @@ document.addEventListener('paste', e => {
   const C = carDe(); C.ativos = (C.ativos || []).concat(novos);
   classificaNaBase(novos); carColando = false; renderAll();
 });
+// a formatação dos textos livres que o cliente vê (mdHtml e mdInline, na tela do cliente)
+const MD_DICA = '<div class="md-dica">Formatação, como no Markdown: <code># Título</code> · <code>## Subtítulo</code> · <code>**negrito**</code> · <code>*itálico*</code> · <code>- item de lista</code> · <code>1. item numerado</code>. Cada linha vira um parágrafo.</div>';
+const MD_DICA_LINHA = '<div class="md-dica">Um motivo por linha. Dá para usar <code>**negrito**</code> e <code>*itálico*</code>.</div>';
 // devolve o foco ao campo que estava sendo digitado depois de redesenhar a página
 function carFoco(sel, txt) { const n = document.querySelector(sel); if (n) { n.focus(); n.value = txt; try { n.setSelectionRange(txt.length, txt.length); } catch (e) { } } }
 document.addEventListener('input', e => {
@@ -7116,7 +7136,17 @@ document.addEventListener('change', e => {
   if (t.dataset.micCampo != null) { const [i, k] = t.dataset.micCampo.split(':'); if (t.tagName === 'SELECT') plano.carteira.novos[+i][k] = t.value; setTimeout(renderAll, 0); return; }
   if (t.dataset.micAcaoSel != null) { const i = t.dataset.micAcaoSel, a = plano.carteira.ativos[+i]; a.acao = t.value; if (a.acao !== 'parcial') delete a.resgate;
     renderAll(); if (a.acao === 'parcial') carFoco(`[data-mic-resgate="${i}"]`, ''); return; }
-  if (t.dataset.micResgate != null || t.dataset.mac != null) setTimeout(renderAll, 0);
+  if (t.dataset.micResgate != null) setTimeout(renderAll, 0);
+});
+// o campo da macroalocação é trocado a cada tecla (renderMacroC), e o novo recebe o valor por código: o change não serve
+// (dispara no que sai, ainda durante a troca, e não dispara no novo). Redesenha tudo quando a pessoa sai de fato do campo,
+// o que continua na página depois da troca, e devolve o foco se ela foi para outro campo ou controle da mesa
+document.addEventListener('focusout', e => {
+  const t = e.target; if (!t.dataset || t.dataset.mac == null) return;
+  setTimeout(() => { if (!t.isConnected) return;
+    const a = document.activeElement, d = a && a.dataset || {};
+    const sel = d.mac != null ? `[data-mac="${d.mac}"]` : d.macSl != null ? `[data-mac-sl="${d.macSl}"]` : null;
+    renderAll(); const n = sel && document.querySelector(sel); if (n) { n.focus(); if (n.select) n.select(); } }, 0);
 });
 document.addEventListener('click', e => {
   const t = e.target.closest('[data-car-modelo],[data-mac-usar],[data-car-tira],[data-car-mais],[data-car-apaga],[data-car-sobra],[data-car-novo-atual],[data-mic-incluir],[data-mic-novo],[data-mic-tira]'); if (!t) return;
@@ -7417,7 +7447,7 @@ document.addEventListener('click', e => { const b = e.target.closest('[data-abri
 // abrir a visão do cliente para apresentar: o plano vai gravado e também no endereço, e as ferramentas de proposta ficam de fora
 // a página do cliente que corresponde à página do portal à vista (ou a pedida pelo botão)
 const FASE_CLIENTE = { carteira: 'carteira-hoje', macro: 'carteira-recomendada', micro: 'carteira-decisoes', cliente: 'patrimonio', orcamento: 'orcamento', patrimonio: 'patrimonio', riscos: 'riscos', tributario: 'ir' };
-document.getElementById('btnOpen').onclick = () => abrirCliente();
+document.getElementById('btnOpen').onclick = () => abrirCliente('proposito');   // apresentar começa sempre pela primeira página
 function abrirCliente(fase) {
   const json = JSON.stringify(plano);
   const b64 = btoa(String.fromCharCode(...new TextEncoder().encode(json))).replace(/\+/g, '-').replace(/\//g, '_');

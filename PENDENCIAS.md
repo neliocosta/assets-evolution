@@ -12,6 +12,25 @@ anterior. Leia junto com o `README.md`, que descreve como as duas telas funciona
 **Última sessão (16/10/2026):** veja `SESSAO-2026-10-16.md`: o orçamento da família virou a bancada do orçamento combinado
 (sem o treemap). A anterior (15/10, tarde) está em `SESSAO-2026-10-15.md`.
 
+## Feedback da apresentação real (21/10/2026)
+
+O usuário apresentou um plano a um cliente e trouxe:
+
+1. **"Apresentar ao cliente" abria na última página vista — resolvido (22/10/2026).** O botão do portal abre sempre a
+   primeira página, e a apresentação que pede uma página inexistente cai na primeira, não na guardada no navegador.
+2. **A média de 12 meses confundiu — resolvido (22/10/2026).** Na reunião, o cliente ganha 7.400, gasta 7.400 e poupa zero;
+   a página de renda e custo mostrava 7.325, 5.595 e 1.730 (as médias projetadas), e o orçamento mostrava o seguro a R$ 483
+   (R$ 580 × 10 parcelas ÷ 12). Agora as duas páginas partem do mês de referência (`ENGINE.gestaoFinanceira`: `pico`): o
+   de maior gasto dos próximos 12, contando só as linhas mensais e semanais. IPTU, 13º, bônus e outras anuais ficam só
+   na média, que aparece menor, entre parênteses, nos cartões. O portal (página Orçamento) continua mostrando as médias.
+3. **O orçamento não cabe inteiro na apresentação (em aberto).** A lógica do usuário: primeiro apresenta o plano, depois
+   propõe ajustes junto com o cliente. A bancada do orçamento (decidir quanto liberar e de onde) é a segunda parte e talvez
+   deva ficar noutro ambiente. Ele quer pensar com calma; por ora a página fica onde está.
+4. **Fase da vida e patrimônio de cada pessoa do casal — feito (22/10/2026).** O topo mostra a fase de cada um, com a sua
+   trilha. Botões "Ver o patrimônio de" ligam e desligam cada pessoa: a parte de quem foi desligado clareia em cada barra
+   (pela titularidade de cada item; o do casal, pelas partes; sem informar, metade de cada um), os itens que não são dela
+   apagam e os totais trocam. O patrimônio esperado e o veredito continuam os da família, pela fase do titular.
+
 ## Gestão de riscos (em aberto)
 
 A gestão de riscos já existe (fase 1 da jornada do cliente e página "Gestão de riscos" no portal; veja o README).
