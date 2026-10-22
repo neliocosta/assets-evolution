@@ -65,18 +65,32 @@ subgrupos (as Saídas: fixas, ajustáveis, compromissos…) mantém a ordem dele
 
 ## Quando o dinheiro acaba
 
-Antes, o motor zerava o saldo negativo da reserva, como se o que faltou aparecesse do nada. Agora, num mês em que as
-contas não fecham, o que falta sai primeiro das caixinhas dos objetivos e, sem elas, vira dívida no cheque especial
-(`CHEQUE_M`, 8% ao mês, com os juros como saída "Juros do cheque especial" e o saque como movimentação "Cheque especial").
-A primeira semana em que o cheque é usado é a ruína (`run().ruina`: a semana, o mês e `cheque12`, a dívida doze meses
-depois). Daí em diante o plano para: a liberdade financeira não acontece, um ano depois a simulação congela (a dívida fica
-em `cheque12`), as curvas e os marcos param no mês da ruína, o fundo do gráfico e da tabela do fluxo fica vermelho, a
-reprodução termina ali e o destino ao lado do gráfico vira o alerta, com o mês, a idade e a dívida em 12 meses.
+Num mês em que as contas não fecham, o que falta sai primeiro das caixinhas dos objetivos e, sem elas, a reserva fica
+negativa: o patrimônio financeiro vira dívida. O que a família cobre dentro do mesmo mês (as contas do dia 10 antes do
+salário do dia 21) não paga juros. O que fica em aberto no fim do mês paga os juros da dívida (`plano.jurosDivida`, % ao mês:
+4% se vazio, `JUROS_DIVIDA_PADRAO`) uma vez, no começo do mês seguinte, como a saída "Juros da dívida"; a sobra de depois
+(ou um crédito novo) a paga primeiro, e enquanto a reserva está negativa não há aportes nos objetivos. Não é o cheque
+especial (8% ou mais ao mês): com ele a dívida passaria dos bilhões em poucas décadas. O primeiro mês que fecha negativo é
+a ruína (`run().ruina`: a semana em que o mês começa, o mês e `cheque12`, no nome antigo: a maior dívida no fim de um mês
+nos 12 meses a partir dela). Regra de negócio: a dívida para de crescer quando chega a 100 vezes a renda mensal da família
+(`TETO_DIVIDA_VEZES`; a renda é a média dos próximos 12 meses, a mesma do Orçamento). Daí em diante ela fica travada: os
+juros só cobrem o que a sobra do mês pagou, e o que faltaria a mais entra como "Dívida acima do teto (não acumula)", para a
+conta do fluxo continuar fechando (`run().tetoDivida`, `tetoEm` e o marco "A dívida chega ao teto"). O plano não para (até 22/10/2026 ele congelava um ano depois da
+ruína): a vida toda continua simulada e editável. No gráfico, o financeiro desce a zero e o que falta desce abaixo dele,
+na faixa das dívidas (também na visão só do financeiro), com o marco "O dinheiro acaba". Com a idade de parar de trabalhar
+marcada (página Liberdade financeira), a família para nela mesmo devendo: não há rendas para contratar nem o que sacar, e o
+padrão de vida cai para as rendas da aposentadoria. Sem a idade marcada, a liberdade só começa com o financeiro positivo. Uma
+renda de idade fixa (o INSS aos 65, mesmo que a família pare aos 75) entra no fluxo desde a data dela, antes da liberdade. Na tabela do fluxo (as duas), o fundo da coluna fica vermelho claro quando o orçamento do período
+estoura (o `resultado` da simulação, no equivalente mensal, negativo) e vermelho mais escuro quando algum mês do período
+fecha com o patrimônio financeiro negativo. O destino ao lado do gráfico vira o alerta: o mês, a idade, os juros, a dívida em 12 meses e quando o
+financeiro volta a ficar positivo de vez (ou que não volta).
 
 No portal, a faixa de indicadores troca a Liberdade financeira por "O dinheiro acaba" e leva ao Fluxo de caixa, onde o
 alto da página repete o alerta e sugere **simular a contratação de um crédito** (`plano.creditos`: nome, valor liberado, o mês em que o
-dinheiro cai, parcelas, juros ao mês e sistema Price ou SAC). O motor (`contratoDoCredito`, `saldoDoCredito`) põe o valor
-no financeiro naquele mês (a movimentação "Crédito contratado" e um marco no gráfico) e o saldo devedor nas dívidas; a
+dinheiro cai, parcelas, juros ao mês e sistema Price ou SAC); no mesmo alerta fica o campo dos juros da dívida, para o
+consultor reduzir. O motor (`contratoDoCredito`, `saldoDoCredito`) lança o valor como uma entrada de caixa naquele mês
+("Crédito: nome", `in_credito_<id>`, com um marco no gráfico), que paga primeiro a dívida da reserva, e o saldo devedor
+nas dívidas; a
 parcela entra no Fluxo como uma despesa fixa própria ("Parcela: nome"), refeita a cada mudança do contrato e removida com
 ele. Simular um crédito abre a janela "A parcela precisa caber a partir de <mês>" (a mesma da Política de investimentos): as
 despesas do mês seguinte ao crédito, pelo equivalente mensal, sem as parcelas de dívidas e de outros créditos, e quanto
@@ -973,7 +987,43 @@ inteira na semana em que acontecem.
 
 **Bem fora do alcance.** Um objetivo que vira bem e chega à data com menos de 70% do valor (Requer revisão)
 não é comprado na simulação: o saldo fica na reserva e o bem e os gastos depois dele não entram. O portal
-oferece usar como valor o que o cliente de fato junta até a data.
+oferece usar como valor o que o cliente de fato junta até a data. A venda que existia só para financiá-lo (todos os destinos
+da venda são objetivos não comprados: o carro de hoje vendido para a troca) também não acontece: o bem fica com a família,
+e o marco "Venda cancelada" diz por quê (`run` roda a simulação de novo sem ela; `run().vendasCanceladas`). Sem o
+dinheiro da venda, o que faltar aparece como dívida, a partir do mês em que o dinheiro acaba.
+
+**Objetivos no fluxo.** No alto do Fluxo vida toda, uma chave por objetivo (`renderObjetivosNoFluxo`), para mostrar ao
+cliente o efeito de cada um: ligado, ele entra com o patrimônio separado e os aportes, a saída (ou a compra) na data, os custos
+mensais depois e a venda do bem que o financia; desligado, nada disso acontece, nem a venda (`vendasSemObjetivo`: um
+objetivo desligado conta como não comprado). Aqui a chave liga direto, mesmo que o dinheiro acabe, e um aviso diz o efeito;
+na Política de investimentos, ligar continua pedindo que o fluxo comporte.
+
+**O balanço embaixo do fluxo.** Depois das linhas do Fluxo vida toda, "Balanço no fim do período" mostra, em cada coluna, o
+patrimônio na última semana dela. Cada classe abre pela seta: o financeiro (a reserva e cada caixinha de objetivo; negativo
+quando a família deve), as participações, os bens (cada bem do plano e cada bem comprado por um objetivo) e as dívidas (cada
+contrato); no fim, o patrimônio líquido, ativos menos passivos (`linhasDoBalanco`). Os itens vêm de `weeks[].det`, que o
+motor guarda quando o mês vira (`ENGINE.rotulosDoDetalhe` dá os nomes). Só se lê.
+
+**A explicação de cada célula.** Ao passar o mouse numa célula do Fluxo vida toda, ela explica o valor (`explicaCelula`): numa
+movimentação, cada motivo, somado no período (o motor anota em `weeks[].notas` a venda, a compra, o aporte, a caixinha que
+cobre a reserva, os juros, o crédito); no total das movimentações, as entradas, as saídas e as maiores saídas; numa linha do
+cadastro, a frase dela; no balanço, o que compõe o valor e, no patrimônio líquido, os ativos e os passivos.
+
+**Toda a sobra num objetivo.** No cartão do objetivo, além de "usar o necessário", "guardar toda a sobra de cada mês" marca o
+objetivo (`aporteSobra`): em cada mês, o motor dá a ele o que sobrou depois da reserva e dos aportes dos outros objetivos
+(ele vem por último), até ele ter o que precisa na data; nos 24 meses do fluxo planejado e depois deles. O campo mostra a média
+que isso dá (`sobraParaObjetivo`); digitar um valor ou usar o necessário tira a marca.
+
+**Dívida paga em linhas do fluxo.** Uma dívida sem contrato, sem parcela fixa e sem juros (a construtora, com parcelas
+anuais de valores diferentes) tem o saldo caindo na proporção do que as linhas que a pagam já pagaram, e zera na última
+parcela (`saldoDevedorEm`). As linhas são a da dívida (`linha`) e as outras que também a pagam (`outrasLinhas`: a
+parcela de janeiro numa, a de julho noutra), escolhidas no cartão da dívida, na página Patrimônio.
+
+**A evolução de toda dívida.** "Ver evolução" aparece em toda dívida com saldo devedor, também sem o contrato completo.
+Sem contrato, a gaveta mostra o saldo que a simulação usa (`ENGINE.saldoDevedorEm`), mês a mês de hoje até zerar: o
+gráfico em degraus, cada amortização (o mês, quanto abateu, o saldo depois) e a quitação, com a frase de onde vem a queda
+(as linhas que pagam a dívida, a parcela e os juros ou as parcelas que faltam). Com o contrato, continua o simulador
+completo (`evolucaoSemContrato` e `htmlDividaGaveta`, em `tela-consultor.html`).
 
 ## Decisões de projeto
 

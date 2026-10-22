@@ -50,13 +50,13 @@ for (const modo of ['perp', 'cons']) {
   }
   ok('movimentações = entradas − saídas em todos os meses', erro < 0.01, 'erro máximo ' + erro.toFixed(6));
 
-  // nada de NaN nem patrimônio negativo
+  // nada de NaN; o financeiro só fica negativo depois da ruína (o dinheiro acabou e o que falta virou dívida)
   let ruins = 0;
   for (let i = E.W0; i < E.NW; i += 7) {
     const w = s.weeks[i];
-    if (!isFinite(w.fin) || !isFinite(w.bens) || !isFinite(w.part) || w.fin < -1) ruins++;
+    if (!isFinite(w.fin) || !isFinite(w.bens) || !isFinite(w.part) || (w.fin < -1 && !(s.ruina && i >= s.ruina.week))) ruins++;
   }
-  ok('sem valores inválidos ou patrimônio negativo', ruins === 0, ruins ? ruins + ' semanas com problema' : '');
+  ok('sem valores inválidos, e financeiro negativo só depois da ruína', ruins === 0, ruins ? ruins + ' semanas com problema' : '');
 
   // um salário por mês enquanto há trabalho
   const mb = s.buckets.month, idx = mb.findIndex(b => b.w0 >= E.W0);
@@ -148,7 +148,7 @@ for (const [nome, plano] of casos) {
         else if (k.startsWith('out_')) o += b.f[k];
         else if (k.startsWith('mov_')) v += b.f[k];
       }
-      erro = Math.max(erro, Math.abs(i - o - v));
+      erro = Math.max(erro, Math.abs(i - o - v) / Math.max(1, Math.abs(i) + Math.abs(o)) * 1e6);   // centavos num milhão
     }
     passou = erro < 0.01 && isFinite(s.weeks[E2.NW - 1].fin);
     detalhe = 'liberdade aos ' + (s.ff ? s.ff.age.toFixed(0) : '—') + ' anos';
@@ -769,11 +769,32 @@ console.log('\nQuando o dinheiro acaba');
   Er.configure(Object.assign({}, base, { expenses: [{ id: 'x', label: 'Tudo', group: 'fix', week: 1, frequency: 'mensal', steps: [{ from: 0, value: 15000 }] }] }));
   const s = Er.run('desej'), ru = s.ruina;
   ok('com 5 mil de falta por mês, 20 mil acabam no quinto mês', ru && ru.mi >= 3 && ru.mi <= 5, ru ? 'mês ' + ru.mi : 'sem ruína');
-  ok('depois da ruína o que falta vira cheque especial, que entra na dívida', ru && s.weeks[ru.week + 8].cheque > 0 && s.weeks[ru.week + 8].div >= s.weeks[ru.week + 8].cheque);
-  ok('em 12 meses, a dívida passa da soma do que faltou (os juros de 8% ao mês)', ru && ru.cheque12 > 12 * 5000, ru && Math.round(ru.cheque12));
-  ok('sem dinheiro, a liberdade financeira não acontece', !s.ff);
+  const w8 = s.weeks[ru.week + 8];
+  ok('depois da ruína o que falta vira dívida: o financeiro fica negativo', ru && w8.fin < 0 && Math.abs(w8.cheque + w8.fin) < 0.01, ru && Math.round(w8.fin));
+  ok('em 12 meses, a dívida passa da soma do que faltou (os juros de 4% ao mês)', ru && ru.cheque12 > 12 * 5000, ru && Math.round(ru.cheque12));
+  // os juros do mês saem do que ficou em aberto no fim do mês anterior: 4%
+  const mj = s.buckets.month.find(b => b.mi === ru.mi + 6), jm = mj.f.out_juros / s.weeks[mj.w0 - 1].cheque;
+  ok('os juros da dívida são de 4% ao mês sobre o aberto no fim do mês (plano.jurosDivida vazio)', Math.abs(jm - 0.04) < 1e-9, (jm * 100).toFixed(2) + '%');
+  // o que falta só dentro do mês (as contas antes do salário) e é coberto no mesmo mês não paga juros nem é ruína
+  Er.configure(Object.assign({}, base, { initialWealth: 1000, patrimonio: { financeiro: [{ nome: 'Banco', valor: 1000 }], bens: [], dividas: [] },
+    incomes: [{ id: 'sal', label: 'Salário', kind: 'ativa', origin: 'Salário', frequency: 'mensal', days: [21], steps: [{ from: 0, value: 10000 }] }],
+    expenses: [{ id: 'x', label: 'Tudo', group: 'fix', frequency: 'mensal', days: [8], steps: [{ from: 0, value: 2000 }] },
+      { id: 'a', label: 'Conta anual', group: 'fix', frequency: 'anual', days: [8], dates: [{ m: 0, d: 8 }], steps: [{ from: 0, value: 40000 }] }] }));   // em janeiro a conta do dia 8 passa do saldo; o salário do dia 21 cobre
+  const sd = Er.run('desej'), doisAnos = w => w.mi >= 0 && w.mi < 24, negDentro = sd.weeks.some((w, i) => i >= Er.W0 && doisAnos(w) && w.fin < -0.5);
+  ok('a falta coberta no mesmo mês não paga juros nem é ruína', negDentro && !(sd.ruina && sd.ruina.mi < 24) && !sd.buckets.month.some(b => doisAnos(b) && b.f.out_juros > 0));
+  // com a idade de parar marcada, a família para nela mesmo devendo (sem rendas para contratar); sem a idade, não para
+  const alvo = Er.idadeDaLiberdade();
+  ok('sem dinheiro, a liberdade só acontece na idade marcada para parar, e sem contratar rendas', alvo != null ? s.ff && Math.abs(s.ff.age - alvo) < 0.2 && !(s.ff.cost > 0) : !s.ff, s.ff ? 'aos ' + s.ff.age.toFixed(1) + ' (marcada: ' + alvo + ')' : 'não acontece');
   const fim = s.weeks[Er.NW - 1];
-  ok('um ano depois da ruína o plano para: a dívida fica como estava', fim.cheque === s.weeks[ru.week + 60].cheque && !Object.keys(fim.f).length);
+  const quaseFim = s.weeks[Er.NW - 3];
+  // o teto: 100 vezes a renda mensal (10 mil): a dívida chega a 1 milhão e fica travada, e a conta continua fechando
+  let maiorDivida = 0, erroTeto = 0; s.weeks.forEach((w, i) => { if (i + 1 < Er.NW && s.weeks[i + 1].mi !== w.mi) maiorDivida = Math.max(maiorDivida, w.cheque); });   // no fim de cada mês
+  s.buckets.month.forEach(b => { if (b.w1 <= Er.W0) return; let i = 0, o = 0, v = 0; for (const k in b.f) { if (k.startsWith('in_')) i += b.f[k]; else if (k.startsWith('out_')) o += b.f[k]; else if (k.startsWith('mov_')) v += b.f[k]; } erroTeto = Math.max(erroTeto, Math.abs(i - o - v)); });
+  ok('a dívida para no teto de 100 vezes a renda mensal (1 milhão), no fim de cada mês, e entradas − saídas = movimentações', s.tetoDivida === 1000000 && s.tetoEm != null && Math.abs(maiorDivida - 1000000) < 0.01 && Math.abs(fim.cheque - 1000000) < 1 && erroTeto < 0.01, Math.round(maiorDivida) + ', erro ' + erroTeto.toFixed(4));
+  ok('o plano segue depois da ruína: a dívida continua crescendo até o teto', fim.cheque > s.weeks[ru.week + 60].cheque && Object.keys(quaseFim.f).length > 0);
+  Er.configure(Object.assign({}, base, { jurosDivida: 1, expenses: [{ id: 'x', label: 'Tudo', group: 'fix', week: 1, frequency: 'mensal', steps: [{ from: 0, value: 15000 }] }] }));
+  const s1 = Er.run('desej');
+  ok('o consultor reduz os juros da dívida: a 1% ao mês, ela cresce menos', s1.ruina && s1.ruina.cheque12 < ru.cheque12 && s1.ruina.cheque12 > 12 * 5000, s1.ruina && Math.round(s1.ruina.cheque12));
   Er.configure(Object.assign({}, base, { expenses: [{ id: 'x', label: 'Tudo', group: 'fix', week: 1, frequency: 'mensal', steps: [{ from: 0, value: 8000 }] }] }));
   ok('com sobra todo mês, não há ruína', !Er.run('desej').ruina);
 
@@ -786,7 +807,56 @@ console.log('\nQuando o dinheiro acaba');
   Er.configure(Object.assign({}, base, { creditos: [cred], expenses: [{ id: 'x', label: 'Tudo', group: 'fix', week: 1, frequency: 'mensal', steps: [{ from: 0, value: 15000 }] }, parcela] }));
   const sc = Er.run('desej'), wC = sc.weeks.find(w => w.mi === 4);
   ok('no mês do crédito o dinheiro entra no financeiro e a dívida cresce junto', sc.events.some(e => e.credito === 100000) && wC.div >= 100000 - 0.5);
+  ok('o crédito é uma entrada de caixa do mês', Math.abs((sc.buckets.month.find(b => b.mi === 4).f.in_credito_c1 || 0) - 100000) < 0.5);
   ok('o crédito adia a ruína, mas com a parcela as contas continuam sem fechar', sc.ruina && sc.ruina.mi > ru.mi, sc.ruina && 'mês ' + sc.ruina.mi);
+  // o crédito depois da ruína: o dinheiro paga a dívida e o financeiro volta a ficar positivo
+  const tarde = Object.assign({}, cred, { em: ru.mi + 6, valor: 300000 }), ctT = Er.contratoDoCredito(tarde);
+  Er.configure(Object.assign({}, base, { creditos: [tarde], expenses: [{ id: 'x', label: 'Tudo', group: 'fix', week: 1, frequency: 'mensal', steps: [{ from: 0, value: 15000 }] }] }));
+  const st = Er.run('desej'), antes = st.weeks.find(w => w.mi === ru.mi + 5), depois = st.weeks.find(w => w.mi === ru.mi + 7);
+  ok('crédito depois da ruína: o financeiro volta a ficar positivo', antes.fin < 0 && depois.fin > 0, Math.round(antes.fin) + ' → ' + Math.round(depois.fin));
+}
+
+console.log('\nGuardar toda a sobra num objetivo');
+{
+  const Es = carregar(srcCliente);
+  // sobra de 4 mil por mês até o mês 30 e de 1 mil depois; o objetivo de 300 mil em 60 meses leva a sobra de cada mês, não um valor fixo
+  const plano = { patrimonio: { financeiro: [{ nome: 'Banco', valor: 1000 }], bens: [], dividas: [] }, initialWealth: 1000, initialBens: 0, passive: [],
+    incomes: [{ id: 'sal', label: 'Salário', kind: 'ativa', origin: 'Salário', frequency: 'mensal', days: [5], steps: [{ from: 0, value: 10000 }] }],
+    expenses: [{ id: 'x', label: 'Tudo', group: 'fix', frequency: 'mensal', days: [6], steps: [{ from: 0, value: 6000 }, { from: 30, value: 9000 }] }],
+    objectives: [{ id: 'g', name: 'Grande', kind: 'consumo', months: 60, amount: 300000, dedicated: 0, planned: 100, aporteSobra: true, profile: 'conservador', costs: [] }] };
+  Es.configure(plano); const s = Es.run('desej'), ap = mi => (s.buckets.month.find(b => b.mi === mi).f.mov_obj_g || 0);
+  ok('com toda a sobra, o aporte acompanha o que sobra em cada mês (4 mil, depois 1 mil), não o valor digitado', Math.abs(ap(10) - 4000) < 50 && Math.abs(ap(40) - 1000) < 50, Math.round(ap(10)) + ' e ' + Math.round(ap(40)));
+}
+
+console.log('\nA dívida da construtora e a venda que não acontece');
+{
+  const Ec = carregar(srcCliente);
+  // a dívida sem contrato, sem parcela fixa e sem juros: o saldo cai na proporção do que as linhas pagam
+  const eccel = { nome: 'Construtora', saldoDevedor: 120000, restantes: 30, parcela: 0, juros: 0, linha: 'jan', outrasLinhas: ['jul'] };
+  const linhas = [{ id: 'jan', label: 'Construtora jan', group: 'fix', frequency: 'anual', days: [25], dates: [{ m: 0, d: 25 }], steps: [{ from: 4, value: 40000 }, { from: 17, value: 0 }] },
+    { id: 'jul', label: 'Construtora jul', group: 'fix', frequency: 'anual', days: [25], dates: [{ m: 6, d: 25 }], steps: [{ from: 10, value: 20000 }, { from: 23, value: 0 }] }];
+  Ec.configure({ patrimonio: { financeiro: [{ nome: 'Banco', valor: 500000 }], bens: [], dividas: [eccel] }, initialWealth: 500000, initialBens: 0, objectives: [], passive: [],
+    incomes: [{ id: 'sal', label: 'Salário', kind: 'ativa', origin: 'Salário', frequency: 'mensal', days: [5], steps: [{ from: 0, value: 20000 }] }], expenses: linhas });
+  const sd = k => Math.round(Ec.saldoDevedorEm(eccel, k));
+  ok('construtora: o saldo cai com cada parcela das linhas (jan e jul) e zera na última', sd(3) === 120000 && sd(4) === 80000 && sd(10) === 60000 && sd(16) === 20000 && sd(22) === 0, [3, 4, 10, 16, 22].map(sd).join(' '));
+  // o carro vendido só para a troca: a troca não alcança 70% do valor, então a venda não acontece e o carro fica
+  const Ev = carregar(srcCliente);
+  const carro = { nome: 'Carro', mercado: 100000, saldoDevedor: 0, venda: { em: 3, preco: 100000, custos: [], destinos: [{ objetivo: 'troca' }] } };
+  const troca = { id: 'troca', name: 'Troca do carro', kind: 'bem', months: 3, amount: 300000, dedicated: 0, planned: 0, profile: 'conservador', costs: [] };
+  Ev.configure({ patrimonio: { financeiro: [{ nome: 'Banco', valor: 10000 }], bens: [carro], dividas: [] }, initialWealth: 10000, initialBens: 100000, objectives: [troca], passive: [],
+    incomes: [{ id: 'sal', label: 'Salário', kind: 'ativa', origin: 'Salário', frequency: 'mensal', days: [5], steps: [{ from: 0, value: 20000 }] }], expenses: [] });
+  const sv = Ev.run('desej'), w6 = sv.weeks.find(w => w.mi === 6);
+  ok('a troca não comprada cancela a venda: o carro fica nos bens e o dinheiro não aparece', sv.vendasCanceladas.includes('b0') && w6.bens === 100000 && !sv.events.some(e => e.type === 'venda') && sv.events.some(e => /Venda cancelada/.test(e.label)));
+  troca.amount = 120000;   // com o carro e 20 mil, a troca passa de 70%: a venda acontece
+  Ev.configure({ patrimonio: { financeiro: [{ nome: 'Banco', valor: 10000 }], bens: [carro], dividas: [] }, initialWealth: 10000, initialBens: 100000, objectives: [troca], passive: [],
+    incomes: [{ id: 'sal', label: 'Salário', kind: 'ativa', origin: 'Salário', frequency: 'mensal', days: [5], steps: [{ from: 0, value: 20000 }] }], expenses: [] });
+  const sv2 = Ev.run('desej');
+  ok('a troca comprada mantém a venda', !sv2.vendasCanceladas.length && sv2.events.some(e => e.type === 'venda'));
+  troca.ligado = false;   // a troca desligada no Fluxo vida toda: o carro não é vendido, e sem o marco de venda cancelada
+  Ev.configure({ patrimonio: { financeiro: [{ nome: 'Banco', valor: 10000 }], bens: [carro], dividas: [] }, initialWealth: 10000, initialBens: 100000, objectives: [troca], passive: [],
+    incomes: [{ id: 'sal', label: 'Salário', kind: 'ativa', origin: 'Salário', frequency: 'mensal', days: [5], steps: [{ from: 0, value: 20000 }] }], expenses: [] });
+  const sv3 = Ev.run('desej');
+  ok('a troca desligada também cancela a venda do carro', sv3.vendasCanceladas.includes('b0') && sv3.weeks.find(w => w.mi === 6).bens === 100000 && !sv3.events.some(e => e.type === 'venda' || /Venda cancelada/.test(e.label)));
 }
 
 console.log('\n' + (falhas ? falhas + ' verificação(ões) falharam.' : 'Tudo certo.') + '\n');
