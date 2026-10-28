@@ -71,7 +71,13 @@ objetivo; e que, cada vez que não guardou, recebeu um lembrete claro do que faz
 ### Neste repositório
 
 - **Portal do consultor** (`tela-consultor.html`): 15 passos que montam o plano a partir de uma variável só
-  (`VARIAVEIS.md`). Grava sozinho no armazém.
+  (`VARIAVEIS.md`). Grava sozinho no armazém. O botão **"Gerar versão final para cliente"** publica uma foto
+  do plano com data, hora e o comentário do consultor (`versoes/<cliente>`, `{ lista: [{ id, n, em, comentario,
+  consultor, dados }] }`, a mais nova primeiro). A área logada deve mostrar ao cliente a versão mais recente como o
+  relatório dele e o histórico das anteriores com os comentários ("ajuste da renda mensal", "atualização de 6
+  meses"); o plano em edição no portal nunca é o que o cliente vê. A tela do cliente deste repositório já lê só a
+  versão mais recente (sem nenhuma, avisa que o relatório está sendo preparado); falta a área logada mostrar o
+  histórico.
 - **Apresentação do plano** (`evolucao-patrimonial.html`): dez capítulos como um livro (Propósito, Diagnóstico, Gestão
   financeira, Tributário, Patrimônio, Riscos, Objetivos, Política, Carteira, Evolução patrimonial). Já é chamada de
   "área do cliente" e já tem a mecânica de **propostas**: o cliente simula valores e envia, o consultor aprova ou recusa.

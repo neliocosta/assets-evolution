@@ -142,20 +142,58 @@ enquanto cabe.
 valor por mês, que o motor usa depois dos 24 meses); a sobra e os aportes da coluna são a média do fluxo planejado dos
 próximos 24 meses (`run().programa`, `ENGINE.programaDosAportes`). Ele parte do que de fato entra e sai em cada mês (o 13º
 em dezembro, o IPTU em janeiro, o imposto no mês dele, os gastos dos objetivos depois de realizados: `ENGINE.linhasDosMeses`),
-não do equivalente mensal, e divide a sobra de cada mês em ordem:
-1. o que os meses seguintes vão precisar: um mês negativo é coberto pelo que se guarda antes, e nele nada vai para os
-   objetivos;
-2. o aporte da reserva;
-3. os objetivos, na ordem de prioridade do cliente, cada um do mês em que começa a receber até a data, até o definido mais
-   o que deixou de receber antes (o atraso, que ele recupera quando sobra), e só enquanto precisa: quando o que está na
-   caixinha (mais o que ainda entra de uma vez), rendendo até a data, cobre o valor, a sugestão vira zero, e o último aporte
-   é só o que falta (depois dos 24 meses, o motor faz o mesmo com o aporte definido);
-4. o resto, a liberdade financeira.
+não do equivalente mensal. A poupança para objetivos é fixa (como um cliente de verdade guarda: um valor por mês, numa
+transferência no dia do salário):
+1. todo mês, a reserva recebe o aporte dela e cada objetivo, do mês em que começa a receber até a data, a sua parte (o
+   aporte definido; o digitado vale como está), só enquanto precisa: quando o que está na caixinha (mais o que ainda entra
+   de uma vez), rendendo até a data, cobre o valor, a parte vira zero, e o último aporte é só o que falta;
+2. os meses irregulares (o IPTU de janeiro, o 13º de dezembro, um bônus) passam pela Caixa de curto prazo, que pode ficar
+   negativa enquanto volta a zero em até 12 meses (`JANELA_CAIXA`); ela guarda antes o que os 12 meses seguintes vão
+   precisar;
+3. o que passa disso vai para a liberdade financeira, inclusive a parte de um objetivo já realizado: a poupança para
+   objetivos não cai quando um objetivo acontece;
+4. quando a caixa não volta a zero em 12 meses (um gasto novo de um objetivo realizado, uma despesa que sobe, uma renda que
+   acaba), o aporte cai o mínimo que a faz voltar, do objetivo de menor prioridade para o de maior e, por último, a reserva.
+   Esses trechos são as faltas (`programa.faltas`: de, até, o maior corte, quem recebe menos e a causa, a linha do Fluxo
+   que mais piorou na média dos 12 meses seguintes contra a dos 12 anteriores).
 
-Se o dinheiro acaba no objetivo 2, o 3 fica sem nada naquele mês. O motor roda em duas passadas: a primeira dá a sobra de
-cada mês, a segunda segue o programa nos 24 meses. No alto do Fluxo de 24 meses, os 24 meses em colunas (a sobra, os
-aportes empilhados e o que fica no mês). O rodapé da mesa avisa o mês em que o caixa fica negativo (sai do
-patrimônio), que só acontece com um valor digitado.
+O motor roda em duas passadas: a primeira dá a sobra de cada mês, a segunda segue o programa, que vai até a data do último
+objetivo (`programa.n`; os primeiros 24 meses são o Fluxo de 24 meses, `programa.meses`). As faltas aparecem no topo (em
+"Nos objetivos"), no alto da página Objetivos e do Fluxo de 24 meses, com o mês, quanto falta, a causa, quem recebe menos
+e quando cada um passa a ser realista, e um botão para o fluxo do mês: é a hora de ver o que ajustar no orçamento. No alto
+do Fluxo de 24 meses, os 24 meses em colunas (a sobra, os aportes empilhados e o que fica no mês).
+
+**De onde vem o dinheiro do objetivo (no cartão).** O "Guardar por mês" é a parte do objetivo na poupança para
+objetivos. No topo, "Para objetivos" soma as partes de quem recebe hoje, com a necessária embaixo (o que cada um precisa
+por mês para chegar ao valor na data). Sem médias: "Poupança por mês" é o resultado de cada um
+dos próximos 12 meses do fluxo planejado, do pior ao melhor ("de R$ −700 a 2.500", com o IPTU e os bônus; sem as entradas que
+já têm dono, que vão direto para o objetivo delas), com o total do ano embaixo; "A distribuir" é cada mês menos as partes,
+mês a mês. Embaixo de "A distribuir", a resposta: "cabe a mais, todo mês: R$ X" ou "falta até R$ Y/mês a partir de <mês>". O "cabe a
+mais" é a regra constante (`ENGINE.folgaDosAportes`): o maior aporte a mais, fixo e de menor prioridade, por todo o
+horizonte, que o fluxo planejado nunca corta (o mês negativo é coberto pela Caixa de curto prazo), e nunca mais do que os
+próximos 12 meses sustentam na conta do ano; sem as entradas de uma vez só (a carta do consórcio, uma linha pontual,
+`linhasDosMeses().entradas[].pontual`). Essas são aportes pontuais: aparecem num quadro no alto do Fluxo de 24 meses, com o
+mês e o valor, e se destinam digitando o aporte no mês delas (sem isso, vão para a liberdade financeira). "Para objetivos" não fica vermelho: é a decisão das partes.
+No cartão,
+"guardar o que sobra hoje (R$ X/mês)" põe no aporte a parte dele mais o que ainda cabe, num valor fixo: não é um modo que fica
+ligado (o que sobrar depois não vai sozinho para o objetivo; tirar dinheiro de um objetivo devolve ao "A distribuir", e o
+consultor decide para onde vai). O plano antigo com um objetivo em "toda a sobra" (`aporteSobra`) passa, ao abrir, ao valor
+fixo que equivale a isso hoje. A poupança é a soma das duas partes, e a faixa dos meses comuns fica embaixo dela. Na janela do
+orçamento, "Guardar só o que cabe" põe no aporte aumentado o que cabe de fato (o mesmo cálculo, com ele em zero). Quando uma falta tira dinheiro do objetivo,
+o campo diz "recebe menos a partir de <mês>", e o quadro "Respeitando o fluxo de caixa atual" conta a falta e a causa. Se
+a causa é uma saída pontual (a anuidade das escolas), o aviso das faltas oferece "Cobrir … com o patrimônio": a despesa
+sai do Fluxo e vira um compromisso, pago com o patrimônio financeiro no mês. Aumentar um aporte que cria ou aumenta uma
+falta nos 24 meses abre a janela do orçamento, que mostra o mês do maior corte e deixa reduzir despesas ou outros aportes.
+Qualquer outra mudança que cria ou aumenta uma falta (um gasto depois de realizado, uma despesa, uma renda que acaba) abre
+a janela de aviso (`mostrarAvisoDeFalta`): os trechos, a causa e quem recebe menos, com "Ver no fluxo", "Desfazer a mudança"
+e "Seguir assim". A conferência espera o foco sair do campo, para não interromper a digitação.
+O gráfico do cartão segue o motor: o saldo no fim de cada mês e o aporte que entrou nele (`ENGINE.orcadoDoObjetivo`),
+com a linha do definido e o tracejado do necessário (o por mês tem duas escalas: antes da data, a dos aportes; depois, a
+dos gastos, para um gasto grande não achatar os aportes); enquanto o consultor arrasta, mostra a conta teórica, que responde
+na hora. No quadro, "Extras para este
+objetivo" lista as entradas que não vêm todo mês com o que cai delas até a data; marcada, a entrada passa a ter dono
+(`incomes[].destino`): cada ocorrência antes da data vai para o objetivo, até o que ele precisa, e o resto volta para a
+sobra do mês. No Fluxo de 24 meses, os extras aparecem numa linha embaixo do objetivo.
 
 **O Fluxo de 24 meses (a página depois da política; o Fluxo de caixa de antes, com a vida toda, vem logo depois, como Fluxo vida toda).** É onde o consultor passa mais tempo: os 24 meses numa tabela, com as
 entradas e as despesas (abrem por linha; digitar um valor muda aquela linha daquele mês em diante, como no Fluxo de caixa),
@@ -235,9 +273,12 @@ linha.
 
 Preenchida, a carteira é a fonte dos investimentos do patrimônio financeiro: `ENGINE.sincronizaPatrimonio` soma os ativos
 por instituição, titular e tipo em `patrimonio.financeiro` (linhas `daCarteira`, só leitura na página Patrimônio), e daí
-sai o `initialWealth`. Sem carteira, vale o que foi digitado no Patrimônio. Fundo de pensão (previdência fechada), FGTS e
-empréstimos a amigos e familiares não são da carteira: ficam no Patrimônio, digitados, e não somem quando a carteira é
-preenchida ou limpa. Limpar a carteira tira só os investimentos que vieram dela.
+sai o `initialWealth`. Sem carteira, vale o que foi digitado no Patrimônio. O critério é o tipo, não a liquidez: só
+investimentos, PGBL e VGBL vêm da carteira (`ENGINE.DA_CARTEIRA`). Ao entrar a primeira linha da carteira (colada ou
+digitada), as linhas digitadas desses tipos saem, e antes uma janela lista quais são, com o valor, para confirmar ou
+cancelar. Todo o resto (fundo de pensão, FGTS, consórcio, empréstimos a amigos e familiares, e qualquer tipo que for
+criado) fica no Patrimônio, digitado, e não some quando a carteira é preenchida ou limpa. Limpar a carteira tira só o
+que veio dela.
 
 **Macroalocação** (Planejamento, passo 7, depois da Política de investimentos): a mesa da política com as classes nas linhas
 e três colunas: hoje, ideal (o mundo perfeito: tudo em dinheiro, alocando do zero) e recomendada (o ajuste possível agora).
@@ -662,7 +703,7 @@ O plano e a proposta ficam num armazém (`<script id="armazem">`, duplicado nas 
 pelo `sync-motor.js`). Na área logada da Nord Liberta, ele é a API da plataforma. No protótipo:
 
 - **no link publicado no Claude**, é o banco compartilhado do próprio link: um documento por cliente,
-  `planos/<id>` e `propostas/<id>`. Só o dono do link lê e grava (regras `admin`), porque o mesmo link guarda
+  `planos/<id>`, `propostas/<id>` e `versoes/<id>` (as versões finais). Só o dono do link lê e grava (regras `admin`), porque o mesmo link guarda
   clientes reais; quem não é dono vê na página Clientes um aviso e nada mais;
 - **em localhost**, é o armazenamento do navegador, com as duas telas no mesmo computador: o plano de cada cliente
   fica em `nl-db:planos/<id>`.
@@ -787,7 +828,8 @@ amortização: cada parcela é o saldo dividido pelas parcelas que faltam.
   administração (`txAdm`, % da carta) e o fundo de reserva (`fundoReserva`, %), em `parcelas` parcelas desde a 1ª
   (`inicio`; ou as que faltam, `restantes`). Depois da parcela `reajusteApos` (14, se vazio) e a cada 12 depois dela, o
   saldo é reajustado pelo índice do grupo (`reajuste`, % ao ano) e a parcela é refeita. O lance pago do bolso
-  (`lanceValor`) na parcela `lanceParcela` sai do saldo: o prazo continua e a parcela cai. O seguro prestamista
+  (`lanceValor`) na parcela `lanceParcela` sai do saldo e reduz o que o consultor escolhe (`lanceModo`): vazio, a parcela
+  cai e o prazo continua; `'prazo'`, a parcela fica e as últimas somem. O seguro prestamista
   (`seguro.pct`, % ao mês sobre o saldo) soma à parcela. O saldo de hoje que vale é o do extrato (`saldoDevedor`): o
   contrato dá o caminho até zero. A parcela entra no fluxo como a do financiamento, com um degrau a cada reajuste. Com a
   carta de R$ 500 mil, 20% de administração, 2% de fundo e 200 parcelas, a dívida é de R$ 610 mil e a parcela de R$ 3.050;
@@ -798,6 +840,10 @@ amortização: cada parcela é o saldo dividido pelas parcelas que faltam.
   `carta`, `parcelas`, `pagas`, `reajuste` e `reajusteApos`), que sai do fluxo numa despesa fixa própria (`cons.linha`) até
   o fim do prazo. Na contemplação (`contemplacaoEm`; vazia, no fim do prazo, quando o grupo devolve a carta), a carta
   (reajustada) entra no financeiro e a caixa acaba; as parcelas que faltam viram uma dívida, que cai a cada parcela.
+  O lance (`lance`, em reais) é dado na contemplação: a parte embutida (`embutidoPct`, % da carta; o grupo limita, em
+  geral a 30%) sai da própria carta, e o resto, do bolso. O lance todo abate o que falta pagar, pela parcela (vazio) ou
+  pelo prazo (`lanceModo: 'prazo'`), e no financeiro entra a carta menos o lance. Carta de R$ 800 mil, lance de R$ 450
+  mil com 30% embutidos: R$ 240 mil da carta e R$ 210 mil do bolso; sobram R$ 560 mil para o bem e entram R$ 350 mil.
 
 O plano está em valores de hoje: se o índice do grupo só repõe a inflação, o reajuste fica em 0%.
 
@@ -810,6 +856,20 @@ Dentro de um campo de texto, o Ctrl+Z é o do próprio campo. **"Salvar status a
 aberto (até 20, em `nl-pontos`, neste navegador; trocar de cliente apaga os do anterior); **"Restaurar"** lista as fotos,
 com o nome editável, e troca o que está aberto pela escolhida. A restauração é um passo do desfazer: o Ctrl+Z volta de onde
 estava.
+
+**Versão final para o cliente.** O status salvo é rascunho do consultor; a versão final é o relatório do cliente. Em
+**"Versão final ▾"**, o consultor escreve o comentário (o que esta versão traz: "apresentação do plano", "ajuste da
+renda mensal da família", "atualização de 6 meses") e clica em **"Gerar versão final para cliente"**: o plano de agora
+vira a versão N, com data, hora, o nome do planejador e o comentário, gravada no armazém em `versoes/<id>` (`nl-versoes`
+na cópia de trabalho), a mais nova primeiro. A lista mostra todas, com a mais recente marcada como "a que o cliente vê";
+cada uma pode ser restaurada no portal (para editar a partir dela, com Ctrl+Z) ou retirada (dois cliques). Uma versão
+não se edita: muda-se o plano e gera-se outra; o número nunca se repete. Com um cenário aberto, não há como gerar (um
+cenário nunca vai para o cliente), e as pendências do plano aparecem como aviso, sem impedir. **O cliente só vê versões
+finais:** a tela do cliente (`PAPEL` cliente, inclusive o "Ver como o cliente vê") lê a mais recente (`versaoFinal`,
+em `evolucao-patrimonial.html`) e troca para a nova assim que ela é gerada; sem nenhuma, mostra "O seu relatório está
+sendo preparado" no lugar da tela. Ela nunca grava em `nl-plano`, para não trocar o plano em edição do consultor (em
+localhost, os dois dividem o navegador). Só o consultor apresentando (`?apresentar`) vê o plano em edição. Por isso, a
+resposta a uma proposta do cliente só chega a ele com a próxima versão final.
 
 ## Formato do plano
 
@@ -1085,6 +1145,32 @@ oferece usar como valor o que o cliente de fato junta até a data. A venda que e
 da venda são objetivos não comprados: o carro de hoje vendido para a troca) também não acontece: o bem fica com a família,
 e o marco "Venda cancelada" diz por quê (`run` roda a simulação de novo sem ela; `run().vendasCanceladas`). Sem o
 dinheiro da venda, o que faltar aparece como dívida, a partir do mês em que o dinheiro acaba.
+
+**O dia em que o desenho começa.** Na barra do Fluxo vida toda, "O desenho começa em" é o hoje do plano (`inicio`,
+'AAAA-MM-DD'; vazio = 19/09/2026, o dia em que os primeiros planos foram desenhados; um plano novo começa no dia de
+verdade, e "usar hoje" põe o dia de hoje). O mês 0 é sempre a primeira coluna do Fluxo: o mês do motor (que abre na
+semana do dia 5) da semana em que o plano começa. As semanas contam do nascimento, então a semana de hoje pode começar
+uns dias antes ou depois do dia: quem começa num domingo 04/10 já está na semana do dia 5 de outubro, e o mês 0 é
+outubro. O fluxo, as idades de hoje e o calendário de todas as telas partem dele (`ENGINE.TODAY`, `ENGINE.M0`); os
+indicadores de 12 e 24 meses (a poupança, o Fluxo de 24 meses, o quanto cabe) contam os mesmos meses que a tabela mostra.
+O dia do início é do plano, não do relógio: um plano desenhado em outubro e aberto em julho do ano seguinte continua
+começando em outubro (só "usar hoje" ou uma data nova mudam o início). Os planos desenhados antes dessa regra contavam o
+mês pelo dia (de 1 a 4, o mês anterior) e podiam ter um mês 0 fora da tabela; ao abrir, o dia do início fica e os meses
+guardados andam o que o mês 0 andou, como em `mudaInicio` (04/10: outubro vira o mês 0 e o que estava guardado para
+setembro fica antes do início, guardado e fora do desenho). `regraDoInicio: 'semana'` marca o plano já nessa regra.
+Mudar a data não muda o calendário: `ENGINE.mudaInicio` anda com todos os meses guardados no plano (degraus e ajustes
+das linhas, renda desejada, rendas programadas, objetivos e o aporte digitado, compromissos, créditos, adiantamentos,
+vendas e valorizações, a contemplação do consórcio, as parcelas que faltam contadas de hoje), então um aumento marcado
+para março de 2027 continua em março de 2027. O que fica antes do novo início continua guardado, com mês negativo, e
+voltar à data de antes devolve o plano igual (o Ctrl+Z também desfaz). Os valores de hoje (patrimônio, saldos, parcela
+de hoje) não mudam sozinhos: o aviso pede para conferir.
+
+**Editar uma célula no zoom em que ela está.** O valor digitado é o da célula: o da semana na visão semanal, o do mês
+na mensal. A linha guarda o valor de cada ocorrência, então o portal divide pelo peso da linha na coluna
+(`pesoNaColuna`): uma linha semanal pesa 4 ou 5 num mês, uma diluída nas quatro semanas pesa ¼ numa semana, dois
+recebimentos no mês pesam 2. A janela diz em que o valor vira ("A linha é semanal: fica R$ 200 por semana"). O ajuste
+de uma só ocorrência e a faixa de meses seguem a mesma regra. Numa coluna em que a linha não acontece, o valor é o de
+cada ocorrência, e a janela avisa.
 
 **Objetivos no fluxo.** No alto do Fluxo vida toda, uma chave por objetivo (`renderObjetivosNoFluxo`), para mostrar ao
 cliente o efeito de cada um: ligado, ele entra com o patrimônio separado e os aportes, a saída (ou a compra) na data, os custos
