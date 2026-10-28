@@ -52,8 +52,19 @@ A sobra do mês, a capacidade de poupança, o custo de vida e a renda do Orçame
 `ENGINE.mediaDe12Meses`: o que cada linha de fato paga ou recebe em cada um dos próximos 12 meses, dividido por 12. Um
 bônus anual de R$ 30 mil que cai em março pesa R$ 2.500 por mês, mesmo que a linha comece depois de hoje. Ficam fora o que
 acontece uma vez só (frequência pontual) e os ajustes de uma ocorrência. Num planejamento anual (`periodicidade`, na página
-Cliente), o placar do topo mostra a capacidade, os aportes e a folga por ano, como a Política de investimentos; o motor
-continua mensal.
+Cliente), o placar do topo põe a janela do ano em destaque, como a Política de investimentos; o motor continua mensal.
+
+No placar do topo, a poupança é **um indicador só**, lido como uma conta: **Poupança** (entradas menos saídas, a
+capacidade de poupança) − **Nos objetivos** (os aportes definidos) = **A distribuir** (o que ainda não tem destino, a
+antiga "folga"). Depois de preencher os objetivos, o "a distribuir" deveria chegar perto de zero; o que sobra no ano costuma
+ser o 13º e os bônus, que se destinam no Fluxo de 24 meses. Cada parte leva ao lugar onde se mexe nela (o Fluxo vida toda,
+os Objetivos e o Fluxo de 24 meses).
+
+As três partes não mostram a média, porque o cliente nunca viu esse número no extrato. Cada uma aparece em duas janelas:
+**por mês**, a faixa "de R$ X a Y" (`faixaDaSobra`), o mês de menor e o de maior sobra nos próximos 12, contando só as
+linhas mensais e semanais (o 13º, os bônus e as linhas trimestrais, semestrais e anuais caem só em alguns meses e ficam
+fora); e **no ano**, tudo o que sobra nos próximos 12 meses, com o 13º e os bônus. A janela do planejamento
+(`periodicidade`) vai em destaque e a outra embaixo. O Orçamento continua com a média.
 
 ## A ordem das linhas do fluxo de caixa
 
@@ -709,14 +720,97 @@ gravar, porque ele é agendado 1,5 s depois da última mudança.
 - Trocar de cliente ("+ Novo cliente", "ver exemplo") apaga os cenários do anterior.
 
 A página **Cenários** (grupo Com o cliente, fora da sequência do "Próximo") põe o plano e os cenários lado a lado:
-liberdade financeira, investido na liberdade, renda por mês, objetivos alcançáveis, aportes, capacidade de poupança,
-folga e percentual de proteção, com a diferença para o plano em verde (melhor) ou no texto de atenção (pior). Embaixo,
+liberdade financeira, investido na liberdade, renda por mês, objetivos alcançáveis, o que vai para os objetivos, a
+poupança, o que falta distribuir e o percentual de proteção, com a diferença para o plano em verde (melhor) ou no texto de atenção (pior). Embaixo,
 as trajetórias do patrimônio (o que a família tem, menos o que deve, ano a ano), sobrepostas, com um ponto na liberdade
 de cada uma; o plano em marinho, os cenários tracejados nas cores do ponto. Os números saem de `metricasDe`, que roda a
 mesma simulação das páginas com o outro plano e devolve o plano aberto como estava.
 
-O **placar do topo** (capacidade de poupança, aportes, folga, objetivos abaixo da meta, liberdade) fica à vista em todas
+O **placar do topo** (a poupança, com o que vai para os objetivos e o que falta distribuir; objetivos abaixo da meta; liberdade) fica à vista em todas
 as páginas em que se decide o plano (`COM_INDICADORES`); num cenário, cada indicador mostra embaixo o valor do plano.
+
+## O fundo de pensão e o FGTS: uma caixa à parte
+
+O fundo de pensão (previdência fechada) e o FGTS contam no patrimônio financeiro, mas não se misturam com ele: o saldo
+deles é o que vira renda, e por isso fica numa caixa própria (`ENGINE.CAIXAS_PREV`, de `patrimonio.financeiro[]` com tipo
+`fechada` ou `fgts`). O financeiro da simulação começa sem eles. A configuração fica em `conv` (a janela "Configurar…",
+embaixo da linha, no Mercado financeiro):
+
+- **Até a concessão.** O saldo rende à rentabilidade real projetada (`rentab`, % ao ano; vazia, a taxa do plano) e recebe
+  as contribuições mensais até a idade da concessão (`aos`; vazia, a de parar de trabalhar da pessoa, ou a da liberdade, ou
+  65): a da pessoa (`contribPessoa`), que sai do fluxo numa despesa fixa própria (`conv.linha`, lançada pelo portal como a
+  do plano de saúde e encerrada pelo motor na concessão), e a da patrocinadora (`contribPatroc`), que não sai. A janela
+  mostra a conta em duas partes: o saldo de hoje vezes o fator de capitalização ((1 + taxa) elevado aos anos: quanto vira
+  cada R$ 1 de hoje) e as contribuições, cada uma rendendo do mês em que entra até a concessão. Os campos antigos
+  (`rendaAos`, `rendaForma`, `rendaAnos`, `contrib`) passam para `conv` ao abrir a janela (`contrib` vira `contribPatroc`).
+- **Na concessão.** Um saque à vista (`saque`, % do saldo; muitos regulamentos permitem até 25%) vai para o financeiro, e
+  o resto vira renda numa das formas (`forma`, `ENGINE.FORMAS_PREV`), as que os regulamentos das fechadas costumam
+  oferecer: **renda vitalícia** atuarial, pela tábua BR-EMSsb-v.2026 da SUSEP (vigente de 01/07/2026 a 30/06/2031;
+  `sexo`, a taxa da fase de renda `juros` e reversão `rev`, a parte da renda que continua para o cônjuge, com a tábua
+  `sexoRev`); **renda por prazo certo** (`anos`; o saldo segue rendendo e a renda é a que o zera no fim); **saque
+  programado** (`pct`, % do saldo por mês; o resto segue rendendo e a renda muda todo mês); **benefício definido** (a renda
+  que o plano informa, `rendaBD`; o saldo vira a reserva dela pela tábua); e **saque total à vista**. Na vitalícia e no
+  benefício definido, `pagamentos` diz se são 12 ou 13 por ano (o abono anual, que cai em dezembro: o fluxo mostra cada
+  pagamento, não a média).
+- **Na evolução patrimonial.** A caixa aparece até a concessão; no mês dela, acaba. O saque à vista entra no patrimônio
+  financeiro (uma entrada do mês no fluxo, "Saque à vista de …") e o resto vira a renda e sai do patrimônio: daí em diante,
+  o que a família tem são as entradas da renda no fluxo, todo mês, pelo prazo da forma escolhida (para sempre na vitalícia).
+  A janela mostra a divisão em reais: o saldo na data, o que fica no financeiro e o que vira renda.
+- **A taxa da fase de renda.** Não é a do acúmulo: `juros` (% ao ano, real) é a taxa atuarial da renda vitalícia e do
+  benefício definido, e a rentabilidade do saldo enquanto paga a renda por prazo certo e o saque programado. Vazia, é a
+  **taxa parâmetro da Previc** para a duration da renda: o ponto da Estrutura a Termo de Taxa de Juros Média do ano
+  (`ENGINE.ETTJ_PREVIC`, o Anexo da Portaria Previc nº 324/2026, de 1 a 33 anos, de meio em meio ano) mais próximo da
+  duration. A duration é a de Macaulay (o termo econômico, que não é a duração da renda): o prazo médio dos pagamentos,
+  cada um pesado pelo valor de hoje (na vitalícia, também pela chance de estar vivo; no saque programado, encolhendo com o
+  saque). Como a duration depende da taxa, a conta dá três voltas. A janela mostra a duration, o ponto, a taxa parâmetro e o corredor (do limite inferior ao superior do Anexo), e
+  avisa quando a taxa informada fica fora dele. A cada ano a Previc publica uma nova estrutura: troque os pontos.
+- **A tábua.** `ENGINE.BR_EMS` guarda os qx de 0 a 116 anos, masculina e feminina, da planilha oficial da SUSEP
+  (tabuas-br-ems-2010-2015-2021-010721.xlsx, aba BR-EMSsb-2026). A anuidade é a antecipada anual (a soma de vⁿ vezes a
+  chance de estar vivo em n anos), menos 11/24 para os pagamentos mensais, interpolada na idade com fração; com
+  reversão, mais a parte do cônjuge (a anuidade dele menos a conjunta). A janela abre a conta termo a termo (`ENGINE.termosDaAnuidade`): a idade, o
+  qx, a chance de estar vivo, o desconto e o termo de cada ano, a soma, o ajuste de 11/24 e a divisão do saldo.
+
+A renda entra como uma renda da aposentadoria (em `ENGINE.PASSIVE`, com `daCaixa`, que nunca é gravada em `plan.passive`;
+a do saque programado leva a série mês a mês, lida por `ENGINE.netEm`) e aparece no fluxo, só para ler, e nos períodos da
+Liberdade financeira. A renda é líquida igual à bruta: o imposto ainda não entra. Na área do cliente, o gráfico da
+evolução desenha a caixa numa faixa verde mais clara, acima do financeiro ("Fundo de pensão e FGTS"), e a dica do mouse
+mostra o saldo dela em cada data até a concessão e, depois, quanto a renda paga naquele mês.
+
+## O consórcio
+
+O consórcio muda de lado quando é contemplado: enquanto a família paga sem ter sido contemplada, ele é um **crédito** (o
+que já pagou é patrimônio); contemplada e com o bem comprado, ela passa a ser **devedora**. Não há juros nem sistema de
+amortização: cada parcela é o saldo dividido pelas parcelas que faltam.
+
+- **Contemplado: a dívida de um bem** (`modalidade: 'consorcio'` no bem ou na dívida; `ENGINE.contratoDoConsorcio`, que
+  `contratoDaDivida` devolve com a mesma forma do financiamento). A dívida é a carta de crédito (`carta`) mais a taxa de
+  administração (`txAdm`, % da carta) e o fundo de reserva (`fundoReserva`, %), em `parcelas` parcelas desde a 1ª
+  (`inicio`; ou as que faltam, `restantes`). Depois da parcela `reajusteApos` (14, se vazio) e a cada 12 depois dela, o
+  saldo é reajustado pelo índice do grupo (`reajuste`, % ao ano) e a parcela é refeita. O lance pago do bolso
+  (`lanceValor`) na parcela `lanceParcela` sai do saldo: o prazo continua e a parcela cai. O seguro prestamista
+  (`seguro.pct`, % ao mês sobre o saldo) soma à parcela. O saldo de hoje que vale é o do extrato (`saldoDevedor`): o
+  contrato dá o caminho até zero. A parcela entra no fluxo como a do financiamento, com um degrau a cada reajuste. Com a
+  carta de R$ 500 mil, 20% de administração, 2% de fundo e 200 parcelas, a dívida é de R$ 610 mil e a parcela de R$ 3.050;
+  depois de 14 parcelas, R$ 567.300 reajustados em 3% dão R$ 584.319 e a parcela vai a R$ 3.141,50.
+- **A contemplar: um crédito no patrimônio** (tipo `consorcio` no Mercado financeiro, sem liquidez, configurado em `cons`
+  pela janela "Configurar…"; `ENGINE.caixaDoConsorcio`). O "Valor" da linha é o que já foi pago. Ele fica numa caixa à
+  parte do financeiro (como o fundo de pensão, na mesma faixa do gráfico) e cresce a cada parcela (`parcela`, com
+  `carta`, `parcelas`, `pagas`, `reajuste` e `reajusteApos`), que sai do fluxo numa despesa fixa própria (`cons.linha`) até
+  o fim do prazo. Na contemplação (`contemplacaoEm`; vazia, no fim do prazo, quando o grupo devolve a carta), a carta
+  (reajustada) entra no financeiro e a caixa acaba; as parcelas que faltam viram uma dívida, que cai a cada parcela.
+
+O plano está em valores de hoje: se o índice do grupo só repõe a inflação, o reajuste fica em 0%.
+
+## Desfazer e status salvos (portal)
+
+No alto de todas as páginas, ao lado do "Gravado às…": **↶ e ↷** desfazem e refazem as últimas mudanças no que está
+aberto (Ctrl+Z, e Ctrl+Y ou Ctrl+Shift+Z), até 40 passos (`HIST_MAX`). O histórico fica só na aba (some ao recarregar) e
+recomeça ao abrir outro plano ou cenário; digitar seguido num mesmo campo conta como um passo, e trocar de página não conta.
+Dentro de um campo de texto, o Ctrl+Z é o do próprio campo. **"Salvar status atual"** guarda uma foto nomeada do que está
+aberto (até 20, em `nl-pontos`, neste navegador; trocar de cliente apaga os do anterior); **"Restaurar"** lista as fotos,
+com o nome editável, e troca o que está aberto pela escolhida. A restauração é um passo do desfazer: o Ctrl+Z volta de onde
+estava.
+
 ## Formato do plano
 
 **Importar e exportar em JSON.** O plano inteiro vai e volta num arquivo JSON, neste formato, solto ou como o armazém
