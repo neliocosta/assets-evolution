@@ -30,8 +30,11 @@ Situação: **fonte** (informada aqui, só aqui), **ligada** (lida da fonte, sem
 
 | Variável | Caminho no plano | Situação | Quem usa |
 |---|---|---|---|
+| Periodicidade do planejamento | `periodicidade` ('mensal' ou 'anual'; vazio = mensal) | fonte, na página Cliente (coleta: `orcamentoModo`) | Política de investimentos (a sobra e os aportes por mês ou por ano); outras partes podem passar a usar |
 | Nome do cliente | `name` | fonte | "Planejamento de Vida" e as iniciais no alto da área do cliente, nomes do titular (primeiro nome) |
 | Nome do cônjuge (completo) | `conjugeNome` | fonte (vazio: o segundo nome de "Camila e Rafael Souza") | iniciais no alto da área do cliente; o primeiro nome no IR, sócios, seguros, "de quem é a renda" |
+| Dia em que o desenho começa (o hoje do plano) | `inicio` ("AAAA-MM-DD"; vazio = 19/09/2026) | fonte, na barra do Fluxo vida toda; um plano novo começa no dia de hoje. Mudar a data anda com todos os meses guardados no plano (`ENGINE.mudaInicio`): o calendário não muda | mês 0 de toda a linha do tempo (`ENGINE.M0`, a primeira coluna do Fluxo: o mês da semana do início), idades de hoje, fluxo, rótulos de mês em todas as telas |
+| Regra do mês 0 | `regraDoInicio` ('semana') | derivado: marca de migração, gravada pelo motor (`normaliza`) ao abrir um plano antigo, que mantém `inicio` e anda os meses guardados para o mês 0 ser a primeira coluna (o calendário não muda); o portal grava no plano novo | só a conversão de planos antigos |
 | Data de nascimento do titular e do cônjuge | `nascimento`, `conjugeNascimento` ("AAAA-MM" ou "AAAA-MM-DD") | fonte, obrigatórias (mês e ano; o dia é opcional) | idade exata de hoje e nos marcos (simulação, eixo da evolução, períodos da liberdade) |
 | Idade de hoje do titular e do cônjuge | `age`, `spouseAge` | calculada da data de nascimento (`ENGINE.sincronizaIdades`); informada só num plano antigo, sem a data | fase da vida, seguros, IR, casal (`ENGINE.casalDe`) |
 | Tipo de plano | `tipo` | fonte | casal |
@@ -66,6 +69,9 @@ por outra página (parcela de dívida, plano de saúde) aparecem com a média e 
 | Bruto de cada recebimento | `incomes[].gross` | fonte | rendimentos tributáveis e INSS (IR), pró-labore (sócios) |
 | Tributável no IR | `incomes[].taxable` | fonte (lucros: não, sozinho) | rendimentos tributáveis (IR) |
 | Categoria (salário, pró-labore, lucros, aluguel…) | `incomes[].origin`, `kind` | fonte | ativa ou passiva, INSS, sócios |
+| Descontos de uma renda | bruto menos líquido | calculada (digitar os descontos muda o líquido) | Orçamento |
+| O que vem junto de uma renda (13º, remuneração variável, bônus) | linhas próprias em `incomes[]`, presas à renda por `de` | fonte (cada uma é uma linha do Fluxo) | simulação, Orçamento |
+| Valor do 13º | `incomes[].segue`: o id do salário | ligada ao líquido do salário, mês a mês, repartida entre as datas (`dates`: dezembro, ou novembro e dezembro) | simulação |
 | Despesas | `expenses[]` | fonte | simulação, custo de vida, padrão de vida |
 | Parcela de uma dívida | linha "Parcela: nome" em `expenses` | ligada ao Patrimônio (a dívida cria e acerta a linha) | fluxo |
 | Renda que um bem gera | `patrimonio.bens[].renda` → linha de entrada | ligada ao Fluxo | patrimônio do cliente |
@@ -75,7 +81,7 @@ por outra página (parcela de dívida, plano de saúde) aparecem com a média e 
 
 | Variável | Caminho | Situação | Quem usa |
 |---|---|---|---|
-| Financeiro por instituição e tipo (investimento, PGBL, VGBL) | `patrimonio.financeiro[]` | fonte | `initialWealth` (simulação), sucessão, seguros |
+| Financeiro por instituição e tipo (investimento, PGBL, VGBL, previdência fechada, FGTS, consórcio a contemplar, empréstimo a amigos e familiares) | `patrimonio.financeiro[]` (`tipo`: vazio, 'pgbl', 'vgbl', 'fechada', 'fgts', 'consorcio', 'emprestimo'; os nomes em `ENGINE.TIPOS_FINANCEIRO`). O FGTS e a previdência fechada não têm liquidez (`ENGINE.SEM_LIQUIDEZ`). O fundo de pensão e o FGTS são uma caixa à parte, que vira renda, configurada em `conv` (`aos`, `rentab`, `contribPessoa` (sai do fluxo na despesa `linha`), `contribPatroc`, `saque`, `forma`, `anos`, `pct`, `rendaBD`, `sexo`, `juros`, `rev`, `sexoRev`, `pagamentos`; `ENGINE.CAIXAS_PREV`, tábua `ENGINE.BR_EMS`). O consórcio a contemplar é configurado em `cons` (`carta`, `parcelas`, `pagas`, `parcela` (sai do fluxo na despesa `linha`), `reajuste`, `reajusteApos`, `contemplacaoEm`, `lance`, `embutidoPct` (% da carta no lance), `lanceModo` (vazio: a parcela cai; 'prazo': o prazo cai); `ENGINE.caixaDoConsorcio`). Os campos antigos `rendaAos`, `rendaForma` e `rendaAnos` ainda são lidos quando `conv` não diz | com carteira, os investimentos são **calculados** dela (`ENGINE.sincronizaPatrimonio`: soma dos ativos por instituição, titular e tipo, linhas `daCarteira`, só leitura); com ela, saem só as linhas digitadas de investimentos, PGBL e VGBL (`ENGINE.DA_CARTEIRA`, `ENGINE.saiComACarteira`; a janela de aviso lista quais antes de apagar); fundo de pensão, FGTS, consórcio, empréstimos e qualquer tipo novo continuam fonte, digitados. Sem carteira, fonte | `initialWealth` (simulação), sucessão, seguros |
 | De quem é cada instituição do financeiro | `patrimonio.financeiro[].titularidade` (titular, cônjuge; vazio num casal: do casal, conjunta) | fonte | quem é a família (onde cada pessoa investe); base futura do % do patrimônio de cada pessoa nos seguros |
 | Participações (nome, valor de hoje) | `patrimonio.participacoes[]`: `nome`, `valor` | fonte | `partValue`, sucessão |
 | Valorização da participação (ao ano, pontual, valor esperado numa data) e venda planejada | `patrimonio.participacoes[].valorizacao[]` (`tipo`: `taxa`, `pontual` ou `alvo` com `em` e `valor`: o valuation esperado), `.venda` (data, preço, custos) | fonte (consultor); o preço de venda informado vale também como valor esperado no mês da venda | evolução patrimonial (participações), Fluxo de caixa (custos da venda), financeiro (o líquido da venda) |
@@ -85,10 +91,15 @@ por outra página (parcela de dívida, plano de saúde) aparecem com a média e 
 | Proteção e apólice de cada bem | `patrimonio.bens[].protecao`, `apolice` | fonte (marcada na Gestão de riscos, gravada no bem) | ameaça 6 |
 | Valorização do bem (ao ano, por um período, ou pontual) | `patrimonio.bens[].valorizacao[]` | fonte (consultor) | evolução patrimonial (valor dos bens), preço projetado da venda |
 | Venda planejada do bem: data, valor de venda, custos (% ou R$) | `patrimonio.bens[].venda` | fonte (consultor); valor de venda vazio = o projetado | evolução patrimonial, Fluxo de caixa (custos e saldo devedor transferido), fim da renda e da parcela do bem |
+| Objetivos que a venda financia e quanto do líquido vai para cada um | `venda.destinos` (`[{ objetivo, valor }]`, na ordem; `valor` vazio = o que sobra do líquido depois dos anteriores; juntos, nunca passam do líquido), em `bens[]` e `participacoes[]`. Planos antigos (`venda.objetivo`, `venda.paraObjetivo`) viram a lista ao abrir (`ENGINE.normaliza`) | fonte, escolhida no objetivo ("Financiar com patrimônio") ou no destino da venda, no bem; é a mesma variável nos dois lugares | aporte necessário do objetivo (`ENGINE.partilhaDaVenda`, `vendasDoObjetivo`, `saldoDasVendas`), simulação (o líquido vai para o saldo do objetivo no mês da venda), cartão do objetivo na tela do cliente |
 | Valor projetado, saldo devedor transferido na venda e líquido da venda | `ENGINE.trajetoriaDoBem` | calculada (não gravada) | Patrimônio, evolução patrimonial |
 | Outras dívidas | `patrimonio.dividas[]` | fonte | patrimônio total, sucessão |
 | Saldo devedor de hoje (do extrato) | `saldoDevedor` (em `bens[]` e `dividas[]`) | fonte | patrimônio total, evolução patrimonial (cai no ritmo do contrato), sucessão |
+| Consórcio contemplado (a dívida sem juros) | `modalidade: 'consorcio'`, `carta`, `txAdm`, `fundoReserva`, `parcelas`, `inicio` ou `restantes`, `reajuste`, `reajusteApos`, `lanceValor`, `lanceParcela`, `lanceModo` (vazio: a parcela cai; 'prazo': o prazo cai), `seguro.pct` (em `bens[]` e `dividas[]`) | fonte (consultor, no cartão da dívida) | `ENGINE.contratoDoConsorcio`: as parcelas, o saldo pelo contrato e a linha da parcela no fluxo |
+| Outras linhas do fluxo que também pagam a dívida (sem contrato, parcela e juros: a construtora) | `outrasLinhas` (ids de despesas, em `dividas[]` e `bens[]`) | fonte (consultor, no cartão da dívida) | o saldo cai na proporção do que `linha` e `outrasLinhas` pagaram (`ENGINE.saldoDevedorEm`) |
 | Contrato da dívida: valor liberado, parcelas contratadas, mês da 1ª parcela, parcela atual, juros (ao ano ou ao mês), sistema, IOF, seguro prestamista, tarifas | `credito`, `parcelas`, `inicio` (AAAA-MM), `parcela`, `juros` e `jurosPeriodo` (vazio: ao ano; `mes`), `sistema`, `iof`, `seguro.{modo,valor,pct}`, `tarifas` (em `bens[]` e `dividas[]`) | fonte | `ENGINE.contratoDaDivida`, linha da parcela no Fluxo de caixa |
+| Crédito novo, contratado no futuro: nome, valor liberado, mês em que o dinheiro cai, parcelas, juros ao mês, sistema | `creditos[].{nome,valor,em,parcelas,juros,sistema}` e `linha` (o id da despesa da parcela) | fonte (consultor, no alto do Fluxo de caixa) | simulação (o valor é uma entrada de caixa, "Crédito: nome"; o saldo vai para as dívidas), linha da parcela no Fluxo de caixa (`ENGINE.contratoDoCredito`) |
+| Juros da dívida quando o dinheiro acaba (% ao mês; vazio: 4%) | `jurosDivida` | fonte (consultor, no alerta do alto do Fluxo vida toda) | simulação: os juros da reserva negativa (a saída "Juros da dívida"), o alerta e a dívida em 12 meses |
 | Adiantamentos da dívida: daqui a quantos meses, valor, o que reduz (prazo ou parcela) | `amortizacoes[].{em,valor,modo}` (em `bens[]` e `dividas[]`) | fonte (consultor, na gaveta de evolução) | saldo e quitação (`ENGINE.contratoDaDivida`), linha da parcela no Fluxo de caixa (o valor sai no mês) |
 | Parcelas que faltam | `restantes` | calculada pelo mês da 1ª parcela e pelos adiantamentos (`ENGINE.restantesDaDivida`); digitada só sem o mês da 1ª parcela | fim da linha da parcela, saldo ao longo do tempo, quitação |
 | CET, taxa pela parcela, IOF, valor financiado, saldo pelo contrato, o que falta pagar | `ENGINE.contratoDaDivida` | calculada (não gravada) | cartão da dívida, gaveta de evolução |
@@ -131,13 +142,51 @@ por outra página (parcela de dívida, plano de saúde) aparecem com a média e 
 
 | Variável | Caminho | Situação | Quem usa |
 |---|---|---|---|
+| Como o bem do objetivo é comprado: à vista, entrada + financiamento ou consórcio | `objectives[].compra`: `modo` ('', 'financiamento', 'consorcio'); no financiamento, `sistema`, `parcelas`, `juros` (% ao ano), `iof`, `amortizacoes` [{ `em` (mês do plano), `valor`, `modo` }]; no consórcio, `carta` (vazia = o preço), `parcelas`, `txAdm`, `fundoReserva`, `reajuste`, `inicio` (mês do plano), `lancePct` (% do saldo devedor na contemplação), `embutidoPct` (% do crédito atualizado no mês do lance; o crédito para o bem é esse crédito menos o embutido), `lanceModo`. O valor financiado (preço − entrada) é calculado; no consórcio com `lancePct`, o necessário na data (`amount`) também: só o lance do bolso; o mês do lance é a data do objetivo (`months`) | fonte (consultor, em "Como vai comprar" no cartão do objetivo; os adiantamentos na gaveta da evolução) | `ENGINE.compraDoObjetivo` (o contrato, `contratoDaDivida`), fluxo planejado, simulação, área do cliente (o detalhe do objetivo e o simulador, que não grava) |
+| Valor do objetivo que vira bem (o preço) e o necessário na data (a entrada) | `objectives[].preco` (vazio: o preço é o necessário), `objectives[].amount` | fonte (consultor, no cartão do objetivo; o preço só aparece no tipo "Vira bem"). O preço é só para mostrar (`ENGINE.precoDoObjetivo`); o aporte, a simulação e o bem que entra no patrimônio usam o necessário na data | cabeçalho do cartão do objetivo, cartão do objetivo na tela do cliente |
+| A trilha dos objetivos: o guardado acumulado (os aportes mensais previstos de todos os objetivos) no fim de cada ano | `dadosDosObjetivos(P, s).trilha` na área do cliente, de `ENGINE.orcadoDoObjetivo` | calculada (não gravada) | "Os seus objetivos" (área do cliente): a referência do acompanhamento pelo acumulado |
+| Orçado de cada objetivo mês a mês (aporte, o que entra de uma vez, saldo) e os três cortes antes da data | `ENGINE.orcadoDoObjetivo`, `ENGINE.cortesDoObjetivo` | calculada da simulação (não gravada) | capítulo Objetivos ("Como realizar cada objetivo"). A foto do plano (`objectives[].foto`) e o realizado (`objectives[].realizado`) ficaram fora da ferramenta, guardados em `reaproveitar/acompanhamento.js` |
 | Descrição de cada objetivo (por que ele importa) | `objectives[].descricao` | fonte (coleta: `obj_descricao`; no portal, no bloco Propósito da página Objetivos) | Propósito |
-| Ordem dos objetivos | `objetivosOrdem` (ids; `seguranca` e `liberdade` para os dois fixos) | fonte (a ordem declarada na coleta; no portal, as setas) | Propósito |
+| Ordem dos objetivos (a prioridade do cliente) | `objetivosOrdem` (ids; `seguranca` e `liberdade` para os dois fixos) | fonte (a ordem declarada na coleta; no portal, as setas) | Propósito, a divisão da sobra no fluxo planejado (`ENGINE.prioridadeDosObjetivos`), a ordem dos objetivos no portal e nas abas de "Como realizar cada objetivo" |
 | Segurança e liberdade financeira na lista, e as descrições delas | `ENGINE.objetivosDoProposito` | calculada (sempre na lista; a da liberdade usa a data da liberdade e a renda desejada) | Propósito |
 | A frase do propósito | `ENGINE.fraseDoProposito` | calculada (singular ou plural pelo tipo de plano) | Propósito |
 | Quem cuida do planejamento: nome, certificação, telefone, e-mail, foto | `consultor` | fonte, na página Apresentação; na plataforma, viria do cadastro do planejador (é do escritório, não do cliente) | Propósito |
 | Data do relatório | `dataRelatorio` ("AAAA-MM-DD") | fonte, na página Apresentação; vazia, a data de hoje | Propósito |
 | Mensagem final do planejador | `mensagemFinal` | fonte, na página Apresentação (capítulo Evolução patrimonial); vazia, a página mostra só a assinatura e o contato | O caminho daqui para frente |
+
+## Política de investimentos
+
+| Variável | Caminho no plano | Situação | Quem usa |
+|---|---|---|---|
+| Compromissos financeiros (a reforma, um imposto a pagar) | `compromissos[]`: `id`, `titulo`, `descricao`, `em` (o mês, a partir de hoje), `valor` | fonte (coleta: `comprList`; no portal, na página Política de investimentos) | simulação (saem do patrimônio financeiro no mês marcado: `out_comp_<id>`), caixinha Compromissos, fluxo de caixa |
+| Patrimônio e aporte da reserva de emergência | `politica.reserva` (vazio = a reserva ideal da Gestão de riscos, até onde o patrimônio com liquidez dá), `politica.reservaMensal` | fonte (consultor) | Política de investimentos; na simulação, a reserva fica dentro da liberdade |
+| Patrimônio e aporte de cada objetivo | `objectives[].dedicated`, `objectives[].planned` | fonte: a mesma variável no cartão do objetivo e na política | simulação, Política de investimentos |
+| Quando cada objetivo começa a receber | `objectives[].aporteDe` (o primeiro mês do aporte), `objectives[].dedicadoEm` (o mês em que o patrimônio é separado); vazio = hoje | fonte (consultor, no cartão do objetivo) | simulação, necessário e curva do cartão, Política de investimentos (a conferência mês a mês dos próximos 12 meses, `ENGINE.orcamentoMesAMes`; o que começa depois deles fica fora das contas), Sankey e tabela da área do cliente ("a partir de") |
+| Aporte digitado num mês do fluxo planejado | `objectives[].programa` (`{ mês: valor }`, nos próximos 24 meses; sem o mês, vale a sugestão) | fonte (consultor, na página Fluxo de 24 meses) | simulação (`run().programa`) |
+| Extra com dono: a entrada que não vem todo mês (13º, bônus, PLR) destinada a um objetivo | `incomes[].destino` (o id do objetivo; uma entrada vai para um objetivo só) | fonte (consultor, em "Extras para este objetivo", no cartão do objetivo) | fluxo planejado (`run().programa`: cada ocorrência antes da data vai para o objetivo, até o que ele precisa, e o resto volta para a sobra do mês; `meses[].extras`) e a simulação depois dos 24 meses (`ENGINE.extraDoMes`) |
+| Faltas da poupança para objetivos | `run().programa.faltas` (`de`, `ate`, `valor`, `max`, `total`, `quem`, `causa`: `{rotulo, tipo, obj, freq, valor}`, `precisa` e `precisaAte`: o dinheiro a mais, somando os meses de `de` até `precisaAte`, que resolve o primeiro mês) | calculada (não gravada): os trechos em que a caixa de curto prazo não volta a zero em 12 meses e o aporte cai, do objetivo de menor prioridade para o de maior | aviso no topo ("Nos objetivos"), no alto da página Objetivos e do Fluxo de 24 meses; dica das células cortadas (`programa.meses[].cortado`) |
+| Poupança para objetivos | `plannedTotal()` no portal: a soma dos `planned` de quem recebe hoje (o que guarda toda a sobra, pela média do fluxo planejado); `necessariaTotal()`: a soma dos `required` | calculada (não gravada) | topo ("Para objetivos" e "necessária"), "A distribuir", Cenários |
+| O que ainda cabe guardar por mês (A distribuir) | `ENGINE.folgaDosAportes(run())` (guardado em `run().folga`) | calculada (não gravada): o maior aporte a mais, fixo, de menor prioridade e por todo o horizonte, que o fluxo planejado nunca corta | topo ("A distribuir"), o valor fixo equivalente de quem guarda toda a sobra (`planned`), "guardar toda a sobra" e "Guardar só o que cabe" |
+| Até onde as despesas podem cair no cenário de reduzir custos | `politica.cortes` (`adj` e `fix`, em %; 30 e 0 de início) | fonte (consultor, na janela do cenário) | cenário de reduzir custos |
+| Objetivo ligado ao fluxo de caixa | `objectives[].ligado` (`false`: desligado; sem o campo, ligado) | fonte (consultor, na chave de cada objetivo na Política de investimentos; os novos nascem desligados) | simulação (`ENGINE.configure` só simula os ligados), Política de investimentos, topo, área do cliente |
+| As caixinhas: patrimônio, aporte, horizonte e estratégia de cada uma; a liberdade com o restante; a renda líquida e o padrão de vida (renda − sobra) | `ENGINE.politicaDeInvestimentos` (`renda`, `padrao`, `caixinhas`), `ENGINE.horizonteDe` | calculada (não gravada) | Política de investimentos (portal e cliente), resumo do caso |
+| Estratégia de cada objetivo pelo prazo | `objectives[].profile` (ou `rateM`) antes dos 24 meses finais; nos 24 finais, a conservadora: `ENGINE.taxaDoObjetivo` (a taxa mês a mês), `caixinha.conservadorEm` (o mês da troca; 0 = já está) | fonte (a escolhida, consultor) e calculada (a troca) | aporte necessário, curva do cartão, simulação, fluxo planejado, Política de investimentos |
+| Quanto do objetivo está coberto | `caixinha.cobertoHoje` (o separado hoje, rendendo até a data, contra o valor; sem aportes) e `o.ratio` (com os aportes, pela simulação) | calculada (não gravada) | As caixinhas, uma a uma |
+| Alocação de cada caixinha, por classe | `objectives[].alocacao`; `politica.alocacao.reserva`, `.compromissos` (frações por classe de `ENGINE.CLASSES_CARTEIRA`, com a `liquidez` como o restante; vazio = a sugerida, `ENGINE.alocacaoSugerida`); a liberdade não tem: é o que passa dos mínimos | fonte (consultor, ao abrir a caixinha na Política de investimentos) | `ENGINE.alocacaoDasCaixinhas` (em reais): o mínimo de cada classe na ideal da Macroalocação |
+
+## Carteira (atual, macroalocação e microalocação)
+
+| Variável | Caminho no plano | Situação | Quem usa |
+|---|---|---|---|
+| A carteira de hoje, ativo a ativo | `carteira.ativos[]`: `id`, `instituicao`, `titular` ('titular', 'conjuge' ou 'dep:' + o nome do dependente; vazio num casal = do casal), `nome`, `classe` (um id de `ENGINE.CLASSES_CARTEIRA`; vazio = a classificar), `subclasse`, `vencimento` (o texto da planilha: Diária, D + 30, Previdência…), `tipo` ('' investimento, 'pgbl', 'vgbl'), `valor`, `obs` | fonte: colada da planilha do consultor e editada na página Carteira atual; é a fonte dos investimentos do financeiro | Macroalocação, Microalocação, `patrimonio.financeiro`, `initialWealth` |
+| Classe de cada ativo já classificado | base de ativos (no protótipo, `localStorage['nl-base-ativos']`, nome do ativo → classe; na plataforma, a base da Nord) | fonte (consultor), compartilhada entre clientes | classificação dos ativos colados sem classe |
+| Perfil da carteira modelo e alocação ideal | `carteira.modelo` ('caixinhas': só os mínimos das caixinhas, o padrão sem modelo e sem ideal digitada; ou conservador, moderado, sofisticado ou agressivo: os perfis 0 a 3), `carteira.ideal` (frações por classe, como 0.37) | fonte (consultor); escolher o perfil preenche a ideal com `ENGINE.CARTEIRAS_MODELO` (ref. abr/26). A ideal efetiva nunca fica abaixo do mínimo das caixinhas (`carteira.classes[].minimo`, calculado: `ENGINE.alocacaoDasCaixinhas`) | Macroalocação |
+| Alocação recomendada | `carteira.recomendada` (frações por classe); a classe sem valor segue a ideal | fonte (consultor) | Macroalocação, Microalocação |
+| Os motivos da recomendação | `carteira.justificativa` (texto, um motivo por linha) | fonte (consultor), na Macroalocação | capítulo Carteira do cliente (a carteira recomendada e o resumo do caso) |
+| Recursos novos a alocar | `carteira.aporte` | fonte (consultor); a referência é a sobra do mês × 12, com o botão "usar" | total da ideal e da recomendada (carteira de hoje + aporte) |
+| O que fazer com cada ativo de hoje | `carteira.ativos[].acao` ('manter', 'parcial', 'integral', 'portabilidade'; nomes em `ENGINE.ACOES_ATIVO`; a coluna Ação da planilha é lida), `.resgate` (R$, no resgate parcial) | fonte (consultor) | Microalocação |
+| Os ativos novos | `carteira.novos[]`: `id`, `instituicao`, `nome`, `classe`, `valor` | fonte (consultor) | Microalocação |
+| Liquidez diária (o restante), diferenças, o que fica, o resultado por classe e o caixa | `ENGINE.carteiraDoPlano` | calculada (não gravada) | Macroalocação, Microalocação, pendências |
 
 ## Diagnóstico
 
@@ -167,7 +216,19 @@ por outra página (parcela de dívida, plano de saúde) aparecem com a média e 
 
 | Variável | Caminho | Situação |
 |---|---|---|
+| Capítulos fora da apresentação | `capitulosOcultos` (ids: `proposito`, `diagnostico`, `gestao`, `tributario`, `patrimonio`, `riscos`, `objetivos`, `politica`, `carteira`, `evolucao`) | fonte; o interruptor de cada capítulo na página Apresentação. Fica pelo menos um |
 | Vídeos teórico e do caso de cada capítulo | `videos['cap-<capítulo>-teoria']`, `['cap-<capítulo>-caso']` | fonte; o teórico é o mesmo para todos e deveria ficar numa biblioteca do escritório |
+
+## Cenários (portal)
+
+Um cenário não cria variável nova: é uma **fotografia** do plano inteiro, com nome, que o consultor edita no lugar do plano
+para testar uma decisão. Fica fora do plano, em `nl-cenarios` neste navegador, e nunca vai para o cliente.
+
+| Variável | Caminho | Situação |
+|---|---|---|
+| Os cenários do plano (até três) | `nl-cenarios.lista[]`: `id`, `nome`, `em`, `dados` (o plano inteiro) e `anterior` (o plano guardado ao promover outro) | fonte; nome digitado na página Cenários |
+| O cenário aberto | `nl-cenarios.ativo` | fonte; com ele, todas as páginas editam `dados` do cenário |
+| Os números da comparação e o "plano: X" do placar | `metricasDe(plano)` | calculada, a cada vez, pela mesma simulação das páginas |
 
 ## Repetições a resolver, em ordem
 
@@ -177,8 +238,21 @@ por outra página (parcela de dívida, plano de saúde) aparecem com a média e 
 2. **Nome e idade das vidas do plano de saúde**: abrir com o titular, o cônjuge e os dependentes da Cliente.
 3. **% do patrimônio de cada pessoa nos seguros**: pela titularidade, que já existe nos bens e no financeiro (este
    só usado, por enquanto, no retrato da família) e falta nas participações.
-4. **Liquidez de cada aplicação** (quando a carteira do cliente for recebida): a escada de D+0 a 1 ano sai dela.
+4. **Liquidez de cada aplicação**: a carteira já chega com o vencimento de cada ativo (`carteira.ativos[].vencimento`);
+   falta ler dele a escada de D+0 a 1 ano (`riscos.liquidez`, hoje digitada).
+5. **Classes da carteira × classes da experiência**: `ENGINE.CLASSES_CARTEIRA` (15 classes da macro alocação) e
+   `ENGINE.CLASSES_ATIVOS` (11, na experiência com investimentos da página Cliente) dizem quase a mesma coisa com cortes
+   diferentes.
 
+Resolvida em 18/10/2026, por decisão do usuário: carteira × patrimônio financeiro (a carteira colada manda no financeiro
+por instituição; fundo de pensão, FGTS e empréstimos a amigos e familiares continuam digitados na página Patrimônio).
 Resolvidas em 07/10/2026: renda tributável, INSS, pró-labore e dividendos (do Fluxo); nomes do casal (Cliente); bens da
 gestão de riscos (Patrimônio); plano de saúde no Fluxo (só o que sai do bolso); idade dos geradores de renda (Cliente).
 Não são repetição, por decisão do usuário: despesas médicas e instrução no IR (o consultor decide o que é dedutível).
+
+## Campos novos da auditoria (29/10/2026)
+
+- `venda.impostoGanhoPct` (bem ou participação): imposto sobre o ganho, em % do ganho. O ganho é o preço da venda, menos os custos, menos `venda.custoAquisicao` (vazio = o valor de hoje). Entra como custo "Imposto sobre o ganho" e sai do líquido da venda.
+- `participacoes[].renda` (id de uma linha de renda do Fluxo): a renda ligada à participação termina no mês da venda, como a do bem.
+- `lifeExp`: passa a valer para a pessoa mais jovem do casal; o motor soma a diferença de idade para o titular.
+- `ENGINE.avisosDoPlano()`: lista { tipo, onde, texto } do que o motor corrige ou ignora em silêncio (adiantamento maior que o saldo, IOF não informado, venda depois da data do objetivo, taxa de valorização ignorada pelo preço de venda).

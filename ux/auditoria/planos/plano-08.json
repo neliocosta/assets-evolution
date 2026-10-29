@@ -1,0 +1,490 @@
+{
+ "dados": {
+  "name": "Osvaldo Brandão",
+  "tipo": "familia",
+  "conjugeNome": "Ione Brandão",
+  "nascimento": "1972-06",
+  "conjugeNascimento": "1975-11",
+  "age": 54,
+  "spouseAge": 51,
+  "inicio": "2026-10-19",
+  "regraDoInicio": "semana",
+  "periodicidade": "mensal",
+  "riscos": {
+   "dependentes": [
+    {
+     "nome": "Marina",
+     "relacao": "filho",
+     "nasc": "2007-04",
+     "ate": 25
+    }
+   ]
+  },
+  "rendasAtivas": [
+   {
+    "pessoa": "titular",
+    "profissao": "Produtor rural (soja e milho)",
+    "natureza": "Empresário",
+    "horas": null
+   },
+   {
+    "pessoa": "conjuge",
+    "profissao": "Professora",
+    "natureza": "CLT (empresa privada)",
+    "horas": null
+   }
+  ],
+  "retireAge": 62,
+  "spouseRetireAge": 60,
+  "desired": 20000,
+  "desiredSteps": [],
+  "lifeExp": 90,
+  "mode": "desej",
+  "rate": 0.004,
+  "profiles": {
+   "conservador": 0.004,
+   "moderado": 0.005,
+   "agressivo": 0.006
+  },
+  "incomes": [
+   {
+    "id": "soja",
+    "label": "Safra de soja (líquido)",
+    "kind": "ativa",
+    "origin": "Outras receitas",
+    "gross": 420000,
+    "frequency": "anual",
+    "pessoa": "titular",
+    "dates": [
+     {
+      "m": 4,
+      "d": 15
+     }
+    ],
+    "description": "Safra de soja, líquida, recebida em maio. Para quando Osvaldo para (62 anos).",
+    "taxable": true,
+    "destino": "reforma",
+    "steps": [
+     {
+      "from": 0,
+      "value": 420000
+     }
+    ]
+   },
+   {
+    "id": "milho",
+    "label": "Safrinha de milho (líquido)",
+    "kind": "ativa",
+    "origin": "Outras receitas",
+    "gross": 150000,
+    "frequency": "anual",
+    "pessoa": "titular",
+    "dates": [
+     {
+      "m": 8,
+      "d": 15
+     }
+    ],
+    "description": "Safrinha de milho, líquida, recebida em setembro. Para quando Osvaldo para (62 anos).",
+    "taxable": true,
+    "steps": [
+     {
+      "from": 0,
+      "value": 150000
+     }
+    ]
+   },
+   {
+    "id": "ione",
+    "label": "Salário da Ione",
+    "kind": "ativa",
+    "origin": "Salário",
+    "gross": 6200,
+    "frequency": "mensal",
+    "pessoa": "conjuge",
+    "days": [
+     5
+    ],
+    "description": "Salário líquido da Ione, professora.",
+    "taxable": true,
+    "steps": [
+     {
+      "from": 0,
+      "value": 6200
+     }
+    ]
+   },
+   {
+    "id": "arrendamento",
+    "label": "Arrendamento de 60% da terra",
+    "kind": "passiva",
+    "origin": "Aluguéis",
+    "gross": 28000,
+    "frequency": "mensal",
+    "pessoa": "titular",
+    "days": [
+     5
+    ],
+    "description": "A partir de junho de 2034 (Osvaldo com 62 anos), arrendamento de 60% da terra.",
+    "taxable": true,
+    "steps": [
+     {
+      "from": 92,
+      "value": 28000
+     }
+    ]
+   }
+  ],
+  "expenses": [
+   {
+    "id": "marina",
+    "label": "Marina: escola e apartamento",
+    "group": "fix",
+    "frequency": "mensal",
+    "days": [
+     5
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "value": 4500
+     },
+     {
+      "from": 66,
+      "value": 0
+     }
+    ]
+   },
+   {
+    "id": "saude",
+    "label": "Plano de saúde",
+    "group": "fix",
+    "frequency": "mensal",
+    "days": [
+     5
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "value": 3600
+     }
+    ]
+   },
+   {
+    "id": "casa",
+    "label": "Casa, mercado, combustível e empregados",
+    "group": "adj",
+    "week": 0,
+    "steps": [
+     {
+      "from": 0,
+      "value": 12900
+     }
+    ]
+   },
+   {
+    "id": "parc1",
+    "label": "Parcela: Consórcio do trator (contemplado)",
+    "group": "fix",
+    "frequency": "mensal",
+    "days": [
+     10
+    ],
+    "description": "Parcela de dívida, lançada pela página Patrimônio",
+    "steps": [
+     {
+      "from": 0,
+      "value": 5154.24
+     },
+     {
+      "from": 4,
+      "value": 5360.41
+     },
+     {
+      "from": 16,
+      "value": 5574.83
+     },
+     {
+      "from": 28,
+      "value": 5797.82
+     },
+     {
+      "from": 40,
+      "value": 6029.73
+     },
+     {
+      "from": 52,
+      "value": 6270.92
+     },
+     {
+      "from": 64,
+      "value": 6521.76
+     },
+     {
+      "from": 76,
+      "value": 6782.63
+     },
+     {
+      "from": 78,
+      "value": 0
+     }
+    ]
+   },
+   {
+    "id": "parc2",
+    "label": "Parcela: Consórcio: Caminhão",
+    "group": "fix",
+    "frequency": "mensal",
+    "days": [
+     10
+    ],
+    "description": "Parcela do consórcio, lançada pelo Patrimônio (termina no fim do prazo)",
+    "daFundo": true,
+    "steps": [
+     {
+      "from": 0,
+      "value": 7200
+     },
+     {
+      "from": 14,
+      "value": 6307.14
+     }
+    ]
+   },
+   {
+    "id": "parc3",
+    "label": "Parcela: Crédito de custeio",
+    "group": "fix",
+    "frequency": "mensal",
+    "days": [
+     10
+    ],
+    "description": "Parcela de crédito novo, lançada no alto do Fluxo vida toda",
+    "steps": [
+     {
+      "from": 4,
+      "value": 10865
+     },
+     {
+      "from": 16,
+      "value": 0
+     }
+    ],
+    "exc": {}
+   }
+  ],
+  "passive": [
+   {
+    "name": "INSS do Osvaldo",
+    "origin": "Contribuições previdenciárias",
+    "gross": 7000,
+    "tax": 0,
+    "net": 7000,
+    "startMi": 92,
+    "dur": null,
+    "cost": 0,
+    "converted": false,
+    "pessoa": "titular"
+   },
+   {
+    "name": "INSS da Ione",
+    "origin": "Contribuições previdenciárias",
+    "gross": 4000,
+    "tax": 0,
+    "net": 4000,
+    "startMi": 109,
+    "dur": null,
+    "cost": 0,
+    "converted": false,
+    "pessoa": "conjuge"
+   }
+  ],
+  "creditos": [
+   {
+    "id": "cr1",
+    "nome": "Crédito de custeio",
+    "em": 3,
+    "valor": 120000,
+    "parcelas": 12,
+    "juros": 1.3,
+    "sistema": "",
+    "linha": "parc3"
+   }
+  ],
+  "compromissos": [
+   {
+    "id": "camin",
+    "titulo": "Compra do caminhão com a carta",
+    "descricao": "A carta de crédito do consórcio vira o caminhão (não fica como dinheiro livre)",
+    "em": 14,
+    "valor": 500000
+   }
+  ],
+  "objectives": [
+   {
+    "id": "reforma",
+    "name": "Reforma da sede",
+    "descricao": "Reformar a sede da fazenda",
+    "icon": "hammer",
+    "kind": "consumo",
+    "milestone": true,
+    "months": 12,
+    "amount": 90000,
+    "dedicated": 0,
+    "profile": "agressivo",
+    "planned": 0,
+    "costs": [],
+    "strategy": ""
+   },
+   {
+    "id": "casa-marina",
+    "name": "Casa para a Marina",
+    "descricao": "Imóvel para a filha",
+    "icon": "home",
+    "kind": "bem",
+    "milestone": true,
+    "months": 36,
+    "preco": 500000,
+    "amount": 150000,
+    "dedicated": 0,
+    "profile": "moderado",
+    "planned": 0,
+    "costs": [],
+    "strategy": "",
+    "compra": {
+     "modo": "financiamento",
+     "sistema": "sac",
+     "parcelas": 240,
+     "juros": 10.5,
+     "iof": "isento",
+     "amortizacoes": [
+      {
+       "em": 48,
+       "valor": 100000,
+       "modo": "prazo"
+      }
+     ]
+    }
+   }
+  ],
+  "patrimonio": {
+   "financeiro": [
+    {
+     "nome": "Aplicações financeiras",
+     "valor": 45000
+    },
+    {
+     "nome": "FGTS da Ione",
+     "valor": 38000,
+     "tipo": "fgts",
+     "titularidade": "conjuge",
+     "conv": {
+      "aos": 90,
+      "forma": "saque"
+     }
+    },
+    {
+     "nome": "Caminhão",
+     "valor": 72000,
+     "tipo": "consorcio",
+     "titularidade": "titular",
+     "cons": {
+      "carta": 500000,
+      "parcelas": 80,
+      "pagas": 10,
+      "parcela": 7200,
+      "reajuste": 0,
+      "contemplacaoEm": "2027-12",
+      "lance": 50000,
+      "embutidoPct": 0,
+      "linha": "parc2"
+     }
+    }
+   ],
+   "participacoes": [],
+   "bens": [
+    {
+     "nome": "Terra (800 hectares)",
+     "mercado": 4200000,
+     "saldoDevedor": 0,
+     "renda": "arrendamento",
+     "valorizacao": [
+      {
+       "tipo": "taxa",
+       "pct": 4,
+       "de": 0,
+       "anos": 20
+      }
+     ]
+    },
+    {
+     "nome": "Máquinas e implementos",
+     "mercado": 900000,
+     "saldoDevedor": 0,
+     "valorizacao": [
+      {
+       "tipo": "taxa",
+       "pct": -10,
+       "de": 0,
+       "anos": 8
+      }
+     ]
+    },
+    {
+     "nome": "Casa na cidade (moradia)",
+     "mercado": 700000,
+     "saldoDevedor": 0
+    },
+    {
+     "nome": "Lote em Sinop",
+     "mercado": 600000,
+     "saldoDevedor": 0,
+     "valorizacao": [
+      {
+       "tipo": "taxa",
+       "pct": 8,
+       "de": 0,
+       "anos": 10
+      }
+     ],
+     "venda": {
+      "em": 30,
+      "preco": 900000,
+      "custos": [
+       {
+        "nome": "Comissão de 6% e ITBI",
+        "valor": 54000
+       }
+      ],
+      "destinos": [
+       {
+        "objetivo": "casa-marina",
+        "valor": 150000
+       }
+      ]
+     }
+    }
+   ],
+   "dividas": [
+    {
+     "nome": "Consórcio do trator (contemplado)",
+     "modalidade": "consorcio",
+     "carta": 420000,
+     "parcelas": 100,
+     "txAdm": 15,
+     "fundoReserva": 3,
+     "reajuste": 4,
+     "reajusteApos": 14,
+     "restantes": 78,
+     "parcela": 5154,
+     "saldoDevedor": 402030.72,
+     "linha": "parc1",
+     "linhaPropria": true
+    }
+   ]
+  },
+  "initialWealth": 155000,
+  "partValue": 0,
+  "initialBens": 6400000
+ }
+}
