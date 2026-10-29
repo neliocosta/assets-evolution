@@ -249,3 +249,10 @@ por instituição; fundo de pensão, FGTS e empréstimos a amigos e familiares c
 Resolvidas em 07/10/2026: renda tributável, INSS, pró-labore e dividendos (do Fluxo); nomes do casal (Cliente); bens da
 gestão de riscos (Patrimônio); plano de saúde no Fluxo (só o que sai do bolso); idade dos geradores de renda (Cliente).
 Não são repetição, por decisão do usuário: despesas médicas e instrução no IR (o consultor decide o que é dedutível).
+
+## Campos novos da auditoria (29/10/2026)
+
+- `venda.impostoGanhoPct` (bem ou participação): imposto sobre o ganho, em % do ganho. O ganho é o preço da venda, menos os custos, menos `venda.custoAquisicao` (vazio = o valor de hoje). Entra como custo "Imposto sobre o ganho" e sai do líquido da venda.
+- `participacoes[].renda` (id de uma linha de renda do Fluxo): a renda ligada à participação termina no mês da venda, como a do bem.
+- `lifeExp`: passa a valer para a pessoa mais jovem do casal; o motor soma a diferença de idade para o titular.
+- `ENGINE.avisosDoPlano()`: lista { tipo, onde, texto } do que o motor corrige ou ignora em silêncio (adiantamento maior que o saldo, IOF não informado, venda depois da data do objetivo, taxa de valorização ignorada pelo preço de venda).

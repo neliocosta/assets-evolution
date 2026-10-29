@@ -1416,7 +1416,7 @@ const ENGINE = (() => {
   // de hoje pode começar uns dias antes ou depois do início: quem começa num domingo 04/10 já está na semana do dia 5 de
   // outubro, e o mês 0 é outubro (setembro teria um dia só, fora da tabela). CM0: o mês 0, em meses desde o ano 0.
   const INICIO_PADRAO = '2026-09-19';
-  const dataDoInicio = iso => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || ''); if (!m) return null; const d = new Date(+m[1], +m[2] - 1, +m[3]); return d.getDate() === +m[3] ? d : null; };
+  const dataDoInicio = iso => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || ''); if (!m) return null; const d = new Date(+m[1], +m[2] - 1, +m[3], 12); return d.getDate() === +m[3] ? d : null; };   // ao meio-dia: somar dias não muda a data com o horário de verão do fuso
   const cmDaData = d => d.getFullYear() * 12 + d.getMonth() - (d.getDate() < 5 ? 1 : 0);
   let TODAY = dataDoInicio(INICIO_PADRAO), CM0 = cmDaData(TODAY);
   const defineInicio = iso => { TODAY = dataDoInicio(iso) || dataDoInicio(INICIO_PADRAO); CM0 = cmDaData(TODAY); };
@@ -1424,12 +1424,12 @@ const ENGINE = (() => {
   const WPY = 365.25 / 7, NW = Math.round(100 * WPY) + 1;
   // o mês do motor da semana i: o da última semana, até ela, que tem um dia 5
   const mesDaSemana = i => { for (let k = i; k > i - 6; k--) { const d = new Date(BIRTH.getTime() + k * 7 * 864e5); for (let j = 0; j < 7; j++) { const dd = new Date(d.getTime() + j * 864e5); if (dd.getDate() === 5) return dd.getFullYear() * 12 + dd.getMonth(); } } return cmDaData(TODAY); };
-  let CURRENT_AGE = 35, BIRTH = new Date(TODAY.getFullYear() - CURRENT_AGE, TODAY.getMonth(), TODAY.getDate()), W0 = Math.round(CURRENT_AGE * WPY);
-  const defineIdade = a => { CURRENT_AGE = Math.min(90, Math.max(18, Math.round(+a) || 35)); BIRTH = new Date(TODAY.getFullYear() - CURRENT_AGE, TODAY.getMonth(), TODAY.getDate()); W0 = Math.round(CURRENT_AGE * WPY); CM0 = mesDaSemana(W0); };
+  let CURRENT_AGE = 35, BIRTH = new Date(TODAY.getFullYear() - CURRENT_AGE, TODAY.getMonth(), TODAY.getDate(), 12), W0 = Math.round(CURRENT_AGE * WPY);
+  const defineIdade = a => { CURRENT_AGE = Math.min(90, Math.max(18, Math.round(+a) || 35)); BIRTH = new Date(TODAY.getFullYear() - CURRENT_AGE, TODAY.getMonth(), TODAY.getDate(), 12); W0 = Math.round(CURRENT_AGE * WPY); CM0 = mesDaSemana(W0); };
   // A data de nascimento ("AAAA-MM" ou "AAAA-MM-DD"; sem o dia, o dia 1) dá a idade exata de hoje, com fração: assim a idade
   // num marco é a de verdade (quem faz aniversário em maio já tem a idade nova em setembro). Sem a data (plano antigo), vale a
   // idade inteira de plan.age, com o aniversário em 19/09.
-  const dataNasc = v => { const m = /^(\d{4})-(\d{2})(?:-(\d{2}))?$/.exec(String(v || '')); return m ? new Date(+m[1], +m[2] - 1, m[3] ? +m[3] : 1) : null; };
+  const dataNasc = v => { const m = /^(\d{4})-(\d{2})(?:-(\d{2}))?$/.exec(String(v || '')); return m ? new Date(+m[1], +m[2] - 1, m[3] ? +m[3] : 1, 12) : null; };
   const idadeExata = v => { const d = dataNasc(v); return d ? (TODAY - d) / (365.25 * 864e5) : null; };
   const defineNascimento = v => { const d = dataNasc(v), a = idadeExata(v); if (!d || !(a >= 18 && a <= 90)) return false; BIRTH = d; CURRENT_AGE = a; W0 = Math.round(a * WPY); CM0 = mesDaSemana(W0); return true; };
   const NASC_EXEMPLO = '1991-05-12', NASC_CONJ_EXEMPLO = '1988-02-23';   // Ana e Marcos, no exemplo
@@ -1503,6 +1503,8 @@ const ENGINE = (() => {
   // Quando o objetivo começa a receber: os aportes mensais a partir de aporteDe e o patrimônio separado (dedicated) em
   // dedicadoEm, em meses a partir de hoje (vazio = hoje). Assim o consultor dá toda a sobra a um objetivo e só depois
   // começa a guardar para os outros. O aporte começa até o mês antes da data; o patrimônio, até a data.
+  // a expectativa de vida (lifeExp) é a da pessoa mais jovem da família; na idade do titular, que é a escala do motor, soma a diferença
+  const vidaAte = () => LIFE_EXP + (SPOUSE_AGE != null && SPOUSE_AGE < CURRENT_AGE ? CURRENT_AGE - SPOUSE_AGE : 0);
   const inicioDoAporte = o => Math.max(0, Math.min(Math.max(0, Math.round(+o.months || 0) - 1), Math.round(+o.aporteDe || 0)));
   const inicioDoDedicado = o => Math.max(0, Math.min(Math.round(+o.months || 0), Math.round(+o.dedicadoEm || 0)));
   // A estratégia de cada objetivo segue o prazo: nos últimos 24 meses antes da data (MESES_CONSERVADOR), a caixinha fica na
@@ -1570,8 +1572,8 @@ const ENGINE = (() => {
   // liberdade, que começa em ffMi); trabalhaEm: a linha de renda ativa ainda entra no mês mi; ativaEm: a soma delas no mês.
   const idadeDaLiberdade = () => { const c = SPOUSE_AGE != null && SPOUSE_RETIRE != null ? CURRENT_AGE + SPOUSE_RETIRE - SPOUSE_AGE : null;
     return RETIRE_AGE != null && c != null ? Math.min(RETIRE_AGE, c) : RETIRE_AGE != null ? RETIRE_AGE : c; };
-  const paradaMi = (pessoa, ffMi) => Math.max(ffMi, pessoa === 'conjuge' ? (SPOUSE_AGE != null && SPOUSE_RETIRE != null ? Math.round((SPOUSE_RETIRE - SPOUSE_AGE) * 12) : ffMi)
-    : (RETIRE_AGE != null ? Math.round((RETIRE_AGE - CURRENT_AGE) * 12) : ffMi));
+  const paradaMi = (pessoa, ffMi) => Math.max(ffMi, pessoa === 'conjuge' ? (SPOUSE_AGE != null && SPOUSE_RETIRE != null ? Math.ceil((SPOUSE_RETIRE - SPOUSE_AGE) * 12 - 1e-9) : ffMi)
+    : (RETIRE_AGE != null ? Math.ceil((RETIRE_AGE - CURRENT_AGE) * 12 - 1e-9) : ffMi));   // o teto: o mês em que a pessoa faz a idade ainda é de trabalho
   const trabalhaEm = (c, mi, ffMi) => ativo(c) && mi < paradaMi(c.pessoa === 'conjuge' ? 'conjuge' : 'titular', ffMi);
   const ativaEm = (mi, ffMi) => INCOMES.reduce((a, c) => a + (trabalhaEm(c, mi, ffMi) ? mensalizado(c, mi) : 0), 0);
   const annuityCost = () => PASSIVE.reduce((s, p) => s + p.cost, 0);
@@ -1787,14 +1789,14 @@ const ENGINE = (() => {
   // quando muda a data de nascimento (a semana do motor conta a partir dela) ou o mês 0
   const CAL = new Map(); let CAL_BIRTH = null;
   const doCalendario = (k, f) => { if (CAL_BIRTH !== +BIRTH + ':' + CM0) { CAL.clear(); CAL_BIRTH = +BIRTH + ':' + CM0; } let v = CAL.get(k); if (v === undefined) CAL.set(k, v = f()); return v; };
-  const semanasNoCiclo = mm => doCalendario(mm * 64 + 40, () => { const { y, m } = calDoCiclo(mm); return semanaAbs(new Date(y, m + 1, 5)) - semanaAbs(new Date(y, m, 5)); });
+  const semanasNoCiclo = mm => doCalendario(mm * 64 + 40, () => { const { y, m } = calDoCiclo(mm); return semanaAbs(new Date(y, m + 1, 5, 12)) - semanaAbs(new Date(y, m, 5, 12)); });
   // a semana i do motor contém o dia 5 (abre o mês)? devolve a data do dia 5, ou null (as chaves ficam longe das do mês,
   // mm * 64 + dia, mesmo com mês negativo)
   const dia5Da = i => doCalendario(-1e9 - i, () => { const d = weekDate(i); for (let k = 0; k < 7; k++) { const dd = new Date(d.getTime() + k * 864e5); if (dd.getDate() === 5) return dd; } return null; });
   const semanaDoCiclo = (mm, d) => { const dia = Math.max(1, +d || 5); return doCalendario(mm * 64 + Math.min(dia, 39), () => {
     const { y, m } = calDoCiclo(mm);
-    const data = dia >= 5 ? new Date(y, m, Math.min(dia, new Date(y, m + 1, 0).getDate())) : new Date(y, m + 1, dia);
-    return Math.min(semanasNoCiclo(mm), semanaAbs(data) - semanaAbs(new Date(y, m, 5)) + 1);
+    const data = dia >= 5 ? new Date(y, m, Math.min(dia, new Date(y, m + 1, 0).getDate()), 12) : new Date(y, m + 1, dia, 12);
+    return Math.min(semanasNoCiclo(mm), semanaAbs(data) - semanaAbs(new Date(y, m, 5, 12)) + 1);
   }); };
   // semana do ciclo em que o item cai (formato antigo, com um único dia ou semana)
   const semanaDe = it => { if (+it.week === 0 && it.week !== undefined && !it.day) return 0; const d = +it.day || 5; return Math.min(4, Math.max(1, Math.ceil(d / 7.75))); };
@@ -1966,11 +1968,12 @@ const ENGINE = (() => {
     const fz = financiadoEm(d, i, n), recebido = C - (d.iof === 'avista' ? fz.iof : 0);
     const cet = busca(r => -fz.linhas.reduce((a, l, k) => a + l.pay / Math.pow(1 + r, k + 1), 0), -recebido, 0.3);   // o valor presente das parcelas cai com a taxa
     // as amortizações extras: na parcela do mês em, depois dela
-    const extras = new Map(); amorts.forEach(a => { const k = k0 + Math.max(0, Math.round(+a.em)); if (k < n) { const x = extras.get(k); extras.set(k, { valor: (x ? x.valor : 0) + +a.valor, modo: a.modo === 'parcela' ? 'parcela' : 'prazo' }); } });
+    const extras = new Map(); amorts.forEach(a => { const k = Math.max(0, k0 + Math.max(0, Math.round(+a.em)) - 1); if (k < n) { const x = extras.get(k); extras.set(k, { valor: (x ? x.valor : 0) + +a.valor, modo: a.modo === 'parcela' ? 'parcela' : 'prazo' }); } });   // a 1ª parcela em caixa (mês 1) é a de índice k0: o adiantamento do mês em vem depois da de índice k0+em-1, a que o saldo desse mês já pagou
     const linhas = extras.size ? tabelaDaDivida(fz.F, i, n, fz.sac, fz.seg, extras) : fz.linhas;
+    const amortExcede = []; extras.forEach((x, k) => { const l = linhas[k], aplicado = l ? l.extra || 0 : 0; if (aplicado < x.valor - 0.01) amortExcede.push({ mi: k - k0 + 1, pedido: x.valor, aplicado }); });   // o adiantamento maior que o saldo vale só o saldo
     const anual = x => Math.pow(1 + x, 12) - 1, soma = (l, k) => l.reduce((a, x) => a + x[k], 0);
     const resumo = l => { const f = l.slice(Math.max(0, k0)); return { pago: soma(f, 'pay') + soma(f, 'extra'), juros: soma(f, 'juros'), seguro: soma(f, 'seguro'), extra: soma(f, 'extra') }; };
-    const out = { n, fim: linhas.length, k0, restantes: Math.max(0, linhas.length - k0), inicio: -k0, i, juros: anual(i),
+    const out = { amortExcede, n, fim: linhas.length, k0, restantes: Math.max(0, linhas.length - k0), inicio: -k0, i, juros: anual(i),
       jurosInformado: iInf != null ? anual(iInf) : null, jurosInformadoMes: iInf, cet: { mes: cet, ano: anual(cet) },
       credito: C, recebido, financiado: fz.F, iof: fz.iof, seguroUnico: (d.seguro || {}).modo === 'unico' ? +d.seguro.valor || 0 : 0, tarifas: +d.tarifas || 0, linhas,
       saldoHoje: k0 <= 0 ? fz.F : k0 < fz.linhas.length ? fz.linhas[k0 - 1].saldo : 0, parcelaHoje: fz.linhas[kHoje].pay,
@@ -2001,7 +2004,7 @@ const ENGINE = (() => {
     if (modo === 'financiamento') {
       const credito = preco - entrada; if (!(credito > 0)) return null;
       const am = (Array.isArray(C.amortizacoes) ? C.amortizacoes : []).concat(extras || []).filter(a => a && num(a.em) != null && +a.valor > 0 && +a.em >= n)
-        .map(a => ({ em: Math.round(+a.em) - n, valor: +a.valor, modo: a.modo }));
+        .map(a => ({ em: Math.round(+a.em) - n + 1, valor: +a.valor, modo: a.modo }));   // a 1ª parcela da compra é a do mês n: o índice do contrato conta um a mais
       const d = { nome: o.name, credito, parcelas: C.parcelas, sistema: C.sistema, juros: C.juros, iof: C.iof, seguro: C.seguro, tarifas: C.tarifas, amortizacoes: am };
       const ct = contratoDaDivida(d); return ct ? { modo, d, ct, mi0: n, n, credito, entrada, preco } : null;
     }
@@ -2077,7 +2080,9 @@ const ENGINE = (() => {
     if (vd) {
       const projetado = serie[fim], preco = num(vd.preco) != null ? Math.max(0, +vd.preco) : projetado;
       const custos = (vd.custos || []).map(c => ({ nome: c.nome || 'Custo', pct: num(c.pct), v: num(c.pct) != null ? preco * c.pct / 100 : Math.max(0, +c.valor || 0) }));
-      const custo = custos.reduce((a, c) => a + c.v, 0), quitacao = saldoDevedorEm(b, fim);
+      // imposto sobre o ganho (venda.impostoGanhoPct, em % do ganho): o ganho é o preço, menos os custos, menos o que se pagou (venda.custoAquisicao; vazio = o valor de hoje)
+      if (num(vd.impostoGanhoPct) > 0) { const base = num(vd.custoAquisicao) != null ? Math.max(0, +vd.custoAquisicao) : serie[0], ganho = Math.max(0, preco - custos.reduce((a, c) => a + c.v, 0) - base); custos.push({ nome: 'Imposto sobre o ganho', pct: null, v: ganho * vd.impostoGanhoPct / 100 }); }
+      const custo = custos.reduce((a, c) => a + c.v, 0), quitacao = saldoDevedorEm(b, Math.max(0, fim - 1));   // a parcela do mês da venda não sai do caixa (a linha termina nele): o saldo a quitar é o de antes dela
       venda = { mi: fim, projetado, preco, custos, custo, quitacao, liquido: preco - custo - quitacao };
     }
     return { serie, pontuais, venda };
@@ -2156,6 +2161,7 @@ const ENGINE = (() => {
     let cofre = 0, obj = OBJ.map(() => 0), done = OBJ.map(() => false), bens = 0, part = PART_VALUE;
     const TETO = TETO_DIVIDA_VEZES * mediaDe12Meses(INCOMES) || Infinity;   // o teto da dívida (da reserva negativa)
     let tetoEm = null;                       // a semana em que a dívida chegou ao teto
+    let semCobertura = null, faltaTotal = 0;   // a liberdade em que o patrimônio acaba e a renda desejada deixa de ser paga
     let ruina = null, inicioDoMes = W0;      // ruína: o primeiro mês que fecha com a reserva negativa (daí em diante ela pode ficar negativa)
     const saldoNaData = OBJ.map(() => 0);   // quanto cada objetivo de fato juntou até a data alvo
     const compPago = new Set();             // os compromissos já pagos
@@ -2169,15 +2175,21 @@ const ENGINE = (() => {
       return tr && tr.venda ? { mi: tr.venda.mi, nome: x.nome || (c[0] === 'b' ? 'bem' : 'participação'), objs: (x.venda.destinos || []).map(d => OBJ.find(o => o.id === d.objetivo)).filter(Boolean).map(o => o.name),
             desligados: (x.venda.destinos || []).some(d => !OBJ.some(o => o.id === d.objetivo)) } : null; }).filter(Boolean);
     // o que a família deve no mês: o saldo de cada dívida, que cai com as parcelas (a de um bem vendido foi quitada na venda)
-    const divMes = new Map(), dividaEm = mi => { if (!divMes.has(mi)) divMes.set(mi, dividaDosConsorcios(mi) + bensDoPlano().reduce((a, b, k) => a + (vendido[k] ? 0 : saldoDevedorEm(b, mi)), 0) + dividasDoPlano().reduce((a, d) => a + saldoDevedorEm(d, mi), 0) + CREDITOS.reduce((a, c) => a + saldoDoCredito(c, mi), 0)); return divMes.get(mi); };
+    // a dívida de uma compra financiada de objetivo: o financiado, depois de cada parcela do contrato (a 1ª sai no mês da compra)
+    const saldoDaCompra = (k, mi) => { const cp = COMPRAS[k]; if (!cp || cp.modo !== 'financiamento' || !done[k] || OBJ[k].naoComprado) return null; const j = mi - cp.mi0; return j < 0 ? cp.ct.financiado : j >= cp.ct.linhas.length ? 0 : cp.ct.linhas[j].saldo; };
+    const divMes = new Map(), dividaEm = mi => { if (!divMes.has(mi)) divMes.set(mi, COMPRAS.reduce((a, _, k) => a + (saldoDaCompra(k, mi) || 0), 0) + dividaDosConsorcios(mi) + bensDoPlano().reduce((a, b, k) => a + (vendido[k] ? 0 : saldoDevedorEm(b, mi)), 0) + dividasDoPlano().reduce((a, d) => a + saldoDevedorEm(d, mi), 0) + CREDITOS.reduce((a, c) => a + saldoDoCredito(c, mi), 0)); return divMes.get(mi); };
     const quitacoes = bensDoPlano().map((b, k) => [b, k]).concat(dividasDoPlano().map(d => [d, -1])).filter(([d]) => +d.saldoDevedor > 0).map(([d, k]) => ({ d, k, mi: restantesDaDivida(d) })).filter(q => q.mi > 0);
     let offset = 99, streams = [], ff = null, prevActive = '', allocated = false, ks = [];
     const recurTotal = () => streams.reduce((a, st) => a + (st.left === 0 ? 0 : st.linhas ? (st.linhas[st.k] || { pay: 0 }).pay + (st.pagaExtra ? (st.linhas[st.k] || {}).extra || 0 : 0) : st.value), 0);
     // despesa com endObj (o aluguel, por exemplo) deixa de existir quando aquele objetivo é realizado
     const encerrada = c => { if (!c.endObj) return false; const k = OBJ.findIndex(o => o.id === c.endObj); return k >= 0 && done[k] && !OBJ[k].naoComprado; };
     const livingAt = mm => EXPENSES.reduce((a, c) => a + (encerrada(c) ? 0 : mensalizado(c, mm)), 0);
+    // as linhas que pagam um contrato (a parcela de um bem ou de uma dívida, a contribuição ao fundo) não acompanham o padrão de vida
+    // depois da liberdade: a parcela e os adiantamentos são os do contrato. Só o resto do gasto é escalado.
+    const FIXAS = new Set(bensDoPlano().concat(dividasDoPlano()).concat(CAIXAS_PREV).map(x => x.linha).filter(Boolean));
+    const fixoAt = mm => EXPENSES.reduce((a, c) => a + (encerrada(c) || !FIXAS.has(c.id) ? 0 : mensalizado(c, mm)), 0);
     // falta mensal para a renda desejada no mês mm depois da liberdade, que começa no mês do motor mi0
-    const gapAt = (mm, mi0) => Math.max(0, desiredAt(mi0 + mm) - PASSIVE.reduce((s, p) => s + (rendaAtiva(p, mi0 + mm, mi0) ? netEm(p, mi0 + mm) : 0), 0) - passiveIncomeAt(mi0 + mm) - ativaEm(mi0 + mm, mi0));
+    const gapAt = (mm, mi0) => Math.max(0, desiredAt(mi0 + mm) - PASSIVE.reduce((s, p) => s + (rendaAtiva(p, mi0 + mm, mi0) && p.dur !== 1 ? netEm(p, mi0 + mm) : 0), 0) - passiveIncomeAt(mi0 + mm) - ativaEm(mi0 + mm, mi0));
     let m = null; // contexto do mês corrente
     const fin = () => cofre + obj.reduce((a, b) => a + b, 0);
     const add = (f, k, v) => { f[k] = (f[k] || 0) + v; };
@@ -2193,9 +2205,9 @@ const ENGINE = (() => {
     // saldo de cada dívida (dos bens, as avulsas e os créditos novos, nessa ordem: ENGINE.rotulosDoDetalhe). As dívidas, uma
     // conta por mês.
     const divDetMes = new Map(), divDet = mi => { if (!divDetMes.has(mi)) divDetMes.set(mi, bensDoPlano().map((b, k) => vendido[k] ? 0 : saldoDevedorEm(b, mi))
-      .concat(dividasDoPlano().map(d => saldoDevedorEm(d, mi)), CREDITOS.map(c => saldoDoCredito(c, mi)))); return divDetMes.get(mi); };
+      .concat(dividasDoPlano().map(d => saldoDevedorEm(d, mi)), CREDITOS.map(c => saldoDoCredito(c, mi)), COMPRAS.map((cp, k) => cp && cp.modo === 'financiamento' ? saldoDaCompra(k, mi) || 0 : null).filter(x => x !== null))); return divDetMes.get(mi); };
     const detalhe = () => ({ bens: traj.map((x, k) => vendido[k] ? 0 : ultimo[k]), parts: trajP.map((x, k) => vendidoP[k] ? 0 : ultimoP[k]),
-      comprados: OBJ.map((o, k) => done[k] && o.kind === 'bem' && !o.naoComprado ? +o.amount || 0 : 0), divs: divDet(Math.max(0, m ? m.mIdx : 0)) });
+      comprados: OBJ.map((o, k) => done[k] && o.kind === 'bem' && !o.naoComprado ? (+o.amount || 0) + (COMPRAS[k] && COMPRAS[k].modo === 'financiamento' ? COMPRAS[k].credito : 0) : 0), divs: divDet(Math.max(0, m ? m.mIdx : 0)) });
     // a parte do líquido de uma venda que financia cada objetivo ainda não realizado vai para o saldo dele; devolve o texto do marco
     const vaiPara = (f, x, V) => {
       const partes = partilhaDaVenda(x, V).map(p => ({ k2: OBJ.findIndex(o => o.id === p.objetivo), v: p.usado })).filter(p => p.k2 >= 0 && !done[p.k2] && p.v > 0);
@@ -2212,7 +2224,7 @@ const ENGINE = (() => {
       ks.push(k);
       EXPENSES.forEach(c => {                       // cada ocorrência cai na sua semana do ciclo
         if (encerrada(c)) return;
-        ocDoMes(c, m.mIdx, true).forEach(o => { if (o.k === k && o.v > 0) add(f, 'out_' + c.group + '_' + c.id, o.v * m.scale); });
+        ocDoMes(c, m.mIdx, true).forEach(o => { if (o.k === k && o.v > 0) add(f, 'out_' + c.group + '_' + c.id, FIXAS.has(c.id) ? o.v : o.v * m.scale); });
       });
       INCOMES.forEach(c => {                        // na liberdade financeira o trabalho para; rendas passivas continuam
         if (ff && ativo(c) && !trabalhaEm(c, m.mIdx, ff.mi)) return;   // quem ainda não parou continua recebendo
@@ -2259,9 +2271,11 @@ const ENGINE = (() => {
       // Não gera lançamento no fluxo (é posição, não movimento) e o histórico anterior não é exibido.
       if (i === W0 && INITIAL_WEALTH != null) cofre = Math.max(0, INITIAL_WEALTH - saldoPrevHoje() - obj.reduce((a, b) => a + b, 0));   // o fundo de pensão e o FGTS ficam na caixa deles
       if (i === W0) { bens = INITIAL_BENS; allocated = true; OBJ.forEach((o, k) => { if (inicioDoDedicado(o) > 0) return; separado[k] = true; obj[k] += o.dedicated; cofre -= o.dedicated; transfer(f, 'mov_cofre', 'mov_obj_' + o.id, o.dedicated, 'patrimônio de hoje separado para ' + (o.name || 'o objetivo')); }); }
-      if (cofre > 0) cofre *= GW; obj = obj.map((b, k) => b * Math.pow(1 + taxaNoMes(TX[k], m ? m.mIdx : 0), 7 / 30.4375));
       let incomeWeek = false, incDate = null;   // o salário cai no dia 5; a semana que o contém abre o mês
       { const dd = dia5Da(i); if (dd) { incomeWeek = true; incDate = dd; } }
+      if (cofre > 0) cofre *= GW;
+      { const miSemana = incomeWeek ? Math.max(0, incDate.getFullYear() * 12 + incDate.getMonth() - CM0) : m ? m.mIdx : 0;   // a semana que abre o mês já rende pela taxa dele
+        obj = obj.map((b, k) => b * Math.pow(1 + taxaNoMes(TX[k], miSemana), 7 / 30.4375)); }
       const working = i >= W0 - 6;   // simula de hoje em diante: começa no ciclo do salário deste mês
       // o mês anterior fechou com a reserva negativa: o que ficou em aberto é dívida e paga os juros do mês agora (uma saída).
       // O que a família cobre dentro do mesmo mês (as contas do dia 10 antes do salário do dia 21) não paga juros e não é ruína.
@@ -2318,13 +2332,16 @@ const ENGINE = (() => {
         // realização de objetivos (depois das vendas: a venda no mesmo mês já chega ao saldo do objetivo)
         OBJ.forEach((o, k) => {
           if (t >= 0 && !done[k] && mIdx >= o.months) {
-            done[k] = true;
+            done[k] = true; divMes.clear(); divDetMes.clear();   // a compra financiada traz a dívida dela
             const bal = obj[k]; saldoNaData[k] = bal; obj[k] = 0; cofre += bal; transfer(f, 'mov_obj_' + o.id, 'mov_cofre', bal, 'na data de ' + (o.name || 'o objetivo') + ', a caixinha volta para a reserva, que paga o objetivo'); // saldo dedicado volta ao cofre
             // um bem que não chega a 70% do valor na data (Requer revisão) não é comprado: o saldo fica na reserva,
             // e o bem e os gastos depois dele (condomínio, financiamento) não entram na simulação
             o.naoComprado = o.kind === 'bem' && o.amount > 0 && bal < o.amount * 0.7;
             if (o.naoComprado) { /* nada a converter */ }
-            else if (o.kind === 'bem') { bens += o.amount; cofre -= o.amount; transfer(f, 'mov_cofre', 'mov_bens', o.amount, 'compra de ' + (o.name || 'um bem') + ' por ' + reais(o.amount) + ': o dinheiro da reserva vira bem'); } // conversão financeiro → bens
+            else if (o.kind === 'bem') { const cp = COMPRAS[k], pb = cp && cp.modo === 'consorcio' && cp.ct.financiado > 0 ? Math.min(1, cp.carta / cp.ct.financiado) : 1, vb = o.amount * pb;   // no consórcio, só a parte do lance que abate a carta vira bem; o resto é taxa de administração e fundo de reserva
+              bens += vb; cofre -= vb; transfer(f, 'mov_cofre', 'mov_bens', vb, 'compra de ' + (o.name || 'um bem') + ' por ' + reais(o.amount) + ': o dinheiro da reserva vira bem');
+              if (o.amount - vb > 0.005) addN(f, 'out_obj_' + o.id, o.amount - vb, 'parte do lance de ' + (o.name || 'o consórcio') + ' que é taxa de administração e fundo de reserva');
+              if (cp && cp.modo === 'financiamento') bens += cp.credito; }   // o financiado também é do bem: entra nos bens, e a dívida entra em fim.div // conversão financeiro → bens
             else addN(f, 'out_obj_' + o.id, o.amount, (o.name || 'o objetivo') + ' realizado: o gasto sai da reserva'); // consumo: é uma saída, paga pelo cofre
             if (!o.naoComprado) (o.costs || []).forEach(c => {   // cada custo vira uma linha de saída fixa: out_fix_<objetivo>_<custo>
               const id = o.id + '_' + c.id;
@@ -2333,7 +2350,7 @@ const ENGINE = (() => {
             });
             // o financiamento da compra começa no mês da data (o consórcio já começou, no mês dele)
             if (!o.naoComprado && COMPRAS[k] && COMPRAS[k].modo === 'financiamento' && !comprasIniciadas.has(k)) { const cp = COMPRAS[k]; comprasIniciadas.add(k);
-              streams.push({ id: o.id + '_compra', linhas: cp.ct.linhas, k: 0, left: cp.ct.linhas.length, label: nomeDaCompra(o, cp), pagaExtra: true, parteBem: 1 }); }
+              streams.push({ id: o.id + '_compra', linhas: cp.ct.linhas, k: 0, left: cp.ct.linhas.length, label: nomeDaCompra(o, cp), pagaExtra: true, parteBem: 0 }); }   // a parcela é toda despesa; o bem já entrou inteiro e a dívida cai com o saldo do contrato
             events.push({ week: i, type: 'obj', obj: o, label: o.name, finBefore: fin() });
           }
         });
@@ -2361,7 +2378,7 @@ const ENGINE = (() => {
         // sacar, e o padrão de vida cai para as rendas da aposentadoria (o INSS, o fundo de pensão); a dívida segue até o teto.
         // Sem a idade marcada, a liberdade só começa com o financeiro positivo.
         if (!ff && (fin() > 0 || alvoLib != null) && t > 0 && age >= (alvoLib != null ? alvoLib : 50)) {
-          const horizon = Math.round((LIFE_EXP - age) * 12);
+          const horizon = Math.round((vidaAte() - age) * 12);
           let maxGap = 0; for (let mm = 0; mm < horizon; mm++) maxGap = Math.max(maxGap, gapAt(mm, mIdx));
           const pending = OBJ.reduce((a, o, k) => a + (done[k] ? 0 : o.amount), 0) + COMPROMISSOS.reduce((a, c, k) => a + (compPago.has(k) ? 0 : Math.max(0, +c.valor || 0)), 0); // objetivos e compromissos ainda por pagar
           const ANNUITY_COST = annuityCost(); const after = fin() - ANNUITY_COST - pending;
@@ -2380,7 +2397,7 @@ const ENGINE = (() => {
         if (ff) {
           const mm = ff.months++;
           const act = PASSIVE.filter(p => rendaAtiva(p, m.mIdx, ff.mi)); let pas = 0;
-          act.forEach(p => { const v = netEm(p, m.mIdx); add(f, 'in_pas_' + PASSIVE.indexOf(p), v); pas += v; });
+          act.forEach(p => { const v = netEm(p, m.mIdx); add(f, 'in_pas_' + PASSIVE.indexOf(p), v); if (p.dur !== 1) pas += v; });   // o saque único (dur 1) entra no financeiro: não é renda do mês, não vira gasto
           const names = act.map(p => p.name), prev = prevActive ? prevActive.split('|') : [];
           if (mm > 0) { // sub-eventos: qual renda terminou ou começou, e o efeito na retirada do patrimônio
             const ended = prev.filter(n => !names.includes(n)), started = names.filter(n => !prev.includes(n));
@@ -2390,12 +2407,21 @@ const ENGINE = (() => {
           prevActive = names.join('|');
           // perpetuidade: retira exatamente o rendimento real e o principal fica estável; consumo: PMT até a expectativa de vida;
           // renda desejada: retira só o que falta para a renda desejada, e o patrimônio pode acabar antes ou depois
-          let w = mode === 'perp' ? fin() * R_M : mode === 'desej' ? gapAt(m.mIdx - ff.mi, ff.mi) : (age < LIFE_EXP ? ff.pmt : 0);
+          let w = mode === 'perp' ? fin() * R_M : mode === 'desej' ? gapAt(m.mIdx - ff.mi, ff.mi) : (age < vidaAte() ? ff.pmt : 0);
           w = Math.min(w, Math.max(0, cofre - (f.out_rendas || 0)));
           // na aposentadoria o padrão de vida se ajusta à renda disponível
-          const custoVida = livingAt(m.mIdx) || 1;
+          const custoVida = (livingAt(m.mIdx) - fixoAt(m.mIdx)) || 1;
           const trab = ativaEm(m.mIdx, ff.mi);   // a renda ativa de quem ainda não parou
-          m.salary = 0; m.scale = Math.max(0, pas + passiveIncomeAt(m.mIdx) + trab + w - recurTotal()) / custoVida; m.invest = 0; m.pas = pas + passiveIncomeAt(m.mIdx) + trab; m.saque = w;
+          // o que a família gasta na liberdade segue o plano: na renda desejada, o valor definido (a renda que passar dele fica no
+          // financeiro); na perpetuidade e no consumo, o que o saque e as rendas entregam
+          const disponivel = pas + passiveIncomeAt(m.mIdx) + trab + w, desejado = desiredAt(m.mIdx);
+          if (mode === 'desej' && desejado - disponivel > 1) {   // o patrimônio não sustenta a renda desejada neste mês
+            faltaTotal += desejado - disponivel;
+            if (!semCobertura) { semCobertura = { week: i, mi: m.mIdx, age, falta: desejado - disponivel, desejado, disponivel }; events.push({ week: i, type: 'ruina', label: 'O patrimônio não cobre a renda desejada', detail: 'Faltam ' + reais(desejado - disponivel) + ' por mês' }); }
+          }
+          // os objetivos que vencem depois da liberdade seguem recebendo o aporte, do financeiro
+          m.invest = OBJ.reduce((a, o, k2) => a + (!done[k2] && m.mIdx >= inicioDoAporte(o) && m.mIdx < Math.round(+o.months || 0) && !o.aporteSobra ? Math.max(0, +o.planned || 0) : 0), 0);
+          m.salary = 0; m.scale = Math.max(0, (mode === 'desej' ? Math.min(disponivel, desejado) : disponivel) - recurTotal() - fixoAt(m.mIdx)) / custoVida; m.pas = pas + passiveIncomeAt(m.mIdx) + trab; m.saque = w;
         } else {
           m.scale = 1;                                // os valores já vêm da linha do tempo
           m.salary = incomeAt(m.mIdx);                // equivalente mensal, para dimensionar o aporte
@@ -2442,7 +2468,8 @@ const ENGINE = (() => {
     // a maior dívida no fim de um mês, nos 12 meses a partir da ruína (cheque12, o nome antigo), para o alerta e o crédito sugerido
     if (ruina) { let mx = 0; for (let i = ruina.week; i < NW && weeks[i].mi < ruina.mi + 12; i++) if (i + 1 >= NW || weeks[i + 1].mi !== weeks[i].mi) mx = Math.max(mx, weeks[i].cheque); ruina.cheque12 = mx; }
     OBJ.forEach((o, k) => { o.real = saldoNaData[k]; o.ratio = o.amount > 0 ? o.real / o.amount : 1; o.status = o.ratio >= 0.98 ? 'ok' : o.ratio >= 0.7 ? 'adj' : 'risk'; });
-    return { weeks, events, ff, ruina, resultado, tetoDivida: TETO, tetoEm, buckets: { week: weekB, month: monthB, quarter: quarterB, year: yearB, multi: multiB, decade: decadeB } };
+    if (semCobertura) semCobertura.total = faltaTotal;
+    return { weeks, events, ff, ruina, semCobertura, resultado, tetoDivida: TETO, tetoEm, buckets: { week: weekB, month: monthB, quarter: quarterB, year: yearB, multi: multiB, decade: decadeB } };
   }
   // os índices de OBJ na ordem de prioridade do cliente (os que não estão na lista, pela data)
   const ordemDeAporte = () => { const k = OBJ.map((o, i) => i); return k.sort((a, b) => { const pa = PRIORIDADE.indexOf(OBJ[a].id), pb = PRIORIDADE.indexOf(OBJ[b].id); return (pa < 0 ? 1e6 : pa) - (pb < 0 ? 1e6 : pb) || OBJ[a].months - OBJ[b].months; }); };
@@ -2503,10 +2530,10 @@ const ENGINE = (() => {
   function programaDosAportes(s, opc = {}) {
     const n = horizonteDoPrograma(), H = Math.min(MESES_PROGRAMA, n), sobra = opc.sobra || sobraDosMeses(s, n);
     const ordem = ordemDeAporte().map(k => OBJ[k]).concat(opc.folga != null ? [{ id: '_folga', planned: opc.folga, months: n, amount: 0, dedicated: 0 }] : []);
-    const lib = mi => !!(s.ff && mi >= s.ff.mi);   // na liberdade financeira não há aportes
+    const lib = mi => !!(s.ff && mi >= s.ff.mi);   // na liberdade financeira não há sobra: o aporte de um objetivo que vence depois sai do financeiro (fora da conta da caixa)
     const extras = {}; ordem.forEach(o => { extras[o.id] = Array.from({ length: n }, (_, mi) => lib(mi) ? 0 : extraDoMes(o, mi)); });
     const geral = sobra.map((v, mi) => v - ordem.reduce((a, o) => a + extras[o.id][mi], 0));   // a sobra sem os extras, que já têm dono
-    const ativo = (o, mi) => !lib(mi) && mi >= inicioDoAporte(o) && mi < Math.round(+o.months || 0);
+    const ativo = (o, mi) => mi >= inicioDoAporte(o) && mi < Math.round(+o.months || 0);
     const parte = (o, mi) => { const d = digitadoEm(o, mi); return d != null ? d : o.aporteSobra ? 0 : Math.max(0, +o.planned || 0); };
     // o que sobra em cada mês depois da reserva e das partes dos objetivos; e o que o fim de cada mês precisa deixar guardado
     // para os 12 seguintes (o imposto de janeiro sai do que se guarda antes, não da liberdade)
@@ -2537,13 +2564,14 @@ const ENGINE = (() => {
       // a caixa não volta a zero nos próximos 12 meses: o corte é o mínimo, igual em cada um deles, que a faz voltar
       // precisa: o menor dinheiro a mais, somando os meses de mi até precisaAte, que faz a caixa voltar a zero (o alvo do ajuste
       // mês a mês: reduzir uma despesa ou aumentar uma renda em qualquer desses meses)
-      let cum = caixa + livre - reserva - Object.values(ap).reduce((a, v) => a + v, 0), corte = Math.max(0, -cum), precisa = corte, precisaAte = mi;
+      const doCaixa = () => lib(mi) ? 0 : Object.values(ap).reduce((a, v) => a + v, 0);   // o aporte da liberdade sai do financeiro, não da sobra
+      let cum = caixa + livre - reserva - doCaixa(), corte = Math.max(0, -cum), precisa = corte, precisaAte = mi;
       for (let k = 1; k < JANELA_CAIXA && mi + k < n && corte > 0.5; k++) { cum += net[mi + k]; const def = Math.max(0, -cum); corte = Math.min(corte, def / (k + 1)); if (def < precisa - 0.005) { precisa = def; precisaAte = mi + k; } }
       let resta = corte > 0.5 ? corte : 0;
       // o corte sai do objetivo de menor prioridade para o de maior (o digitado fica) e, por último, da reserva
       ativos.slice().reverse().forEach(o => { if (digitado[o.id] || !(resta > 0.005)) return; const c = Math.min(ap[o.id], resta); if (c > 0.005) { ap[o.id] -= c; cortado[o.id] = c; resta -= c; } });
       if (resta > 0.005 && reserva > 0) { const c = Math.min(reserva, resta); reserva -= c; resta -= c; cortado.reserva = c; }
-      let fim = caixa + livre - reserva - Object.values(ap).reduce((a, v) => a + v, 0);
+      let fim = caixa + livre - reserva - doCaixa();
       // o que passa do que os 12 meses seguintes vão precisar: primeiro o objetivo que guarda toda a sobra (o.aporteSobra), até
       // o que falta; o resto vai para a liberdade financeira
       let acima = Math.max(0, fim - guardar[mi]);
@@ -2581,7 +2609,19 @@ const ENGINE = (() => {
   // a simulação em duas passadas: a primeira dá a sobra de cada mês e o que é comprado; a segunda segue o programa
   // os nomes do patrimônio item a item (weeks[].det), na mesma ordem
   const rotulosDoDetalhe = () => ({ bens: bensDoPlano().map(b => b.nome || 'Bem sem nome'), parts: partsDoPlano().map(p => p.nome || 'Participação sem nome'),
-    comprados: OBJ.map(o => o.name || 'Objetivo sem nome'), divs: bensDoPlano().map(b => 'Financiamento: ' + (b.nome || 'bem')).concat(dividasDoPlano().map(d => d.nome || 'Dívida sem nome'), CREDITOS.map(c => 'Crédito: ' + (c.nome || 'crédito novo'))) });
+    comprados: OBJ.map(o => o.name || 'Objetivo sem nome'), divs: bensDoPlano().map(b => 'Financiamento: ' + (b.nome || 'bem')).concat(dividasDoPlano().map(d => d.nome || 'Dívida sem nome'), CREDITOS.map(c => 'Crédito: ' + (c.nome || 'crédito novo')), OBJ.map(o => [o, compraDoObjetivo(o)]).filter(([, cp]) => cp && cp.modo === 'financiamento').map(([o]) => 'Financiamento: ' + (o.name || 'objetivo'))) });
+  // Os avisos do plano para o consultor: o que o motor corrige ou ignora em silêncio. Cada aviso: { tipo, onde, texto }.
+  function avisosDoPlano() {
+    const av = [], reaisBR = v => 'R$ ' + Math.round(v).toLocaleString('pt-BR');
+    const dividas = bensDoPlano().map(b => [b, 'Financiamento']).concat(dividasDoPlano().map(d => [d, 'Dívida']));
+    dividas.forEach(([d, rot]) => { const ct = contratoDaDivida(d), onde = rot + ': ' + (d.nome || 'sem nome'); if (!ct) return;
+      (ct.amortExcede || []).forEach(a => av.push({ tipo: 'amortizacao', onde, texto: 'O adiantamento de ' + reaisBR(a.pedido) + ' é maior que o saldo: o motor usa só ' + reaisBR(a.aplicado) + '.' }));
+      if (d.iof == null || d.iof === '') av.push({ tipo: 'iof', onde, texto: 'O IOF não foi informado: o motor soma o IOF ao valor financiado. Marque "isento" se o contrato não tem.' }); });
+    OBJ.forEach(o => vendasDoObjetivo(o).filter(v => v.depois).forEach(v => av.push({ tipo: 'venda', onde: 'Objetivo: ' + (o.name || 'sem nome'), texto: 'A venda de ' + v.nome + ' (' + mesDoPlano(v.mi) + ') acontece depois da data do objetivo: ela não o financia.' })));
+    bensDoPlano().concat(partsDoPlano()).forEach(x => { if (x.venda && num(x.venda.preco) != null && (x.valorizacao || []).some(e => e.tipo === 'taxa' && num(e.pct) != null))
+      av.push({ tipo: 'valorizacao', onde: x.nome || 'sem nome', texto: 'Com o preço de venda informado, a valorização por taxa é ignorada até a venda: o valor chega ao preço de forma contínua.' }); });
+    return av;
+  }
   function rodada(mode, cancela) {
     const s0 = simula(mode, null, cancela), prog = programaDosAportes(s0);
     if (!OBJ.length) return Object.assign(s0, { programa: prog });
@@ -2681,7 +2721,7 @@ const ENGINE = (() => {
     // a contribuição da pessoa ao fundo (a linha própria que o portal lança) termina no mês da concessão
     CAIXAS_PREV.forEach(c => { if (c.linha) EXPENSES = EXPENSES.map(it => it.id === c.linha ? cortaLinha(it, Math.max(1, c.tipo === 'consorcio' ? c.fim : c.mc)) : it); });
     // a renda que um bem vendido gera e a parcela dele terminam no mês da venda
-    bensDoPlano().forEach(b => { const v = b.venda && num(b.venda.em) != null ? Math.max(1, Math.round(+b.venda.em)) : null; if (v == null) return;
+    bensDoPlano().concat(partsDoPlano()).forEach(b => { const v = b.venda && num(b.venda.em) != null ? Math.max(1, Math.round(+b.venda.em)) : null; if (v == null) return;
       if (b.renda) INCOMES = INCOMES.map(it => it.id === b.renda ? cortaLinha(it, v) : it);
       if (b.linha && !b.semFluxo) EXPENSES = EXPENSES.map(it => it.id === b.linha ? cortaLinha(it, v) : it); });
   }
@@ -2971,6 +3011,7 @@ const ENGINE = (() => {
   //   juros (% ao ano contratado), situacao ('em_dia' | 'inadimplente').
   // Um bem pode gerar renda passiva: bem.renda é o id da linha de entrada do Fluxo de caixa (um aluguel, por exemplo).
   const somaDe = (l, k) => (l || []).reduce((a, x) => a + (+x[k] || 0), 0);
+  const somaBens = l => (l || []).reduce((a, x) => a + (+(x.mercado != null ? x.mercado : x.valor) || 0), 0);   // a mesma regra da trajetória do bem: mercado, ou o valor
   // a idade de hoje de cada um sai da data de nascimento (calculada e sincronizada, como os totais do patrimônio); sem a
   // data, vale a idade informada (plano antigo)
   function sincronizaIdades(plan) {
@@ -2996,7 +3037,7 @@ const ENGINE = (() => {
     } else if (Array.isArray(P.financeiro) && P.financeiro.some(f => f.daCarteira)) P.financeiro = P.financeiro.filter(f => !f.daCarteira);
     if (Array.isArray(P.financeiro)) plan.initialWealth = somaDe(P.financeiro, 'valor');
     if (Array.isArray(P.participacoes)) plan.partValue = somaDe(P.participacoes, 'valor');
-    if (Array.isArray(P.bens)) plan.initialBens = somaDe(P.bens, 'mercado');
+    if (Array.isArray(P.bens)) plan.initialBens = somaBens(P.bens);
     return plan;
   }
   // Fases da vida financeira: a vida de trabalho (de quando começou até a idade de parar) dividida em nonos.
@@ -3017,7 +3058,7 @@ const ENGINE = (() => {
     const conj = quem === 'conjuge', P = plan.patrimonio || {}, idadeP = +(conj ? plan.spouseAge : plan.age), idade = idadeP > 0 ? idadeP : CURRENT_AGE;
     const fin = Array.isArray(P.financeiro) ? somaDe(P.financeiro, 'valor') : +plan.initialWealth || 0;
     const part = Array.isArray(P.participacoes) ? somaDe(P.participacoes, 'valor') : +plan.partValue || 0;
-    const bens = Array.isArray(P.bens) ? somaDe(P.bens, 'mercado') : +plan.initialBens || 0, dividas = somaDe(P.bens, 'saldoDevedor') + somaDe(P.dividas, 'saldoDevedor');
+    const bens = Array.isArray(P.bens) ? somaBens(P.bens) : +plan.initialBens || 0, dividas = somaDe(P.bens, 'saldoDevedor') + somaDe(P.dividas, 'saldoDevedor');
     // a liquidez ideal é um % do patrimônio total (patrimonio.liquidezIdealPct); num plano antigo, um valor em reais (liquidezIdeal)
     const total = fin + part + bens - dividas, liqPct = num(P.liquidezIdealPct), liquidezIdeal = liqPct != null ? Math.max(0, total) * liqPct / 100 : num(P.liquidezIdeal);
     const out = { idade, fin, part, bens, dividas, total, liquidezIdeal, liquidezIdealPct: liqPct, padrao: padraoDeVida(plan), fase: null };
@@ -3514,7 +3555,7 @@ const ENGINE = (() => {
   function sucessao(plan) {
     const P = (plan || {}).patrimonio || {}, S = ((plan || {}).tributario || {}).sucessao || {}, fin = P.financeiro || [];
     const prev = fin.filter(x => PREVIDENCIA.includes(x.tipo)).reduce((a, x) => a + pos(x.valor), 0), inv = fin.filter(x => !PREVIDENCIA.includes(x.tipo)).reduce((a, x) => a + pos(x.valor), 0);
-    const part = somaDe(P.participacoes, 'valor'), bens = somaDe(P.bens, 'mercado'), dividas = somaDe(P.bens, 'saldoDevedor') + somaDe(P.dividas, 'saldoDevedor');
+    const part = somaDe(P.participacoes, 'valor'), bens = somaBens(P.bens), dividas = somaDe(P.bens, 'saldoDevedor') + somaDe(P.dividas, 'saldoDevedor');
     const itcmd = num(S.itcmd) != null ? num(S.itcmd) : 4, custos = num(S.custos) != null ? num(S.custos) : 8, pct = (itcmd + custos) / 100;
     const mover = Math.min(inv, pos(S.paraPrevidencia));
     const cen = (prev, inv) => { const inventario = Math.max(0, bens + part + inv - dividas); return { bens, part, prev, inv, dividas, total: bens + part + prev + inv - dividas, inventario, custo: inventario * pct }; };
@@ -3647,7 +3688,7 @@ const ENGINE = (() => {
     return mis.map(mi => ({ mi, mes: M[mi].mes, saldo: M[mi].saldo, aportado: M.slice(0, mi + 1).reduce((a, m) => a + m.aporte, 0), extra: M.slice(0, mi + 1).reduce((a, m) => a + m.extra, 0), data: mi === n }));
   }
   OBJ.forEach(derive);   // os objetivos do exemplo (aqui, depois dos bens: derive lê as vendas)
-  return { temValor, compraDoObjetivo, parcelaDaCompra, nomeDaCompra, MESES_CONSERVADOR, taxaDoObjetivo, taxaNoMes, mesDoConservador, trecho, cresceAte, alocacaoSugerida, alocacaoDaCaixinha, alocacaoDasCaixinhas, folgaDosAportes, extraDoMes, get TODAY() { return TODAY; }, get M0() { return calDoCiclo(0); }, get INICIO() { return isoDe(TODAY); }, INICIO_PADRAO, mudaInicio, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, ligado, objetivosLigados, inicioDoAporte, inicioDoDedicado, saldoNoMes, necessarioDe, MESES_POLITICA, orcamentoMesAMes, MESES_PROGRAMA, prioridadeDosObjetivos, linhasDosMeses, PASSIVE, PROFILES, STATUS, trajetoriaDoBem, trajetoriaDaParticipacao, vendasDoObjetivo, partilhaDaVenda, HORIZONTES, horizonteDe, politicaDeInvestimentos, TIPOS_FINANCEIRO, SEM_LIQUIDEZ, DA_CARTEIRA, saiComACarteira, CAIXA_PREV, FORMAS_PREV, BR_EMS, termosDaAnuidade, ETTJ_PREVIC, get CAIXAS_PREV() { return CAIXAS_PREV; }, saldoPrevEm, netEm, contratoDoConsorcio, caixaDoConsorcio, REAJUSTE_APOS, get COMPROMISSOS() { return COMPROMISSOS; }, saldoDasVendas, precoDoObjetivo, mesISO, orcadoDoObjetivo, cortesDoObjetivo, saldoDevedorEm, contratoDaDivida, restantesDaDivida, mesDe, get BENS() { return bensDoPlano(); }, get PARTS() { return partsDoPlano(); }, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, serieCusto, desiredAt, aplicaAlteracoes, fraseDaLinha, descreveAlteracao, valorAtual, mesDoPlano, desejoDoPlano, frequenciaDasLinhas, RISCOS, NATUREZAS, ITENS_RUINA, RISCOS_EXEMPLO, avaliaRiscos, custoDeVida, mediaDe12Meses, SEGURO, RELACOES, idadeLimiteDe, calculaSeguros, mesesAteIdade, FASES_VIDA, faseDaVida, sincronizaPatrimonio, PATRIMONIO_EXEMPLO, padraoDeVida, lerCaminho, gravaCaminho, IR, calculaIR, irDaFamilia, REGIMES, calculaRetirada, retiradaDosSocios, PREVIDENCIA, sucessao, simulaPrevidencia, aliqRegressiva, TRIBUTARIO_EXEMPLO, FAMILIA_EXEMPLO, casalDe, nomesDaFamilia, pessoasDaFamilia, rendaDaPessoa, bensDoRisco, titularidadeDoBem, setRetireAge: a => { RETIRE_AGE = a == null ? null : Math.max(CURRENT_AGE, +a); }, paradaMi, trabalhaEm, idadeDaLiberdade, dataNasc, idadeExata, sincronizaIdades, fraseDoProposito, ordemDoProposito, objetivosDoProposito, rendasAtivasDe, naturezaDe, naturezaDaReserva, CLASSES_ATIVOS, ORCAMENTO_IDEAL, VEZES_POUPOU, gestaoFinanceira, horasDoTrabalho, familiaDoPlano, ESTADOS_DIAGNOSTICO, orcamentoDoFluxo, CLASSES_CARTEIRA, CARTEIRAS_MODELO, ACOES_ATIVO, carteiraDoPlano, concentracaoDoPatrimonio, diagnosticoDaFamilia, financiamentoValido, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get JUROS_DIVIDA_M() { return JUROS_DIVIDA_M; }, rotulosDoDetalhe, JUROS_DIVIDA_PADRAO, TETO_DIVIDA_VEZES, contratoDoCredito, get CREDITOS() { return CREDITOS; }, saldoDoCredito, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
+  return { avisosDoPlano, temValor, compraDoObjetivo, parcelaDaCompra, nomeDaCompra, MESES_CONSERVADOR, taxaDoObjetivo, taxaNoMes, mesDoConservador, trecho, cresceAte, alocacaoSugerida, alocacaoDaCaixinha, alocacaoDasCaixinhas, folgaDosAportes, extraDoMes, get TODAY() { return TODAY; }, get M0() { return calDoCiclo(0); }, get INICIO() { return isoDe(TODAY); }, INICIO_PADRAO, mudaInicio, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, ligado, objetivosLigados, inicioDoAporte, inicioDoDedicado, saldoNoMes, necessarioDe, MESES_POLITICA, orcamentoMesAMes, MESES_PROGRAMA, prioridadeDosObjetivos, linhasDosMeses, PASSIVE, PROFILES, STATUS, trajetoriaDoBem, trajetoriaDaParticipacao, vendasDoObjetivo, partilhaDaVenda, HORIZONTES, horizonteDe, politicaDeInvestimentos, TIPOS_FINANCEIRO, SEM_LIQUIDEZ, DA_CARTEIRA, saiComACarteira, CAIXA_PREV, FORMAS_PREV, BR_EMS, termosDaAnuidade, ETTJ_PREVIC, get CAIXAS_PREV() { return CAIXAS_PREV; }, saldoPrevEm, netEm, contratoDoConsorcio, caixaDoConsorcio, REAJUSTE_APOS, get COMPROMISSOS() { return COMPROMISSOS; }, saldoDasVendas, precoDoObjetivo, mesISO, orcadoDoObjetivo, cortesDoObjetivo, saldoDevedorEm, contratoDaDivida, restantesDaDivida, mesDe, get BENS() { return bensDoPlano(); }, get PARTS() { return partsDoPlano(); }, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, serieCusto, desiredAt, aplicaAlteracoes, fraseDaLinha, descreveAlteracao, valorAtual, mesDoPlano, desejoDoPlano, frequenciaDasLinhas, RISCOS, NATUREZAS, ITENS_RUINA, RISCOS_EXEMPLO, avaliaRiscos, custoDeVida, mediaDe12Meses, SEGURO, RELACOES, idadeLimiteDe, calculaSeguros, mesesAteIdade, FASES_VIDA, faseDaVida, sincronizaPatrimonio, PATRIMONIO_EXEMPLO, padraoDeVida, lerCaminho, gravaCaminho, IR, calculaIR, irDaFamilia, REGIMES, calculaRetirada, retiradaDosSocios, PREVIDENCIA, sucessao, simulaPrevidencia, aliqRegressiva, TRIBUTARIO_EXEMPLO, FAMILIA_EXEMPLO, casalDe, nomesDaFamilia, pessoasDaFamilia, rendaDaPessoa, bensDoRisco, titularidadeDoBem, setRetireAge: a => { RETIRE_AGE = a == null ? null : Math.max(CURRENT_AGE, +a); }, paradaMi, trabalhaEm, idadeDaLiberdade, dataNasc, idadeExata, sincronizaIdades, fraseDoProposito, ordemDoProposito, objetivosDoProposito, rendasAtivasDe, naturezaDe, naturezaDaReserva, CLASSES_ATIVOS, ORCAMENTO_IDEAL, VEZES_POUPOU, gestaoFinanceira, horasDoTrabalho, familiaDoPlano, ESTADOS_DIAGNOSTICO, orcamentoDoFluxo, CLASSES_CARTEIRA, CARTEIRAS_MODELO, ACOES_ATIVO, carteiraDoPlano, concentracaoDoPatrimonio, diagnosticoDaFamilia, financiamentoValido, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get JUROS_DIVIDA_M() { return JUROS_DIVIDA_M; }, rotulosDoDetalhe, JUROS_DIVIDA_PADRAO, TETO_DIVIDA_VEZES, contratoDoCredito, get CREDITOS() { return CREDITOS; }, saldoDoCredito, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
 })();
 if (typeof module !== 'undefined') module.exports = ENGINE;
 </script>

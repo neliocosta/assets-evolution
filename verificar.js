@@ -758,7 +758,7 @@ console.log('\n13. Dívidas: contrato, CET e saldo ao longo do tempo');
   // adiantamentos: R$ 40 mil daqui a 3 meses e R$ 12 mil daqui a 6
   const base = Object.assign({}, bb, { iof: 'isento' }), adi = m => Object.assign({}, base, { amortizacoes: [{ em: 3, valor: 40000, modo: m }, { em: 6, valor: 12000, modo: m }] });
   const sem = Ed.contratoDaDivida(base), pz = Ed.contratoDaDivida(adi('prazo')), pc = Ed.contratoDaDivida(adi('parcela'));
-  ok('adiantamento: o saldo cai o valor adiantado no mês', Math.abs((pz.linhas[sem.k0 + 3].saldo) - (sem.linhas[sem.k0 + 3].saldo - 40000)) < 0.01);
+  ok('adiantamento: o saldo do mês cai o valor adiantado (a parcela do mês 3 é a de índice k0+2)', Math.abs((pz.linhas[sem.k0 + 2].saldo) - (sem.linhas[sem.k0 + 2].saldo - 40000)) < 0.01);
   ok('reduzir o prazo: a parcela continua e a dívida acaba antes', pz.restantes < sem.restantes && Math.abs(pz.linhas[sem.k0 + 10].pay - 5512) < 0.01 && Ed.restantesDaDivida(adi('prazo')) === pz.restantes, pz.restantes + ' parcelas em vez de ' + sem.restantes);
   ok('reduzir a parcela: o prazo continua e a parcela cai', pc.restantes === sem.restantes && pc.linhas[sem.k0 + 10].pay < 5512 - 100, 'R$ ' + Math.round(pc.linhas[sem.k0 + 10].pay));
   ok('adiantar economiza juros; reduzir o prazo economiza mais', pz.falta.juros < pc.falta.juros && pc.falta.juros < sem.falta.juros && pz.semExtras && Math.abs(pz.semExtras.falta.juros - sem.falta.juros) < 0.01);
@@ -1018,5 +1018,48 @@ console.log('\nO início do desenho: mudar a data não muda o calendário');
   ok('  e o plano novo com o mesmo início fica em outubro', (Ei.configure(novo), Ei.mesDoPlano(0) === 'out/2026' && novo.inicio === '2026-10-04'));
 }
 
+
+console.log('\n13. Regressões da auditoria (planos de ux/auditoria/planos)');
+if (fs.existsSync('ux/auditoria/planos/plano-09.json')) {
+  const plano = n => { const j = JSON.parse(fs.readFileSync('ux/auditoria/planos/plano-' + n + '.json', 'utf8')); return j.dados || j; };
+  const roda = n => { const Ea = carregar(srcCliente); Ea.configure(plano(n)); const s = Ea.run('desej'); return { Ea, s }; };
+  const mes = (s, mi) => (s.buckets.month.find(b => b.mi === mi) || { f: {} });
+  const soma = (b, re) => Object.entries(b.f).filter(([k]) => re.test(k)).reduce((a, [, v]) => a + v, 0);
+  { const { s } = roda('09');
+    ok('M1: depois da liberdade a parcela e o adiantamento da dívida saem como no contrato (103.867,61), sem a escala do padrão de vida', Math.abs(soma(mes(s, 13), /^out_fix_parc_apto$/) - 103867.61) < 0.01, soma(mes(s, 13), /^out_fix_parc_apto$/));
+    ok('M2: o saque único do fundo de pensão entra no financeiro e não vira gasto do mês (saídas iguais à renda desejada)', Math.abs(soma(mes(s, 6), /^out_/) - 22000) < 1, soma(mes(s, 6), /^out_/));
+    ok('M4: o cônjuge recebe o salário até o mês em que faz a idade de parar (mês 26 ainda com salário)', soma(mes(s, 26), /^in_salario$/) > 0, soma(mes(s, 26), /^in_salario$/));
+    ok('D2: na renda desejada, o gasto da liberdade é a renda desejada, mesmo com renda passiva maior', Math.abs(soma(mes(s, 100), /^out_/) - 22000) < 1 || soma(mes(s, 100), /^out_/) < 22000 + 1, soma(mes(s, 100), /^out_/)); }
+  { const { Ea } = roda('07'), pl = plano('07');
+    const divs = ((pl.dados || pl).patrimonio || {}).dividas || [];
+    const com = divs.filter(d => (d.amortizacoes || []).length);
+    ok('M3: o saldo devedor cai no mesmo mês do adiantamento (e não no seguinte)', com.length > 0 && com.every(d => d.amortizacoes.every(a => Ea.saldoDevedorEm(d, a.em) <= Math.max(0, Ea.saldoDevedorEm(d, a.em - 1) - 0.9 * a.valor))), com.length + ' dívida(s) com adiantamento'); }
+  { const { s } = roda('05');
+    ok('D1: quando o patrimônio acaba e a renda desejada deixa de ser paga, o motor devolve o aviso (semCobertura)', !!s.semCobertura && s.semCobertura.falta > 0 && s.events.some(e => e.label === 'O patrimônio não cobre a renda desejada'), s.semCobertura && JSON.stringify({ mi: s.semCobertura.mi, falta: Math.round(s.semCobertura.falta) })); }
+}
+console.log('\n14. Segunda rodada da auditoria (M5 a M10, D4, D6 e os campos novos)');
+{ const base = JSON.parse(JSON.stringify(typeof planoBase !== 'undefined' ? planoBase : {}));
+  const cenario = n => { const f = 'ux/auditoria/planos/plano-' + n + '.json'; if (!fs.existsSync(f)) return null; const j = JSON.parse(fs.readFileSync(f, 'utf8')); return j.dados || j; };
+  const roda = (pl, modo) => { const Ea = carregar(srcCliente); Ea.configure(JSON.parse(JSON.stringify(pl))); return { Ea, s: Ea.run(modo || 'desej') }; };
+  const p10 = cenario('10'), p03 = cenario('03'), p07 = cenario('07');
+  if (p10) { const { s } = roda(p10);
+    const m48 = s.buckets.month.find(b => b.mi === 48) || { f: {} };
+    ok('M6: no consórcio, a parte do lance que é taxa de administração sai como despesa e não vira bem', Math.abs((m48.f.out_obj_carro || 0) - 619) < 1, m48.f.out_obj_carro);
+    const fim = s.weeks[s.weeks.length - 1];
+    ok('D6: a compra financiada traz a dívida para as dívidas atuais (e o bem entra inteiro)', Math.max(...s.weeks.filter(w => w.mi >= 0).map(w => w.div)) > 400000, Math.round(Math.max(...s.weeks.map(w => w.div)))); }
+  if (p03) { const { s } = roda(p03);
+    ok('D4: o objetivo que vence depois da liberdade continua recebendo aporte (nenhum fica em "alcançável com ajustes")', s.ff && Ea_ok(p03)); }
+  function Ea_ok(pl) { const { Ea } = roda(pl); return Ea.OBJ.every(o => o.status === 'ok'); }
+  if (p07) { const { Ea } = roda(p07), pl = JSON.parse(JSON.stringify(p07));
+    const dv = ((pl.patrimonio || {}).dividas || []).find(d => (d.amortizacoes || []).length);
+    if (dv) { dv.amortizacoes[0].valor = 9e9; Ea.configure(pl);
+      const av = Ea.avisosDoPlano();
+      ok('amortização maior que o saldo: o motor usa só o saldo e avisa', av.some(a => a.tipo === 'amortizacao') && Ea.saldoDevedorEm(dv, dv.amortizacoes[0].em) === 0, av.map(a => a.tipo).join(',')); } }
+  // venda de participação com imposto sobre o ganho e renda ligada que termina na venda
+  { const pl = { age: 40, nascimento: '1986-05-12', tipo: 'individual', initialWealth: 100000, patrimonio: { financeiro: [], bens: [], dividas: [],
+      participacoes: [{ nome: 'Empresa', valor: 1000000, venda: { em: 60, preco: 2000000, impostoGanhoPct: 15, custoAquisicao: 500000 } }] } };
+    const { Ea } = roda(pl), tr = Ea.trajetoriaDaParticipacao(Ea.PARTS[0]);
+    ok('imposto sobre o ganho: 15% de (2.000.000 − 500.000) = 225.000 saem do líquido da venda', tr.venda && Math.abs(tr.venda.custo - 225000) < 1 && Math.abs(tr.venda.liquido - 1775000) < 1, tr.venda && tr.venda.custo); }
+}
 console.log('\n' + (falhas ? falhas + ' verificação(ões) falharam.' : 'Tudo certo.') + '\n');
 process.exit(falhas ? 1 : 0);
