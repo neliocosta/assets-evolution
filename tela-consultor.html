@@ -2862,6 +2862,44 @@ const ENGINE = (() => {
   }
   // a renda desejada num mês, pelo plano (a do começo da liberdade, ou a de uma mudança por período)
   const desejoDoPlano = (plan, mi) => { let v = +plan.desired || 0; (plan.desiredSteps || []).slice().sort((a, b) => a.from - b.from).forEach(st => { if (mi >= st.from) v = +st.value || 0; }); return v; };
+  // A renda na liberdade, período a período, de mi0 (o começo) até a expectativa de vida. Em cada período, a renda desejada
+  // (D) e as rendas que entram (camadas): as da aposentadoria, a da caixa do fundo de pensão, as passivas do Fluxo e a do
+  // trabalho de quem ainda não parou. Um período novo começa quando uma renda começa, termina ou muda, ou quando a renda
+  // desejada muda. Do mês miEsg em diante, o patrimônio acabou (semPatr). O portal e a área do cliente leem daqui.
+  function rendasDaLiberdade(plan, mi0, miEsg) {
+    const mFim = Math.max(mi0 + 12, Math.round((+plan.lifeExp - CURRENT_AGE) * 12)), out = [], incomes = plan.incomes || [];
+    const passivasFluxo = incomes.filter(c => !ativo(c)), ativasFluxo = incomes.filter(c => ativo(c)), degraus = (plan.desiredSteps || []).map(s => s.from);
+    for (let mi = mi0; mi < mFim; mi++) {
+      const camadas = (plan.passive || []).map((p, k) => ({ id: 'p' + k, nome: p.name || 'Renda sem nome', v: rendaAtiva(p, mi, mi0) ? +p.net || 0 : 0 }))
+        .concat(PASSIVE.map((p, k) => p.daCaixa == null ? null : { id: 'c' + k, nome: p.name, v: rendaAtiva(p, mi, mi0) ? netEm(p, mi) : 0 }).filter(Boolean))
+        .concat(passivasFluxo.map(c => ({ id: 'f' + c.id, nome: c.label || 'Renda passiva', v: mensalizado(c, mi) })))
+        .concat(ativasFluxo.map(c => ({ id: 'a' + c.id, nome: c.label || 'Renda do trabalho', v: trabalhaEm(c, mi, mi0) ? mensalizado(c, mi) : 0 })))   // de quem ainda não parou
+        .filter(c => c.v > 0.5);
+      const semPatr = miEsg != null && mi >= miEsg, D = desejoDoPlano(plan, mi);
+      const assin = camadas.map(c => c.id + ':' + Math.round(c.v)).join('|') + (semPatr ? '|sem' : '') + '|D' + D, ult = out[out.length - 1];
+      if (ult && ult.assin === assin && !degraus.includes(mi)) ult.m1 = mi + 1; else out.push({ m0: mi, m1: mi + 1, camadas, assin, semPatr, D, R: camadas.reduce((a, c) => a + c.v, 0) });
+    }
+    return out;
+  }
+  // O que o patrimônio da liberdade (P, depois de contratar as rendas) paga até a expectativa de vida, mês a mês, à taxa da
+  // reserva (o saque do mês sai no começo dele): consumir o patrimônio até lá (a maior renda igual em todos os meses, rendas
+  // incluídas), preservá-lo (sacar só o rendimento, o mesmo valor em todos os períodos, e a renda de cada período é esse
+  // saque mais as rendas dele) e quanto seria preciso na liberdade para a renda desejada durar até lá. dura(W): até que mês
+  // dura uma renda de W por mês (vazio: a desejada de cada mês); mi vazio, a vida toda, com o que sobra no fim; com serie, o
+  // patrimônio no começo de cada mês.
+  function alternativasDaLiberdade(plan, js, P) {
+    const r = +plan.rate || 0, ms = js.flatMap(j => Array.from({ length: j.m1 - j.m0 }, (x, k) => ({ mi: j.m0 + k, D: j.D, R: j.R }))), cem = v => Math.floor(v / 100) * 100;
+    const vp = W => { let v = 0, g = 1; ms.forEach(m => { v += Math.max(0, (W == null ? m.D : W) - m.R) / g; g *= 1 + r; }); return v; };
+    let a = 0, b = 1e7; for (let k = 0; k < 60; k++) { const m = (a + b) / 2; if (vp(m) > P) b = m; else a = m; }
+    const perpSaque = cem(Math.max(0, P) * r);
+    const dura = (W, comSerie) => { let s = P; const serie = [];
+      for (const m of ms) { if (comSerie) serie.push(Math.max(0, s)); s -= Math.max(0, (W == null ? m.D : W) - m.R); if (s < 0) return { mi: m.mi, sobra: 0, serie }; s *= 1 + r; }
+      return { mi: null, sobra: s, serie }; };
+    // preserva: a maior renda igual em todos os meses (rendas incluídas) que deixa o patrimônio, na expectativa de vida, do
+    // tamanho que ele tinha na liberdade (a área do cliente compara as maneiras pela mesma régua: uma renda fixa)
+    let c = 0, d = Math.max(1, a); for (let k = 0; k < 40; k++) { const m = (c + d) / 2, r2 = dura(m); if (r2.mi == null && r2.sobra >= P) c = m; else d = m; }
+    return { meses: ms, precisa: vp(), consumo: cem(a), preserva: cem(c), perpSaque, perpPassos: js.map(j => ({ from: j.m0, value: Math.round(j.R + perpSaque) })), dura };
+  }
   // ffMi: o mês em que a liberdade começa, pela simulação (vazio enquanto o plano não a tem)
   const objetivosDoProposito = (plan, ffMi) => ordemDoProposito(plan).map(id => {
     if (id === 'seguranca') return { id, titulo: 'Segurança financeira', descricao: 'Estar blindado dos principais riscos financeiros e ter a fundação sólida para realizar seus objetivos.', fixo: true };
@@ -3158,14 +3196,14 @@ const ENGINE = (() => {
   // líquido, e a linha fica em semBruto). INSS: o do salário pela tabela do empregado, o do pró-labore 11%, ambos até o teto.
   // Pró-labore e dividendos (por mês): as linhas com essas categorias.
   function rendaDaPessoa(plan, quem) {
-    const out = { trib: 0, inss: 0, linhas: [], semBruto: [], pro: 0, div: 0, linhasPro: [], linhasDiv: [] };
+    const out = { trib: 0, inss: 0, linhas: [], semBruto: [], pro: 0, div: 0, linhasPro: [], linhasDiv: [], isentas: 0, linhasIsentas: [] };
     (plan.incomes || []).filter(it => (it.pessoa || 'titular') === quem).forEach(it0 => {
       const it = sortSteps(Object.assign({}, it0)), oc = []; for (let mm = 0; mm < 12; mm++) oc.push(...ocorrencias(it, mm, false));
       if (!oc.length) return;
       const bruto = +it.gross > 0 ? +it.gross : null, nome = it.label || 'sem nome', ano = oc.reduce((a, o) => a + (bruto != null ? bruto : o.v), 0);
       if (it.origin === 'Distribuição de lucros') { out.div += oc.reduce((a, o) => a + o.v, 0) / 12; out.linhasDiv.push(nome); return; }
       if (it.origin === 'Pró-labore') { out.pro += ano / 12; out.linhasPro.push(nome); }
-      if (it.taxable === false) return;
+      if (it.taxable === false) { out.isentas += ano; out.linhasIsentas.push(nome); return; }
       out.trib += ano; out.linhas.push(nome); if (bruto == null) out.semBruto.push(nome);
       if (bruto != null && it.origin === 'Salário') out.inss += oc.length * inssCLT(bruto);
       if (bruto != null && it.origin === 'Pró-labore') out.inss += oc.length * Math.min(bruto, IR.tetoINSS) * IR.inssSocio;
@@ -3183,11 +3221,36 @@ const ENGINE = (() => {
     const lista = ((plan.riscos || {}).dependentes), nDeps = Array.isArray(lista) ? lista.length : Math.round(pos(T.dependentes)), nomes = nomesDaFamilia(plan);
     const base = pessoasDaFamilia(plan).map((quem, i) => { const d = dadosIR(T, quem, i), fx = rendaDaPessoa(plan, quem), doFluxo = fx.linhas.length > 0;
       return { quem, nome: nomes[quem], doFluxo, linhas: fx.linhas, semBruto: fx.semBruto, rend: doFluxo ? fx.trib : pos(d.rend), inss: doFluxo ? fx.inss : pos(d.inss), outras: pos(d.outras) }; });
-    const cen = c => { c = c || {}; const ps = base.map((p, i) => { const l = (c.lanc || [])[i] || {};
-        return Object.assign({ quem: p.quem, nome: p.nome, doFluxo: p.doFluxo, linhas: p.linhas, semBruto: p.semBruto, pgbl: pos(l.pgbl) }, calculaIR({ rend: p.rend, inss: p.inss, outras: p.outras, deps: +c.depsCom === i ? nDeps : 0, instr: l.instr, med: l.med, pgbl: l.pgbl })); });
+    // o sócio na estratégia recomendada recebe o pró-labore recomendado da página Pró-labore e dividendos (o resto vem como
+    // dividendos, isentos): a renda tributável e o INSS dele mudam. Só com a retirada vinda do Fluxo de caixa.
+    const socios = (retiradaDosSocios(plan) || { socios: [] }).socios;
+    const proRec = base.map(p => { const so = p.doFluxo && socios.find(x => x.quem === p.quem && x.doFluxo && Math.abs(x.rec.pro - x.atual.pro) > 0.5);
+      return so ? { rend: Math.max(0, p.rend - 12 * so.atual.pro + 12 * so.rec.pro), inss: Math.max(0, p.inss - 12 * so.atual.inss + 12 * so.rec.inss), proHoje: so.atual.pro, proRec: so.rec.pro } : null; });
+    const cen = (c, comProRec) => { c = c || {}; const ps = base.map((p, i) => { const l = (c.lanc || [])[i] || {}, x = comProRec && proRec[i];
+        return Object.assign({ quem: p.quem, nome: p.nome, doFluxo: p.doFluxo, linhas: p.linhas, semBruto: p.semBruto, pgbl: pos(l.pgbl), proRec: x ? x.proRec : null }, calculaIR({ rend: x ? x.rend : p.rend, inss: x ? x.inss : p.inss, outras: p.outras, deps: +c.depsCom === i ? nDeps : 0, instr: l.instr, med: l.med, pgbl: l.pgbl })); });
       return { pessoas: ps, total: ps.reduce((a, x) => a + x.devido, 0), rend: ps.reduce((a, x) => a + x.rend, 0), depsCom: +c.depsCom }; };
-    const atual = cen(T.atual), recomendada = cen(T.recomendada);
-    return { nDeps, atual, recomendada, economia: atual.total - recomendada.total };
+    const atual = cen(T.atual), recomendada = cen(T.recomendada, true), la = i => ((T.atual || {}).lanc || [])[i] || {}, lr = i => ((T.recomendada || {}).lanc || [])[i] || {};
+    // o PGBL de cada um, no roteiro da calculadora de PGBL: com os outros lançamentos da recomendação, o imposto no simplificado,
+    // no completo sem PGBL, com o PGBL de hoje e com o máximo (12% da renda tributável, só para quem contribui ao INSS), a
+    // margem (o máximo, o de hoje e o que ainda cabe) e quanto o máximo economiza em relação ao de hoje
+    // a renda tributável manda no PGBL (o limite é 12% dela): de cada pessoa, o que entra (salário, pró-labore…) e o que fica de
+    // fora (a distribuição de lucros e as rendas isentas). O sócio entra com o pró-labore recomendado, o da estratégia; com o de
+    // hoje fica a comparação (comProHoje): com menos pró-labore e mais dividendos, a renda tributável cai e o PGBL pode deixar de
+    // economizar
+    const pgbl = base.map((p, i) => {
+      const deps = +(T.recomendada || {}).depsCom === i ? nDeps : 0, fx = rendaDaPessoa(plan, p.quem);
+      const cenPgbl = (rend, inss) => { const com = v => calculaIR({ rend, inss, outras: p.outras, deps, instr: lr(i).instr, med: lr(i).med, pgbl: v });
+        const hoje = pos(la(i).pgbl), x0 = com(0), limite = x0.lim.pgbl, xh = com(hoje), xm = com(limite);
+        return { rend, inss, limite, hoje: Math.min(hoje, limite), disponivel: Math.max(0, limite - hoje), simplificada: x0.simplificada, semPgbl: x0.completa, comHoje: xh.devido, comMax: xm.devido, economia: Math.max(0, xh.devido - xm.devido) }; };
+      const x = proRec[i], comProHoje = x ? Object.assign(cenPgbl(p.rend, p.inss), { proHoje: x.proHoje, proRec: x.proRec }) : null;
+      return Object.assign({ quem: p.quem, nome: p.nome, recomendado: pos(lr(i).pgbl), doFluxo: p.doFluxo, linhas: p.linhas, div: 12 * fx.div, linhasDiv: fx.linhasDiv, isentas: fx.isentas, linhasIsentas: fx.linhasIsentas, comProHoje }, x ? cenPgbl(x.rend, x.inss) : cenPgbl(p.rend, p.inss));
+    });
+    // de onde vem a economia: primeiro o PGBL da recomendação, com os outros lançamentos de hoje; depois o pró-labore recomendado
+    // (o imposto de renda que cai com ele); o resto vem dos dependentes e das despesas (que, sozinhos, podem até aumentar o
+    // imposto: valem junto com o PGBL, que leva a pessoa para o completo)
+    const comPgbl = Object.assign({}, T.atual, { lanc: base.map((p, i) => Object.assign({}, la(i), { pgbl: lr(i).pgbl })) }), soPgbl = cen(comPgbl), maisPro = cen(comPgbl, true);
+    return { nDeps, atual, recomendada, economia: atual.total - recomendada.total, pgbl, proRec,
+      partes: { pgbl: atual.total - soPgbl.total, prolabore: soPgbl.total - maisPro.total, outros: maisPro.total - recomendada.total } };
   }
   // Retirada de um sócio, por mês. O pró-labore paga INSS (11% até o teto) e IR na fonte pela tabela mensal, com a redução
   // de 2026; fora do Simples Nacional (e no Anexo IV), a empresa paga 20% de INSS patronal sobre ele. Os dividendos são
@@ -3202,7 +3265,10 @@ const ENGINE = (() => {
     const ano = 12 * (pro + div), aliqMin = ano <= IR.minimoDe ? 0 : Math.min(IR.minimoMax, (ano / 60000 - 10) / 100);
     const minimo = Math.max(0, aliqMin * ano - 12 * (irrf + divIR));
     const pessoa = inss + irrf + divIR, mes = pessoa + patronal;
-    return { pro, div, total: pro + div, inss, irrf, divIR, patronal, pessoa, mes, liquido: pro + div - pessoa, minimo, ano: 12 * mes + minimo };
+    // custo: o que a forma de retirar custa no ano fora o imposto de renda anual (INSS do sócio e patronal, IR sobre os dividendos
+    // e o imposto mínimo). O IR na fonte do pró-labore é antecipação do imposto anual, que a página do imposto de renda calcula
+    // com o pró-labore de cada estratégia: contá-lo aqui seria contar a mesma economia duas vezes.
+    return { pro, div, total: pro + div, inss, irrf, divIR, patronal, pessoa, mes, liquido: pro + div - pessoa, minimo, ano: 12 * mes + minimo, custo: 12 * (inss + patronal + divIR) + minimo };
   }
   // As duas formas de retirar o mesmo valor (plan.tributario.prolabore): socios: [{ quem, empresa, regime, pro, div, proRec,
   // faturamento }]. O pró-labore e os dividendos de hoje vêm das linhas do Fluxo de caixa da pessoa (categorias Pró-labore e
@@ -3216,7 +3282,7 @@ const ENGINE = (() => {
       const atual = calculaRetirada(s.pro, s.div, s.regime), rec = calculaRetirada(proRec, total - proRec, s.regime);
       // fator R: no Simples, a folha (o pró-labore) precisa ser 28% do faturamento para a empresa ficar no Anexo III
       const fat = pos(s.faturamento), fr = v => fat ? v / fat : null;
-      return { nome: quem ? nomes[quem] : s.nome || 'Sócio ' + (i + 1), quem, doFluxo, linhas: doFluxo ? fx.linhasPro.concat(fx.linhasDiv) : [], linhasPro: doFluxo ? fx.linhasPro : [], linhasDiv: doFluxo ? fx.linhasDiv : [], empresa: s.empresa || '', regime: s.regime || 'simples', atual, rec, economia: atual.ano - rec.ano,
+      return { nome: quem ? nomes[quem] : s.nome || 'Sócio ' + (i + 1), quem, doFluxo, linhas: doFluxo ? fx.linhasPro.concat(fx.linhasDiv) : [], linhasPro: doFluxo ? fx.linhasPro : [], linhasDiv: doFluxo ? fx.linhasDiv : [], empresa: s.empresa || '', regime: s.regime || 'simples', atual, rec, economia: atual.custo - rec.custo,
         fatorR: s.regime === 'simplesR' && fat ? { atual: fr(pos(s.pro)), rec: fr(proRec), cai: fr(pos(s.pro)) >= 0.28 && fr(proRec) < 0.28 } : null };
     });
     return { socios, economia: socios.reduce((a, s) => a + s.economia, 0) };
@@ -3252,35 +3318,52 @@ const ENGINE = (() => {
     const N = Math.max(12, Math.round(pos(o.anos) * 12)), ini = pos(o.inicial), ap = pos(o.aporte), aliq = pos(o.aliqComum != null ? o.aliqComum : 15) / 100, trocas = Math.round(pos(o.trocas));
     const g = taxa => Math.pow((1 + pos(o.rent) / 100) * (1 - pos(taxa) / 100), 1 / 12) - 1;
     const aporteEm = m => (m === 0 ? ini : 0) + ap, aportado = ini + ap * N;
-    // fundo com come-cotas: a alíquota do resgate depende do prazo desde a entrada (22,5% até 6 meses, 20% até 1 ano, 17,5%
-    // até 2 anos, depois a de longo prazo), e o resgate paga o que falta além do come-cotas. Sem come-cotas (fundo de ações),
-    // a alíquota é uma só. A troca de estratégia é um resgate: paga e recomeça a contar o prazo.
+    // O investimento comum é resgatado aporte por aporte: cada aporte é um lote com o seu prazo, e no resgate cada lote paga a
+    // alíquota do prazo dele (num fundo com come-cotas, 22,5% até 6 meses, 20% até 1 ano, 17,5% até 2 anos e a de longo prazo
+    // depois), descontado o come-cotas que ele já pagou. Os seis aportes mais recentes ficam em 22,5%, os seis anteriores em
+    // 20%, e assim por diante. O come-cotas leva a alíquota de longo prazo do rendimento de cada lote a cada seis meses. Sem
+    // come-cotas (fundo de ações), a alíquota é uma só. A troca de estratégia é um resgate de todos os lotes: paga e o saldo
+    // vira um lote só, com o prazo recomeçando.
     const taxaPrazo = (come, anos) => !come ? aliq : anos <= 0.5 ? Math.max(aliq, 0.225) : anos <= 1 ? Math.max(aliq, 0.20) : anos <= 2 ? Math.max(aliq, 0.175) : aliq;
-    const comum = (nTrocas, come, taxa) => {
+    // as faixas de um resgate no fim do mês M: quantos lotes em cada alíquota e quanto cada faixa paga
+    const faixasDe = (lotes, aliqDe, impDe) => { const f = new Map(); lotes.forEach(l => { const al = aliqDe(l), x = f.get(al) || { aliq: al, n: 0, imp: 0 }; x.n++; x.imp += impDe(l, al); f.set(al, x); }); return [...f.values()].sort((p, q) => q.aliq - p.aliq); };
+    // mem: a memória mês a mês (para a tabela de depuração da página), só nos dois cenários que a página compara
+    const comum = (nTrocas, come, taxa, mem) => {
       const r = g(taxa), em = new Set(Array.from({ length: nTrocas }, (_, k) => Math.round((k + 1) * N / (nTrocas + 1))));
-      let B = 0, Gtot = 0, Gcc = 0, CC = 0, ent = 0, imp = 0; const serie = [];
-      const devido = m => Math.max(0, taxaPrazo(come, (m - ent) / 12) * Gtot - CC);
+      let lotes = [], imp = 0; const serie = [];
+      // um lote: o mês em que entrou (m), o valor (v), o rendimento desde a entrada (G), o rendimento desde o último come-cotas (gcc) e o come-cotas pago (cc)
+      const aliqLote = (l, M) => taxaPrazo(come, (M - l.m) / 12), devLote = (l, M, al) => Math.max(0, (al != null ? al : aliqLote(l, M)) * l.G - l.cc);
+      const devido = M => lotes.reduce((t, l) => t + devLote(l, M), 0), saldo = () => lotes.reduce((t, l) => t + l.v, 0);
       for (let m = 0; m < N; m++) {
-        B += aporteEm(m); const ganho = B * r; B += ganho; Gtot += ganho; Gcc += ganho;
-        if (come && m % 6 === 5) { const t = aliq * Math.max(0, Gcc); B -= t; imp += t; CC += t; Gcc = 0; }
-        if (em.has(m + 1) && m + 1 < N) { const t = devido(m + 1); B -= t; imp += t; Gtot = Gcc = CC = 0; ent = m + 1; }
-        serie.push(B - devido(m + 1));
+        if (aporteEm(m) > 0) lotes.push({ m, v: aporteEm(m), G: 0, gcc: 0, cc: 0 });
+        let ganho = 0, tc = 0, tt = 0; lotes.forEach(l => { const x = l.v * r; l.v += x; l.G += x; l.gcc += x; ganho += x; });
+        if (come && m % 6 === 5) lotes.forEach(l => { const t = aliq * Math.max(0, l.gcc); l.v -= t; l.cc += t; l.gcc = 0; tc += t; });
+        imp += tc;
+        const trocou = em.has(m + 1) && m + 1 < N;
+        if (trocou) { tt = devido(m + 1); const resto = saldo() - tt; imp += tt; lotes = [{ m: m + 1, v: resto, G: 0, gcc: 0, cc: 0 }]; }
+        const B = saldo(), dv = devido(m + 1), G = lotes.reduce((t, l) => t + l.G, 0); serie.push(B - dv);
+        if (mem) mem.push({ aporte: aporteEm(m), rend: ganho, come: tc, troca: tt, trocou, saldo: B, impResg: dv, aliqResg: G > 0 ? (dv + lotes.reduce((t, l) => t + l.cc, 0)) / G : 0, liq: B - dv,
+          faixas: faixasDe(lotes, l => aliqLote(l, m + 1), (l, al) => devLote(l, m + 1, al)) });
       }
       const t = devido(N); imp += t;
-      return { final: B - t, imposto: imp, serie };
+      return { final: saldo() - t, imposto: imp, serie };
     };
-    const prev = taxa => {
+    const prev = (taxa, mem) => {
       const r = g(taxa), F = [1]; for (let m = 1; m <= N; m++) F.push(F[m - 1] * (1 + r));
       const liquido = M => { let v = 0, t = 0; for (let m = 0; m < M; m++) { const c = aporteEm(m), val = c * F[M] / F[m]; v += val; t += aliqRegressiva((M - m) / 12) * (val - c); } return [v - t, t]; };
-      const serie = []; for (let M = 1; M <= N; M++) serie.push(liquido(M)[0]);
+      const lotesEm = M => Array.from({ length: M }, (_, m) => ({ m, c: aporteEm(m) })).filter(l => l.c > 0);
+      const serie = []; for (let M = 1; M <= N; M++) { const [l, t] = liquido(M); serie.push(l);
+        if (mem) mem.push({ rend: (l + t) - (M > 1 ? mem[M - 2].saldo : 0) - aporteEm(M - 1), saldo: l + t, impResg: t, liq: l,
+          faixas: faixasDe(lotesEm(M), x => aliqRegressiva((M - x.m) / 12), (x, al) => al * (x.c * F[M] / F[x.m] - x.c)) }); }
       const [final, imposto] = liquido(N);
       return { final, imposto, serie };
     };
-    const A = comum(trocas, o.comeCotas !== false, o.taxaComum), B = comum(trocas, false, o.taxaComum), C = comum(0, false, o.taxaComum), D1 = prev(o.taxaComum), D = prev(o.taxaPrev);
+    const memC = [], memP = [], A = comum(trocas, o.comeCotas !== false, o.taxaComum, memC), B = comum(trocas, false, o.taxaComum), C = comum(0, false, o.taxaComum), D1 = prev(o.taxaComum), D = prev(o.taxaPrev, memP);
     const passos = [['Sem come-cotas: o imposto continua rendendo', B.final - A.final], ['Trocas de estratégia sem imposto (portabilidade)', C.final - B.final],
       ['Alíquota menor no resgate (tabela regressiva)', D1.final - C.final], ['Diferença de taxa de administração', D.final - D1.final]].filter(p => Math.abs(p[1]) >= 1);
     const aliqMedia = x => { const ganho = x.final + x.imposto - aportado; return ganho > 0 ? x.imposto / ganho : 0; };
-    return { N, aportado, comum: Object.assign(A, { aliqMedia: aliqMedia(A) }), prev: Object.assign(D, { aliqMedia: aliqMedia(D) }), passos, ganho: D.final - A.final };
+    return { N, aportado, comum: Object.assign(A, { aliqMedia: aliqMedia(A) }), prev: Object.assign(D, { aliqMedia: aliqMedia(D) }), passos, ganho: D.final - A.final,
+      memoria: memC.map((c, m) => ({ mes: m + 1, comum: c, prev: memP[m] })) };
   }
   // Tributação de exemplo (família da Ana Ribeiro): valores fictícios. Hoje a Luiza e as despesas médicas estão na declaração
   // do Marcos, que ganha menos; a recomendação leva a Luiza para a Ana e faz um PGBL de 12% para ela. As médicas ficam com o
@@ -3333,7 +3416,7 @@ const ENGINE = (() => {
     return mis.map(mi => ({ mi, mes: M[mi].mes, saldo: M[mi].saldo, aportado: M.slice(0, mi + 1).reduce((a, m) => a + m.aporte, 0), extra: M.slice(0, mi + 1).reduce((a, m) => a + m.extra, 0), data: mi === n }));
   }
   OBJ.forEach(derive);   // os objetivos do exemplo (aqui, depois dos bens: derive lê as vendas)
-  return { TODAY, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, ligado, objetivosLigados, inicioDoAporte, inicioDoDedicado, saldoNoMes, necessarioDe, MESES_POLITICA, orcamentoMesAMes, MESES_PROGRAMA, prioridadeDosObjetivos, linhasDosMeses, PASSIVE, PROFILES, STATUS, trajetoriaDoBem, trajetoriaDaParticipacao, vendasDoObjetivo, partilhaDaVenda, HORIZONTES, horizonteDe, politicaDeInvestimentos, TIPOS_FINANCEIRO, SEM_LIQUIDEZ, CAIXA_PREV, FORMAS_PREV, BR_EMS, termosDaAnuidade, ETTJ_PREVIC, get CAIXAS_PREV() { return CAIXAS_PREV; }, saldoPrevEm, netEm, contratoDoConsorcio, caixaDoConsorcio, REAJUSTE_APOS, get COMPROMISSOS() { return COMPROMISSOS; }, saldoDasVendas, precoDoObjetivo, mesISO, orcadoDoObjetivo, cortesDoObjetivo, saldoDevedorEm, contratoDaDivida, restantesDaDivida, mesDe, get BENS() { return bensDoPlano(); }, get PARTS() { return partsDoPlano(); }, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, serieCusto, desiredAt, aplicaAlteracoes, fraseDaLinha, descreveAlteracao, valorAtual, mesDoPlano, desejoDoPlano, frequenciaDasLinhas, RISCOS, NATUREZAS, ITENS_RUINA, RISCOS_EXEMPLO, avaliaRiscos, custoDeVida, mediaDe12Meses, SEGURO, RELACOES, idadeLimiteDe, calculaSeguros, mesesAteIdade, FASES_VIDA, faseDaVida, sincronizaPatrimonio, PATRIMONIO_EXEMPLO, padraoDeVida, lerCaminho, gravaCaminho, IR, calculaIR, irDaFamilia, REGIMES, calculaRetirada, retiradaDosSocios, PREVIDENCIA, sucessao, simulaPrevidencia, aliqRegressiva, TRIBUTARIO_EXEMPLO, FAMILIA_EXEMPLO, casalDe, nomesDaFamilia, pessoasDaFamilia, rendaDaPessoa, bensDoRisco, titularidadeDoBem, setRetireAge: a => { RETIRE_AGE = a == null ? null : Math.max(CURRENT_AGE, +a); }, paradaMi, trabalhaEm, idadeDaLiberdade, dataNasc, idadeExata, sincronizaIdades, fraseDoProposito, ordemDoProposito, objetivosDoProposito, rendasAtivasDe, naturezaDe, naturezaDaReserva, CLASSES_ATIVOS, ORCAMENTO_IDEAL, VEZES_POUPOU, gestaoFinanceira, horasDoTrabalho, familiaDoPlano, ESTADOS_DIAGNOSTICO, orcamentoDoFluxo, CLASSES_CARTEIRA, CARTEIRAS_MODELO, ACOES_ATIVO, carteiraDoPlano, concentracaoDoPatrimonio, diagnosticoDaFamilia, financiamentoValido, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get JUROS_DIVIDA_M() { return JUROS_DIVIDA_M; }, rotulosDoDetalhe, JUROS_DIVIDA_PADRAO, TETO_DIVIDA_VEZES, contratoDoCredito, get CREDITOS() { return CREDITOS; }, saldoDoCredito, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
+  return { TODAY, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, ligado, objetivosLigados, inicioDoAporte, inicioDoDedicado, saldoNoMes, necessarioDe, MESES_POLITICA, orcamentoMesAMes, MESES_PROGRAMA, prioridadeDosObjetivos, linhasDosMeses, PASSIVE, PROFILES, STATUS, trajetoriaDoBem, trajetoriaDaParticipacao, vendasDoObjetivo, partilhaDaVenda, HORIZONTES, horizonteDe, politicaDeInvestimentos, TIPOS_FINANCEIRO, SEM_LIQUIDEZ, CAIXA_PREV, FORMAS_PREV, BR_EMS, termosDaAnuidade, ETTJ_PREVIC, get CAIXAS_PREV() { return CAIXAS_PREV; }, saldoPrevEm, netEm, contratoDoConsorcio, caixaDoConsorcio, REAJUSTE_APOS, get COMPROMISSOS() { return COMPROMISSOS; }, saldoDasVendas, precoDoObjetivo, mesISO, orcadoDoObjetivo, cortesDoObjetivo, saldoDevedorEm, contratoDaDivida, restantesDaDivida, mesDe, get BENS() { return bensDoPlano(); }, get PARTS() { return partsDoPlano(); }, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, serieCusto, desiredAt, aplicaAlteracoes, fraseDaLinha, descreveAlteracao, valorAtual, mesDoPlano, desejoDoPlano, rendasDaLiberdade, alternativasDaLiberdade, frequenciaDasLinhas, RISCOS, NATUREZAS, ITENS_RUINA, RISCOS_EXEMPLO, avaliaRiscos, custoDeVida, mediaDe12Meses, SEGURO, RELACOES, idadeLimiteDe, calculaSeguros, mesesAteIdade, FASES_VIDA, faseDaVida, sincronizaPatrimonio, PATRIMONIO_EXEMPLO, padraoDeVida, lerCaminho, gravaCaminho, IR, calculaIR, irDaFamilia, REGIMES, calculaRetirada, retiradaDosSocios, PREVIDENCIA, sucessao, simulaPrevidencia, aliqRegressiva, TRIBUTARIO_EXEMPLO, FAMILIA_EXEMPLO, casalDe, nomesDaFamilia, pessoasDaFamilia, rendaDaPessoa, bensDoRisco, titularidadeDoBem, setRetireAge: a => { RETIRE_AGE = a == null ? null : Math.max(CURRENT_AGE, +a); }, paradaMi, trabalhaEm, idadeDaLiberdade, dataNasc, idadeExata, sincronizaIdades, fraseDoProposito, ordemDoProposito, objetivosDoProposito, rendasAtivasDe, naturezaDe, naturezaDaReserva, CLASSES_ATIVOS, ORCAMENTO_IDEAL, VEZES_POUPOU, gestaoFinanceira, horasDoTrabalho, familiaDoPlano, ESTADOS_DIAGNOSTICO, orcamentoDoFluxo, CLASSES_CARTEIRA, CARTEIRAS_MODELO, ACOES_ATIVO, carteiraDoPlano, concentracaoDoPatrimonio, diagnosticoDaFamilia, financiamentoValido, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get JUROS_DIVIDA_M() { return JUROS_DIVIDA_M; }, rotulosDoDetalhe, JUROS_DIVIDA_PADRAO, TETO_DIVIDA_VEZES, contratoDoCredito, get CREDITOS() { return CREDITOS; }, saldoDoCredito, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
 })();
 if (typeof module !== 'undefined') module.exports = ENGINE;
 </script>
@@ -3567,8 +3650,8 @@ const PLANO_PADRAO = Object.assign(
     rendasAtivas: JSON.parse(JSON.stringify(ENGINE.FAMILIA_EXEMPLO.rendasAtivas)), orcamento: JSON.parse(JSON.stringify(ENGINE.FAMILIA_EXEMPLO.orcamento)), videos: {} },
   JSON.parse(JSON.stringify(ENGINE.config()))
 );
-// Exemplo completo: o que só a apresentação usa (vídeos, data do relatório, foto do planejador, mensagem final, orçamento
-// combinado) e alguns campos opcionais, para ver o portal e a área do cliente inteiros. Tudo fictício: o vídeo é o curta
+// Exemplo completo: o que só a apresentação usa (vídeos, data do relatório, foto do planejador, mensagem final) e alguns
+// campos opcionais, para ver o portal e a área do cliente inteiros. Tudo fictício: o vídeo é o curta
 // aberto Big Buck Bunny (Blender Foundation), no lugar dos vídeos do escritório.
 (() => {
   const V = 'https://www.youtube.com/watch?v=aqz-KE-bpKQ', P = PLANO_PADRAO;
@@ -3576,7 +3659,6 @@ const PLANO_PADRAO = Object.assign(
   P.dataRelatorio = '2026-09-19';
   P.mensagemFinal = 'Nos vemos na revisão de março. Até lá, qualquer dúvida, é só chamar.';
   P.consultor.foto = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96"><rect width="96" height="96" fill="#20344C"/><circle cx="48" cy="38" r="17" fill="#FFF3EB"/><path d="M14 96c2-22 16-32 34-32s32 10 34 32z" fill="#FA7A35"/></svg>');
-  P.orcamento.combinado = { fixas: { meta: 0, cortes: [] }, ajustaveis: { meta: 900, cortes: [{ id: 'alimentacao', nome: 'Alimentação', valor: 450, trava: false }, { id: 'lazer', nome: 'Lazer', valor: 450, trava: false }] } };
   // a carteira: os R$ 860 mil do financeiro, ativo a ativo. O fundo de private equity não tem como sair agora: a recomendada
   // o mantém e tira a diferença do pós-fixado. Na microalocação, o CDB pré e o Tesouro IPCA+ ficam até o vencimento, a
   // previdência do Marcos vai por portabilidade e os resgates e os R$ 60 mil novos entram nos ativos sugeridos.
@@ -4992,38 +5074,14 @@ const fimDaRenda = p => p.dur == null ? 'até o fim da vida' : 'termina em ' + q
 // e saem. Perpetuidade e consumo até a expectativa de vida aparecem só como comparação. Um período começa quando uma
 // renda começa ou termina, ou quando a renda desejada muda (desiredSteps: um valor que vale daquele mês em diante).
 const CORES_RENDA = ['#B7C5D6', '#DCE3EC', '#D9C7A6', '#9FB1C7', '#E6DCCB', '#C9D4E2', '#CDBB98'];   // tons do meio: o texto marinho passa em todas
-const desejoEm = mi => { let v = +plano.desired || 0; (plano.desiredSteps || []).slice().sort((a, b) => a.from - b.from).forEach(s => { if (mi >= s.from) v = +s.value || 0; }); return v; };
-function janelasDeRenda(f, miEsg) {
-  const mi0 = f.mi, mFim = Math.max(mi0 + 12, Math.round((+plano.lifeExp - ENGINE.CURRENT_AGE) * 12)), out = [];
-  const passivasFluxo = plano.incomes.filter(c => !ENGINE.ativo(c)), ativasFluxo = plano.incomes.filter(c => ENGINE.ativo(c)), degraus = (plano.desiredSteps || []).map(s => s.from);
-  for (let mi = mi0; mi < mFim; mi++) {
-    const camadas = plano.passive.map((p, k) => ({ id: 'p' + k, nome: p.name || 'Renda sem nome', v: ENGINE.rendaAtiva(p, mi, mi0) ? +p.net || 0 : 0 }))
-      .concat(ENGINE.PASSIVE.map((p, k) => p.daCaixa == null ? null : { id: 'c' + k, nome: p.name, v: ENGINE.rendaAtiva(p, mi, mi0) ? ENGINE.netEm(p, mi) : 0 }).filter(Boolean))
-      .concat(passivasFluxo.map(c => ({ id: 'f' + c.id, nome: c.label || 'Renda passiva', v: ENGINE.mensalizado(c, mi) })))
-      .concat(ativasFluxo.map(c => ({ id: 'a' + c.id, nome: c.label || 'Renda do trabalho', v: ENGINE.trabalhaEm(c, mi, mi0) ? ENGINE.mensalizado(c, mi) : 0 })))   // de quem ainda não parou
-      .filter(c => c.v > 0.5);
-    const semPatr = miEsg != null && mi >= miEsg, D = desejoEm(mi);
-    const assin = camadas.map(c => c.id + ':' + Math.round(c.v)).join('|') + (semPatr ? '|sem' : '') + '|D' + D, ult = out[out.length - 1];
-    if (ult && ult.assin === assin && !degraus.includes(mi)) ult.m1 = mi + 1; else out.push({ m0: mi, m1: mi + 1, camadas, assin, semPatr, D });
-  }
-  return out;
-}
-const somaR = j => j.camadas.reduce((a, c) => a + c.v, 0);
-// os meses da liberdade até a expectativa de vida, um a um: a renda desejada e as rendas programadas de cada um
-const mesesDaLiberdade = js => js.flatMap(j => Array.from({ length: j.m1 - j.m0 }, () => ({ D: j.D, R: somaR(j) })));
-// valor, na liberdade, dos saques mês a mês (o saque do mês k é descontado k meses); D fixo ou a renda desejada de cada mês
-const vpSaques = (ms, D) => { const r = +plano.rate || 0; let v = 0, g = 1; ms.forEach(m => { v += Math.max(0, (D == null ? m.D : D) - m.R) / g; g *= 1 + r; }); return v; };
-// as alternativas: consumir o patrimônio até a expectativa de vida (a mesma renda em todos os períodos, a renda cujos
-// saques valem o patrimônio de hoje) e preservá-lo. Preservar trava o saque, não a renda: em todos os períodos o
+// os períodos (ENGINE.rendasDaLiberdade) e as alternativas (ENGINE.alternativasDaLiberdade) moram no motor: a área do cliente,
+// no capítulo Liberdade financeira, faz a mesma conta. Preservar trava o saque, não a renda: em todos os períodos o
 // patrimônio paga só o rendimento (o mesmo valor), e a renda de cada período é esse saque mais as rendas dele, então ela
 // sobe e desce de janela em janela (pedido do usuário, 18/10/2026; antes, a renda era igual em todos os períodos e o
 // patrimônio crescia nos períodos com mais rendas)
-function alternativas(f, js) {
-  const ms = mesesDaLiberdade(js), P = f.ff.finAfter, cem = v => Math.floor(v / 100) * 100;
-  let a = 0, b = 1e7; for (let k = 0; k < 60; k++) { const m = (a + b) / 2; if (vpSaques(ms, m) > P) b = m; else a = m; }
-  const perpSaque = cem(P * plano.rate);
-  return { precisa: vpSaques(ms), consumo: cem(a), perpSaque, perpPassos: js.map(j => ({ from: j.m0, value: Math.round(somaR(j) + perpSaque) })) };
-}
+const janelasDeRenda = (f, miEsg) => ENGINE.rendasDaLiberdade(plano, f.mi, miEsg);
+const somaR = j => j.R;
+const alternativas = (f, js) => ENGINE.alternativasDaLiberdade(plano, js, f.ff.finAfter);
 let PRESERVAR = null;   // as rendas de cada período no modo "Preservar o patrimônio", da última vez que a página foi desenhada
 // o patrimônio financeiro da liberdade até a expectativa de vida, pela simulação do plano, com a marca de onde ele acaba
 function htmlCurvaPlano(f, wEsg) {
@@ -6911,7 +6969,7 @@ function resumoIRC() {
 }
 function resumoProC() {
   const r = ENGINE.retiradaDosSocios(plano); if (!r) return 'Sem sócios cadastrados: a página do cliente fica reservada.';
-  return r.socios.map(s => `<b>${esc(s.nome)}</b>: impostos e INSS de ${fmt(s.atual.ano)} por ano hoje e de ${fmt(s.rec.ano)} recomendado (economia de ${fmt(s.economia)})${s.fatorR && s.fatorR.cai ? ' · <span style="color:var(--nl-orange-600)">o fator R cai abaixo de 28%</span>' : ''}.`).join('<br>');
+  return r.socios.map(s => `<b>${esc(s.nome)}</b>: INSS e impostos da retirada de ${fmt(s.atual.custo)} por ano hoje e de ${fmt(s.rec.custo)} recomendado (economia de ${fmt(s.economia)}; o imposto de renda do pró-labore entra no imposto de renda da família)${s.fatorR && s.fatorR.cai ? ' · <span style="color:var(--nl-orange-600)">o fator R cai abaixo de 28%</span>' : ''}.`).join('<br>');
 }
 function resumoSucC() {
   const s = ENGINE.sucessao(plano);
@@ -6938,7 +6996,7 @@ function renderTributarioC() {
   const estrategias = ps.length ? `<div class="tablewrap"><table class="rkc-tab tbc-lanc"><thead><tr><th></th>${ESTRATEGIAS.map(([, n]) => `<th colspan="${ps.length}" class="tbc-est">${n}</th>`).join('')}</tr>
       <tr><th>Lançamento</th>${ESTRATEGIAS.map(() => ps.map(p => `<th>${esc(nomes[p.quem])}</th>`).join('')).join('')}</tr></thead><tbody>
       <tr><td>Quem declara os dependentes ${tip('Os dependentes da página Cliente entram na declaração de uma pessoa só. Na recomendada, normalmente na de quem paga a maior alíquota.')}</td>${ESTRATEGIAS.map(([c]) => `<td colspan="${ps.length}">${selR(`tributario.ir.${c}.depsCom`, quem, 'num')}</td>`).join('')}</tr>
-      ${lanc('Despesas médicas', 'med', 'Sem limite. Só deduz quem pagou: a do titular do plano de saúde fica com ele.')}${lanc('Instrução', 'instr', 'Até ' + fmt(ENGINE.IR.instrucao) + ' por pessoa (o declarante e cada dependente).')}${lanc('PGBL no ano', 'pgbl', 'Até 12% da renda tributável, para quem contribui ao INSS ou a regime próprio.')}
+      ${lanc('Despesas médicas', 'med', 'Sem limite. Só deduz quem pagou: a do titular do plano de saúde fica com ele.')}${lanc('Instrução', 'instr', 'Até ' + fmt(ENGINE.IR.instrucao) + ' por pessoa (o declarante e cada dependente).')}${lanc('PGBL no ano (hoje: o já aplicado)', 'pgbl', 'Hoje: o que já foi aplicado em PGBL neste ano, que conta para o limite e muda quanto ainda cabe. Recomendado: o total do ano. Até 12% da renda tributável (só o que é tributável: o pró-labore entra, os dividendos não), para quem contribui ao INSS ou a regime próprio.')}
       ${calc('Modelo', p => p.modelo)}${calc('Imposto devido', p => fmt(p.devido))}</tbody></table></div>` : '';
   // pró-labore e dividendos
   const socios = (T.prolabore = T.prolabore || { socios: [] }).socios = T.prolabore.socios || [];
@@ -7016,7 +7074,7 @@ function renderPremissas() {
 // e nos próximos passos da última página). Fica pelo menos um. Desligado, o bloco recolhe e mostra só o nome.
 const capOculto = id => (plano.capitulosOcultos || []).includes(id);
 const cabCap = (id, nome) => `<div class="ap-cap${capOculto(id) ? ' oculto' : ''}"><div class="ap-cab"><label class="ap-mostra" title="${capOculto(id) ? 'Fora da apresentação: clique para mostrar ao cliente' : 'O cliente vê este capítulo: clique para tirar da apresentação'}"><input type="checkbox" data-cap-mostra="${id}"${capOculto(id) ? '' : ' checked'} aria-label="Mostrar o capítulo ${esc(nome)} ao cliente"><span></span></label><b>${esc(nome)}${capOculto(id) ? '<small>fora da apresentação</small>' : ''}</b>`;
-const TODOS_CAPITULOS = ['proposito', 'diagnostico', 'gestao', 'tributario', 'patrimonio', 'riscos', 'objetivos', 'politica', 'carteira', 'evolucao'];
+const TODOS_CAPITULOS = ['proposito', 'diagnostico', 'gestao', 'conceitos', 'tributario', 'patrimonio', 'riscos', 'politica', 'objetivos', 'liberdade', 'carteira', 'evolucao'];
 document.addEventListener('change', e => {
   const t = e.target; if (!t.dataset || !t.dataset.capMostra) return;
   const id = t.dataset.capMostra, ocultos = new Set(plano.capitulosOcultos || []);
@@ -7058,15 +7116,26 @@ function capitulo2() {
     </tbody></table></div>`;
 }
 // O capítulo Gestão financeira: a capa com o vídeo teórico e três páginas (renda e custo de vida, o tempo, o orçamento).
-// O orçamento combinado com a família (plano.orcamento.combinado: quanto liberar de cada grupo e de quais despesas) é feito
-// na apresentação, na página do orçamento; aqui aparece o resumo. Vazio, a página abre no orçamento de hoje.
+// O orçamento alternativo (plano.orcamento.combinado: quanto liberar de cada grupo e de quais despesas) é feito na
+// apresentação, na página do orçamento; aqui aparece o resumo. Vazio, a página abre só no orçamento de hoje.
 function capituloGestao() {
   const g = ENGINE.gestaoFinanceira(plano), cp = (n, h) => `<div class="field"><label>${n}</label>${h}</div>`, link = ' placeholder="link do YouTube, do Vimeo ou do arquivo"';
   const C = g.combinado, red = k => { const c = C && C[k]; return c && c.meta > 0.5 ? fmt(c.meta) + ' a menos por mês' + (c.cortes.length ? ' (' + c.cortes.map(x => esc(x.nome || 'sem nome')).join(', ') + ')' : '') : 'sem redução'; };
   return `${cabCap('gestao', 'Gestão financeira')}<button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="capa-gestao">Abrir a capa</button><button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="orcamento">Abrir o orçamento</button></div>
-    <div class="sub" style="margin:0 0 12px">A capa tem só o vídeo teórico. Depois, três páginas: a renda, o custo de vida e o que vai para o futuro; o tempo de trabalho de cada pessoa (as horas ficam na página Cliente); e o orçamento combinado, que vocês decidem e gravam juntos na apresentação: quanto liberar das despesas fixas e das ajustáveis, e de quais despesas sai.</div>
+    <div class="sub" style="margin:0 0 12px">A capa tem só o vídeo teórico. Depois, três páginas: a renda, o custo de vida e o que vai para o futuro; o tempo de trabalho de cada pessoa (as horas ficam na página Cliente); e o orçamento de hoje, com o alternativo que vocês montam e gravam juntos na apresentação: quanto liberar das despesas fixas e das ajustáveis, e de quais despesas sai.</div>
     <div class="grid g2">${cp('Vídeo teórico, na capa (o mesmo para todos os clientes)', campoR('videos.cap-gestao-teoria', 'texto', link))}<div></div></div>
-    <div class="sub" style="margin:0">${C ? `Orçamento combinado: despesas fixas, ${red('fixas')}; despesas ajustáveis, ${red('ajustaveis')}.` : 'Ainda sem orçamento combinado.'} Para mudar, abra o orçamento.</div></div>`;
+    <div class="sub" style="margin:0">${C ? `Orçamento alternativo: despesas fixas, ${red('fixas')}; despesas ajustáveis, ${red('ajustaveis')}.` : 'Ainda sem orçamento alternativo.'} Para mudar, abra o orçamento.</div></div>`;
+}
+// O capítulo Padrão de vida e renda passiva: teórico, com a capa (o vídeo teórico) e três páginas, sem resumo. Aqui, as
+// palavras da nuvem do padrão de vida (plano.nuvem; vazia, as maiores despesas e os objetivos) e como calcular o valor da
+// liberdade financeira (plano.valorLiberdade: em perpetuidade ou consumindo o patrimônio num prazo; vazio, 30 anos).
+function capituloConceitos() {
+  const cp = (n, h) => `<div class="field"><label>${n}</label>${h}</div>`, c = ENGINE.padraoDeVida(plano), r = +plano.rate || 0, V = plano.valorLiberdade || {}, anos = +V.anos > 0 ? +V.anos : 30;
+  const valor = !(c > 0) ? null : V.modo === 'perp' ? (r > 0 ? c / r : null) : r > 0 ? c * (1 - Math.pow(1 + r, -anos * 12)) / r : c * anos * 12;
+  return `${cabCap('conceitos', 'Padrão de vida e renda passiva')}<button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="capa-conceitos">Abrir a capa</button><button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="renda-passiva">Abrir a página 1</button><button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="valor-liberdade">Abrir o valor da liberdade</button></div>
+    <div class="sub" style="margin:0 0 12px">O capítulo teórico, depois do orçamento: a renda ativa e a passiva, a rentabilidade e a equivalência entre patrimônio e renda (o exemplo de R$ 1 milhão a 4% ao ano); o padrão de vida (${c > 0 ? fmt(c) + ' por mês' : 'falta o fluxo de caixa'}), com a nuvem do que ele paga; e o valor da liberdade financeira${valor != null ? ': ' + fmt(valor) : ''}, à rentabilidade real do plano.</div>
+    <div class="grid g3">${cp('Vídeo teórico, na capa (o mesmo para todos os clientes)', campoR('videos.cap-conceitos-teoria', 'texto', ' placeholder="link do YouTube, do Vimeo ou do arquivo"'))}${cp('Valor da liberdade', selR('valorLiberdade.modo', [['prazo', 'Consumir o patrimônio num prazo'], ['perp', 'Perpetuidade: viver só do rendimento']]))}${V.modo === 'perp' ? '<div></div>' : cp('Prazo, em anos', campoR('valorLiberdade.anos', 'num', ' min="1" max="80" placeholder="30"'))}</div>
+    <div class="grid" style="margin-top:14px">${cp('Palavras da nuvem do padrão de vida, separadas por vírgula, da mais importante para a menos (com menos de 10, completamos com as maiores despesas do fluxo e os objetivos)', campoR('nuvem', 'lista', ' placeholder="ex.: Dani, Segurança, Educação, Viagens, Apartamento RJ, Lazer"'))}</div></div>`;
 }
 // As páginas que o cliente vê, na ordem da jornada dele, com o que cada uma vai mostrar, o vídeo e o atalho.
 function renderApresentacaoC() {
@@ -7081,15 +7150,17 @@ function renderApresentacaoC() {
     ['previdencia', 3, 'Previdência no longo prazo', T && T.previdencia && (+T.previdencia.inicial > 0 || +T.previdencia.aporte > 0) ? 'ganho de ' + fmt(ENGINE.simulaPrevidencia(T.previdencia).ganho) + ' em ' + T.previdencia.anos + ' anos' : null, 'Faltam o valor inicial ou o aporte do simulador.', 'tributario'],
     ['patrimonio', 4, 'Fase da vida e patrimônio', f.fases ? 'Fase: ' + f.fases[f.fase].nome.toLowerCase() + ' · patrimônio total ' + fmt(f.total) : null, 'Falta a idade em que o cliente começou a trabalhar (página Cliente).', 'cliente'],
     ['riscos', 5, 'Gestão de riscos', a.avaliados ? 'Percentual de proteção ' + Math.round((a.nota || 0) * 100) + '% · ' + ENGINE.RISCOS.filter(x => a.itens[x.id].status === 'ok').length + ' de 8 ameaças totalmente protegidas' : null, 'Nenhuma ameaça avaliada ainda.', 'riscos'],
-    ['realizacao', 6, 'Como realizar cada objetivo', ligados().some(o => o.amount > 0) ? ligados().filter(o => o.amount > 0).length + ' objetivos, um por vez: estratégia, data, de onde vem o dinheiro e três cortes antes da data' + (plano.objectives.some(o => !o.strategy && o.amount > 0) ? ' · falta a estratégia de ' + plano.objectives.filter(o => !o.strategy && o.amount > 0).map(o => o.name || 'sem nome').join(', ') : '') : null, 'Nenhum objetivo com valor.', 'objetivos'],
-    ['politica', 7, 'Para onde vai o seu dinheiro', (() => { const Pz = ENGINE.politicaDeInvestimentos(plano, SIM); return Pz.total > 0 ? fmt(Pz.total) + ' de patrimônio e ' + fmt(Pz.sobra * (Pz.periodicidade === 'anual' ? 12 : 1)) + (Pz.periodicidade === 'anual' ? ' de sobra por ano' : ' de sobra por mês') + ', em ' + Pz.caixinhas.filter(c => c.patrimonio > 0.5 || c.mensal > 0.5).length + ' caixinhas' : null; })(), 'Falta o patrimônio financeiro na página Patrimônio.', 'patrimonio'],
-    ['carteira-hoje', 8, 'A carteira de hoje', (() => { const K = ENGINE.carteiraDoPlano(plano); return K.atual > 0 ? fmt(K.atual) + ' em ' + ((plano.carteira || {}).ativos || []).length + ' investimentos, por classe' : null; })(), 'Falta a carteira de hoje.', 'carteira'],
-    ['carteira-recomendada', 8, 'A carteira recomendada', (() => { const C = plano.carteira || {}; return Object.keys(C.ideal || {}).length ? 'hoje, o ideal e a recomendada' + (String(C.justificativa || '').trim() ? ', com os motivos' : ' · falta escrever os motivos') : null; })(), 'Falta a alocação ideal.', 'macro'],
-    ['carteira-decisoes', 8, 'O que muda na carteira', (() => { const K = ENGINE.carteiraDoPlano(plano); return K.atual > 0 && !K.semAcao.length ? 'sai ' + fmt(K.resgatado) + ', entra ' + fmt(K.aplicado) : null; })(), 'Falta decidir o que fazer com cada investimento.', 'micro'],
-    ['evolucao', 9, 'Evolução patrimonial', ff && temFluxo() && planoDaLiberdade() ? 'Liberdade financeira aos ' + Math.floor(ff.age) + ' anos' + (ff.forced ? ' (renda parcial)' : '') : null, temFluxo() ? 'Faltam a renda desejada e a idade de parar de trabalhar.' : 'Falta o fluxo de caixa.', temFluxo() ? 'liberdade' : 'fluxo']];
+    ['realizacao', 7, 'Como realizar cada objetivo', ligados().some(o => o.amount > 0) ? ligados().filter(o => o.amount > 0).length + ' objetivos, um por vez: estratégia, data, de onde vem o dinheiro e três cortes antes da data' + (plano.objectives.some(o => !o.strategy && o.amount > 0) ? ' · falta a estratégia de ' + plano.objectives.filter(o => !o.strategy && o.amount > 0).map(o => o.name || 'sem nome').join(', ') : '') : null, 'Nenhum objetivo com valor.', 'objetivos'],
+    ['liberdade', 8, 'O seu plano atual', ff && planoDaLiberdade() ? 'Liberdade aos ' + Math.floor(ff.age) + ' anos, com ' + fmt(plano.desired) + ' por mês, seguindo o plano à risca: a renda idade a idade e os períodos' : null, 'Faltam a renda desejada e a idade de parar de trabalhar.', 'liberdade'],
+    ['liberdade-escolhas', 8, 'Cenários alternativos', ff && planoDaLiberdade() ? 'mais patrimônio de hoje e mais poupança para a liberdade (tirando dos objetivos ou do padrão de vida) e as três maneiras de usar o patrimônio' : null, 'Faltam a renda desejada e a idade de parar de trabalhar.', 'liberdade'],
+    ['politica', 6, 'Para onde vai o seu dinheiro', (() => { const Pz = ENGINE.politicaDeInvestimentos(plano, SIM); return Pz.total > 0 ? fmt(Pz.total) + ' de patrimônio e ' + fmt(Pz.sobra * (Pz.periodicidade === 'anual' ? 12 : 1)) + (Pz.periodicidade === 'anual' ? ' de sobra por ano' : ' de sobra por mês') + ', em ' + Pz.caixinhas.filter(c => c.patrimonio > 0.5 || c.mensal > 0.5).length + ' caixinhas' : null; })(), 'Falta o patrimônio financeiro na página Patrimônio.', 'patrimonio'],
+    ['carteira-hoje', 9, 'A carteira de hoje', (() => { const K = ENGINE.carteiraDoPlano(plano); return K.atual > 0 ? fmt(K.atual) + ' em ' + ((plano.carteira || {}).ativos || []).length + ' investimentos, por classe' : null; })(), 'Falta a carteira de hoje.', 'carteira'],
+    ['carteira-recomendada', 9, 'A carteira recomendada', (() => { const C = plano.carteira || {}; return Object.keys(C.ideal || {}).length ? 'hoje, o ideal e a recomendada' + (String(C.justificativa || '').trim() ? ', com os motivos' : ' · falta escrever os motivos') : null; })(), 'Falta a alocação ideal.', 'macro'],
+    ['carteira-decisoes', 9, 'O que muda na carteira', (() => { const K = ENGINE.carteiraDoPlano(plano); return K.atual > 0 && !K.semAcao.length ? 'sai ' + fmt(K.resgatado) + ', entra ' + fmt(K.aplicado) : null; })(), 'Falta decidir o que fazer com cada investimento.', 'micro'],
+    ['evolucao', 10, 'Evolução patrimonial', ff && temFluxo() && planoDaLiberdade() ? 'Liberdade financeira aos ' + Math.floor(ff.age) + ' anos' + (ff.forced ? ' (renda parcial)' : '') : null, temFluxo() ? 'Faltam a renda desejada e a idade de parar de trabalhar.' : 'Falta o fluxo de caixa.', temFluxo() ? 'liberdade' : 'fluxo']];
   // um capítulo por bloco: os dois vídeos (o teórico, o mesmo para todos os clientes, na capa; o do caso deste cliente, no
   // resumo) e as páginas, com o que cada uma vai mostrar. Um vídeo antigo de página vira o vídeo do caso do capítulo.
-  const caps = [['proposito', 1, 'Propósito', ['proposito']], ['tributario', 3, 'Otimização tributária', ['ir', 'prolabore', 'sucessao', 'previdencia']], ['patrimonio', 4, 'Patrimônio', ['patrimonio']], ['riscos', 5, 'Gestão de riscos', ['riscos']], ['objetivos', 6, 'Objetivos', ['realizacao']], ['politica', 7, 'Política de investimentos', ['politica']], ['carteira', 8, 'Carteira', ['carteira-hoje', 'carteira-recomendada', 'carteira-decisoes']], ['evolucao', 9, 'Evolução patrimonial', ['evolucao']]];
+  const caps = [['proposito', 1, 'Propósito', ['proposito']], ['tributario', 3, 'Otimização tributária', ['ir', 'prolabore', 'sucessao', 'previdencia']], ['patrimonio', 4, 'Patrimônio', ['patrimonio']], ['riscos', 5, 'Gestão de riscos', ['riscos']], ['politica', 6, 'Política de investimentos', ['politica']], ['objetivos', 7, 'Objetivos', ['realizacao']], ['liberdade', 8, 'Liberdade financeira', ['liberdade', 'liberdade-escolhas']], ['carteira', 9, 'Carteira', ['carteira-hoje', 'carteira-recomendada', 'carteira-decisoes']], ['evolucao', 10, 'Evolução patrimonial', ['evolucao']]];
   plano.videos = plano.videos || {};
   caps.forEach(([cid, , , ids]) => { const k = 'cap-' + cid + '-caso', velho = ids.map(i => plano.videos[i]).find(Boolean); if (!plano.videos[k] && velho) plano.videos[k] = velho; });
   const cp = (n, h) => `<div class="field"><label>${n}</label>${h}</div>`, link = ' placeholder="link do YouTube, do Vimeo ou do arquivo"';
@@ -7101,6 +7172,7 @@ function renderApresentacaoC() {
     ${capitulo1()}
     ${capitulo2()}
     ${capituloGestao()}
+    ${capituloConceitos()}
     ${caps.filter(([cid]) => cid !== 'proposito').map(([cid, n, nome, ids]) => `${cabCap(cid, nome)}<button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="capa-${cid}">Abrir a capa</button><button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="resumo-${cid}">Abrir o resumo</button>${cid === 'evolucao' ? '<button class="btn btn-secondary btn-small" data-abrir-cliente data-fase="caminho">Abrir a última página</button>' : ''}</div>
       <div class="grid g2">${cp('Vídeo teórico, na capa (o mesmo para todos os clientes)', campoR('videos.cap-' + cid + '-teoria', 'texto', link))}${cp('Vídeo do caso deste cliente, no resumo', campoR('videos.cap-' + cid + '-caso', 'texto', link))}</div>
       ${cid === 'evolucao' ? `<div class="grid" style="margin-top:14px">${cp('Mensagem final, na última página do cliente (O caminho daqui para frente)', campoR('mensagemFinal', 'texto', ' placeholder="ex.: Nos vemos na revisão de abril. Até lá, qualquer dúvida, é só chamar."'))}</div>` : ''}
