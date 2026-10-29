@@ -21,7 +21,53 @@ além das fontes do Google, e abrem direto no navegador.
 
 ## A realização de cada objetivo
 
-O capítulo **Objetivos** vem antes da evolução patrimonial. A página "Como realizar cada objetivo" (`?fase=realizacao`)
+O capítulo **Objetivos** abre com "Os seus objetivos" (`?fase=objetivos-juntos`, `renderObjetivosJuntos`): um número para
+guardar todo mês (a poupança para objetivos, a soma das partes de quem recebe hoje, com os que começam depois à parte), o
+já separado hoje e quantos objetivos são; o gráfico da faixa dos objetivos no patrimônio, pela simulação (cada caixinha
+empilhada, na ordem de prioridade, sobe com os aportes e cai na data); a trilha, o guardado acumulado para os objetivos (a
+soma dos aportes mensais previstos, `ENGINE.orcadoDoObjetivo`) em cada dezembro, que é a referência do acompanhamento pelo
+acumulado ("à frente" ou "atrás"), não mês a mês (o acompanhamento em si é da área logada); e um cartão por objetivo, que
+abre o detalhe dele na página seguinte. O cartão diz de onde vem o dinheiro: o separado hoje (e o que se separa mais
+adiante), as entradas pontuais até a data (as entradas com destino ao objetivo, como o 13º e os bônus, e as vendas de bens
+que o financiam) e a parte de todo mês. No resumo do capítulo, a poupança necessária (a soma dos `required` de quem recebe
+hoje) ao lado da do plano, e a trilha.
+
+**A compra de um objetivo que vira bem** (`objectives[].compra`, `ENGINE.compraDoObjetivo`). No cartão do objetivo, em "Como
+vai comprar": à vista (o objetivo junta o valor todo), entrada + financiamento ou consórcio.
+
+- **Entrada + financiamento** (`modo: 'financiamento'`): a entrada é o necessário na data (`amount`), e o valor financiado é
+  o valor do objetivo (`preco`) menos ela, sem digitar de novo. Sistema (`sistema`: 'sac' ou vazio, Price), `parcelas`,
+  `juros` (% ao ano), `iof` ('isento', vazio = somado ao financiado, 'avista') e os adiantamentos (`amortizacoes`: `em`, o mês
+  do plano; `valor`; `modo`). A 1ª parcela é no mês da data. A tabela das parcelas, na área do cliente, tem as linhas alternadas em tom suave.
+- **Consórcio** (`modo: 'consorcio'`): a carta (`carta`; vazia, o valor do objetivo) e as parcelas (`parcelas`, `txAdm`,
+  `fundoReserva`, `reajuste`, `lanceModo`), que começam em `inicio` (o mês do plano; vazio = hoje), antes da contemplação, que
+  é a data do objetivo. O consultor não digita o lance: diz quanto o grupo pede (`lancePct`, em % do saldo devedor na
+  contemplação) e quanto dele vai embutido (`embutidoPct`, em % da carta). O mês do lance é a data do objetivo, que também
+  se escolhe ali ("Lance em"). A ferramenta calcula o saldo devedor naquele mês, o lance, a parte embutida e a do bolso; o
+  necessário na data (`amount`) passa a ser calculado e é só o lance do bolso, o que sai do patrimônio financeiro (o bem é o
+  que a carta, sem o embutido, compra). Ex.: saldo de R$ 554.400 e lance de 45% dão R$ 249.480; com 10% de uma carta de
+  R$ 600 mil embutidos (R$ 60.000), o bolso paga R$ 189.480, que é o necessário na data. Todo embutido, o necessário é zero, e
+  o objetivo continua no plano (`ENGINE.temValor`). O crédito (a carta) acompanha o reajuste do grupo (`linhas[].credito`,
+  no contrato do consórcio): o embutido sai do crédito atualizado no mês do lance (`cartaNaData`), e o que sobra é o crédito
+  para comprar o bem (`compra`). Ex.: crédito de R$ 456.000 e R$ 45.000 embutidos deixam R$ 411.000 para o bem. As tabelas
+  das parcelas do consórcio (a gaveta do portal e a área do cliente) têm a coluna do crédito, sem a de juros; na área do
+  cliente, a linha do lance diz o crédito para o bem e o embutido e o bolso, e aparece mesmo com a tabela recolhida. Sem `lancePct` (um plano de antes), o lance é o necessário na data, digitado.
+
+A compra vira uma dívida no formato das dívidas do Patrimônio, e o contrato é o mesmo (`contratoDaDivida`, com IOF, CET,
+adiantamentos e o lance). A parcela (com os adiantamentos) entra nos gastos dos objetivos do fluxo planejado
+(`linhasDosMeses().custos`, id `<objetivo>_compra`; o consórcio entra desde a 1ª parcela, mesmo que o bem não seja comprado
+na data) e na simulação, como uma saída fixa inteira (`out_fix_<objetivo>_compra`, a linha "(parcela)" nas despesas fixas
+do Fluxo vida toda); a parte que abate a dívida aumenta os bens (no consórcio, menos a taxa de administração e o fundo). No portal, "Ver a evolução" abre a mesma gaveta das
+dívidas (`htmlCompraGaveta`): o contrato, os adiantamentos (no financiamento), o saldo devedor, quanto se paga por ano e as
+parcelas. O custo "Financiamento Price/SAC" de antes continua valendo.
+
+Na área do cliente, o detalhe do objetivo mostra a compra: os cartões, o saldo devedor e a tabela das parcelas (as 12
+primeiras e as 12 últimas, com o miolo para abrir). No financiamento, o cliente simula adiantamentos (quando, quanto, se
+reduz o prazo ou a parcela) e vê os juros economizados, a nova quitação e a parcela depois, com o desenhado tracejado no
+gráfico. A simulação fica só na tela (`RO_SIMULA`) e não muda o plano. O financiamento antigo (o custo Price ou SAC) aparece
+igual, sem simular.
+
+A página "Como realizar cada objetivo" (`?fase=realizacao`)
 mostra um objetivo por vez, escolhido nas abas: a estratégia (`strategy`, em texto corrido); o que é preciso na data (o
 necessário, o preço do bem e as novas despesas mensais depois); de onde vem o dinheiro (a caixinha reservada hoje, as vendas
 e os aportes mensais, cada um pelo que vale na data); e o caminho até lá, com a curva do saldo e três cortes antes da data
@@ -123,6 +169,26 @@ objetivo: a política só os reúne) e a liberdade financeira, que fica sempre c
 estratégia (o perfil de rentabilidade do objetivo; conservadora na reserva e nos compromissos). O FGTS e a previdência
 fechada contam no patrimônio, mas sem liquidez: ficam na liberdade. Na simulação, a reserva continua dentro da liberdade.
 
+**A estratégia segue o prazo.** Nos últimos 24 meses antes da data (`ENGINE.MESES_CONSERVADOR`), a caixinha do objetivo
+fica na conservadora e rende a taxa dela; antes disso, a estratégia escolhida (moderada ou agressiva, ou a conservadora, se o
+consultor quiser). O objetivo a menos de 24 meses já começa na conservadora, e a estratégia dele não se escolhe. A taxa
+mês a mês (`ENGINE.taxaDoObjetivo`) vale em todas as contas: o aporte necessário, a curva do cartão, a simulação semana a
+semana e o fluxo planejado (`ENGINE.trecho` faz a conta mês a mês; na taxa constante, ela é a fórmula de sempre).
+
+**As caixinhas, uma a uma** (embaixo da mesa). Cada caixinha é uma pequena carteira. No alto do bloco, o patrimônio
+financeiro mês a mês em faixas empilhadas, pela simulação: a reserva, cada objetivo (sobe com os aportes e cai na data) e,
+se o consultor pedir, a liberdade (que costuma ser bem maior e esconderia as outras). Na tabela, por caixinha: a
+estratégia; o que ela tem hoje; onde deve estar em 12 meses e na data (a trilha, `ENGINE.orcadoDoObjetivo`); o quanto o
+objetivo está coberto, de dois jeitos (o que já está separado hoje, rendendo até a data, contra o valor, sem aportes; e com
+os aportes, `o.ratio`; na reserva, contra a ideal); e a alocação por classe, numa barra. Clicar abre a evolução da caixinha
+até a data (com a meta tracejada e o mês em que ela vira conservadora) e a alocação, classe a classe, em %: a liquidez
+diária fica com o restante, e os perfis 0 a 3 preenchem de uma vez. Sem alocação desenhada, vale a sugerida
+(`ENGINE.alocacaoSugerida`): a reserva e os compromissos na liquidez diária, o objetivo nos 24 meses finais no pós-fixado, os
+outros na carteira modelo da estratégia (conservadora: perfil 0; moderada: perfil 1; agressiva: perfil 3). A liberdade
+financeira não tem alocação aqui. A soma das caixinhas, cada uma com o patrimônio de hoje vezes a fração de cada classe
+(`ENGINE.alocacaoDasCaixinhas`, em reais), é o mínimo de cada classe na ideal da Macroalocação; o que a ideal puser acima
+dos mínimos é da liberdade.
+
 No portal, é o primeiro passo do Planejamento, e a página é a mesa de distribuição: uma tabela só, com as caixinhas nas
 linhas (a reserva e os compromissos antes, depois os objetivos) e as duas fontes nas colunas. O cabeçalho de cada coluna tem o
 total (o patrimônio de hoje, a sobra do mês), de onde ele vem e a barra da divisão em escala real; o rodapé é a liberdade
@@ -135,7 +201,12 @@ caixinha deles (na versão final, chegam da coleta, e continuam editáveis): cad
 clicar e recolhe com o OK ou Enter. O protótipo da mesa fica em
 `ux/prototipos/politica-mesa.html`. A sobra do mês é uma conta só em todo o portal: a média dos próximos 12 meses do Fluxo de caixa
 (`ENGINE.orcamentoDoFluxo`) ou a capacidade informada; é a mesma dos chips do topo (capacidade de poupança), da mesa, da
-janela "O orçamento não comporta" e da área do cliente. Aumentar um aporte consome a liberdade financeira sem aviso,
+janela "O orçamento não comporta" e da área do cliente. Nessa janela, a redução de uma despesa vale do primeiro mês da
+falta em diante (também nos degraus seguintes da linha), não do pior mês: reduzir só dali deixava a falta nos meses de antes,
+e a janela reabria. A janela também oferece "Ajustar no fluxo, mês a mês": o aumento fica, e o Fluxo de 24 meses abre com
+um aviso no alto, que diz quanto falta para resolver o primeiro mês com falta (`faltas[].precisa`: o menor dinheiro a mais,
+somando os meses até `precisaAte`, que faz a Caixa de curto prazo voltar a zero) e o botão de voltar ao objetivo. O
+consultor muda despesas ou rendas só nos meses que precisam, até o aviso dizer "Fluxo resolvido". Aumentar um aporte consome a liberdade financeira sem aviso,
 enquanto cabe.
 
 **Os próximos 24 meses, mês a mês: o fluxo planejado.** Na mesa, cada objetivo tem o aporte definido (o teórico, um
@@ -161,7 +232,8 @@ O motor roda em duas passadas: a primeira dá a sobra de cada mês, a segunda se
 objetivo (`programa.n`; os primeiros 24 meses são o Fluxo de 24 meses, `programa.meses`). As faltas aparecem no topo (em
 "Nos objetivos"), no alto da página Objetivos e do Fluxo de 24 meses, com o mês, quanto falta, a causa, quem recebe menos
 e quando cada um passa a ser realista, e um botão para o fluxo do mês: é a hora de ver o que ajustar no orçamento. No alto
-do Fluxo de 24 meses, os 24 meses em colunas (a sobra, os aportes empilhados e o que fica no mês).
+do Fluxo de 24 meses, os 24 meses em colunas (a sobra, os aportes empilhados e a Caixa de curto prazo no fim do mês): o mês
+em que a caixa fica negativa e volta a zero fica listrado, sem alarme; o mês com falta fica em laranja, com quanto falta.
 
 **De onde vem o dinheiro do objetivo (no cartão).** O "Guardar por mês" é a parte do objetivo na poupança para
 objetivos. No topo, "Para objetivos" soma as partes de quem recebe hoje, com a necessária embaixo (o que cada um precisa
@@ -196,10 +268,13 @@ objetivo" lista as entradas que não vêm todo mês com o que cai delas até a d
 sobra do mês. No Fluxo de 24 meses, os extras aparecem numa linha embaixo do objetivo.
 
 **O Fluxo de 24 meses (a página depois da política; o Fluxo de caixa de antes, com a vida toda, vem logo depois, como Fluxo vida toda).** É onde o consultor passa mais tempo: os 24 meses numa tabela, com as
-entradas e as despesas (abrem por linha; digitar um valor muda aquela linha daquele mês em diante, como no Fluxo de caixa),
+entradas e as despesas (abrem por linha; digitar um valor muda aquela linha só naquele mês, como o ajuste de uma ocorrência
+`it.exc` do Fluxo vida toda; para mudar dali em diante, é no Fluxo vida toda),
 os gastos dos objetivos, a sobra, a reserva, cada objetivo na ordem de prioridade (a data com uma estrela), o que fica
-guardado para os meses seguintes e a liberdade. Os aportes em cinza são sugestões; o que o consultor digita
-(`objectives[].programa[mês]`) vale como está, fica em negrito, e "voltar à sugestão" apaga.
+guardado para os meses seguintes e a liberdade. Os aportes em cinza são a parte de cada objetivo; o que o consultor digita
+(`objectives[].programa[mês]`) vale como está, fica em negrito, e "voltar à sugestão" apaga. O mês com falta tem um ponto
+laranja no cabeçalho, e a célula do objetivo que recebe menos fica em laranja; a do objetivo que já tem quase tudo e recebe
+só o que falta fica em verde (o resto vai para a liberdade).
 
 **A prioridade dos objetivos.** É a ordem do Propósito (`objetivosOrdem`, as setas na página Objetivos;
 `ENGINE.prioridadeDosObjetivos`). Ela ordena a divisão da sobra, os cartões da página Objetivos, as linhas da mesa e do
@@ -286,8 +361,14 @@ A última coluna é a diferença em reais entre a recomendada e hoje. Ideal e re
 novos (`carteira.aporte`, com a sobra de 12 meses como referência), cada uma com o campo e o controle deslizante fino (escala
 da raiz, com ímã na referência: o perfil escolhido na ideal, a ideal na recomendada). A liquidez diária é o rodapé e fica com
 o restante, como a liberdade financeira na política; o trecho listrado do trilho é o que ela já não tem para dar, e o rodapé
-diz "fecha a conta" ou "passa em X p.p.". A ideal parte de uma carteira modelo, do perfil 0 (conservador) ao 3 (agressivo),
-em `ENGINE.CARTEIRAS_MODELO`; a classe sem recomendada segue a ideal, então só se digita a exceção (o fundo alternativo que
+diz "fecha a conta" ou "passa em X p.p.". A ideal se mexe livremente, mas nunca fica abaixo do mínimo que as caixinhas da
+Política de investimentos pedem para a classe (`classes[].minimo`: a soma, nas caixinhas, do patrimônio de hoje vezes a
+fração da classe, sobre o total a alocar); o que passa do mínimo é da liberdade financeira, e cada célula diz "mínimo X%;
++Y% na liberdade". A marca do trilho é o mínimo; o rodapé da liquidez avisa quando ela fica abaixo do mínimo dela (a
+reserva, os compromissos). O alto da página diz quanto está nos mínimos e quanto é livre. A ideal parte só dos mínimos
+(`carteira.modelo` 'caixinhas', o padrão sem modelo e sem ideal digitada: a liberdade fica na liquidez até o consultor
+distribuir) ou de uma carteira modelo, do perfil 0 (conservador) ao 3 (agressivo), em `ENGINE.CARTEIRAS_MODELO`, elevada aos
+mínimos; a classe sem recomendada segue a ideal, então só se digita a exceção (o fundo alternativo que
 não se consegue vender). No alto da página, num bloco à parte da mesa: a carteira modelo (perfis 0 a 3, com o nome de
 cada um), os recursos novos e o total a alocar; embaixo deles, as três carteiras (hoje, ideal, recomendada) em sunburst,
 que acompanham a mesa enquanto se digita ou se arrasta. Os cabeçalhos da mesa têm só o rótulo e o total, alinhados; a
@@ -965,13 +1046,16 @@ portal completa ao abrir (`doSalvo`). Objetivos, rendas e despesas sem `id` ganh
       "ligado": true,          // false: fora da simulação, da política e da área do cliente (os novos nascem assim); sem o campo, ligado
       "kind": "bem",           // "bem" migra para patrimônio; "consumo" é uma saída
       "months": 46,            // data alvo, em meses a partir de set/2026
-      "amount": 180000,        // custo pontual
+      "amount": 180000,        // custo pontual (num bem financiado, a entrada; no consórcio, o lance)
+      "preco": 600000,         // o valor do bem
+      "compra": { "modo": "financiamento", "sistema": "sac", "parcelas": 420, "juros": 11, "iof": "isento", "amortizacoes": [] },   // ou { "modo": "consorcio", "parcelas", "txAdm", "fundoReserva", "reajuste", "inicio", "lanceModo" }
       "costs": [                // gastos depois de realizado; cada um vira uma linha de saída fixa
         { "id": "k1", "type": "fixo", "value": 800, "months": null, "label": "Condomínio" },           // months null = sem prazo
         { "id": "k2", "type": "sac", "principal": 756000, "rateYear": 0.095, "months": 360 }        // "price" ou "sac": juros e amortização mês a mês
       ],                        // planos antigos com "recurring" e "financing" são convertidos; "amort" num fixo é a fração antiga da parcela
       "dedicated": 45000,      // patrimônio já dedicado a este objetivo
-      "profile": "moderado",   // nome da faixa; a taxa usada é rateM quando existe
+      "profile": "moderado",   // nome da faixa; a taxa usada é rateM quando existe; nos 24 meses finais, a conservadora
+      "alocacao": { "posFixado": 0.4, "inflacao": 0.5, "liquidez": 0.1 },   // a alocação da caixinha, por classe (vazio = a sugerida)
       "rateM": 0.005,          // rentabilidade própria do objetivo, ao mês (o portal vai de 0,35% a 0,65%)
       "planned": 1500,         // aporte mensal definido pelo consultor
       "aporteDe": 6,           // o mês em que os aportes começam (vazio = hoje; até o mês antes da data)

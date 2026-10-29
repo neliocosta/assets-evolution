@@ -462,6 +462,37 @@ console.log('\n10. Patrimônio de hoje e fase da vida financeira');
   const mc = Ef.carteiraDoPlano({ carteira: { aporte: 100, ativos: [{ classe: 'alternativos', valor: 40, acao: 'manter' }, { classe: 'posFixado', valor: 860, acao: 'parcial', resgate: 300 }],
     ideal: { posFixado: 0.6, inflacao: 0.3 }, recomendada: { alternativos: 0.04 }, novos: [{ classe: 'inflacao', valor: 300 }] } });
   const cl = id => mc.classes.find(c => c.id === id);
+  // a compra do objetivo: o financiamento é o preço menos a entrada, com a 1ª parcela na data; o adiantamento (em meses de
+  // hoje) abate o saldo; o consórcio começa no mês marcado e o lance é o que o objetivo junta, na parcela da data
+  { const of = { id: 'f', kind: 'bem', months: 10, amount: 100, preco: 1100, compra: { modo: 'financiamento', sistema: 'sac', parcelas: 10, juros: 0, iof: 'isento', amortizacoes: [{ em: 12, valor: 300 }] } };
+    const cf = Ef.compraDoObjetivo(of), l = cf && cf.ct.linhas;
+    ok('compra financiada: 1.000 em 10 parcelas de 100, com o adiantamento de 300 depois da 3ª', !!cf && cf.credito === 1000 && cf.mi0 === 10 && Math.abs(l[0].pay - 100) < 1e-9 && l[2].extra === 300 && Ef.parcelaDaCompra(cf, 12) === 400 && Ef.parcelaDaCompra(cf, 9) === 0, cf && JSON.stringify(l.slice(0, 4).map(x => [x.pay, x.extra])));
+    const oc = { id: 'c', kind: 'bem', months: 12, amount: 200, preco: 1000, compra: { modo: 'consorcio', parcelas: 20, txAdm: 0, fundoReserva: 0, inicio: 2 } }, cc = Ef.compraDoObjetivo(oc);
+    ok('compra por consórcio: as parcelas começam no mês 2 e o lance de 200 sai na parcela da data', !!cc && cc.mi0 === 2 && Math.abs(Ef.parcelaDaCompra(cc, 2) - 50) < 1e-9 && cc.ct.linhas[10].extra === 200 && Ef.parcelaDaCompra(cc, 1) === 0, cc && JSON.stringify(cc.ct.linhas.slice(9, 12).map(x => [x.pay, x.extra]))); }
+  // o lance pelo percentual do grupo: 50% do saldo de 450 na contemplação (11 parcelas pagas de 50) é 225; 10% da carta (100)
+  // vem embutido, e o bolso paga 125: o necessário na data é só o bolso (a carta sem o embutido compra um bem de até 900)
+  { const ol = { id: 'l', kind: 'bem', months: 12, amount: 0, preco: 1000, compra: { modo: 'consorcio', parcelas: 20, txAdm: 0, fundoReserva: 0, inicio: 2, lancePct: 50, embutidoPct: 10 } }, cl = Ef.compraDoObjetivo(ol);
+    ok('consórcio: o lance sai do percentual do saldo, com o embutido e o bolso', !!cl && Math.abs(cl.saldo - 450) < 1e-9 && Math.abs(cl.lance - 225) < 1e-9 && cl.embutido === 100 && Math.abs(cl.necessario - 125) < 1e-9 && cl.compra === 900 && cl.ct.linhas[10].extra === 225,
+      cl && JSON.stringify([cl.saldo, cl.lance, cl.embutido, cl.bolso, cl.compra])); }
+  // o crédito (a carta) acompanha o reajuste: 1.000 vira 1.100 depois da 2ª parcela; o embutido de 10% sai do crédito do mês
+  // do lance (110), e sobram 990 para comprar o bem
+  { const oa = { id: 'a', kind: 'bem', months: 4, amount: 0, preco: 1000, compra: { modo: 'consorcio', parcelas: 10, txAdm: 0, fundoReserva: 0, reajuste: 10, reajusteApos: 2, inicio: 0, lancePct: 50, embutidoPct: 10 } }, ca = Ef.compraDoObjetivo(oa);
+    ok('consórcio: o crédito atualizado no mês do lance, menos o embutido, é o crédito para o bem', !!ca && ca.ct.linhas[1].credito === 1000 && Math.abs(ca.cartaNaData - 1100) < 1e-9 && Math.abs(ca.saldo - 550) < 1e-9 && Math.abs(ca.embutido - 110) < 1e-9 && Math.abs(ca.compra - 990) < 1e-9,
+      ca && JSON.stringify([ca.cartaNaData, ca.saldo, ca.lance, ca.embutido, ca.compra])); }
+  // a estratégia pelo prazo: nos 24 meses finais, a conservadora; a conta mês a mês bate com a fórmula na taxa constante
+  { const t = Ef.trecho(0.005, 0, 36), cf = (Math.pow(1.005, 36) - 1) / 0.005;
+    ok('taxa constante: o trecho bate com a fórmula', Math.abs(t.g - Math.pow(1.005, 36)) < 1e-9 && Math.abs(t.A - cf) < 1e-9);
+    const P0 = Ef.PROFILES || { conservador: 0.004, moderado: 0.005 }, oL = { months: 46, profile: 'moderado' }, oC = { months: 20, profile: 'agressivo' }, rL = Ef.taxaDoObjetivo(oL);
+    ok('objetivo a 46 meses: moderada até o mês 21, conservadora do 22 em diante', typeof rL === 'function' && rL(21) > rL(22) && Math.abs(rL(22) - Ef.taxaDoObjetivo(oC)) < 1e-12 && typeof Ef.taxaDoObjetivo(oC) === 'number');
+    const fr = Ef.alocacaoDaCaixinha({}, { tipo: 'objetivo', obj: { alocacao: { posFixado: 0.4, inflacao: 0.5 } }, conservadorEm: 10, estrategia: 'moderado' }).fr;
+    ok('alocação da caixinha: a liquidez fica com o restante', Math.abs(fr.liquidez - 0.1) < 1e-9 && fr.posFixado === 0.4);
+    const sg = Ef.alocacaoDaCaixinha({}, { tipo: 'objetivo', obj: {}, conservadorEm: 0, estrategia: 'moderado' }).fr;
+    ok('sem alocação, o objetivo nos 24 meses finais fica no pós-fixado e a reserva na liquidez', sg.posFixado === 1 && Ef.alocacaoDaCaixinha({}, { tipo: 'reserva' }).fr.liquidez === 1); }
+  // a ideal nunca fica abaixo do mínimo das caixinhas: 50% de 200 do objetivo em pós-fixado, sobre 1.000, é 10%
+  { const mk = Ef.carteiraDoPlano({ patrimonio: { financeiro: [{ nome: 'XP', valor: 1000 }] }, objectives: [{ id: 'a', name: 'A', months: 60, amount: 1000, dedicated: 200, profile: 'moderado', alocacao: { posFixado: 0.5 } }],
+      politica: { reserva: 100 }, carteira: { ativos: [{ classe: 'liquidez', valor: 1000, acao: 'manter' }], ideal: { posFixado: 0.05, inflacao: 0.2 } } }), k = id => mk.classes.find(c => c.id === id);
+    ok('macro: a ideal sobe ao mínimo das caixinhas e o que passa dele fica', Math.abs(k('posFixado').minimo - 0.1) < 1e-9 && Math.abs(k('posFixado').pIdeal - 0.1) < 1e-9 && Math.abs(k('inflacao').pIdeal - 0.2) < 1e-9 && Math.abs(k('liquidez').minimo - 0.2) < 1e-9,
+      JSON.stringify(['posFixado', 'inflacao', 'liquidez'].map(id => [k(id).minimo, k(id).pIdeal]))); }
   ok('macro: liquidez com o restante, na ideal e na recomendada', Math.abs(cl('liquidez').pIdeal - 0.1) < 1e-9 && Math.abs(cl('liquidez').pRec - 0.06) < 1e-9 && cl('posFixado').segue && !cl('alternativos').segue);
   ok('micro: o que fica, os novos e o caixa', cl('posFixado').fica === 560 && cl('inflacao').resultado === 300 && mc.resgatado === 300 && mc.caixa === 100 && mc.semAcao.length === 0);
   const f = Ef.faseDaVida(pl);
