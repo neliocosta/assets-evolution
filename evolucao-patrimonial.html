@@ -7118,7 +7118,8 @@ function renderPatrimonio() {
   });
   const divIt = (D.bens || []).map((b, i) => [b, b.nome || 'Financiamento', 'divb:' + i, 'financiamento']).filter(([b]) => +b.saldoDevedor > 0)
     .concat((D.dividas || []).map((d, i) => [d, d.nome || 'Dívida', 'div:' + i]))
-    .map(([d, nome, chave, tipo]) => { const st = SITUACAO[d.situacao]; return { nome, v: +d.saldoDevedor || 0, chave, q: casal ? parte(d) : null, det: dividaDet(d), tags: (tipo ? `<span class="pf-tag">${tipo}</span>` : '') + (+d.parcela ? `<span class="pf-tag">parcela ${fmt(+d.parcela)}</span>` : '') + (st ? `<span class="pf-tag ${st[0]}">${st[1]}</span>` : '') }; })
+    // como nos bens: o saldo do contrato inteiro no item e, nas etiquetas, a parte de cada pessoa da família em reais
+    .map(([d, nome, chave, tipo]) => { const st = SITUACAO[d.situacao]; return { nome, v: +d.saldoDevedor || 0, chave, q: casal ? parte(d) : null, det: dividaDet(d), tags: partesTxt(ENGINE.titularidadeDoBem(P, d), +d.saldoDevedor || 0) + (tipo ? `<span class="pf-tag">${tipo}</span>` : '') + (+d.parcela ? `<span class="pf-tag">parcela ${fmt(+d.parcela)}</span>` : '') + (st ? `<span class="pf-tag ${st[0]}">${st[1]}</span>` : '') }; })
     .sort((a, b) => b.v - a.v);
   const comp = `<div class="pf-comp"><h3>De onde vem o seu patrimônio</h3><div class="sub">Clique num bem ou numa dívida para ver o detalhe.</div><div class="pf-cols">
     ${colunaHtml('fin', 'Mercado financeiro', f.fin, its(D.financeiro, 'valor', 'fin:', x => x.tipo && ENGINE.TIPOS_FINANCEIRO[x.tipo] ? { tags: '<span class="pf-tag">' + ENGINE.TIPOS_FINANCEIRO[x.tipo].toLowerCase() + '</span>' } : {}), 'Nenhuma instituição informada.', Q, Q && Q.fin)}
