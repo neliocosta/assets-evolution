@@ -1,0 +1,850 @@
+{
+ "dados": {
+  "name": "Paulo Mendes",
+  "conjugeNome": "Renata Mendes",
+  "tipo": "familia",
+  "nascimento": "1979-01",
+  "conjugeNascimento": "1974-03",
+  "inicio": "2026-10-28",
+  "regraDoInicio": "semana",
+  "profissao": "Médico (sócio e PJ da clínica)",
+  "natureza": "Profissional liberal ou autônomo",
+  "conjugeProfissao": "Servidora federal",
+  "conjugeNatureza": "Servidor público",
+  "riscos": {
+   "pesos": {
+    "reserva": 1,
+    "saude": 1,
+    "terceiros": 1,
+    "ruina": 1,
+    "liquidez": 1,
+    "bens": 1,
+    "renda": 1,
+    "familia": 1
+   },
+   "reserva": {
+    "dependentes": true,
+    "custoVida": null,
+    "atual": null,
+    "alvo": null
+   },
+   "dependentes": [
+    {
+     "nome": "Bruna",
+     "relacao": "filho",
+     "nasc": "2006-06",
+     "ate": 25
+    },
+    {
+     "nome": "Davi",
+     "relacao": "filho",
+     "nasc": "2010-06",
+     "ate": 25
+    }
+   ],
+   "liquidez": {
+    "d0": 300000
+   }
+  },
+  "patrimonio": {
+   "financeiro": [
+    {
+     "nome": "Investimentos do casal",
+     "valor": 1600000,
+     "titularidade": "casal"
+    },
+    {
+     "nome": "PGBL do Paulo",
+     "valor": 1200000,
+     "tipo": "pgbl",
+     "titularidade": "titular"
+    },
+    {
+     "nome": "Funpresp da Renata",
+     "valor": 380000,
+     "tipo": "fechada",
+     "titularidade": "conjuge",
+     "conv": {
+      "contribPessoa": 0,
+      "contribPatroc": 3800
+     }
+    },
+    {
+     "nome": "Carro",
+     "tipo": "consorcio",
+     "valor": 37800,
+     "titularidade": "titular",
+     "cons": {
+      "carta": 150000,
+      "parcelas": 80,
+      "pagas": 18,
+      "parcela": 2100,
+      "reajuste": 0,
+      "contemplacaoEm": "2028-04",
+      "lance": 20000,
+      "embutidoPct": 0,
+      "linha": "parc_cons_carro"
+     }
+    }
+   ],
+   "contas": {
+    "titular": [],
+    "conjuge": [],
+    "casal": []
+   },
+   "participacoes": [
+    {
+     "nome": "25% da clínica (Paulo)",
+     "valor": 1400000,
+     "titularidade": "titular",
+     "valorizacao": [
+      {
+       "tipo": "taxa",
+       "pct": 6,
+       "de": 0,
+       "anos": 5
+      },
+      {
+       "tipo": "pontual",
+       "em": 30,
+       "valor": 300000,
+       "motivo": "Clínica compra a unidade vizinha (abr/2029)"
+      }
+     ]
+    }
+   ],
+   "bens": [
+    {
+     "nome": "Apartamento onde moram",
+     "mercado": 2200000,
+     "saldoDevedor": 783000,
+     "credito": 1000000,
+     "parcelas": 240,
+     "restantes": 188,
+     "parcela": 9806,
+     "juros": 8.99,
+     "sistema": "sac",
+     "situacao": "em_dia",
+     "titularidade": "casal",
+     "linha": "parc_apto",
+     "linhaPropria": true
+    },
+    {
+     "nome": "Casa de campo",
+     "mercado": 800000,
+     "saldoDevedor": 592000,
+     "modalidade": "consorcio",
+     "carta": 600000,
+     "txAdm": 18,
+     "fundoReserva": 2,
+     "parcelas": 180,
+     "restantes": 148,
+     "parcela": 4000,
+     "reajuste": 0,
+     "situacao": "em_dia",
+     "titularidade": "casal",
+     "linha": "parc_casa",
+     "linhaPropria": true
+    },
+    {
+     "nome": "Carro (comprado com a carta do consórcio em abr/2028)",
+     "mercado": 0,
+     "saldoDevedor": 0,
+     "titularidade": "casal",
+     "valorizacao": [
+      {
+       "tipo": "pontual",
+       "em": 18,
+       "valor": 130000,
+       "motivo": "Carro comprado com a carta do consórcio (150 mil menos o lance de 20 mil)"
+      }
+     ]
+    }
+   ],
+   "dividas": []
+  },
+  "politica": {
+   "reserva": 300000,
+   "reservaMensal": 0
+  },
+  "retireAge": 62,
+  "spouseRetireAge": 57,
+  "desired": 50000,
+  "desiredSteps": [],
+  "lifeExp": 92,
+  "rate": 0.004,
+  "profiles": {
+   "conservador": 0.004,
+   "moderado": 0.005,
+   "agressivo": 0.006
+  },
+  "incomes": [
+   {
+    "id": "clinica_jf",
+    "label": "Clínica: janeiro e fevereiro",
+    "kind": "ativa",
+    "origin": "Pró-labore",
+    "pessoa": "titular",
+    "gross": 0,
+    "taxable": true,
+    "frequency": "anual",
+    "dates": [
+     {
+      "m": 0,
+      "d": 5
+     },
+     {
+      "m": 1,
+      "d": 5
+     }
+    ],
+    "description": "Líquido da clínica; sem renda no ano sabático (mar/2027 a fev/2028).",
+    "steps": [
+     {
+      "from": 0,
+      "value": 30000
+     },
+     {
+      "from": 5,
+      "value": 0
+     },
+     {
+      "from": 17,
+      "value": 30000
+     }
+    ]
+   },
+   {
+    "id": "clinica_normal",
+    "label": "Clínica: março a novembro",
+    "kind": "ativa",
+    "origin": "Pró-labore",
+    "pessoa": "titular",
+    "gross": 0,
+    "taxable": true,
+    "frequency": "anual",
+    "dates": [
+     {
+      "m": 2,
+      "d": 5
+     },
+     {
+      "m": 3,
+      "d": 5
+     },
+     {
+      "m": 4,
+      "d": 5
+     },
+     {
+      "m": 5,
+      "d": 5
+     },
+     {
+      "m": 6,
+      "d": 5
+     },
+     {
+      "m": 7,
+      "d": 5
+     },
+     {
+      "m": 8,
+      "d": 5
+     },
+     {
+      "m": 9,
+      "d": 5
+     },
+     {
+      "m": 10,
+      "d": 5
+     }
+    ],
+    "description": "Líquido da clínica; sem renda no ano sabático (mar/2027 a fev/2028).",
+    "steps": [
+     {
+      "from": 0,
+      "value": 42000
+     },
+     {
+      "from": 5,
+      "value": 0
+     },
+     {
+      "from": 17,
+      "value": 42000
+     }
+    ]
+   },
+   {
+    "id": "clinica_dez",
+    "label": "Clínica: dezembro",
+    "kind": "ativa",
+    "origin": "Pró-labore",
+    "pessoa": "titular",
+    "gross": 0,
+    "taxable": true,
+    "frequency": "anual",
+    "dates": [
+     {
+      "m": 11,
+      "d": 5
+     }
+    ],
+    "description": "Líquido da clínica; sem renda no ano sabático (mar/2027 a fev/2028).",
+    "steps": [
+     {
+      "from": 0,
+      "value": 55000
+     },
+     {
+      "from": 5,
+      "value": 0
+     },
+     {
+      "from": 17,
+      "value": 55000
+     }
+    ]
+   },
+   {
+    "id": "bonus_clinica",
+    "label": "Bônus trimestral da clínica",
+    "kind": "ativa",
+    "origin": "Bônus",
+    "pessoa": "titular",
+    "gross": 0,
+    "taxable": true,
+    "frequency": "anual",
+    "dates": [
+     {
+      "m": 2,
+      "d": 5
+     },
+     {
+      "m": 5,
+      "d": 5
+     },
+     {
+      "m": 8,
+      "d": 5
+     },
+     {
+      "m": 11,
+      "d": 5
+     }
+    ],
+    "description": "R$ 20 mil em mar, jun, set e dez; não recebe no ano sabático.",
+    "steps": [
+     {
+      "from": 0,
+      "value": 20000
+     },
+     {
+      "from": 5,
+      "value": 0
+     },
+     {
+      "from": 17,
+      "value": 20000
+     }
+    ]
+   },
+   {
+    "id": "salario_renata",
+    "label": "Salário da Renata (servidora federal)",
+    "kind": "ativa",
+    "origin": "Salário",
+    "pessoa": "conjuge",
+    "gross": 0,
+    "taxable": true,
+    "frequency": "mensal",
+    "days": [
+     5
+    ],
+    "description": "Líquido. Progressão em jul/2028 leva a R$ 21.500.",
+    "steps": [
+     {
+      "from": 0,
+      "value": 19000
+     },
+     {
+      "from": 21,
+      "value": 21500
+     }
+    ]
+   },
+   {
+    "id": "decimo_renata",
+    "label": "13º salário · Salário da Renata",
+    "kind": "ativa",
+    "origin": "13º salário",
+    "de": "salario_renata",
+    "pessoa": "conjuge",
+    "gross": 0,
+    "taxable": false,
+    "segue": "salario_renata",
+    "frequency": "anual",
+    "dates": [
+     {
+      "m": 11,
+      "d": 20
+     }
+    ],
+    "description": "",
+    "steps": [
+     {
+      "from": 0,
+      "value": 19000
+     }
+    ]
+   }
+  ],
+  "expenses": [
+   {
+    "id": "escola_davi",
+    "label": "Escola do Davi",
+    "group": "fix",
+    "frequency": "mensal",
+    "days": [
+     5
+    ],
+    "description": "",
+    "steps": [
+     {
+      "from": 0,
+      "value": 3900
+     },
+     {
+      "from": 27,
+      "value": 0
+     }
+    ]
+   },
+   {
+    "id": "faculdade_bruna",
+    "label": "Faculdade da Bruna",
+    "group": "fix",
+    "frequency": "mensal",
+    "days": [
+     5
+    ],
+    "description": "",
+    "steps": [
+     {
+      "from": 0,
+      "value": 4200
+     },
+     {
+      "from": 39,
+      "value": 0
+     }
+    ]
+   },
+   {
+    "id": "saude",
+    "label": "Plano de saúde",
+    "group": "fix",
+    "frequency": "mensal",
+    "days": [
+     5
+    ],
+    "description": "",
+    "steps": [
+     {
+      "from": 0,
+      "value": 5400
+     }
+    ]
+   },
+   {
+    "id": "alimentacao",
+    "label": "Alimentação",
+    "group": "adj",
+    "frequency": "mensal",
+    "days": [
+     5
+    ],
+    "description": "",
+    "steps": [
+     {
+      "from": 0,
+      "value": 5200
+     },
+     {
+      "from": 51,
+      "value": 3600
+     },
+     {
+      "from": 75,
+      "value": 2400
+     }
+    ]
+   },
+   {
+    "id": "casa",
+    "label": "Casa e condomínio",
+    "group": "fix",
+    "frequency": "mensal",
+    "days": [
+     5
+    ],
+    "description": "",
+    "steps": [
+     {
+      "from": 0,
+      "value": 6300
+     }
+    ]
+   },
+   {
+    "id": "lazer",
+    "label": "Viagens e lazer",
+    "group": "adj",
+    "frequency": "mensal",
+    "days": [
+     5
+    ],
+    "description": "",
+    "steps": [
+     {
+      "from": 0,
+      "value": 6000
+     }
+    ]
+   },
+   {
+    "id": "transporte",
+    "label": "Transporte",
+    "group": "fix",
+    "frequency": "mensal",
+    "days": [
+     5
+    ],
+    "description": "",
+    "steps": [
+     {
+      "from": 0,
+      "value": 3800
+     }
+    ]
+   },
+   {
+    "id": "outros",
+    "label": "Outros",
+    "group": "adj",
+    "frequency": "mensal",
+    "days": [
+     5
+    ],
+    "description": "",
+    "steps": [
+     {
+      "from": 0,
+      "value": 3200
+     }
+    ]
+   },
+   {
+    "id": "bruna_mora",
+    "label": "Moradia da Bruna (sai de casa)",
+    "group": "fix",
+    "frequency": "mensal",
+    "days": [
+     5
+    ],
+    "description": "",
+    "steps": [
+     {
+      "from": 51,
+      "value": 5000
+     },
+     {
+      "from": 111,
+      "value": 0
+     }
+    ]
+   },
+   {
+    "id": "parc_apto",
+    "label": "Parcela: Apartamento onde moram",
+    "group": "fix",
+    "frequency": "mensal",
+    "days": [
+     10
+    ],
+    "description": "Parcela de dívida, lançada pela página Patrimônio",
+    "steps": [
+     {
+      "from": 0,
+      "value": 9806
+     },
+     {
+      "from": 12,
+      "value": 9455.13
+     },
+     {
+      "from": 24,
+      "value": 9104.26
+     },
+     {
+      "from": 36,
+      "value": 8753.38
+     },
+     {
+      "from": 48,
+      "value": 8402.51
+     },
+     {
+      "from": 60,
+      "value": 8051.64
+     },
+     {
+      "from": 72,
+      "value": 7700.77
+     },
+     {
+      "from": 84,
+      "value": 7349.9
+     },
+     {
+      "from": 96,
+      "value": 6999.02
+     },
+     {
+      "from": 108,
+      "value": 6648.15
+     },
+     {
+      "from": 120,
+      "value": 6297.28
+     },
+     {
+      "from": 132,
+      "value": 5946.41
+     },
+     {
+      "from": 144,
+      "value": 5595.54
+     },
+     {
+      "from": 156,
+      "value": 5244.66
+     },
+     {
+      "from": 168,
+      "value": 4893.79
+     },
+     {
+      "from": 180,
+      "value": 4542.92
+     },
+     {
+      "from": 188,
+      "value": 0
+     }
+    ],
+    "exc": {}
+   },
+   {
+    "id": "parc_casa",
+    "label": "Parcela: Casa de campo",
+    "group": "fix",
+    "frequency": "mensal",
+    "days": [
+     10
+    ],
+    "description": "Parcela de dívida, lançada pela página Patrimônio",
+    "steps": [
+     {
+      "from": 0,
+      "value": 4000
+     },
+     {
+      "from": 148,
+      "value": 0
+     }
+    ],
+    "exc": {}
+   },
+   {
+    "id": "parc_cons_carro",
+    "label": "Parcela: Consórcio: Carro",
+    "group": "fix",
+    "frequency": "mensal",
+    "days": [
+     10
+    ],
+    "description": "Parcela do consórcio, lançada pelo Patrimônio (termina no fim do prazo)",
+    "daFundo": true,
+    "steps": [
+     {
+      "from": 0,
+      "value": 2100
+     },
+     {
+      "from": 18,
+      "value": 1645.45
+     }
+    ]
+   },
+   {
+    "id": "parc_cred",
+    "label": "Parcela: Empréstimo do ano sabático",
+    "group": "fix",
+    "frequency": "mensal",
+    "days": [
+     10
+    ],
+    "description": "Parcela de crédito novo, lançada no alto do Fluxo vida toda",
+    "steps": [
+     {
+      "from": 6,
+      "value": 5513.58
+     },
+     {
+      "from": 42,
+      "value": 0
+     }
+    ],
+    "exc": {}
+   }
+  ],
+  "creditos": [
+   {
+    "id": "cr_sab",
+    "nome": "Empréstimo do ano sabático",
+    "em": 5,
+    "valor": 150000,
+    "parcelas": 36,
+    "juros": 1.6,
+    "sistema": "",
+    "linha": "parc_cred"
+   }
+  ],
+  "objectives": [
+   {
+    "id": "sabatico",
+    "criado": 1,
+    "ligado": true,
+    "name": "Ano sabático do Paulo",
+    "descricao": "Fellowship fora do país: mudança e estadia",
+    "icon": "plane",
+    "kind": "consumo",
+    "milestone": true,
+    "title": "Ano sabático realizado!",
+    "months": 5,
+    "amount": 90000,
+    "costs": [],
+    "dedicated": 90000,
+    "profile": "conservador",
+    "planned": 0,
+    "strategy": "Custear a mudança e a estadia do fellowship. O valor é separado hoje dos investimentos, em renda fixa de liquidez diária."
+   },
+   {
+    "id": "faculdade_davi",
+    "criado": 2,
+    "ligado": true,
+    "name": "Faculdade do Davi",
+    "descricao": "Custear a faculdade do Davi",
+    "icon": "grad",
+    "kind": "consumo",
+    "milestone": true,
+    "title": "Faculdade do Davi paga!",
+    "months": 24,
+    "amount": 150000,
+    "costs": [],
+    "dedicated": 137000,
+    "profile": "moderado",
+    "planned": 0,
+    "strategy": ""
+   },
+   {
+    "id": "reforma_campo",
+    "criado": 3,
+    "ligado": true,
+    "name": "Reforma da casa de campo",
+    "descricao": "Reformar a casa de campo",
+    "icon": "home",
+    "kind": "consumo",
+    "milestone": true,
+    "title": "Reforma concluída!",
+    "months": 36,
+    "amount": 200000,
+    "costs": [],
+    "dedicated": 172000,
+    "profile": "moderado",
+    "planned": 0,
+    "strategy": ""
+   },
+   {
+    "id": "apto_bruna",
+    "criado": 4,
+    "ligado": true,
+    "name": "Apartamento para a Bruna",
+    "descricao": "Imóvel para a Bruna, por consórcio",
+    "icon": "home",
+    "kind": "bem",
+    "milestone": true,
+    "title": "Apartamento da Bruna conquistado!",
+    "months": 60,
+    "amount": 0,
+    "preco": 700000,
+    "costs": [],
+    "compra": {
+     "modo": "consorcio",
+     "carta": 700000,
+     "parcelas": 120,
+     "txAdm": 17,
+     "fundoReserva": 2,
+     "reajuste": 0,
+     "inicio": 0,
+     "lancePct": 30,
+     "embutidoPct": 10,
+     "lanceModo": ""
+    },
+    "dedicated": 41000,
+    "profile": "moderado",
+    "planned": 0,
+    "strategy": ""
+   }
+  ],
+  "compromissos": [
+   {
+    "id": "cmp_carro",
+    "titulo": "Compra do carro com a carta do consórcio",
+    "descricao": "A carta de 150 mil, menos o lance de 20 mil, vira o carro em abr/2028",
+    "em": 18,
+    "valor": 130000
+   }
+  ],
+  "passive": [
+   {
+    "name": "Aposentadoria da Renata (servidora)",
+    "origin": "Contratada na aposentadoria",
+    "gross": 13000,
+    "tax": 0,
+    "net": 13000,
+    "startMi": 53,
+    "dur": null,
+    "cost": 0,
+    "converted": false,
+    "pessoa": "conjuge"
+   },
+   {
+    "name": "INSS do Paulo",
+    "origin": "Contribuições previdenciárias",
+    "gross": 8000,
+    "tax": 0,
+    "net": 8000,
+    "startMi": 207,
+    "dur": null,
+    "cost": 0,
+    "converted": false,
+    "pessoa": "titular"
+   }
+  ],
+  "mode": "desej"
+ }
+}

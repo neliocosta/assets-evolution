@@ -1,0 +1,1270 @@
+{
+ "conferencias": [
+  {
+   "n": 1,
+   "id": "F0",
+   "nome": "Calendário: semana inicial/final de cada mês (dia 5)",
+   "metodo": "recálculo com datas (UTC) a partir do nascimento 1990-03",
+   "amostra": "762 meses (o balde do mês 0 do extrato abre na semana 1905, antes da semana do dia 5 de out/2026 = 1909: o ciclo de set/2026 é agrupado no índice 0 — só rótulo, sem fluxo, pois é anterior a hoje)",
+   "erroMax": 0,
+   "tol": 0,
+   "ok": true,
+   "extra": ""
+  },
+  {
+   "n": 2,
+   "id": "F0b",
+   "nome": "W0 (semana de hoje) e mês 0",
+   "metodo": "idade exata x 365,25/7",
+   "amostra": "W0=1910 (extrato 1910); mês 0 = 2026-10",
+   "erroMax": 0,
+   "tol": 0,
+   "ok": true,
+   "extra": ""
+  },
+  {
+   "n": 3,
+   "id": "B1",
+   "nome": "Participação: série mensal do valor (alvos 72 e 96, geométrica)",
+   "metodo": "v0·(v1/v0)^((m−m0)/(m1−m0)) por trecho",
+   "amostra": "97 pontos (meses 0..96) de parts[0].serie",
+   "erroMax": 4.656612873077393e-10,
+   "tol": 0.01,
+   "ok": true,
+   "extra": ""
+  },
+  {
+   "n": 4,
+   "id": "B2",
+   "nome": "Participação: fim.det.parts[0] mês a mês (zero depois da venda)",
+   "metodo": "idem + zero a partir do mês da venda",
+   "amostra": "762 meses",
+   "erroMax": 4.656612873077393e-10,
+   "tol": 0.01,
+   "ok": true,
+   "extra": ""
+  },
+  {
+   "n": 5,
+   "id": "B3",
+   "nome": "Participação: fim.part mês a mês",
+   "metodo": "idem",
+   "amostra": "762 meses",
+   "erroMax": 4.656612873077393e-10,
+   "tol": 0.01,
+   "ok": true,
+   "extra": ""
+  },
+  {
+   "n": 6,
+   "id": "B4",
+   "nome": "Participação: série nunca negativa/NaN",
+   "metodo": "varredura",
+   "amostra": "97 pontos",
+   "erroMax": 0,
+   "tol": 0,
+   "ok": true,
+   "extra": ""
+  },
+  {
+   "n": 7,
+   "id": "B5",
+   "nome": "Venda: preço, custos (2% e 165k), líquido, saída da participação, destino 600k",
+   "metodo": "recálculo direto do plano + conferência do fluxo do mês 96",
+   "amostra": "preço: esp 1.500.000,00 / motor 1.500.000,00; custo jurídico 2%: esp 30.000,00 / motor 30.000,00; imposto: esp 165.000,00 / motor 165.000,00; custo total: esp 195.000,00 / motor 195.000,00; líquido: esp 1.305.000,00 / motor 1.305.000,00; fluxo mov_bens (saída da participação ao preço): esp -1.500.000,00 / motor -1.500.000,00; fluxo out_vendap_0 (custos): esp 195.000,00 / motor 195.000,00; fluxo mov_obj_apto (destino 600k + aporte): esp 601.432,00 / motor 601.432,00; participação depois da venda: esp 0,00 / motor 0,00; mês da venda: esp 96,00 / motor 96,00",
+   "erroMax": 0,
+   "tol": 0.01,
+   "ok": true,
+   "extra": ""
+  },
+  {
+   "n": 8,
+   "id": "B6",
+   "nome": "Renda ligada à participação (lucros) termina na venda",
+   "metodo": "contagem de meses com in_lucros",
+   "amostra": "antes: 16 meses (esperado 16: mar e set de 2027 a 2034 = 2x8), depois: 0",
+   "erroMax": 0,
+   "tol": 0,
+   "ok": true,
+   "extra": ""
+  },
+  {
+   "n": 9,
+   "id": "E1",
+   "nome": "Modelo semanal independente x extrato: financeiro total (fim de cada mês)",
+   "metodo": "simulação própria (P1-P5) a partir do plano",
+   "amostra": "762 meses (0..761)",
+   "erroMax": 0,
+   "tol": 0.01,
+   "ok": true,
+   "extra": ""
+  },
+  {
+   "n": 10,
+   "id": "E2",
+   "nome": "Modelo independente x extrato: cofre (financeiro livre)",
+   "metodo": "idem",
+   "amostra": "762 meses",
+   "erroMax": 0,
+   "tol": 0.01,
+   "ok": true,
+   "extra": ""
+  },
+  {
+   "n": 11,
+   "id": "D1",
+   "nome": "Modelo independente x extrato: saldo de cada caixinha (3 objetivos) no fim de cada mês",
+   "metodo": "idem",
+   "amostra": "762 meses x 3 objetivos",
+   "erroMax": 0,
+   "tol": 0.01,
+   "ok": true,
+   "extra": ""
+  },
+  {
+   "n": 12,
+   "id": "A1",
+   "nome": "Bens (compra do apartamento) mês a mês",
+   "metodo": "idem",
+   "amostra": "762 meses",
+   "erroMax": 0,
+   "tol": 0.01,
+   "ok": true,
+   "extra": ""
+  },
+  {
+   "n": 13,
+   "id": "B7",
+   "nome": "Participações (soma) mês a mês pelo modelo semanal",
+   "metodo": "idem",
+   "amostra": "762 meses",
+   "erroMax": 4.656612873077393e-10,
+   "tol": 0.01,
+   "ok": true,
+   "extra": ""
+  },
+  {
+   "n": 14,
+   "id": "F1",
+   "nome": "Fluxo: toda linha in_*/out_*/mov_* de cada mês (valor e existência)",
+   "metodo": "modelo próprio de entradas, saídas, aportes, vendas e transferências",
+   "amostra": "762 meses x 9+ linhas (5513 pares mês/linha)",
+   "erroMax": 0,
+   "tol": 0.01,
+   "ok": true,
+   "extra": ""
+  },
+  {
+   "n": 15,
+   "id": "G1",
+   "nome": "Liberdade financeira: mês e semana do gatilho",
+   "metodo": "1ª semana de abertura de mês com idade >= 55",
+   "amostra": "modelo mês 221/sem 2870; motor mês 221/sem 2870",
+   "erroMax": 0,
+   "tol": 0,
+   "ok": true,
+   "extra": ""
+  },
+  {
+   "n": 16,
+   "id": "G2",
+   "nome": "Liberdade financeira: patrimônio financeiro no gatilho",
+   "metodo": "modelo próprio",
+   "amostra": "modelo 3.638.140,98 x motor 3.638.140,98",
+   "erroMax": 0,
+   "tol": 0.01,
+   "ok": true,
+   "extra": ""
+  },
+  {
+   "n": 17,
+   "id": "A2",
+   "nome": "fim.fin = cofre + soma das caixinhas",
+   "metodo": "identidade",
+   "amostra": "762 meses",
+   "erroMax": 0,
+   "tol": 0.005,
+   "ok": true,
+   "extra": ""
+  },
+  {
+   "n": 18,
+   "id": "A3",
+   "nome": "Conservação: Σ variações (mov_cofre + mov_obj_* + mov_bens) = entradas − saídas",
+   "metodo": "soma das linhas mov_* contra Σin − Σout",
+   "amostra": "762 meses",
+   "erroMax": 0,
+   "tol": 0.01,
+   "ok": true,
+   "extra": ""
+  },
+  {
+   "n": 19,
+   "id": "A4",
+   "nome": "Sem NaN/Infinity e sem saldos negativos (cofre, caixinhas, bens, participações, dívida)",
+   "metodo": "varredura",
+   "amostra": "762 meses",
+   "erroMax": 0,
+   "tol": 0,
+   "ok": true,
+   "extra": ""
+  },
+  {
+   "n": 20,
+   "id": "A5",
+   "nome": "Dívida (div) e cheque especial = 0 em todos os meses (controle: cliente sem dívida)",
+   "metodo": "varredura",
+   "amostra": "762 meses",
+   "erroMax": 0,
+   "tol": 0,
+   "ok": true,
+   "extra": ""
+  },
+  {
+   "n": 21,
+   "id": "A6",
+   "nome": "Venda (mês 96): Δpatrimônio = (preço − participação marcada) + (entradas − saídas, já com os 195k de custo) + rendimento; sem contar a venda duas vezes",
+   "metodo": "balanço do mês",
+   "amostra": "Δ observado -170.661,88 x calculado -170.661,88",
+   "erroMax": 0,
+   "tol": 0.01,
+   "ok": true,
+   "extra": ""
+  },
+  {
+   "n": 22,
+   "id": "A7",
+   "nome": "Participação não é afetada por fluxo de caixa (só valorização/venda)",
+   "metodo": "part observada x fórmula",
+   "amostra": "761 meses",
+   "erroMax": 4.656612873077393e-10,
+   "tol": 0.01,
+   "ok": true,
+   "extra": ""
+  },
+  {
+   "n": 23,
+   "id": "D8",
+   "nome": "Regra de parada do aporte (variante: apartamento com aporte de 2.500/mês): aporte = min(planejado, o que falta com 1% de folga)",
+   "metodo": "programa de aportes recalculado",
+   "amostra": "aportes até o mês 96 (62 de 120); último aporte parcial 1.183,68 no mês 60; depois, zero",
+   "erroMax": 2.546585164964199e-11,
+   "tol": 0.01,
+   "ok": true,
+   "extra": ""
+  },
+  {
+   "n": 24,
+   "id": "D2",
+   "nome": "Parâmetros: perfis 0,4/0,5/0,6% a.m., R_M 0,4%, janela de 24 meses",
+   "metodo": "comparação com o extrato",
+   "amostra": "PROFILES, R_M, MESES_CONSERVADOR",
+   "erroMax": 0,
+   "tol": 0,
+   "ok": true,
+   "extra": ""
+  },
+  {
+   "n": 25,
+   "id": "D3",
+   "nome": "taxaPorMes de cada objetivo = taxa devida (perfil antes dos últimos 24 meses; conservadora depois)",
+   "metodo": "regra P4",
+   "amostra": "171 pares objetivo/mês",
+   "erroMax": 0,
+   "tol": 0,
+   "ok": true,
+   "extra": ""
+  },
+  {
+   "n": 26,
+   "id": "D4",
+   "nome": "Aporte do apartamento: fator (96 meses a 0,6% levados 24 meses a 0,4% + 24 meses a 0,4%) e aporte necessário",
+   "metodo": "fórmula fechada mensal (aportes no fim do mês)",
+   "amostra": "fator 167.447 (cenário 167,447); aporte 1431.32 (planejado 1.432)",
+   "erroMax": 0,
+   "tol": 0,
+   "ok": true,
+   "extra": ""
+  },
+  {
+   "n": 27,
+   "id": "D5",
+   "nome": "Aportes mensais (mov_obj_*) = planejado em todo mês ativo; zero antes do início, depois da data e quando a caixinha \"basta\" (regra de 1% de folga)",
+   "metodo": "recálculo do programa de aportes",
+   "amostra": "2283 pares mês/objetivo; meses com corte por falta de caixa: 0",
+   "erroMax": 0,
+   "tol": 0.01,
+   "ok": true,
+   "extra": ""
+  },
+  {
+   "n": 28,
+   "id": "D6",
+   "nome": "Saque na data: gasto = valor do objetivo (consumo vai a out_obj_*, bem a mov_bens); a sobra volta ao cofre; caixinha zera",
+   "metodo": "leitura do fluxo do mês da data",
+   "amostra": "sabatico: retirado 60.036,92, gasto 60.000,00, volta 36,92; mba: retirado 120.187,78, gasto 120.000,00, volta 187,78; apto: retirado 900.373,56, gasto 900.000,00, volta 373,56",
+   "erroMax": 0,
+   "tol": 0.01,
+   "ok": true,
+   "extra": ""
+  },
+  {
+   "n": 29,
+   "id": "D7",
+   "nome": "Caixinha zerada depois da data e saldo nunca negativo",
+   "metodo": "varredura",
+   "amostra": "todos os meses >= data",
+   "erroMax": 0,
+   "tol": 0.005,
+   "ok": true,
+   "extra": ""
+  },
+  {
+   "n": 30,
+   "id": "F2",
+   "nome": "Fluxo mensal (meses 1 a 220): cada renda e despesa = plano (pró-labore 14k, lucros 30k em mar/set até a venda, 11.500 de gastos, aluguel até o mês 119)",
+   "metodo": "soma mensal do plano x extrato",
+   "amostra": "1760 pares mês/linha",
+   "erroMax": 0,
+   "tol": 0.01,
+   "ok": true,
+   "extra": ""
+  },
+  {
+   "n": 31,
+   "id": "F3",
+   "nome": "Mês 0 (parcial): só 3 das 4 fatias de despesas variáveis, saúde na 4ª semana, sem pró-labore/aluguel (caíram dia 5, antes de hoje=10/10)",
+   "metodo": "regra de calendário (semana do dia 5 < W0)",
+   "amostra": "mês 0",
+   "erroMax": 0,
+   "tol": 0.01,
+   "ok": true,
+   "extra": ""
+  },
+  {
+   "n": 32,
+   "id": "G3",
+   "nome": "Após a liberdade: soma das saídas do mês = renda desejada (16.000), sempre (padrão de vida reescalado)",
+   "metodo": "Σ out_* por mês",
+   "amostra": "479 meses (222..700)",
+   "erroMax": 0,
+   "tol": 0.01,
+   "ok": true,
+   "extra": ""
+  },
+  {
+   "n": 33,
+   "id": "G4",
+   "nome": "Saque líquido do financeiro: 16.000 até o mês 340 e 9.500 (16.000 − INSS 6.500) a partir do 341",
+   "metodo": "mov_cofre",
+   "amostra": "meses 221..700",
+   "erroMax": 0,
+   "tol": 0.01,
+   "ok": true,
+   "extra": ""
+  },
+  {
+   "n": 34,
+   "id": "E3",
+   "nome": "Convenção: 52,18 semanas de fator (1,004)^(7/30,4375) rendem exatamente (1,004)^12 − 1 ao ano",
+   "metodo": "aritmética",
+   "amostra": "4.9070% a.a.",
+   "erroMax": 5.10702591327572e-15,
+   "tol": 1e-12,
+   "ok": true,
+   "extra": ""
+  },
+  {
+   "n": 35,
+   "id": "H1",
+   "nome": "Valores esperados à mão do cenário (participação 36/72/84/96, líquido, 600k→660.329, aportes 3.181/4.774) x motor",
+   "metodo": "comparação direta (tolerância R$ 1 pelos arredondamentos do cenário)",
+   "amostra": "9 valores",
+   "erroMax": 0.32302755070850253,
+   "tol": 1,
+   "ok": true,
+   "extra": ""
+  },
+  {
+   "n": 36,
+   "id": "C1",
+   "nome": "Dívida sintética: Price isento 100k, 60x, 12% a.a.",
+   "metodo": "tabela de amortização própria (taxa mensal = (1+a.a.)^(1/12)−1), IOF 0,38%+0,0082%/dia",
+   "amostra": "saldo mês a mês 0..80; 60 parcelas; juros pagos 31.614,18 = Σparcelas − principal (100.000,00)",
+   "erroMax": 1.4551915228366852e-11,
+   "tol": 0.01,
+   "ok": true,
+   "extra": ""
+  },
+  {
+   "n": 37,
+   "id": "C2",
+   "nome": "Dívida sintética: SAC isento 100k, 60x, 12% a.a.",
+   "metodo": "tabela de amortização própria (taxa mensal = (1+a.a.)^(1/12)−1), IOF 0,38%+0,0082%/dia",
+   "amostra": "saldo mês a mês 0..80; 60 parcelas; juros pagos 28.940,82 = Σparcelas − principal (100.000,00)",
+   "erroMax": 1.4551915228366852e-11,
+   "tol": 0.01,
+   "ok": true,
+   "extra": ""
+  },
+  {
+   "n": 38,
+   "id": "C3",
+   "nome": "Dívida sintética: Price com IOF financiado 80k, 48x, 18% a.a.",
+   "metodo": "tabela de amortização própria (taxa mensal = (1+a.a.)^(1/12)−1), IOF 0,38%+0,0082%/dia",
+   "amostra": "saldo mês a mês 0..80; 48 parcelas; juros pagos 31.109,75 = Σparcelas − principal (82.570,81)",
+   "erroMax": 9.094947017729282e-12,
+   "tol": 0.01,
+   "ok": true,
+   "extra": ""
+  },
+  {
+   "n": 39,
+   "id": "C4",
+   "nome": "Dívida sintética: Price isento 100k, 60x, antecipação 20k no mês 12 (prazo) e 10k no mês 24 (parcela)",
+   "metodo": "tabela de amortização própria (taxa mensal = (1+a.a.)^(1/12)−1), IOF 0,38%+0,0082%/dia",
+   "amostra": "saldo mês a mês 0..80; 60 parcelas; juros pagos 23.384,70 = Σparcelas − principal (100.000,00)",
+   "erroMax": 19999.999999999993,
+   "tol": 0.01,
+   "ok": false,
+   "extra": ""
+  },
+  {
+   "n": 40,
+   "id": "C5",
+   "nome": "Imóvel financiado vendido no mês 60 (variante): saldo, parcela, quitação, custos e líquido",
+   "metodo": "Price: saldo(k)=B0·(1−(1+i)^−(n−k))/(1−(1+i)^−n)",
+   "amostra": "saldo devedor mês a mês 0..59: 2.9e-11; parcela no fluxo (out_fix) meses 0..59: 0,00; quitação na venda (out_quita_0): 1.5e-11; custos da venda: 0,00; líquido da venda: 5.8e-11; parcela não cobrada no mês da venda: 0,00; dívida zerada depois da venda: 0,00; bem zerado depois da venda: 0,00; quitação 127.597,66, líquido 436.402,34",
+   "erroMax": 5.820766091346741e-11,
+   "tol": 0.01,
+   "ok": true,
+   "extra": ""
+  },
+  {
+   "n": 41,
+   "id": "C6",
+   "nome": "Compra financiada do apartamento (variante): parcela no fluxo, bem = entrada + amortizações, quitação em 60 parcelas",
+   "metodo": "Price i=(1,10)^(1/12)−1",
+   "amostra": "parcela 12.621,35; juros pagos 157.280,94 = Σparcelas 757.280,94 − principal 600.000,00; bem final 900.000",
+   "erroMax": 4.656612873077393e-10,
+   "tol": 0.01,
+   "ok": true,
+   "extra": ""
+  },
+  {
+   "n": 42,
+   "id": "P1",
+   "nome": "Teste de poder — o procedimento deve DETECTAR: rendimento do financeiro 0,401% em vez de 0,400%",
+   "metodo": "modelo perturbado x extrato (erro máximo em financeiro, cofre e caixinhas)",
+   "amostra": "762 meses",
+   "erroMax": 0,
+   "tol": 0,
+   "ok": true,
+   "extra": "erro detectado: 121.618,13"
+  },
+  {
+   "n": 43,
+   "id": "P2",
+   "nome": "Teste de poder — o procedimento deve DETECTAR: taxa da caixinha pelo mês da própria semana (sem defasagem de uma semana)",
+   "metodo": "modelo perturbado x extrato (erro máximo em financeiro, cofre e caixinhas)",
+   "amostra": "762 meses",
+   "erroMax": 0,
+   "tol": 0,
+   "ok": true,
+   "extra": "erro detectado: 1.207,19"
+  },
+  {
+   "n": 44,
+   "id": "P3",
+   "nome": "Teste de poder — o procedimento deve DETECTAR: sem o destino de 600k da venda para o apartamento",
+   "metodo": "modelo perturbado x extrato (erro máximo em financeiro, cofre e caixinhas)",
+   "amostra": "762 meses",
+   "erroMax": 0,
+   "tol": 0,
+   "ok": true,
+   "extra": "erro detectado: 659.506,74"
+  },
+  {
+   "n": 45,
+   "id": "G5",
+   "nome": "Ruína dispara no mês que fecha com o financeiro negativo (variante: mercado 40.000/mês)",
+   "metodo": "teste de estresse",
+   "amostra": "primeiro mês negativo 11; ruina.mi = 11",
+   "erroMax": 0,
+   "tol": 0,
+   "ok": true,
+   "extra": ""
+  },
+  {
+   "n": 46,
+   "id": "G6",
+   "nome": "Juros da dívida do mês seguinte = 4% x saldo negativo do fim do mês anterior (caixinhas cobrem antes de a reserva ficar negativa)",
+   "metodo": "teste de estresse",
+   "amostra": "observado 185,23 x esperado 185,23",
+   "erroMax": 0,
+   "tol": 0.01,
+   "ok": true,
+   "extra": ""
+  },
+  {
+   "n": 47,
+   "id": "G6b",
+   "nome": "Juros do segundo mês em dívida = 4% x saldo em aberto",
+   "metodo": "teste de estresse",
+   "amostra": "observado 4.004,64 x esperado 4.004,64",
+   "erroMax": 0,
+   "tol": 0.01,
+   "ok": true,
+   "extra": ""
+  }
+ ],
+ "achados": [],
+ "numeros": {
+  "W0": 1910,
+  "mes0": "2026-10",
+  "part": {
+   "m36": [
+    692820.3230275508,
+    692820.3230275507
+   ],
+   "m72": [
+    1200000,
+    1200000
+   ],
+   "m84": [
+    1341640.786499874,
+    1341640.786499874
+   ],
+   "m95": [
+    1486118.1622656863,
+    1486118.1622656863
+   ],
+   "m96": [
+    1500000,
+    1500000
+   ]
+  },
+  "taxa3": {
+   "m84": 1236000,
+   "m95": 1269947.965719747,
+   "m96": 1273080,
+   "motor95": 1486118.1622656863,
+   "dif95": 216170.19654593943,
+   "dif96": 226920
+  },
+  "venda": {
+   "checks": [
+    [
+     "preço",
+     1500000,
+     1500000
+    ],
+    [
+     "custo jurídico 2%",
+     30000,
+     30000
+    ],
+    [
+     "imposto",
+     165000,
+     165000
+    ],
+    [
+     "custo total",
+     195000,
+     195000
+    ],
+    [
+     "líquido",
+     1305000,
+     1305000
+    ],
+    [
+     "fluxo mov_bens (saída da participação ao preço)",
+     -1500000,
+     -1500000
+    ],
+    [
+     "fluxo out_vendap_0 (custos)",
+     195000,
+     195000
+    ],
+    [
+     "fluxo mov_obj_apto (destino 600k + aporte)",
+     601432,
+     601432
+    ],
+    [
+     "participação depois da venda",
+     0,
+     0
+    ],
+    [
+     "mês da venda",
+     96,
+     96
+    ]
+   ],
+   "evento": "R$ 600.000 para Apartamento próprio à vista e R$ 705.000 para o mercado financeiro"
+  },
+  "programa": {
+   "n": 121,
+   "mesesComCorte": 0,
+   "maiorCorte": 0,
+   "folgaMinimaSobrePlanejado": {
+    "sabatico": 437.6702958978376,
+    "apto": 7896.132066837779,
+    "mba": 712.73502175047
+   }
+  },
+  "piorMes": {
+   "part": {
+    "v": 4.656612873077393e-10,
+    "mi": 62
+   }
+  },
+  "rendimentoAno1": 18886.837492521154,
+  "patrimonio": {
+   "m0": 745528.7774916344,
+   "m95": 2642218.02686581,
+   "m96": 2471556.150578931,
+   "m120": 2784216.414360596,
+   "m221": 4532156.39907372,
+   "m648": 6802022.22080443,
+   "m761": 8800488.508171707
+  },
+  "venda96": {
+   "dPat": -170661.87628687918,
+   "jumpMarcacao": 13881.837734313682,
+   "custos": 195000,
+   "rend96": 7956.285978807136
+  },
+  "paradaAporte": {
+   "qtd": 62,
+   "ultimoMes": 96,
+   "parcial": [
+    1183.6838608117714,
+    60
+   ],
+   "saldoNaData": 907482.6257573895
+  },
+  "amostraSaldos": [
+   {
+    "mi": 0,
+    "obs": [
+     23257.5,
+     0,
+     1433.97
+    ],
+    "mod": [
+     23257.5,
+     0,
+     1433.97
+    ],
+    "cofreObs": 320837.3,
+    "cofreMod": 320837.3
+   },
+   {
+    "mi": 1,
+    "obs": [
+     26524.07,
+     0,
+     2873.88
+    ],
+    "mod": [
+     26524.07,
+     0,
+     2873.88
+    ],
+    "cofreObs": 319923.17,
+    "cofreMod": 319923.17
+   },
+   {
+    "mi": 5,
+    "obs": [
+     39741.58,
+     0,
+     8721.47
+    ],
+    "mod": [
+     39741.58,
+     0,
+     8721.47
+    ],
+    "cofreObs": 346554.76,
+    "cofreMod": 346554.76
+   },
+   {
+    "mi": 11,
+    "obs": [
+     59981.82,
+     0,
+     17762.58
+    ],
+    "mod": [
+     59981.82,
+     0,
+     17762.58
+    ],
+    "cofreObs": 372259.18,
+    "cofreMod": 372259.18
+   },
+   {
+    "mi": 12,
+    "obs": [
+     0,
+     4778.38,
+     19319.16
+    ],
+    "mod": [
+     0,
+     4778.38,
+     19319.16
+    ],
+    "cofreObs": 370318.07,
+    "cofreMod": 370318.07
+   },
+   {
+    "mi": 13,
+    "obs": [
+     0,
+     9569.97,
+     20857.76
+    ],
+    "mod": [
+     0,
+     9569.97,
+     20857.76
+    ],
+    "cofreObs": 367992.99,
+    "cofreMod": 367992.99
+   },
+   {
+    "mi": 23,
+    "obs": [
+     0,
+     58614.67,
+     36891.13
+    ],
+    "mod": [
+     0,
+     58614.67,
+     36891.13
+    ],
+    "cofreObs": 406420.72,
+    "cofreMod": 406420.72
+   },
+   {
+    "mi": 24,
+    "obs": [
+     0,
+     63604.32,
+     38526.7
+    ],
+    "mod": [
+     0,
+     63604.32,
+     38526.7
+    ],
+    "cofreObs": 404228.45,
+    "cofreMod": 404228.45
+   },
+   {
+    "mi": 35,
+    "obs": [
+     0,
+     120077.48,
+     57403.8
+    ],
+    "mod": [
+     0,
+     120077.48,
+     57403.8
+    ],
+    "cofreObs": 441841.66,
+    "cofreMod": 441841.66
+   },
+   {
+    "mi": 36,
+    "obs": [
+     0,
+     0,
+     59152.56
+    ],
+    "mod": [
+     0,
+     0,
+     59152.56
+    ],
+    "cofreObs": 444742.01,
+    "cofreMod": 444742.01
+   },
+   {
+    "mi": 59,
+    "obs": [
+     0,
+     0,
+     103097.43
+    ],
+    "mod": [
+     0,
+     0,
+     103097.43
+    ],
+    "cofreObs": 638196.96,
+    "cofreMod": 638196.96
+   },
+   {
+    "mi": 60,
+    "obs": [
+     0,
+     0,
+     105098.34
+    ],
+    "mod": [
+     0,
+     0,
+     105098.34
+    ],
+    "cofreObs": 641631.42,
+    "cofreMod": 641631.42
+   },
+   {
+    "mi": 95,
+    "obs": [
+     0,
+     0,
+     185365.96
+    ],
+    "mod": [
+     0,
+     0,
+     185365.96
+    ],
+    "cofreObs": 970733.9,
+    "cofreMod": 970733.9
+   },
+   {
+    "mi": 96,
+    "obs": [
+     0,
+     0,
+     789219.94
+    ],
+    "mod": [
+     0,
+     0,
+     789219.94
+    ],
+    "cofreObs": 1682336.22,
+    "cofreMod": 1682336.22
+   },
+   {
+    "mi": 97,
+    "obs": [
+     0,
+     0,
+     793555.54
+    ],
+    "mod": [
+     0,
+     0,
+     793555.54
+    ],
+    "cofreObs": 1689612.15,
+    "cofreMod": 1689612.15
+   },
+   {
+    "mi": 119,
+    "obs": [
+     0,
+     0,
+     899547.32
+    ],
+    "mod": [
+     0,
+     0,
+     899547.32
+    ],
+    "cofreObs": 1870231.03,
+    "cofreMod": 1870231.03
+   }
+  ],
+  "aporteAlternativo": {
+   "aptoPlanejado": 1431.3242834494486,
+   "aptoTodoAgressivo": 1184.9374780546977,
+   "aptoTodoConservador": 1560.0336111153897,
+   "mbaPlanejado": 4773.825100878347,
+   "mbaSeTodoModerado": 4718.473230330936,
+   "sabaticoPlanejado": 3180.63426339722,
+   "sabaticoSeModerado": 3142.6571882832945
+  },
+  "trocas": {
+   "mba": {
+    "mes": 12,
+    "de": 0.005,
+    "para": 0.004
+   },
+   "apto": {
+    "mes": 96,
+    "de": 0.006,
+    "para": 0.004
+   }
+  },
+  "trocaEsperada": {
+   "sabatico": 0,
+   "mba": 12,
+   "apto": 96
+  },
+  "defasagemTaxa": {
+   "porObjetivo": {
+    "sabatico": {
+     "max": 0,
+     "mi": -1,
+     "saldoFim": 0
+    },
+    "mba": {
+     "max": 0,
+     "mi": -1,
+     "saldoFim": 0
+    },
+    "apto": {
+     "max": 93.35750237992033,
+     "mi": 119
+    }
+   },
+   "patrimonioMax": 1207.1909574009478,
+   "mes": 761,
+   "patrimonioFim": -1207.1909574009478,
+   "mes221": -140.2107950001955,
+   "mes120": -93.70097237545997
+  },
+  "contrafactual": {
+   "base": {
+    "sabatico": 59981.82392090821,
+    "mba": 120077.48398741729,
+    "apto": 899547.319553762
+   },
+   "cf": {
+    "só conservadora": {
+     "sabatico": 0,
+     "mba": 0,
+     "apto": -19955.98405658058
+    },
+    "só agressiva (apto)": {
+     "sabatico": 0,
+     "mba": 0,
+     "apto": 42540.02123920305
+    },
+    "só moderada (mba)": {
+     "sabatico": 0,
+     "mba": 1427.0971534729179,
+     "apto": 0
+    },
+    "perfil escolhido o tempo todo": {
+     "sabatico": 462.49703787430917,
+     "mba": 1427.0971534729179,
+     "apto": 42540.02123920305
+    }
+   }
+  },
+  "seiscentos": {
+   "conservador": 660328.9802022722,
+   "agressivo": 692632.3753109705,
+   "dif": 32303.39510869822
+  },
+  "fatorApto": {
+   "fator": 167.44704367072418,
+   "aporte": 1431.3242834494486,
+   "mba": 4773.825100878347,
+   "sabatico": 3180.63426339722
+  },
+  "qtdAportes": {
+   "sabatico": 12,
+   "mba": 24,
+   "apto": 120
+  },
+  "saques": [
+   {
+    "id": "sabatico",
+    "mes": 12,
+    "retirado": 60036.91749534379,
+    "saldoAnterior": 59981.82392090821,
+    "gasto": 60000,
+    "meta": 60000,
+    "devolvidoAoCofre": 36.917495343790506
+   },
+   {
+    "id": "mba",
+    "mes": 36,
+    "retirado": 120187.77569529902,
+    "saldoAnterior": 120077.48398741729,
+    "gasto": 120000,
+    "meta": 120000,
+    "devolvidoAoCofre": 187.77569529901666
+   },
+   {
+    "id": "apto",
+    "mes": 120,
+    "retirado": 900373.5578034276,
+    "saldoAnterior": 899547.319553762,
+    "gasto": 900000,
+    "meta": 900000,
+    "devolvidoAoCofre": 373.5578034275677
+   }
+  ],
+  "bordas": [
+   {
+    "mi": 11,
+    "difMax": 0
+   },
+   {
+    "mi": 12,
+    "difMax": 0
+   },
+   {
+    "mi": 36,
+    "difMax": 0
+   },
+   {
+    "mi": 95,
+    "difMax": 0
+   },
+   {
+    "mi": 96,
+    "difMax": 0
+   },
+   {
+    "mi": 97,
+    "difMax": 0
+   },
+   {
+    "mi": 119,
+    "difMax": 0
+   },
+   {
+    "mi": 120,
+    "difMax": 0
+   },
+   {
+    "mi": 121,
+    "difMax": 0
+   },
+   {
+    "mi": 221,
+    "difMax": 0
+   },
+   {
+    "mi": 341,
+    "difMax": 0
+   }
+  ],
+  "mes4x5": {
+   "f4": 0.3679082952978918,
+   "f5": 0.4600966694610742,
+   "mediaAnual": 4.907020753480573
+  },
+  "minCofre": {
+   "valor": 317453.78559552506,
+   "mi": 4
+  },
+  "sustento": {
+   "necessarioAte90": 2549389.800274757,
+   "necessarioAte100": 2718433.993413522,
+   "perpetuidade": 4000000,
+   "financeiro55": 3638140.975719819,
+   "motorSustentavel": 14552.563902879276,
+   "forced": true
+  },
+  "fidelidade": [
+   {
+    "nome": "Valor da participação no mês 36 (400.000·3^(36/72))",
+    "esp": 692820,
+    "obs": 692820.3230275507,
+    "dif": 0.32302755070850253
+   },
+   {
+    "nome": "Valor no mês 72",
+    "esp": 1200000,
+    "obs": 1200000,
+    "dif": 0
+   },
+   {
+    "nome": "Valor no mês 84 (1,2 mi·1,25^(12/24))",
+    "esp": 1341641,
+    "obs": 1341640.786499874,
+    "dif": -0.21350012603215873
+   },
+   {
+    "nome": "Preço no mês 96",
+    "esp": 1500000,
+    "obs": 1500000,
+    "dif": 0
+   },
+   {
+    "nome": "Custos + líquido",
+    "esp": 1305000,
+    "obs": 1305000,
+    "dif": 0
+   },
+   {
+    "nome": "600k no mês 120 (24 meses conservadores)",
+    "esp": 660329,
+    "obs": 660328.9802022722,
+    "dif": -0.019797727814875543
+   },
+   {
+    "nome": "Aporte do apartamento (planejado)",
+    "esp": 1431,
+    "obs": 1432,
+    "dif": 1
+   },
+   {
+    "nome": "Aporte do sabático",
+    "esp": 3181,
+    "obs": 3181,
+    "dif": 0
+   },
+   {
+    "nome": "Aporte do MBA",
+    "esp": 4774,
+    "obs": 4774,
+    "dif": 0
+   }
+  ],
+  "sintetico": [
+   {
+    "nome": "Price isento 100k, 60x, 12% a.a.",
+    "erroSaldo": 1.4551915228366852e-11,
+    "parcelas": 60,
+    "juros": 31614.17522133932,
+    "principal": 100000,
+    "F": 100000,
+    "ioF": 0,
+    "saldoZeroEm": 60,
+    "divEmFimMeses": [
+     100000,
+     98755.30970643596,
+     97498.80880440865
+    ]
+   },
+   {
+    "nome": "SAC isento 100k, 60x, 12% a.a.",
+    "erroSaldo": 1.4551915228366852e-11,
+    "parcelas": 60,
+    "juros": 28940.818450478262,
+    "principal": 100000,
+    "F": 100000,
+    "ioF": 0,
+    "saldoZeroEm": 60,
+    "divEmFimMeses": [
+     100000,
+     98333.33333333331,
+     96666.66666666666
+    ]
+   },
+   {
+    "nome": "Price com IOF financiado 80k, 48x, 18% a.a.",
+    "erroSaldo": 9.094947017729282e-12,
+    "parcelas": 48,
+    "juros": 31109.746164954173,
+    "principal": 82570.81376103661,
+    "F": 82570.81376103661,
+    "ioF": 2570.8137610366102,
+    "saldoZeroEm": 48,
+    "divEmFimMeses": [
+     82570.81376103661,
+     81349.24775831016,
+     80110.71612123885
+    ]
+   },
+   {
+    "nome": "Price isento 100k, 60x, antecipação 20k no mês 12 (prazo) e 10k no mês 24 (parcela)",
+    "erroSaldo": 19999.999999999993,
+    "parcelas": 60,
+    "juros": 23384.697446221628,
+    "principal": 99999.99999999996,
+    "F": 100000,
+    "ioF": 0,
+    "saldoZeroEm": 60,
+    "divEmFimMeses": [
+     100000,
+     98755.30970643596,
+     97498.80880440865
+    ]
+   }
+  ],
+  "bemFinanciado": {
+   "quitacao": 127597.66063106577,
+   "liquido": 436402.3393689342
+  },
+  "compraFinanciada": {
+   "parcela": 12621.34893989003,
+   "juros": 157280.93639340202,
+   "bensFinal": 899999.9999999995,
+   "divNoExtrato": 0
+  },
+  "dividaSemLinha": {
+   "saldoMes30": 57036.03973681174,
+   "difFinanceiroMes30": 0,
+   "saidaNoCaixa": "nenhuma"
+  },
+  "poder": [
+   [
+    "rendimento do financeiro 0,401% em vez de 0,400%",
+    121618.13246215787
+   ],
+   [
+    "taxa da caixinha pelo mês da própria semana (sem defasagem de uma semana)",
+    1207.1909574009478
+   ],
+   [
+    "sem o destino de 600k da venda para o apartamento",
+    659506.7426636184
+   ]
+  ],
+  "estresse": {
+   "ruina": {
+    "week": 1957,
+    "mi": 11,
+    "cheque12": 535512.2136640502
+   },
+   "primeiroMesNegativo": 11,
+   "jurosMesSeguinte": [
+    185.23291198329565,
+    185.23291198329565
+   ]
+  },
+  "esgotamento": {
+   "desired": 80000,
+   "ruina": null,
+   "ff": {
+    "mi": 221,
+    "forced": true,
+    "sustentavel": 14552.563902879276
+   },
+   "mesFinanceiroZero": 272,
+   "saidaMesZero": 2.1477196664762566e-13,
+   "saidaMes221": 80000,
+   "saidaAposInss": 6510.342584732165
+  },
+  "sensib": {
+   "base": {
+    "fin55": 3638140.975719819,
+    "fin90": 5902022.22080443
+   },
+   "semProlaboreAposVenda": {
+    "fin55": 1364577.422893645,
+    "fin90": 10.33307868549582,
+    "minimo": 5.863346697922033e-42,
+    "difFin55": 2273563.5528261736,
+    "ruina": null
+   },
+   "venda3pct": {
+    "preco": 1273080,
+    "fin55": 3328074.41699659,
+    "difFin55": 310066.558723229
+   }
+  }
+ }
+}

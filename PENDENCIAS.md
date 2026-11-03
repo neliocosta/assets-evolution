@@ -30,6 +30,14 @@ O usuário apresentou um plano a um cliente e trouxe:
    trilha. Botões "Ver o patrimônio de" ligam e desligam cada pessoa: a parte de quem foi desligado clareia em cada barra
    (pela titularidade de cada item; o do casal, pelas partes; sem informar, metade de cada um), os itens que não são dela
    apagam e os totais trocam. O patrimônio esperado e o veredito continuam os da família, pela fase do titular.
+5. **O caminho: desejo e realidade (em aberto, 25/10/2026).** Uma página nova da apresentação, com duas linhas do tempo
+   uma sobre a outra: em cima, os marcos dos objetivos na data em que a família os quer; embaixo, a data em que cada um se
+   paga seguindo o orçamento e os aportes de hoje, dada a ordem de prioridade (o dinheiro vai todo para o objetivo 1 até
+   ele se pagar, depois para o 2; no máximo dividido entre 1 e 2). Dois sliders junto do gráfico, aporte mensal e corte do
+   orçamento, movem os marcos de baixo ao vivo. É a cena central da reunião: o consultor mostra a distância e a fecha na
+   frente da família. A linha de baixo nunca aparece sem a saída ("com R$ 400 a mais por mês, a casa volta para 2031").
+   A área logada herda a mesma peça (`area-logada/UX.md`, "O caminho", decisão 16). Depende de uma função só, a que já
+   soma os aportes contra a sobra e distribui o patrimônio existente, devolvendo a data de cada marco.
 
 ## Gestão de riscos (em aberto)
 
