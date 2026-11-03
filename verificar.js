@@ -1061,5 +1061,41 @@ console.log('\n14. Segunda rodada da auditoria (M5 a M10, D4, D6 e os campos nov
     const { Ea } = roda(pl), tr = Ea.trajetoriaDaParticipacao(Ea.PARTS[0]);
     ok('imposto sobre o ganho: 15% de (2.000.000 − 500.000) = 225.000 saem do líquido da venda', tr.venda && Math.abs(tr.venda.custo - 225000) < 1 && Math.abs(tr.venda.liquido - 1775000) < 1, tr.venda && tr.venda.custo); }
 }
+console.log('\nCaixa negativo de propósito');
+{
+  const En = carregar(srcCliente);
+  // gasta 4 mil por mês a mais do que ganha até o mês 36 (tem 300 mil investidos) e guarda 600 por mês para o carro
+  const plano = (cx) => ({ patrimonio: { financeiro: [{ nome: 'Banco', valor: 300000 }], bens: [], dividas: [] }, initialWealth: 300000, initialBens: 0, passive: [],
+    incomes: [{ id: 'sal', label: 'Salário', kind: 'ativa', origin: 'Salário', frequency: 'mensal', days: [5], steps: [{ from: 0, value: 6000 }] }],
+    expenses: [{ id: 'x', label: 'Tudo', group: 'fix', frequency: 'mensal', days: [6], steps: [{ from: 0, value: 10000 }, { from: 36, value: 5000 }] }],
+    objectives: [{ id: 'c', name: 'Carro', kind: 'consumo', months: 48, amount: 40000, dedicated: 0, planned: 600, profile: 'conservador', costs: [] }], caixaNegativo: cx });
+  En.configure(plano(null)); const a = En.run('desej');
+  ok('sem o período, o aporte do carro é cortado enquanto a caixa não volta a zero', a.programa.faltas.length > 0 && a.programa.meses[3].aportes.c < 1, a.programa.faltas.map(f => f.de + '-' + f.ate).join(' '));
+  const f0 = a.programa.faltas[0];
+  ok('o período sugerido são os meses que fecham negativos (0 a 35), não o trecho todo da falta', f0.negDe === 0 && f0.negAte === 35, f0.negDe + '-' + f0.negAte);
+  En.configure(plano({ de: 0, ate: 35 })); const b = En.run('desej'), M = b.programa.meses;
+  ok('com o período, nenhuma falta: o carro recebe os 600 todo mês e o que falta sai do patrimônio', !b.programa.faltas.length && M.every(m => Math.abs(m.aportes.c - 600) < 0.5) && M.every(m => Math.abs(m.doPatrimonio - 4600) < 1 && m.guardado > -0.5), Math.round(M[3].doPatrimonio));
+  const fin = mi => b.weeks.filter(w => w.mi === mi).pop().fin;
+  const cx = b.weeks.filter(w => w.mi === 12).pop().obj[0];
+  ok('na simulação, o patrimônio livre paga a diferença (cai, mesmo rendendo) e a caixinha do carro recebe os 600 por mês', fin(12) < fin(0) - 12 * 2000 && cx >= 12 * 600, Math.round(fin(0)) + ' → ' + Math.round(fin(12)) + ', caixinha ' + Math.round(cx));
+  // a sobra depois dos objetivos: entradas − saídas − o que vai para as caixinhas (cx_) + o que elas pagam na data (cxr_)
+  const sobra = mi => { const f = b.buckets.month.find(x => x.mi === mi).f; let t = 0; for (const k in f) { if (k.startsWith('in_') || k.startsWith('cxr_')) t += f[k]; else if (k.startsWith('out_') || k.startsWith('cx_')) t -= f[k]; } return t; };
+  ok('sobra depois dos objetivos: 6.000 − 10.000 − 600 da caixinha = −4.600 (o mês é deficitário)', Math.abs(sobra(3) + 4600) < 1, Math.round(sobra(3)));
+  const naData = En.OBJ[0].real;
+  ok('no mês da realização, o que a caixinha paga não vira déficit; só o que faltou nela: 1.000 − (40.000 − o saldo na data)', Math.abs(sobra(48) - (1000 - Math.max(0, 40000 - naData))) < 1, Math.round(sobra(48)) + ' (saldo na data ' + Math.round(naData) + ')');
+  En.configure(plano({ de: 0, ate: 11 })); const c = En.run('desej');
+  ok('o período termina: dali em diante, a regra dos 12 meses volta e os aportes caem de novo', c.programa.faltas.length > 0 && c.programa.faltas[0].de >= 12, c.programa.faltas.map(f => f.de + '-' + f.ate).join(' '));
+}
+console.log('\nCarteiras modelo por perfil (Premissas)');
+{
+  const Ek = carregar(srcCliente), base = { patrimonio: { financeiro: [{ nome: 'Banco', valor: 1000 }], bens: [], dividas: [] }, initialWealth: 1000, objectives: [], passive: [], incomes: [], expenses: [] };
+  Ek.configure(base);
+  ok('sem nada no plano, as carteiras modelo são a base da Nord', JSON.stringify(Ek.CARTEIRAS_MODELO) === JSON.stringify(Ek.CARTEIRAS_BASE));
+  Ek.configure(Object.assign({}, base, { carteirasModelo: { moderado: { posFixado: 0.30, acoesBrasil: 0.05, fundoAcoesBrasil: 0 } } }));
+  const M = Ek.CARTEIRAS_MODELO.moderado;
+  ok('o plano muda o perfil 1: o que mudou vale, o zerado sai, o resto fica como na base', M.posFixado === 0.30 && M.acoesBrasil === 0.05 && M.fundoAcoesBrasil == null && M.inflacao === Ek.CARTEIRAS_BASE.moderado.inflacao && Ek.CARTEIRAS_MODELO.conservador.posFixado === Ek.CARTEIRAS_BASE.conservador.posFixado);
+  Ek.configure(base);
+  ok('outro plano sem mudanças volta à base (nada fica de um plano para o outro)', Ek.CARTEIRAS_MODELO.moderado.posFixado === Ek.CARTEIRAS_BASE.moderado.posFixado && Ek.CARTEIRAS_MODELO.moderado.acoesBrasil == null);
+}
 console.log('\n' + (falhas ? falhas + ' verificação(ões) falharam.' : 'Tudo certo.') + '\n');
 process.exit(falhas ? 1 : 0);
