@@ -1066,5 +1066,69 @@ console.log('\n14. Segunda rodada da auditoria (M5 a M10, D4, D6 e os campos nov
     const { Ea } = roda(pl), tr = Ea.trajetoriaDaParticipacao(Ea.PARTS[0]);
     ok('imposto sobre o ganho: 15% de (2.000.000 − 500.000) = 225.000 saem do líquido da venda', tr.venda && Math.abs(tr.venda.custo - 225000) < 1 && Math.abs(tr.venda.liquido - 1775000) < 1, tr.venda && tr.venda.custo); }
 }
+console.log('\nCaixa negativo de propósito');
+{
+  const En = carregar(srcCliente);
+  // gasta 4 mil por mês a mais do que ganha até o mês 36 (tem 300 mil investidos) e guarda 600 por mês para o carro
+  const plano = (cx) => ({ patrimonio: { financeiro: [{ nome: 'Banco', valor: 300000 }], bens: [], dividas: [] }, initialWealth: 300000, initialBens: 0, passive: [],
+    incomes: [{ id: 'sal', label: 'Salário', kind: 'ativa', origin: 'Salário', frequency: 'mensal', days: [5], steps: [{ from: 0, value: 6000 }] }],
+    expenses: [{ id: 'x', label: 'Tudo', group: 'fix', frequency: 'mensal', days: [6], steps: [{ from: 0, value: 10000 }, { from: 36, value: 5000 }] }],
+    objectives: [{ id: 'c', name: 'Carro', kind: 'consumo', months: 48, amount: 40000, dedicated: 0, planned: 600, profile: 'conservador', costs: [] }], caixaNegativo: cx });
+  En.configure(plano(null)); const a = En.run('desej');
+  ok('sem o período, o aporte do carro é cortado enquanto a caixa não volta a zero', a.programa.faltas.length > 0 && a.programa.meses[3].aportes.c < 1, a.programa.faltas.map(f => f.de + '-' + f.ate).join(' '));
+  const f0 = a.programa.faltas[0];
+  ok('o período sugerido são os meses que fecham negativos (0 a 35), não o trecho todo da falta', f0.negDe === 0 && f0.negAte === 35, f0.negDe + '-' + f0.negAte);
+  En.configure(plano({ de: 0, ate: 35 })); const b = En.run('desej'), M = b.programa.meses;
+  ok('com o período, nenhuma falta: o carro recebe os 600 todo mês e o que falta sai do patrimônio', !b.programa.faltas.length && M.every(m => Math.abs(m.aportes.c - 600) < 0.5) && M.every(m => Math.abs(m.doPatrimonio - 4600) < 1 && m.guardado > -0.5), Math.round(M[3].doPatrimonio));
+  const fin = mi => b.weeks.filter(w => w.mi === mi).pop().fin;
+  const cx = b.weeks.filter(w => w.mi === 12).pop().obj[0];
+  ok('na simulação, o patrimônio livre paga a diferença (cai, mesmo rendendo) e a caixinha do carro recebe os 600 por mês', fin(12) < fin(0) - 12 * 2000 && cx >= 12 * 600, Math.round(fin(0)) + ' → ' + Math.round(fin(12)) + ', caixinha ' + Math.round(cx));
+  // a sobra depois dos objetivos: entradas − saídas − o que vai para as caixinhas (cx_) + o que elas pagam na data (cxr_)
+  const sobra = mi => { const f = b.buckets.month.find(x => x.mi === mi).f; let t = 0; for (const k in f) { if (k.startsWith('in_') || k.startsWith('cxr_')) t += f[k]; else if (k.startsWith('out_') || k.startsWith('cx_')) t -= f[k]; } return t; };
+  ok('sobra depois dos objetivos: 6.000 − 10.000 − 600 da caixinha = −4.600 (o mês é deficitário)', Math.abs(sobra(3) + 4600) < 1, Math.round(sobra(3)));
+  const naData = En.OBJ[0].real;
+  ok('no mês da realização, o que a caixinha paga não vira déficit; só o que faltou nela: 1.000 − (40.000 − o saldo na data)', Math.abs(sobra(48) - (1000 - Math.max(0, 40000 - naData))) < 1, Math.round(sobra(48)) + ' (saldo na data ' + Math.round(naData) + ')');
+  En.configure(plano({ de: 0, ate: 11 })); const c = En.run('desej');
+  ok('o período termina: dali em diante, a regra dos 12 meses volta e os aportes caem de novo', c.programa.faltas.length > 0 && c.programa.faltas[0].de >= 12, c.programa.faltas.map(f => f.de + '-' + f.ate).join(' '));
+}
+console.log('\nCarteiras modelo por perfil (Premissas)');
+{
+  const Ek = carregar(srcCliente), base = { patrimonio: { financeiro: [{ nome: 'Banco', valor: 1000 }], bens: [], dividas: [] }, initialWealth: 1000, objectives: [], passive: [], incomes: [], expenses: [] };
+  Ek.configure(base);
+  ok('sem nada no plano, as carteiras modelo são a base da Nord', JSON.stringify(Ek.CARTEIRAS_MODELO) === JSON.stringify(Ek.CARTEIRAS_BASE));
+  Ek.configure(Object.assign({}, base, { carteirasModelo: { moderado: { posFixado: 0.30, acoesBrasil: 0.05, fundoAcoesBrasil: 0 } } }));
+  const M = Ek.CARTEIRAS_MODELO.moderado;
+  ok('o plano muda o perfil 1: o que mudou vale, o zerado sai, o resto fica como na base', M.posFixado === 0.30 && M.acoesBrasil === 0.05 && M.fundoAcoesBrasil == null && M.inflacao === Ek.CARTEIRAS_BASE.moderado.inflacao && Ek.CARTEIRAS_MODELO.conservador.posFixado === Ek.CARTEIRAS_BASE.conservador.posFixado);
+  Ek.configure(base);
+  ok('outro plano sem mudanças volta à base (nada fica de um plano para o outro)', Ek.CARTEIRAS_MODELO.moderado.posFixado === Ek.CARTEIRAS_BASE.moderado.posFixado && Ek.CARTEIRAS_MODELO.moderado.acoesBrasil == null);
+}
+console.log('\nBem com outros donos: só a parte da família');
+{
+  const Ef = carregar(srcCliente);
+  // a Ana sozinha, com 1/3 de um imóvel de R$ 333.333 (os outros 2/3 são dos irmãos), vendido no mês 24
+  const imovel = { nome: 'Imóvel da família', mercado: 333333, saldoDevedor: 0, titularidade: 'casal', titularPct: 100 / 3, venda: { em: 24, preco: 333333, custos: [{ nome: 'Corretagem', pct: 6 }] } };
+  const pl = { name: 'Ana', tipo: 'individual', age: 40, patrimonio: { financeiro: [{ nome: 'Banco', valor: 100000 }], bens: [imovel], dividas: [] }, objectives: [], passive: [], incomes: [], expenses: [] };
+  Ef.sincronizaPatrimonio(pl); Ef.configure(pl);
+  ok('o patrimônio em bens soma só a parte da Ana: 1/3 de 333.333 = 111.111', Math.round(pl.initialBens) === 111111, Math.round(pl.initialBens));
+  ok('a fase da vida usa a mesma parte', Math.round(Ef.faseDaVida(pl).bens) === 111111, Math.round(Ef.faseDaVida(pl).bens));
+  const tr = Ef.trajetoriaDoBem(Ef.BENS ? Ef.BENS[0] : imovel);
+  ok('a trajetória e a venda também: valor de 111.111 e líquido de 1/3 de (333.333 − 6%)', Math.round(tr.serie[0]) === 111111 && Math.round(tr.venda.liquido) === Math.round(333333 * 0.94 / 3), Math.round(tr.serie[0]) + ' / ' + Math.round(tr.venda.liquido));
+  const imovelCasal = Object.assign({}, imovel, { titularidade: 'casal', titularPct: 50, conjugePct: 50 });
+  const plc = Object.assign({}, pl, { tipo: 'casal', conjugeNome: 'Marcos', spouseAge: 38, patrimonio: { financeiro: [], bens: [imovelCasal], dividas: [] } });
+  Ef.sincronizaPatrimonio(plc);
+  ok('do casal, meio a meio: o bem inteiro conta', Math.round(plc.initialBens) === 333333, Math.round(plc.initialBens));
+  // 25% da Ana, 30% do Marcos e 45% de outros, financiado: o saldo devedor e a venda também são 55%
+  const casa = { nome: 'Casa', mercado: 1000000, saldoDevedor: 200000, parcela: 4000, juros: 10, restantes: 80, titularidade: 'casal', titularPct: 25, conjugePct: 30, venda: { em: 36, preco: 1000000, custos: [] } };
+  const pl3 = { name: 'Ana e Marcos', tipo: 'casal', conjugeNome: 'Marcos', age: 40, spouseAge: 42, patrimonio: { financeiro: [], bens: [casa], dividas: [] }, objectives: [], passive: [], incomes: [], expenses: [] };
+  Ef.sincronizaPatrimonio(pl3); Ef.configure(pl3);
+  const f3 = Ef.faseDaVida(pl3), tr3 = Ef.trajetoriaDoBem(casa), s3 = Ef.run('desej'), w0 = s3.weeks[Ef.W0];
+  ok('55% da família: o bem soma 550 mil e a dívida 110 mil', Math.round(f3.bens) === 550000 && Math.round(f3.dividas) === 110000, Math.round(f3.bens) + ' / ' + Math.round(f3.dividas));
+  ok('o saldo devedor ao longo do tempo é 55% do contrato (hoje e daqui a 12 meses)', Math.round(Ef.saldoDevedorEm(casa, 0)) === 110000 && Math.abs(Ef.saldoDevedorEm(casa, 12) - 0.55 * Ef.saldoDevedorEm(Object.assign({}, casa, { titularidade: 'titular' }), 12)) < 1, Math.round(Ef.saldoDevedorEm(casa, 12)));
+  ok('na simulação, a dívida da casa hoje é 110 mil', Math.abs(w0.div - 110000) < 1, Math.round(w0.div));
+  ok('na venda, a quitação e o preço são 55%: o líquido também', Math.abs(tr3.venda.preco - 550000) < 1 && Math.abs(tr3.venda.liquido - (550000 - tr3.venda.quitacao)) < 1 && tr3.venda.quitacao < 110000, Math.round(tr3.venda.quitacao) + ' / ' + Math.round(tr3.venda.liquido));
+  const emp = { nome: 'Empresa', valor: 300000, pctEmpresa: 30, titularidade: 'casal', titularPct: 60 };
+  const pl4 = Object.assign({}, pl3, { patrimonio: { financeiro: [], bens: [], dividas: [], participacoes: [emp] } }); Ef.sincronizaPatrimonio(pl4);
+  ok('participação em partes (60% Ana, 40% Marcos): o valor já é da família e conta inteiro', Ef.fatiaDaFamilia(pl4, emp) === 1 && Math.round(pl4.partValue) === 300000, Math.round(pl4.partValue));
+}
 console.log('\n' + (falhas ? falhas + ' verificação(ões) falharam.' : 'Tudo certo.') + '\n');
 process.exit(falhas ? 1 : 0);

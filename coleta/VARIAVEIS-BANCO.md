@@ -145,7 +145,7 @@ com os campos soltos como colunas (ou um JSONB `respostas` com o `name` como cha
 | **`participacoesList`** **novo** | **Participações societárias (empresas)** — Lacuna 5: a montagem pede empresa, regime tributário, faturamento e pró-labore ao consultor (sócios da Otimização tributária) | lista | Coleta (**novo**) | patrimonio.participacoes[] e tributario.prolabore.socios[] | tabela filha `coleta_participacao` (`coleta_id`, `ordem`); a marca `participacoesNaoPossui` é boolean na `coleta` |
 | ↳ `part_empresa` | Empresa | texto curto | Coleta | participacoes[].nome, socios[].empresa | varchar(200) |
 | ↳ `part_socio` | Quem é o sócio | uma opção: Titular, Cônjuge | Coleta | socios[].quem | varchar(60); valores: `Titular`, `Cônjuge` |
-| ↳ `part_pct` | Participação do cliente (%) | % | Coleta | patrimonio.participacoes[].pct (só a coleta mostra) | decimal(5,2), de 0 a 100 |
+| ↳ `part_pct` | Participação na empresa (%) | % | Coleta | patrimonio.participacoes[].pctEmpresa | decimal(5,2), de 0 a 100 |
 | ↳ `part_valor` | Valor estimado da participação | R$ | Coleta | participacoes[].valor | decimal(14,2), em reais; null = não informado |
 | ↳ `part_regime` | Regime tributário | uma opção: Simples Nacional, Lucro Presumido, Lucro Real, MEI | Coleta | socios[].regime | varchar(60); valores: `Simples Nacional`, `Lucro Presumido`, `Lucro Real`, `MEI` |
 | ↳ `part_faturamento` | Faturamento anual | R$ | Coleta | socios[].faturamento | decimal(14,2), em reais; null = não informado |

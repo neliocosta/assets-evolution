@@ -222,7 +222,7 @@ function planoDaColeta(s, hoje) {
   if (eCasal && num(s.conjugeFgts)) financeiro.push({ nome: 'FGTS', valor: num(s.conjugeFgts), tipo: 'fgts', titularidade: 'conjuge' });
   liga('patrimonio.financeiro', 'ativoFinList (somados por instituição), prevAbertaList, prevFechadaList, fgts, conjugeFgts');
   lista(s, 'participacoesList').filter(p => txt(p.part_empresa)).forEach((p, i) => {
-    const part = { id: uid('part', i), nome: txt(p.part_empresa), valor: num(p.part_valor), pct: num(p.part_pct), pessoa: pessoaDe(p.part_socio) };
+    const part = { id: uid('part', i), nome: txt(p.part_empresa), valor: num(p.part_valor), pctEmpresa: num(p.part_pct), pessoa: pessoaDe(p.part_socio) };
     if (sim(p.part_pensaVender)) part.venda = { em: 12, preco: null, custos: [] };
     participacoes.push(part);
   });

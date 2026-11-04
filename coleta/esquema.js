@@ -156,7 +156,7 @@ const ESQUEMA = { secoes: [
   { lista: 'participacoesList', r: 'Participações societárias (empresas)', naoPossui: 'participacoesNaoPossui', tabela: 'coleta_participacao', novo: true, motivo: 'Lacuna 5: a montagem pede empresa, regime tributário, faturamento e pró-labore ao consultor (sócios da Otimização tributária)', plano: 'patrimonio.participacoes[] e tributario.prolabore.socios[]', campos: [
     { n: 'part_empresa', r: 'Empresa', t: 'texto', plano: 'participacoes[].nome, socios[].empresa' },
     { n: 'part_socio', r: 'Quem é o sócio', t: 'select', op: PESSOA, plano: 'socios[].quem' },
-    { n: 'part_pct', r: 'Participação do cliente (%)', t: 'pct', plano: 'patrimonio.participacoes[].pct (só a coleta mostra)' },
+    { n: 'part_pct', r: 'Participação na empresa (%)', t: 'pct', plano: 'patrimonio.participacoes[].pctEmpresa' },
     { n: 'part_valor', r: 'Valor estimado da participação', t: 'moeda', plano: 'participacoes[].valor' },
     { n: 'part_regime', r: 'Regime tributário', t: 'select', op: ['Simples Nacional', 'Lucro Presumido', 'Lucro Real', 'MEI'], plano: 'socios[].regime' },
     { n: 'part_faturamento', r: 'Faturamento anual', t: 'moeda', plano: 'socios[].faturamento' },
