@@ -3214,15 +3214,18 @@ const ENGINE = (() => {
   // casal, o cônjuge); os rendimentos tributáveis e o INSS vêm do Fluxo de caixa quando a pessoa tem linhas tributáveis lá, e
   // só sem elas valem os digitados aqui. Cada estratégia diz quem declara os dependentes (depsCom: o índice da pessoa) e os
   // lançamentos de cada um (instrução, médicas, PGBL). O número de dependentes vem da página Cliente (riscos.dependentes).
-  //   pessoas: [{ quem, rend, inss, outras }], atual e recomendada: { depsCom, lanc: [{ instr, med, pgbl }] }
+  // rendAno: os rendimentos tributáveis do ano informados à mão (um aumento no meio do ano faz o ano diferente de 12 vezes o
+  // bruto de hoje); quando há, valem no lugar dos do Fluxo e dos digitados em rend. inssAno: o mesmo para o INSS do ano.
+  //   pessoas: [{ quem, rend, rendAno, inss, inssAno, outras }], atual e recomendada: { depsCom, lanc: [{ instr, med, pgbl }] }
   const dadosIR = (T, quem, i) => (T.pessoas || []).find(p => p.quem === quem) || ((T.pessoas || [])[i] && !(T.pessoas[i] || {}).quem ? T.pessoas[i] : {});
   function irDaFamilia(plan) {
     const T = ((plan || {}).tributario || {}).ir; if (!T) return null;
     const lista = ((plan.riscos || {}).dependentes), nDeps = Array.isArray(lista) ? lista.length : Math.round(pos(T.dependentes)), nomes = nomesDaFamilia(plan);
     const base = pessoasDaFamilia(plan).map((quem, i) => { const d = dadosIR(T, quem, i), fx = rendaDaPessoa(plan, quem), doFluxo = fx.linhas.length > 0;
-      return { quem, nome: nomes[quem], doFluxo, linhas: fx.linhas, semBruto: fx.semBruto, rend: doFluxo ? fx.trib : pos(d.rend), inss: doFluxo ? fx.inss : pos(d.inss), outras: pos(d.outras) }; });
+      const ajustada = pos(d.rendAno) > 0, inssAjustado = d.inssAno != null && d.inssAno !== '' && pos(d.inssAno) >= 0 && +d.inssAno === +d.inssAno;
+      return { quem, nome: nomes[quem], doFluxo, linhas: fx.linhas, semBruto: fx.semBruto, ajustada, rendFluxo: fx.trib, rend: ajustada ? pos(d.rendAno) : doFluxo ? fx.trib : pos(d.rend), inssAjustado, inssFluxo: fx.inss, inss: inssAjustado ? pos(d.inssAno) : doFluxo ? fx.inss : pos(d.inss), outras: pos(d.outras) }; });
     const cen = c => { c = c || {}; const ps = base.map((p, i) => { const l = (c.lanc || [])[i] || {};
-        return Object.assign({ quem: p.quem, nome: p.nome, doFluxo: p.doFluxo, linhas: p.linhas, semBruto: p.semBruto, pgbl: pos(l.pgbl) }, calculaIR({ rend: p.rend, inss: p.inss, outras: p.outras, deps: +c.depsCom === i ? nDeps : 0, instr: l.instr, med: l.med, pgbl: l.pgbl })); });
+        return Object.assign({ quem: p.quem, nome: p.nome, doFluxo: p.doFluxo, linhas: p.linhas, semBruto: p.semBruto, ajustada: p.ajustada, rendFluxo: p.rendFluxo, inssAjustado: p.inssAjustado, inssFluxo: p.inssFluxo, pgbl: pos(l.pgbl) }, calculaIR({ rend: p.rend, inss: p.inss, outras: p.outras, deps: +c.depsCom === i ? nDeps : 0, instr: l.instr, med: l.med, pgbl: l.pgbl })); });
       return { pessoas: ps, total: ps.reduce((a, x) => a + x.devido, 0), rend: ps.reduce((a, x) => a + x.rend, 0), depsCom: +c.depsCom }; };
     const atual = cen(T.atual), recomendada = cen(T.recomendada);
     return { nDeps, atual, recomendada, economia: atual.total - recomendada.total };

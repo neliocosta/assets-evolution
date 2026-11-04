@@ -255,6 +255,12 @@ Os cartões lado a lado formam uma grade de colunas iguais com 16px de espaço. 
 alinhados: em cartões vizinhos, as bordas e as linhas internas batem. Quando não cabem, empilham. Abaixo de 860px, as
 grades viram uma coluna e os gráficos ficam centralizados acima do texto.
 
+Nos formulários, vale a mesma regra para os campos (pedido do usuário em 04/11/2026: nenhum campo desalinhado). Numa linha de
+campos lado a lado, todos os campos começam na mesma altura, mesmo quando um rótulo quebra em duas linhas: o rótulo mais curto
+desce e fica logo acima do campo. Numa linha de tabela com campos, todos começam no alto da célula, e o texto solto fica
+centrado no campo. No portal, `alinhaCampos()` faz isso sozinho a cada desenho; um campo novo só precisa estar num `.field`
+com o `label` como filho direto (ou numa célula de tabela).
+
 Composições de patrimônio são mostradas como soma (partes que se somam a um todo), nunca como proporções soltas.
 
 ## Elevation & Depth

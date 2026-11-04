@@ -661,7 +661,7 @@ aside .recolher:hover{background:rgba(255,255,255,.08);color:#fff} aside .recolh
 aside{transition:width .2s,flex-basis .2s}
 body.recolhido aside{width:68px;flex-basis:68px}
 body.recolhido aside .brand{flex-direction:column;gap:12px;padding:0 0 16px} body.recolhido aside .recolher{position:static} body.recolhido aside .recolher svg{transform:rotate(180deg)}
-body.recolhido aside .who,body.recolhido aside .nav-g,body.recolhido aside nav a i,body.recolhido .linkfoot{display:none}
+body.recolhido aside .who,body.recolhido aside .nav-g,body.recolhido aside .ex-leg,body.recolhido aside nav a i,body.recolhido .linkfoot{display:none}
 body.recolhido aside nav{padding:0 10px} body.recolhido aside nav a{justify-content:center;font-size:0;padding:11px 0}
 body.recolhido aside nav .sep-nav{margin:8px 4px}
 body.recolhido aside .foot{padding:14px 10px 0} body.recolhido #btnOpen{font-size:0;gap:0;padding:11px 0;width:100%;justify-content:center}
@@ -688,6 +688,18 @@ label.fxhoriz select{width:auto;padding:5px 8px;font-size:12.5px}
 /* otimização tributária: hoje e recomendado lado a lado */
 .tbc-lanc{min-width:0} .tbc-lanc th.tbc-est{text-align:center;color:var(--nl-orange-600);border-left:1px solid #efeeea} .tbc-lanc .link{display:block;margin-top:3px;font-size:11.5px}
 .tbc-lanc tr.total td{font-weight:600;color:var(--nl-navy-900);padding:8px 6px}
+/* o demonstrativo do imposto (como o simulador da Receita): valores à direita, deduções recuadas */
+.tbc-lanc tr.tbc-cab td{padding:22px 6px 8px;font:600 13px Sora,sans-serif;color:var(--nl-navy-900);border-top:1px solid #e6e3dc}
+.tbc-lanc tr.tbc-dem td,.tbc-lanc tr.tbc-sub td,.tbc-lanc tr.tbc-ind td{padding:6px 6px;font-size:13px}
+.tbc-lanc tr.tbc-dem td:not(:first-child),.tbc-lanc tr.tbc-sub td:not(:first-child),.tbc-lanc tr.tbc-ind td:not(:first-child),.tbc-lanc tr.total td:not(:first-child){text-align:right;white-space:nowrap}
+.tbc-lanc tr.tbc-sub td{font-weight:600;color:var(--nl-navy-900);border-top:1px solid #f1efea}
+.tbc-lanc tr.tbc-ind td:first-child{padding-left:22px;color:#6b6a66}
+.tbc-lanc tr.tbc-ind td:not(:first-child){color:#6b6a66}
+.tbc-lanc td small{display:block;font-size:11px;color:#9a968e;font-weight:500}
+.tbc-lanc .tbc-nada{color:#c9c5bd}
+.tbc-lanc tr.tbc-quem td{padding:2px 6px 8px;text-align:right;font:600 13px 'DM Sans',sans-serif;color:var(--nl-navy-900);border-bottom:1px solid #e6e3dc}
+.tbc-lanc tr.tbc-quem td small{display:block;font:600 10.5px 'DM Sans',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:var(--nl-orange-600)}
+.tbc-lanc tr.tbc-outra td{color:#8a867e;font-size:12.5px}
 .tbc-fx b{display:block;font:600 13px 'DM Sans',sans-serif;color:var(--nl-navy-900);padding-top:6px} .tbc-fx small{display:block;font-size:11.5px;color:#8a8a8a;line-height:1.4}
 .pc-item{border:1px solid #efeeea;border-radius:12px;padding:12px 14px;background:#fff}
 .pc-item.inad{border-color:#F2C4C4;background:#FFFBFB}
@@ -1149,6 +1161,57 @@ aside nav a.feito i::before{content:'✓';font-size:13px}
 .pc-da-carteira{font:500 12.5px 'DM Sans',sans-serif;color:var(--nl-legenda);margin:-4px 0 10px} .pc-da-carteira .link{font-size:12.5px}
 .da-carteira td{font:500 13.5px 'DM Sans',sans-serif;color:var(--nl-navy-900)} .da-carteira td.num{text-align:left;font-variant-numeric:tabular-nums}
 @media (max-width:1560px){ .pc-dois{grid-template-columns:1fr} }
+/* reunião de coleta (?coleta): o mesmo portal, só com as páginas de dados do cliente, na ordem da reunião */
+body:not(.modo-coleta) .so-coleta{display:none!important}
+body.modo-coleta .so-montagem,body.modo-coleta #nav>:not(.na-coleta),body.modo-coleta #cenBar,body.modo-coleta .goal .planner,body.modo-coleta .goal .orc,body.modo-coleta .goal .rl-card,body.modo-coleta .goalhead .badge,body.modo-coleta #goalSum,body.modo-coleta #faltasObj{display:none!important}
+body.modo-coleta #nav [data-nav=cliente]{order:1} body.modo-coleta #nav [data-nav=objetivos]{order:2} body.modo-coleta #nav [data-nav=perfil]{order:3}
+body.modo-coleta #nav [data-nav=orcamento]{order:4} body.modo-coleta #nav [data-nav=patrimonio]{order:5} body.modo-coleta #nav [data-nav=carteira]{order:6}
+body.modo-coleta #nav [data-nav=aposentadoria]{order:7} body.modo-coleta #nav [data-nav=protecao]{order:8} body.modo-coleta #nav [data-nav=documentos]{order:9}
+.col-marca{display:flex;align-items:center;gap:8px;font:500 13.5px 'DM Sans',sans-serif;color:var(--nl-navy-900);cursor:pointer;font-style:normal}
+.col-marca input{width:auto;margin:0;flex:0 0 auto}
+.col-marcas{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 18px;margin-top:4px}
+.col-nao{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.col-nao .col-marca{font-size:12.5px;color:#8a867e}
+.page textarea[data-r]{width:100%;resize:vertical}
+/* a coleta numa página só, com o desenho da coleta de produção: o número do capítulo grande em pêssego, o traço laranja
+   embaixo do título, a linha que separa a introdução e o ícone laranja de cada bloco (o mesmo do menu) */
+body.modo-coleta main{max-width:none}
+body.modo-coleta section.page{position:relative;max-width:1180px;padding-top:30px;scroll-margin-top:8px}
+body.modo-coleta section.page[data-page=carteira]{max-width:none}
+body.modo-coleta section.page+section.page{margin-top:34px;border-top:1px solid #efeeea}
+body.modo-coleta section.page>.kicker{position:absolute;left:0;top:24px;margin:0;font:700 60px/1 Sora,sans-serif;color:#FCD9C2;letter-spacing:-.02em;text-transform:none}
+body.modo-coleta section.page>h2,body.modo-coleta section.page>.hint{margin-left:96px}
+body.modo-coleta section.page>h2{display:block}
+body.modo-coleta section.page>h2::after{content:'';display:block;width:56px;height:3px;border-radius:2px;background:var(--nl-orange-600);margin-top:10px}
+body.modo-coleta section.page>.hint{max-width:none;padding-bottom:18px;border-bottom:1px solid #efeeea;margin-bottom:22px}
+body.modo-coleta .bloco>h3{padding-bottom:10px;border-bottom:1px solid #f1efea}
+body.modo-coleta .bloco>h3::before{content:'';flex:0 0 18px;height:18px;background:var(--nl-orange-600);-webkit-mask:var(--ico) center/contain no-repeat;mask:var(--ico) center/contain no-repeat}
+body.modo-coleta .pagenav:empty{display:none}
+.col-sep{margin:18px 0 10px;font:600 13px Sora,sans-serif;color:var(--nl-navy-900)}
+.col-item{border:1px solid #efeeea;border-radius:12px;padding:14px 16px;margin-bottom:12px}
+.col-item-h{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;font:600 13.5px Sora,sans-serif;color:var(--nl-navy-900)}
+.col-item-h small{font:500 12.5px 'DM Sans',sans-serif;color:#8a867e}
+.col-calc{font:500 12.5px 'DM Sans',sans-serif;color:#8a867e;margin-top:6px}
+/* a pergunta que chega preenchida do exame de saúde financeira */
+.ex-tag{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:999px;background:#EFEAF8;color:#5B4B8A;font:600 10.5px 'DM Sans',sans-serif;letter-spacing:.02em;vertical-align:middle;white-space:nowrap;cursor:help;text-transform:none}
+h3 > .ex-tag{font-size:11px}
+.ex-leg{margin:2px 0 10px;padding:0 14px;font:500 11.5px 'DM Sans',sans-serif;color:rgba(255,255,255,.62);line-height:1.5}
+.ex-leg .ex-tag{margin:0 4px 0 0}
+.ex-resp{margin-top:5px;font:500 12px 'DM Sans',sans-serif;color:#7a7390}
+.ex-resp b{font-weight:600;color:#5B4B8A}
+.col-arq{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px} .col-arq span{display:inline-flex;gap:6px;align-items:center;font:500 12.5px 'DM Sans',sans-serif;color:var(--nl-navy-900);background:#f6f5f2;border-radius:999px;padding:4px 6px 4px 12px}
+.col-up{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px dashed #e3ded5;border-radius:12px;padding:12px 14px;margin-top:10px}
+.col-up label{cursor:pointer}
+/* as anotações: uma janela no canto inferior direito, por cima da página, com a hora da última gravação */
+.col-notas{position:fixed;right:24px;bottom:22px;z-index:60;display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+.col-notas-p{width:380px;background:#fff;border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,.08),0 14px 36px rgba(16,24,40,.16);padding:14px 16px}
+.col-notas-p[hidden]{display:none}
+.col-notas-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;font:600 14px Sora,sans-serif;color:var(--nl-navy-900)}
+.col-notas-h small{font:500 12px 'DM Sans',sans-serif;color:#8a867e}
+.col-notas textarea{width:100%;min-height:240px;resize:vertical;font:500 13.5px/1.5 'DM Sans',sans-serif}
+.col-dock{display:flex;align-items:center;gap:10px}
+.col-dock>span{font:500 12px 'DM Sans',sans-serif;color:#8a867e;background:#fff;padding:5px 11px;border-radius:999px;box-shadow:var(--shadow-card)}
+.col-dock .btn{box-shadow:var(--shadow-card)} .col-dock .btn i{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--nl-orange-500);margin-left:6px;vertical-align:middle} .col-dock .btn i[hidden]{display:none}
 @media (prefers-reduced-motion:reduce){ *{transition:none!important;animation:none!important} .btn:active{transform:none} }
 </style>
 </head>
@@ -1159,13 +1222,19 @@ aside nav a.feito i::before{content:'✓';font-size:13px}
   <div class="who"><b id="sbName">Ana Ribeiro</b><span id="sbMeta">35 anos · plano ativo</span>
     <div class="whoact"><a class="btn btn-new" id="btnClientes" href="index.html" style="text-decoration:none" title="Escolher outro cliente ou começar um novo">← Clientes</a></div></div>
   <nav id="nav">
+    <div class="nav-g na-coleta so-coleta">Reunião de coleta</div>
+    <div class="ex-leg na-coleta so-coleta"><span class="ex-tag">Exame</span><span class="ex-leg-txt">perguntas do exame de saúde financeira</span></div>
+    <a class="na-coleta so-coleta" data-nav="perfil" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.4-7-10a4 4 0 017-2.6A4 4 0 0119 11c0 5.6-7 10-7 10z"/></svg>Perfil e comportamento<i></i></a>
+    <a class="na-coleta so-coleta" data-nav="aposentadoria" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M6 3h12M6 21h12M7 3v3l5 6-5 6v3M17 3v3l-5 6 5 6v3"/></svg>Aposentadoria<i></i></a>
+    <a class="na-coleta so-coleta" data-nav="protecao" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 0118 0zM12 12v7a2 2 0 004 0"/></svg>Proteção<i></i></a>
+    <a class="na-coleta so-coleta" data-nav="documentos" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M6 2h9l5 5v15H6zM14 2v6h6M9 14l2 2 4-4"/></svg>Documentos e tarefas<i></i></a>
     <div class="nav-g">Dados do cliente</div>
-    <a data-nav="cliente" role="button" tabindex="0"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg>Cliente<i>1</i></a>
-    <a data-nav="orcamento" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M3 7h18v13H3zM3 7l3-4h12l3 4M16 13h2"/></svg>Orçamento<i>2</i></a>
-    <a data-nav="patrimonio" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M3 21h18M5 21V10l7-5 7 5v11M9 21v-6h6v6"/></svg>Patrimônio<i>3</i></a>
-    <a data-nav="carteira" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M3 7h18v13H3zM8 7V4h8v3M3 12h18"/></svg>Carteira atual<i>4</i></a>
+    <a class="na-coleta" data-nav="cliente" role="button" tabindex="0"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg>Cliente<i>1</i></a>
+    <a class="na-coleta" data-nav="orcamento" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M3 7h18v13H3zM3 7l3-4h12l3 4M16 13h2"/></svg>Orçamento<i>2</i></a>
+    <a class="na-coleta" data-nav="patrimonio" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M3 21h18M5 21V10l7-5 7 5v11M9 21v-6h6v6"/></svg>Patrimônio<i>3</i></a>
+    <a class="na-coleta" data-nav="carteira" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M3 7h18v13H3zM8 7V4h8v3M3 12h18"/></svg>Carteira atual<i>4</i></a>
     <div class="nav-g">Planejamento</div>
-    <a data-nav="objetivos" role="button" tabindex="0"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1"/></svg>Objetivos<i>5</i></a>
+    <a class="na-coleta" data-nav="objetivos" role="button" tabindex="0"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1"/></svg>Objetivos<i>5</i></a>
     <a data-nav="politica" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M3 12h4l3-7 4 14 3-7h4"/></svg>Política de investimentos<i>6</i></a>
     <a data-nav="ajuste" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M3 5h18v15H3zM3 10h18M8 3v4M16 3v4M7 14h3M14 14h3M7 17h3"/></svg>Fluxo de 24 meses<i>7</i></a>
     <a data-nav="fluxo" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M3 5h18M3 12h18M3 19h18M8 3v18M16 3v18"/></svg>Fluxo vida toda<i>8</i></a>
@@ -1181,8 +1250,11 @@ aside nav a.feito i::before{content:'✓';font-size:13px}
     <a data-nav="propostas" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M22 12h-6l-2 3h-4l-2-3H2M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/></svg>Propostas do cliente<i class="contador" id="navProp"></i></a>
   </nav>
   <div class="foot">
-    <button class="btn btn-primary" id="btnOpen" title="Apresentar ao cliente"><svg viewBox="0 0 24 24"><path d="M15 3h6v6M10 14L21 3M18 13v8H3V6h8"/></svg>Apresentar ao cliente</button>
-    <a class="linkfoot" id="btnComoCliente" href="evolucao-patrimonial.html?fase=proposito&consultor" target="_blank">Ver como o cliente vê ↗</a>
+    <button class="btn btn-primary so-montagem" id="btnOpen" title="Apresentar ao cliente"><svg viewBox="0 0 24 24"><path d="M15 3h6v6M10 14L21 3M18 13v8H3V6h8"/></svg>Apresentar ao cliente</button>
+    <a class="linkfoot so-montagem" id="btnComoCliente" href="evolucao-patrimonial.html?fase=proposito&consultor" target="_blank">Ver como o cliente vê ↗</a>
+    <button class="btn btn-primary so-coleta" data-finalizar-coleta title="Marca a coleta como finalizada e abre a montagem do relatório">Finalizar a coleta</button>
+    <a class="linkfoot so-coleta" data-modo="montagem" href="#">Ir para a montagem do relatório →</a>
+    <a class="linkfoot so-montagem" id="btnIrColeta" data-modo="coleta" href="#">Abrir a reunião de coleta</a>
   </div>
 </aside>
 
@@ -1209,9 +1281,10 @@ aside nav a.feito i::before{content:'✓';font-size:13px}
       </div>
       <details class="ajuda" id="notaCasal"><summary>Casal: quem é o titular?</summary>O titular é o primeiro nome do cliente; o outro é o cônjuge, com o nome e a data de nascimento dele nos campos próprios. A idade em que cada um para de trabalhar fica na página Liberdade financeira: a liberdade começa quando o primeiro para. A renda de cada um entra como uma linha própria no Fluxo vida toda, e o INSS de cada um como uma renda na página Liberdade financeira.</details>
     </div>
-    <div class="bloco"><h3>Trabalho e expectativa de vida</h3>
+    <div class="bloco so-coleta"><h3>Dados pessoais</h3><div id="pessoalC"></div></div>
+    <div class="bloco"><h3>Trabalho<span class="so-montagem"> e expectativa de vida</span></h3>
       <div class="grid g3">
-        <div class="field"><label>Expectativa de vida (anos) <span class="tip" tabindex="0" data-tip="Horizonte do plano: o patrimônio precisa durar até esta idade do titular.">?</span></label><input id="f-lifeExp" type="number" min="70" max="110"></div>
+        <div class="field so-montagem"><label>Expectativa de vida (anos) <span class="tip" tabindex="0" data-tip="Horizonte do plano: o patrimônio precisa durar até esta idade do titular.">?</span></label><input id="f-lifeExp" type="number" min="70" max="110"></div>
       </div>
       <div id="trabC"></div>
     </div>
@@ -1274,7 +1347,40 @@ aside nav a.feito i::before{content:'✓';font-size:13px}
     <h2>Carteira atual</h2>
     <div class="hint">A fotografia das posições de hoje, ativo a ativo: a instituição, o titular, a classe, o vencimento e o valor. Cole as linhas da planilha e ajuste o que precisar aqui.</div>
     <div id="carteiraC"></div>
+    <div id="carteiraColC" class="so-coleta"></div>
     <div class="pagenav"><button class="btn btn-tertiary" data-ir="politica">Próximo →</button></div>
+  </section>
+
+  <section class="page" data-page="perfil">
+    <div class="kicker"></div>
+    <h2>Perfil e comportamento</h2>
+    <div class="hint">Como o cliente se vê e lida com o dinheiro e com o risco: as respostas do exame de saúde financeira, conferidas na reunião, e a leitura do consultor.</div>
+    <div id="perfilC"></div>
+    <div class="pagenav"></div>
+  </section>
+
+  <section class="page" data-page="aposentadoria">
+    <div class="kicker"></div>
+    <h2>Aposentadoria</h2>
+    <div class="hint">Quando cada um pretende parar de trabalhar, quanto a família quer por mês depois disso e de onde virá a renda: a previdência pública e a complementar.</div>
+    <div id="aposC"></div>
+    <div class="pagenav"></div>
+  </section>
+
+  <section class="page" data-page="protecao">
+    <div class="kicker"></div>
+    <h2>Proteção</h2>
+    <div class="hint">Os seguros e o plano de saúde que a família já tem. Na montagem, a Gestão de riscos compara com o que ela precisa.</div>
+    <div id="protC"></div>
+    <div class="pagenav"></div>
+  </section>
+
+  <section class="page" data-page="documentos">
+    <div class="kicker"></div>
+    <h2>Documentos e tarefas</h2>
+    <div class="hint">O que o cliente entregou, o que falta fazer depois da reunião e as anotações do consultor.</div>
+    <div id="docsC"></div>
+    <div class="pagenav"></div>
   </section>
 
   <section class="page" data-page="politica">
@@ -1327,6 +1433,7 @@ aside nav a.feito i::before{content:'✓';font-size:13px}
     <div class="rowend" style="margin-bottom:16px"><button class="btn btn-tertiary" id="btnAddGoal">+ Adicionar objetivo</button></div>
     <div id="goalSum"></div>
     <div id="propositoC"></div>
+    <div id="compC" class="so-coleta"></div>
     <div class="pagenav"><button class="btn btn-tertiary" data-ir="liberdade">Próximo: Liberdade financeira →</button></div>
   </section>
 
@@ -3496,15 +3603,18 @@ const ENGINE = (() => {
   // casal, o cônjuge); os rendimentos tributáveis e o INSS vêm do Fluxo de caixa quando a pessoa tem linhas tributáveis lá, e
   // só sem elas valem os digitados aqui. Cada estratégia diz quem declara os dependentes (depsCom: o índice da pessoa) e os
   // lançamentos de cada um (instrução, médicas, PGBL). O número de dependentes vem da página Cliente (riscos.dependentes).
-  //   pessoas: [{ quem, rend, inss, outras }], atual e recomendada: { depsCom, lanc: [{ instr, med, pgbl }] }
+  // rendAno: os rendimentos tributáveis do ano informados à mão (um aumento no meio do ano faz o ano diferente de 12 vezes o
+  // bruto de hoje); quando há, valem no lugar dos do Fluxo e dos digitados em rend. inssAno: o mesmo para o INSS do ano.
+  //   pessoas: [{ quem, rend, rendAno, inss, inssAno, outras }], atual e recomendada: { depsCom, lanc: [{ instr, med, pgbl }] }
   const dadosIR = (T, quem, i) => (T.pessoas || []).find(p => p.quem === quem) || ((T.pessoas || [])[i] && !(T.pessoas[i] || {}).quem ? T.pessoas[i] : {});
   function irDaFamilia(plan) {
     const T = ((plan || {}).tributario || {}).ir; if (!T) return null;
     const lista = ((plan.riscos || {}).dependentes), nDeps = Array.isArray(lista) ? lista.length : Math.round(pos(T.dependentes)), nomes = nomesDaFamilia(plan);
     const base = pessoasDaFamilia(plan).map((quem, i) => { const d = dadosIR(T, quem, i), fx = rendaDaPessoa(plan, quem), doFluxo = fx.linhas.length > 0;
-      return { quem, nome: nomes[quem], doFluxo, linhas: fx.linhas, semBruto: fx.semBruto, rend: doFluxo ? fx.trib : pos(d.rend), inss: doFluxo ? fx.inss : pos(d.inss), outras: pos(d.outras) }; });
+      const ajustada = pos(d.rendAno) > 0, inssAjustado = d.inssAno != null && d.inssAno !== '' && pos(d.inssAno) >= 0 && +d.inssAno === +d.inssAno;
+      return { quem, nome: nomes[quem], doFluxo, linhas: fx.linhas, semBruto: fx.semBruto, ajustada, rendFluxo: fx.trib, rend: ajustada ? pos(d.rendAno) : doFluxo ? fx.trib : pos(d.rend), inssAjustado, inssFluxo: fx.inss, inss: inssAjustado ? pos(d.inssAno) : doFluxo ? fx.inss : pos(d.inss), outras: pos(d.outras) }; });
     const cen = c => { c = c || {}; const ps = base.map((p, i) => { const l = (c.lanc || [])[i] || {};
-        return Object.assign({ quem: p.quem, nome: p.nome, doFluxo: p.doFluxo, linhas: p.linhas, semBruto: p.semBruto, pgbl: pos(l.pgbl) }, calculaIR({ rend: p.rend, inss: p.inss, outras: p.outras, deps: +c.depsCom === i ? nDeps : 0, instr: l.instr, med: l.med, pgbl: l.pgbl })); });
+        return Object.assign({ quem: p.quem, nome: p.nome, doFluxo: p.doFluxo, linhas: p.linhas, semBruto: p.semBruto, ajustada: p.ajustada, rendFluxo: p.rendFluxo, inssAjustado: p.inssAjustado, inssFluxo: p.inssFluxo, pgbl: pos(l.pgbl) }, calculaIR({ rend: p.rend, inss: p.inss, outras: p.outras, deps: +c.depsCom === i ? nDeps : 0, instr: l.instr, med: l.med, pgbl: l.pgbl })); });
       return { pessoas: ps, total: ps.reduce((a, x) => a + x.devido, 0), rend: ps.reduce((a, x) => a + x.rend, 0), depsCom: +c.depsCom }; };
     const atual = cen(T.atual), recomendada = cen(T.recomendada);
     return { nDeps, atual, recomendada, economia: atual.total - recomendada.total };
@@ -3964,6 +4074,10 @@ const doSalvo = p => Object.assign(structuredClone(PLANO_PADRAO), { patrimonio: 
   natureza: ((p.riscos || {}).reserva || {}).natureza || '', tipo: null, consultor: null, nascimento: '', conjugeNascimento: '', spouseAge: null, spouseRetireAge: null, conjugeNome: '' }, p);
 // o cliente do plano viaja no endereço entre as telas (?cliente=…); na plataforma ele vem da sessão e nada muda aqui
 const CLIENTE_ID = new URLSearchParams(location.search).get('cliente');
+// a reunião de coleta (?coleta): o mesmo portal, só com as páginas de dados do cliente (o bloco REUNIÃO DE COLETA)
+const MODO_COLETA = new URLSearchParams(location.search).has('coleta');
+document.body.classList.toggle('modo-coleta', MODO_COLETA);
+if (MODO_COLETA) document.getElementById('gravado').textContent = 'A coleta grava sozinha';
 const comCliente = url => { if (!CLIENTE_ID) return url; const [u, h] = url.split('#'); return u + (u.includes('?') ? '&' : '?') + 'cliente=' + encodeURIComponent(CLIENTE_ID) + (h != null ? '#' + h : ''); };
 // Cliente novo: plano em branco, sem nada do exemplo. Só o cliente "exemplo" começa com o plano da Ana Ribeiro.
 const isoLocal = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
@@ -4594,7 +4708,7 @@ function renderAll() {
   const foco = document.activeElement, fg = foco && foco.dataset ? foco.dataset.g : null, fk = foco && foco.dataset ? foco.dataset.k : null;
   const oid = fg != null && plano.objectives[+fg] ? plano.objectives[+fg].id : null, txt = foco ? foco.value : null;
   const sf = seletorDoCampo(foco), si = sf ? [...document.querySelectorAll(sf)].indexOf(foco) : -1;
-  recompute(); renderTop(); renderFluxo(); renderObjetivosNoFluxo(); renderCreditoC(); renderGoals(); renderPropositoC(); renderLiberdade(); renderClienteC(); renderOrcamentoC(); renderPatrimonioC(); renderPoliticaC(); renderAjusteC(); renderCarteiraC(); renderMacroC(); renderMicroC(); renderRiscosC(); renderTributarioC(); renderPremissas(); renderApresentacaoC(); renderPropostas(); save();
+  recompute(); renderTop(); renderFluxo(); renderObjetivosNoFluxo(); renderCreditoC(); renderGoals(); renderPropositoC(); renderLiberdade(); renderClienteC(); renderOrcamentoC(); renderPatrimonioC(); renderColetaC(); renderPoliticaC(); renderAjusteC(); renderCarteiraC(); renderMacroC(); renderMicroC(); renderRiscosC(); renderTributarioC(); renderPremissas(); renderApresentacaoC(); renderPropostas(); save();
   if (gaveta && (gaveta.t === 'bem' || gaveta.t === 'div')) renderGaveta();   // o detalhe do bem e a evolução da dívida acompanham o que mudou neles
   if (oid && fk) {
     const i = plano.objectives.findIndex(o => o.id === oid), el = document.querySelector('[data-g="' + i + '"][data-k="' + fk + '"]');
@@ -4641,6 +4755,7 @@ function pendencias() {
   if (temFluxo() && semAporte().length) add('objetivos', 'quanto guardar por mês em ' + semAporte().map(o => esc(o.name || 'objetivo sem nome')).join(', '));
   if (!(plano.desired > 0)) add('liberdade', 'renda desejada', '#f-desired');
   if (!temIdadeAlvo()) add('liberdade', 'idade de parar de trabalhar', '#f-retire');
+  if (MODO_COLETA) { (P.fluxo || []).forEach(x => add('orcamento', x.t)); (P.liberdade || []).forEach(x => add('aposentadoria', x.t)); delete P.fluxo; delete P.liberdade; }
   if (!plano.tributario) add('tributario', 'escolher entre usar o exemplo e começar do zero');
   return P;
 }
@@ -4700,14 +4815,14 @@ function renderTop() {
   // o que falta: uma resposta só, lida pela linha do "Próximo" de cada página, pelo ✓ da barra lateral e pelo topo da
   // Apresentação. O "Próximo" nunca trava: o dado pode vir depois, da coleta.
   const PEND = pendencias();
-  document.querySelectorAll('#nav a[data-nav]').forEach(a => { const n = (PEND[a.dataset.nav] || []).length; a.classList.toggle('feito', !n && a.dataset.nav !== 'propostas' && a.dataset.nav !== 'cenarios'); const nome = a.dataset.nome || (a.dataset.nome = a.textContent.replace(/\d+$/, '').trim());   // o nome da página, que é o que se vê no menu recolhido
+  document.querySelectorAll('#nav a[data-nav]').forEach(a => { const n = (PEND[a.dataset.nav] || []).length; a.classList.toggle('feito', !n && a.dataset.nav !== 'propostas' && a.dataset.nav !== 'cenarios' && (!MODO_COLETA || !!(plano.vistas || {})[a.dataset.nav])); const nome = a.dataset.nome || (a.dataset.nome = a.textContent.replace(/\d+$/, '').trim());   // o nome da página, que é o que se vê no menu recolhido
     a.title = nome + (n ? ' · ' + n + (n > 1 ? ' pendências' : ' pendência') : ''); });
   document.querySelectorAll('.pagenav').forEach(nv => {
     const aqui = nv.closest('.page').dataset.page, ps = PEND[aqui] || [], b = nv.querySelector('[data-ir]');
     let r = nv.querySelector('.pn-falta'); if (!r) { r = document.createElement('div'); r.className = 'pn-falta'; nv.prepend(r); }
     r.innerHTML = ps.length ? `<b>Falta nesta página:</b> ${ps.map(p => p.foco ? `<button class="link" data-foco='${p.foco}'>${p.t}</button>` : p.t).join(' · ')}` : '<span class="pn-ok">✓ Página completa</span>';
     r.classList.toggle('ok', !ps.length);
-    if (b) { const alvo = PAGINAS[PAGINAS.indexOf(aqui) + 1] || 'liberdade'; b.dataset.ir = alvo; b.textContent = 'Próximo: ' + NOMES_PAGINA[alvo] + ' →'; }
+    const ordem = MODO_COLETA ? PAGINAS_COLETA : PAGINAS; if (b) { const alvo = ordem[ordem.indexOf(aqui) + 1] || 'liberdade'; b.dataset.ir = alvo; b.textContent = 'Próximo: ' + NOMES_PAGINA[alvo] + ' →'; }
   });
   if (!plano.objectives.length) { document.getElementById('goalSum').innerHTML = ''; return; }
   const linhas = plano.objectives.map(o => `<tr><td>${esc(o.name || 'sem nome')}</td><td>${monthsLabel(o.months)}</td>` +
@@ -5539,7 +5654,7 @@ function renderGoals() {
     // as seções extras aparecem quando têm conteúdo ou quando a consultora as acrescenta
     const temGasto = cs.length > 0, temMais = !!(+o.dedicated || ENGINE.vendasDoObjetivo(o).length || blocosAbertos.has(o.id + ':mais'));
     const temApres = !!(o.strategy || o.photo || o.iconData || o.iconFA || blocosAbertos.has(o.id + ':apres'));
-    const chips = [!temGasto && `<button class="chipadd" data-add-c="${o.id}">+ Gasto depois de realizado</button>`, !temMais && `<button class="chipadd" data-add-sec="${o.id}:mais">+ Financiar com patrimônio</button>`, !temApres && `<button class="chipadd" data-add-sec="${o.id}:apres">+ Apresentação ao cliente</button>`].filter(Boolean);
+    const chips = [!temGasto && `<button class="chipadd" data-add-c="${o.id}">+ Gasto depois de realizado</button>`, !temMais && `<button class="chipadd" data-add-sec="${o.id}:mais">+ Financiar com patrimônio</button>`, !temApres && `<button class="chipadd so-montagem" data-add-sec="${o.id}:apres">+ Apresentação ao cliente</button>`].filter(Boolean);
     const orc = !ENGINE.ligado(o) ? `<div class="orc">Desligado: o objetivo ainda não entra no fluxo de caixa. Ligue na <button class="link" data-ir="politica">Política de investimentos</button>, que confere se o orçamento comporta.</div>` : aguardaOrcamento() || !(o.amount > 0) ? '' : o.status === 'ok'
       ? `<div class="orc ok">No orçamento: recebe ${fmt(o.effective)}/mês e chega a ${fmt(o.real)} (${Math.floor(o.realRatio * 100)}%).</div>`
       : (() => { const d = diagnostico(o), saidas = d ? ['adiar a data', d.anteriores.length ? 'reduzir o aporte de ' + d.anteriores.map(x => esc(x.name)).join(', ') : '', 'aumentar a capacidade de poupança no Fluxo vida toda'].filter(Boolean) : [];
@@ -5564,7 +5679,7 @@ function renderGoals() {
         <div class="field"><label>${o.kind === 'bem' ? `Necessário na data ${tip('O que o cliente precisa ter juntado na data: numa compra financiada, a entrada. O financiamento entra em "+ Gasto depois de realizado".')}` : 'Valor do objetivo'}</label><input data-money type="text" inputmode="decimal" data-g="${i}" data-k="amount" value="${o.amount ? money(o.amount) : ''}" placeholder="R$ 0,00"${o.compra && o.compra.modo === 'consorcio' && o.compra.lancePct != null && o.compra.lancePct !== '' ? ' readonly title="Calculado pelo lance do consórcio, em Como vai comprar"' : ''}></div>
         <div class="field"><label>Guardar por mês</label><input data-money type="text" inputmode="decimal" data-g="${i}" data-k="planned" value="${o.planned ? money(o.planned) : ''}" placeholder="R$ 0,00">${campoParte(o)}<div class="deriv desde">a partir de ${seletorMes('data-g="' + i + '" data-k="aporteDe"', ENGINE.inicioDoAporte(o))}</div>${o.segueNecessario ? '<div class="deriv">acompanha o necessário</div>' : o.amount > 0 && Math.abs(o.planned - o.required) >= 1 ? `<button class="usarnec" data-usar-nec="${i}">usar o necessário (${fmt(Math.ceil(o.required))})</button>` : ''}${(s => s >= (+o.planned || 0) + 1 ? `<button class="usarnec" data-usar-sobra="${i}" title="Põe no aporte o que ainda cabe guardar por mês sem criar falta. É um valor fixo: o que sobrar depois não vai sozinho para este objetivo, e você decide para onde vai.">guardar o que sobra hoje (${fmt(s)}/mês)</button>` : '')(sobraParaObjetivo(o))}</div>
       </div>
-      ${fontesDoObjetivo(o)}
+      ${MODO_COLETA ? objetivoColetaC(o, i) : ''}${fontesDoObjetivo(o)}
       <div class="planner" data-plan="${o.id}"><div class="pv-svg">${planSvg(o)}</div>${htmlTaxa(o)}<div class="pv-res">${planResumo(o)}</div></div>
       ${realismoLongo(o)}${orc}
       ${o.kind === 'bem' ? htmlCompra(o, i) : ''}
@@ -6743,7 +6858,7 @@ function rendaCartao(it, nm, casal) {
         ${cp('Descontos', descCampo, 'INSS, imposto retido e outros descontos: o bruto menos o líquido.')}
         ${cp('Líquido por mês', liqCampo, 'O que cai na conta. É o valor que o fluxo e a simulação usam.')}
         ${cp('Tributável no IR', selR(`incomes.${i}.taxable`, [['sim', 'sim'], ['nao', 'não']], 'bool'))}</div>
-      ${extras}
+      ${extras}${MODO_COLETA ? rendaColetaC(it, i) : ''}
       <div class="orc-r-pe"><small>Datas, degraus e mudanças ao longo do tempo ficam no <button class="link" data-ir="fluxo">Fluxo vida toda</button>${ativa ? '; o regime e as horas de trabalho, na página <button class="link" data-ir="cliente">Cliente</button>' : ''}.</small>
         <button class="btn btn-secondary btn-small" data-orc-fecha="${it.id}">OK</button></div>
     </div></div>`;
@@ -6812,19 +6927,19 @@ function renderOrcamentoC() {
     const valor = lig ? `<div class="orc-fx">${fmt(media)}<small>da página ${lig[0]} · <button class="link" data-ir="${lig[1]}">mudar</button></small></div>`
       : linhaSimples(it) ? campoR(`${lista}.${i}.steps.0.value`, 'reais0', ' placeholder="R$ por mês"')
       : `<div class="orc-fx">${fmt(media)}<small>média · detalhada no <button class="link" data-ir="fluxo">Fluxo vida toda</button></small></div>`;
-    return `<tr><td>${lig ? esc(it.label || '') : campoR(`${lista}.${i}.label`, 'texto', ' placeholder="nome"')}</td>${quem ? `<td class="q">${selR(`${lista}.${i}.pessoa`, [['titular', nm.titular], ['conjuge', nm.conjuge]])}</td>` : ''}<td class="v">${valor}</td><td class="x">${lig ? '' : `<button class="btn btn-icon" data-rrm="${lista}.${i}" title="Remover">×</button>`}</td></tr>`;
+    return `<tr><td>${lig ? esc(it.label || '') : campoR(`${lista}.${i}.label`, 'texto', ' placeholder="nome"')}</td>${quem ? `<td class="q">${selR(`${lista}.${i}.pessoa`, [['titular', nm.titular], ['conjuge', nm.conjuge]])}</td>` : ''}<td class="v">${valor}</td>${MODO_COLETA ? `<td>${campoR(`${lista}.${i}.description`, 'texto', ' placeholder="observação"')}</td>` : ''}<td class="x">${lig ? '' : `<button class="btn btn-icon" data-rrm="${lista}.${i}" title="Remover">×</button>`}</td></tr>`;
   };
   const bloco = (titulo, lista, filtro, add, rotulo, total, ref) => {
     const quem = lista === 'incomes' && casal, rows = plano[lista].map((it, i) => [it, i]).filter(([it]) => filtro(it));
     return `<div class="bloco"><h3>${titulo}<span class="dir">${fmt(total)} por mês${ref ? ' · ' + pct(total) + ' (referência ' + ref + ')' : ''}</span></h3>
-      ${rows.length ? `<table class="orc-tab"><thead><tr><th>Nome</th>${quem ? '<th>De quem</th>' : ''}<th class="v">Por mês</th><th></th></tr></thead><tbody>${rows.map(([it, i]) => linha(lista, it, i, quem)).join('')}</tbody></table>` : '<div class="sub">Nenhuma linha ainda.</div>'}
+      ${rows.length ? `<table class="orc-tab"><thead><tr><th>Nome</th>${quem ? '<th>De quem</th>' : ''}<th class="v">Por mês</th>${MODO_COLETA ? '<th>Observação</th>' : ''}<th></th></tr></thead><tbody>${rows.map(([it, i]) => linha(lista, it, i, quem)).join('')}</tbody></table>` : '<div class="sub">Nenhuma linha ainda.</div>'}
       <button class="btn btn-step" data-orcadd="${add}">+ ${rotulo}</button></div>`;
   };
   el.innerHTML = `<div class="orc-res">${tile('Renda', g.mes.renda, 'média dos próximos 12 meses')}${tile('Despesas fixas', g.grupos.fixas, pct(g.grupos.fixas) + ' · referência 50%')}${tile('Despesas ajustáveis', g.grupos.ajustaveis, pct(g.grupos.ajustaveis) + ' · referência 30%')}${tile('Para o futuro', g.mes.futuro, pct(g.mes.futuro) + ' · mínimo 20%')}</div>
     ${rendasBloco(g, nm, casal)}
     ${bloco('Despesas fixas', 'expenses', it => it.group === 'fix', 'fix', 'despesa fixa', g.grupos.fixas, '50%')}
     ${bloco('Despesas ajustáveis', 'expenses', it => it.group !== 'fix', 'adj', 'despesa ajustável', g.grupos.ajustaveis, '30%')}
-    <div class="bloco"><h3>Poupança</h3><div class="grid g3"><div class="field"><label>Quantas vezes poupou nos últimos 12 meses ${tip('A pergunta do exame. Aparece no capítulo Gestão financeira, ao lado de quanto sobra para o futuro.')}</label>${selR('orcamento.vezesPoupou', [['', 'não informado']].concat(ENGINE.VEZES_POUPOU))}</div></div></div>`;
+    <div class="bloco"><h3>Poupança</h3><div class="grid g3"><div class="field"><label>Quantas vezes poupou nos últimos 12 meses ${tip('A pergunta do exame. Aparece no capítulo Gestão financeira, ao lado de quanto sobra para o futuro.')}</label>${selR('orcamento.vezesPoupou', [['', 'não informado']].concat(ENGINE.VEZES_POUPOU))}</div></div></div>${orcColetaC()}`;
 }
 document.addEventListener('click', e => {
   const b = e.target.closest('[data-orcadd]'); if (!b) return;
@@ -6855,7 +6970,7 @@ function renderTrabalhoC() {
       <div class="field"><label>Natureza do trabalho</label>${selR(`rendasAtivas.${i}.natureza`, ops)}${nr && nr.quem === q && minhas.findIndex(([r]) => r.natureza) === j ? '<div class="deriv">usada na reserva de emergência (a maior renda do trabalho)</div>' : ''}</div>
       <div class="field"><label>Horas trabalhadas no mês ${tip('Com a renda do trabalho, dá o valor da hora de ' + nm[q] + ' no capítulo Gestão financeira. Com mais de uma renda ativa, as horas se somam.')}</label><div class="ra-h">${campoR(`rendasAtivas.${i}.horas`, 'num', ' min="1" max="744" placeholder="ex.: 176"')}${minhas.length > 1 ? `<button class="btn btn-icon" data-rrm="rendasAtivas.${i}" title="Remover esta renda">×</button>` : ''}</div></div></div>`).join('');
     return `<div class="trab-p"><h4>${esc(nm[q])}</h4><div class="grid g3">
-      <div class="field"><label>Começou a trabalhar aos ${tip('Com esta idade e a de parar de trabalhar, a área do cliente mostra as fases da vida financeira de ' + nm[q] + ' e o patrimônio esperado para a idade.')}</label>${campoR(conj ? 'patrimonio.conjugeComecou' : 'patrimonio.comecou', 'num', ' min="10" max="70" placeholder="anos"')}</div>
+      <div class="field so-montagem"><label>Começou a trabalhar aos ${tip('Com esta idade e a de parar de trabalhar, a área do cliente mostra as fases da vida financeira de ' + nm[q] + ' e o patrimônio esperado para a idade.')}</label>${campoR(conj ? 'patrimonio.conjugeComecou' : 'patrimonio.comecou', 'num', ' min="10" max="70" placeholder="anos"')}</div>
       <div class="field"><label>Para de trabalhar aos</label>${ligadoC(vazioL(para) ? 'não informada' : para + ' anos', 'Liberdade financeira', 'liberdade')}</div></div>
       ${rendas}<button class="btn btn-step" data-rativa="${q}">+ renda ativa de ${esc(nm[q])}</button></div>`; }).join('');
 }
@@ -6880,7 +6995,7 @@ function renderClienteC() {
   el.innerHTML = `<div class="dep-sn">Alguém depende financeiramente do cliente?
       <label class="rad"><input type="radio" name="depsn" value="sim"${tem === 'sim' ? ' checked' : ''}> Sim</label><label class="rad"><input type="radio" name="depsn" value="nao"${tem === 'nao' ? ' checked' : ''}> Não</label></div>
     ${tem === 'sim' ? `<table class="rkc-tab" style="min-width:0"><thead><tr><th>Nome</th><th>Relação</th><th>Nascimento (o dia é opcional)</th><th>Depende até os</th><th></th><th></th></tr></thead><tbody>${deps.map((d, i) => `<tr><td>${campoR(`riscos.dependentes.${i}.nome`, 'texto', ' placeholder="nome"')}</td><td>${selR(`riscos.dependentes.${i}.relacao`, ENGINE.RELACOES)}</td><td><div class="nasc">${seletorNasc(`riscos.dependentes.${i}.nasc`, d.nasc, anoHoje)}</div></td><td>${campoR(`riscos.dependentes.${i}.ate`, 'num', ` min="1" max="120" placeholder="${sugestao(d)}" style="width:72px" title="Vazio: a sugestão pela relação (${sugestao(d)} anos)"`)}</td><td class="muted">${ate(d)}</td><td><button class="btn btn-icon" data-rrm="riscos.dependentes.${i}" title="Remover">×</button></td></tr>`).join('')}</tbody></table>
-    <button class="btn btn-step" data-radd="riscos.dependentes">+ dependente</button>` : ''}
+    <button class="btn btn-step" data-radd="riscos.dependentes">+ dependente</button>${MODO_COLETA ? depsColetaC(deps) : ''}` : ''}
     <details class="ajuda"><summary>Até quando alguém depende?</summary>A sugestão é: filhos e crianças até os 25 anos; cônjuge, pais e outros adultos, até os 95. Quando for diferente, informe a idade: uma criança atípica, por exemplo, pode depender até os 90. A lista entra na reserva de emergência (com dependentes, mais 3 meses) e no prazo do seguro de vida, na Gestão de riscos.</details>`;
 }
 document.addEventListener('change', e => {
@@ -7209,7 +7324,7 @@ function htmlParticipacaoC(p, i) {
   return `<div class="pc-item"><div class="pc-linha dois">
       <div class="field"><label>Empresa</label>${campoR(c + 'nome', 'texto', ' placeholder="nome da empresa"')}</div>
       <div class="field"><label>Valor da parte do cliente hoje</label>${campoR(c + 'valor', 'reais')}</div>
-      <button class="btn btn-icon" data-rrm="patrimonio.participacoes.${i}" title="Remover">×</button></div>${tempoDoBemC(p, i, 'participacoes')}</div>`;
+      <button class="btn btn-icon" data-rrm="patrimonio.participacoes.${i}" title="Remover">×</button></div>${MODO_COLETA ? `<div class="grid g3 so-coleta" style="margin:4px 0 10px">${cpC('Participação do cliente (%)', campoR(c + 'pct', 'num', ' min="0" max="100" step="0.1"'))}${cpC('Regime tributário', selR(c + 'regime', opsC(['Simples Nacional', 'Lucro Presumido', 'Lucro Real', 'MEI'])), 'Apoio para a Otimização tributária (pró-labore e distribuição de lucros), que é decisão da montagem.')}${cpC('Faturamento anual', campoR(c + 'faturamento', 'reais0'))}</div>` : ''}${tempoDoBemC(p, i, 'participacoes')}</div>`;
 }
 // o cartão de um bem: na página Patrimônio e na gaveta que abre do bem (a programação da renda, na Liberdade financeira)
 function htmlBemC(b, i) {
@@ -7221,13 +7336,13 @@ function htmlBemC(b, i) {
       <div class="field"><label>Valor de mercado hoje</label>${campoR(c + 'mercado', 'reais')}</div>
       <div class="field"><label>Saldo devedor</label>${campoR(c + 'saldoDevedor', 'reais0', ' placeholder="R$ 0 se quitado"')}</div>
       <div class="field"><label>Titularidade ${tip('De quem é o bem. Em partes: a parte de cada pessoa e, se não somarem 100%, o resto é de outros (irmãos, outros sócios). Vai ser a base do patrimônio de cada pessoa nos seguros e do ITCMD.')}</label>${selR(c + 'titularidade', tits)}</div>
-      <button class="btn btn-icon" data-rrm="patrimonio.bens.${i}" title="Remover">×</button></div>
+      <button class="btn btn-icon" data-rrm="patrimonio.bens.${i}" title="Remover">×</button></div>${MODO_COLETA ? `<div class="grid g3 so-coleta" style="margin:4px 0 10px">${cpC('Tipo do bem', selR(c + 'tipo', opsC(TIPOS_BEM_C)))}</div>` : ''}
       ${tb ? `<div class="pc-linha cinco pc-partes"><div class="muted">A parte de cada um no bem</div>
         <div class="field"><label>Parte de ${esc(nm.titular)} (%)</label>${campoR(c + 'titularPct', 'num', ` min="0" max="100" step="1" placeholder="automático: ${pct(tb.titular)}"`)}</div>
         ${conjuge() ? `<div class="field"><label>Parte de ${esc(nm.conjuge)} (%)</label>${campoR(c + 'conjugePct', 'num', ` min="0" max="100" step="1" placeholder="automático: ${pct(tb.conjuge)}"`)}</div>` : '<div></div>'}
         <div class="field"><label>Outros (o que falta para 100%)</label><input value="${pct(tb.outros)}" disabled>${tb.excesso ? '<div class="deriv aviso">as partes passam de 100%</div>' : ''}</div>
         <span class="btn btn-icon" aria-hidden="true" style="visibility:hidden">×</span></div>` : ''}
-      ${deve ? camposDivida(c, b, 'Financiamento') : ''}${rendaDoBemC(b, i)}${tempoDoBemC(b, i)}</div>`;
+      ${deve ? camposDivida(c, b, 'Financiamento') : ''}${rendaDoBemC(b, i)}${tempoDoBemC(b, i)}${MODO_COLETA ? `<div class="field so-coleta" style="margin-top:10px"><label>Observações</label>${textoC(c + 'obs', '', 2)}</div>` : ''}</div>`;
 }
 // as instituições onde a família só tem conta, sem investir: de cada pessoa e, num casal, as conjuntas (plano.patrimonio.contas)
 function contasC() {
@@ -7452,24 +7567,24 @@ function renderPatrimonioC() {
     return `<div class="pc-item${d.situacao === 'inadimplente' ? ' inad' : ''}"><div class="pc-linha dois">
       <div class="field"><label>Dívida</label>${campoR(c + 'nome', 'texto', ' placeholder="ex.: empréstimo pessoal, consignado"')}</div>
       <div class="field"><label>Saldo devedor</label>${campoR(c + 'saldoDevedor', 'reais')}</div>
-      <button class="btn btn-icon" data-rrm="patrimonio.dividas.${i}" title="Remover">×</button></div>${camposDivida(c, d, 'Detalhe da dívida')}</div>`; };
+      <button class="btn btn-icon" data-rrm="patrimonio.dividas.${i}" title="Remover">×</button></div>${MODO_COLETA ? `<div class="grid g3 so-coleta" style="margin:4px 0 10px">${cpC('Credor', campoR(c + 'credor', 'texto', ' placeholder="ex.: Banco do Brasil"'))}</div>` : ''}${camposDivida(c, d, 'Detalhe da dívida')}</div>`; };
   const dBens = somaLista(D.bens, 'saldoDevedor'), dAvulsas = somaLista(D.dividas, 'saldoDevedor');
   el.innerHTML = `<div class="pc-resumo" id="ptcResumo">${resumoPatrimonioC()}</div>
     <div class="bloco"><h3>Mercado financeiro<span class="dir">${fmt(f.fin)}</span></h3><div class="sub">Investimentos, poupança e conta, por instituição. É o ponto de partida da evolução patrimonial e o que paga a renda da liberdade.</div>
         ${temCarteira() ? `<div class="pc-da-carteira">Os investimentos e a previdência aberta vêm da carteira, somados por instituição, titular e tipo. <button class="link" data-ir="carteira">Mudar na Carteira atual</button></div>` : ''}
         ${tabela('patrimonio.financeiro', ['Instituição', 'Valor'], D.financeiro, 'ex.: Itaú', 'Nenhuma instituição ainda.', true)}<button class="btn btn-step" data-radd="patrimonio.financeiro">${temCarteira() ? '+ fundo de pensão, FGTS ou empréstimo' : '+ instituição'}</button>
-        <div class="grid g3" style="margin-top:14px">${contasC()}</div></div>
+        <div class="grid g3" style="margin-top:14px">${contasC()}</div>${reservaColetaC()}</div>
     <div class="bloco"><h3>Participações societárias<span class="dir">${fmt(f.part)}</span></h3><div class="sub">A parte do cliente em cada empresa, pelo valor de hoje. Ao longo do tempo, pode crescer a uma taxa ao ano, chegar a um valor esperado numa data (o valuation) ou ser vendida; na venda, o líquido vai para o mercado financeiro. Não paga a renda desejada enquanto não é vendida.</div>
-      <div class="pc-lista">${D.participacoes.map((p, i) => htmlParticipacaoC(p, i)).join('') || '<div class="pc-vazio">Nenhuma participação.</div>'}</div><button class="btn btn-step" data-radd="patrimonio.participacoes">+ empresa</button></div>
+      <div class="pc-lista">${D.participacoes.map((p, i) => htmlParticipacaoC(p, i)).join('') || naoTemC('participacoes', 'Nenhuma participação.')}</div><button class="btn btn-step" data-radd="patrimonio.participacoes">+ empresa</button></div>
     <div class="bloco"><h3>Imóveis e outros bens<span class="dir">${fmt(f.bens)} de mercado${dBens ? ' · ' + fmt(dBens) + ' financiados' : ''}</span></h3><div class="sub">Pelo valor de mercado de hoje. Um bem com saldo devedor pede o detalhe do financiamento; um bem que rende (um aluguel) aponta para a renda no Fluxo vida toda.</div>
-      <div class="pc-lista">${D.bens.map((b, i) => htmlBemC(b, i)).join('') || '<div class="pc-vazio">Nenhum bem ainda.</div>'}</div><button class="btn btn-step" data-radd="patrimonio.bens">+ bem</button></div>
+      <div class="pc-lista">${D.bens.map((b, i) => htmlBemC(b, i)).join('') || naoTemC('bens', 'Nenhum bem ainda.')}</div><button class="btn btn-step" data-radd="patrimonio.bens">+ bem</button>${moradiaC()}</div>
     <div class="bloco"><h3>Outras dívidas<span class="dir">${dAvulsas ? fmt(dAvulsas) : ''}</span></h3><div class="sub">Empréstimos e dívidas que não são o financiamento de um bem: pessoal, consignado, cheque especial, cartão parcelado.</div>
-      <div class="pc-lista">${D.dividas.map(divida).join('') || '<div class="pc-vazio">Nenhuma outra dívida.</div>'}</div><button class="btn btn-step" data-radd="patrimonio.dividas">+ dívida</button></div>
-    <div class="bloco"><h3>Liquidez ideal</h3><div class="sub">Olhando todo o patrimônio da família, quanto dele deveria estar no mercado financeiro, com mais acessibilidade. O cliente vê o patrimônio financeiro de hoje comparado a este valor.</div>
+      <div class="pc-lista">${D.dividas.map(divida).join('') || naoTemC('dividas', 'Nenhuma outra dívida.')}</div><button class="btn btn-step" data-radd="patrimonio.dividas">+ dívida</button></div>${MODO_COLETA ? outrosColetaC(f) : ''}
+    <div class="bloco so-montagem"><h3>Liquidez ideal</h3><div class="sub">Olhando todo o patrimônio da família, quanto dele deveria estar no mercado financeiro, com mais acessibilidade. O cliente vê o patrimônio financeiro de hoje comparado a este valor.</div>
       <div class="grid g3"><div class="field"><label>Patrimônio total</label><div class="tbc-fx"><b>${fmt(f.total)}</b><small>financeiro, participações e bens, menos as dívidas</small></div></div>
         <div class="field"><label>Liquidez ideal (% do patrimônio) ${tip('Pela sua avaliação. O valor em reais acompanha o patrimônio total: muda quando o patrimônio muda.')}</label>${campoR('patrimonio.liquidezIdealPct', 'num', ' min="0" max="100" step="1" placeholder="ex.: 30"')}${f.liquidezIdeal > 0 ? '<div class="deriv">= ' + fmt(f.liquidezIdeal) + '</div>' : ''}</div>
         <div class="field"><label>Hoje no mercado financeiro</label><div class="tbc-fx"><b>${fmt(f.fin)}${liqPct != null ? ' · ' + Math.round(liqPct * 100) + '%' : ''}</b><small>${f.liquidezIdeal > 0 ? (f.fin >= f.liquidezIdeal ? 'acima da liquidez ideal' : 'faltam ' + fmt(f.liquidezIdeal - f.fin) + ' para a liquidez ideal') : 'defina a liquidez ideal ao lado'}</small></div></div></div></div>
-    <div class="pc-acoes"><button class="btn btn-secondary" data-abrir-cliente data-fase="patrimonio">Ver na tela do cliente</button></div>`;
+    <div class="pc-acoes so-montagem"><button class="btn btn-secondary" data-abrir-cliente data-fase="patrimonio">Ver na tela do cliente</button></div>`;
 }
 const somaLista = (l, k) => (l || []).reduce((a, x) => a + (+x[k] || 0), 0);
 // ---- o bem ao longo do tempo: valorização ao ano, valorização pontual e venda (b.valorizacao, b.venda) ----
@@ -7573,7 +7688,39 @@ function alinhaPessoasIR(ir) {
 }
 // o valor que vem do Fluxo de caixa aparece como texto, com o caminho para mudá-lo lá
 const doFluxoC = (v, linhas, falta) => `<div class="tbc-fx"><b>${fmt(v)}</b><small>${linhas.length ? 'do Fluxo vida toda: ' + esc(linhas.join(', ')) : 'nenhuma linha no Fluxo vida toda'}${falta && falta.length ? ` · <span style="color:#964400">sem o bruto em ${esc(falta.join(', '))} (usei o líquido)</span>` : ''} · <button class="link" data-ir="fluxo">mudar no Fluxo</button></small></div>`;
+// os rendimentos do ano de quem tem renda no Fluxo: o campo começa com os 12 meses do Fluxo e aceita o valor do ano à mão
+// (um aumento no meio do ano); apagado, volta ao do Fluxo
+const rendAnoC = (i, x) => `${campoR(`tributario.ir.pessoas.${i}.rendAno`, 'reais0', ` placeholder="${fmt(x.rendFluxo)}"`)}<div class="tbc-fx"><small>${x.ajustada ? `informado à mão; o Fluxo vida toda dá ${fmt(x.rendFluxo)} em 12 meses · apague para voltar a ele` : `vazio: o Fluxo vida toda em 12 meses (${esc(x.linhas.join(', '))})${x.semBruto && x.semBruto.length ? ` · <span style="color:#964400">sem o bruto em ${esc(x.semBruto.join(', '))} (usei o líquido)</span>` : ''}. Teve aumento no ano? Informe o total do ano`} · <button class="link" data-ir="fluxo">ver o Fluxo</button></small></div>`;
+// o INSS do ano, do mesmo jeito: começa com o do Fluxo (12 meses pela renda de hoje) e aceita o valor do ano à mão
+const inssAnoC = (i, x) => `${campoR(`tributario.ir.pessoas.${i}.inssAno`, 'reais', ` placeholder="${fmt(x.inssFluxo)}"`)}<div class="tbc-fx"><small>${x.inssAjustado ? `informado à mão; o Fluxo vida toda dá ${fmt(x.inssFluxo)} em 12 meses · apague para voltar a ele` : `vazio: o do Fluxo vida toda em 12 meses (${esc(x.linhas.join(', '))}). Teve aumento no ano? Informe o total do ano`}</small></div>`;
 const ESTRATEGIAS = [['atual', 'Hoje'], ['recomendada', 'Recomendado']];
+// O demonstrativo de cada pessoa, nas duas estratégias, na ordem do simulador da Receita Federal (Cálculo Anual):
+// 1. rendimentos tributáveis, 2. deduções (uma por linha, e o total), 3. base de cálculo, 4. imposto pela tabela,
+// 5. redução da Lei 15.270, 6. imposto devido, 7. alíquota efetiva. Na simplificada, o desconto de 20% substitui as deduções.
+function demonstrativoIRC(r, ps) {
+  if (!r) return '';
+  const comp = p => p.modelo === 'completa', nada = '<span class="tbc-nada">—</span>', IRc = ENGINE.IR;
+  const linha = (n, f, cls, dica) => `<tr class="${cls || 'tbc-dem'}"><td>${n}${dica ? ' ' + tip(dica) : ''}</td>${ESTRATEGIAS.map(([c]) => ps.map((p, i) => `<td>${f(r[c].pessoas[i])}</td>`).join('')).join('')}</tr>`;
+  const ded = k => p => comp(p) ? fmt(p.ded[k]) : nada;
+  return `<tr class="tbc-cab"><td colspan="${1 + ESTRATEGIAS.length * ps.length}">Demonstrativo do imposto, como no simulador da Receita Federal</td></tr>
+    <tr class="tbc-quem"><td></td>${ESTRATEGIAS.map(([c, n]) => ps.map((p, i) => `<td><small>${n}</small>${esc(r[c].pessoas[i].nome)}</td>`).join('')).join('')}</tr>
+    ${linha('Modelo de declaração', p => comp(p) ? 'Completa' : 'Simplificada', 'tbc-dem', 'Fica a de menor imposto, como no programa da Receita.')}
+    ${linha('1. Rendimentos tributáveis', p => fmt(p.rend), 'tbc-sub')}
+    ${linha('2. Deduções', p => fmt(comp(p) ? p.totDed : p.desconto), 'tbc-sub')}
+    ${linha('Previdência oficial (INSS)', ded('inss'), 'tbc-ind')}
+    ${linha('Dependentes', p => comp(p) ? fmt(p.ded.dependentes) + (p.deps ? ` <small>${p.deps} × ${fmt(IRc.dependente)}</small>` : '') : nada, 'tbc-ind')}
+    ${linha('Despesas com instrução', ded('instrucao'), 'tbc-ind', 'Até ' + fmt(IRc.instrucao) + ' por pessoa (o declarante e cada dependente).')}
+    ${linha('Despesas médicas', ded('medicas'), 'tbc-ind')}
+    ${linha('Outras deduções', ded('outras'), 'tbc-ind', 'Pensão alimentícia judicial e livro-caixa: o que está em Outras deduções no ano, lá em cima.')}
+    ${linha('Previdência privada (PGBL)', ded('pgbl'), 'tbc-ind', 'Até 12% dos rendimentos tributáveis, para quem contribui ao INSS ou a regime próprio.')}
+    ${linha('Desconto simplificado', p => comp(p) ? nada : fmt(p.desconto), 'tbc-ind', '20% dos rendimentos, até ' + fmt(IRc.simplificadoLimite) + ': substitui todas as deduções.')}
+    ${linha('3. Base de cálculo (1 − 2)', p => fmt(p.base), 'tbc-sub')}
+    ${linha('4. Imposto pela tabela', p => fmt(p.bruto))}
+    ${linha('5. Redução da Lei 15.270/2025', p => p.reducao ? '− ' + fmt(p.reducao) : fmt(0), 'tbc-dem', 'Desconto no imposto para quem tem rendimentos de até ' + fmt(88200) + ' no ano, a partir de 2026.')}
+    ${linha('6. Imposto devido (4 − 5)', p => fmt(p.devido), 'total')}
+    ${linha('7. Alíquota efetiva', p => (p.aliq * 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%', 'tbc-dem', 'O imposto devido sobre os rendimentos tributáveis.')}
+    ${linha('Na outra declaração', p => fmt(comp(p) ? p.simplificada : p.completa) + ` <small>${comp(p) ? 'simplificada' : 'completa'}</small>`, 'tbc-dem tbc-outra')}`;
+}
 function resumoIRC() {
   const r = ENGINE.irDaFamilia(plano); if (!r) return 'Cadastre as pessoas que declaram imposto de renda.';
   return `Imposto devido em ${ENGINE.IR.ano}: hoje <b>${fmt(r.atual.total)}</b> · recomendado <b>${fmt(r.recomendada.total)}</b> · <b>${r.economia >= 0 ? 'economia de ' + fmt(r.economia) : 'custo de ' + fmt(-r.economia)} por ano</b>.`;
@@ -7599,16 +7746,15 @@ function renderTributarioC() {
   const deps = ((plano.riscos || {}).dependentes || []), depsTxt = Array.isArray(plano.riscos && plano.riscos.dependentes) ? (deps.length ? deps.length + ' (' + deps.map(d => esc(d.nome || 'sem nome')).join(', ') + ')' : 'nenhum') : 'a lista ainda não foi preenchida';
   const pessoas = ps.length ? `<table class="rkc-tab" style="min-width:0"><thead><tr><th>Quem declara ${tip('O titular e, num casal, o cônjuge, com os nomes da página Cliente.')}</th><th>Rendimentos tributáveis no ano</th><th>INSS ou regime próprio no ano</th><th>Outras deduções no ano ${tip('Pensão alimentícia judicial e livro-caixa. Valem igual nas duas estratégias.')}</th></tr></thead><tbody>
     ${ps.map((p, i) => { const x = r.atual.pessoas[i]; return `<tr><td class="txt">${esc(nomes[p.quem])}</td>
-      <td>${x.doFluxo ? doFluxoC(x.rend, x.linhas, x.semBruto) : campoR(`tributario.ir.pessoas.${i}.rend`, 'reais', ' placeholder="ou cadastre a renda no Fluxo vida toda"')}</td>
-      <td>${x.doFluxo ? doFluxoC(x.inss, x.linhas) : campoR(`tributario.ir.pessoas.${i}.inss`, 'reais0', ' placeholder="sem contribuição"')}</td><td>${campoR(`tributario.ir.pessoas.${i}.outras`, 'reais0', ' placeholder="nenhuma"')}</td></tr>`; }).join('')}</tbody></table>` : '<div class="pc-vazio">Ninguém cadastrado ainda.</div>';
+      <td>${x.doFluxo ? rendAnoC(i, x) : campoR(`tributario.ir.pessoas.${i}.rend`, 'reais', ' placeholder="ou cadastre a renda no Fluxo vida toda"')}</td>
+      <td>${x.doFluxo ? inssAnoC(i, x) : campoR(`tributario.ir.pessoas.${i}.inss`, 'reais0', ' placeholder="sem contribuição"')}</td><td>${campoR(`tributario.ir.pessoas.${i}.outras`, 'reais0', ' placeholder="nenhuma"')}</td></tr>`; }).join('')}</tbody></table>` : '<div class="pc-vazio">Ninguém cadastrado ainda.</div>';
   // os lançamentos de cada estratégia: uma coluna por pessoa, hoje e recomendado lado a lado
   const lanc = (n, k, dica) => `<tr><td>${n}${dica ? ' ' + tip(dica) : ''}</td>${ESTRATEGIAS.map(([c]) => ps.map((p, i) => `<td>${campoR(`tributario.ir.${c}.lanc.${i}.${k}`, 'reais0', ' placeholder="R$ 0"')}${k === 'pgbl' && c === 'recomendada' && r.atual.pessoas[i].inss > 0 && Math.abs(+lerR(`tributario.ir.recomendada.lanc.${i}.pgbl`) - 0.12 * r.atual.pessoas[i].rend) > 1 ? `<button class="link" data-tpgbl="${i}" title="12% da renda tributável">usar 12%: ${fmt(0.12 * r.atual.pessoas[i].rend)}</button>` : ''}</td>`).join('')).join('')}</tr>`;
-  const calc = (n, f) => `<tr class="total"><td>${n}</td>${ESTRATEGIAS.map(([c]) => ps.map((p, i) => `<td>${r ? f(r[c].pessoas[i]) : '—'}</td>`).join('')).join('')}</tr>`;
   const estrategias = ps.length ? `<div class="tablewrap"><table class="rkc-tab tbc-lanc"><thead><tr><th></th>${ESTRATEGIAS.map(([, n]) => `<th colspan="${ps.length}" class="tbc-est">${n}</th>`).join('')}</tr>
       <tr><th>Lançamento</th>${ESTRATEGIAS.map(() => ps.map(p => `<th>${esc(nomes[p.quem])}</th>`).join('')).join('')}</tr></thead><tbody>
       <tr><td>Quem declara os dependentes ${tip('Os dependentes da página Cliente entram na declaração de uma pessoa só. Na recomendada, normalmente na de quem paga a maior alíquota.')}</td>${ESTRATEGIAS.map(([c]) => `<td colspan="${ps.length}">${selR(`tributario.ir.${c}.depsCom`, quem, 'num')}</td>`).join('')}</tr>
       ${lanc('Despesas médicas', 'med', 'Sem limite. Só deduz quem pagou: a do titular do plano de saúde fica com ele.')}${lanc('Instrução', 'instr', 'Até ' + fmt(ENGINE.IR.instrucao) + ' por pessoa (o declarante e cada dependente).')}${lanc('PGBL no ano', 'pgbl', 'Até 12% da renda tributável, para quem contribui ao INSS ou a regime próprio.')}
-      ${calc('Modelo', p => p.modelo)}${calc('Imposto devido', p => fmt(p.devido))}</tbody></table></div>` : '';
+      ${demonstrativoIRC(r, ps)}</tbody></table></div>` : '';
   // pró-labore e dividendos
   const socios = (T.prolabore = T.prolabore || { socios: [] }).socios = T.prolabore.socios || [];
   const rs = ENGINE.retiradaDosSocios(plano), nomesS = ENGINE.nomesDaFamilia(plano), quemS = ENGINE.pessoasDaFamilia(plano).map(q => [q, nomesS[q]]);
@@ -7622,7 +7768,7 @@ function renderTributarioC() {
   const S = T.sucessao = T.sucessao || { itcmd: 4, custos: 8, paraPrevidencia: 0 }, su = ENGINE.sucessao(plano);
   const prevFin = ((plano.patrimonio || {}).financeiro || []).filter(x => ENGINE.PREVIDENCIA.includes(x.tipo));
   const V = T.previdencia = T.previdencia || Object.assign({}, PREV_PADRAO), pv = (k, n, extra, tipo) => cp(n, campoR('tributario.previdencia.' + k, tipo || 'num', extra));
-  el.innerHTML = `<div class="bloco"><h3>Imposto de renda da família</h3><div class="sub">Os rendimentos tributáveis e o INSS de cada pessoa vêm do Fluxo vida toda (o bruto das rendas dela); sem rendas lá, informe aqui. Abaixo, os lançamentos hoje e na estratégia recomendada: quem declara os dependentes, as despesas e o PGBL. Regras de ${ENGINE.IR.ano} (declaração de ${ENGINE.IR.ano + 1}).</div>
+  el.innerHTML = `<div class="bloco"><h3>Imposto de renda da família</h3><div class="sub">Os rendimentos tributáveis e o INSS de cada pessoa vêm do Fluxo vida toda (o bruto das rendas dela, em 12 meses); sem rendas lá, informe aqui. Se a renda ou o INSS do ano forem outros (um aumento no meio do ano), escreva o total do ano por cima. Abaixo, os lançamentos hoje e na estratégia recomendada: quem declara os dependentes, as despesas e o PGBL. Regras de ${ENGINE.IR.ano} (declaração de ${ENGINE.IR.ano + 1}).</div>
       ${pessoas}
       <div class="rkc-calc" style="margin:12px 0">Dependentes, da página Cliente: ${depsTxt}. <button class="link" data-ir="cliente">Editar na página Cliente</button></div>
       ${estrategias}<div class="rkc-calc" id="tbcIR">${resumoIRC()}</div>
@@ -8872,6 +9018,9 @@ function selR(c, ops, tipo) { const v = lerR(c), atual = v == null ? '' : tipo =
 const stC = st => `<span class="st-c ${st}">${NOME_STC[st]}</span>`;
 // um valor que vem de outra página: o valor, de onde vem e o caminho para mudar (o padrão do tributário)
 const ligadoC = (v, pag, ir) => `<div class="tbc-fx"><b>${v}</b><small>da página ${pag} · <button class="link" data-ir="${ir}">mudar</button></small></div>`;
+// o começo da tabela das vidas do plano de saúde (quem chama fecha o tbody e a table)
+var TIPOS_SAUDE = [['', '—'], ['Individual', 'Individual'], ['Familiar', 'Familiar'], ['Adesão', 'Adesão'], ['Pela empresa', 'Pela empresa'], ['Empresarial', 'Empresarial'], ['PME', 'PME'], ['PJ', 'PJ']];
+function tabelaVidasC(S) { return `<table class="rkc-tab" style="min-width:0;margin-top:12px"><thead><tr><th>Vida</th><th>Idade</th><th>Prêmio mensal</th><th>Quem paga ${tip('Um plano pago pela empresa (benefício) ou por outra pessoa não sai do bolso da família: conta no custo do plano, mas não entra no Fluxo vida toda.')}</th><th></th></tr></thead><tbody>${(S.vidas || []).map((v, i) => `<tr><td>${campoR(`riscos.saude.vidas.${i}.nome`, 'texto')}</td><td>${campoR(`riscos.saude.vidas.${i}.idade`, 'num')}</td><td>${campoR(`riscos.saude.vidas.${i}.premio`, 'reais')}</td><td>${selR(`riscos.saude.vidas.${i}.pagador`, PAGADORES)}</td><td><button class="btn btn-icon" data-rrm="riscos.saude.vidas.${i}" title="Remover">×</button></td></tr>`).join('')}`; }
 function renderRiscosC() {
   const el = document.getElementById('riscosC'); if (!el) return;
   plano.riscos = plano.riscos || {}; plano.videos = plano.videos || {};
@@ -8891,12 +9040,12 @@ function renderRiscosC() {
   const S = R.saude || {};
   blocos.push(`<div class="bloco" id="rkc-saude"><h3>2. Problema de saúde${stC(it.saude.status)}</h3><div class="grid g3">
     <div class="field"><label>Avaliação</label>${selR('riscos.saude.avaliacao', [['', 'não avaliado'], ['adequado', 'Plano adequado (em dia)'], ['otimizavel', 'Pode ser otimizado (atenção)'], ['sem_plano', 'Sem plano de saúde (crítico)']])}</div>
-    <div class="field"><label>Tipo do plano atual</label>${selR('riscos.saude.tipo', [['', '—'], ['Individual', 'Individual'], ['Familiar', 'Familiar'], ['Adesão', 'Adesão'], ['PME', 'PME'], ['PJ', 'PJ']])}</div>
+    <div class="field"><label>Tipo do plano atual</label>${selR('riscos.saude.tipo', TIPOS_SAUDE)}</div>
     <div class="field"><label>Hospitais desejados (vírgula)</label>${campoR('riscos.saude.hospitais', 'lista')}</div></div>
-    <table class="rkc-tab" style="min-width:0;margin-top:12px"><thead><tr><th>Vida</th><th>Idade</th><th>Prêmio mensal</th><th>Quem paga ${tip('Um plano pago pela empresa (benefício) ou por outra pessoa não sai do bolso da família: conta no custo do plano, mas não entra no Fluxo vida toda.')}</th><th></th></tr></thead><tbody>${(S.vidas || []).map((v, i) => `<tr><td>${campoR(`riscos.saude.vidas.${i}.nome`, 'texto')}</td><td>${campoR(`riscos.saude.vidas.${i}.idade`, 'num')}</td><td>${campoR(`riscos.saude.vidas.${i}.premio`, 'reais')}</td><td>${selR(`riscos.saude.vidas.${i}.pagador`, PAGADORES)}</td><td><button class="btn btn-icon" data-rrm="riscos.saude.vidas.${i}" title="Remover">×</button></td></tr>`).join('')}
+    ${tabelaVidasC(S)}
     <tr class="total"><td>Total do plano</td><td></td><td>${f(it.saude.total)}</td><td>${it.saude.terceiros ? 'do bolso da família: ' + f(it.saude.doBolso) : ''}</td><td></td></tr></tbody></table>
     <button class="btn btn-step" data-radd="riscos.saude.vidas">+ vida</button>${saudeNoFluxo(S, it.saude)}
-    <div class="grid g3" style="margin-top:12px"><div class="field"><label>Alternativa: tipo</label>${selR('riscos.saude.alternativa.tipo', [['', '—'], ['Individual', 'Individual'], ['Familiar', 'Familiar'], ['Adesão', 'Adesão'], ['PME', 'PME'], ['PJ', 'PJ']])}</div>
+    <div class="grid g3" style="margin-top:12px"><div class="field"><label>Alternativa: tipo</label>${selR('riscos.saude.alternativa.tipo', TIPOS_SAUDE)}</div>
     <div class="field"><label>Alternativa: hospitais (vírgula)</label>${campoR('riscos.saude.alternativa.hospitais', 'lista')}</div><div class="field"><label>Alternativa: preço mensal</label>${campoR('riscos.saude.alternativa.preco', 'reais')}</div></div>
     ${it.saude.economia != null ? `<div class="rkc-calc">Economia estimada: ${f(it.saude.economia)} por mês (${f(it.saude.economia * 12)} no ano).</div>` : ''}</div>`);
   blocos.push(`<div class="bloco" id="rkc-terceiros"><h3>3. Danos a terceiros${stC(it.terceiros.status)}</h3>
@@ -8952,7 +9101,7 @@ function blocosSeguro(it, R) {
     ${G.map((g, i) => { const c = `riscos.seguro.geradores.${i}.`, cp = (n, h) => `<div class="field"><label>${n}</label>${h}</div>`; return `<div class="rkc-ger">
       ${cp('Gerador de renda', campoR(c + 'nome', 'texto', ` placeholder="${g.pessoa === 'outro' ? 'nome' : 'automático: ' + esc(ENGINE.nomesDaFamilia(plano)[g.pessoa === 'conjuge' ? 'conjuge' : 'titular'])}"`))}${cp('Quem', selR(c + 'pessoa', quem))}${g.pessoa === 'outro' ? cp('Nascimento', campoR(c + 'nasc', 'texto', ' type="month"')) : cp('Idade (página Cliente)', `<input disabled value="${g.pessoa === 'conjuge' ? (+plano.spouseAge > 0 ? plano.spouseAge + ' anos' : 'informe na página Cliente') : (plano.age ? plano.age + ' anos' : 'informe na página Cliente')}">`)}
       ${cp('% da renda da família', pct(c + 'participacao'))}${cp('% da renda passiva', pct(c + 'passivaPct'))}${cp('% do patrimônio', pct(c + 'patrimonioPct'))}
-      ${cp('INSS por invalidez', campoR(c + 'inssInvalidez', 'reais'))}${cp('Cobertura atual de invalidez por acidente', campoR(c + 'coberturaInvalidez', 'reais'))}
+      ${cp('INSS por invalidez', campoR(c + 'inssInvalidez', 'reais'))}${cp('Cobertura atual de invalidez por acidente', cobGerC(g, c, 'coberturaInvalidez'))}
       <button class="btn btn-icon" data-rrm="riscos.seguro.geradores.${i}" title="Remover">×</button></div>`; }).join('')}
     <button class="btn btn-step" data-radd="riscos.seguro.geradores">+ gerador de renda</button>
     ${G.length && Math.abs(soma - 100) > 0.05 ? `<div class="note">As participações na renda somam ${soma.toLocaleString('pt-BR')}%, e não 100%.</div>` : ''}
@@ -8960,7 +9109,7 @@ function blocosSeguro(it, R) {
   const b8 = `<div class="bloco" id="rkc-familia"><h3>8. Proteção da família (seguro de vida)${stC(it.familia.status)}</h3>
     <div class="rkc-calc" style="margin:0 0 4px">Dependentes financeiros, da página Cliente: ${s.deps.length ? s.deps.map(d => `<b>${esc(d.nome || 'sem nome')}</b>${d.meses == null ? ' (sem nascimento)' : d.meses ? ', depende até os ' + d.limite + ' anos (daqui a ' + (d.meses / 12).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + ')' : ', já não depende'}`).join('; ') : 'nenhum'}. <button class="link" data-ir="cliente">Editar na página Cliente</button></div>
     <div class="grid g3" style="margin-top:12px"><div class="field"><label>Sucessão (% do patrimônio, de 5 a 20)</label>${campoR('riscos.seguro.sucessaoPct', 'num', ' min="5" max="20" step="0.5" placeholder="10"')}</div></div>
-    <table class="rkc-tab" style="min-width:0;margin-top:6px"><thead><tr><th>Gerador de renda</th><th>Pensão do INSS por morte</th><th>Seguro de vida atual</th></tr></thead><tbody>${G.map((g, i) => `<tr><td>${esc(s.pessoas[i] ? s.pessoas[i].nome : '')}</td><td>${campoR(`riscos.seguro.geradores.${i}.inssMorte`, 'reais')}</td><td>${campoR(`riscos.seguro.geradores.${i}.coberturaVida`, 'reais')}</td></tr>`).join('')}</tbody></table>
+    <table class="rkc-tab" style="min-width:0;margin-top:6px"><thead><tr><th>Gerador de renda</th><th>Pensão do INSS por morte</th><th>Seguro de vida atual</th></tr></thead><tbody>${G.map((g, i) => `<tr><td>${esc(s.pessoas[i] ? s.pessoas[i].nome : '')}</td><td>${campoR(`riscos.seguro.geradores.${i}.inssMorte`, 'reais')}</td><td>${cobGerC(g, `riscos.seguro.geradores.${i}.`, 'coberturaVida')}</td></tr>`).join('')}</tbody></table>
     <div class="rkc-calc">${memoria('vida')}<br>Prazo até o último dependente deixar de depender (criança até os 25 anos, adulto até os 95). H = ${s.sucessaoPct.toLocaleString('pt-BR')}% × (financeiro + bens + participações) × a parte da pessoa no patrimônio.</div></div>`;
   return [b7, b8];
 }
@@ -9024,8 +9173,8 @@ document.addEventListener('change', e => { const t = e.target; if (!t.dataset ||
 document.addEventListener('click', e => {
   const add = e.target.closest('[data-radd]'), rm = e.target.closest('[data-rrm]'), ex = e.target.closest('[data-rexemplo]'), ir = e.target.closest('[data-rir]');
   if (e.target.closest('[data-rseguro]')) { plano.riscos.seguro = novoSeguro(); if (!Array.isArray(plano.riscos.dependentes)) plano.riscos.dependentes = []; renderAll(); return; }
-  if (add) { const c = add.dataset.radd, lista = lerR(c) || []; lista.push(c.endsWith('vidas') ? { nome: '', idade: null, premio: 0 } : c.endsWith('bens.itens') ? { nome: '', valor: 0, protecao: '' } : c.endsWith('dependentes') ? { nome: '', relacao: 'filho', nasc: '' } : c.endsWith('geradores') ? novoGerador(lista.length ? 'outro' : 'titular', 0) : c === 'patrimonio.bens' ? { nome: '', mercado: 0, saldoDevedor: 0 } : c === 'patrimonio.dividas' ? { nome: '', saldoDevedor: 0, situacao: '' } : c === 'patrimonio.financeiro' && temCarteira() ? { nome: '', valor: 0, tipo: 'fechada' } : c.startsWith('patrimonio.') ? { nome: '', valor: 0 } : { nome: '', ideal: 0, atual: 0 }); ENGINE.gravaCaminho(plano, c, lista); if (c.includes('terceiros')) plano.riscos.terceiros.avaliado = true; renderAll(); }
-  else if (rm) { const ks = rm.dataset.rrm.split('.'), i = +ks.pop(), lista = lerR(ks.join('.')); lista.splice(i, 1); renderAll(); }
+  if (add) { const c = add.dataset.radd, lista = lerR(c) || []; lista.push(c === 'coleta.tarefas' ? { titulo: '', prazo: '', responsavel: 'consultor', status: 'pendente', obs: '' } : c === 'coleta.outrosAtivos' ? { titulo: '', valor: 0, descricao: '', geraRenda: null, obs: '' } : c === 'coleta.apolices' ? { pessoa: 'titular', seguradora: '', numero: '', periodicidade: 'mensal', coberturas: [coberturaNovaC('morte')], obs: '' } : /^coleta\.apolices\.\d+\.coberturas$/.test(c) ? coberturaNovaC(lista.length ? 'ipa' : 'morte') : c === 'compromissos' ? { id: 'comp' + Date.now().toString(36), titulo: '', descricao: '', em: 12, valor: 0 } : c.endsWith('vidas') ? { nome: '', idade: null, premio: 0 } : c.endsWith('bens.itens') ? { nome: '', valor: 0, protecao: '' } : c.endsWith('dependentes') ? { nome: '', relacao: 'filho', nasc: '' } : c.endsWith('geradores') ? novoGerador(lista.length ? 'outro' : 'titular', 0) : c === 'patrimonio.bens' ? { nome: '', mercado: 0, saldoDevedor: 0 } : c === 'patrimonio.dividas' ? { nome: '', saldoDevedor: 0, situacao: '' } : c === 'patrimonio.financeiro' && temCarteira() ? { nome: '', valor: 0, tipo: 'fechada' } : c.startsWith('patrimonio.') ? { nome: '', valor: 0 } : { nome: '', ideal: 0, atual: 0 }); ENGINE.gravaCaminho(plano, c, lista); if (c.includes('terceiros')) plano.riscos.terceiros.avaliado = true; renderAll(); }
+  else if (rm) { const ks = rm.dataset.rrm.split('.'), i = +ks.pop(), lista = lerR(ks.join('.')); lista.splice(i, 1); if (rm.dataset.rrm.startsWith('coleta.apolices.')) sincronizaApolicesC(); renderAll(); }
   else if (ex) { plano.riscos = JSON.parse(JSON.stringify(ENGINE.RISCOS_EXEMPLO)); renderAll(); }
   else if (ir) { abaRiscoC = ir.dataset.rir; renderRiscosC(); const r = document.getElementById('riscosC'); if (r && r.getBoundingClientRect().top < 0) r.scrollIntoView({ block: 'start' }); }
 });
@@ -9099,10 +9248,575 @@ ARMAZEM.ouvir('plano', novo => {
 // (dados do cliente: Cliente, Fluxo, Patrimônio; planejamento: Riscos, Objetivos, Liberdade, Tributário, Premissas; com o cliente)
 const PAGINAS = ['cliente', 'orcamento', 'patrimonio', 'carteira', 'objetivos', 'politica', 'ajuste', 'fluxo', 'riscos', 'liberdade', 'tributario', 'macro', 'micro', 'premissas', 'apresentacao', 'propostas', 'cenarios'];   // Cenários fica fora da sequência do "Próximo"
 const NOMES_PAGINA = { cenarios: 'Cenários', cliente: 'Cliente', orcamento: 'Orçamento', patrimonio: 'Patrimônio', politica: 'Política de investimentos', carteira: 'Carteira atual', macro: 'Macroalocação', micro: 'Microalocação', objetivos: 'Objetivos', fluxo: 'Fluxo vida toda', ajuste: 'Fluxo de 24 meses', liberdade: 'Liberdade financeira', riscos: 'Gestão de riscos', tributario: 'Otimização tributária', premissas: 'Premissas', apresentacao: 'Apresentação', propostas: 'Propostas do cliente' };
+// ===================== REUNIÃO DE COLETA (?coleta) =====================
+// A coleta é o próprio portal num modo só dela: as páginas de dados do cliente (Cliente, Objetivos, Orçamento, Patrimônio
+// e Carteira atual, com as mesmas ferramentas) e quatro páginas que a montagem não tinha (Perfil e comportamento,
+// Aposentadoria, Proteção, Documentos e tarefas). Tudo grava no mesmo plano e nos mesmos caminhos: a montagem abre com os
+// dados prontos e nada é copiado. O que é decisão do consultor (aporte, status, simulação, apresentação) fica escondido
+// na coleta (classe so-montagem). Os fatos que só a coleta pede, e que nenhuma conta usa, ficam em plano.coleta.
+const PAGINAS_COLETA = ['cliente', 'objetivos', 'perfil', 'orcamento', 'patrimonio', 'carteira', 'aposentadoria', 'protecao', 'documentos'];
+Object.assign(NOMES_PAGINA, { perfil: 'Perfil e comportamento', aposentadoria: 'Aposentadoria', protecao: 'Proteção', documentos: 'Documentos e tarefas' });
+// um link para uma página da montagem leva, na coleta, à página da coleta que tem o mesmo assunto
+const NA_COLETA = { liberdade: 'aposentadoria', riscos: 'protecao', fluxo: 'orcamento', tributario: 'aposentadoria' };
+function paginaDoModo(p) {
+  if (!MODO_COLETA) return PAGINAS.includes(p) ? p : 'cliente';
+  p = NA_COLETA[p] || p;
+  return PAGINAS_COLETA.includes(p) ? p : (paginaAtual || 'cliente');
+}
+// na coleta, o passo, o número no menu e o "Próximo" seguem a ordem da reunião; a última página finaliza
+function numeraColeta() {
+  PAGINAS_COLETA.forEach((p, i) => {
+    const n = String(i + 1).padStart(2, '0'), a = document.querySelector(`#nav a[data-nav="${p}"]`), s = document.querySelector(`.page[data-page="${p}"]`);
+    if (a) a.querySelector('i').textContent = n;
+    if (!s) return;
+    const k = s.querySelector('.kicker'), nav = s.querySelector('.pagenav'), ult = i === PAGINAS_COLETA.length - 1;
+    if (k) k.textContent = n;
+    if (nav) nav.innerHTML = ult ? '<button class="btn btn-primary" data-finalizar-coleta>Finalizar a coleta</button>' : '';
+    // o ícone de cada bloco é o da seção no menu, pintado de laranja pelo CSS (uma máscara)
+    const svg = a && a.querySelector('svg');
+    if (svg) s.style.setProperty('--ico', 'url("data:image/svg+xml,' + encodeURIComponent(svg.outerHTML.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#000" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"')) + '")');
+  });
+}
+// a coleta é uma página longa, como a de produção: as nove seções em sequência, na ordem da reunião; o menu leva a cada
+// uma e acompanha a rolagem. A seção que sai da tela conta como vista (o ✓ do menu).
+if (MODO_COLETA) { const m = document.querySelector('main'), ref = document.createComment('coleta'); m.insertBefore(ref, m.querySelector('section.page'));
+  PAGINAS_COLETA.forEach(p => m.insertBefore(document.querySelector(`.page[data-page="${p}"]`), ref)); }
+let coletaAberta = false;
+function irParaColeta(p) {
+  document.querySelectorAll('.page').forEach(s => { s.hidden = !PAGINAS_COLETA.includes(s.dataset.page); });
+  document.getElementById('chips').hidden = true;
+  if (gaveta) fecharGaveta(false);
+  fecharPop(); marcaNaColeta(p); renderAll();
+  const s = document.querySelector(`.page[data-page="${p}"]`);
+  if (s && (coletaAberta || p !== PAGINAS_COLETA[0])) s.scrollIntoView({ block: 'start', behavior: coletaAberta ? 'smooth' : 'auto' });
+  coletaAberta = true;
+}
+function marcaNaColeta(p) {
+  if (p === paginaAtual) return;
+  const antes = paginaAtual; paginaAtual = p; if (antes) plano.vistas = Object.assign({}, plano.vistas, { [antes]: true });
+  document.querySelectorAll('#nav a').forEach(a => a.classList.toggle('on', a.dataset.nav === p));
+  if (/^(https?|file):$/.test(location.protocol)) try { history.replaceState(null, '', '#' + p); } catch (e) { }
+}
+let espiaColeta = 0;
+if (MODO_COLETA) addEventListener('scroll', () => { if (espiaColeta) return; espiaColeta = requestAnimationFrame(() => { espiaColeta = 0;
+  let atual = PAGINAS_COLETA[0];
+  PAGINAS_COLETA.forEach(p => { const s = document.querySelector(`.page[data-page="${p}"]`); if (s && s.getBoundingClientRect().top <= 160) atual = p; });
+  if (innerHeight + scrollY >= document.documentElement.scrollHeight - 4) atual = PAGINAS_COLETA[PAGINAS_COLETA.length - 1];
+  marcaNaColeta(atual); }); }, { passive: true });
+
+// gravação: cada mudança já grava (neste navegador na hora; no armazém 1,5 s depois, como o rascunho de produção). Na
+// coleta, a cada minuto grava de novo no armazém e diz a hora, para nada se perder se a conexão cair no meio da reunião.
+if (MODO_COLETA) setInterval(() => { save(); gravarNuvem(true); const d = new Date(), g = document.getElementById('gravado');
+  if (g) g.textContent = 'Gravado às ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); }, 60000);
+// as anotações do consultor: a janela flutuante do canto inferior direito, aberta ou fechada como o consultor deixou
+if (MODO_COLETA) { const w = document.createElement('div'); w.className = 'col-notas'; w.id = 'colNotas';
+  w.innerHTML = `<div class="col-notas-p" id="colNotasP" hidden><div class="col-notas-h"><span>Anotações <small>só o consultor vê</small></span><button class="btn btn-icon" data-notas title="Fechar">×</button></div>
+    <textarea data-r="coleta.anotacoes" data-rt="texto" placeholder="O que não coube nos campos: impressões, pendências, o que o cliente contou."></textarea></div>
+    <div class="col-dock"><span id="colGravado"></span><button class="btn btn-secondary" data-notas>Anotações<i id="colNotasTem" hidden></i></button></div>`;
+  document.body.appendChild(w);
+  const p = document.getElementById('colNotasP'), g = document.getElementById('gravado'), copia = () => { document.getElementById('colGravado').textContent = g.textContent; };
+  try { p.hidden = localStorage.getItem('nl-coleta-notas') !== '1'; } catch (e) { }
+  w.addEventListener('click', e => { if (!e.target.closest('[data-notas]')) return; p.hidden = !p.hidden; try { localStorage.setItem('nl-coleta-notas', p.hidden ? '0' : '1'); } catch (e) { } if (!p.hidden) p.querySelector('textarea').focus(); });
+  copia(); new MutationObserver(copia).observe(g, { childList: true, characterData: true, subtree: true }); }
+// trocar de modo: grava antes (no armazém, sem esperar o tempo de sempre) e abre o mesmo cliente no outro modo
+function urlDoModo(coleta, pag) {
+  const u = new URL(location.href); if (coleta) u.searchParams.set('coleta', ''); else u.searchParams.delete('coleta');
+  u.hash = pag || 'cliente'; return u.toString().replace(/([?&]coleta)=(?=&|#|$)/, '$1');
+}
+async function trocaModo(coleta, pag) {
+  save();
+  try { if (nuvemPronta && !cenAtivo() && String(plano.name || '').trim()) { await ARMAZEM.gravar('plano', JSON.parse(JSON.stringify(plano))); nuvemUltimo = JSON.stringify(plano); } } catch (e) { }
+  location.href = urlDoModo(coleta, pag);
+}
+document.addEventListener('click', e => {
+  if (e.target.closest('[data-finalizar-coleta]')) { plano.coleta = Object.assign({}, plano.coleta, { status: 'finalizada', finalizadaEm: new Date().toLocaleDateString('sv-SE') }); trocaModo(false, 'cliente'); return; }
+  const m = e.target.closest('[data-modo]'); if (m) { e.preventDefault(); trocaModo(m.dataset.modo === 'coleta', 'cliente'); }
+});
+
+// ---- os pedaços de formulário da coleta (os mesmos campos data-r do portal) ----
+var SN_C = [['', 'não informado'], ['sim', 'Sim'], ['nao', 'Não']];
+function cpC(rot, html, dica) { return `<div class="field"><label>${rot}${dica ? ' ' + tip(dica) : ''}</label>${html}</div>`; }
+function opsC(lista) { return [['', 'não informado']].concat(lista.map(x => Array.isArray(x) ? x : [x, x])); }
+function textoC(c, ph, rows) { return `<textarea data-r="${c}" data-rt="texto" rows="${rows || 3}" placeholder="${esc(ph || '')}">${esc(lerR(c) || '')}</textarea>`; }
+function marcaC(c, rot) { return `<label class="col-marca"><input type="checkbox" data-r="${c}" data-rt="chk"${lerR(c) ? ' checked' : ''}>${rot}</label>`; }
+function marcasC(base, ops) { return `<div class="col-marcas">${ops.map(([k, n]) => marcaC(base + k, n)).join('')}</div>`; }
+// a lista vazia: "nenhum ainda" ou, marcado, "o cliente não tem". Vem da coleta de produção: separa o que não foi
+// perguntado do que não existe (coleta.naoTem.<lista>); com um item na lista, a marca some.
+function naoTemC(k, vazio, rot) { const c = 'coleta.naoTem.' + k; return `<div class="pc-vazio col-nao"><span>${lerR(c) ? 'O cliente não tem.' : vazio}</span>${marcaC(c, rot || 'O cliente não tem')}</div>`; }
+
+function renderColetaC() { migraDeclaradoC(); renderCarteiraColC(); renderCompromissosC(); renderDadosPessoaisC(); renderPerfilC(); renderAposentadoriaC(); renderProtecaoC(); renderDocumentosC(); rodapeColetaC(); }
+// As 33 perguntas do exame de saúde financeira. O exame é a resposta macro, de cabeça, e fica como foto datada em
+// plano.exame ({ em, origem, respostas: { <nome no exame>: valor } }); nunca muda na coleta. A coleta pega o detalhado, no
+// campo de cada pergunta, e com a coleta completa o exame pode ser refeito com mais precisão. Cada pergunta ganha a etiqueta
+// "Exame N" e, embaixo, o que o cliente respondeu. [número, nome no exame, formato, onde está, texto que o rótulo precisa
+// ter (para os títulos de bloco), a pergunta como o cliente a leu]
+var EXAME_C = [
+  [1, 'selfevaluation', '1a5', '[data-r="coleta.perfil.autoavaliacao"]', null, 'De 1 a 5, sente que está usando seu dinheiro da melhor forma para construir o futuro?'],
+  [2, 'declaredmonthlysavings', 'R$', '[data-r="capacityOverride"]', null, 'Quanto, em média, você poupa por mês?'],
+  [3, 'recentsavingsfrequency', '', '[data-r="orcamento.vezesPoupou"]', null, 'Quantas vezes nos últimos 12 meses poupou esse valor?'],
+  [4, 'hasobjective', '', '[data-r="coleta.diagnostico.objetivoClaro"]', null, 'Tem hoje, com clareza, um ou mais objetivos financeiros?'],
+  [5, 'evaluateneededmoney', '', '[data-r="coleta.diagnostico.avaliouQuanto"]', null, 'Já avaliou quanto vai precisar?'],
+  [6, 'hasplanforobjective', '', '[data-r="coleta.diagnostico.temPlano"]', null, 'Já tem um plano concreto?'],
+  [7, 'estimatedmoneyneeded', 'R$', '[data-r="coleta.diagnostico.investirImagina"]', null, 'Quanto imagina que precisa investir por mês?'],
+  [8, 'actualmoneydedicated', 'R$', '#perfilC label', /de fato separa/, 'Quanto está de fato investindo por mês?'],
+  [9, 'currentfinancialassets', 'R$', '[data-ex="9"]', null, 'Quanto tem de ativos financeiros?'],
+  [10, 'currentreserve', 'R$', '[data-r="riscos.reserva.atual"]', null, 'Quanto disso é reserva de emergência?'],
+  [11, 'increasingreservemonthly', '', '[data-r="coleta.diagnostico.aumentaReserva"]', null, 'Guarda todo mês para aumentar a reserva?'],
+  [12, 'estimatedreserve', 'R$', '[data-r="riscos.reserva.alvo"]', null, 'Qual seria uma reserva adequada para o seu perfil?'],
+  [13, 'currentassetscategories', '', '#patrC h3', /^Imóveis e outros bens/, 'Quais bens possui?'],
+  [14, 'insuredassets', '', '#protC h3', /^Imóveis e veículos/, 'Quais bens estão segurados?'],
+  [15, 'currentassets', 'R$', '[data-ex="15"]', null, 'Quanto valem os bens?'],
+  [16, 'personalinsurances', '', '#protC h3', /^Vida, acidentes/, 'Possui plano de saúde, seguro de acidentes pessoais ou de vida?'],
+  [16, 'personalinsurances', '', '#protC h3', /^Plano de saúde/, 'Possui plano de saúde, seguro de acidentes pessoais ou de vida?'],
+  [17, 'hasdebts', '', '[data-r="coleta.naoTem.dividas"]', null, 'Possui dívidas ou financiamentos?'],
+  [18, 'currentliabilities', 'R$', '[data-ex="18"]', null, 'Quanto precisaria para quitar tudo?'],
+  [19, 'startingworkingage', 'anos', '#aposC [data-r="patrimonio.comecou"]', null, 'Com que idade começou a trabalhar?'],
+  [20, 'retiringtargetage', 'anos', '#aposC [data-r="retireAge"]', null, 'Até que idade imagina que precisará trabalhar?'],
+  [21, 'hasretiringstrategies', '', '[data-r="coleta.aposentadoria.temPlano"]', null, 'Já pensou de onde virá a renda depois dessa idade?'],
+  [22, 'currentretiringstrategies', '', '[data-r^="coleta.aposentadoria.fontes."]', null, 'Qual seria o plano?'],
+  [23, 'executingretiringstrategies', '', '[data-r^="coleta.aposentadoria.executa."]', null, 'Já executa um plano para essa renda?'],
+  [24, 'incomenature', '', '[data-r="rendasAtivas.0.natureza"]', null, 'Natureza da sua fonte de renda (a principal)'],
+  [25, 'declaredincome', 'R$', '#orcC h3', /^Rendas/, 'Renda líquida mensal'],
+  [26, 'hasdependents', '', '.dep-sn', null, 'Possui dependentes financeiros?'],
+  [27, 'doesbudgeting', '', '[data-r="coleta.diagnostico.acompanhaOrcamento"]', null, 'Acompanha as despesas todo mês?'],
+  [28, 'declaredstandardofliving', 'R$', '[data-r="riscos.reserva.custoVida"]', null, 'Custo de vida médio (se divide com outra pessoa, só a sua parte)'],
+  [29, 'hadprofessionalvalidation', '', '[data-r="coleta.diagnostico.validacaoProfissional"]', null, 'Já teve produtos e estratégias validados por um profissional?'],
+  [30, 'maritalstatus', '', '[data-r="coleta.pessoal.estadoCivil"]', null, 'Estado civil'],
+  [31, 'usergender', '', '[data-r="coleta.pessoal.genero"]', null, 'Gênero'],
+  [32, 'dateofbirth', 'data', '#f-nasc', null, 'Data de nascimento'],
+  [33, 'useremail', '', '[data-r="coleta.pessoal.email"]', null, 'E-mail para receber o resultado'],
+];
+function valorExameC(v, f) {
+  if (v == null || v === '' || (Array.isArray(v) && !v.length)) return 'sem resposta';
+  if (Array.isArray(v)) return v.join(', ');
+  if (typeof v === 'boolean') return v ? 'Sim' : 'Não';
+  if (f === 'R$') return fmt(+v || 0);
+  if (f === 'anos') return v + ' anos';
+  if (f === '1a5') return v + ' de 5';
+  if (f === 'data') { const m = /^(\d{4})-(\d{2})(?:-(\d{2}))?/.exec(String(v)); return m ? (m[3] ? m[3] + '/' : '') + m[2] + '/' + m[1] : String(v); }
+  return String(v);
+}
+// onde a etiqueta vai: no rótulo do campo; num título de bloco ou na pergunta dos dependentes, nele mesmo; numa marca solta, na marca
+function alvoExameC(el) {
+  if (/^(H3|LABEL)$/.test(el.tagName) || el.classList.contains('dep-sn')) return el;
+  const f = el.classList.contains('field') ? el : el.closest('.field'); if (f && f.querySelector(':scope > label')) return f.querySelector(':scope > label');
+  return el.closest('label') || el.parentElement;
+}
+function marcaExameC() {
+  const E = plano.exame, R = (E && E.respostas) || null;
+  const leg = document.querySelector('.ex-leg-txt');
+  if (leg) { const t = !E ? 'perguntas do exame de saúde financeira; este cliente ainda não tem exame' : 'perguntas do exame de saúde financeira' + (E.em ? ', feito em ' + valorExameC(E.em, 'data') : '') + '. Embaixo, o que o cliente respondeu; o campo é o detalhado da coleta'; if (leg.textContent !== t) leg.textContent = t; }
+  EXAME_C.forEach(([n, nome, f, sel, txt, pergunta]) => {
+    document.querySelectorAll(sel).forEach(el => {
+      if (txt && !txt.test(el.textContent.trim())) return;
+      const a = alvoExameC(el); if (!a) return;
+      if (!a.querySelector(':scope > .ex-tag')) { const s = document.createElement('span'); s.className = 'ex-tag'; s.textContent = 'Exame ' + n;
+        s.title = 'Pergunta ' + n + ' do exame de saúde financeira: "' + pergunta + '"'; a.appendChild(s); }
+      // a resposta do exame embaixo: criada, atualizada ou tirada (só mexe se mudou, para não chamar o observador à toa)
+      const campo = a.tagName === 'LABEL' && a.parentElement.classList.contains('field') ? a.parentElement : null;
+      let r = campo ? campo.querySelector(':scope > .ex-resp') : a.nextElementSibling && a.nextElementSibling.classList.contains('ex-resp') ? a.nextElementSibling : null;
+      if (!R) { if (r) r.remove(); return; }
+      const linha = 'No exame: ' + valorExameC(R[nome], f);
+      if (r && r.textContent === linha) return;
+      if (!r) { r = document.createElement('div'); r.className = 'ex-resp'; if (campo) campo.appendChild(r); else a.insertAdjacentElement('afterend', r); }
+      r.innerHTML = 'No exame: <b>' + esc(valorExameC(R[nome], f)) + '</b>';
+    });
+  });
+}
+// os totais que a coleta antiga guardava como "declarados" são as respostas 9, 15 e 18 do exame: passam para lá
+function migraDeclaradoC() {
+  const D = (plano.coleta || {}).declarado; if (!D) return;
+  const E = plano.exame = plano.exame || { em: null, origem: 'totais declarados na coleta', respostas: {} }, R = E.respostas = E.respostas || {};
+  [['financeiro', 'currentfinancialassets'], ['bens', 'currentassets'], ['dividas', 'currentliabilities']].forEach(([k, n]) => { if (R[n] == null && D[k] != null && D[k] !== '') R[n] = D[k]; });
+  delete plano.coleta.declarado;
+}
+// a etiqueta volta sozinha quando uma parte da página é desenhada de novo (só olha; não muda nada se já estiver lá)
+if (MODO_COLETA) { let pend = false; new MutationObserver(() => { if (pend) return; pend = true; setTimeout(() => { pend = false; marcaExameC(); }, 0); }).observe(document.body, { childList: true, subtree: true }); }
+
+// Campos alinhados, em todo o portal. Numa linha de campos lado a lado, o campo (input, select, valor ligado) de cada um
+// começa na mesma altura, mesmo quando um rótulo quebra em duas linhas: o rótulo mais curto desce (padding em cima), e o
+// texto dele fica logo acima do campo. Numa linha de tabela com campos, todos começam no alto da célula e o texto solto
+// fica centrado no campo. Roda a cada desenho, ao trocar de página e ao mudar o tamanho da janela; só mexe no que marcou
+// (data-al), e desfaz tudo antes de medir de novo.
+const CAMPO_AL = 'input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=hidden]),select,textarea,.tbc-fx,.nasc';
+function alinhaCampos() {
+  const vis = e => e.offsetParent !== null, ctl = r => [...r.querySelectorAll(CAMPO_AL)].find(vis);
+  document.querySelectorAll('[data-al]').forEach(e => { e.style.paddingTop = ''; e.style.verticalAlign = ''; e.removeAttribute('data-al'); });
+  // 1. campos lado a lado: mede tudo, depois escreve
+  const pais = new Set(); document.querySelectorAll('.field').forEach(f => { if (vis(f)) pais.add(f.parentElement); });
+  const ajustes = [];
+  pais.forEach(g => { const linhas = new Map();
+    [...g.children].forEach(f => { if (!f.classList.contains('field') || !vis(f)) return;
+      const l = f.querySelector(':scope > label'), c = ctl(f); if (!l || !c) return;
+      const t = Math.round(f.getBoundingClientRect().top); if (!linhas.has(t)) linhas.set(t, []); linhas.get(t).push([l, c.getBoundingClientRect().top]); });
+    linhas.forEach(l => { if (l.length < 2) return; const max = Math.max(...l.map(x => x[1])); l.forEach(([lab, top]) => { if (max - top > 0.5) ajustes.push([lab, max - top]); }); }); });
+  ajustes.forEach(([lab, d]) => { lab.dataset.al = ''; lab.style.paddingTop = (parseFloat(getComputedStyle(lab).paddingTop) + d) + 'px'; });
+  // 2. tabelas: as linhas em que os campos não começam juntos passam a alinhar pelo alto
+  const tortas = [...document.querySelectorAll('table tr')].filter(tr => { if (!vis(tr)) return false;
+    const tops = [...tr.children].map(td => ctl(td)).filter(Boolean).map(c => c.getBoundingClientRect().top);
+    return tops.length >= 2 && Math.max(...tops) - Math.min(...tops) > 0.5; });
+  tortas.forEach(tr => [...tr.children].forEach(td => { td.dataset.al = ''; td.style.verticalAlign = 'top'; }));
+  const pads = [];
+  tortas.forEach(tr => { const cs = [...tr.children].map(td => [td, ctl(td)]), com = cs.filter(x => x[1]); if (!com.length) return;
+    const r = com.map(x => x[1].getBoundingClientRect()), alto = Math.max(...r.map(x => x.top));
+    com.forEach(([td, c]) => { const d = alto - c.getBoundingClientRect().top; if (d > 0.5) pads.push([td, d]); });
+    const meio = alto + r[0].height / 2;   // o texto solto (o nome da pessoa) fica centrado no campo
+    cs.filter(x => !x[1] && x[0].textContent.trim()).forEach(([td]) => { const st = getComputedStyle(td), lh = parseFloat(st.fontSize) * 1.35;
+      const d = meio - (td.getBoundingClientRect().top + parseFloat(st.paddingTop) + lh / 2); if (d > 0.5) pads.push([td, d]); }); });
+  pads.forEach(([td, d]) => { td.style.paddingTop = (parseFloat(getComputedStyle(td).paddingTop) + d) + 'px'; });
+}
+{ let pend = false; const agenda = () => { if (pend) return; pend = true; setTimeout(() => { pend = false; alinhaCampos(); }, 30); };
+  new MutationObserver(agenda).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'hidden'] });
+  addEventListener('resize', agenda); addEventListener('load', agenda); }
+
+// Cliente: o que a coleta de produção pede e o portal não tinha (o e-mail e o telefone são do cadastro da plataforma)
+function renderDadosPessoaisC() {
+  const el = document.getElementById('pessoalC'); if (!el) return;
+  const casal = plano.tipo !== 'individual', nm = ENGINE.nomesDaFamilia(plano), G = opsC(['Feminino', 'Masculino', 'Outro', 'Prefiro não declarar']);
+  el.innerHTML = `<div class="grid g3">${cpC('Estado civil', selR('coleta.pessoal.estadoCivil', opsC(['Solteiro(a)', 'Casado(a)', 'Divorciado(a)', 'Separado(a)', 'Viúvo(a)'])))}
+      ${casal ? cpC('Regime de bens', selR('coleta.pessoal.regimeBens', opsC(['Comunhão parcial', 'Comunhão universal', 'Separação total', 'Participação final nos aquestos', 'União estável sem contrato'])), 'Diz o que é de cada um na titularidade dos bens e na sucessão.') : ''}</div>
+    <div class="grid g3" style="margin-top:14px">${cpC('Gênero de ' + esc(nm.titular), selR('coleta.pessoal.genero', G))}${casal ? cpC('Gênero de ' + esc(nm.conjuge), selR('coleta.pessoal.conjugeGenero', G)) : ''}</div>
+    <div class="grid g3" style="margin-top:14px">${cpC('E-mail', campoR('coleta.pessoal.email', 'texto', ' type="email" placeholder="nome@exemplo.com"'), 'Na plataforma, vem do cadastro do cliente; aqui confere ou corrige.')}${cpC('Telefone ou WhatsApp', campoR('coleta.pessoal.telefone', 'texto', ' type="tel" placeholder="(11) 90000-0000"'))}</div>`;
+}
+
+// Objetivos (só na coleta): a categoria, por que importa, o que o cliente já faz e as observações. O porquê é o propósito
+// que a montagem usa na apresentação (objectives[].descricao); os outros três a montagem não mostra.
+var CATEGORIAS_OBJ = ['Compra de Casa', 'Compra de Veículo', 'Viagem', 'Intercâmbio', 'Aposentadoria Segura', 'Futuro dos Filhos', 'Casamento', 'Quitar Dívidas', 'Segurança Financeira', 'Outro'];
+function objetivoColetaC(o, i) {
+  const c = `objectives.${i}.`;
+  return `<div class="grid g3 so-coleta" style="margin-top:14px">${cpC('Categoria', selR(c + 'categoria', opsC(CATEGORIAS_OBJ)))}</div>
+    <div class="grid g3 so-coleta" style="margin-top:14px">${cpC('Por que este objetivo importa', textoC(c + 'descricao', 'ex.: dar mais espaço para a família crescer', 2), 'O propósito do objetivo: a montagem usa este texto na apresentação ao cliente.')}
+      ${cpC('O que o cliente já faz para chegar lá', textoC(c + 'planoAtual', 'ex.: guarda R$ 2 mil por mês na poupança', 2))}${cpC('Observações', textoC(c + 'obs', '', 2))}</div>`;
+}
+// os compromissos: gastos marcados, com valor e data. Na montagem, ficam na Política de investimentos (plano.compromissos).
+function renderCompromissosC() {
+  const el = document.getElementById('compC'); if (!el) return;
+  const L = plano.compromissos || [];
+  el.innerHTML = `<div class="bloco"><h3>Compromissos</h3><div class="sub">Gastos já marcados, com valor e data, que não são um objetivo para juntar dinheiro: uma reforma, um imposto a pagar, uma festa. Saem do patrimônio financeiro no mês marcado.</div>
+    ${L.length ? `<table class="rkc-tab" style="min-width:0"><thead><tr><th>Compromisso</th><th>Descrição</th><th>Quando</th><th>Valor</th><th></th></tr></thead><tbody>${L.map((x, i) => { const c = `compromissos.${i}.`;
+      return `<tr><td>${campoR(c + 'titulo', 'texto', ' placeholder="ex.: reforma da cozinha"')}</td><td>${campoR(c + 'descricao', 'texto')}</td><td>${seletorMes(`data-r="${c}em"`, x.em == null ? null : +x.em)}</td><td>${campoR(c + 'valor', 'reais')}</td><td><button class="btn btn-icon" data-rrm="compromissos.${i}" title="Remover">×</button></td></tr>`; }).join('')}</tbody></table>` : naoTemC('compromissos', 'Nenhum compromisso ainda.', 'Não há compromissos')}
+    <button class="btn btn-step" data-radd="compromissos">+ compromisso</button></div>`;
+}
+// a renda (só na coleta): se é certa, o dia em que cai na conta e as observações (a mesma descrição da gaveta do Fluxo)
+function rendaColetaC(it, i) {
+  const c = `incomes.${i}.`;
+  return `<div class="grid g4 so-coleta" style="margin-top:14px">${cpC('Essa renda é', selR(c + 'certeza', opsC(['Certa', 'Estimada (varia)'])))}
+      ${cpC('Dia do recebimento', `<input type="number" min="1" max="31" data-orc-dia="${it.id}" value="${(it.days || [])[0] || ''}" placeholder="dia">`, 'O dia do mês em que cai na conta: o Fluxo vida toda usa no mês a mês.')}</div>
+    <div class="field so-coleta" style="margin-top:12px"><label>Observações</label>${textoC(c + 'description', '', 2)}</div>`;
+}
+document.addEventListener('change', e => {
+  const id = (e.target.dataset || {}).orcDia, it = id && plano.incomes.find(x => x.id === id); if (!it) return;
+  const d = Math.round(+e.target.value); it.days = d >= 1 && d <= 31 ? [d] : []; save(); renderAll();
+});
+
+// Perfil e comportamento: as perguntas do exame de saúde financeira, conferidas na reunião, e a leitura do consultor
+// Quem montou a carteira de hoje (o "racional" da coleta de produção). Não é a justificativa da recomendação, que é da montagem.
+function renderCarteiraColC() {
+  const el = document.getElementById('carteiraColC'); if (!el) return;
+  el.innerHTML = `<div class="bloco"><h3>Quem montou a carteira</h3><div class="sub">De onde vieram as escolhas da carteira de hoje. Pode marcar mais de um.</div>
+    ${marcasC('coleta.carteira.racional.', [['proprias', 'Convicções próprias'], ['instituicao', 'Instituição financeira (gerente, assessor)'], ['casaAnalise', 'Casa de análise']])}
+    <div class="field" style="margin-top:12px"><label>Observações</label>${textoC('coleta.carteira.racionalObs', 'ex.: segue as carteiras recomendadas de uma casa de análise há 3 anos', 2)}</div></div>`;
+}
+function renderPerfilC() {
+  const el = document.getElementById('perfilC'); if (!el) return;
+  const p = 'coleta.perfil.', d = 'coleta.diagnostico.', separa = (plano.objectives || []).reduce((s, o) => s + (+o.planned || 0), 0);
+  el.innerHTML = `<div class="bloco"><h3>Como o cliente se vê</h3><div class="grid g3">
+      ${cpC('De 1 a 5, usa o dinheiro da melhor forma para o futuro?', selR(p + 'autoavaliacao', [['', 'não informado'], ['1', '1 · nada'], ['2', '2'], ['3', '3'], ['4', '4'], ['5', '5 · totalmente']], 'num'), 'A autoavaliação do exame de saúde financeira.')}
+      ${cpC('Relação com o dinheiro', selR(p + 'relacaoDinheiro', opsC(['Gastador', 'Poupador', 'Neutro'])))}</div></div>
+    <div class="bloco"><h3>Objetivos</h3><div class="sub">As respostas do exame. Os objetivos em si, com data e valor, ficam na seção Objetivos.</div><div class="grid g3">
+      ${cpC('Tem objetivo financeiro claro?', selR(d + 'objetivoClaro', SN_C, 'bool'))}
+      ${cpC('Avaliou quanto precisa?', selR(d + 'avaliouQuanto', SN_C, 'bool'))}
+      ${cpC('Tem um plano concreto para chegar lá?', selR(d + 'temPlano', SN_C, 'bool'))}</div>
+      <div class="grid g3" style="margin-top:14px">${cpC('Quanto imagina precisar investir por mês', campoR(d + 'investirImagina', 'reais'), 'O que o cliente acha que precisa.')}
+      ${cpC('Quanto de fato separa por mês hoje', `<div class="tbc-fx"><b>${fmt(separa)}</b><small>a soma do "guardar por mês" de cada objetivo</small></div>`, 'Não se digita: muda quando muda o aporte de um objetivo.')}
+      ${cpC('Já teve os investimentos avaliados por um profissional?', selR(d + 'validacaoProfissional', SN_C, 'bool'))}</div></div>
+    <div class="bloco"><h3>Risco</h3><div class="grid g3">
+      ${cpC('Disposição a risco', selR(p + 'disposicaoRisco', opsC(['Baixo', 'Médio', 'Alto'])), 'A leitura do consultor: quanto o cliente aceita ver o patrimônio oscilar.')}
+      ${cpC('Capacidade para risco', selR(p + 'capacidadeRisco', opsC(['Baixo', 'Médio', 'Alto'])), 'A leitura do consultor: quanto a vida do cliente aguenta uma perda (prazo, reserva, renda).')}
+      ${cpC('Ativo de que não quer se desfazer', campoR(p + 'naoDesfazer', 'texto', ' placeholder="ex.: as ações da empresa da família"'))}</div>
+      <div class="grid g3" style="margin-top:14px">${cpC('Restrição a alguma classe de ativo', campoR(p + 'restricaoClasse', 'texto', ' placeholder="ex.: não aceita renda variável"'))}
+      ${cpC('Classe de ativo que não quer ter', campoR(p + 'classeNaoQuer', 'texto', ' placeholder="ex.: criptoativos"'))}</div>
+      <div class="sub" style="margin-top:10px">As classes que cada pessoa entende, em que já investiu e em que tem restrição ficam na tabela de experiência da seção Cliente. <button class="link" data-ir="cliente">Abrir</button></div></div>
+    <div class="bloco"><h3>Herança e perpetuidade</h3><div class="field"><label>O que pensa em deixar, e para quem</label>${textoC(p + 'heranca', 'ex.: deixar os imóveis para os filhos; ou gastar tudo em vida')}</div></div>`;
+}
+
+// Orçamento: o que o cliente declara, ao lado do que as linhas somam (os campos são os da Gestão de riscos e do Fluxo)
+function orcColetaC() {
+  return `<div class="bloco so-coleta"><h3>O que o cliente diz</h3><div class="sub">O que o cliente declara, para comparar com o que as linhas acima somam. Vazio, o plano usa as linhas.</div><div class="grid g3">
+      ${cpC('Custo de vida por mês', campoR('riscos.reserva.custoVida', 'reais', ` placeholder="automático: ${fmt(ENGINE.custoDeVida(plano))} das despesas"`), 'O mesmo campo da reserva de emergência, na Gestão de riscos.')}
+      ${cpC('Quanto poupa por mês, em média', campoR('capacityOverride', 'reais', ' placeholder="automático: a sobra das linhas"'), 'A capacidade de poupança informada pelo cliente: o mesmo campo do Fluxo vida toda.')}
+      ${cpC('Acompanha as despesas do mês?', selR('coleta.diagnostico.acompanhaOrcamento', opsC(['Sim, em detalhes', 'Sim, parcialmente', 'Não, mas tem ideia', 'Não faz ideia'])))}</div></div>
+    <div class="bloco so-coleta"><h3>Imposto de renda</h3><div class="grid g3">${cpC('Modelo da última declaração', selR('coleta.ir.modelo', opsC(['Simplificado', 'Completo', 'Não declara'])), 'O modelo de hoje. A Otimização tributária compara os dois e recomenda o de menor imposto.')}
+      ${cpC('Despesas médicas na última declaração (no ano)', campoR('coleta.ir.despesasMedicas', 'reais'), 'Ponto de partida para a Otimização tributária, que monta a declaração de cada pessoa.')}
+      ${cpC('Despesas com instrução na última declaração (no ano)', campoR('coleta.ir.instrucao', 'reais'))}</div></div>`;
+}
+// Patrimônio: a reserva de emergência (os campos da Gestão de riscos) e onde a família mora
+function reservaColetaC() {
+  const r = ENGINE.avaliaRiscos(plano).itens.reserva;
+  return `<div class="grid g3 so-coleta" style="margin-top:14px">${cpC('Quanto disso é a reserva de emergência', campoR('riscos.reserva.atual', 'reais', ' placeholder="automático: o disponível em D+0"'), 'O mesmo campo da reserva atual, na Gestão de riscos.')}
+    ${cpC('Guarda todo mês para aumentar a reserva?', selR('coleta.diagnostico.aumentaReserva', SN_C, 'bool'))}
+    ${cpC('Reserva ideal para o perfil do cliente', campoR('riscos.reserva.alvo', 'reais', ` placeholder="${r.ideal != null ? 'automático: ' + fmt(r.ideal) : 'automático: o ideal calculado'}"`), 'O alvo de reserva da Gestão de riscos. Vazio, vale o ideal calculado: o custo de vida vezes os meses pela natureza do trabalho e pelos dependentes.')}</div>`;
+}
+// onde a família mora: o imóvel próprio é um bem da lista; o aluguel, uma despesa fixa (a linha marcada coleta: 'aluguel')
+const linhaAluguel = () => plano.expenses.find(x => x.coleta === 'aluguel');
+function moradiaC() {
+  const m = lerR('coleta.moradia'), al = linhaAluguel();
+  return `<div class="grid g3 so-coleta" style="margin-top:14px">${cpC('Onde a família mora', selR('coleta.moradia', opsC(['Imóvel próprio quitado', 'Imóvel próprio financiado', 'Aluguel', 'Com terceiros (família, etc.)'])), 'O imóvel próprio é um bem desta lista; o aluguel, uma despesa fixa no Orçamento.')}
+    ${m === 'Aluguel' ? cpC('Valor do aluguel por mês', `<input data-money-opt inputmode="decimal" data-aluguel value="${al ? money(+((al.steps || [])[0] || {}).value || 0) : ''}" placeholder="R$ por mês">`, 'Vira a despesa fixa "Moradia (aluguel)" no Orçamento.') : ''}</div>
+    <div class="field so-coleta" style="margin-top:12px"><label>Observações sobre a moradia</label>${textoC('coleta.moradiaObs', 'ex.: pretende trocar de imóvel quando o segundo filho nascer', 2)}</div>`;
+}
+document.addEventListener('change', e => {
+  if (!e.target.hasAttribute || !e.target.hasAttribute('data-aluguel')) return;
+  const v = e.target.value.replace(/\D/g, '') === '' ? 0 : unmoney(e.target.value); let al = linhaAluguel();
+  if (!al && v > 0) { al = { id: novoId('cat'), label: 'Moradia (aluguel)', group: 'fix', frequency: 'mensal', days: [10], description: '', coleta: 'aluguel', steps: [{ from: 0, value: 0 }] }; plano.expenses.push(al); }
+  if (al) al.steps[0].value = v; save(); renderAll();
+});
+// os outros ativos (obras de arte, joias, um crédito a receber) e os totais que o cliente declara de cabeça
+function outrosColetaC(f) {
+  const C = plano.coleta || {}, L = C.outrosAtivos || [], D = plano.patrimonio || {};
+  const dividas = somaLista(D.bens || [], 'saldoDevedor') + somaLista(D.dividas || [], 'saldoDevedor'), soma = (v, txt) => `<div class="deriv">${txt}: ${fmt(v)}</div>`;
+  return `<div class="bloco so-coleta"><h3>Outros ativos</h3><div class="sub">O que tem valor e não é investimento, bem nem empresa: obras de arte, joias, um crédito a receber. Não entram nas somas do patrimônio; para entrar, cadastre como bem ou como participação.</div>
+      ${L.map((x, i) => { const c = `coleta.outrosAtivos.${i}.`;
+        return `<div class="col-item"><div class="col-item-h"><span>${esc(x.titulo || 'Outro ativo')}</span><button class="btn btn-icon" data-rrm="coleta.outrosAtivos.${i}" title="Remover">×</button></div>
+          <div class="grid g4">${cpC('Ativo', campoR(c + 'titulo', 'texto', ' placeholder="ex.: coleção de arte"'))}${cpC('Valor estimado', campoR(c + 'valor', 'reais'))}${cpC('Descrição', campoR(c + 'descricao', 'texto'))}${cpC('Gera renda?', selR(c + 'geraRenda', SN_C, 'bool'))}</div>
+          <div class="field" style="margin-top:12px"><label>Observações</label>${textoC(c + 'obs', '', 2)}</div></div>`; }).join('') || naoTemC('outrosAtivos', 'Nenhum outro ativo.')}
+      <button class="btn btn-step" data-radd="coleta.outrosAtivos">+ outro ativo</button></div>
+    <div class="bloco so-coleta"><h3>Os totais</h3><div class="sub">O que as listas somam, para conferir com o que o cliente disse no exame. O plano usa as listas.</div><div class="grid g3">
+      <div class="field" data-ex="9"><label>Ativos financeiros</label>${soma(f.fin, 'as listas somam')}</div>
+      <div class="field" data-ex="15"><label>Bens</label>${soma(f.bens, 'a lista soma')}</div>
+      <div class="field" data-ex="18"><label>Saldo devedor (dívidas e financiamentos)</label>${soma(dividas, 'as listas somam')}</div></div></div>`;
+}
+// os dependentes (só na coleta): o tipo de dependência, o custo e as observações. As despesas deles ficam no Orçamento.
+function depsColetaC(deps) {
+  return `<div class="col-sep">Detalhe de cada dependente</div><table class="rkc-tab" style="min-width:0"><thead><tr><th>Dependente</th><th>Dependência</th><th>Custo mensal estimado ${tip('O que o cliente estima que gasta com a pessoa. As despesas em si ficam no Orçamento.')}</th><th>Observações</th></tr></thead><tbody>${deps.map((d, i) => { const c = `riscos.dependentes.${i}.`;
+    return `<tr><td class="txt">${esc(d.nome || 'sem nome')}</td><td>${selR(c + 'dependencia', opsC(['Total', 'Parcial']))}</td><td>${campoR(c + 'custo', 'reais')}</td><td>${campoR(c + 'obs', 'texto')}</td></tr>`; }).join('')}</tbody></table>`;
+}
+var TIPOS_BEM_C = ['Casa', 'Apartamento', 'Imóvel Comercial', 'Terreno', 'Carro', 'Moto', 'Outro'];
+
+// Aposentadoria: a idade de parar e a renda desejada (os campos da Liberdade financeira), a previdência pública de cada
+// pessoa (uma renda programada, plano.passive, com a pessoa e o mês de início; o INSS por invalidez e a pensão por morte
+// são os do gerador de renda da Gestão de riscos) e a complementar, com o detalhe de cada plano
+function passivaPublica(q) { return (plano.passive || []).find(p => p.origin === 'Contribuições previdenciárias' && (p.pessoa || 'titular') === q); }
+var REGIME_PREV_C = ['Regressivo', 'Progressivo'], PERFIL_PREV_C = ['Conservador', 'Moderado', 'Arrojado', 'Agressivo'];
+function renderAposentadoriaC() {
+  const el = document.getElementById('aposC'); if (!el) return;
+  const nm = ENGINE.nomesDaFamilia(plano), casal = conjuge(), fin = (plano.patrimonio || {}).financeiro || [];
+  const pessoa = q => { const conj = q === 'conjuge', P = passivaPublica(q), b = 'coleta.prevPublica.' + q + '.', tipo = lerR(b + 'tipo'), g = gerDe(q) || {};
+    const idade = P && P.startMi != null ? Math.round(idadeDe(q) + P.startMi / 12) : '', ger = k => `<input data-money-opt inputmode="decimal" data-ger="${q}:${k}" value="${+g[k] ? money(g[k]) : ''}" placeholder="R$ por mês">`;
+    return `<div class="trab-p"><h4>${esc(nm[q])}</h4><div class="grid g3">
+      ${cpC('Começou a trabalhar aos', campoR(conj ? 'patrimonio.conjugeComecou' : 'patrimonio.comecou', 'num', ' min="10" max="70" placeholder="anos"'), 'Marca as fases da vida profissional no capítulo Patrimônio.')}
+      ${cpC('Pretende parar de trabalhar aos', campoR(conj ? 'spouseRetireAge' : 'retireAge', 'num', ' min="40" max="90" placeholder="anos"'), 'A mesma idade da página Liberdade financeira, onde o consultor testa outras.')}
+      ${cpC('Previdência pública', selR(b + 'tipo', [['', 'não informado'], ['inss', 'INSS (Regime Geral)'], ['rpps', 'RPPS (servidor público)'], ['nenhuma', 'Nenhuma']]))}</div>
+      ${tipo === 'inss' || tipo === 'rpps' ? `<div class="grid g4" style="margin-top:14px">${cpC('Começa a receber aos', `<input type="number" min="50" max="90" data-inss="${q}:idade" value="${idade}" placeholder="anos">`)}
+        ${cpC('Benefício estimado por mês', `<input data-money-opt inputmode="decimal" data-inss="${q}:net" value="${P && +P.net ? money(P.net) : ''}" placeholder="R$ por mês">`, 'Vira uma renda na página Liberdade financeira, a partir da idade ao lado.')}
+        ${cpC('Benefício por invalidez, por mês', ger('inssInvalidez'), 'Entra na conta do seguro de acidentes, na Gestão de riscos.')}${cpC('Pensão por morte, por mês', ger('inssMorte'), 'Entra na conta do seguro de vida, na Gestão de riscos.')}</div>
+        <div class="grid g4" style="margin-top:14px">${cpC('Primeira contribuição', campoR(b + 'inicio', 'texto', ' type="month"'))}${cpC('Número de contribuições', campoR(b + 'nContrib', 'num', ' min="0"'))}
+        ${cpC('Valor médio das contribuições', campoR(b + 'valorMedio', 'reais'))}${cpC('Valor atual da contribuição', campoR(b + 'valorAtual', 'reais'))}</div>
+        <div class="field" style="margin-top:12px"><label>Observações${tipo === 'rpps' ? ' (regras do RPPS)' : ''}</label>${textoC(b + 'obs', tipo === 'rpps' ? 'ex.: regra de transição, paridade, integralidade' : '', 2)}</div>` : ''}</div>`; };
+  const tit = x => casal ? cpC('De quem é', selR(x + 'titularidade', DE_QUEM())) : '';
+  const fundos = fin.map((x, k) => [x, k]).filter(([x]) => !x.daCarteira && (x.tipo === 'fechada' || x.tipo === 'fgts'));
+  const fundo = ([x, k]) => { const c = `patrimonio.financeiro.${k}.`, d = c + 'detalhe.', fg = x.tipo === 'fgts';
+    return `<div class="col-item"><div class="col-item-h"><span>${fg ? 'FGTS' : 'Fundo de pensão'}${x.nome ? ' · ' + esc(x.nome) : ''}</span><span>${fg ? '' : `<button class="link" data-fundo="${k}">Como vira renda…</button> `}<button class="btn btn-icon" data-rrm="patrimonio.financeiro.${k}" title="Remover">×</button></span></div>
+      <div class="grid g4">${cpC(fg ? 'Onde' : 'Entidade', campoR(c + 'nome', 'texto', ` placeholder="${fg ? 'ex.: Caixa' : 'ex.: Previ, Petros, Valia'}"`))}${cpC('Saldo atual', campoR(c + 'valor', 'reais'))}${tit(c)}</div>
+      ${fg ? '' : `<div class="grid g4" style="margin-top:12px">${cpC('Contribuição mensal', campoR(c + 'conv.contribPessoa', 'reais0', ' placeholder="R$ 0,00"'), 'A mesma da janela "Como vira renda": entra como despesa no Fluxo.')}${cpC('Contrapartida do patrocinador', campoR(c + 'conv.contribPatroc', 'reais0', ' placeholder="R$ 0,00"'))}
+        ${cpC('Tipo', selR(d + 'tipo', opsC(['PGBL', 'Fundo de Pensão'])))}${cpC('Regime de tributação', selR(d + 'regime', opsC(REGIME_PREV_C)))}</div>
+      <div class="grid g4" style="margin-top:12px">${cpC('Nome do fundo', campoR(d + 'nomeFundo', 'texto'))}${cpC('CNPJ', campoR(d + 'cnpj', 'texto', ' placeholder="00.000.000/0000-00"'))}${cpC('Perfil de risco', selR(d + 'perfil', opsC(PERFIL_PREV_C)))}${cpC('Data de entrada', campoR(d + 'dataEntrada', 'texto', ' type="date"'))}</div>
+      <div class="grid g4" style="margin-top:12px">${cpC('Número de contribuições', campoR(d + 'nContrib', 'num', ' min="0"'))}${cpC('Vesting da parte própria', campoR(d + 'vestingProprio', 'texto', ' placeholder="ex.: 100% no resgate"'))}${cpC('Vesting do patrocinador', campoR(d + 'vestingPatroc', 'texto', ' placeholder="ex.: 10% ao ano de casa"'))}</div>`}
+      <div class="field" style="margin-top:12px"><label>Observações</label>${textoC(d + 'obs', '', 2)}</div></div>`; };
+  // a previdência aberta: na carteira, cada PGBL ou VGBL é um ativo (o nome e o saldo vêm de lá); sem carteira, uma linha do
+  // mercado financeiro. O detalhe fica no próprio ativo ou na linha (prev).
+  const naCart = temCarteira(), ativos = (plano.carteira || {}).ativos || [];
+  const abertos = naCart ? ativos.map((a, k) => [a, k, `carteira.ativos.${k}.`]).filter(([a]) => a.tipo === 'pgbl' || a.tipo === 'vgbl') : fin.map((x, k) => [x, k, `patrimonio.financeiro.${k}.`]).filter(([x]) => !x.daCarteira && (x.tipo === 'pgbl' || x.tipo === 'vgbl'));
+  const aberto = ([x, k, c]) => { const d = c + 'prev.';
+    return `<div class="col-item"><div class="col-item-h"><span>${x.tipo === 'vgbl' ? 'VGBL' : 'PGBL'}${x.nome ? ' · ' + esc(x.nome) : ''}${naCart ? ` <small>${fmt(+x.valor || 0)}, da Carteira atual</small>` : ''}</span>${naCart ? '<button class="link" data-ir="carteira">Mudar na Carteira atual</button>' : `<button class="btn btn-icon" data-rrm="patrimonio.financeiro.${k}" title="Remover">×</button>`}</div>
+      ${naCart ? '' : `<div class="grid g4" style="margin-bottom:12px">${cpC('Instituição ou fundo', campoR(c + 'nome', 'texto', ' placeholder="ex.: Brasilprev"'))}${cpC('Saldo atual', campoR(c + 'valor', 'reais'))}${cpC('Tipo', selR(c + 'tipo', [['pgbl', 'PGBL'], ['vgbl', 'VGBL']]))}${tit(c)}</div>`}
+      <div class="grid g4">${cpC('Contribuição mensal atual', campoR(d + 'contribuicao', 'reais'), 'Apoio para a Otimização tributária: no PGBL, a contribuição do ano entra na declaração completa.')}${cpC('Regime de tributação', selR(d + 'regime', opsC(REGIME_PREV_C)))}${cpC('Perfil de risco', selR(d + 'perfil', opsC(PERFIL_PREV_C)))}${cpC('Data de início', campoR(d + 'dataInicio', 'texto', ' type="date"'), 'No regime regressivo, a data diz a alíquota do resgate.')}</div>
+      <div class="grid g4" style="margin-top:12px">${cpC('CNPJ do fundo', campoR(d + 'cnpj', 'texto', ' placeholder="00.000.000/0000-00"'))}</div>
+      <div class="field" style="margin-top:12px"><label>Observações</label>${textoC(d + 'obs', '', 2)}</div></div>`; };
+  el.innerHTML = `<div class="bloco"><h3>Parar de trabalhar e a previdência pública</h3>${ENGINE.pessoasDaFamilia(plano).map(pessoa).join('')}
+      <div class="grid g3" style="margin-top:22px">${cpC('Renda desejada por mês, em valores de hoje', campoR('desired', 'reais', ' placeholder="R$ por mês"'), 'O quanto a família quer gastar por mês depois de parar: a mesma renda da página Liberdade financeira.')}</div></div>
+    <div class="bloco"><h3>Fundo de pensão e FGTS</h3><div class="sub">A previdência fechada (da empresa ou da categoria) e o FGTS: cada um é uma linha do mercado financeiro, na seção Patrimônio, com o detalhe aqui.</div>
+      ${fundos.map(fundo).join('') || naoTemC('fechada', 'Nenhum fundo de pensão nem FGTS.')}
+      <button class="btn btn-step" data-prev-add="fechada">+ fundo de pensão</button> <button class="btn btn-step" data-prev-add="fgts">+ FGTS</button></div>
+    <div class="bloco"><h3>Previdência aberta (PGBL e VGBL)</h3><div class="sub">${naCart ? 'Os planos vêm da Carteira atual: cada previdência é um ativo marcado como PGBL ou VGBL. O detalhe de cada um fica aqui.' : 'Cada plano é uma linha do mercado financeiro, na seção Patrimônio. Com a carteira colada, os planos passam a vir dela.'}</div>
+      ${abertos.map(aberto).join('') || naoTemC('aberta', naCart ? 'Nenhum PGBL ou VGBL na Carteira atual.' : 'Nenhum PGBL ou VGBL.')}
+      ${naCart ? '' : '<button class="btn btn-step" data-prev-add="pgbl">+ PGBL ou VGBL</button>'}</div>
+    <div class="bloco"><h3>Como o cliente pensa a aposentadoria</h3><div class="grid g3">${cpC('Tem um plano concreto de onde virá a renda?', selR('coleta.aposentadoria.temPlano', SN_C, 'bool'))}</div>
+      <div class="grid g2" style="margin-top:14px"><div class="field"><label>De onde imagina que virá a renda</label>${marcasC('coleta.aposentadoria.fontes.', [['publica', 'Previdência pública'], ['privada', 'Previdência privada ou da empresa'], ['investimentos', 'Investimentos'], ['imoveis', 'Aluguéis e outros bens']])}</div>
+      <div class="field"><label>O que já faz hoje</label>${marcasC('coleta.aposentadoria.executa.', [['publica', 'Contribui para o INSS ou o RPPS'], ['empresa', 'Previdência da empresa'], ['privada', 'Investimentos ou previdência privada']])}</div></div></div>`;
+}
+// "+ fundo de pensão", "+ FGTS", "+ PGBL ou VGBL": uma linha nova do mercado financeiro, já com o tipo
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-prev-add]'); if (!b) return;
+  const D = plano.patrimonio = plano.patrimonio || {}; (D.financeiro = D.financeiro || []).push({ nome: '', valor: 0, tipo: b.dataset.prevAdd }); renderAll();
+});
+// a previdência pública de uma pessoa: a idade vira o mês de início (startMi) e o benefício, o valor da renda
+document.addEventListener('change', e => {
+  const t = e.target; if (!t.dataset || t.dataset.inss == null) return;
+  const [q, k] = t.dataset.inss.split(':'), tipo = lerR('coleta.prevPublica.' + q + '.tipo');
+  let P = passivaPublica(q);
+  if (!P) { P = { name: '', origin: 'Contribuições previdenciárias', gross: 0, tax: 0, net: 0, dur: null, cost: 0, converted: false, pessoa: q }; plano.passive.push(P); }
+  P.name = tipo === 'rpps' ? 'RPPS' : 'INSS';
+  if (k === 'idade') { if (t.value === '') delete P.startMi; else P.startMi = Math.max(0, Math.round((+t.value - idadeDe(q)) * 12)); }
+  else P.net = P.gross = t.value.replace(/\D/g, '') === '' ? 0 : unmoney(t.value);
+  save(); renderAll();
+});
+document.addEventListener('change', e => {   // sem previdência pública, a renda dela sai; trocando o regime, o nome acompanha
+  const m = /^coleta\.prevPublica\.(titular|conjuge)\.tipo$/.exec((e.target.dataset || {}).r || ''), P = m && passivaPublica(m[1]); if (!P) return;
+  if (e.target.value === 'nenhuma') plano.passive.splice(plano.passive.indexOf(P), 1); else if (e.target.value) P.name = e.target.value === 'rpps' ? 'RPPS' : 'INSS';
+});
+// os campos que também estão nos controles da Liberdade financeira e do Fluxo: os controles acompanham
+document.addEventListener('change', e => { if (['retireAge', 'spouseRetireAge', 'desired', 'capacityOverride'].includes((e.target.dataset || {}).r)) setTimeout(fillFields, 0); });
+
+// Proteção: o que a família já tem. Os caminhos são os da Gestão de riscos, que calcula com isto o que falta.
+var PROTECAO_C = [['', 'não informado'], ['total', 'Segurado'], ['insuficiente', 'Segurado em parte'], ['nenhuma', 'Sem seguro']];
+var MESES_C = [['', '—']].concat(['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'].map((m, k) => [String(k + 1), m]));
+function gerDe(q) { const G = ((plano.riscos || {}).seguro || {}).geradores; return G ? G.find(g => g.pessoa === q) : null; }
+// Uma apólice de vida tem várias coberturas (a mesma apólice pode ter morte, acidentes pessoais e doenças graves), cada uma
+// com o seu valor, o seu prêmio, a sua vigência e o seu prazo de pagamento. A soma das coberturas de morte, de invalidez por
+// acidente (IPA) e de doenças graves de cada pessoa é o valor coberto que a Gestão de riscos usa (sincronizaApolicesC).
+var TIPOS_COBERTURA_C = [['morte', 'Morte (qualquer causa)'], ['morteAcidental', 'Morte acidental'], ['ipa', 'Invalidez permanente por acidente (IPA)'], ['ifpd', 'Invalidez funcional por doença (IFPD)'], ['ilpd', 'Invalidez laborativa por doença (ILPD)'], ['doencas', 'Doenças graves'], ['doencaTerminal', 'Doença terminal (antecipação)'], ['dit', 'Diária por incapacidade temporária (DIT)'], ['dih', 'Diária por internação hospitalar (DIH)'], ['fratura', 'Fratura de ossos'], ['cirurgia', 'Cirurgia'], ['dmho', 'Despesas médicas e hospitalares (DMHO)'], ['funeral', 'Assistência funeral'], ['perdaRenda', 'Perda de renda (desemprego)'], ['conjuge', 'Inclusão do cônjuge'], ['filhos', 'Inclusão dos filhos'], ['outra', 'Outra']];
+const tracoC = l => [['', '—']].concat(l);
+var VIGENCIA_C = tracoC([['apolice', 'Acompanha a apólice'], ['anual', 'Renovável ano a ano'], ['prazo', 'Prazo certo (temporário)'], ['decrescente', 'Temporário decrescente'], ['vitalicia', 'Vitalícia'], ['dotal', 'Dotal (paga em vida no fim do prazo)']]);
+var PAGAMENTO_COB_C = tracoC([['vigencia', 'Enquanto durar a cobertura'], ['prazo', 'Por prazo limitado']]);
+var PREMIO_TIPO_C = tracoC([['nivelado', 'Nivelado (não sobe com a idade)'], ['crescente', 'Sobe com a idade']]);
+var RESGATAVEL_C = tracoC([['sim', 'Sim'], ['nao', 'Não']]);
+var PERIODICIDADE_C = [['mensal', 'Mensal'], ['anual', 'Anual'], ['unico', 'Prêmio único']];
+var SOMA_COB_C = { coberturaVida: 'morte', coberturaInvalidez: 'ipa', coberturaDoencas: 'doencas' };
+const coberturaNovaC = tipo => ({ tipo, valor: 0, premio: 0, vigencia: '', vigenciaPrazo: '', pagamento: '', pagamentoPrazo: '', premioTipo: '', resgatavel: '', detalhe: '' });
+// a apólice antiga (uma linha: tipo, modalidade, prêmio, prazo) vira uma apólice com uma cobertura
+function apoliceNovaC(x) {
+  if (Array.isArray(x.coberturas)) return x;
+  const tipo = { vida: 'morte', acidentes: 'ipa', doencas: 'doencas' }[x.tipo] || 'morte', vig = { Anual: 'anual', Termo: 'prazo', 'Vitalício': 'vitalicia' }[x.modalidade] || '';
+  x.coberturas = [Object.assign(coberturaNovaC(tipo), { premio: +x.premio || 0, vigencia: vig, vigenciaPrazo: x.prazo || '' })];
+  x.periodicidade = x.periodicidade || 'mensal'; if (x.numero == null) x.numero = '';
+  ['tipo', 'modalidade', 'premio', 'prazo'].forEach(k => delete x[k]);
+  return x;
+}
+function somaApolicesC(pessoa, k) {
+  return ((plano.coleta || {}).apolices || []).filter(a => (a.pessoa || 'titular') === pessoa)
+    .reduce((s, a) => s + (a.coberturas || []).filter(c => c.tipo === SOMA_COB_C[k]).reduce((t, c) => t + (+c.valor || 0), 0), 0);
+}
+// as apólices são a fonte: quando somam algo para uma pessoa, o valor coberto dela é a soma
+function sincronizaApolicesC() {
+  ['titular'].concat(conjuge() ? ['conjuge'] : []).forEach(q => Object.keys(SOMA_COB_C).forEach(k => {
+    const v = somaApolicesC(q, k); if (!v) return;
+    const R = plano.riscos = plano.riscos || {}; if (!R.seguro) R.seguro = novoSeguro();
+    let g = gerDe(q); if (!g) { g = novoGerador(q, 0); R.seguro.geradores.push(g); }
+    g[k] = v;
+  }));
+  save();
+}
+// na Gestão de riscos: o valor coberto que vem das apólices aparece travado
+function cobGerC(g, c, k) {
+  const s = g.pessoa === 'outro' ? 0 : somaApolicesC(g.pessoa || 'titular', k);
+  return s ? `<input disabled value="${money(s)}" title="A soma das apólices da coleta (seção Proteção)">` : campoR(c + k, 'reais');
+}
+// o tipo de seguro de um bem sai do tipo do bem (Patrimônio); sem o tipo, pelo nome
+function seguroDoBem(b) {
+  const t = b.tipo || '', n = String(b.nome || '').toLowerCase();
+  if (/Carro|Moto/.test(t) || (!t && /carro|moto|ve[ií]culo|auto/.test(n))) return 'auto';
+  if (/Casa|Apartamento|Imóvel|Terreno/.test(t) || (!t && /casa|apart|im[oó]vel|terreno|sala|loja/.test(n))) return 'imovel';
+  return '';
+}
+function renderProtecaoC() {
+  const el = document.getElementById('protC'); if (!el) return;
+  const R = plano.riscos || {}, pb = (plano.patrimonio || {}).bens || [], S = R.saude || {}, T = (R.terceiros || {}).itens || [], nm = ENGINE.nomesDaFamilia(plano), casal = conjuge();
+  const A = (plano.coleta || {}).apolices || [], quem = [['titular', nm.titular]].concat(casal ? [['conjuge', nm.conjuge]] : []);
+  const bem = (b, i) => { const c = `patrimonio.bens.${i}.`, a = c + 'apolice.', tipo = seguroDoBem(b), tem = b.protecao && b.protecao !== 'nenhuma';
+    const cob = tipo === 'imovel' ? [['incendio', 'Incêndio'], ['subtracao', 'Subtração de bens (roubo e furto)'], ['rcFamiliar', 'Responsabilidade civil familiar'], ['danosEletricos', 'Danos elétricos']]
+      : tipo === 'auto' ? [['rcfMateriais', 'RCF: danos materiais a terceiros'], ['rcfCorporais', 'RCF: danos corporais a terceiros'], ['danosMorais', 'Danos morais'], ['app', 'Acidentes pessoais por passageiro (APP)']] : [];
+    return `<div class="col-item"><div class="col-item-h"><span>${esc(b.nome || 'Bem sem nome')} <small>${fmt(+b.mercado || 0)}${b.tipo ? ' · ' + esc(b.tipo) : ''}</small></span></div>
+      <div class="grid g4">${cpC('Seguro', selR(c + 'protecao', PROTECAO_C))}${tem ? cpC('Seguradora', campoR(a + 'seguradora', 'texto')) + cpC('Nº da apólice', campoR(a + 'numero', 'texto')) + cpC('Prêmio anual', campoR(a + 'premio', 'reais'), 'Entra como uma despesa no Orçamento.') : ''}</div>
+      ${tem ? `<div class="grid g4" style="margin-top:12px">${cpC('Vigência', campoR(a + 'vigencia', 'texto', ' placeholder="ex.: até mar/2027"'))}${cpC('Mês de renovação', selR(a + 'renovacao', MESES_C))}
+        ${tipo === 'auto' ? cpC('Casco (colisão, incêndio, roubo)', campoR(a + 'casco', 'texto', ' placeholder="ex.: 100% da tabela FIPE"')) : ''}</div>
+        ${cob.length ? `<div class="col-sep">Coberturas (valor coberto)</div><div class="grid g4">${cob.map(([k, n]) => cpC(n, campoR(a + k, 'reais'))).join('')}</div>` : `<div class="col-calc">Informe o tipo do bem na seção Patrimônio para ver as coberturas de imóvel ou de veículo.</div>`}
+        <div class="grid g2" style="margin-top:12px">${cpC('Outras coberturas', campoR(a + 'cobertura', 'texto', ' placeholder="ex.: carro reserva, vidros, assistência 24 h"'))}<div class="field"><label>Observações</label>${textoC(a + 'obs', '', 2)}</div></div>` : ''}</div>`; };
+  A.forEach(apoliceNovaC);
+  const pessoa = q => { const g = gerDe(q) || {}, soma = k => somaApolicesC(q, k), dica = (k, h) => soma(k) ? 'É a soma das apólices abaixo.' : h,
+    inp = k => soma(k) ? `<input disabled value="${money(soma(k))}">` : `<input data-money-opt inputmode="decimal" data-ger="${q}:${k}" value="${+g[k] ? money(g[k]) : ''}" placeholder="R$">`;
+    return `<div class="trab-p"><h4>${esc(nm[q])}</h4><div class="grid g4">${cpC('Seguro de vida: valor coberto', inp('coberturaVida'), dica('coberturaVida'))}${cpC('Acidentes: invalidez coberta', inp('coberturaInvalidez'), dica('coberturaInvalidez'))}${cpC('Doenças graves: valor coberto', inp('coberturaDoencas'), dica('coberturaDoencas', 'Fica registrado para o consultor; a Gestão de riscos ainda não usa na conta.'))}
+      ${casal ? cpC('Parte da renda da família (%)', `<input type="number" min="0" max="100" step="5" data-ger="${q}:participacao" data-ger-num value="${g.participacao != null && g.participacao !== '' ? g.participacao : ''}" placeholder="%">`, 'Quanto das despesas da família esta pessoa sustenta: o seguro de cada um protege essa parte.') : ''}</div></div>`; };
+  const embaixo = ' style="display:block;width:100%;margin-top:4px"';
+  const cobertura = i => (x, j) => { const c = `coleta.apolices.${i}.coberturas.${j}.`, un = x.tipo === 'dit' ? ' por mês' : x.tipo === 'dih' ? ' por dia' : '';
+    return `<tr><td>${selR(c + 'tipo', TIPOS_COBERTURA_C)}${campoR(c + 'detalhe', 'texto', ' placeholder="' + (x.tipo === 'doencas' ? 'quais: câncer, infarto, AVC, transplante' : 'detalhes') + '"' + embaixo)}</td><td>${campoR(c + 'valor', 'reais', un ? ` placeholder="R$${un}"` : '')}</td><td>${campoR(c + 'premio', 'reais')}</td>
+      <td>${selR(c + 'vigencia', VIGENCIA_C)}${/prazo|decrescente|dotal/.test(x.vigencia || '') ? campoR(c + 'vigenciaPrazo', 'texto', ' placeholder="ex.: 20 anos, até os 65"' + embaixo) : ''}</td>
+      <td>${selR(c + 'pagamento', PAGAMENTO_COB_C)}${x.pagamento === 'prazo' ? campoR(c + 'pagamentoPrazo', 'texto', ' placeholder="ex.: 20 anos, até os 60"' + embaixo) : ''}</td>
+      <td>${selR(c + 'premioTipo', PREMIO_TIPO_C)}</td><td>${selR(c + 'resgatavel', RESGATAVEL_C)}</td><td><button class="btn btn-icon" data-rrm="coleta.apolices.${i}.coberturas.${j}" title="Remover a cobertura">×</button></td></tr>`; };
+  const apolice = (x, i) => { const c = `coleta.apolices.${i}.`, C = x.coberturas, tot = C.reduce((s, k) => s + (+k.premio || 0), 0), per = x.periodicidade || 'mensal';
+    const quando = per === 'anual' ? ' por ano' : per === 'unico' ? ', prêmio único' : ' por mês';
+    return `<div class="col-item"><div class="col-item-h"><span>${esc(x.seguradora || 'Apólice ' + (i + 1))} <small>${esc(nm[x.pessoa] || nm.titular)} · ${C.length} cobertura${C.length === 1 ? '' : 's'}${tot ? ' · ' + fmt(tot) + quando : ''}</small></span><button class="btn btn-icon" data-rrm="coleta.apolices.${i}" title="Remover a apólice">×</button></div>
+      <div class="grid g4">${cpC('Pessoa segurada', selR(c + 'pessoa', quem))}${cpC('Seguradora', campoR(c + 'seguradora', 'texto', ' placeholder="ex.: MAG, SulAmérica"'))}${cpC('Nº da apólice', campoR(c + 'numero', 'texto'))}${cpC('Pagamento do prêmio', selR(c + 'periodicidade', PERIODICIDADE_C))}</div>
+      <div class="col-sep">Coberturas</div>
+      ${C.length ? `<table class="rkc-tab" style="min-width:0;width:100%;table-layout:fixed"><colgroup><col style="width:24%"><col style="width:12%"><col style="width:10%"><col style="width:15%"><col style="width:15%"><col style="width:11%"><col><col style="width:36px"></colgroup><thead><tr><th>Cobertura</th><th>Valor coberto</th><th>Prêmio${per === 'anual' ? ' anual' : per === 'unico' ? ' único' : ' mensal'}</th><th>Vigência</th><th>Prazo de pagamento</th><th>Tipo de prêmio</th><th>Resgatável</th><th></th></tr></thead><tbody>${C.map(cobertura(i)).join('')}</tbody></table>` : '<div class="pc-vazio">Nenhuma cobertura ainda.</div>'}
+      <button class="btn btn-step" data-radd="coleta.apolices.${i}.coberturas">+ cobertura</button>
+      <div class="field" style="margin-top:12px"><label>Observações</label>${textoC(c + 'obs', 'ex.: carências, beneficiários, reajuste pelo IPCA', 2)}</div></div>`; };
+  const vidas = S.vidas || [];
+  el.innerHTML = `<div class="bloco"><h3>Imóveis e veículos</h3><div class="sub">Os bens são os da seção Patrimônio. Cada bem segurado abre a apólice, com as coberturas do tipo dele.</div>${pb.map(bem).join('') || '<div class="pc-vazio">Nenhum bem na seção Patrimônio.</div>'}
+      <div class="rkc-calc" style="margin-top:10px"><button class="link" data-ir="patrimonio">Cadastrar ou mudar um bem</button></div></div>
+    <div class="bloco"><h3>Vida, acidentes e doenças graves</h3><div class="sub">O total que cada pessoa que gera renda já tem: a Gestão de riscos calcula, com isto, quanto falta. O benefício do INSS por invalidez e a pensão por morte ficam na seção Aposentadoria.</div>${ENGINE.pessoasDaFamilia(plano).map(pessoa).join('')}
+      <div class="col-sep">As apólices</div><div class="col-calc" style="margin:-4px 0 10px">Uma apólice pode ter várias coberturas: morte, acidentes pessoais, doenças graves, diárias, assistências. As coberturas de morte, de invalidez por acidente (IPA) e de doenças graves de cada pessoa somam o valor coberto acima.</div>${A.length ? A.map(apolice).join('') : '<div class="pc-vazio">Nenhuma apólice ainda.</div>'}
+      <button class="btn btn-step" data-radd="coleta.apolices">+ apólice</button>
+      <div class="col-nao" style="margin-top:12px"><span>Se a família não tem, marque, para separar do que não foi perguntado:</span>${marcasC('coleta.naoTem.', [['vida', 'Não tem seguro de vida'], ['acidentes', 'Não tem seguro de acidentes']])}</div></div>
+    <div class="bloco"><h3>Plano de saúde</h3><div class="grid g3">${cpC('Tipo do plano', selR('riscos.saude.tipo', TIPOS_SAUDE))}
+      ${cpC('Operadora e plano', campoR('riscos.saude.operadora', 'texto', ' placeholder="ex.: Bradesco Saúde, Top Nacional"'))}${cpC('Hospitais que a família quer (vírgula)', campoR('riscos.saude.hospitais', 'lista'))}</div>
+      ${vidas.length ? tabelaVidasC(S) + '</tbody></table>' : naoTemC('saude', 'Nenhuma vida no plano ainda.', 'A família não tem plano de saúde')}<button class="btn btn-step" data-radd="riscos.saude.vidas">+ vida</button>${vidas.length ? saudeNoFluxo(S, ENGINE.avaliaRiscos(plano).itens.saude) : ''}</div>
+    <div class="bloco"><h3>Responsabilidade civil</h3><div class="sub">Seguros que cobrem danos a terceiros: RC profissional, RC familiar, a cobertura de terceiros do seguro do carro.</div>
+      ${T.length ? `<table class="rkc-tab" style="min-width:0"><thead><tr><th>Seguro</th><th>Valor coberto</th><th></th></tr></thead><tbody>${T.map((x, i) => `<tr><td>${campoR(`riscos.terceiros.itens.${i}.nome`, 'texto', ' placeholder="ex.: RC profissional"')}</td><td>${campoR(`riscos.terceiros.itens.${i}.atual`, 'reais')}</td><td><button class="btn btn-icon" data-rrm="riscos.terceiros.itens.${i}" title="Remover">×</button></td></tr>`).join('')}</tbody></table>` : naoTemC('terceiros', 'Nenhum seguro de responsabilidade civil ainda.')}
+      <button class="btn btn-step" data-radd="riscos.terceiros.itens">+ seguro</button></div>`;
+}
+// mudou uma apólice: o valor coberto de cada pessoa segue a soma (antes do renderAll, que roda no setTimeout)
+document.addEventListener('change', e => { const r = e.target.dataset && e.target.dataset.r; if (r && r.startsWith('coleta.apolices.')) sincronizaApolicesC(); });
+// uma cobertura de uma pessoa: o seguro e o gerador de renda dela nascem no primeiro valor digitado
+document.addEventListener('change', e => {
+  const t = e.target; if (!t.dataset || t.dataset.ger == null) return;
+  const [q, k] = t.dataset.ger.split(':'), R = plano.riscos = plano.riscos || {};
+  if (!R.seguro) R.seguro = novoSeguro();
+  let g = gerDe(q); if (!g) { g = novoGerador(q, 0); R.seguro.geradores.push(g); }
+  g[k] = t.dataset.gerNum != null ? (t.value === '' ? null : +t.value) : t.value.replace(/\D/g, '') === '' ? 0 : unmoney(t.value);
+  save(); renderAll();
+});
+
+// Documentos e tarefas: o que o cliente entregou, os arquivos, o que falta fazer e o registro da reunião (nada disso entra
+// em conta). As anotações do consultor ficam na janela flutuante do canto inferior direito.
+var CATEGORIAS_ANEXO_C = [['extratos', 'Extratos dos investimentos'], ['ir', 'Declaração de imposto de renda'], ['apolices', 'Apólices de seguros'], ['outros', 'Outros']];
+let categoriaAnexoC = 'extratos';
+function renderDocumentosC() {
+  const el = document.getElementById('docsC'); if (!el) return;
+  const C = plano.coleta || {}, T = C.tarefas || [], Arq = (C.anexos || {}).arquivos || [], nomeCat = k => (CATEGORIAS_ANEXO_C.find(x => x[0] === k) || [k, k])[1];
+  el.innerHTML = `<div class="bloco"><h3>Documentos entregues</h3>${marcasC('coleta.anexos.', CATEGORIAS_ANEXO_C)}
+      <div class="col-up"><span>Enviar um arquivo (PDF, imagem ou planilha, até 10 MB) como <select data-anexo-cat style="width:auto;display:inline-block">${CATEGORIAS_ANEXO_C.map(([k, n]) => `<option value="${k}"${k === categoriaAnexoC ? ' selected' : ''}>${n}</option>`).join('')}</select></span>
+        <label class="btn btn-secondary btn-small">Escolher arquivos<input type="file" multiple accept=".pdf,.png,.jpg,.jpeg,.webp,.xls,.xlsx,.csv" data-anexo hidden></label></div>
+      ${Arq.length ? `<div class="col-arq">${Arq.map((a, i) => `<span>${esc(a.nome)} <small>${nomeCat(a.categoria)}</small><button class="btn btn-icon" data-rrm="coleta.anexos.arquivos.${i}" title="Remover">×</button></span>`).join('')}</div>` : ''}
+      <div class="col-calc">Aqui fica só o registro do arquivo (nome, categoria, tamanho, data); na plataforma, o arquivo vai para o armazenamento do cliente, como na coleta de hoje.</div>
+      <div class="field" style="margin-top:14px"><label>Observações sobre os documentos</label>${textoC('coleta.anexos.obs', 'ex.: o extrato da previdência chega na semana que vem')}</div></div>
+    <div class="bloco"><h3>Próximas tarefas</h3>${T.length ? `<table class="rkc-tab" style="min-width:0"><thead><tr><th>Tarefa</th><th>Prazo</th><th>Quem faz</th><th>Situação</th><th>Observações</th><th></th></tr></thead><tbody>${T.map((x, i) => { const c = `coleta.tarefas.${i}.`;
+        return `<tr><td>${campoR(c + 'titulo', 'texto', ' placeholder="ex.: enviar o extrato da previdência"')}</td><td>${campoR(c + 'prazo', 'texto', ' type="date"')}</td><td>${selR(c + 'responsavel', [['consultor', 'Consultor'], ['cliente', 'Cliente']])}</td><td>${selR(c + 'status', [['pendente', 'Pendente'], ['andamento', 'Em andamento'], ['concluida', 'Concluída']])}</td><td>${campoR(c + 'obs', 'texto')}</td><td><button class="btn btn-icon" data-rrm="coleta.tarefas.${i}" title="Remover">×</button></td></tr>`; }).join('')}</tbody></table>` : naoTemC('tarefas', 'Nenhuma tarefa ainda.', 'Não há tarefas')}
+      <button class="btn btn-step" data-radd="coleta.tarefas">+ tarefa</button></div>
+    <div class="bloco"><h3>Registro da reunião</h3><div class="grid g3"><div class="field"><label>&nbsp;</label>${marcaC('coleta.reuniao.adicionar', 'Registrar esta coleta como reunião no HubSpot')}</div>
+      ${lerR('coleta.reuniao.adicionar') ? cpC('Negócio no HubSpot', campoR('coleta.reuniao.dealId', 'texto', ' placeholder="o negócio (deal) do cliente"'), 'Na plataforma, a lista vem do HubSpot; ao finalizar, a reunião é registrada nesse negócio.') : ''}</div></div>`;
+}
+document.addEventListener('change', e => {
+  const t = e.target;
+  if (t.hasAttribute && t.hasAttribute('data-anexo-cat')) { categoriaAnexoC = t.value; return; }
+  if (!t.hasAttribute || !t.hasAttribute('data-anexo') || !t.files) return;
+  const C = plano.coleta = plano.coleta || {}, an = C.anexos = C.anexos || {}, L = an.arquivos = an.arquivos || [], hoje = new Date().toLocaleDateString('sv-SE');
+  [...t.files].forEach(f => { if (f.size > 10 * 1024 * 1024) { mostraAviso(f.name + ' passa de 10 MB e não foi registrado.'); return; } L.push({ nome: f.name, categoria: categoriaAnexoC, tamanho: f.size, em: hoje }); an[categoriaAnexoC] = true; });
+  save(); renderAll();
+});
+
+// na montagem, o rodapé diz se a coleta foi finalizada e leva de volta a ela
+function rodapeColetaC() {
+  const a = document.getElementById('btnIrColeta'), C = plano.coleta || {}; if (!a) return;
+  const ta = document.querySelector('#colNotasP textarea'); if (ta && document.activeElement !== ta) ta.value = C.anotacoes || '';
+  const tem = document.getElementById('colNotasTem'); if (tem) tem.hidden = !String(C.anotacoes || '').trim();
+  a.textContent = C.status === 'finalizada' && C.finalizadaEm ? 'Coleta finalizada em ' + C.finalizadaEm.split('-').reverse().join('/') + ' · abrir' : 'Abrir a reunião de coleta';
+}
 // os indicadores do topo ficam à vista em todas as páginas em que se decide o plano (Onda 2, 18/10/2026); saem só dos
 // dados que não mudam a simulação (Cliente, carteira) e das páginas com o cliente que não são decisão
 // o passo de cada página, na ordem do menu, com o grupo dele
 function numeraPassos() {
+  if (MODO_COLETA) return numeraColeta();
   const seq = PAGINAS.filter(p => !['propostas', 'cenarios'].includes(p));
   document.querySelectorAll('.page[data-page]').forEach(s => {
     const k = s.querySelector('.kicker'), i = seq.indexOf(s.dataset.page); if (!k || i < 0) return;
@@ -9114,11 +9828,12 @@ numeraPassos();
 const COM_INDICADORES = ['orcamento', 'fluxo', 'patrimonio', 'politica', 'ajuste', 'riscos', 'objetivos', 'liberdade', 'tributario', 'premissas', 'cenarios'];
 let paginaAtual = null;
 function irPara(p) {
-  if (!PAGINAS.includes(p)) p = 'cliente';
+  p = paginaDoModo(p);
+  if (MODO_COLETA) return irParaColeta(p);
   document.querySelectorAll('.page').forEach(s => { s.hidden = s.dataset.page !== p; });
   document.querySelectorAll('#nav a').forEach(a => a.classList.toggle('on', a.dataset.nav === p));
   document.querySelector('main').classList.toggle('wide', ['fluxo', 'ajuste', 'carteira', 'macro', 'micro'].includes(p));
-  document.getElementById('chips').hidden = !COM_INDICADORES.includes(p);
+  document.getElementById('chips').hidden = MODO_COLETA || !COM_INDICADORES.includes(p);
   const antes = paginaAtual; paginaAtual = p; if (antes && antes !== p) { plano.vistas = Object.assign({}, plano.vistas, { [antes]: true }); }
   if (gaveta) fecharGaveta(false);
   fecharPop(); window.scrollTo(0, 0);
