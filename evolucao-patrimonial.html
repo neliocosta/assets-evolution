@@ -425,6 +425,15 @@ canvas#main.grab-obj{cursor:ew-resize}
 /* o que dá para decidir hoje: o patrimônio e a poupança, cada um dividido numa barra, com o controle da liberdade */
 .lf-dec{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
 .lf-dv{display:flex;flex-direction:column;padding:20px 22px 18px}
+/* a idade da liberdade: uma faixa baixa logo acima dos três cartões */
+.lf-ida{display:grid;grid-template-columns:minmax(180px,1fr) minmax(0,1.5fr) auto;gap:8px 28px;align-items:center;padding:12px 20px;margin:0 0 14px}
+.lf-idq .lf-mt{display:block} .lf-idq b{display:block;margin:2px 0 0;font:600 18px Sora,sans-serif;color:var(--nl-navy-900)} .lf-idq small{display:block;color:var(--nl-gray-700);font-size:12.5px}
+.lf-idc{display:flex;align-items:center;gap:10px}
+.lf-idc button{flex:none;border:1px solid #DDDDDD;background:#fff;border-radius:8px;padding:5px 9px;cursor:pointer;font:600 12px 'DM Sans',sans-serif;color:var(--nl-navy-900);transition:background .15s,border-color .15s}
+.lf-idc button:hover{background:#FFF3EB;border-color:#FA7A35} .lf-idc button:focus-visible{outline:2px solid var(--nl-orange-500);outline-offset:1px}
+.lf-idr{flex:1;min-width:0;text-align:center} .lf-idr .lf-w{width:100%;margin:0;display:block} .lf-idr b{display:block;font:600 13px Sora,sans-serif;color:var(--nl-orange-600)}
+.lf-anos{display:flex;gap:22px} .lf-anos div{display:flex;flex-direction:column} .lf-anos span{font-size:12px;color:var(--nl-gray-700);white-space:nowrap} .lf-anos b{font:600 18px Sora,sans-serif;color:var(--nl-navy-900)}
+.lf-anos em{font-style:normal;font-size:12px;font-weight:600;margin-left:6px} .lf-anos em.mais{color:#22794A} .lf-anos em.menos{color:#B4532A}
 .lf-dv b.lf-dt{display:block;font:600 24px Sora,sans-serif;color:var(--nl-navy-900);margin:6px 0 12px}
 .lf-barra{display:flex;height:22px;border-radius:7px;overflow:hidden;background:#EEF1F5;margin-bottom:8px}
 .lf-barra i{flex:0 0 0;height:100%;transition:flex-basis .25s ease-out;border-right:2px solid #fff} .lf-barra i:last-child{border-right:0}
@@ -440,7 +449,7 @@ canvas#main.grab-obj{cursor:ew-resize}
 .lf-pm button{border:1px solid #DDDDDD;background:#fff;border-radius:8px;padding:5px 9px;cursor:pointer;font:600 12px 'DM Sans',sans-serif;color:var(--nl-navy-900);transition:background .15s,border-color .15s}
 .lf-pm button:hover{background:#FFF3EB;border-color:#FA7A35} .lf-pm button:focus-visible{outline:2px solid var(--nl-orange-500);outline-offset:1px}
 .lf-vrow{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap} .lf-vrow .lf-pm{margin-top:8px}
-.lf-cen{position:sticky;bottom:16px;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:24px;padding:14px 18px 14px 22px;border-radius:14px;background:var(--nl-navy-900);color:#fff;box-shadow:0 8px 24px rgba(19,31,46,.25)}
+.lf-cen{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:16px;padding:12px 18px 12px 22px;border-radius:14px;background:var(--nl-navy-900);color:#fff}   /* no fluxo, depois dos cartões: não cobre nada */
 .lf-cen b{display:block;font:600 15px Sora,sans-serif} .lf-cen span{display:block;margin-top:2px;font:500 13.5px 'DM Sans',sans-serif;color:#FCD9C2} .lf-cen small{display:block;margin-top:2px;font:500 12px 'DM Sans',sans-serif;color:#C9D4E2}
 .lf-cen .btn{flex:none}
 .lf-fonte{display:inline-flex;gap:4px;margin-top:12px;padding:3px;border-radius:10px;background:#EEF1F5;align-self:flex-start}
@@ -476,7 +485,7 @@ canvas#main.grab-obj{cursor:ew-resize}
 .lf-om b{margin:0;font:600 14px 'DM Sans',sans-serif;color:var(--nl-navy-900);margin-right:4px} .lf-om em{margin:0;padding:0;border:0;font-style:normal;color:#8a867e} .lf-om small{flex-basis:100%;font:500 12px 'DM Sans',sans-serif;color:#6b6a66}
 .lf-st{display:inline-block;padding:4px 10px;border-radius:10px;font:600 12px 'DM Sans',sans-serif;background:#EEF1F5;color:var(--nl-navy-900)}
 .lf-st.ok{background:#E7F4EC;color:#22794A} .lf-st.adj{background:#FFF3EB;color:#964400} .lf-st.risk{background:#FBE7E7;color:#B53434}
-@media (max-width:860px){.lf-modos{grid-template-columns:1fr}.lf-per{grid-template-columns:1fr;gap:8px}.lf-pv{text-align:left}.lf-dec{grid-template-columns:1fr}.lf-dl{grid-template-columns:12px minmax(0,1fr) auto}.lf-dl em{grid-column:2 / 4}.lf-cen{bottom:10px;gap:10px;padding:10px 10px 10px 14px}.lf-cen b{font-size:13.5px}.lf-cen small{display:none}.lf-cen span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:12.5px}.lf-cen .btn{padding:8px 12px;font-size:13px}}
+@media (max-width:860px){.lf-modos{grid-template-columns:1fr}.lf-per{grid-template-columns:1fr;gap:8px}.lf-pv{text-align:left}.lf-dec{grid-template-columns:1fr}.lf-ida{grid-template-columns:1fr}.lf-dl{grid-template-columns:12px minmax(0,1fr) auto}.lf-dl em{grid-column:2 / 4}.lf-cen{bottom:10px;gap:10px;padding:10px 10px 10px 14px}.lf-cen b{font-size:13.5px}.lf-cen small{display:none}.lf-cen span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:12.5px}.lf-cen .btn{padding:8px 12px;font-size:13px}}
 @media (prefers-reduced-motion:reduce){.lf-col{animation:none}.lf-barra i{transition:none}}
 @media (max-width:860px){.gf-rosca{grid-template-columns:1fr;justify-items:center}.gf-cards,.gf-pessoas{grid-template-columns:1fr}.gf-cards.q4{grid-template-columns:repeat(2,minmax(0,1fr))}.gf-rel,.gf-pessoas .gf-rel{grid-template-columns:1fr;justify-items:center;gap:20px}.gf-rel>div{justify-self:stretch}.gf-rel .gf-leg b{font-size:20px}.gf-rel .gf-pat b{font-size:24px}.gf-vz{grid-template-columns:repeat(2,minmax(0,1fr))}}
 /* página 3: o orçamento combinado (a bancada). Tons do meio para os grupos; o laranja forte fica para traços e foco */
@@ -1485,7 +1494,11 @@ const ENGINE = (() => {
   // saque programado e a de 13 pagamentos (o abono em dezembro) mudam mês a mês (serie). O saldo da caixa, mês a mês
   // (serie), desenha a faixa no gráfico até a concessão; ali ela acaba: o saque à vista vai para o financeiro e o resto vira
   // as entradas da renda.
-  const CAIXA_PREV = ['fechada', 'fgts', 'consorcio'];
+  // O FGTS não tem concessão nem forma: é sacado de uma vez. Rende rentab (vazio = RENTAB_FGTS), recebe o depósito do
+  // empregador (depositoAno, por ano; sai em doze partes e para quando a pessoa para de trabalhar) e é sacado na compra de
+  // um objetivo (objetivo, o id: no mês antes da data, e o saque vai para a caixinha dele, como uma entrada com destino),
+  // numa data (saqueEm, 'AAAA-MM') ou, sem nenhuma das duas, quando a pessoa para de trabalhar.
+  const CAIXA_PREV = ['fechada', 'fgts', 'consorcio'], RENTAB_FGTS = 3;
   const FORMAS_PREV = { vitalicia: 'Renda vitalícia', prazo: 'Renda por prazo certo', percentual: 'Saque programado (% do saldo)', definido: 'Benefício definido (valor informado)', saque: 'Saque total à vista' };
   // Tábua de sobrevivência BR-EMSsb-v.2026 (SUSEP; vigente de 01/07/2026 a 30/06/2031): qx, de 0 a 116 anos
   const BR_EMS = { versao: 'BR-EMSsb-v.2026', m: [0.000408066,0.000226009,0.000164322,0.000134259,0.00011737,0.000107297,0.000101694,0.0000993635,0.000100642,0.000107578,0.000123071,0.000150193,0.000191334,0.000246979,0.000314881,0.000391314,0.000471582,0.000550642,0.000624388,0.000688692,0.000741971,0.000783226,0.000812532,0.000830826,0.000840309,0.000842648,0.000840309,0.00083498,0.00082885,0.0008235,0.000821093,0.000822621,0.000828961,0.000841408,0.000860603,0.000887263,0.000921826,0.000964871,0.00101695,0.00107848,0.00115009,0.00123239,0.00132591,0.00143139,0.00154958,0.00168147,0.00182805,0.0019905,0.00217009,0.00236814,0.00258635,0.00282647,0.00309036,0.00338027,0.0036986,0.00404791,0.00443115,0.0048515,0.00531243,0.00581786,0.00637184,0.00697933,0.00764536,0.00837554,0.00917593,0.0100534,0.0110155,0.0120702,0.0132267,0.0144951,0.015886,0.0174118,0.0190855,0.0209215,0.0229364,0.0251475,0.0275746,0.0302394,0.0331658,0.03638,0.0399116,0.0437928,0.0480598,0.052753,0.0579161,0.0635994,0.0698576,0.0767523,0.0843526,0.0927355,0.101988,0.112208,0.123504,0.136001,0.149839,0.165176,0.182192,0.201091,0.222109,0.245507,0.271588,0.300694,0.333212,0.369574,0.410258,0.455774,0.506633,0.56329,0.626011,0.694618,0.768003,0.843245,0.91408,0.969424,0.996534,0.999998,1], f: [0.000361129,0.000149064,0.00010712,0.0000879922,0.0000775935,0.0000727926,0.0000724936,0.0000764118,0.0000843374,0.0000955799,0.000109661,0.000125813,0.000143403,0.000161856,0.000180611,0.000199116,0.000217235,0.00023454,0.000251031,0.000266546,0.000281199,0.000294965,0.000307938,0.000320304,0.000332149,0.000343649,0.000355074,0.000366671,0.000378455,0.000390776,0.000403874,0.000418,0.000433398,0.000450351,0.000469121,0.000490033,0.000513324,0.000539386,0.000568621,0.000601318,0.000637973,0.000678972,0.000724902,0.000776257,0.000833604,0.000897604,0.000968987,0.00104842,0.00113689,0.00123528,0.00134459,0.00146601,0.00160086,0.00175044,0.00191637,0.00210033,0.00230415,0.00252992,0.00278009,0.00305701,0.00336365,0.00370296,0.00407844,0.00449406,0.00495388,0.0054625,0.00602527,0.00664791,0.00733671,0.00809875,0.00894164,0.00987427,0.0109062,0.0120482,0.013312,0.0147108,0.0162594,0.0179738,0.0198724,0.0219753,0.0243054,0.0268877,0.0297505,0.0329251,0.0364473,0.0403565,0.0446975,0.0495205,0.0548822,0.0608467,0.0674865,0.0748844,0.083134,0.0923427,0.102633,0.114146,0.127045,0.141517,0.15778,0.176087,0.196736,0.220076,0.246517,0.276539,0.310712,0.349702,0.39429,0.445348,0.503838,0.570689,0.646533,0.731061,0.821512,0.909462,0.976079,0.999442,1] };
@@ -1536,9 +1549,13 @@ const ENGINE = (() => {
       if (f.tipo === 'consorcio') return caixaDoConsorcio(f, k);
       const c = f.conv || {}, pessoa = f.titularidade === 'conjuge' && SPOUSE_AGE != null ? 'conjuge' : 'titular', hoje = idadeHoje(pessoa);
       const outra = SPOUSE_AGE == null ? null : pessoa === 'conjuge' ? CURRENT_AGE : SPOUSE_AGE;
-      const aosC = num(c.aos) != null ? +c.aos : num(f.rendaAos), aos = Math.max(hoje, aosC != null ? aosC : parar(pessoa) != null ? +parar(pessoa) : 65);
-      const forma = FORMAS_PREV[c.forma] ? c.forma : f.rendaForma === 'prazo' ? 'prazo' : f.tipo === 'fgts' ? 'saque' : 'vitalicia';
-      const rentab = num(c.rentab) != null ? +c.rentab : taxaPlano, r = mensal(rentab);
+      const fgts = f.tipo === 'fgts', pararC = parar(pessoa) != null ? +parar(pessoa) : 65;
+      // o FGTS: o mês do saque, na compra do objetivo (o mês antes da data), numa data ou, sem as duas, ao parar de trabalhar
+      const objF = fgts && c.objetivo ? OBJ.find(o => o.id === c.objetivo) : null, emF = fgts && !objF && c.saqueEm ? mesDe(c.saqueEm) : null;
+      const mcF = objF ? Math.max(0, Math.round(+objF.months || 0) - 1) : emF != null ? Math.max(0, emF) : null;
+      const aosC = fgts ? (mcF != null ? hoje + mcF / 12 : null) : num(c.aos) != null ? +c.aos : num(f.rendaAos), aos = Math.max(hoje, aosC != null ? aosC : pararC);
+      const forma = fgts ? 'saque' : FORMAS_PREV[c.forma] ? c.forma : f.rendaForma === 'prazo' ? 'prazo' : 'vitalicia';
+      const rentab = num(c.rentab) != null ? +c.rentab : fgts ? RENTAB_FGTS : taxaPlano, r = mensal(rentab);
       // a taxa da fase de renda: a informada ou a parâmetro da Previc para a duration desta renda (a duration depende da taxa:
       // três voltas bastam, porque a curva é quase plana)
       const anosPrazo = Math.max(1, Math.round(+c.anos > 0 ? +c.anos : 20)), pctMes = Math.min(10, Math.max(0.01, num(c.pct) != null ? +c.pct : 0.5)) / 100;
@@ -1546,12 +1563,13 @@ const ENGINE = (() => {
       let jp = 6.1, ett = null, duracao = 0;
       for (let volta = 0; volta < 3; volta++) { duracao = duracaoDaRenda(formaJ, Math.max(hoje, aosC != null ? aosC : parar(pessoa) != null ? +parar(pessoa) : 65), sexo0, jp / 100, anosPrazo, pctMes); ett = pontoDaEttj(duracao); jp = ett.parametro; }
       const jurosInformado = num(c.juros) != null, juros = jurosInformado ? +c.juros : jp, rj = mensal(juros);
-      const contribPessoa = Math.max(0, num(c.contribPessoa) || 0), contribPatroc = Math.max(0, num(c.contribPatroc) != null ? +c.contribPatroc : num(c.contrib) || 0), contrib = contribPessoa + contribPatroc;
+      const contribPessoa = fgts ? 0 : Math.max(0, num(c.contribPessoa) || 0), contrib = contribPessoa + (fgts ? Math.max(0, num(c.depositoAno) || 0) / 12 : Math.max(0, num(c.contribPatroc) != null ? +c.contribPatroc : num(c.contrib) || 0)), contribPatroc = contrib - contribPessoa;
+      const ateDeposito = fgts ? Math.round((pararC - hoje) * 12) : Infinity;   // o depósito do FGTS para quando a pessoa para de trabalhar
       const pagamentos = +c.pagamentos === 13 ? 13 : 12;
       const sexo = c.sexo === 'm' ? 'm' : 'f', sexoRev = c.sexoRev === 'f' || c.sexoRev === 'm' ? c.sexoRev : sexo === 'f' ? 'm' : 'f';
       const rev = outra == null || forma !== 'vitalicia' ? 0 : Math.min(100, Math.max(0, num(c.rev) || 0)) / 100, idadeOutra = outra == null ? null : outra + (aos - hoje);
       const mc = Math.round((aos - hoje) * 12), ate = Math.max(mc + 1, Math.round((116 - hoje) * 12));   // a série vai até os 116 anos da pessoa, o fim da tábua
-      const serie = [+f.valor]; for (let mi = 1; mi <= mc; mi++) serie.push(serie[mi - 1] * (1 + r) + contrib);
+      const serie = [+f.valor]; for (let mi = 1; mi <= mc; mi++) serie.push(serie[mi - 1] * (1 + r) + (mi <= ateDeposito ? contrib : 0));
       const naData = serie[mc], saquePct = forma === 'saque' ? 100 : forma === 'definido' ? 0 : Math.min(100, Math.max(0, num(c.saque) || 0));
       const saque = naData * saquePct / 100, S = naData - saque;
       const nome = (f.tipo === 'fgts' ? 'FGTS' : 'Fundo de pensão') + (String(f.nome || '').trim() ? ': ' + String(f.nome).trim() : '');
@@ -1578,7 +1596,8 @@ const ENGINE = (() => {
       serie.length = mc;
       if (renda > 0.005) rendas.push({ name: nome, startMi: mc, dur: n, net: renda, serie: rendaSerie });
       return { k, nome, tipo: f.tipo, pessoa, valor: +f.valor, aos, mc, forma, rentab, juros, jurosInformado, duracao, ettj: ett, contrib, contribPessoa, contribPatroc, linha: c.linha || null, sexo, sexoRev, rev, pagamentos, naData, saque, saquePct, S,
-        renda, porAno, pagamento: porAno / pagamentos, n, fator, tabua: BR_EMS.versao, serie, rendas };
+        renda, porAno, pagamento: porAno / pagamentos, n, fator, tabua: BR_EMS.versao, serie, rendas,
+        objetivo: objF ? objF.id : null, objetivoFora: !!(fgts && c.objetivo && !objF), meses: Math.min(mc, ateDeposito) };   // objetivoFora: o objetivo saiu ou foi desligado
     });
   }
   // O consórcio ainda não contemplado (patrimonio.financeiro[] com tipo 'consorcio', configurado em f.cons) é um crédito: o
@@ -2428,7 +2447,9 @@ const ENGINE = (() => {
   // Os extras destinados a um objetivo: uma entrada com destino (incomes[].destino, o id do objetivo; o 13º, um bônus) vai
   // para ele em cada ocorrência antes da data, até o que ele ainda precisa; o que passar disso volta para a sobra do mês.
   // Devolve, por objetivo, o valor de cada mês (de 0 a H − 1); fora o objetivo desligado e o mês da data em diante.
-  const extraDoMes = (o, mi) => !ligado(o) || mi >= Math.round(+o.months || 0) ? 0 : INCOMES.reduce((a, c) => a + (c.destino === o.id ? valorEm(c, mi, false) : 0), 0);
+  // O saque do FGTS na compra do objetivo também é um extra dele.
+  const extraDoMes = (o, mi) => !ligado(o) || mi >= Math.round(+o.months || 0) ? 0 : INCOMES.reduce((a, c) => a + (c.destino === o.id ? valorEm(c, mi, false) : 0), 0)
+    + CAIXAS_PREV.reduce((a, c) => a + (c.objetivo === o.id && c.mc === mi ? c.saque : 0), 0);
   // A causa de uma falta: a linha que mais piorou a partir do mês, a média dos 12 meses seguintes contra a dos 12 anteriores
   // (uma renda que cai, uma despesa ou o gasto de um objetivo que sobe; a linha anual, como o IPTU, se anula). No mês 0 não há
   // antes, e a causa fica em aberto.
@@ -3245,8 +3266,9 @@ const ENGINE = (() => {
   // dinheiro; a recomendada é o ajuste possível agora (um fundo que não se consegue vender fica). As duas são frações por
   // classe (plan.carteira.ideal e .recomendada) sobre o total: a carteira de hoje mais os recursos novos (plan.carteira.aporte).
   // A liquidez diária fica com o restante, como a liberdade financeira na política; a classe sem recomendada segue a ideal.
-  // Na microalocação, cada ativo de hoje é mantido, resgatado em parte ou por inteiro, ou portabilizado (ativos[].acao e
-  // .resgate), e os ativos novos (plan.carteira.novos) entram no lugar.
+  // Na microalocação, cada ativo de hoje é mantido, aumentado, resgatado em parte ou por inteiro, ou portabilizado
+  // (ativos[].acao e .resgate), e os ativos novos (plan.carteira.novos) entram no lugar. Aumentar a posição não tira nada
+  // do ativo: o portal lança um ativo novo ligado a ele (novos[].deAtivo, o id do ativo), onde vai o valor a aplicar.
   const CLASSES_CARTEIRA = [
     { id: 'liquidez', nome: 'Liquidez diária', grupo: 'Renda fixa', cor: '#8FD0F5' }, { id: 'posFixado', nome: 'Pós-fixado', grupo: 'Renda fixa', cor: '#3D79D1' },
     { id: 'preFixado', nome: 'Pré-fixado', grupo: 'Renda fixa', cor: '#1F4E9C' }, { id: 'inflacao', nome: 'Indexado à inflação', grupo: 'Renda fixa', cor: '#2BB0C9' },
@@ -3273,7 +3295,7 @@ const ENGINE = (() => {
       Object.keys(O[p]).forEach(c => { const v = num(O[p][c]); if (v == null || c === 'liquidez' || !CLASSES_CARTEIRA.some(k => k.id === c)) return; if (v > 0) M[c] = Math.max(0, Math.min(1, v)); else delete M[c]; }); });
   }
   aplicaCarteiras(null);
-  const ACOES_ATIVO = { manter: 'Manter', parcial: 'Resgate parcial', integral: 'Resgate integral', portabilidade: 'Portabilidade' };
+  const ACOES_ATIVO = { manter: 'Manter', aumentar: 'Aumentar a posição', parcial: 'Resgate parcial', integral: 'Resgate integral', portabilidade: 'Portabilidade' };
   function carteiraDoPlano(plan) {
     const C = plan.carteira || {}, ativos = C.ativos || [], novos = C.novos || [], rec = C.recomendada || {};
     // a ideal é a digitada (ou a da carteira modelo escolhida), nunca abaixo do mínimo que as caixinhas da Política de
@@ -3710,7 +3732,7 @@ const ENGINE = (() => {
     return mis.map(mi => ({ mi, mes: M[mi].mes, saldo: M[mi].saldo, aportado: M.slice(0, mi + 1).reduce((a, m) => a + m.aporte, 0), extra: M.slice(0, mi + 1).reduce((a, m) => a + m.extra, 0), data: mi === n }));
   }
   OBJ.forEach(derive);   // os objetivos do exemplo (aqui, depois dos bens: derive lê as vendas)
-  return { fatiaDaFamilia, CARTEIRAS_BASE, caixaNegativoEm, rendasDaLiberdade, alternativasDaLiberdade, avisosDoPlano, temValor, compraDoObjetivo, parcelaDaCompra, nomeDaCompra, MESES_CONSERVADOR, taxaDoObjetivo, taxaNoMes, mesDoConservador, trecho, cresceAte, alocacaoSugerida, alocacaoDaCaixinha, alocacaoDasCaixinhas, folgaDosAportes, extraDoMes, get TODAY() { return TODAY; }, get M0() { return calDoCiclo(0); }, get INICIO() { return isoDe(TODAY); }, INICIO_PADRAO, mudaInicio, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, ligado, objetivosLigados, inicioDoAporte, inicioDoDedicado, saldoNoMes, necessarioDe, MESES_POLITICA, orcamentoMesAMes, MESES_PROGRAMA, prioridadeDosObjetivos, linhasDosMeses, PASSIVE, PROFILES, STATUS, trajetoriaDoBem, trajetoriaDaParticipacao, vendasDoObjetivo, partilhaDaVenda, HORIZONTES, horizonteDe, politicaDeInvestimentos, TIPOS_FINANCEIRO, SEM_LIQUIDEZ, DA_CARTEIRA, saiComACarteira, CAIXA_PREV, FORMAS_PREV, BR_EMS, termosDaAnuidade, ETTJ_PREVIC, get CAIXAS_PREV() { return CAIXAS_PREV; }, saldoPrevEm, netEm, contratoDoConsorcio, caixaDoConsorcio, REAJUSTE_APOS, get COMPROMISSOS() { return COMPROMISSOS; }, saldoDasVendas, precoDoObjetivo, mesISO, orcadoDoObjetivo, cortesDoObjetivo, saldoDevedorEm, contratoDaDivida, restantesDaDivida, mesDe, get BENS() { return bensDoPlano(); }, get PARTS() { return partsDoPlano(); }, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, serieCusto, desiredAt, aplicaAlteracoes, fraseDaLinha, descreveAlteracao, valorAtual, mesDoPlano, desejoDoPlano, frequenciaDasLinhas, RISCOS, NATUREZAS, ITENS_RUINA, RISCOS_EXEMPLO, avaliaRiscos, custoDeVida, mediaDe12Meses, SEGURO, RELACOES, idadeLimiteDe, calculaSeguros, mesesAteIdade, FASES_VIDA, faseDaVida, sincronizaPatrimonio, PATRIMONIO_EXEMPLO, padraoDeVida, lerCaminho, gravaCaminho, IR, calculaIR, irDaFamilia, REGIMES, calculaRetirada, retiradaDosSocios, PREVIDENCIA, sucessao, simulaPrevidencia, aliqRegressiva, TRIBUTARIO_EXEMPLO, FAMILIA_EXEMPLO, casalDe, nomesDaFamilia, pessoasDaFamilia, rendaDaPessoa, bensDoRisco, titularidadeDoBem, setRetireAge: a => { RETIRE_AGE = a == null ? null : Math.max(CURRENT_AGE, +a); }, paradaMi, trabalhaEm, idadeDaLiberdade, dataNasc, idadeExata, sincronizaIdades, fraseDoProposito, ordemDoProposito, objetivosDoProposito, rendasAtivasDe, naturezaDe, naturezaDaReserva, CLASSES_ATIVOS, ORCAMENTO_IDEAL, VEZES_POUPOU, gestaoFinanceira, horasDoTrabalho, familiaDoPlano, ESTADOS_DIAGNOSTICO, orcamentoDoFluxo, CLASSES_CARTEIRA, CARTEIRAS_MODELO, ACOES_ATIVO, carteiraDoPlano, concentracaoDoPatrimonio, diagnosticoDaFamilia, financiamentoValido, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get JUROS_DIVIDA_M() { return JUROS_DIVIDA_M; }, rotulosDoDetalhe, JUROS_DIVIDA_PADRAO, TETO_DIVIDA_VEZES, contratoDoCredito, get CREDITOS() { return CREDITOS; }, saldoDoCredito, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
+  return { fatiaDaFamilia, CARTEIRAS_BASE, caixaNegativoEm, rendasDaLiberdade, alternativasDaLiberdade, avisosDoPlano, temValor, compraDoObjetivo, parcelaDaCompra, nomeDaCompra, MESES_CONSERVADOR, taxaDoObjetivo, taxaNoMes, mesDoConservador, trecho, cresceAte, alocacaoSugerida, alocacaoDaCaixinha, alocacaoDasCaixinhas, folgaDosAportes, extraDoMes, get TODAY() { return TODAY; }, get M0() { return calDoCiclo(0); }, get INICIO() { return isoDe(TODAY); }, INICIO_PADRAO, mudaInicio, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, ligado, objetivosLigados, inicioDoAporte, inicioDoDedicado, saldoNoMes, necessarioDe, MESES_POLITICA, orcamentoMesAMes, MESES_PROGRAMA, prioridadeDosObjetivos, linhasDosMeses, PASSIVE, PROFILES, STATUS, trajetoriaDoBem, trajetoriaDaParticipacao, vendasDoObjetivo, partilhaDaVenda, HORIZONTES, horizonteDe, politicaDeInvestimentos, TIPOS_FINANCEIRO, SEM_LIQUIDEZ, DA_CARTEIRA, saiComACarteira, CAIXA_PREV, RENTAB_FGTS, FORMAS_PREV, BR_EMS, termosDaAnuidade, ETTJ_PREVIC, get CAIXAS_PREV() { return CAIXAS_PREV; }, saldoPrevEm, netEm, contratoDoConsorcio, caixaDoConsorcio, REAJUSTE_APOS, get COMPROMISSOS() { return COMPROMISSOS; }, saldoDasVendas, precoDoObjetivo, mesISO, orcadoDoObjetivo, cortesDoObjetivo, saldoDevedorEm, contratoDaDivida, restantesDaDivida, mesDe, get BENS() { return bensDoPlano(); }, get PARTS() { return partsDoPlano(); }, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, serieCusto, desiredAt, aplicaAlteracoes, fraseDaLinha, descreveAlteracao, valorAtual, mesDoPlano, desejoDoPlano, frequenciaDasLinhas, RISCOS, NATUREZAS, ITENS_RUINA, RISCOS_EXEMPLO, avaliaRiscos, custoDeVida, mediaDe12Meses, SEGURO, RELACOES, idadeLimiteDe, calculaSeguros, mesesAteIdade, FASES_VIDA, faseDaVida, sincronizaPatrimonio, PATRIMONIO_EXEMPLO, padraoDeVida, lerCaminho, gravaCaminho, IR, calculaIR, irDaFamilia, REGIMES, calculaRetirada, retiradaDosSocios, PREVIDENCIA, sucessao, simulaPrevidencia, aliqRegressiva, TRIBUTARIO_EXEMPLO, FAMILIA_EXEMPLO, casalDe, nomesDaFamilia, pessoasDaFamilia, rendaDaPessoa, bensDoRisco, titularidadeDoBem, setRetireAge: a => { RETIRE_AGE = a == null ? null : Math.max(CURRENT_AGE, +a); }, paradaMi, trabalhaEm, idadeDaLiberdade, dataNasc, idadeExata, sincronizaIdades, fraseDoProposito, ordemDoProposito, objetivosDoProposito, rendasAtivasDe, naturezaDe, naturezaDaReserva, CLASSES_ATIVOS, ORCAMENTO_IDEAL, VEZES_POUPOU, gestaoFinanceira, horasDoTrabalho, familiaDoPlano, ESTADOS_DIAGNOSTICO, orcamentoDoFluxo, CLASSES_CARTEIRA, CARTEIRAS_MODELO, ACOES_ATIVO, carteiraDoPlano, concentracaoDoPatrimonio, diagnosticoDaFamilia, financiamentoValido, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get JUROS_DIVIDA_M() { return JUROS_DIVIDA_M; }, rotulosDoDetalhe, JUROS_DIVIDA_PADRAO, TETO_DIVIDA_VEZES, contratoDoCredito, get CREDITOS() { return CREDITOS; }, saldoDoCredito, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
 })();
 if (typeof module !== 'undefined') module.exports = ENGINE;
 </script>
@@ -5200,13 +5222,15 @@ document.getElementById('calcModal').addEventListener('keydown', e => { if (e.ke
 // O motor guarda um plano por vez. Para a conta da janela, ele roda com o outro plano e volta ao plano da tela (o mesmo
 // objeto, os objetivos na mesma ordem e o status de cada um da simulação 'desej', a última do rerun), sem redesenhar nada.
 var PLANO_MOTOR = null;   // var: applyPlan, mais acima, já o grava ao abrir a tela
-function simulaAParte(P) {
+// depois(ff): o que ler do motor enquanto ele ainda está com o plano à parte (as rendas da liberdade de outra idade)
+function simulaAParte(P, depois) {
   ENGINE.configure(P); OBJ.sort((a, b) => a.months - b.months);
   const r = ENGINE.run(state.mode), objs = {};
   OBJ.forEach(o => { objs[o.id] = { status: o.status, ratio: o.ratio, real: o.real, required: o.required, amount: +o.amount }; });
   const ff = r.ff ? { age: r.ff.age, mi: r.ff.mi, finBefore: r.ff.finBefore, finAfter: r.ff.finAfter, forced: r.ff.forced, sustentavel: r.ff.sustentavel, desejo: ENGINE.desiredAt(r.ff.mi) } : null;
+  const extra = depois ? depois(ff) : null;
   if (PLANO_MOTOR) { ENGINE.configure(PLANO_MOTOR); OBJ.sort((a, b) => a.months - b.months); ENGINE.run('desej'); } else aplicaVista();
-  return { ff, objs };
+  return { ff, objs, extra };
 }
 const calcBase = () => CALC.base || (CALC.base = simulaAParte(planoVista()));
 const ffTxt = f => !f ? 'não alcançada' : Math.floor(f.age) + ' anos, ' + ENGINE.mesDoPlano(f.mi);
@@ -6315,27 +6339,32 @@ function renderLibRenda(pg) {
 // para ela, tirando dos aportes dos objetivos (todos na mesma proporção) ou do padrão de vida (as despesas ajustáveis, na
 // mesma proporção, de hoje em diante); e o jeito de usar o patrimônio na liberdade, numa régua só, a renda igual todos os
 // meses: uma que o cliente escolhe, a que consome o patrimônio até a expectativa de vida e a que o preserva
-// (ENGINE.alternativasDaLiberdade). Com patrimônio ou poupança mudados, a simulação roda à parte (simulaAParte, uns 300 ms),
+// (ENGINE.alternativasDaLiberdade). E a idade da liberdade: com a mesma renda desejada, parar antes ou depois muda os anos
+// de guardar e os de viver do patrimônio (as idades de parar de cada um andam juntas). Com patrimônio ou poupança mudados, a simulação roda à parte (simulaAParte, uns 300 ms),
 // guardada por combinação; enquanto o controle anda, roda só a última pedida.
 // LIB: o estado da página, refeito a cada desenho. pat: o que sai dos objetivos para a liberdade no patrimônio de hoje;
-// pou: o que vai a mais para ela por mês; fonte: de onde sai a poupança ('objetivos' ou 'padrao'); W: a renda escolhida.
+// pou: o que vai a mais para ela por mês; fonte: de onde sai a poupança ('objetivos' ou 'padrao'); W: a renda escolhida;
+// ida: os anos a mais (ou a menos) até parar de trabalhar.
 let LIB = null;
-const libChave = () => LIB.pat + '|' + LIB.pou + '|' + (LIB.pou ? LIB.fonte : '');
-const libNoPlano = () => !LIB.pat && !LIB.pou;
+const libChave = () => LIB.pat + '|' + LIB.pou + '|' + (LIB.pou ? LIB.fonte : '') + '|' + LIB.ida;
+const libNoPlano = () => !LIB.pat && !LIB.pou && !LIB.ida;
+const num0 = v => v == null || v === '' || isNaN(+v) ? null : +v;
 const libMaxPou = () => Math.floor((LIB.fonte === 'objetivos' ? LIB.pouObj : LIB.ajust) / 100) * 100;   // a poupança a mais não passa do que há na fonte
-function libRoda(pat, pou, fonte) {
+function libRoda(pat, pou, fonte, ida) {
   const P = structuredClone(planoVista()), esc = (v, k) => Math.max(0, Math.round(v * k));
+  if (ida) { if (num0(P.retireAge) != null) P.retireAge = +P.retireAge + ida; if (num0(P.spouseRetireAge) != null) P.spouseRetireAge = +P.spouseRetireAge + ida; }
   if (pat > 0 && LIB.patObj > 0) { const k = (LIB.patObj - pat) / LIB.patObj; P.objectives.forEach(o => { if (+o.dedicated > 0) o.dedicated = esc(+o.dedicated, k); }); }
   if (pou > 0 && fonte === 'objetivos' && LIB.pouObj > 0) { const k = (LIB.pouObj - pou) / LIB.pouObj; P.objectives.forEach(o => { if (+o.planned > 0) o.planned = esc(+o.planned, k); }); }
   if (pou > 0 && fonte === 'padrao' && LIB.ajust > 0) { const k = (LIB.ajust - pou) / LIB.ajust;
     (P.expenses || []).filter(e => e.group !== 'fix').forEach(e => { e.steps = (e.steps || []).map(st => Object.assign({}, st, { value: (+st.value || 0) * k })); }); }
-  const r = simulaAParte(P); return { ff: r.ff, objs: r.objs };
+  // em outra idade, as rendas da liberdade (quem ainda trabalha, o fundo de pensão) são lidas com o motor no plano à parte
+  const r = simulaAParte(P, ff => ff && ida ? ENGINE.rendasDaLiberdade(P, ff.mi, null) : null); return { ff: r.ff, objs: r.objs, js: r.extra };
 }
 function libPede(ch) {
   LIB.pedido = ch; if (LIB.rodando) return; LIB.rodando = true;
   setTimeout(() => {
-    if (!LIB) return; const ch2 = LIB.pedido, [pat, pou, fonte] = ch2.split('|');
-    if (!LIB.cache.has(ch2)) LIB.cache.set(ch2, libRoda(+pat, +pou, fonte));
+    if (!LIB) return; const ch2 = LIB.pedido, [pat, pou, fonte, ida] = ch2.split('|');
+    if (!LIB.cache.has(ch2)) LIB.cache.set(ch2, libRoda(+pat, +pou, fonte, +ida));
     LIB.rodando = false; if (FASE !== 'liberdade-escolhas') return;
     if (LIB.pedido !== ch2) libPede(LIB.pedido); libMostra();
   }, 20);
@@ -6350,7 +6379,7 @@ function libCurva(serie, acaba) {
 }
 // os números de um resultado: o patrimônio da liberdade e as três maneiras de viver dele, todas como uma renda fixa
 function libNumeros(res) {
-  const L = LIB.L, P = res.ff.finAfter, js = res.ff.mi === L.mi ? L.js0 : ENGINE.rendasDaLiberdade(planoVista(), res.ff.mi, null), A = ENGINE.alternativasDaLiberdade(planoVista(), js, P);
+  const L = LIB.L, P = res.ff.finAfter, js = res.js || (res.ff.mi === L.mi ? L.js0 : ENGINE.rendasDaLiberdade(planoVista(), res.ff.mi, null)), A = ENGINE.alternativasDaLiberdade(planoVista(), js, P);
   return { P, finBefore: res.ff.finBefore, mi: res.ff.mi, A, esc: A.dura(LIB.W, true), cons: A.dura(A.consumo, true), pres: A.dura(A.preserva, true) };
 }
 // uma linha da divisão: a cor, o nome, o valor e, fora do plano, a diferença
@@ -6365,8 +6394,13 @@ function renderLibEscolhas(pg) {
   LIB = { chave: JSON.stringify(P), L, Pz, cache: new Map(), plano: { ff: { mi: L.mi, finBefore: L.ff.finBefore, finAfter: L.ff.finAfter }, objs: objsPlano },
     patTotal: Pz.total, patFixo: soma(cx('reserva'), 'patrimonio') + soma(cx('compromissos'), 'patrimonio'), patObj: soma(cx('objetivo'), 'patrimonio'), patLib: soma(cx('liberdade'), 'patrimonio'),
     renda: Pz.renda, padrao: Pz.padrao, pouRes: soma(cx('reserva'), 'mensal'), pouObj: soma(cx('objetivo'), 'mensal'), pouLib: soma(cx('liberdade'), 'mensal'), ajust: ENGINE.gestaoFinanceira(P).grupos.ajustaveis,
-    pat: antes ? antes.pat : 0, pou: antes ? antes.pou : 0, fonte: antes ? antes.fonte : 'objetivos', W: antes ? antes.W : L.D0 };
+    pat: antes ? antes.pat : 0, pou: antes ? antes.pou : 0, fonte: antes ? antes.fonte : 'objetivos', W: antes ? antes.W : L.D0, ida: antes ? antes.ida : 0 };
   if (!(LIB.pouObj > 0.5)) LIB.fonte = 'padrao';
+  // até onde a idade anda: ninguém para antes de um ano a partir de hoje, e a liberdade tem pelo menos 5 anos antes da expectativa de vida
+  { const ra = num0(P.retireAge), rc = L.casal ? num0(P.spouseRetireAge) : null, mins = [-15], maxs = [15];
+    [[ra, ENGINE.CURRENT_AGE], [rc, L.idadeConj]].forEach(([r, h]) => { if (r == null || h == null) return; mins.push(Math.ceil(h + 1 - r)); maxs.push(Math.floor(L.fim - 5 - r)); });
+    LIB.idaMin = Math.min(0, Math.max(...mins)); LIB.idaMax = Math.max(0, Math.min(...maxs)); LIB.ra = ra; LIB.rc = rc;
+    LIB.ida = Math.max(LIB.idaMin, Math.min(LIB.idaMax, LIB.ida)); }
   const vc = L.casal ? 'vocês' : 'você', tetoW = Math.max(20000, Math.ceil(Math.max(L.D0, L.A.consumo) * 1.8 / 5000) * 5000), passoPat = Math.max(1000, Math.round(LIB.patObj / 100 / 1000) * 1000);
   LIB.passoPat = passoPat; LIB.tetoW = tetoW;
   // cada controle: o slider anda no macro e os botões − e +, no fino (pedido do usuário, 29/10/2026: a renda de R$ 100 em R$ 100)
@@ -6379,14 +6413,19 @@ function renderLibEscolhas(pg) {
       <div class="lf-fonte" role="group" aria-label="De onde sai a poupança a mais">${LIB.pouObj > 0.5 ? `<button data-lf-fonte="objetivos">Tirar dos objetivos</button>` : ''}${LIB.ajust > 0.5 ? `<button data-lf-fonte="padrao">Tirar do padrão de vida</button>` : ''}</div>
       <div class="lf-ctl"><div class="lf-ctlt"><span>A mais para a liberdade, por mês</span>${pm('pou', 100, 'lfPouV')}</div><input type="range" class="lf-w" id="lfPou" min="0" step="500" value="${LIB.pou}" aria-label="Poupança a mais para a liberdade, por mês"></div>
       <p class="lf-mx" id="lfPouN"></p></div>` : '';
-  el.innerHTML = `<div class="rc lp">${cabPagina(pg, `${L.casal ? 'Vocês podem' : 'Você pode'} viver a liberdade com mais (ou menos) do que o plano prevê, conforme o que ${L.casal ? 'decidirem' : 'decidir'} hoje: quanto do patrimônio e da poupança vai para ela, e como usar o patrimônio depois. É só uma simulação: o seu plano continua como está.`)}
+  // a idade da liberdade numa faixa baixa, logo acima dos três cartões: dá para mexer e ver as rendas mudarem na mesma tela
+  const pIda = LIB.idaMax > LIB.idaMin ? `<div class="gf-c lf-ida" title="Com a mesma renda desejada: parar antes dá menos anos para guardar e mais anos vivendo do patrimônio; parar depois, o contrário.${L.casal && LIB.ra != null && LIB.rc != null ? ' As idades de parar dos dois andam juntas.' : ''}">
+      <div class="lf-idq"><span class="lf-mt">Parar de trabalhar</span><b id="lfIdaT"></b><small id="lfIdaS"></small></div>
+      <div class="lf-idc"><button data-lf-passo="ida:-1" aria-label="Um ano antes">−1 ano</button><div class="lf-idr"><input type="range" class="lf-w" id="lfIda" min="${LIB.idaMin}" max="${LIB.idaMax}" step="1" value="${LIB.ida}" aria-label="Anos antes ou depois da idade do plano"><b id="lfIdaV"></b></div><button data-lf-passo="ida:1" aria-label="Um ano depois">+1 ano</button></div>
+      <div class="lf-anos" id="lfIdaA"></div></div>` : '';
+  el.innerHTML = `<div class="rc lp">${cabPagina(pg, `${L.casal ? 'Vocês podem' : 'Você pode'} viver a liberdade com mais (ou menos) do que o plano prevê, conforme o que ${L.casal ? 'decidirem' : 'decidir'} hoje: quanto do patrimônio e da poupança vai para ela, quando parar de trabalhar e como usar o patrimônio depois. É só uma simulação: o seu plano continua como está.`)}
     <section class="gf-sec rev"><div class="lp-rot">O que dá para decidir hoje</div><div class="lf-dec">${pPat}${pPou}</div></section>
-    <section class="gf-sec rev"><div class="lp-rot">Como usar o patrimônio na liberdade</div><p class="lf-pat" id="lfPatr"></p><div class="lf-modos" id="lfModos"><div class="gf-c lf-m"><span class="lf-mt">Uma renda que ${vc} ${L.casal ? 'escolhem' : 'escolhe'}</span><div class="lf-vrow"><b class="lf-mv" id="lfWv"></b>${pm('W', 100)}</div><small id="lfWs"></small>
+    <section class="gf-sec rev"><div class="lp-rot">Como usar o patrimônio na liberdade</div>${pIda}<p class="lf-pat" id="lfPatr"></p><div class="lf-modos" id="lfModos"><div class="gf-c lf-m"><span class="lf-mt">Uma renda que ${vc} ${L.casal ? 'escolhem' : 'escolhe'}</span><div class="lf-vrow"><b class="lf-mv" id="lfWv"></b>${pm('W', 100)}</div><small id="lfWs"></small>
         <input type="range" id="lfW" class="lf-w" min="0" max="${tetoW}" step="500" value="${LIB.W}" aria-label="Renda por mês na liberdade"><div id="lfM1"></div></div>
       <div class="gf-c lf-m" id="lfM2"></div><div class="gf-c lf-m" id="lfM3"></div></div>
-      <p class="gf-nota">As três são uma renda igual todos os meses, até os ${L.fim} anos, em reais de hoje (descontada a inflação), já com as rendas programadas${(rp => rp.length ? ' (' + escH(nomes(rp)) + ')' : '')([...new Set(L.js0.flatMap(j => j.camadas.filter(c => c.id[0] !== 'a').map(c => c.nome)))])}: o patrimônio completa o que elas não pagam. Na liberdade, ele rende ${((Math.pow(1 + L.rate, 12) - 1) * 100).toLocaleString('pt-BR', { maximumFractionDigits: 1 })}% ao ano acima da inflação.</p></section>
+      <p class="gf-nota">As três são uma renda igual todos os meses, até os ${L.fim} anos, em reais de hoje (descontada a inflação), já com as rendas programadas${(rp => rp.length ? ' (' + escH(nomes(rp)) + ')' : '')([...new Set(L.js0.flatMap(j => j.camadas.filter(c => c.id[0] !== 'a').map(c => c.nome)))])}: o patrimônio completa o que elas não pagam. Na liberdade, ele rende ${((Math.pow(1 + L.rate, 12) - 1) * 100).toLocaleString('pt-BR', { maximumFractionDigits: 1 })}% ao ano acima da inflação.</p>
+    <div class="lf-cen" id="lfCen" hidden role="status"><div><b>${L.casal ? 'Vocês estão' : 'Você está'} vendo um cenário</b><span id="lfCenT"></span><small>É só uma simulação: o seu plano e a evolução patrimonial continuam como estão.</small></div><button class="btn btn-primary" id="lfVolta">Voltar ao plano</button></div></section>
     <section class="gf-sec rev"><div class="lp-rot">E os objetivos</div><div class="gf-c lf-obs" id="lfObjs"></div></section>
-    <div class="lf-cen" id="lfCen" hidden role="status"><div><b>${L.casal ? 'Vocês estão' : 'Você está'} vendo um cenário</b><span id="lfCenT"></span><small>É só uma simulação: o seu plano e a evolução patrimonial continuam como estão.</small></div><button class="btn btn-primary" id="lfVolta">Voltar ao plano</button></div>
     ${rodapeNav(pg)}</div>`;
   revelar(); libMostra();
 }
@@ -6395,7 +6434,7 @@ function libMostra() {
   if (!LIB) return; const L = LIB.L, vc = L.casal ? 'vocês' : 'você', noPlano = libNoPlano(), ch = libChave();
   const res = noPlano ? LIB.plano : LIB.cache.get(ch), base = libNumeros(LIB.plano), N = res ? libNumeros(res) : null;
   if (!noPlano && !res) libPede(ch);
-  const mudou = [LIB.pat ? fmt(LIB.pat) + ' do patrimônio dos objetivos para a liberdade' : '', LIB.pou ? 'mais ' + fmt(LIB.pou) + ' por mês para a liberdade, ' + (LIB.fonte === 'objetivos' ? 'dos objetivos' : 'do padrão de vida') : '', Math.abs(LIB.W - L.D0) >= 1 ? 'renda escolhida de ' + fmt(LIB.W) : ''].filter(Boolean);
+  const mudou = [LIB.ida ? 'liberdade ' + Math.abs(LIB.ida) + (Math.abs(LIB.ida) === 1 ? ' ano ' : ' anos ') + (LIB.ida < 0 ? 'antes' : 'depois') : '', LIB.pat ? fmt(LIB.pat) + ' do patrimônio dos objetivos para a liberdade' : '', LIB.pou ? 'mais ' + fmt(LIB.pou) + ' por mês para a liberdade, ' + (LIB.fonte === 'objetivos' ? 'dos objetivos' : 'do padrão de vida') : '', Math.abs(LIB.W - L.D0) >= 1 ? 'renda escolhida de ' + fmt(LIB.W) : ''].filter(Boolean);
   document.getElementById('lfCen').hidden = !mudou.length; document.getElementById('lfCenT').textContent = mudou.join(' · ');
   // o patrimônio de hoje: reserva e compromissos (ficam), objetivos e liberdade
   if (document.getElementById('lfPatB')) {
@@ -6403,6 +6442,16 @@ function libMostra() {
     document.getElementById('lfPatB').innerHTML = libBarra([['fix', LIB.patFixo], ['obj', LIB.patObj - LIB.pat], ['lib', LIB.patLib + LIB.pat]])
       + (LIB.patFixo > 0.5 ? libLinha('fix', 'Reserva e compromissos', LIB.patFixo, LIB.patFixo, 'ficam como estão') : '') + libLinha('obj', 'Objetivos', LIB.patObj - LIB.pat, LIB.patObj) + libLinha('lib', 'Liberdade financeira', LIB.patLib + LIB.pat, LIB.patLib);
     document.getElementById('lfPatV').textContent = LIB.pat ? fmt(LIB.pat) : 'nada, como no plano';
+  }
+  // a idade da liberdade: quando cada um para, os anos de guardar e os de viver do patrimônio
+  if (document.getElementById('lfIdaT')) {
+    const d = LIB.ida, ida0 = ENGINE.CURRENT_AGE + L.mi / 12, idL = Math.floor(ida0) + d, n1 = v => Math.round(v).toLocaleString('pt-BR');
+    const dif = v => !v ? '' : `<em class="${v > 0 ? 'mais' : 'menos'}">${v > 0 ? '+' : '−'}${Math.abs(v)}</em>`;
+    document.getElementById('lfIdaT').textContent = 'Liberdade aos ' + idL + ' anos';
+    document.getElementById('lfIdaS').textContent = L.casal && LIB.ra != null && LIB.rc != null ? `${L.nm.titular} para aos ${LIB.ra + d} e ${L.nm.conjuge}, aos ${LIB.rc + d}` : d ? 'no plano: aos ' + (idL - d) : 'a idade do plano';
+    document.getElementById('lfIdaV').textContent = d ? (d > 0 ? '+' : '−') + Math.abs(d) + (Math.abs(d) === 1 ? ' ano' : ' anos') : 'como no plano';
+    document.getElementById('lfIdaA').innerHTML = `<div><span>Anos para guardar</span><b>${n1(L.mi / 12 + d)}${dif(d)}</b></div><div><span>Anos de liberdade, até os ${L.fim}</span><b>${n1(L.fim - ida0 - d)}${dif(-d)}</b></div>`;
+    const r = document.getElementById('lfIda'); if (+r.value !== d) r.value = d;
   }
   // a renda de cada mês: o padrão de vida, os objetivos (e a reserva) e a liberdade
   if (document.getElementById('lfPouB')) {
@@ -6445,16 +6494,17 @@ document.addEventListener('input', e => {
   if (!LIB || FASE !== 'liberdade-escolhas') return; const id = e.target.id;
   if (id === 'lfPat') { LIB.pat = +e.target.value; libMostra(); return; }
   if (id === 'lfPou') { LIB.pou = +e.target.value; libMostra(); return; }
+  if (id === 'lfIda') { LIB.ida = +e.target.value; libMostra(); return; }
   if (id === 'lfW') { LIB.W = +e.target.value; if (Math.abs(LIB.W - LIB.L.D0) < 300) LIB.W = LIB.L.D0; libMostra(); }   // ímã na renda do plano
 });
 document.addEventListener('click', e => {
   if (!LIB) return; const f = e.target.closest('[data-lf-fonte]');
   if (f) { LIB.fonte = f.dataset.lfFonte; LIB.pou = Math.min(LIB.pou, libMaxPou()); libMostra(); return; }
   const p = e.target.closest('[data-lf-passo]');
-  if (p) { const [k, d] = p.dataset.lfPasso.split(':'), max = { pat: Math.floor(LIB.patObj / LIB.passoPat) * LIB.passoPat, pou: libMaxPou(), W: LIB.tetoW }[k];
-    LIB[k] = Math.max(0, Math.min(max, LIB[k] + +d)); const r = document.getElementById({ pat: 'lfPat', pou: 'lfPou', W: 'lfW' }[k]); if (r) r.value = LIB[k]; libMostra(); return; }
+  if (p) { const [k, d] = p.dataset.lfPasso.split(':'), max = { pat: Math.floor(LIB.patObj / LIB.passoPat) * LIB.passoPat, pou: libMaxPou(), W: LIB.tetoW, ida: LIB.idaMax }[k];
+    LIB[k] = Math.max(k === 'ida' ? LIB.idaMin : 0, Math.min(max, LIB[k] + +d)); const r = document.getElementById({ pat: 'lfPat', pou: 'lfPou', W: 'lfW', ida: 'lfIda' }[k]); if (r) r.value = LIB[k]; libMostra(); return; }
   if (!e.target.closest('#lfVolta')) return;
-  LIB.pat = 0; LIB.pou = 0; LIB.W = LIB.L.D0; ['lfPat', 'lfPou', 'lfW'].forEach(i => { const r = document.getElementById(i); if (r) r.value = i === 'lfW' ? LIB.W : 0; }); libMostra();
+  LIB.pat = 0; LIB.pou = 0; LIB.ida = 0; LIB.W = LIB.L.D0; ['lfPat', 'lfPou', 'lfW', 'lfIda'].forEach(i => { const r = document.getElementById(i); if (r) r.value = i === 'lfW' ? LIB.W : 0; }); libMostra();
 });
 // ===================== CAPÍTULO CARTEIRA =====================
 // Três páginas, depois da Política de investimentos: a carteira de hoje (o sunburst grande, as classes e as instituições),
@@ -6511,7 +6561,7 @@ function renderCarteiraCli(pg) {
   }
   // o que muda: o que fica, o que sai, o que vai por portabilidade e o que entra
   const val = a => +a.valor || 0, clDe = id => K.classes.find(c => c.id === id);
-  const ficam = ativos.filter(a => a.acao === 'manter' || a.acao === 'parcial'), saem = ativos.filter(a => a.acao === 'integral' || a.acao === 'parcial'), port = ativos.filter(a => a.acao === 'portabilidade'), aDecidir = ativos.filter(a => !ENGINE.ACOES_ATIVO[a.acao]), novos = C.novos || [];
+  const ficam = ativos.filter(a => a.acao === 'manter' || a.acao === 'aumentar' || a.acao === 'parcial'), saem = ativos.filter(a => a.acao === 'integral' || a.acao === 'parcial'), port = ativos.filter(a => a.acao === 'portabilidade'), aDecidir = ativos.filter(a => !ENGINE.ACOES_ATIVO[a.acao]), novos = C.novos || [];
   const linha = (a, v, nota) => { const c = clDe(a.classe); return `<div class="ct-al"><i style="background:${c ? c.cor : '#E9C9B0'}"></i><span class="n"><b>${escH(a.nome || 'sem nome')}</b><small>${[a.instituicao, c ? c.nome : '', nota].filter(Boolean).map(escH).join(' · ')}</small></span><b class="v">${fmt(v)}</b></div>`; };
   const soma = (l, f) => l.reduce((s, a) => s + f(a), 0);
   const bloco = (rot, cls, total, corpo) => corpo ? `<div class="gf-c ct-dec ${cls}"><div class="ct-dt"><span>${rot}</span><b>${fmt(total)}</b></div>${corpo}</div>` : '';
@@ -6522,7 +6572,7 @@ function renderCarteiraCli(pg) {
       <div class="gf-c"><span>Vai por portabilidade</span><b>${fmt(soma(port, val))}</b><small>sem imposto na troca de plano</small></div>
       <div class="gf-c fut"><span>Entra</span><b>${fmt(K.aplicado)}</b><small>${novos.length} ${novos.length === 1 ? 'investimento novo' : 'investimentos novos'}${K.aporte > 0.5 ? `, com ${fmt(K.aporte)} de recursos novos` : ''}</small></div></div></section>
     <section class="gf-sec rev"><div class="ct-decs">
-      ${bloco('O que fica', 'fica', soma(ativos, a => val(a) - K.sai(a)), ficam.map(a => linha(a, val(a) - K.sai(a), a.acao === 'parcial' ? 'resgate de parte' : '')).join('') + aDecidir.map(a => linha(a, val(a), 'em análise')).join(''))}
+      ${bloco('O que fica', 'fica', soma(ativos, a => val(a) - K.sai(a)), ficam.map(a => linha(a, val(a) - K.sai(a), a.acao === 'parcial' ? 'resgate de parte' : a.acao === 'aumentar' ? 'a posição aumenta' : '')).join('') + aDecidir.map(a => linha(a, val(a), 'em análise')).join(''))}
       ${bloco('O que sai', 'sai', soma(saem, a => K.sai(a)) + soma(port, val), saem.map(a => linha(a, K.sai(a), a.acao === 'parcial' ? 'resgate parcial' : 'resgate integral')).join('') + port.map(a => linha(a, val(a), 'portabilidade')).join(''))}
       ${bloco('O que entra', 'entra', K.aplicado, novos.map(n => linha(n, val(n), '')).join(''))}</div></section>
     ${rodapeNav(pg)}</div>`;

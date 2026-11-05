@@ -612,8 +612,10 @@ button.pol-estado{border:0;cursor:pointer;font-family:'DM Sans',sans-serif} butt
 .pol-toast.ok>button{flex:none;background:none;border:0;color:#fff;opacity:.8;font-size:20px;line-height:1;cursor:pointer;padding:0 2px} .pol-toast.ok>button:hover{opacity:1}
 /* desfazer, refazer e os status salvos, no alto */
 .hist-bar{display:flex;align-items:center;gap:6px}
-.hist-bt{width:28px;height:28px;border:1px solid #D9D4CA;border-radius:50%;background:transparent;font:600 15px 'DM Sans',sans-serif;color:var(--nl-navy-900);cursor:pointer;line-height:1}
-.hist-bt:hover:not(:disabled){background:var(--nl-peach-100);border-color:var(--nl-peach-100)} .hist-bt:disabled{opacity:.35;cursor:default}
+.hist-bt{width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;padding:0;border:0;border-radius:50%;background:var(--nl-navy-900);color:#fff;cursor:pointer}
+.hist-bt svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;display:block} .hist-esp{display:block;transform:scaleX(-1)}
+.hist-bt:focus-visible{outline:2px solid var(--nl-orange-500);outline-offset:2px}
+.hist-bt:hover:not(:disabled){background:var(--nl-orange-600)} .hist-bt:disabled{background:#8A97A8;cursor:default}
 .pontos{position:relative}
 .pontos-pop{position:absolute;top:calc(100% + 6px);left:0;z-index:40;width:420px;max-width:calc(100vw - 32px);background:#fff;border:1px solid #E6E3DD;border-radius:12px;box-shadow:0 12px 32px rgba(0,0,0,.14);padding:14px 16px}
 .pontos-pop>b{font:600 14px Sora,sans-serif;color:var(--nl-navy-900)} .pontos-pop p{font-size:12px;color:var(--nl-legenda);margin:3px 0 8px}
@@ -1138,7 +1140,7 @@ aside nav a.feito i::before{content:'✓';font-size:13px}
 .mic-sub{display:flex;align-items:center;gap:10px;font:500 11px 'DM Sans',sans-serif;color:#8a867e;margin-top:2px;white-space:nowrap;overflow:hidden}
 .mic-prev{font-weight:600;color:#4B3C77;background:#E9E3F4;border-radius:5px;padding:0 5px}
 .mic select.car-tag.mic-acao{height:24px;min-height:0;line-height:18px;padding:2px 22px 2px 10px;font:600 11.5px 'DM Sans',sans-serif;margin:0;width:auto;max-width:100%}
-.mic-acao.manter{--c:#9FCFB1} .mic-acao.parcial{--c:#F0CF8F} .mic-acao.integral{--c:#EDB3A2} .mic-acao.portabilidade{--c:#C4B5E0}
+.mic-acao.manter{--c:#9FCFB1} .mic-acao.aumentar{--c:#A9CBEF} .mic-acao.parcial{--c:#F0CF8F} .mic-acao.integral{--c:#EDB3A2} .mic-acao.portabilidade{--c:#C4B5E0}
 .mic select.car-tag.mic-acao.pede{--c:#fff;color:#964400;box-shadow:inset 0 0 0 1px #E9B48C;background-color:#FFF8F2;border:1px dashed #E9B48C}
 .mic-v{text-align:right;font:500 13.5px 'DM Sans',sans-serif;color:var(--nl-gray-700);font-variant-numeric:tabular-nums}
 .mic-fica{font-weight:600;color:var(--nl-navy-900)}
@@ -1598,7 +1600,11 @@ const ENGINE = (() => {
   // saque programado e a de 13 pagamentos (o abono em dezembro) mudam mês a mês (serie). O saldo da caixa, mês a mês
   // (serie), desenha a faixa no gráfico até a concessão; ali ela acaba: o saque à vista vai para o financeiro e o resto vira
   // as entradas da renda.
-  const CAIXA_PREV = ['fechada', 'fgts', 'consorcio'];
+  // O FGTS não tem concessão nem forma: é sacado de uma vez. Rende rentab (vazio = RENTAB_FGTS), recebe o depósito do
+  // empregador (depositoAno, por ano; sai em doze partes e para quando a pessoa para de trabalhar) e é sacado na compra de
+  // um objetivo (objetivo, o id: no mês antes da data, e o saque vai para a caixinha dele, como uma entrada com destino),
+  // numa data (saqueEm, 'AAAA-MM') ou, sem nenhuma das duas, quando a pessoa para de trabalhar.
+  const CAIXA_PREV = ['fechada', 'fgts', 'consorcio'], RENTAB_FGTS = 3;
   const FORMAS_PREV = { vitalicia: 'Renda vitalícia', prazo: 'Renda por prazo certo', percentual: 'Saque programado (% do saldo)', definido: 'Benefício definido (valor informado)', saque: 'Saque total à vista' };
   // Tábua de sobrevivência BR-EMSsb-v.2026 (SUSEP; vigente de 01/07/2026 a 30/06/2031): qx, de 0 a 116 anos
   const BR_EMS = { versao: 'BR-EMSsb-v.2026', m: [0.000408066,0.000226009,0.000164322,0.000134259,0.00011737,0.000107297,0.000101694,0.0000993635,0.000100642,0.000107578,0.000123071,0.000150193,0.000191334,0.000246979,0.000314881,0.000391314,0.000471582,0.000550642,0.000624388,0.000688692,0.000741971,0.000783226,0.000812532,0.000830826,0.000840309,0.000842648,0.000840309,0.00083498,0.00082885,0.0008235,0.000821093,0.000822621,0.000828961,0.000841408,0.000860603,0.000887263,0.000921826,0.000964871,0.00101695,0.00107848,0.00115009,0.00123239,0.00132591,0.00143139,0.00154958,0.00168147,0.00182805,0.0019905,0.00217009,0.00236814,0.00258635,0.00282647,0.00309036,0.00338027,0.0036986,0.00404791,0.00443115,0.0048515,0.00531243,0.00581786,0.00637184,0.00697933,0.00764536,0.00837554,0.00917593,0.0100534,0.0110155,0.0120702,0.0132267,0.0144951,0.015886,0.0174118,0.0190855,0.0209215,0.0229364,0.0251475,0.0275746,0.0302394,0.0331658,0.03638,0.0399116,0.0437928,0.0480598,0.052753,0.0579161,0.0635994,0.0698576,0.0767523,0.0843526,0.0927355,0.101988,0.112208,0.123504,0.136001,0.149839,0.165176,0.182192,0.201091,0.222109,0.245507,0.271588,0.300694,0.333212,0.369574,0.410258,0.455774,0.506633,0.56329,0.626011,0.694618,0.768003,0.843245,0.91408,0.969424,0.996534,0.999998,1], f: [0.000361129,0.000149064,0.00010712,0.0000879922,0.0000775935,0.0000727926,0.0000724936,0.0000764118,0.0000843374,0.0000955799,0.000109661,0.000125813,0.000143403,0.000161856,0.000180611,0.000199116,0.000217235,0.00023454,0.000251031,0.000266546,0.000281199,0.000294965,0.000307938,0.000320304,0.000332149,0.000343649,0.000355074,0.000366671,0.000378455,0.000390776,0.000403874,0.000418,0.000433398,0.000450351,0.000469121,0.000490033,0.000513324,0.000539386,0.000568621,0.000601318,0.000637973,0.000678972,0.000724902,0.000776257,0.000833604,0.000897604,0.000968987,0.00104842,0.00113689,0.00123528,0.00134459,0.00146601,0.00160086,0.00175044,0.00191637,0.00210033,0.00230415,0.00252992,0.00278009,0.00305701,0.00336365,0.00370296,0.00407844,0.00449406,0.00495388,0.0054625,0.00602527,0.00664791,0.00733671,0.00809875,0.00894164,0.00987427,0.0109062,0.0120482,0.013312,0.0147108,0.0162594,0.0179738,0.0198724,0.0219753,0.0243054,0.0268877,0.0297505,0.0329251,0.0364473,0.0403565,0.0446975,0.0495205,0.0548822,0.0608467,0.0674865,0.0748844,0.083134,0.0923427,0.102633,0.114146,0.127045,0.141517,0.15778,0.176087,0.196736,0.220076,0.246517,0.276539,0.310712,0.349702,0.39429,0.445348,0.503838,0.570689,0.646533,0.731061,0.821512,0.909462,0.976079,0.999442,1] };
@@ -1649,9 +1655,13 @@ const ENGINE = (() => {
       if (f.tipo === 'consorcio') return caixaDoConsorcio(f, k);
       const c = f.conv || {}, pessoa = f.titularidade === 'conjuge' && SPOUSE_AGE != null ? 'conjuge' : 'titular', hoje = idadeHoje(pessoa);
       const outra = SPOUSE_AGE == null ? null : pessoa === 'conjuge' ? CURRENT_AGE : SPOUSE_AGE;
-      const aosC = num(c.aos) != null ? +c.aos : num(f.rendaAos), aos = Math.max(hoje, aosC != null ? aosC : parar(pessoa) != null ? +parar(pessoa) : 65);
-      const forma = FORMAS_PREV[c.forma] ? c.forma : f.rendaForma === 'prazo' ? 'prazo' : f.tipo === 'fgts' ? 'saque' : 'vitalicia';
-      const rentab = num(c.rentab) != null ? +c.rentab : taxaPlano, r = mensal(rentab);
+      const fgts = f.tipo === 'fgts', pararC = parar(pessoa) != null ? +parar(pessoa) : 65;
+      // o FGTS: o mês do saque, na compra do objetivo (o mês antes da data), numa data ou, sem as duas, ao parar de trabalhar
+      const objF = fgts && c.objetivo ? OBJ.find(o => o.id === c.objetivo) : null, emF = fgts && !objF && c.saqueEm ? mesDe(c.saqueEm) : null;
+      const mcF = objF ? Math.max(0, Math.round(+objF.months || 0) - 1) : emF != null ? Math.max(0, emF) : null;
+      const aosC = fgts ? (mcF != null ? hoje + mcF / 12 : null) : num(c.aos) != null ? +c.aos : num(f.rendaAos), aos = Math.max(hoje, aosC != null ? aosC : pararC);
+      const forma = fgts ? 'saque' : FORMAS_PREV[c.forma] ? c.forma : f.rendaForma === 'prazo' ? 'prazo' : 'vitalicia';
+      const rentab = num(c.rentab) != null ? +c.rentab : fgts ? RENTAB_FGTS : taxaPlano, r = mensal(rentab);
       // a taxa da fase de renda: a informada ou a parâmetro da Previc para a duration desta renda (a duration depende da taxa:
       // três voltas bastam, porque a curva é quase plana)
       const anosPrazo = Math.max(1, Math.round(+c.anos > 0 ? +c.anos : 20)), pctMes = Math.min(10, Math.max(0.01, num(c.pct) != null ? +c.pct : 0.5)) / 100;
@@ -1659,12 +1669,13 @@ const ENGINE = (() => {
       let jp = 6.1, ett = null, duracao = 0;
       for (let volta = 0; volta < 3; volta++) { duracao = duracaoDaRenda(formaJ, Math.max(hoje, aosC != null ? aosC : parar(pessoa) != null ? +parar(pessoa) : 65), sexo0, jp / 100, anosPrazo, pctMes); ett = pontoDaEttj(duracao); jp = ett.parametro; }
       const jurosInformado = num(c.juros) != null, juros = jurosInformado ? +c.juros : jp, rj = mensal(juros);
-      const contribPessoa = Math.max(0, num(c.contribPessoa) || 0), contribPatroc = Math.max(0, num(c.contribPatroc) != null ? +c.contribPatroc : num(c.contrib) || 0), contrib = contribPessoa + contribPatroc;
+      const contribPessoa = fgts ? 0 : Math.max(0, num(c.contribPessoa) || 0), contrib = contribPessoa + (fgts ? Math.max(0, num(c.depositoAno) || 0) / 12 : Math.max(0, num(c.contribPatroc) != null ? +c.contribPatroc : num(c.contrib) || 0)), contribPatroc = contrib - contribPessoa;
+      const ateDeposito = fgts ? Math.round((pararC - hoje) * 12) : Infinity;   // o depósito do FGTS para quando a pessoa para de trabalhar
       const pagamentos = +c.pagamentos === 13 ? 13 : 12;
       const sexo = c.sexo === 'm' ? 'm' : 'f', sexoRev = c.sexoRev === 'f' || c.sexoRev === 'm' ? c.sexoRev : sexo === 'f' ? 'm' : 'f';
       const rev = outra == null || forma !== 'vitalicia' ? 0 : Math.min(100, Math.max(0, num(c.rev) || 0)) / 100, idadeOutra = outra == null ? null : outra + (aos - hoje);
       const mc = Math.round((aos - hoje) * 12), ate = Math.max(mc + 1, Math.round((116 - hoje) * 12));   // a série vai até os 116 anos da pessoa, o fim da tábua
-      const serie = [+f.valor]; for (let mi = 1; mi <= mc; mi++) serie.push(serie[mi - 1] * (1 + r) + contrib);
+      const serie = [+f.valor]; for (let mi = 1; mi <= mc; mi++) serie.push(serie[mi - 1] * (1 + r) + (mi <= ateDeposito ? contrib : 0));
       const naData = serie[mc], saquePct = forma === 'saque' ? 100 : forma === 'definido' ? 0 : Math.min(100, Math.max(0, num(c.saque) || 0));
       const saque = naData * saquePct / 100, S = naData - saque;
       const nome = (f.tipo === 'fgts' ? 'FGTS' : 'Fundo de pensão') + (String(f.nome || '').trim() ? ': ' + String(f.nome).trim() : '');
@@ -1691,7 +1702,8 @@ const ENGINE = (() => {
       serie.length = mc;
       if (renda > 0.005) rendas.push({ name: nome, startMi: mc, dur: n, net: renda, serie: rendaSerie });
       return { k, nome, tipo: f.tipo, pessoa, valor: +f.valor, aos, mc, forma, rentab, juros, jurosInformado, duracao, ettj: ett, contrib, contribPessoa, contribPatroc, linha: c.linha || null, sexo, sexoRev, rev, pagamentos, naData, saque, saquePct, S,
-        renda, porAno, pagamento: porAno / pagamentos, n, fator, tabua: BR_EMS.versao, serie, rendas };
+        renda, porAno, pagamento: porAno / pagamentos, n, fator, tabua: BR_EMS.versao, serie, rendas,
+        objetivo: objF ? objF.id : null, objetivoFora: !!(fgts && c.objetivo && !objF), meses: Math.min(mc, ateDeposito) };   // objetivoFora: o objetivo saiu ou foi desligado
     });
   }
   // O consórcio ainda não contemplado (patrimonio.financeiro[] com tipo 'consorcio', configurado em f.cons) é um crédito: o
@@ -2541,7 +2553,9 @@ const ENGINE = (() => {
   // Os extras destinados a um objetivo: uma entrada com destino (incomes[].destino, o id do objetivo; o 13º, um bônus) vai
   // para ele em cada ocorrência antes da data, até o que ele ainda precisa; o que passar disso volta para a sobra do mês.
   // Devolve, por objetivo, o valor de cada mês (de 0 a H − 1); fora o objetivo desligado e o mês da data em diante.
-  const extraDoMes = (o, mi) => !ligado(o) || mi >= Math.round(+o.months || 0) ? 0 : INCOMES.reduce((a, c) => a + (c.destino === o.id ? valorEm(c, mi, false) : 0), 0);
+  // O saque do FGTS na compra do objetivo também é um extra dele.
+  const extraDoMes = (o, mi) => !ligado(o) || mi >= Math.round(+o.months || 0) ? 0 : INCOMES.reduce((a, c) => a + (c.destino === o.id ? valorEm(c, mi, false) : 0), 0)
+    + CAIXAS_PREV.reduce((a, c) => a + (c.objetivo === o.id && c.mc === mi ? c.saque : 0), 0);
   // A causa de uma falta: a linha que mais piorou a partir do mês, a média dos 12 meses seguintes contra a dos 12 anteriores
   // (uma renda que cai, uma despesa ou o gasto de um objetivo que sobe; a linha anual, como o IPTU, se anula). No mês 0 não há
   // antes, e a causa fica em aberto.
@@ -3358,8 +3372,9 @@ const ENGINE = (() => {
   // dinheiro; a recomendada é o ajuste possível agora (um fundo que não se consegue vender fica). As duas são frações por
   // classe (plan.carteira.ideal e .recomendada) sobre o total: a carteira de hoje mais os recursos novos (plan.carteira.aporte).
   // A liquidez diária fica com o restante, como a liberdade financeira na política; a classe sem recomendada segue a ideal.
-  // Na microalocação, cada ativo de hoje é mantido, resgatado em parte ou por inteiro, ou portabilizado (ativos[].acao e
-  // .resgate), e os ativos novos (plan.carteira.novos) entram no lugar.
+  // Na microalocação, cada ativo de hoje é mantido, aumentado, resgatado em parte ou por inteiro, ou portabilizado
+  // (ativos[].acao e .resgate), e os ativos novos (plan.carteira.novos) entram no lugar. Aumentar a posição não tira nada
+  // do ativo: o portal lança um ativo novo ligado a ele (novos[].deAtivo, o id do ativo), onde vai o valor a aplicar.
   const CLASSES_CARTEIRA = [
     { id: 'liquidez', nome: 'Liquidez diária', grupo: 'Renda fixa', cor: '#8FD0F5' }, { id: 'posFixado', nome: 'Pós-fixado', grupo: 'Renda fixa', cor: '#3D79D1' },
     { id: 'preFixado', nome: 'Pré-fixado', grupo: 'Renda fixa', cor: '#1F4E9C' }, { id: 'inflacao', nome: 'Indexado à inflação', grupo: 'Renda fixa', cor: '#2BB0C9' },
@@ -3386,7 +3401,7 @@ const ENGINE = (() => {
       Object.keys(O[p]).forEach(c => { const v = num(O[p][c]); if (v == null || c === 'liquidez' || !CLASSES_CARTEIRA.some(k => k.id === c)) return; if (v > 0) M[c] = Math.max(0, Math.min(1, v)); else delete M[c]; }); });
   }
   aplicaCarteiras(null);
-  const ACOES_ATIVO = { manter: 'Manter', parcial: 'Resgate parcial', integral: 'Resgate integral', portabilidade: 'Portabilidade' };
+  const ACOES_ATIVO = { manter: 'Manter', aumentar: 'Aumentar a posição', parcial: 'Resgate parcial', integral: 'Resgate integral', portabilidade: 'Portabilidade' };
   function carteiraDoPlano(plan) {
     const C = plan.carteira || {}, ativos = C.ativos || [], novos = C.novos || [], rec = C.recomendada || {};
     // a ideal é a digitada (ou a da carteira modelo escolhida), nunca abaixo do mínimo que as caixinhas da Política de
@@ -3823,7 +3838,7 @@ const ENGINE = (() => {
     return mis.map(mi => ({ mi, mes: M[mi].mes, saldo: M[mi].saldo, aportado: M.slice(0, mi + 1).reduce((a, m) => a + m.aporte, 0), extra: M.slice(0, mi + 1).reduce((a, m) => a + m.extra, 0), data: mi === n }));
   }
   OBJ.forEach(derive);   // os objetivos do exemplo (aqui, depois dos bens: derive lê as vendas)
-  return { fatiaDaFamilia, CARTEIRAS_BASE, caixaNegativoEm, rendasDaLiberdade, alternativasDaLiberdade, avisosDoPlano, temValor, compraDoObjetivo, parcelaDaCompra, nomeDaCompra, MESES_CONSERVADOR, taxaDoObjetivo, taxaNoMes, mesDoConservador, trecho, cresceAte, alocacaoSugerida, alocacaoDaCaixinha, alocacaoDasCaixinhas, folgaDosAportes, extraDoMes, get TODAY() { return TODAY; }, get M0() { return calDoCiclo(0); }, get INICIO() { return isoDe(TODAY); }, INICIO_PADRAO, mudaInicio, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, ligado, objetivosLigados, inicioDoAporte, inicioDoDedicado, saldoNoMes, necessarioDe, MESES_POLITICA, orcamentoMesAMes, MESES_PROGRAMA, prioridadeDosObjetivos, linhasDosMeses, PASSIVE, PROFILES, STATUS, trajetoriaDoBem, trajetoriaDaParticipacao, vendasDoObjetivo, partilhaDaVenda, HORIZONTES, horizonteDe, politicaDeInvestimentos, TIPOS_FINANCEIRO, SEM_LIQUIDEZ, DA_CARTEIRA, saiComACarteira, CAIXA_PREV, FORMAS_PREV, BR_EMS, termosDaAnuidade, ETTJ_PREVIC, get CAIXAS_PREV() { return CAIXAS_PREV; }, saldoPrevEm, netEm, contratoDoConsorcio, caixaDoConsorcio, REAJUSTE_APOS, get COMPROMISSOS() { return COMPROMISSOS; }, saldoDasVendas, precoDoObjetivo, mesISO, orcadoDoObjetivo, cortesDoObjetivo, saldoDevedorEm, contratoDaDivida, restantesDaDivida, mesDe, get BENS() { return bensDoPlano(); }, get PARTS() { return partsDoPlano(); }, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, serieCusto, desiredAt, aplicaAlteracoes, fraseDaLinha, descreveAlteracao, valorAtual, mesDoPlano, desejoDoPlano, frequenciaDasLinhas, RISCOS, NATUREZAS, ITENS_RUINA, RISCOS_EXEMPLO, avaliaRiscos, custoDeVida, mediaDe12Meses, SEGURO, RELACOES, idadeLimiteDe, calculaSeguros, mesesAteIdade, FASES_VIDA, faseDaVida, sincronizaPatrimonio, PATRIMONIO_EXEMPLO, padraoDeVida, lerCaminho, gravaCaminho, IR, calculaIR, irDaFamilia, REGIMES, calculaRetirada, retiradaDosSocios, PREVIDENCIA, sucessao, simulaPrevidencia, aliqRegressiva, TRIBUTARIO_EXEMPLO, FAMILIA_EXEMPLO, casalDe, nomesDaFamilia, pessoasDaFamilia, rendaDaPessoa, bensDoRisco, titularidadeDoBem, setRetireAge: a => { RETIRE_AGE = a == null ? null : Math.max(CURRENT_AGE, +a); }, paradaMi, trabalhaEm, idadeDaLiberdade, dataNasc, idadeExata, sincronizaIdades, fraseDoProposito, ordemDoProposito, objetivosDoProposito, rendasAtivasDe, naturezaDe, naturezaDaReserva, CLASSES_ATIVOS, ORCAMENTO_IDEAL, VEZES_POUPOU, gestaoFinanceira, horasDoTrabalho, familiaDoPlano, ESTADOS_DIAGNOSTICO, orcamentoDoFluxo, CLASSES_CARTEIRA, CARTEIRAS_MODELO, ACOES_ATIVO, carteiraDoPlano, concentracaoDoPatrimonio, diagnosticoDaFamilia, financiamentoValido, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get JUROS_DIVIDA_M() { return JUROS_DIVIDA_M; }, rotulosDoDetalhe, JUROS_DIVIDA_PADRAO, TETO_DIVIDA_VEZES, contratoDoCredito, get CREDITOS() { return CREDITOS; }, saldoDoCredito, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
+  return { fatiaDaFamilia, CARTEIRAS_BASE, caixaNegativoEm, rendasDaLiberdade, alternativasDaLiberdade, avisosDoPlano, temValor, compraDoObjetivo, parcelaDaCompra, nomeDaCompra, MESES_CONSERVADOR, taxaDoObjetivo, taxaNoMes, mesDoConservador, trecho, cresceAte, alocacaoSugerida, alocacaoDaCaixinha, alocacaoDasCaixinhas, folgaDosAportes, extraDoMes, get TODAY() { return TODAY; }, get M0() { return calDoCiclo(0); }, get INICIO() { return isoDe(TODAY); }, INICIO_PADRAO, mudaInicio, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, ligado, objetivosLigados, inicioDoAporte, inicioDoDedicado, saldoNoMes, necessarioDe, MESES_POLITICA, orcamentoMesAMes, MESES_PROGRAMA, prioridadeDosObjetivos, linhasDosMeses, PASSIVE, PROFILES, STATUS, trajetoriaDoBem, trajetoriaDaParticipacao, vendasDoObjetivo, partilhaDaVenda, HORIZONTES, horizonteDe, politicaDeInvestimentos, TIPOS_FINANCEIRO, SEM_LIQUIDEZ, DA_CARTEIRA, saiComACarteira, CAIXA_PREV, RENTAB_FGTS, FORMAS_PREV, BR_EMS, termosDaAnuidade, ETTJ_PREVIC, get CAIXAS_PREV() { return CAIXAS_PREV; }, saldoPrevEm, netEm, contratoDoConsorcio, caixaDoConsorcio, REAJUSTE_APOS, get COMPROMISSOS() { return COMPROMISSOS; }, saldoDasVendas, precoDoObjetivo, mesISO, orcadoDoObjetivo, cortesDoObjetivo, saldoDevedorEm, contratoDaDivida, restantesDaDivida, mesDe, get BENS() { return bensDoPlano(); }, get PARTS() { return partsDoPlano(); }, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, serieCusto, desiredAt, aplicaAlteracoes, fraseDaLinha, descreveAlteracao, valorAtual, mesDoPlano, desejoDoPlano, frequenciaDasLinhas, RISCOS, NATUREZAS, ITENS_RUINA, RISCOS_EXEMPLO, avaliaRiscos, custoDeVida, mediaDe12Meses, SEGURO, RELACOES, idadeLimiteDe, calculaSeguros, mesesAteIdade, FASES_VIDA, faseDaVida, sincronizaPatrimonio, PATRIMONIO_EXEMPLO, padraoDeVida, lerCaminho, gravaCaminho, IR, calculaIR, irDaFamilia, REGIMES, calculaRetirada, retiradaDosSocios, PREVIDENCIA, sucessao, simulaPrevidencia, aliqRegressiva, TRIBUTARIO_EXEMPLO, FAMILIA_EXEMPLO, casalDe, nomesDaFamilia, pessoasDaFamilia, rendaDaPessoa, bensDoRisco, titularidadeDoBem, setRetireAge: a => { RETIRE_AGE = a == null ? null : Math.max(CURRENT_AGE, +a); }, paradaMi, trabalhaEm, idadeDaLiberdade, dataNasc, idadeExata, sincronizaIdades, fraseDoProposito, ordemDoProposito, objetivosDoProposito, rendasAtivasDe, naturezaDe, naturezaDaReserva, CLASSES_ATIVOS, ORCAMENTO_IDEAL, VEZES_POUPOU, gestaoFinanceira, horasDoTrabalho, familiaDoPlano, ESTADOS_DIAGNOSTICO, orcamentoDoFluxo, CLASSES_CARTEIRA, CARTEIRAS_MODELO, ACOES_ATIVO, carteiraDoPlano, concentracaoDoPatrimonio, diagnosticoDaFamilia, financiamentoValido, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get JUROS_DIVIDA_M() { return JUROS_DIVIDA_M; }, rotulosDoDetalhe, JUROS_DIVIDA_PADRAO, TETO_DIVIDA_VEZES, contratoDoCredito, get CREDITOS() { return CREDITOS; }, saldoDoCredito, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
 })();
 if (typeof module !== 'undefined') module.exports = ENGINE;
 </script>
@@ -4262,6 +4277,8 @@ function save() {
 // Cada mudança no plano aberto guarda o estado de antes, até HIST_MAX passos, só nesta aba (some ao recarregar). Digitar
 // num mesmo campo conta como um passo só. Trocar de página não conta (plano.vistas fica fora da comparação). Abrir outro
 // plano ou cenário recomeça o histórico; restaurar um status salvo é um passo, e o Ctrl+Z volta de onde estava.
+// a seta de desfazer (a de refazer é a mesma, espelhada): traço grosso, na cor do texto do botão
+const HIST_ICONE = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>';
 const HIST_MAX = 40, HIST = { desfazer: [], refazer: [], chave: null, aplicando: false, campo: null, em: 0 };
 const chaveHist = () => JSON.stringify(plano, (k, v) => k === 'vistas' ? undefined : v);
 function histRegistra(antes) {
@@ -4363,7 +4380,7 @@ function renderHist() {
   const bar = document.getElementById('histBar'); if (!bar) return;
   const nd = HIST.desfazer.length, nr = HIST.refazer.length;
   const lista = PONTOS.map(p => `<li><input value="${esc(p.nome)}" data-ponto-nome="${p.id}" aria-label="Nome do status"><small>${quandoCurto(p.em)}</small><button class="btn btn-secondary btn-small" data-ponto-restaurar="${p.id}">Restaurar</button><button class="link apagar" data-ponto-apagar="${p.id}" title="Apagar este status">apagar</button></li>`).join('');
-  bar.innerHTML = `<button class="hist-bt" data-hist="desfazer" ${nd ? '' : 'disabled'} title="Desfazer (Ctrl+Z)${nd ? ': ' + nd + (nd > 1 ? ' passos guardados' : ' passo guardado') : ''}" aria-label="Desfazer">↶</button><button class="hist-bt" data-hist="refazer" ${nr ? '' : 'disabled'} title="Refazer (Ctrl+Y)" aria-label="Refazer">↷</button>
+  bar.innerHTML = `<button class="hist-bt" data-hist="desfazer" ${nd ? '' : 'disabled'} title="Desfazer (Ctrl+Z)${nd ? ': ' + nd + (nd > 1 ? ' passos guardados' : ' passo guardado') : ''}" aria-label="Desfazer">${HIST_ICONE}</button><button class="hist-bt" data-hist="refazer" ${nr ? '' : 'disabled'} title="Refazer (Ctrl+Y)" aria-label="Refazer"><span class="hist-esp">${HIST_ICONE}</span></button>
     <button class="cen-novo" data-ponto-salvar title="Guarda uma foto do plano como está agora, para voltar a ela depois de editar">Salvar status atual</button>
     <span class="pontos"><button class="cen-novo" data-pontos-abre aria-expanded="${pontosAberto}" ${PONTOS.length ? '' : 'disabled title="Nenhum status salvo ainda"'}>Restaurar${PONTOS.length ? ' (' + PONTOS.length + ')' : ''} ▾</button>
     ${pontosAberto && PONTOS.length ? `<div class="pontos-pop" role="dialog" aria-label="Status salvos"><b>Status salvos</b><p>Restaurar troca o que está aberto pela foto. O Ctrl+Z desfaz a restauração.</p><ul>${lista}</ul></div>` : ''}</span>
@@ -7412,12 +7429,19 @@ const pctTxt = v => (Math.round(v * 100) / 100).toLocaleString('pt-BR', { maximu
 function resumoDoFundo(k) {
   const quando = monthsLabel(k.mc) + ', aos ' + Math.round(k.aos) + ' anos' + (conjuge() ? ' de ' + esc(nomeDaPessoa(k.pessoa)) : '');
   const saque = k.saque > 0.5 && k.forma !== 'saque' ? ' e ' + fmt(k.saque) + ' à vista' : '';
+  if (k.tipo === 'fgts') return resumoDoFGTS(k);
   return k.forma === 'saque' ? `Sacado em ${quando}: <b>${fmt(k.naData)}</b>, que vão para o financeiro.`
     : k.forma === 'percentual' ? `Saque programado de ${pctTxt(+((plano.patrimonio.financeiro[k.k].conv || {}).pct || 0.5))} do saldo por mês a partir de ${quando}: começa em <b>${fmt(k.renda)} por mês</b>${saque}.`
     : `${ENGINE.FORMAS_PREV[k.forma]} a partir de ${quando}: <b>${fmt(k.renda)} por mês</b>${k.pagamentos === 13 ? ' (13 de ' + fmt(k.pagamento) + ' por ano)' : ''}${k.forma === 'prazo' ? ', por ' + Math.round(k.n / 12) + ' anos' : ''}${saque}.`;
 }
+// o FGTS: quando sai e para onde vai
+function resumoDoFGTS(k) {
+  const o = k.objetivo && (plano.objectives || []).find(x => x.id === k.objetivo);
+  return `${k.objetivoFora ? 'O objetivo escolhido saiu do plano. ' : ''}Sacado em ${monthsLabel(k.mc)}: <b>${fmt(k.naData)}</b>, ${o ? 'na compra de ' + esc(o.name || 'objetivo') + ': vão para a caixinha dele' : 'que vão para o financeiro'}.`;
+}
 function mostrarFundo(i) {
   if ((plano.patrimonio.financeiro[i] || {}).tipo === 'consorcio') return mostrarConsorcio(i);
+  if ((plano.patrimonio.financeiro[i] || {}).tipo === 'fgts') return mostrarFGTS(i);
   const f = plano.patrimonio.financeiro[i], k = f && ENGINE.CAIXAS_PREV.find(y => y.k === i), el = document.getElementById('estouro');
   if (!k) { fecharFundo(); return; }
   fundoAberto = i;
@@ -7479,6 +7503,37 @@ function contaDaTaxa(k) {
   return `<div class="fd-conta${fora ? ' fd-fora' : ''}">Duration desta renda: <b>${n2(k.duracao)} anos</b>, o prazo médio dos ${oQue}, cada um pesado pelo seu valor de hoje.
     Na Estrutura a Termo de Taxa de Juros Média de ${ENGINE.ETTJ_PREVIC.exercicio} (${ENGINE.ETTJ_PREVIC.versao}), o ponto de ${n2(E.ponto)} anos dá a <b>taxa parâmetro de ${pctTxt(E.parametro)} ao ano</b>, com o corredor de ${pctTxt(E.inferior)} a ${pctTxt(E.superior)}.
     ${k.jurosInformado ? (fora ? `<b>A taxa informada (${pctTxt(k.juros)}) fica fora do corredor:</b> o plano precisaria de autorização da Previc para usá-la.` : `A taxa informada (${pctTxt(k.juros)}) está dentro do corredor.`) : `Como a taxa ficou vazia, a conta usa a parâmetro.`}</div>`;
+}
+// O FGTS: o saldo rende (3% ao ano, se vazio), recebe o depósito do empregador até a pessoa parar de trabalhar e é sacado
+// de uma vez, na compra de um objetivo, numa data ou ao parar de trabalhar (ENGINE.caixasDePrevidencia).
+function mostrarFGTS(i) {
+  const f = plano.patrimonio.financeiro[i], k = f && ENGINE.CAIXAS_PREV.find(y => y.k === i), el = document.getElementById('estouro');
+  if (!k) { fecharFundo(); return; }
+  fundoAberto = i;
+  const c = `patrimonio.financeiro.${i}.conv.`, cv = f.conv || {}, casal = conjuge(), quem = esc(nomeDaPessoa(k.pessoa) || 'a pessoa'), anos = k.mc / 12;
+  const campo = (nome, html, ajuda) => `<div class="fd-campo"><label>${nome}</label><div>${html}</div>${ajuda ? `<small>${ajuda}</small>` : ''}</div>`;
+  const n1 = v => v.toLocaleString('pt-BR', { maximumFractionDigits: 1 }), fator = Math.pow(1 + k.rentab / 100, anos), doSaldo = k.valor * fator;
+  const objs = (plano.objectives || []).filter(o => o && o.id && ENGINE.ligado(o));
+  const opcoes = [['', 'Numa data']].concat(objs.map(o => [o.id, 'Na compra de: ' + (o.name || 'objetivo') + ' (' + monthsLabel(Math.round(+o.months || 0)) + ')']));
+  if (cv.objetivo && !objs.some(o => o.id === cv.objetivo)) opcoes.push([cv.objetivo, 'Objetivo fora do plano: escolha outro']);
+  const o = k.objetivo && objs.find(x => x.id === k.objetivo), parou = k.meses < k.mc;
+  el.innerHTML = `<div class="eo-card fd-card" role="dialog" aria-modal="true" aria-labelledby="fdTit">
+    <h3 id="fdTit">${esc(k.nome)}</h3>
+    <p class="muted">${fmt(k.valor)} hoje${casal ? ', de ' + quem : ''}. O FGTS fica fora do patrimônio financeiro: rende e recebe os depósitos do empregador até ser sacado, de uma vez.</p>
+    <div class="eo-sep">Até o saque</div>
+    <div class="fd-grid dois">${campo('Rentabilidade real projetada', campoR(c + 'rentab', 'num', ` placeholder="${ENGINE.RENTAB_FGTS}" step="any" min="-5" max="15"`) + ' % ao ano', 'Vazia: ' + pctTxt(ENGINE.RENTAB_FGTS) + ' ao ano.')}
+      ${campo('Depósito do empregador por ano', campoR(c + 'depositoAno', 'reais0', ' placeholder="R$ 0,00"'), 'São 8% do salário bruto todo mês, com o 13º e as férias: por ano, perto de um salário bruto. Não sai do fluxo e para quando ' + quem + ' para de trabalhar.')}</div>
+    <div class="eo-sep">O saque</div>
+    <div class="fd-grid dois">${campo('Quando sacar', selR(c + 'objetivo', opcoes), 'Na compra de um imóvel, o saldo vai para a caixinha do objetivo no mês antes da data e ajuda a pagá-lo.')}
+      ${o ? '' : campo('Data prevista do saque', campoR(c + 'saqueEm', 'texto', ' type="month"'), 'Vazia: quando ' + quem + ' parar de trabalhar.')}</div>
+    <div class="fd-conta"><b>${fmt(k.naData)} em ${monthsLabel(k.mc)}</b>, no saque:
+      <div class="eo-l"><span>${fmt(k.valor)} de hoje, rendendo ${pctTxt(k.rentab)} ao ano por ${n1(anos)} anos: cada R$ 1 de hoje vira R$ ${fator.toLocaleString('pt-BR', { maximumFractionDigits: 2 })}</span><b>${fmt(doSaldo)}</b></div>
+      ${k.contrib > 0 && k.meses > 0 ? `<div class="eo-l"><span>${k.meses} depósitos de ${fmt(k.contrib)} por mês (${fmt(k.contrib * 12)} por ano)${parou ? ', até ' + quem + ' parar de trabalhar' : ''}, cada um rendendo até o saque</span><b>${fmt(k.naData - doSaldo)}</b></div>` : ''}
+      <div class="fd-renda">${o ? `Os <b>${fmt(k.naData)}</b> vão para a caixinha de ${esc(o.name || 'objetivo')}; o que passar do que ela precisa volta para o financeiro.` : `Os <b>${fmt(k.naData)}</b> são sacados e vão para o patrimônio financeiro.`}</div></div>
+    <p class="fd-nota">O FGTS pode ser sacado na compra da casa própria, na aposentadoria, na demissão sem justa causa e em outros casos da lei. O saque-aniversário não entra aqui.</p>
+    <div class="eo-bts"><button class="btn btn-primary" id="fdFechar">Pronto</button></div>
+  </div>`;
+  el.hidden = false;
 }
 // O consórcio ainda não contemplado: um crédito, que é patrimônio (o que já foi pago) e cresce com cada parcela até a
 // contemplação. A janela pede o que define o grupo e mostra a conta (ENGINE.caixaDoConsorcio).
@@ -7550,7 +7605,8 @@ function migraFundo(f) {
   if (f.rendaAnos != null && cv.anos == null) cv.anos = f.rendaAnos;
   if (cv.contrib != null && cv.contribPatroc == null) cv.contribPatroc = cv.contrib;
   delete f.rendaAos; delete f.rendaForma; delete f.rendaAnos; delete cv.contrib;
-  if (!ENGINE.FORMAS_PREV[cv.forma]) cv.forma = f.tipo === 'fgts' ? 'saque' : 'vitalicia';
+  if (f.tipo === 'fgts') { if (+cv.contribPatroc > 0 && cv.depositoAno == null) cv.depositoAno = +cv.contribPatroc * 12; delete cv.contribPatroc; delete cv.contribPessoa; delete cv.aos; cv.forma = 'saque'; }
+  if (!ENGINE.FORMAS_PREV[cv.forma]) cv.forma = 'vitalicia';
 }
 // a contribuição da pessoa ao fundo sai do fluxo numa despesa fixa própria (conv.linha), como a do plano de saúde; o motor
 // a encerra na concessão. Sem contribuição, ou sem o fundo, a linha sai.
@@ -8953,8 +9009,22 @@ document.addEventListener('keydown', e => {
 // por conta (que abrem e fecham), com a decisão de cada ativo na própria linha, e os ativos novos no mesmo formato.
 const micFechados = new Set();
 let micGrupos = [];
+// Aumentar a posição: cada ativo com essa decisão tem um ativo novo ligado (deAtivo), com o nome dele e "(aumentar a
+// posição)", onde vai o valor. O nome, a instituição e a classe vêm do ativo; trocar a decisão tira o novo.
+const NOME_AUMENTO = a => (String(a.nome || '').trim() || 'sem nome') + ' (aumentar a posição)';
+function sincronizaAumentos() {
+  const C = plano.carteira; if (!C) return null; const ativos = C.ativos || []; let novo = null;
+  ativos.forEach(a => { if (a.acao === 'aumentar' && !a.id) a.id = 'at' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); });
+  const aumentam = new Map(ativos.filter(a => a.acao === 'aumentar').map(a => [a.id, a]));
+  C.novos = (C.novos || []).filter(n => !n.deAtivo || aumentam.has(n.deAtivo));
+  aumentam.forEach((a, id) => { let n = C.novos.find(x => x.deAtivo === id);
+    if (!n) { n = { id: 'nv' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), deAtivo: id, valor: 0 }; C.novos.push(n); novo = n; }
+    Object.assign(n, { nome: NOME_AUMENTO(a), instituicao: a.instituicao || '', classe: a.classe || '' }); });
+  return novo;
+}
 function renderMicroC() {
   const el = document.getElementById('microC'); if (!el) return;
+  sincronizaAumentos();
   const C = plano.carteira || {}, ativos = C.ativos || [], novos = C.novos || [], K = ENGINE.carteiraDoPlano(plano), grupos = [...new Set(ENGINE.CLASSES_CARTEIRA.map(c => c.grupo))];
   if (!ativos.length && !novos.length && !(K.aporte > 0)) { micGrupos = []; el.innerHTML = `<div class="bloco"><div class="pc-vazio">Nenhum ativo ainda. A carteira de hoje é preenchida na página <button class="link" data-ir="carteira">Carteira atual</button>.</div></div>`; return; }
   const classeDe = id => ENGINE.CLASSES_CARTEIRA.find(c => c.id === id);
@@ -8997,6 +9067,10 @@ function renderMicroC() {
   // os ativos novos: o nome em destaque, a instituição pequena embaixo, a classe numa etiqueta
   const classes = sel => `<option value=""${sel ? '' : ' selected'}>a classificar</option>` + grupos.map(g => `<optgroup label="${g}">${ENGINE.CLASSES_CARTEIRA.filter(c => c.grupo === g).map(c => `<option value="${c.id}"${sel === c.id ? ' selected' : ''}>${c.nome}</option>`).join('')}</optgroup>`).join('');
   const novo = (n, i) => { const cl = classeDe(n.classe);
+    if (n.deAtivo) return `<div class="mic-nv mic-aum"><div class="car-nm"><div class="mic-nome">${esc(n.nome)}</div><div class="mic-sub"><span>${esc(n.instituicao || 'sem instituição')}</span></div></div>
+      <div class="car-tags"><span class="car-tag" style="${cl ? `--c:${cl.cor}` : ''}">${cl ? cl.nome : 'a classificar'}</span></div>
+      <input class="car-sb car-valor" data-mic-campo="${i}:valor" data-money-opt inputmode="decimal" value="${+n.valor ? fmt(+n.valor) : ''}" placeholder="R$ 0" aria-label="Quanto aumentar em ${esc(n.nome)}">
+      <button type="button" class="car-x" data-mic-tira="${i}" title="Não aumentar: o ativo volta para Manter" aria-label="Não aumentar ${esc(n.nome)}">×</button></div>`;
     return `<div class="mic-nv"><div class="car-nm"><input class="car-sb car-nome" data-mic-campo="${i}:nome" value="${esc(n.nome || '')}" placeholder="Ativo sugerido" aria-label="Ativo novo">
       <div class="car-sub"><input class="car-sb car-venc" data-mic-campo="${i}:instituicao" value="${esc(n.instituicao || '')}" placeholder="instituição" aria-label="Instituição do ativo novo"></div></div>
       <div class="car-tags"><select class="car-tag${cl ? '' : ' pede'}" data-mic-campo="${i}:classe" style="${cl ? `--c:${cl.cor}` : ''}" aria-label="Classe do ativo novo">${classes(n.classe)}</select></div>
@@ -9061,7 +9135,8 @@ document.addEventListener('change', e => {
     if (t.tagName === 'SELECT') a[k] = t.value; if (k === 'classe' || k === 'nome') classificaNaBase([a]); setTimeout(renderAll, 0); return; }
   if (t.dataset.micCampo != null) { const [i, k] = t.dataset.micCampo.split(':'); if (t.tagName === 'SELECT') plano.carteira.novos[+i][k] = t.value; setTimeout(renderAll, 0); return; }
   if (t.dataset.micAcaoSel != null) { const i = t.dataset.micAcaoSel, a = plano.carteira.ativos[+i]; a.acao = t.value; if (a.acao !== 'parcial') delete a.resgate;
-    renderAll(); if (a.acao === 'parcial') carFoco(`[data-mic-resgate="${i}"]`, ''); return; }
+    const n = sincronizaAumentos(); renderAll(); if (a.acao === 'parcial') carFoco(`[data-mic-resgate="${i}"]`, '');
+    if (n) carFoco(`[data-mic-campo="${plano.carteira.novos.indexOf(n)}:valor"]`, ''); return; }
   if (t.dataset.micResgate != null) setTimeout(renderAll, 0);
 });
 // o campo da macroalocação é trocado a cada tecla (renderMacroC), e o novo recebe o valor por código: o change não serve
@@ -9090,7 +9165,7 @@ document.addEventListener('click', e => {
   else if (d.micIncluir || d.micNovo != null) { const c = d.micIncluir ? ENGINE.carteiraDoPlano(plano).classes.find(x => x.id === d.micIncluir) : null;
     C.novos = (C.novos || []).concat({ id: 'nv' + Date.now().toString(36), instituicao: '', nome: '', classe: c ? c.id : '', valor: c ? Math.round(c.falta) : 0 });
     renderAll(); carFoco(`[data-mic-campo="${C.novos.length - 1}:nome"]`, ''); return; }
-  else if (d.micTira != null) C.novos.splice(+d.micTira, 1);
+  else if (d.micTira != null) { const n = C.novos[+d.micTira], a = n && n.deAtivo && (C.ativos || []).find(x => x.id === n.deAtivo); if (a) a.acao = 'manter'; C.novos.splice(+d.micTira, 1); }
   renderAll();
 });
 

@@ -963,6 +963,12 @@ embaixo da linha, no Mercado financeiro):
   que o plano informa, `rendaBD`; o saldo vira a reserva dela pela tábua); e **saque total à vista**. Na vitalícia e no
   benefício definido, `pagamentos` diz se são 12 ou 13 por ano (o abono anual, que cai em dezembro: o fluxo mostra cada
   pagamento, não a média).
+- **O FGTS** tem janela própria, sem concessão nem forma: é sacado de uma vez. Rende `rentab` (vazia, 3% ao ano,
+  `ENGINE.RENTAB_FGTS`) e recebe o depósito do empregador (`depositoAno`, por ano, perto de um salário bruto; entra em
+  doze partes, não sai do fluxo e para quando a pessoa para de trabalhar). O saque é na compra de um objetivo
+  (`objetivo`, o id: no mês antes da data, e o valor vai para a caixinha dele, como uma entrada com destino), numa data
+  (`saqueEm`, 'AAAA-MM') ou, sem as duas, quando a pessoa para de trabalhar. Ao abrir a janela, a `contribPatroc` mensal
+  de um FGTS antigo vira `depositoAno` (vezes 12).
 - **Na evolução patrimonial.** A caixa aparece até a concessão; no mês dela, acaba. O saque à vista entra no patrimônio
   financeiro (uma entrada do mês no fluxo, "Saque à vista de …") e o resto vira a renda e sai do patrimônio: daí em diante,
   o que a família tem são as entradas da renda no fluxo, todo mês, pelo prazo da forma escolhida (para sempre na vitalícia).
