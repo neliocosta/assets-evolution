@@ -28,7 +28,10 @@ mudar, mas as camadas ficam. Este arquivo tem:
 3. o que o plano usa e a coleta não pega (as lacunas);
 4. o que a coleta pega e o plano ainda não usa.
 
-Para as variáveis do plano (onde nascem e quem as usa), veja o `VARIAVEIS.md`.
+Para as variáveis do plano (onde nascem e quem as usa), veja o `VARIAVEIS.md`. A coleta nova é o próprio portal no modo coleta
+(`tela-consultor.html?coleta`). Em `coleta/`: `COLETA-E-MONTAGEM.md` (o que fica em cada ferramenta e qual apresenta melhor
+cada informação), `esquema.js` (cada campo de produção e o caminho dele no plano), `VARIAVEIS-BANCO.md` (tipos e banco, gerado
+por `gerar-tabela.js`) e `plano.js` (migra as coletas já feitas em produção para o plano).
 
 ## Regra: uma mudança recalcula tudo
 

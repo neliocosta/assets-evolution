@@ -15,7 +15,10 @@ variável nasce" aqui é, então, também o campo que a coleta vai preencher. An
 cujas respostas a coleta importa. O planejamento completo é a união de quatro camadas (o exame, amplo; a coleta,
 profunda; o que o consultor inclui, decide e sugere; e o que é calculado de tudo isso) com a interface que o apresenta ao
 cliente. O exame e a coleta que a Nord já usa estão inventariados no `COLETA.md`, com a camada de origem de cada variável
-do plano (exame, coleta, consultor, calculada ou lacuna).
+do plano (exame, coleta, consultor, calculada ou lacuna). A coleta nova é o próprio portal no modo coleta
+(`tela-consultor.html?coleta`): grava nos mesmos caminhos desta tabela (`coleta/COLETA-E-MONTAGEM.md` diz o que é coleta e o que
+é montagem; `coleta/VARIAVEIS-BANCO.md` tem o tipo e o banco de cada variável). O que só a coleta pede está na seção "Reunião de
+coleta", no fim.
 
 **Uma mudança recalcula tudo** (pedido do usuário, 09/10/2026): as informações do cliente mudam ao longo do tempo, e a
 resposta do exame, o campo da coleta e o campo do plano que dizem a mesma coisa são uma variável só. Mudou a variável,
@@ -126,8 +129,8 @@ por outra página (parcela de dívida, plano de saúde) aparecem com a média e 
 | Variável | Caminho | Situação | Quem usa |
 |---|---|---|---|
 | Quem declara | titular e cônjuge da Cliente | ligada | IR |
-| Rendimentos tributáveis | do Fluxo: bruto × recebimentos em 12 meses das rendas tributáveis da pessoa | ligada (`tributario.ir.pessoas[].rend` é reserva) | IR |
-| INSS no ano | do Fluxo: salário pela tabela do empregado, pró-labore 11%, até o teto | calculada (`…pessoas[].inss` é reserva) | IR, PGBL |
+| Rendimentos tributáveis | `tributario.ir.pessoas[].rendAno` quando informado (o total do ano, à mão: um aumento no meio do ano); vazio, do Fluxo: bruto × recebimentos em 12 meses das rendas tributáveis da pessoa | fonte quando informado, senão ligada (`tributario.ir.pessoas[].rend` é reserva, sem rendas no Fluxo) | IR, atalho de 12% do PGBL |
+| INSS no ano | `tributario.ir.pessoas[].inssAno` quando informado (o total do ano, à mão; zero vale); vazio, do Fluxo: salário pela tabela do empregado, pró-labore 11%, até o teto | fonte quando informado, senão calculada (`…pessoas[].inss` é reserva, sem rendas no Fluxo) | IR, PGBL |
 | Dependentes | número da lista da Cliente; quem declara em cada estratégia | ligada | IR |
 | Despesas médicas | `tributario.ir.*.lanc[].med` | fonte (decisão do usuário): o consultor informa o que entra no IR, porque nem toda despesa médica é dedutível; é outra variável, não o prêmio do plano | IR |
 | Instrução | `tributario.ir.*.lanc[].instr` | fonte (decisão do usuário): o consultor informa o valor dedutível, com o teto legal; R$ 10 mil de escola não viram R$ 10 mil no IR | IR |
@@ -258,3 +261,45 @@ Não são repetição, por decisão do usuário: despesas médicas e instrução
 - `participacoes[].renda` (id de uma linha de renda do Fluxo): a renda ligada à participação termina no mês da venda, como a do bem.
 - `lifeExp`: passa a valer para a pessoa mais jovem do casal; o motor soma a diferença de idade para o titular.
 - `ENGINE.avisosDoPlano()`: lista { tipo, onde, texto } do que o motor corrige ou ignora em silêncio (adiantamento maior que o saldo, IOF não informado, venda depois da data do objetivo, taxa de valorização ignorada pelo preço de venda).
+
+## Reunião de coleta (03/11/2026, revista em 04/11/2026)
+
+O modo coleta do portal (`tela-consultor.html?coleta`) é uma página longa, como a coleta de produção: as nove seções em
+sequência, gravando nos caminhos de sempre. As variáveis abaixo são as que só a coleta pede. Nenhuma conta usa `coleta.*`
+nem os campos marcados "só a coleta mostra": é o que o consultor lê na montagem.
+
+| Variável | Caminho no plano | Situação | Quem usa |
+|---|---|---|---|
+| Situação da coleta e o dia em que foi finalizada | `coleta.status` ('finalizada'; vazio = rascunho), `coleta.finalizadaEm` ("AAAA-MM-DD") | fonte, no botão "Finalizar a coleta" | rodapé da montagem |
+| Estado civil, regime de bens, gênero, e-mail e telefone | `coleta.pessoal.estadoCivil`, `.regimeBens`, `.genero`, `.conjugeGenero`, `.email`, `.telefone` | fonte, na seção Cliente (só na coleta); na plataforma, o e-mail e o telefone são do cadastro | leitura do consultor; o gênero serve à tábua do fundo de pensão |
+| Autoavaliação, relação com o dinheiro, risco, restrições, herança | `coleta.perfil.autoavaliacao` (1 a 5), `.relacaoDinheiro`, `.disposicaoRisco`, `.capacidadeRisco`, `.naoDesfazer`, `.restricaoClasse`, `.classeNaoQuer`, `.heranca` | fonte, na seção Perfil e comportamento | leitura do consultor |
+| Respostas do exame conferidas na reunião | `coleta.diagnostico.objetivoClaro`, `.avaliouQuanto`, `.temPlano`, `.investirImagina`, `.validacaoProfissional`, `.acompanhaOrcamento`, `.aumentaReserva` | fonte (o exame importa; a reunião confere). O que o cliente de fato separa por mês é calculado: a soma de `objectives[].planned` | leitura do consultor |
+| Categoria, plano atual e observações de cada objetivo | `objectives[].categoria`, `.planoAtual`, `.obs` | fonte, no cartão do objetivo (só a coleta mostra). O porquê é `objectives[].descricao`, o propósito da apresentação | leitura do consultor |
+| Certeza, dia e observação de cada renda; observação de cada despesa | `incomes[].certeza` ('Certa', 'Estimada (varia)'), `incomes[].days[0]`, `incomes[].description`, `expenses[].description` | fonte, no Orçamento (a certeza só a coleta mostra; o dia e a descrição são os do Fluxo) | o dia, no Fluxo mês a mês |
+| Imposto de renda | `coleta.ir.modelo`, `coleta.ir.despesasMedicas`, `coleta.ir.instrucao` (no ano) | fonte, no Orçamento (só na coleta) | ponto de partida da Otimização tributária |
+| Onde a família mora | `coleta.moradia`, `coleta.moradiaObs`; o aluguel é a despesa fixa marcada `coleta: 'aluguel'` | fonte, no Patrimônio (só na coleta); o imóvel próprio é um bem | leitura do consultor; o aluguel, no Fluxo |
+| Tipo e observações de cada bem; regime e faturamento de cada empresa; credor de cada dívida | `patrimonio.bens[].tipo`, `.obs`; `patrimonio.participacoes[].regime`, `.faturamento`; `patrimonio.dividas[].credor` | fonte, no Patrimônio (só a coleta mostra) | o tipo do bem decide as coberturas do seguro; o resto, leitura do consultor |
+| Outros ativos | `coleta.outrosAtivos[]`: `titulo`, `valor`, `descricao`, `geraRenda`, `obs` | fonte, no Patrimônio; fora das somas do patrimônio | leitura do consultor |
+| Respostas do exame de saúde financeira | `exame`: `em` (data do exame), `origem`, `respostas.<nome no exame>` (as 33: `selfevaluation` … `useremail`; os totais 9, 15 e 18 são `currentfinancialassets`, `currentassets`, `currentliabilities`) | fotografia datada: a resposta macro do cliente, que a coleta não muda; o detalhado fica nos campos do plano. Antes, os totais ficavam em `coleta.declarado` (migra sozinho) | mostrada embaixo de cada pergunta na coleta ("No exame: …"); com a coleta completa, o exame pode ser refeito |
+| Detalhe de cada dependente | `riscos.dependentes[].dependencia` ('Total', 'Parcial'), `.custo`, `.obs` | fonte, na seção Cliente (só a coleta mostra) | leitura do consultor |
+| Previdência pública de cada um | `coleta.prevPublica.<titular ou conjuge>.tipo` ('inss', 'rpps', 'nenhuma'), `.inicio` ("AAAA-MM"), `.nContrib`, `.valorMedio`, `.valorAtual`, `.obs`; a idade e o benefício são a renda em `passive[]` (origin "Contribuições previdenciárias", `pessoa`, `startMi`, `net`); invalidez e morte são `riscos.seguro.geradores[].inssInvalidez` e `.inssMorte` | fonte, na seção Aposentadoria; "nenhuma" tira a renda | Liberdade financeira (a renda) e Gestão de riscos (invalidez e morte) |
+| Detalhe do fundo de pensão | `patrimonio.financeiro[].detalhe.tipo`, `.regime`, `.nomeFundo`, `.cnpj`, `.perfil`, `.dataEntrada`, `.nContrib`, `.vestingProprio`, `.vestingPatroc`, `.obs`; as contribuições são `conv.contribPessoa` e `conv.contribPatroc` | fonte, na seção Aposentadoria; a linha é a do mercado financeiro (tipo 'fechada' ou 'fgts') | as contribuições, no Fluxo; o detalhe, leitura do consultor |
+| Detalhe da previdência aberta | `carteira.ativos[].prev` (sem carteira, `patrimonio.financeiro[].prev`): `contribuicao`, `regime`, `perfil`, `dataInicio`, `cnpj`, `obs` | fonte, na seção Aposentadoria; o plano é o ativo PGBL ou VGBL | apoio para a Otimização tributária |
+| Como pensa a aposentadoria | `coleta.aposentadoria.temPlano`, `.fontes.<publica, privada, investimentos, imoveis>`, `.executa.<publica, empresa, privada>` | fonte, na seção Aposentadoria | leitura do consultor |
+| Começou a trabalhar aos | `patrimonio.comecou`, `patrimonio.conjugeComecou` | fonte, na seção Aposentadoria (o motor já usava) | as fases da vida profissional |
+| Apólice e coberturas de cada bem | `patrimonio.bens[].apolice`: `seguradora`, `numero`, `premio`, `vigencia`, `renovacao` (1 a 12), `cobertura` (outras), `obs`; imóvel: `incendio`, `subtracao`, `rcFamiliar`, `danosEletricos`; veículo: `casco`, `rcfMateriais`, `rcfCorporais`, `danosMorais`, `app` | fonte, na seção Proteção | Gestão de riscos (a proteção do bem); o resto, leitura do consultor |
+| Coberturas de cada pessoa | `riscos.seguro.geradores[].coberturaVida`, `.coberturaInvalidez`, `.participacao`, e `.coberturaDoencas` (doenças graves, sem conta ainda) | fonte, na seção Proteção | Gestão de riscos |
+| Quem montou a carteira | `coleta.carteira.racional.<proprias, instituicao, casaAnalise>` (uma marca por opção), `coleta.carteira.racionalObs` | fonte, na Carteira atual (só na coleta). Não é `carteira.justificativa`, o porquê da recomendação | leitura do consultor |
+| Apólices de vida, acidentes e doenças graves | `coleta.apolices[]`: `pessoa`, `seguradora`, `numero`, `periodicidade` ('mensal', 'anual', 'unico'), `obs` e `coberturas[]` | fonte, na seção Proteção | leitura do consultor; a soma por pessoa vai para o valor coberto |
+| Coberturas de uma apólice | `coleta.apolices[].coberturas[]`: `tipo` ('morte', 'morteAcidental', 'ipa', 'ifpd', 'ilpd', 'doencas', 'doencaTerminal', 'dit', 'dih', 'fratura', 'cirurgia', 'dmho', 'funeral', 'perdaRenda', 'conjuge', 'filhos', 'outra'), `valor` (DIT por mês, DIH por dia), `premio`, `vigencia` ('apolice', 'anual', 'prazo', 'decrescente', 'vitalicia', 'dotal'), `vigenciaPrazo`, `pagamento` ('vigencia', 'prazo'), `pagamentoPrazo`, `premioTipo` ('nivelado', 'crescente'), `resgatavel` ('sim', 'nao'), `detalhe` | fonte, na seção Proteção | a soma de `morte` vira `riscos.seguro.geradores[].coberturaVida`, a de `ipa` vira `coberturaInvalidez` e a de `doencas` vira `coberturaDoencas` da pessoa (o campo fica travado enquanto as apólices somam algo) |
+| Operadora do plano de saúde | `riscos.saude.operadora`; o tipo ganhou "Pela empresa" e "Empresarial" | fonte, na seção Proteção | Gestão de riscos |
+| "O cliente não tem" de uma lista vazia | `coleta.naoTem.<compromissos, participacoes, bens, outrosAtivos, dividas, fechada, aberta, vida, acidentes, saude, terceiros, tarefas>` | fonte, em cada lista vazia (vida e acidentes, embaixo das apólices, sempre visíveis) | separa o não perguntado do que não existe |
+| Documentos entregues e arquivos | `coleta.anexos.<extratos, ir, apolices, outros>`, `coleta.anexos.obs`, `coleta.anexos.arquivos[]`: `nome`, `categoria`, `tamanho`, `em` | fonte, na seção Documentos e tarefas; o arquivo vai para a plataforma | gestão do atendimento |
+| Próximas tarefas | `coleta.tarefas[]`: `titulo`, `prazo` ("AAAA-MM-DD"), `responsavel` ('consultor', 'cliente'), `status` ('pendente', 'andamento', 'concluida'), `obs` | fonte | gestão do atendimento |
+| Registro da reunião no HubSpot | `coleta.reuniao.adicionar`, `coleta.reuniao.dealId` | fonte; a plataforma registra ao finalizar | gestão do atendimento |
+| Anotações do consultor | `coleta.anotacoes` | fonte, na janela flutuante do canto inferior direito | só o consultor |
+
+Na coleta, as seções Aposentadoria e Proteção mostram campos que já existiam em outras páginas (a idade de parar e a renda
+desejada da Liberdade financeira; a reserva atual, o alvo de reserva e o custo de vida da Gestão de riscos; as coberturas, o
+INSS por invalidez e morte e a apólice de cada bem da Gestão de riscos; a capacidade de poupança do Fluxo; as contribuições
+do fundo de pensão da janela "Como vira renda"). São os mesmos caminhos, não cópias.

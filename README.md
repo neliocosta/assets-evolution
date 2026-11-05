@@ -8,6 +8,7 @@ além das fontes do Google, e abrem direto no navegador.
 | `index.html` | Consultor | Clientes: a porta de entrada. Lista os planos guardados e abre, para cada cliente, "Ver relatório" ou "Editar relatório". Na plataforma, é o `/internal`. |
 | `tela-consultor.html` | Consultor | Configura o plano em 15 passos, na ordem em que se monta um planejamento: dados do cliente (Cliente, Orçamento, Patrimônio, Carteira atual), planejamento (Objetivos, Política de investimentos, Fluxo de 24 meses, Fluxo vida toda, Gestão de riscos, Liberdade financeira, Otimização tributária, Macro e Microalocação, Premissas) e com o cliente (Cenários, Apresentação, Propostas). |
 | `evolucao-patrimonial.html` | Cliente | Mostra a trajetória do patrimônio ao longo da vida, apresentada ao vivo pelo consultor. |
+| `tela-consultor.html?coleta` | Consultor | A reunião de coleta de dados: o próprio portal num modo só com as páginas de dados do cliente, na ordem da reunião (Cliente, Objetivos, Perfil e comportamento, Orçamento, Patrimônio, Carteira atual, Aposentadoria, Proteção, Documentos e tarefas). Grava no mesmo plano; "Finalizar a coleta" marca a data e abre a montagem. O que fica em cada uma e qual ferramenta apresenta melhor cada informação: `coleta/COLETA-E-MONTAGEM.md`; as variáveis e o banco: `coleta/VARIAVEIS-BANCO.md`. |
 
 ## Por onde começar
 

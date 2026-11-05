@@ -114,7 +114,7 @@ function desenhar({ dono, nuvem, planos }) {
     const nome = p.nome || 'Cliente sem nome', conj = p.conjuge ? ' e ' + p.conjuge.split(' ')[0] : '';
     return `<div class="cli"><div class="ini">${escH(iniciais(nome))}</div>
       <div class="nome"><b>${escH(nome + conj)}${exemplo ? '<span class="tag">exemplo</span>' : ''}</b><small>${p.em ? 'Atualizado em ' + dataHora(p.em) : 'Plano de demonstração, com dados fictícios'}</small></div>
-      <div class="acoes"><a class="btn btn-secondary" href="${url('evolucao-patrimonial.html', p.id, '&consultor')}">Ver relatório</a><a class="btn btn-primary" href="${url('tela-consultor.html', p.id)}">Editar relatório</a></div></div>`;
+      <div class="acoes"><a class="btn btn-secondary" href="${url('tela-consultor.html', p.id, '&coleta')}">Coleta</a><a class="btn btn-secondary" href="${url('evolucao-patrimonial.html', p.id, '&consultor')}">Ver relatório</a><a class="btn btn-primary" href="${url('tela-consultor.html', p.id)}">Editar relatório</a></div></div>`;
   };
   lista.innerHTML = reais.map(p => linha(p, false)).join('') + linha(ex, true);
   document.getElementById('nota').textContent = nuvem
@@ -126,7 +126,7 @@ function desenhar({ dono, nuvem, planos }) {
 // novo cliente: um código novo e o plano em branco no portal; ele entra na lista quando o primeiro dado for gravado
 document.getElementById('btnNovo').addEventListener('click', e => {
   e.preventDefault();
-  abrir(url('tela-consultor.html', 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5)));
+  abrir(url('tela-consultor.html', 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), '&coleta'));   // um cliente novo começa pela reunião de coleta
 });
 
 // O plano num arquivo JSON: o formato do plano (README, "Formato do plano"; o modelo é ux/plano-exemplo.json), solto ou como
