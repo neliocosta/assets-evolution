@@ -2640,8 +2640,9 @@ const ENGINE = (() => {
     const encerra = c => { if (!c.endObj) return null; const o = OBJ.find(x => x.id === c.endObj); return o && !o.naoComprado ? Math.round(+o.months || 0) : null; };
     const meses = f => Array.from({ length: H }, (_, mi) => f(mi));
     // pontual: a entrada de uma vez só (a linha pontual; a renda de um mês, como a carta do consórcio contemplado)
-    const entradas = INCOMES.map(c => ({ id: c.id, label: c.label, it: c, pontual: c.frequency === 'pontual', v: meses(mi => valorEm(c, mi, false)) }))
-      .concat(PASSIVE.filter(p => p.startMi != null).map((p, k) => ({ id: 'pas' + k, label: p.name, pontual: +p.dur === 1, v: meses(mi => rendaAtiva(p, mi, 0) ? netEm(p, mi) : 0) })));
+    // extra: a entrada que não é mensal (o 13º, um bônus, uma pontual), que no Fluxo de 24 meses passa da capacidade informada
+    const entradas = INCOMES.map(c => ({ id: c.id, label: c.label, it: c, pontual: c.frequency === 'pontual', extra: (c.frequency || 'mensal') !== 'mensal', v: meses(mi => valorEm(c, mi, false)) }))
+      .concat(PASSIVE.filter(p => p.startMi != null).map((p, k) => ({ id: 'pas' + k, label: p.name, pontual: +p.dur === 1, extra: +p.dur === 1, v: meses(mi => rendaAtiva(p, mi, 0) ? netEm(p, mi) : 0) })));
     const saidas = EXPENSES.map(c => { const e = encerra(c); return { id: c.id, label: c.label, grupo: c.group, it: c, v: meses(mi => e != null && mi >= e ? 0 : valorEm(c, mi, true)) }; });
     const custos = OBJ.filter(o => !o.naoComprado).flatMap(o => (o.costs || []).map(c => { const mi0 = Math.round(+o.months || 0), sr = serieCusto(c, H);
       return { id: o.id + '_' + c.id, label: c.label || o.name, obj: o.id, v: meses(mi => mi >= mi0 ? sr[mi - mi0] || 0 : 0) }; }))
@@ -2649,12 +2650,17 @@ const ENGINE = (() => {
     return { entradas, saidas, custos };
   }
   // a sobra de cada mês: o que entra menos o que sai; na liberdade financeira, nada (não há aportes). semPontuais: sem as
-  // entradas de uma vez só (a regra constante, folgaDosAportes)
+  // entradas de uma vez só (a regra constante, folgaDosAportes). A capacidade informada pelo cliente limita a sobra; nos
+  // meses do Fluxo de 24 meses ela limita só a parte recorrente, e as entradas extras (o 13º, os bônus) passam dela inteiras.
+  // A regra constante segue toda abaixo da capacidade: o extra se destina no mês dele, não vira aporte de todo mês
   function sobraDosMeses(s, H, semPontuais) {
-    const L = linhasDosMeses(H), soma = (l, mi) => l.reduce((a, x) => a + (semPontuais && x.pontual ? 0 : x.v[mi]), 0);
+    const L = linhasDosMeses(H), soma = (l, mi, f) => l.reduce((a, x) => a + (semPontuais && x.pontual || f && !f(x) ? 0 : x.v[mi]), 0);
     return Array.from({ length: H }, (_, mi) => {
       if (s.ff && mi >= s.ff.mi) return 0;
-      const v = soma(L.entradas, mi) - soma(L.saidas, mi) - soma(L.custos, mi); return CAP_OVERRIDE != null ? Math.min(v, CAP_OVERRIDE) : v;
+      const v = soma(L.entradas, mi) - soma(L.saidas, mi) - soma(L.custos, mi);
+      if (CAP_OVERRIDE == null) return v;
+      if (mi >= MESES_PROGRAMA || semPontuais) return Math.min(v, CAP_OVERRIDE);
+      const extra = soma(L.entradas, mi, x => x.extra); return Math.min(v - extra, CAP_OVERRIDE) + extra;
     });
   }
   // Os extras destinados a um objetivo: uma entrada com destino (incomes[].destino, o id do objetivo; o 13º, um bônus) vai
@@ -2693,23 +2699,27 @@ const ENGINE = (() => {
     // a caixinha de cada objetivo, mês a mês, para saber quando ela já basta: o que está nela (e o que ainda vai entrar de
     // uma vez, o patrimônio separado mais adiante e as vendas), rendendo até a data, cobre o valor. Daí em diante a sugestão
     // é zero, e o último aporte é só o que falta; o que sobra vai para os outros objetivos e para a liberdade
-    const saldo = {}, vendas = {}; ordem.forEach(o => { saldo[o.id] = 0; vendas[o.id] = vendasDoObjetivo(o).filter(v => !v.depois); });
+    // saldoS: a caixinha como se cada mês digitado tivesse recebido a sugestão. O aporte digitado não mexe nos outros meses: o
+    // que se tira num mês não volta depois (o objetivo fica abaixo da meta, e o consultor decide onde repor); a sugestão só
+    // cai quando a caixinha de verdade já basta
+    const saldo = {}, saldoS = {}, vendas = {}; ordem.forEach(o => { saldo[o.id] = saldoS[o.id] = 0; vendas[o.id] = vendasDoObjetivo(o).filter(v => !v.depois); });
     // a taxa de cada objetivo, mês a mês, e o crescimento acumulado até a data
     const TXP = {}, FXP = {}; ordem.forEach(o => { TXP[o.id] = taxaDoObjetivo(o); FXP[o.id] = cresceAte(o, Math.max(0, Math.round(+o.months || 0))); });
     const ateData = (o, k) => { const F = FXP[o.id], n = F.length - 1; return F[n] / F[Math.max(0, Math.min(n, k))]; };
-    const naData = (o, mi) => { const g = k => ateData(o, k), d = inicioDoDedicado(o);
-      return saldo[o.id] * g(mi) + (d > mi ? (+o.dedicated || 0) * g(d) : 0) + vendas[o.id].filter(v => v.mi > mi).reduce((a, v) => a + v.usado * g(v.mi), 0); };
+    const naData = (o, mi, sd = saldo) => { const g = k => ateData(o, k), d = inicioDoDedicado(o);
+      return sd[o.id] * g(mi) + (d > mi ? (+o.dedicated || 0) * g(d) : 0) + vendas[o.id].filter(v => v.mi > mi).reduce((a, v) => a + v.usado * g(v.mi), 0); };
     // com 1% de folga: a conta aqui é mês a mês, e a simulação rende semana a semana
-    const falta = (o, mi) => +o.amount > 0 ? Math.max(0, (+o.amount * 1.01 - naData(o, mi)) / ateData(o, mi)) : Infinity;
+    const falta = (o, mi, sd) => +o.amount > 0 ? Math.max(0, (+o.amount * 1.01 - naData(o, mi, sd)) / ateData(o, mi)) : Infinity;
     let caixa = 0;
     for (let mi = 0; mi < n; mi++) {
-      ordem.forEach(o => { saldo[o.id] *= 1 + taxaNoMes(TXP[o.id], mi); if (mi === inicioDoDedicado(o)) saldo[o.id] += +o.dedicated || 0; vendas[o.id].forEach(v => { if (v.mi === mi) saldo[o.id] += v.usado; }); });
+      ordem.forEach(o => { [saldo, saldoS].forEach(sd => { sd[o.id] *= 1 + taxaNoMes(TXP[o.id], mi); if (mi === inicioDoDedicado(o)) sd[o.id] += +o.dedicated || 0; vendas[o.id].forEach(v => { if (v.mi === mi) sd[o.id] += v.usado; }); }); });
       let livre = geral[mi];
       // os extras vão antes para o objetivo que é dono deles; o que ele não precisa volta para o mês
-      const ext = {}; ordem.forEach(o => { const x = extras[o.id][mi]; if (!(x > 0.005)) return; const e = Math.min(x, falta(o, mi)); if (e > 0.005) { ext[o.id] = e; saldo[o.id] += e; } livre += x - e; });
+      const ext = {}; ordem.forEach(o => { const x = extras[o.id][mi]; if (!(x > 0.005)) return; const e = Math.min(x, falta(o, mi)); if (e > 0.005) { ext[o.id] = e; saldo[o.id] += e; saldoS[o.id] += e; } livre += x - e; });
       // a parte de cada objetivo, até o que ele ainda precisa (o digitado vale como está)
-      const ativos = ordem.filter(o => ativo(o, mi)), ap = {}, digitado = {}, cortado = {};
-      ativos.forEach(o => { const d = digitadoEm(o, mi); if (d != null) { ap[o.id] = d; digitado[o.id] = true; } else ap[o.id] = o.aporteSobra ? 0 : Math.min(Math.max(0, +o.planned || 0), falta(o, mi)); });
+      const ativos = ordem.filter(o => ativo(o, mi)), ap = {}, digitado = {}, cortado = {}, sug = {};
+      ativos.forEach(o => { const d = digitadoEm(o, mi); sug[o.id] = o.aporteSobra ? 0 : Math.min(Math.max(0, +o.planned || 0), falta(o, mi, saldoS));
+        if (d != null) { ap[o.id] = d; digitado[o.id] = true; } else ap[o.id] = Math.min(sug[o.id], falta(o, mi)); });
       let reserva = lib(mi) ? 0 : RESERVA_M;
       // a caixa não volta a zero nos próximos 12 meses: o corte é o mínimo, igual em cada um deles, que a faz voltar
       // precisa: o menor dinheiro a mais, somando os meses de mi até precisaAte, que faz a caixa voltar a zero (o alvo do ajuste
@@ -2729,7 +2739,7 @@ const ENGINE = (() => {
       let acima = Math.max(0, fim - guardar[mi]);
       ativos.filter(o => o.aporteSobra && !digitado[o.id]).forEach(o => { const v = Math.min(acima, falta(o, mi)); ap[o.id] += v; acima -= v; fim -= v; });
       const liberdade = acima; fim -= liberdade;
-      ativos.forEach(o => { por[o.id][mi] = ap[o.id]; saldo[o.id] += ap[o.id]; });
+      ativos.forEach(o => { por[o.id][mi] = ap[o.id]; saldo[o.id] += ap[o.id]; saldoS[o.id] += digitado[o.id] ? sug[o.id] : ap[o.id]; });
       Object.keys(ext).forEach(id => { por[id][mi] += ext[id]; });   // na simulação, o extra é um aporte do mês como os outros
       const total = Object.values(ap).reduce((a, v) => a + v, 0) + Object.values(ext).reduce((a, v) => a + v, 0);
       caixa = fim;
