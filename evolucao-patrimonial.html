@@ -1965,6 +1965,10 @@ const ENGINE = (() => {
   // do que ganha por um tempo, porque tem investimentos. Nesses meses o programa não corta os aportes; o que falta sai do
   // patrimônio financeiro (o cofre da simulação) e não precisa voltar com as sobras seguintes.
   let CAIXA_NEG = null;
+  // a liberdade financeira digitada no Fluxo de 24 meses (plan.liberdadePrograma[mês]): vale como está, e o que ela deixa de
+  // levar fica na Caixa de curto prazo; sem ela, a liberdade leva o que passa do que os 12 meses seguintes vão precisar
+  let LIB_PROG = null;
+  const liberdadeDigitada = mi => LIB_PROG && LIB_PROG[mi] != null && LIB_PROG[mi] !== '' ? Math.max(0, +LIB_PROG[mi] || 0) : null;
   const caixaNegativoEm = mi => !!CAIXA_NEG && mi >= CAIXA_NEG.de && mi <= CAIXA_NEG.ate;
   // ---- Créditos novos (plano.creditos): o empréstimo que a família contrata no futuro, quando o dinheiro acabaria ----
   //   { id, nome, em: o mês do plano em que o dinheiro cai (0 = este), valor: o liberado, parcelas, juros: % ao mês,
@@ -2485,7 +2489,7 @@ const ENGINE = (() => {
     const parte = (o, mi) => { const d = digitadoEm(o, mi); return d != null ? d : o.aporteSobra ? 0 : Math.max(0, +o.planned || 0); };
     // o que sobra em cada mês depois da reserva e das partes dos objetivos; e o que o fim de cada mês precisa deixar guardado
     // para os 12 seguintes (o imposto de janeiro sai do que se guarda antes, não da liberdade)
-    const net = geral.map((v, mi) => v - (lib(mi) ? 0 : RESERVA_M + ordem.reduce((a, o) => a + (ativo(o, mi) ? parte(o, mi) : 0), 0)));
+    const net = geral.map((v, mi) => v - (lib(mi) ? 0 : RESERVA_M + ordem.reduce((a, o) => a + (ativo(o, mi) ? parte(o, mi) : 0), 0) + (liberdadeDigitada(mi) || 0)));
     // no caixa negativo de propósito, a caixa acumulada não fica abaixo de zero: o patrimônio cobre a diferença
     const somaCaixa = (c, k) => caixaNegativoEm(k) ? Math.max(0, c + net[k]) : c + net[k];
     const guardar = net.map((_, mi) => { let c = 0, g = 0; for (let k = mi + 1; k < Math.min(n, mi + 1 + JANELA_CAIXA); k++) { c = somaCaixa(c, k); g = Math.max(g, -c); } return g; });
@@ -2518,7 +2522,9 @@ const ENGINE = (() => {
       // a caixa não volta a zero nos próximos 12 meses: o corte é o mínimo, igual em cada um deles, que a faz voltar
       // precisa: o menor dinheiro a mais, somando os meses de mi até precisaAte, que faz a caixa voltar a zero (o alvo do ajuste
       // mês a mês: reduzir uma despesa ou aumentar uma renda em qualquer desses meses)
-      const doCaixa = () => lib(mi) ? 0 : Object.values(ap).reduce((a, v) => a + v, 0);   // o aporte da liberdade sai do financeiro, não da sobra
+      // a liberdade digitada é um destino como os outros: sai da sobra (ou da caixa) e não é cortada
+      const libD = lib(mi) ? null : liberdadeDigitada(mi), antes = caixa;
+      const doCaixa = () => lib(mi) ? 0 : Object.values(ap).reduce((a, v) => a + v, 0) + (libD || 0);   // o aporte da liberdade sai do financeiro, não da sobra
       let cum = caixa + livre - reserva - doCaixa(), corte = Math.max(0, -cum), precisa = corte, precisaAte = mi;
       if (caixaNegativoEm(mi)) corte = precisa = 0;
       for (let k = 1; k < JANELA_CAIXA && mi + k < n && corte > 0.5; k++) { cum = somaCaixa(cum, mi + k); const def = Math.max(0, -cum); corte = Math.min(corte, def / (k + 1)); if (def < precisa - 0.005) { precisa = def; precisaAte = mi + k; } }
@@ -2530,14 +2536,14 @@ const ENGINE = (() => {
       const doPatrimonio = caixaNegativoEm(mi) && fim < 0 ? -fim : 0; fim += doPatrimonio;   // de propósito: sai do patrimônio
       // o que passa do que os 12 meses seguintes vão precisar: primeiro o objetivo que guarda toda a sobra (o.aporteSobra), até
       // o que falta; o resto vai para a liberdade financeira
-      let acima = Math.max(0, fim - guardar[mi]);
+      let acima = libD != null ? 0 : Math.max(0, fim - guardar[mi]);
       ativos.filter(o => o.aporteSobra && !digitado[o.id]).forEach(o => { const v = Math.min(acima, falta(o, mi)); ap[o.id] += v; acima -= v; fim -= v; });
-      const liberdade = acima; fim -= liberdade;
+      const liberdade = libD != null ? libD : acima; if (libD == null) fim -= liberdade;
       ativos.forEach(o => { por[o.id][mi] = ap[o.id]; saldo[o.id] += ap[o.id]; saldoS[o.id] += digitado[o.id] ? sug[o.id] : ap[o.id]; });
       Object.keys(ext).forEach(id => { por[id][mi] += ext[id]; });   // na simulação, o extra é um aporte do mês como os outros
       const total = Object.values(ap).reduce((a, v) => a + v, 0) + Object.values(ext).reduce((a, v) => a + v, 0);
       caixa = fim;
-      meses.push({ mi, sobra: sobra[mi], geral: geral[mi], reserva, aportes: ap, extras: ext, digitado, total, guardado: caixa, liberdade, negativo: caixa < -0.5, doPatrimonio, deProposito: caixaNegativoEm(mi), precisa: corte > 0.5 ? precisa : 0, precisaAte,
+      meses.push({ mi, sobra: sobra[mi], geral: geral[mi], reserva, aportes: ap, extras: ext, digitado, total, guardado: caixa, liberdade, libDigitada: libD != null, movimento: caixa - antes - doPatrimonio, negativo: caixa < -0.5, doPatrimonio, deProposito: caixaNegativoEm(mi), precisa: corte > 0.5 ? precisa : 0, precisaAte,
         corte: Object.values(cortado).reduce((a, v) => a + v, 0), cortado });
     }
     // as faltas: os trechos de meses seguidos com corte, com o maior corte, quem perde e a causa
@@ -2669,6 +2675,7 @@ const ENGINE = (() => {
     COMPROMISSOS = Array.isArray(plan.compromissos) ? plan.compromissos : [];
     RESERVA_M = Math.max(0, num((plan.politica || {}).reservaMensal) || 0);
     aplicaCarteiras(plan);
+    LIB_PROG = plan.liberdadePrograma && typeof plan.liberdadePrograma === 'object' ? plan.liberdadePrograma : null;
     { const c = plan.caixaNegativo, de = c && num(c.de), ate = c && num(c.ate); CAIXA_NEG = de != null && ate != null && ate >= de ? { de: Math.max(0, Math.round(de)), ate: Math.round(ate) } : null; }
     CREDITOS = Array.isArray(plan.creditos) ? plan.creditos : [];
     { const jd = num(plan.jurosDivida); JUROS_DIVIDA_M = Math.max(0, jd != null ? jd : JUROS_DIVIDA_PADRAO) / 100; }
@@ -3237,7 +3244,16 @@ const ENGINE = (() => {
     const pico = { mm: mmP, renda: rendaP, custo: custoP, futuro: rendaP - custoP, itens: { fixas: fixasP, ajustaveis: ajustaveisP },
       grupos: { fixas: tot(fixasP), ajustaveis: tot(ajustaveisP), futuro: rendaP - custoP },
       ideal: { fixas: rendaP * ORCAMENTO_IDEAL.fixas, ajustaveis: rendaP * ORCAMENTO_IDEAL.ajustaveis, futuro: rendaP * ORCAMENTO_IDEAL.futuro } };
-    return { mes: { renda, custo, futuro }, pico, ano: { renda: renda * 12, custo: custo * 12, futuro: futuro * 12 }, pctFuturo: renda > 0 ? futuro / renda : null,
+    // O que não é de todo mês e se repete (o 13º, um bônus, o IPTU: anual, semestral, trimestral), à parte: quanto cada linha
+    // paga ou recebe nos próximos 12 meses e em quais meses. O pontual fica fora, como na média.
+    const eventual = (it, lado) => { const x = sortSteps(Object.assign({}, it, { exc: null })), meses = []; let noAno = 0;
+      for (let mm = 0; mm < 12; mm++) { const v = valorEm(x, mm, lado !== 'entrada'); if (v > 0.005) { meses.push(mm); noAno += v; } }
+      return { id: String(it.id), nome: it.label || (lado === 'entrada' ? 'Entrada sem nome' : 'Despesa sem nome'), lado, noAno, meses }; };
+    const doAno = (lista, lado, f) => (lista || []).filter(it => !todoMes(it) && (it.frequency || 'mensal') !== 'pontual' && (!f || f(it))).map(it => eventual(it, lado));
+    const evs = doAno(plan.incomes, 'entrada').concat(doAno(despesas, 'fixa', e => e.group === 'fix'), doAno(despesas, 'ajustavel', e => e.group !== 'fix'));
+    const noAno = l => evs.filter(x => x.lado === l).reduce((a, x) => a + x.noAno, 0);
+    const eventuais = { itens: evs, entradas: noAno('entrada'), fixas: noAno('fixa'), ajustaveis: noAno('ajustavel') };
+    return { eventuais, mes: { renda, custo, futuro }, pico, ano: { renda: renda * 12, custo: custo * 12, futuro: futuro * 12 }, pctFuturo: renda > 0 ? futuro / renda : null,
       grupos: { fixas: tot(fixas), ajustaveis: tot(ajustaveis), futuro }, itens: { fixas, ajustaveis },
       ideal: { fixas: renda * ORCAMENTO_IDEAL.fixas, ajustaveis: renda * ORCAMENTO_IDEAL.ajustaveis, futuro: renda * ORCAMENTO_IDEAL.futuro },
       combinado: combinado.fixas || combinado.ajustaveis ? combinado : null, vezesPoupou: VEZES_POUPOU.some(v => v[0] === O.vezesPoupou) ? O.vezesPoupou : null };
@@ -3254,6 +3270,100 @@ const ENGINE = (() => {
     const pessoas = pessoasDaFamilia(plan).map(q => Object.assign({ quem: q }, conta(nm[q], horasDe(plan, q), rendaDoTrabalho(plan, q))));
     const com = pessoas.filter(p => p.horas), familia = com.length > 1 ? conta('Família', com.reduce((a, p) => a + p.horas, 0), com.reduce((a, p) => a + p.renda, 0)) : null;
     return { pessoas, familia, referenciaFuturo: ORCAMENTO_IDEAL.futuro, patrimonio };
+  }
+  // ---- Semanadas: o teto da fatura do cartão, semana a semana (SEMANADAS.md) ----
+  // A família confere um número só, quanto está a fatura do cartão, contra o marco da semana. Cada despesa do Fluxo é paga
+  // pela conta ou pelo cartão de uma pessoa (expenses[].cartao: 'titular' ou 'conjuge'; um cartão por pessoa). O ciclo do
+  // cartão começa no dia informado (plan.semanadas.cartoes.<quem>.dia) e vai até a véspera do mesmo dia no mês seguinte,
+  // em quatro semanas (diasDasSemanadas). A base de cada semana são as despesas fixas do cartão, na semana em que cada uma
+  // é cobrada, mais as outras despesas no cartão (a linha com `outras`: o total já contratado da fatura, programado mês a
+  // mês no Fluxo de 24 meses; o valor do mês M é o do ciclo que começa em M e entra inteiro na semana 1). Por cima da base
+  // vai o ajustável: o alvo da família (plan.semanadas.alvo, por mês; a conta é a do mês comum, gestaoFinanceira().pico: a renda
+  // de todo mês menos as fixas de todo mês menos o que vai para o futuro; o 13º, os bônus e o IPTU ficam fora) se reparte entre o cartão de cada pessoa (.parte) e
+  // o que é pago fora do cartão, e a parte se distribui nas quatro semanas (.semanas, o padrão; .ciclos['AAAA-MM'], um
+  // ciclo com a sua). O marco é o acumulado: o que a fatura não deve passar no último dia da semana.
+  const DIAS_SEMANADA = { 28: [7, 7, 7, 7], 29: [7, 8, 7, 7], 30: [7, 8, 7, 8], 31: [7, 8, 8, 8] };
+  const diasDasSemanadas = dias => DIAS_SEMANADA[Math.min(31, Math.max(28, Math.round(+dias) || 30))].slice();
+  // em reais inteiros, com a última semana levando o arredondamento
+  const fechaSemanas = (v, total) => { const r = v.map(x => Math.max(0, Math.round(x))); r[r.length - 1] = Math.max(0, Math.round(total) - r.slice(0, -1).reduce((a, x) => a + x, 0)); return r; };
+  // a distribuição gravada, levada ao total de hoje na mesma proporção; sem ela, as quatro semanas iguais
+  const semanasDe = (v, total) => { const l = Array.isArray(v) && v.length === 4 ? v.map(x => Math.max(0, +x || 0)) : null, t = l ? l.reduce((a, x) => a + x, 0) : 0;
+    return fechaSemanas(t > 0 ? l.map(x => x * total / t) : [1, 1, 1, 1].map(x => x * total / 4), total); };
+  // Os controles das semanas: mudar a semana j (0 a 2) dilui a diferença, por igual, nas seguintes; nenhuma fica negativa,
+  // e as anteriores não mudam. A última é sempre o que sobra.
+  function semanasComMudanca(valores, j, novo) {
+    const v = valores.map(x => Math.max(0, +x || 0)), total = v.reduce((a, x) => a + x, 0), soma = l => l.reduce((a, x) => a + x, 0);
+    if (!(j >= 0 && j < v.length - 1)) return fechaSemanas(v, total);
+    const resto = total - soma(v.slice(0, j)); v[j] = Math.min(Math.max(0, +novo || 0), resto);
+    let falta = resto - v[j] - soma(v.slice(j + 1)), livres = v.map((x, k) => k).filter(k => k > j);
+    while (Math.abs(falta) > 0.005 && livres.length) { const q = falta / livres.length; falta = 0;
+      livres = livres.filter(k => { const n = v[k] + q; if (n < 0) { falta += n; v[k] = 0; return false; } v[k] = n; return true; }); }
+    return fechaSemanas(v, total);
+  }
+  // as cobranças de uma despesa entre duas datas (a segunda fica fora): a data de cada ocorrência e o valor. A data sai do
+  // dia da linha; sem dia (o formato antigo), da semana do mês do motor. Antes do mês 0, vale o desenho do mês 0.
+  const cobrancasEntre = (it, de, ate) => {
+    const out = [], fq = it.frequency || 'mensal', usados = [];
+    for (let mm = cmDaData(de) - CM0 - 1; mm <= cmDaData(ate) - CM0 + 1; mm++) {
+      const { y, m } = calDoCiclo(mm), noMes = d => d >= 5 ? new Date(y, m, Math.min(d, new Date(y, m + 1, 0).getDate()), 12) : new Date(y, m + 1, d, 12);
+      const dias = fq === 'anual' && Array.isArray(it.dates) ? it.dates.filter(dt => cicloDaData(dt.m, dt.d) === mesDoCiclo(mm)).map(dt => +dt.d) : it.days && it.days.length ? it.days.map(Number) : [];
+      usados.length = 0;
+      ocorrencias(it, mm < 0 && (fq === 'mensal' || fq === 'semanal') ? 0 : mm, true).forEach(o => {
+        const i = dias.findIndex((d, k) => !usados.includes(k) && semanaDoCiclo(mm, d) === o.k); if (i >= 0) usados.push(i);
+        const data = i >= 0 ? noMes(dias[i]) : new Date(y, m, 5 + 7 * (o.k - 1), 12);
+        if (data >= de && data < ate && o.v) out.push({ data, v: o.v });
+      });
+    }
+    return out;
+  };
+  function semanadasDoPlano(plan, n = 12) {
+    const S = plan.semanadas || {}, g = gestaoFinanceira(plan), nm = nomesDaFamilia(plan), despesas = plan.expenses || [];
+    const metaAj = g.combinado && g.combinado.ajustaveis ? g.combinado.ajustaveis.meta : 0;
+    const M = g.pico, alvo = num(S.alvo) != null ? Math.max(0, +S.alvo) : Math.max(0, Math.round(M.grupos.ajustaveis - metaAj));
+    const noMes = (q, k) => { const ids = new Set(despesas.filter(e => e.cartao === q).map(e => String(e.id))); return M.itens[k].reduce((a, x) => a + (ids.has(x.id) ? x.valor : 0), 0); };
+    const noCartao = (q, f) => despesas.filter(e => e.cartao === q && f(e));
+    const comeco = (y, m, dia) => new Date(y, m, Math.min(dia, new Date(y, m + 1, 0).getDate()), 12);
+    const dias = (a, b) => Math.round((b - a) / 864e5), mais = (d, k) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + k, 12);
+    const pessoas = pessoasDaFamilia(plan).map(q => {
+      const C = (S.cartoes || {})[q] || {}, ativo = num(C.dia) != null && +C.dia >= 1, dia = ativo ? Math.min(31, Math.round(+C.dia)) : null;
+      const ajNoCartao = noMes(q, 'ajustaveis'), fixNoCartao = noMes(q, 'fixas');
+      const sugestao = M.grupos.ajustaveis > 0 ? Math.round(alvo * ajNoCartao / M.grupos.ajustaveis) : 0;
+      const parte = !ativo ? 0 : num(C.parte) != null ? Math.max(0, +C.parte) : sugestao, padrao = semanasDe(C.semanas, parte);
+      const base = { quem: q, nome: nm[q], ativo, dia, parte, sugestao, digitada: ativo && num(C.parte) != null, padrao, ajNoCartao, fixNoCartao, ciclos: [] };
+      if (!ativo) return base;
+      const fixas = noCartao(q, e => e.group === 'fix' && !e.outras), outras = noCartao(q, e => e.outras);
+      let y = TODAY.getFullYear(), m = TODAY.getMonth(); if (comeco(y, m, dia) > TODAY) m--;
+      for (let k = 0; k < n; k++) {
+        const de = comeco(y, m + k, dia), ate = comeco(y, m + k + 1, dia), chave = de.getFullYear() + '-' + String(de.getMonth() + 1).padStart(2, '0');
+        const mi = de.getFullYear() * 12 + de.getMonth() - CM0, proprio = Array.isArray((C.ciclos || {})[chave]) && C.ciclos[chave].length === 4;
+        const aj = proprio ? semanasDe(C.ciclos[chave], parte) : padrao, cob = fixas.map(e => ({ e, l: cobrancasEntre(e, de, ate) }));
+        const vOutras = outras.reduce((a, e) => a + valorEm(e, Math.max(0, mi), true), 0);
+        let d0 = de, marco = 0;
+        const semanas = diasDasSemanadas(dias(de, ate)).map((nd, j) => {
+          const d1 = j === 3 ? ate : mais(d0, nd), fx = cob.map(c => ({ id: String(c.e.id), nome: c.e.label || 'Despesa sem nome', valor: c.l.reduce((a, o) => a + (o.data >= d0 && o.data < d1 ? o.v : 0), 0) })).filter(x => x.valor > 0.005);
+          const out = j === 0 ? vOutras : 0, bs = out + fx.reduce((a, x) => a + x.valor, 0), teto = bs + aj[j]; marco += teto;
+          const s = { n: j + 1, de: isoDe(d0), ate: isoDe(mais(d1, -1)), dias: dias(d0, d1), fixas: fx, outras: out, base: bs, ajustavel: aj[j], teto, marco };
+          d0 = d1; return s; });
+        base.ciclos.push({ chave, mi, de: isoDe(de), ate: isoDe(mais(ate, -1)), dias: dias(de, ate), proprio, semanas, base: semanas.reduce((a, s) => a + s.base, 0), outras: vOutras, ajustavel: parte, total: marco });
+      }
+      return base;
+    });
+    const nosCartoes = pessoas.reduce((a, p) => a + p.parte, 0);
+    return { alvo, digitado: num(S.alvo) != null, conta: { renda: M.renda, fixas: M.grupos.fixas, futuro: M.renda - M.grupos.fixas - alvo, alvo }, ajustaveisHoje: M.grupos.ajustaveis, eventuais: g.eventuais,
+      nosCartoes, fora: alvo - nosCartoes, pessoas, cartoes: pessoas.filter(p => p.ativo) };
+  }
+  // O novo alvo depois de um realizado. realizados: quanto estava a fatura no fim de cada semana (vazio = não informado);
+  // vale a última semana informada. Acima do marco, o teto final do ciclo fica e o excesso sai do ajustável das semanas
+  // seguintes, na proporção do ajustável de cada uma; se passa de todo o ajustável que resta, o ciclo fecha acima.
+  // Abaixo do marco, os marcos ficam como estavam, e sobra a folga.
+  function novoAlvoDaSemanada(ciclo, realizados) {
+    const R = (realizados || []).map(num); let j = -1; R.forEach((v, k) => { if (v != null && k < ciclo.semanas.length) j = k; });
+    if (j < 0) return null;
+    const s = ciclo.semanas[j], fatura = R[j], dif = fatura - s.marco, resto = ciclo.semanas.slice(j + 1), ajResto = resto.reduce((a, x) => a + x.ajustavel, 0), acima = dif > 0.5;
+    const novos = acima && resto.length ? fechaSemanas(resto.map(x => ajResto > 0 ? x.ajustavel * Math.max(0, 1 - dif / ajResto) : 0), Math.max(0, ajResto - dif)) : resto.map(x => x.ajustavel);
+    let acc = acima ? fatura : s.marco;
+    const semanas = resto.map((x, k) => { acc += x.base + novos[k]; return { n: x.n, de: x.de, ate: x.ate, base: x.base, ajustavel: novos[k], antes: x.ajustavel, teto: x.base + novos[k], marco: acc, marcoAntes: x.marco }; });
+    return { semana: s.n, fatura, marco: s.marco, diferenca: dif, estado: acima ? 'acima' : 'dentro', folga: acima ? 0 : Math.max(0, -dif), semanas, fecha: acc, total: ciclo.total, fechaAcima: Math.max(0, acc - ciclo.total) };
   }
   // ---- Capítulo 2: o diagnóstico, a família hoje e depois do planejamento ----
   // Oito linhas (os objetivos em duas), cada uma com o presente e o futuro. O presente é calculado onde há conta (o orçamento, pelo Fluxo de
@@ -3753,7 +3863,7 @@ const ENGINE = (() => {
     return mis.map(mi => ({ mi, mes: M[mi].mes, saldo: M[mi].saldo, aportado: M.slice(0, mi + 1).reduce((a, m) => a + m.aporte, 0), extra: M.slice(0, mi + 1).reduce((a, m) => a + m.extra, 0), data: mi === n }));
   }
   OBJ.forEach(derive);   // os objetivos do exemplo (aqui, depois dos bens: derive lê as vendas)
-  return { fatiaDaFamilia, CARTEIRAS_BASE, caixaNegativoEm, rendasDaLiberdade, alternativasDaLiberdade, avisosDoPlano, temValor, compraDoObjetivo, parcelaDaCompra, nomeDaCompra, MESES_CONSERVADOR, taxaDoObjetivo, taxaNoMes, mesDoConservador, trecho, cresceAte, alocacaoSugerida, alocacaoDaCaixinha, alocacaoDasCaixinhas, folgaDosAportes, extraDoMes, get TODAY() { return TODAY; }, get M0() { return calDoCiclo(0); }, get INICIO() { return isoDe(TODAY); }, INICIO_PADRAO, mudaInicio, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, ligado, objetivosLigados, inicioDoAporte, inicioDoDedicado, saldoNoMes, necessarioDe, MESES_POLITICA, orcamentoMesAMes, MESES_PROGRAMA, prioridadeDosObjetivos, linhasDosMeses, PASSIVE, PROFILES, STATUS, trajetoriaDoBem, trajetoriaDaParticipacao, vendasDoObjetivo, partilhaDaVenda, HORIZONTES, horizonteDe, politicaDeInvestimentos, TIPOS_FINANCEIRO, SEM_LIQUIDEZ, DA_CARTEIRA, saiComACarteira, CAIXA_PREV, RENTAB_FGTS, FORMAS_PREV, BR_EMS, termosDaAnuidade, ETTJ_PREVIC, get CAIXAS_PREV() { return CAIXAS_PREV; }, saldoPrevEm, netEm, contratoDoConsorcio, caixaDoConsorcio, REAJUSTE_APOS, get COMPROMISSOS() { return COMPROMISSOS; }, saldoDasVendas, precoDoObjetivo, mesISO, orcadoDoObjetivo, cortesDoObjetivo, saldoDevedorEm, contratoDaDivida, restantesDaDivida, mesDe, get BENS() { return bensDoPlano(); }, get PARTS() { return partsDoPlano(); }, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, serieCusto, desiredAt, aplicaAlteracoes, fraseDaLinha, descreveAlteracao, valorAtual, mesDoPlano, desejoDoPlano, frequenciaDasLinhas, RISCOS, NATUREZAS, ITENS_RUINA, RISCOS_EXEMPLO, avaliaRiscos, custoDeVida, mediaDe12Meses, SEGURO, RELACOES, idadeLimiteDe, calculaSeguros, mesesAteIdade, FASES_VIDA, faseDaVida, sincronizaPatrimonio, PATRIMONIO_EXEMPLO, padraoDeVida, lerCaminho, gravaCaminho, IR, calculaIR, irDaFamilia, REGIMES, calculaRetirada, retiradaDosSocios, PREVIDENCIA, sucessao, simulaPrevidencia, aliqRegressiva, TRIBUTARIO_EXEMPLO, FAMILIA_EXEMPLO, casalDe, nomesDaFamilia, pessoasDaFamilia, rendaDaPessoa, bensDoRisco, titularidadeDoBem, setRetireAge: a => { RETIRE_AGE = a == null ? null : Math.max(CURRENT_AGE, +a); }, paradaMi, trabalhaEm, idadeDaLiberdade, dataNasc, idadeExata, sincronizaIdades, fraseDoProposito, ordemDoProposito, objetivosDoProposito, rendasAtivasDe, naturezaDe, naturezaDaReserva, CLASSES_ATIVOS, ORCAMENTO_IDEAL, VEZES_POUPOU, gestaoFinanceira, horasDoTrabalho, familiaDoPlano, ESTADOS_DIAGNOSTICO, orcamentoDoFluxo, CLASSES_CARTEIRA, CARTEIRAS_MODELO, ACOES_ATIVO, carteiraDoPlano, concentracaoDoPatrimonio, diagnosticoDaFamilia, financiamentoValido, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get JUROS_DIVIDA_M() { return JUROS_DIVIDA_M; }, rotulosDoDetalhe, JUROS_DIVIDA_PADRAO, TETO_DIVIDA_VEZES, contratoDoCredito, get CREDITOS() { return CREDITOS; }, saldoDoCredito, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
+  return { semanadasDoPlano, diasDasSemanadas, semanasComMudanca, novoAlvoDaSemanada, fatiaDaFamilia, CARTEIRAS_BASE, caixaNegativoEm, rendasDaLiberdade, alternativasDaLiberdade, avisosDoPlano, temValor, compraDoObjetivo, parcelaDaCompra, nomeDaCompra, MESES_CONSERVADOR, taxaDoObjetivo, taxaNoMes, mesDoConservador, trecho, cresceAte, alocacaoSugerida, alocacaoDaCaixinha, alocacaoDasCaixinhas, folgaDosAportes, extraDoMes, get TODAY() { return TODAY; }, get M0() { return calDoCiclo(0); }, get INICIO() { return isoDe(TODAY); }, INICIO_PADRAO, mudaInicio, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, ligado, objetivosLigados, inicioDoAporte, inicioDoDedicado, saldoNoMes, necessarioDe, MESES_POLITICA, orcamentoMesAMes, MESES_PROGRAMA, prioridadeDosObjetivos, linhasDosMeses, PASSIVE, PROFILES, STATUS, trajetoriaDoBem, trajetoriaDaParticipacao, vendasDoObjetivo, partilhaDaVenda, HORIZONTES, horizonteDe, politicaDeInvestimentos, TIPOS_FINANCEIRO, SEM_LIQUIDEZ, DA_CARTEIRA, saiComACarteira, CAIXA_PREV, RENTAB_FGTS, FORMAS_PREV, BR_EMS, termosDaAnuidade, ETTJ_PREVIC, get CAIXAS_PREV() { return CAIXAS_PREV; }, saldoPrevEm, netEm, contratoDoConsorcio, caixaDoConsorcio, REAJUSTE_APOS, get COMPROMISSOS() { return COMPROMISSOS; }, saldoDasVendas, precoDoObjetivo, mesISO, orcadoDoObjetivo, cortesDoObjetivo, saldoDevedorEm, contratoDaDivida, restantesDaDivida, mesDe, get BENS() { return bensDoPlano(); }, get PARTS() { return partsDoPlano(); }, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, serieCusto, desiredAt, aplicaAlteracoes, fraseDaLinha, descreveAlteracao, valorAtual, mesDoPlano, desejoDoPlano, frequenciaDasLinhas, RISCOS, NATUREZAS, ITENS_RUINA, RISCOS_EXEMPLO, avaliaRiscos, custoDeVida, mediaDe12Meses, SEGURO, RELACOES, idadeLimiteDe, calculaSeguros, mesesAteIdade, FASES_VIDA, faseDaVida, sincronizaPatrimonio, PATRIMONIO_EXEMPLO, padraoDeVida, lerCaminho, gravaCaminho, IR, calculaIR, irDaFamilia, REGIMES, calculaRetirada, retiradaDosSocios, PREVIDENCIA, sucessao, simulaPrevidencia, aliqRegressiva, TRIBUTARIO_EXEMPLO, FAMILIA_EXEMPLO, casalDe, nomesDaFamilia, pessoasDaFamilia, rendaDaPessoa, bensDoRisco, titularidadeDoBem, setRetireAge: a => { RETIRE_AGE = a == null ? null : Math.max(CURRENT_AGE, +a); }, paradaMi, trabalhaEm, idadeDaLiberdade, dataNasc, idadeExata, sincronizaIdades, fraseDoProposito, ordemDoProposito, objetivosDoProposito, rendasAtivasDe, naturezaDe, naturezaDaReserva, CLASSES_ATIVOS, ORCAMENTO_IDEAL, VEZES_POUPOU, gestaoFinanceira, horasDoTrabalho, familiaDoPlano, ESTADOS_DIAGNOSTICO, orcamentoDoFluxo, CLASSES_CARTEIRA, CARTEIRAS_MODELO, ACOES_ATIVO, carteiraDoPlano, concentracaoDoPatrimonio, diagnosticoDaFamilia, financiamentoValido, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get JUROS_DIVIDA_M() { return JUROS_DIVIDA_M; }, rotulosDoDetalhe, JUROS_DIVIDA_PADRAO, TETO_DIVIDA_VEZES, contratoDoCredito, get CREDITOS() { return CREDITOS; }, saldoDoCredito, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
 })();
 if (typeof module !== 'undefined') module.exports = ENGINE;
 </script>

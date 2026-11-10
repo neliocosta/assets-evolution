@@ -124,6 +124,39 @@ dezembro, ou metade em 30 de novembro e metade em 20 de dezembro, e segue o líq
 com duas datas, o motor reparte o valor entre elas. Remover a renda remove o que vem junto. Datas, degraus e mudanças ao longo do tempo continuam no Fluxo. Na versão
 final, as rendas chegam da coleta, e aqui o consultor corrige ou acrescenta o que faltou.
 
+## As semanadas
+
+O teto da fatura do cartão, semana a semana: em vez de categorizar cada gasto ajustável, a família confere quanto está a
+fatura contra o marco da semana. A especificação, com as regras e as etapas, está em `SEMANADAS.md`. No Orçamento do
+portal, cada despesa diz com o que é paga (a etiqueta "Pago com", que troca a cada clique: a conta ou o cartão de uma pessoa, `expenses[].cartao`), e
+o bloco **Semanadas** tem a conta das despesas ajustáveis da família, pelo mês comum (a renda de todo mês menos as fixas
+menos o que vai para o futuro; grava-se o valor das ajustáveis, `semanadas.alvo`), a divisão delas (o cartão de cada
+pessoa mais o fora do cartão) e um cartão por pessoa: o dia em que a fatura vira, o teto da fatura no ciclo de hoje e
+os controles das quatro semanas (mudar uma dilui a diferença nas seguintes; a última é o que sobra; a distribuição vale
+para todos os ciclos ou para um só). Informar o dia cria a linha fixa "Outras despesas no cartão" (`outras`), o total já
+contratado de cada fatura, que se programa mês a mês no Fluxo de 24 meses. Embaixo, a régua dos 12 ciclos
+(`ENGINE.semanadasDoPlano`): as semanas têm 7 ou 8 dias pelo tamanho do ciclo (`ENGINE.diasDasSemanadas`), a base de cada
+uma são as fixas do cartão cobradas nela (mais as outras despesas, na primeira) e o marco é o acumulado. O realizado e o
+novo alvo (`ENGINE.novoAlvoDaSemanada`) ficam para a página de acompanhamento, fora do relatório.
+
+## O mês comum e o que acontece ao longo do ano (Orçamento do portal)
+
+A página Orçamento do portal não mostra médias em cima (10/11/2026: a média mensal de uma despesa anual confundia). Os
+indicadores do alto e os blocos de Rendas, Despesas fixas e Despesas ajustáveis mostram o **mês comum**: só o que se repete
+todo mês (linhas mensais e semanais), pelo mês de referência de `ENGINE.gestaoFinanceira` (`pico`). O que não é de todo
+mês fica no bloco **Ao longo do ano**: o 13º e os bônus (que continuam se editando na renda), o IPTU e as outras linhas
+anuais, semestrais e trimestrais (`gestaoFinanceira().eventuais`: quanto cada uma soma nos próximos 12 meses e em quais
+meses) e as pontuais, marcadas como fora da média. A despesa anual de uma data só troca de mês ali mesmo; "+ despesa fixa
+do ano" e "+ despesa ajustável do ano" criam uma. Embaixo do bloco, **a média dos próximos 12 meses**, que é a conta que o
+plano continua usando (a seção seguinte), com o que o ano acrescenta ao mês em cada grupo.
+
+A página é um passo a passo numerado: 1 Rendas, 2 Despesas fixas, 3 Despesas ajustáveis, 4 Ao longo do ano, 5 Semanadas
+e 6 Poupança (na coleta, sem as Semanadas). No alto, a conta do mês numa faixa só (rendas − fixas − ajustáveis = o que
+sobra num mês comum), em que cada parte leva ao seu bloco, e a linha do que o ano acrescenta. Nas tabelas, o nome não tem
+borda até o mouse passar e as colunas têm largura fixa (em tela estreita, a tabela rola dentro do bloco). As Semanadas
+têm três passos: a, quanto cabe em ajustáveis; b, quanto passa por cada cartão (uma linha por pessoa, e o fora do cartão);
+c, o teto de cada semana, um cartão por vez, com os três primeiros ciclos e "ver os 12 ciclos".
+
 ## A média dos próximos 12 meses
 
 A sobra do mês, a capacidade de poupança, o custo de vida e a renda do Orçamento saem de uma conta só,
@@ -300,11 +333,24 @@ objetivo" lista as entradas que não vêm todo mês com o que cai delas até a d
 sobra do mês. No Fluxo de 24 meses, os extras aparecem numa linha embaixo do objetivo.
 
 **O Fluxo de 24 meses (a página depois da política; o Fluxo de caixa de antes, com a vida toda, vem logo depois, como Fluxo vida toda).** É onde o consultor passa mais tempo: os 24 meses numa tabela, com as
-entradas e as despesas (abrem por linha; digitar um valor muda aquela linha só naquele mês, como o ajuste de uma ocorrência
-`it.exc` do Fluxo vida toda; para mudar dali em diante, é no Fluxo vida toda),
+entradas e as despesas (abrem por linha; digitar um valor vale daquele mês em diante: vira um degrau da linha no mês, e o
+que estava programado depois dele dentro dos meses da tabela sai; o que muda depois da tabela fica. Desde 10/11/2026; antes
+valia só no mês digitado, e zerar uma linha pedia digitar zero em cada mês. A linha que segue outra, como o 13º, continua
+mudando só no mês digitado, pelo ajuste de uma ocorrência `it.exc`),
 os gastos dos objetivos, a sobra, a reserva, cada objetivo na ordem de prioridade (a data com uma estrela), o que fica
 guardado para os meses seguintes e a liberdade. Os aportes em cinza são a parte de cada objetivo; o que o consultor digita
-(`objectives[].programa[mês]`) vale como está, fica em negrito, e "voltar à sugestão" apaga. O mês com falta tem um ponto
+(`objectives[].programa[mês]`) vale como está, fica em negrito, e "voltar à sugestão" apaga. Como nas rendas e despesas, o
+aporte digitado vale daquele mês em diante (até o fim da tabela ou a data do objetivo), e um campo esvaziado volta à
+sugestão dali em diante: para destinar um bônus, digita-se o valor no mês dele e o de sempre no mês seguinte.
+
+A conta de cada mês, na ordem da tabela (10/11/2026): o resultado do mês vai para os destinos (a reserva, cada objetivo e a
+liberdade financeira); o que fica sem destino entra na Caixa de curto prazo, e quando os destinos passam do resultado a
+diferença sai dela. Por isso a liberdade financeira é a última linha dos destinos e também se digita
+(`plano.liberdadePrograma[mês]`, `meses[].libDigitada`): vazia, é a sugestão (o que passa do que os 12 meses seguintes vão
+precisar); zerada, o dinheiro fica na caixa. Depois dos destinos vem o bloco "O que fica na Caixa de curto prazo": "Entra ou
+sai no mês" (`meses[].movimento`: o resultado menos os destinos), "Coberto pelo patrimônio" (só no caixa negativo de
+propósito, `doPatrimonio`: ao entrar no período, o negativo acumulado até ali também é coberto, e a caixa volta a zero) e,
+por último, o saldo no fim do mês. A conta fecha em todo mês: caixa anterior + movimento + coberto pelo patrimônio = caixa. O mês com falta tem um ponto
 laranja no cabeçalho, e a célula do objetivo que recebe menos fica em laranja; a do objetivo que já tem quase tudo e recebe
 só o que falta fica em verde (o resto vai para a liberdade).
 

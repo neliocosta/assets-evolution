@@ -1153,5 +1153,77 @@ console.log('\nFluxo de 24 meses: o 13º passa da capacidade e o aporte digitado
   ok('o aporte digitado (0 no mês 3) vale como está', com[3] === 0, com[3]);
   ok('os outros meses do objetivo não mudam: o que se tirou não é empurrado para depois', !mudou.length, mudou.length ? 'mudaram: ' + mudou.map(k => k + ' (' + sem[k] + ' → ' + com[k] + ')').join(', ') : '');;
 }
+console.log('\nFluxo de 24 meses: o que não tem destino fica na Caixa de curto prazo, e a liberdade se digita');
+{
+  const El = carregar(srcCliente);
+  // salário de 10 mil e custo de vida de 8 mil: sobram 2 mil por mês; o objetivo recebe 500
+  const base = () => ({ name: 'Ana', tipo: 'individual', age: 40, nascimento: '1986-03-10', retireAge: 60, lifeExp: 90, desired: 8000, mode: 'desej', rate: 0.004,
+    initialWealth: 100000, inicio: '2026-10-01', regraDoInicio: 'semana',
+    incomes: [{ id: 'sal', label: 'Salário', kind: 'ativa', frequency: 'mensal', days: [5], steps: [{ from: -1, value: 10000 }] }],
+    expenses: [{ id: 'cv', label: 'Custo de vida', group: 'fix', frequency: 'mensal', days: [10], steps: [{ from: -1, value: 8000 }] }],
+    objectives: [{ id: 'a', name: 'Objetivo', kind: 'consumo', months: 40, amount: 60000, dedicated: 0, planned: 500, profile: 'moderado', rate: 0.005, costs: [], ligado: true }],
+    passive: [], patrimonio: { financeiro: [], bens: [], participacoes: [], dividas: [] } });
+  const meses = P => { El.configure(P); return El.run('desej').programa.meses; };
+  const fecha = M => M.every((m, i) => Math.abs((i ? M[i - 1].guardado : 0) + m.sobra - m.reserva - m.total - m.liberdade + m.doPatrimonio - m.guardado) < 0.01 && Math.abs(m.movimento - (m.sobra - m.reserva - m.total - m.liberdade)) < 0.01);
+  const M0 = meses(base());
+  ok('sem nada digitado, a liberdade leva o que sobra (1.500) e a caixa fica em zero', M0.every(m => Math.abs(m.liberdade - 1500) < 1 && Math.abs(m.guardado) < 1 && !m.libDigitada), Math.round(M0[5].liberdade) + ' · ' + Math.round(M0[5].guardado));
+  const P1 = base(); P1.liberdadePrograma = {}; for (let m = 3; m < 24; m++) P1.liberdadePrograma[m] = 0; const M1 = meses(P1);
+  ok('liberdade zerada do 4º mês em diante: o que ela não leva fica na caixa, 1.500 a mais a cada mês', M1[2].guardado < 1 && Math.abs(M1[3].guardado - 1500) < 1 && Math.abs(M1[10].guardado - 12000) < 1 && M1[3].libDigitada && Math.abs(M1[3].movimento - 1500) < 1, Math.round(M1[3].guardado) + ' · ' + Math.round(M1[10].guardado));
+  const P2 = base(); P2.liberdadePrograma = Object.assign({}, P1.liberdadePrograma); P2.objectives[0].programa = { 12: 5000 }; const M2 = meses(P2);
+  ok('destinar mais do que o resultado do mês (5.000 contra 2.000) tira a diferença da caixa', Math.abs(M2[12].movimento + 3000) < 1 && Math.abs(M2[12].guardado - (M2[11].guardado - 3000)) < 1 && !(M2[12].corte > 0.5), Math.round(M2[11].guardado) + ' → ' + Math.round(M2[12].guardado));
+  const P3 = base(); P3.liberdadePrograma = { 2: 4000 }; const M3 = meses(P3);
+  ok('a liberdade digitada acima do resultado (4.000 no 3º mês) sai da caixa, que os dois meses de antes já tinham guardado', Math.abs(M3[2].liberdade - 4000) < 1 && Math.abs(M3[1].guardado - 2500) < 1 && Math.abs(M3[2].movimento + 2500) < 1 && Math.abs(M3[2].guardado) < 1 && Math.abs(M3[0].liberdade + M3[1].liberdade - 500) < 1, Math.round(M3[1].guardado) + ' → ' + Math.round(M3[2].guardado));
+  ok('a conta fecha em todos os meses: caixa anterior + resultado − reserva − objetivos − liberdade = caixa', [M0, M1, M2, M3].every(fecha), '');
+}
+console.log('\nSemanadas: o teto da fatura do cartão, semana a semana');
+{
+  const Es = carregar(srcCliente);
+  // renda de 16 mil, fixas de 9 mil (6 mil na conta, 400 do plano de saúde e 2.600 de outras despesas no cartão) e o alvo de
+  // 5 mil em ajustáveis: sobram 2 mil. No cartão, que vira no dia 8, 6.500 por mês: 1.500 por semana e 500 a mais na segunda
+  const base = () => ({ name: 'Ana', tipo: 'individual', age: 40, nascimento: '1986-03-10', retireAge: 60, lifeExp: 90, desired: 10000, mode: 'desej', rate: 0.004,
+    initialWealth: 100000, inicio: '2026-11-10', regraDoInicio: 'semana',
+    incomes: [{ id: 'sal', label: 'Salário', kind: 'ativa', frequency: 'mensal', days: [5], steps: [{ from: 0, value: 16000 }] }],
+    expenses: [{ id: 'alug', label: 'Aluguel', group: 'fix', frequency: 'mensal', days: [10], steps: [{ from: 0, value: 6000 }] },
+      { id: 'saude', label: 'Plano de saúde', group: 'fix', cartao: 'titular', frequency: 'mensal', days: [20], steps: [{ from: 0, value: 400 }] },
+      { id: 'out', label: 'Outras despesas no cartão', group: 'fix', cartao: 'titular', outras: true, week: 1, steps: [{ from: 0, value: 2600 }], exc: { 1: 1800 } },
+      { id: 'merc', label: 'Mercado', group: 'adj', cartao: 'titular', week: 0, steps: [{ from: 0, value: 4000 }] },
+      { id: 'pix', label: 'Presentes', group: 'adj', week: 0, steps: [{ from: 0, value: 1000 }] }],
+    objectives: [], passive: [], patrimonio: { financeiro: [], bens: [], participacoes: [], dividas: [] },
+    semanadas: { alvo: 5000, cartoes: { titular: { dia: 8, parte: 6500, semanas: [1500, 2000, 1500, 1500] } } } });
+  const P = base(); Es.configure(P); const r = Es.semanadasDoPlano(P), c0 = r.cartoes[0].ciclos[0], c1 = r.cartoes[0].ciclos[1];
+  ok('a divisão das semanas: 7-7-7-7, 7-8-7-7, 7-8-7-8 e 7-8-8-8', [28, 29, 30, 31].map(n => Es.diasDasSemanadas(n).join('-')).join(' ') === '7-7-7-7 7-8-7-7 7-8-7-8 7-8-8-8', '');
+  ok('a conta do combinado: 16.000 − 9.000 de fixas − 2.000 para o futuro = 5.000 de ajustáveis', Math.round(r.conta.renda) === 16000 && Math.round(r.conta.fixas) === 9000 && Math.round(r.conta.futuro) === 2000, Math.round(r.conta.futuro));
+  ok('são 12 ciclos, e o primeiro é o que contém hoje (de 8/nov a 7/dez, 30 dias)', r.cartoes[0].ciclos.length === 12 && c0.de === '2026-11-08' && c0.ate === '2026-12-07' && c0.dias === 30, c0.de + ' a ' + c0.ate);
+  ok('num ciclo de 30 dias, as semanas vão de 8 a 14, 15 a 22, 23 a 29 e 30 a 7', c0.semanas.map(s => s.de.slice(8) + '-' + s.ate.slice(8)).join(' ') === '08-14 15-22 23-29 30-07', c0.semanas.map(s => s.de.slice(8) + '-' + s.ate.slice(8)).join(' '));
+  ok('as outras despesas no cartão entram inteiras na semana 1 (2.600), e o marco é 4.100', c0.semanas[0].outras === 2600 && c0.semanas[0].marco === 4100, c0.semanas[0].marco);
+  ok('a fixa do cartão entra na semana em que é cobrada (o plano de saúde do dia 20, na segunda)', c0.semanas[1].fixas.length === 1 && c0.semanas[1].base === 400 && c0.semanas[2].base === 0, c0.semanas.map(s => s.base).join(' · '));
+  ok('os marcos acumulam a base e o ajustável: 4.100, 6.500, 8.000 e 9.500', c0.semanas.map(s => s.marco).join(' ') === '4100 6500 8000 9500' && c0.total === 9500, c0.semanas.map(s => s.marco).join(' '));
+  ok('o ciclo que começa em dezembro tem 31 dias e usa as outras despesas programadas para o mês (1.800)', c1.dias === 31 && c1.semanas.map(s => s.dias).join('-') === '7-8-8-8' && c1.semanas[0].outras === 1800, c1.dias + ' dias · ' + c1.semanas[0].outras);
+  const fev = r.cartoes[0].ciclos.find(c => c.chave === '2027-02');
+  ok('o ciclo que começa em fevereiro tem 28 dias, em quatro semanas de 7', !!fev && fev.dias === 28 && fev.semanas.every(s => s.dias === 7), fev && fev.dias);
+  ok('o que passa do alvo da família aparece no fora do cartão (5.000 − 6.500)', r.fora === -1500 && r.nosCartoes === 6500, r.fora);
+  const P2 = base(); delete P2.semanadas.cartoes.titular.parte; delete P2.semanadas.cartoes.titular.semanas; Es.configure(P2); const r2 = Es.semanadasDoPlano(P2);
+  ok('sem a parte digitada, vale a sugestão: o alvo na proporção das ajustáveis do cartão (4 de 5 mil: 4.000), em semanas iguais', r2.cartoes[0].parte === 4000 && r2.cartoes[0].padrao.join(' ') === '1000 1000 1000 1000' && r2.fora === 1000, r2.cartoes[0].parte + ' · fora ' + r2.fora);
+  const P3 = base(); P3.semanadas.cartoes.titular.ciclos = { '2026-12': [3500, 1000, 1000, 1000] }; Es.configure(P3); const r3 = Es.semanadasDoPlano(P3).cartoes[0].ciclos;
+  ok('um ciclo com a sua própria distribuição não muda os outros', r3[1].proprio && r3[1].semanas[0].ajustavel === 3500 && !r3[0].proprio && r3[0].semanas[0].ajustavel === 1500, r3[1].semanas.map(s => s.ajustavel).join(' '));
+  const P4 = base(); delete P4.semanadas.cartoes.titular.dia; Es.configure(P4); const r4 = Es.semanadasDoPlano(P4);
+  ok('sem o dia do cartão, não há régua, e todo o alvo fica fora do cartão', !r4.cartoes.length && r4.pessoas.length === 1 && r4.fora === 5000, r4.fora);
+  const P5 = base(); P5.incomes.push({ id: 'd13', label: '13º', kind: 'ativa', frequency: 'anual', dates: [{ m: 11, d: 20 }], steps: [{ from: 0, value: 16000 }] });
+  P5.expenses.push({ id: 'iptu', label: 'IPTU', group: 'fix', frequency: 'anual', dates: [{ m: 0, d: 10 }], steps: [{ from: 0, value: 3600 }] }); Es.configure(P5);
+  const r5 = Es.semanadasDoPlano(P5), g5 = Es.gestaoFinanceira(P5), ev = g5.eventuais;
+  ok('o 13º e o IPTU ficam fora da conta do mês (16.000 e 9.000) e aparecem à parte, com o total do ano', Math.round(r5.conta.renda) === 16000 && Math.round(r5.conta.fixas) === 9000 && ev.itens.length === 2 && Math.round(ev.entradas) === 16000 && Math.round(ev.fixas) === 3600, ev.itens.map(x => x.nome + ' ' + Math.round(x.noAno) + ' (' + x.meses.length + ' mês)').join(' · '));
+  ok('a média dos 12 meses continua contando os dois (renda 17.333, fixas 9.300)', Math.round(g5.mes.renda) === 17333 && Math.round(g5.grupos.fixas) === 9300, Math.round(g5.mes.renda) + ' · ' + Math.round(g5.grupos.fixas));
+  const M = (j, v) => Es.semanasComMudanca([1250, 1250, 1250, 1250], j, v).join(' ');
+  ok('mudar a semana 1 dilui a diferença nas três seguintes', M(0, 2000) === '2000 1000 1000 1000', M(0, 2000));
+  ok('mudar a semana 2 dilui nas duas seguintes, e a primeira não muda', M(1, 250) === '1250 250 1750 1750', M(1, 250));
+  ok('mudar a semana 3 muda só a última', M(2, 2000) === '1250 1250 2000 500', M(2, 2000));
+  ok('nenhuma semana passa do que resta nem fica negativa', M(0, 9000) === '5000 0 0 0' && M(2, 9000) === '1250 1250 2500 0', M(0, 9000) + ' / ' + M(2, 9000));
+  const acima = Es.novoAlvoDaSemanada(c0, [4700]), dentro = Es.novoAlvoDaSemanada(c0, [3900]), demais = Es.novoAlvoDaSemanada(c0, [4100, 6500, 9800]);
+  ok('fatura acima do marco (4.700 contra 4.100): o excesso sai das semanas seguintes na proporção, e o ciclo fecha no teto', acima.estado === 'acima' && acima.semanas.map(s => s.ajustavel).join(' ') === '1760 1320 1320' && acima.fecha === 9500 && acima.fechaAcima === 0, acima.semanas.map(s => s.ajustavel).join(' ') + ' · fecha em ' + acima.fecha);
+  ok('os novos marcos partem da fatura informada', acima.semanas[0].marco === 4700 + 400 + 1760, acima.semanas[0].marco);
+  ok('fatura abaixo do marco: os marcos ficam como estavam, com a folga', dentro.estado === 'dentro' && dentro.folga === 200 && dentro.semanas.map(s => s.marco).join(' ') === '6500 8000 9500', dentro.folga);
+  ok('excesso maior que o ajustável que resta: o ciclo fecha acima do teto', demais.semana === 3 && demais.semanas[0].ajustavel === 0 && demais.fecha === 9800 && demais.fechaAcima === 300, demais.fecha + ' · ' + demais.fechaAcima);
+  ok('sem realizado, não há novo alvo', Es.novoAlvoDaSemanada(c0, [null, '']) === null, '');
+}
 console.log('\n' + (falhas ? falhas + ' verificação(ões) falharam.' : 'Tudo certo.') + '\n');
 process.exit(falhas ? 1 : 0);

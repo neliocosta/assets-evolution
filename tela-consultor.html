@@ -568,6 +568,8 @@ button.pol-estado{border:0;cursor:pointer;font-family:'DM Sans',sans-serif} butt
 .aj-tab thead th.falta{color:#964400} .aj-tab thead th.falta::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:#E08A4F;margin-right:4px;vertical-align:1px}
 .aj-o td.aj-fora{background:repeating-linear-gradient(135deg,#FBF9F6 0 4px,#fff 4px 8px)} .aj-o td.aj-data{color:var(--nl-orange-600);text-align:center;font-size:13px}
 .aj-guarda td{color:#3D79D1}
+.aj-guarda th{font-weight:600;color:var(--nl-navy-900)} .aj-guarda th small{display:block;font-weight:500;font-size:11px;color:#8d8d8d} .aj-guarda td{font-weight:600}
+.aj-mov td{color:#22794A} .aj-mov td.neg{color:#B23A3A}
 .aj-o th,.aj-o td{border-bottom:0}
 .aj-volta{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px;padding:12px 16px;border-radius:12px;background:#FFF1E6;color:#964400;font-size:13px}
 .aj-volta span{flex:1;min-width:260px} .aj-volta.ok{background:#E3F3E9;color:#22794A}
@@ -949,6 +951,79 @@ thead th:first-child,thead th:last-child{border-radius:0}
 .orc-tab{width:100%;border-collapse:collapse} .orc-tab th{text-align:left;font:600 11px 'DM Sans',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#8d8d8d;padding:0 8px 8px}
 .orc-tab td{padding:5px 8px;border-top:1px solid #efece6;vertical-align:middle} .orc-tab td.v{width:270px} .orc-tab td.x{width:36px;text-align:right} .orc-tab th.v{width:270px}
 .orc-tab td.q{width:180px} .orc-tab .orc-fx{font:600 13.5px 'DM Sans',sans-serif;color:var(--nl-navy-900)} .orc-tab .orc-fx small{display:block;white-space:nowrap;font-weight:500;font-size:11.5px;color:#8d8d8d}
+/* o Orçamento em passos: a conta do alto, o número de cada bloco e as tabelas de largura fixa */
+.orc-n{display:inline-grid;place-items:center;flex:none;width:22px;height:22px;border-radius:50%;background:var(--nl-navy-900);color:#fff;font:600 11.5px Sora,sans-serif;font-style:normal}
+.orc-eq{display:flex;align-items:stretch;gap:6px;background:#fff;border-radius:14px;box-shadow:var(--shadow-card);padding:8px;margin-bottom:8px}
+.orc-eq-p{flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:3px;text-align:left;background:none;border:0;border-radius:10px;padding:10px 12px;cursor:pointer;font:inherit;color:inherit}
+button.orc-eq-p:hover{background:#FAF8F5} button.orc-eq-p:focus-visible{outline:2px solid var(--nl-orange-500);outline-offset:-2px}
+.orc-eq-p span{display:flex;align-items:center;gap:7px;font:500 12px 'DM Sans',sans-serif;color:var(--nl-legenda)} .orc-eq-p .orc-n{width:18px;height:18px;font-size:10px}
+.orc-eq-p b{font:600 19px Sora,sans-serif;color:var(--nl-navy-900);white-space:nowrap;font-variant-numeric:tabular-nums} .orc-eq-p small{font:500 11.5px 'DM Sans',sans-serif;color:var(--nl-legenda)}
+.orc-eq-p.res{cursor:default;background:var(--nl-navy-900)} .orc-eq-p.res span,.orc-eq-p.res small{color:rgba(255,255,255,.65)} .orc-eq-p.res b{color:#fff} .orc-eq-p.res.neg b{color:#FFC9A8}
+.orc-eq em{align-self:center;font:600 18px Sora,sans-serif;font-style:normal;color:#b9b4aa}
+.orc-eq2{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;font:500 12.5px 'DM Sans',sans-serif;color:var(--nl-legenda);padding:4px 12px 0;margin-bottom:18px} .orc-eq2 b{color:var(--nl-navy-900)}
+.orc-eq2 .link{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:var(--nl-navy-900)} .orc-eq2 .orc-n{width:18px;height:18px;font-size:10px}
+#orcC .bloco{scroll-margin-top:96px}
+.orc-rola{overflow-x:auto}
+.orc-mes,.orc-ano{table-layout:fixed} .orc-mes{min-width:440px} .orc-ano{min-width:660px}
+.orc-tab col.c-pg{width:136px} .orc-tab col.c-v{width:214px} .orc-tab col.c-x{width:36px} .orc-tab col.c-obs{width:26%}
+.orc-tab col.c-qd{width:150px} .orc-tab col.c-v2{width:150px} .orc-tab col.c-n{width:100px}
+.orc-mes td,.orc-ano td{width:auto} .orc-mes td.v,.orc-ano td.v{width:auto} .orc-tab input,.orc-tab select{width:100%;min-width:0}
+.orc-tab .car-sb{font:500 14px 'DM Sans',sans-serif;padding:7px 8px} .orc-mes td:first-child,.orc-ano td:first-child{padding-left:0} .orc-ano tr.grp td:first-child{padding-left:8px}
+.orc-tab .orc-fx.fixo{font:500 14px 'DM Sans',sans-serif;padding-left:8px} .orc-tab .orc-fx small{white-space:normal;line-height:1.4}
+.orc-tab th.n,.orc-tab td.n{text-align:right}
+.orc-ano tr.grp td{font:600 11px 'DM Sans',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:var(--nl-legenda);background:#FAF8F5;padding:7px 8px;border-top:0}
+.orc-ano tr.grp td.n{font:600 12.5px 'DM Sans',sans-serif;letter-spacing:0;color:var(--nl-navy-900)}
+@media (max-width:820px){.orc-eq{flex-wrap:wrap} .orc-eq em{display:none} .orc-eq-p{flex:1 1 40%}}
+.orc-tab td.pg{width:auto}
+.orc-pg{border:1px dashed #DDD8CF;background:none;border-radius:6px;font:600 11px 'DM Sans',sans-serif;color:#9a958c;padding:4px 10px;cursor:pointer;letter-spacing:.02em;white-space:nowrap}
+.orc-pg.on{border:1px solid transparent;background:#DDE5F0;color:var(--nl-navy-900)} .orc-pg.on.cj{background:#E3F3E9;color:#22794A}
+.orc-pg:hover:not(:disabled){filter:brightness(.96)} .orc-pg:disabled{cursor:default} .orc-pg:focus-visible{outline:2px solid var(--nl-orange-500);outline-offset:2px}
+/* ao longo do ano: a média dos 12 meses embaixo */
+.orc-media{margin-top:16px;background:#FAF8F5;border-radius:12px;padding:14px 16px}
+.orc-media h4{font:600 12px 'DM Sans',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--nl-legenda);margin-bottom:10px}
+.orc-media-l{display:grid;grid-template-columns:repeat(4,1fr);gap:12px 20px} .orc-media-l div{display:flex;flex-direction:column;gap:2px;min-width:0}
+.orc-media-l span{font:500 12px 'DM Sans',sans-serif;color:var(--nl-legenda)} .orc-media-l b{font:600 16px Sora,sans-serif;color:var(--nl-navy-900);font-variant-numeric:tabular-nums}
+.orc-media-l small{font:500 11.5px 'DM Sans',sans-serif;color:var(--nl-legenda);line-height:1.4} .orc-media p{font:500 12px 'DM Sans',sans-serif;color:var(--nl-legenda);line-height:1.5;margin-top:10px}
+/* Semanadas em três passos: a, a conta; b, cada cartão numa linha; c, a régua de um cartão por vez */
+.sm-passo{border-top:1px solid #F1EEE8;padding-top:16px;margin-top:16px} .sm-passo:first-of-type{border-top:0;padding-top:0;margin-top:0}
+.sm-passo h4{display:flex;align-items:center;gap:8px;font:600 13.5px Sora,sans-serif;color:var(--nl-navy-900);margin-bottom:10px}
+.sm-passo h4 i{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;border:1.5px solid var(--nl-navy-900);font:600 11px Sora,sans-serif;font-style:normal}
+.sm-passo h4+.sm-nota{margin:-4px 0 12px}
+.sm-linhas{display:flex;flex-direction:column;gap:8px}
+.sm-linha{display:flex;flex-wrap:wrap;align-items:flex-end;gap:8px 20px;border:1px solid #EFECE6;border-radius:12px;padding:10px 14px}
+.sm-linha>b{flex:0 0 150px;font:600 13.5px Sora,sans-serif;color:var(--nl-navy-900);padding-bottom:9px}
+.sm-linha label{display:flex;flex-direction:column;gap:4px;font:500 12px 'DM Sans',sans-serif;color:var(--nl-legenda)} .sm-linha label input{width:96px} .sm-linha label.v input{width:180px}
+.sm-linha .sm-nota{flex:1 1 220px;margin:0;padding-bottom:9px}
+.sm-linha.fora{background:#FAF8F5;border-color:transparent;align-items:center} .sm-linha.fora>b,.sm-linha.fora .sm-nota{padding-bottom:0}
+.sm-linha.fora strong{font:600 17px Sora,sans-serif;color:var(--nl-navy-900);font-variant-numeric:tabular-nums} .sm-linha.passa strong,.sm-linha.passa .sm-nota{color:var(--nl-orange-600)}
+.sm-abas{margin-bottom:12px}
+.sm-teto{display:flex;flex-wrap:wrap;align-items:flex-end;gap:8px 14px} .sm-teto div{display:flex;flex-direction:column;gap:2px}
+.sm-teto span{font:500 12px 'DM Sans',sans-serif;color:var(--nl-legenda)} .sm-teto b{font:600 16px Sora,sans-serif;color:var(--nl-navy-900);font-variant-numeric:tabular-nums}
+.sm-teto div:first-child b{font-size:20px} .sm-teto em{font:600 16px Sora,sans-serif;font-style:normal;color:#b9b4aa;padding-bottom:2px}
+.sm-mais{display:inline-block;margin-top:10px}
+@media (max-width:900px){.orc-media-l{grid-template-columns:repeat(2,1fr)}}
+/* Semanadas: a conta do alvo, um cartão por pessoa (o dia, a parte, as quatro semanas) e a régua dos 12 ciclos */
+.sm-conta{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px 14px;margin-bottom:6px}
+.sm-conta>div{display:flex;flex-direction:column;gap:4px;min-width:150px} .sm-conta>div span{font:500 12px 'DM Sans',sans-serif;color:var(--nl-legenda)}
+.sm-conta>div b{font:600 17px Sora,sans-serif;color:var(--nl-navy-900);padding:7px 0;font-variant-numeric:tabular-nums} .sm-conta>div input{width:170px}
+.sm-conta>i{font:600 18px Sora,sans-serif;color:#b9b4aa;font-style:normal;padding-bottom:9px}
+.sm-conta .alvo input{font-weight:600;border-color:var(--nl-navy-900)}
+.sm-nota{font:500 12.5px 'DM Sans',sans-serif;color:var(--nl-legenda);line-height:1.5;margin:6px 0 0} .sm-nota b{color:var(--nl-navy-900)} .sm-nota.at b{color:var(--nl-orange-600)}
+.sm-cartao{border:1px solid #EFECE6;border-radius:12px;padding:14px 16px;margin-top:14px}
+.sm-c-cab{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px 22px} .sm-c-cab h4{font:600 14.5px Sora,sans-serif;color:var(--nl-navy-900);margin:0 auto 8px 0}
+.sm-c-cab label{display:flex;flex-direction:column;gap:4px;font:500 12px 'DM Sans',sans-serif;color:var(--nl-legenda)} .sm-c-cab label input{width:170px} .sm-c-cab label.dia input{width:90px}
+.sm-sem{margin-top:16px;background:#FAF8F5;border-radius:12px;padding:12px 14px}
+.sm-sem-cab{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;font:600 13px 'DM Sans',sans-serif;color:var(--nl-navy-900);margin-bottom:10px} .sm-sem-cab select{width:auto}
+.sm-sls{display:grid;grid-template-columns:repeat(4,1fr);gap:10px 22px}
+.sm-sl{display:flex;flex-direction:column;gap:6px;min-width:0} .sm-sl span{font:500 12px 'DM Sans',sans-serif;color:var(--nl-legenda)}
+.sm-sl b{font:600 16px Sora,sans-serif;color:var(--nl-navy-900);font-variant-numeric:tabular-nums} .sm-sl small{font:500 11.5px 'DM Sans',sans-serif;color:var(--nl-legenda)}
+.sm-sl input[type=range]{width:100%}
+.sm-regua{margin-top:14px;overflow-x:auto}
+.sm-tab{width:100%;border-collapse:collapse;min-width:760px} .sm-tab th{text-align:left;font:600 11px 'DM Sans',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#8d8d8d;padding:0 10px 8px}
+.sm-tab td{padding:8px 10px;border-top:1px solid #efece6;vertical-align:top;font-variant-numeric:tabular-nums} .sm-tab td b{display:block;font:600 14px Sora,sans-serif;color:var(--nl-navy-900);white-space:nowrap}
+.sm-tab td small{display:block;font:500 11.5px 'DM Sans',sans-serif;color:var(--nl-legenda);white-space:nowrap} .sm-tab td.c b{font:600 13px 'DM Sans',sans-serif}
+.sm-tab tr.pr td.c small{color:var(--nl-orange-600)} .sm-tab tr.hoje td{background:#FBF9F6}
+@media (max-width:900px){.sm-sls{grid-template-columns:repeat(2,1fr)}}
 .orc-tot td{font-weight:600;color:var(--nl-navy-900);border-top:1px solid #dcd7cd}
 .fxbloco .fxpe{margin:0 0 10px}
 .pr-ini input[type=number]{width:84px}
@@ -1304,7 +1379,7 @@ h3 > .ex-tag{font-size:11px}
   <section class="page" data-page="orcamento">
     <div class="kicker">Dados do cliente · passo 2 de 14</div>
     <h2>Orçamento</h2>
-    <div class="hint">Os grandes números da família, por mês: as rendas, as despesas fixas e as ajustáveis. É daqui que sai o capítulo Gestão financeira da área do cliente. Cada linha é uma linha do Fluxo vida toda, onde ganha detalhe (datas, degraus, frequência).</div>
+    <div class="hint">O mês comum da família, em passos: o que entra, o que sai e o que sobra todo mês; depois, o que só acontece em alguns meses do ano e o combinado das semanadas. É daqui que sai o capítulo Gestão financeira da área do cliente. Cada linha é uma linha do Fluxo vida toda, onde ganha detalhe (datas, degraus, frequência).</div>
     <div id="orcC"></div>
     <div class="pagenav"><button class="btn btn-tertiary" data-ir="fluxo">Próximo: Fluxo vida toda →</button></div>
   </section>
@@ -1401,7 +1476,7 @@ h3 > .ex-tag{font-size:11px}
   <section class="page" data-page="ajuste">
     <div class="kicker">Planejamento</div>
     <h2>Fluxo de 24 meses</h2>
-    <div class="hint">Os próximos 24 meses, mês a mês: o que entra, o que sai e para onde vai a sobra. Cada objetivo recebe a sua parte todo mês, e a Caixa de curto prazo absorve as oscilações; o mês em que ela não dá conta fica marcado como falta. Clique num valor para mudar. As rendas e as despesas também mudam aqui, só no mês digitado; para mudar dali em diante, use o Fluxo vida toda.</div>
+    <div class="hint">Os próximos 24 meses, mês a mês: o que entra, o que sai e para onde vai a sobra. Cada objetivo recebe a sua parte todo mês, e a Caixa de curto prazo absorve as oscilações; o mês em que ela não dá conta fica marcado como falta. Clique num valor para mudar: o que você digita, num objetivo, numa renda ou numa despesa, vale daquele mês em diante, até você digitar outro num mês seguinte.</div>
     <div id="ajusteC"></div>
     <div class="pagenav"><button class="btn btn-tertiary" data-ir="riscos">Próximo: Gestão de riscos →</button></div>
   </section>
@@ -2177,6 +2252,10 @@ const ENGINE = (() => {
   // do que ganha por um tempo, porque tem investimentos. Nesses meses o programa não corta os aportes; o que falta sai do
   // patrimônio financeiro (o cofre da simulação) e não precisa voltar com as sobras seguintes.
   let CAIXA_NEG = null;
+  // a liberdade financeira digitada no Fluxo de 24 meses (plan.liberdadePrograma[mês]): vale como está, e o que ela deixa de
+  // levar fica na Caixa de curto prazo; sem ela, a liberdade leva o que passa do que os 12 meses seguintes vão precisar
+  let LIB_PROG = null;
+  const liberdadeDigitada = mi => LIB_PROG && LIB_PROG[mi] != null && LIB_PROG[mi] !== '' ? Math.max(0, +LIB_PROG[mi] || 0) : null;
   const caixaNegativoEm = mi => !!CAIXA_NEG && mi >= CAIXA_NEG.de && mi <= CAIXA_NEG.ate;
   // ---- Créditos novos (plano.creditos): o empréstimo que a família contrata no futuro, quando o dinheiro acabaria ----
   //   { id, nome, em: o mês do plano em que o dinheiro cai (0 = este), valor: o liberado, parcelas, juros: % ao mês,
@@ -2697,7 +2776,7 @@ const ENGINE = (() => {
     const parte = (o, mi) => { const d = digitadoEm(o, mi); return d != null ? d : o.aporteSobra ? 0 : Math.max(0, +o.planned || 0); };
     // o que sobra em cada mês depois da reserva e das partes dos objetivos; e o que o fim de cada mês precisa deixar guardado
     // para os 12 seguintes (o imposto de janeiro sai do que se guarda antes, não da liberdade)
-    const net = geral.map((v, mi) => v - (lib(mi) ? 0 : RESERVA_M + ordem.reduce((a, o) => a + (ativo(o, mi) ? parte(o, mi) : 0), 0)));
+    const net = geral.map((v, mi) => v - (lib(mi) ? 0 : RESERVA_M + ordem.reduce((a, o) => a + (ativo(o, mi) ? parte(o, mi) : 0), 0) + (liberdadeDigitada(mi) || 0)));
     // no caixa negativo de propósito, a caixa acumulada não fica abaixo de zero: o patrimônio cobre a diferença
     const somaCaixa = (c, k) => caixaNegativoEm(k) ? Math.max(0, c + net[k]) : c + net[k];
     const guardar = net.map((_, mi) => { let c = 0, g = 0; for (let k = mi + 1; k < Math.min(n, mi + 1 + JANELA_CAIXA); k++) { c = somaCaixa(c, k); g = Math.max(g, -c); } return g; });
@@ -2730,7 +2809,9 @@ const ENGINE = (() => {
       // a caixa não volta a zero nos próximos 12 meses: o corte é o mínimo, igual em cada um deles, que a faz voltar
       // precisa: o menor dinheiro a mais, somando os meses de mi até precisaAte, que faz a caixa voltar a zero (o alvo do ajuste
       // mês a mês: reduzir uma despesa ou aumentar uma renda em qualquer desses meses)
-      const doCaixa = () => lib(mi) ? 0 : Object.values(ap).reduce((a, v) => a + v, 0);   // o aporte da liberdade sai do financeiro, não da sobra
+      // a liberdade digitada é um destino como os outros: sai da sobra (ou da caixa) e não é cortada
+      const libD = lib(mi) ? null : liberdadeDigitada(mi), antes = caixa;
+      const doCaixa = () => lib(mi) ? 0 : Object.values(ap).reduce((a, v) => a + v, 0) + (libD || 0);   // o aporte da liberdade sai do financeiro, não da sobra
       let cum = caixa + livre - reserva - doCaixa(), corte = Math.max(0, -cum), precisa = corte, precisaAte = mi;
       if (caixaNegativoEm(mi)) corte = precisa = 0;
       for (let k = 1; k < JANELA_CAIXA && mi + k < n && corte > 0.5; k++) { cum = somaCaixa(cum, mi + k); const def = Math.max(0, -cum); corte = Math.min(corte, def / (k + 1)); if (def < precisa - 0.005) { precisa = def; precisaAte = mi + k; } }
@@ -2742,14 +2823,14 @@ const ENGINE = (() => {
       const doPatrimonio = caixaNegativoEm(mi) && fim < 0 ? -fim : 0; fim += doPatrimonio;   // de propósito: sai do patrimônio
       // o que passa do que os 12 meses seguintes vão precisar: primeiro o objetivo que guarda toda a sobra (o.aporteSobra), até
       // o que falta; o resto vai para a liberdade financeira
-      let acima = Math.max(0, fim - guardar[mi]);
+      let acima = libD != null ? 0 : Math.max(0, fim - guardar[mi]);
       ativos.filter(o => o.aporteSobra && !digitado[o.id]).forEach(o => { const v = Math.min(acima, falta(o, mi)); ap[o.id] += v; acima -= v; fim -= v; });
-      const liberdade = acima; fim -= liberdade;
+      const liberdade = libD != null ? libD : acima; if (libD == null) fim -= liberdade;
       ativos.forEach(o => { por[o.id][mi] = ap[o.id]; saldo[o.id] += ap[o.id]; saldoS[o.id] += digitado[o.id] ? sug[o.id] : ap[o.id]; });
       Object.keys(ext).forEach(id => { por[id][mi] += ext[id]; });   // na simulação, o extra é um aporte do mês como os outros
       const total = Object.values(ap).reduce((a, v) => a + v, 0) + Object.values(ext).reduce((a, v) => a + v, 0);
       caixa = fim;
-      meses.push({ mi, sobra: sobra[mi], geral: geral[mi], reserva, aportes: ap, extras: ext, digitado, total, guardado: caixa, liberdade, negativo: caixa < -0.5, doPatrimonio, deProposito: caixaNegativoEm(mi), precisa: corte > 0.5 ? precisa : 0, precisaAte,
+      meses.push({ mi, sobra: sobra[mi], geral: geral[mi], reserva, aportes: ap, extras: ext, digitado, total, guardado: caixa, liberdade, libDigitada: libD != null, movimento: caixa - antes - doPatrimonio, negativo: caixa < -0.5, doPatrimonio, deProposito: caixaNegativoEm(mi), precisa: corte > 0.5 ? precisa : 0, precisaAte,
         corte: Object.values(cortado).reduce((a, v) => a + v, 0), cortado });
     }
     // as faltas: os trechos de meses seguidos com corte, com o maior corte, quem perde e a causa
@@ -2881,6 +2962,7 @@ const ENGINE = (() => {
     COMPROMISSOS = Array.isArray(plan.compromissos) ? plan.compromissos : [];
     RESERVA_M = Math.max(0, num((plan.politica || {}).reservaMensal) || 0);
     aplicaCarteiras(plan);
+    LIB_PROG = plan.liberdadePrograma && typeof plan.liberdadePrograma === 'object' ? plan.liberdadePrograma : null;
     { const c = plan.caixaNegativo, de = c && num(c.de), ate = c && num(c.ate); CAIXA_NEG = de != null && ate != null && ate >= de ? { de: Math.max(0, Math.round(de)), ate: Math.round(ate) } : null; }
     CREDITOS = Array.isArray(plan.creditos) ? plan.creditos : [];
     { const jd = num(plan.jurosDivida); JUROS_DIVIDA_M = Math.max(0, jd != null ? jd : JUROS_DIVIDA_PADRAO) / 100; }
@@ -3449,7 +3531,16 @@ const ENGINE = (() => {
     const pico = { mm: mmP, renda: rendaP, custo: custoP, futuro: rendaP - custoP, itens: { fixas: fixasP, ajustaveis: ajustaveisP },
       grupos: { fixas: tot(fixasP), ajustaveis: tot(ajustaveisP), futuro: rendaP - custoP },
       ideal: { fixas: rendaP * ORCAMENTO_IDEAL.fixas, ajustaveis: rendaP * ORCAMENTO_IDEAL.ajustaveis, futuro: rendaP * ORCAMENTO_IDEAL.futuro } };
-    return { mes: { renda, custo, futuro }, pico, ano: { renda: renda * 12, custo: custo * 12, futuro: futuro * 12 }, pctFuturo: renda > 0 ? futuro / renda : null,
+    // O que não é de todo mês e se repete (o 13º, um bônus, o IPTU: anual, semestral, trimestral), à parte: quanto cada linha
+    // paga ou recebe nos próximos 12 meses e em quais meses. O pontual fica fora, como na média.
+    const eventual = (it, lado) => { const x = sortSteps(Object.assign({}, it, { exc: null })), meses = []; let noAno = 0;
+      for (let mm = 0; mm < 12; mm++) { const v = valorEm(x, mm, lado !== 'entrada'); if (v > 0.005) { meses.push(mm); noAno += v; } }
+      return { id: String(it.id), nome: it.label || (lado === 'entrada' ? 'Entrada sem nome' : 'Despesa sem nome'), lado, noAno, meses }; };
+    const doAno = (lista, lado, f) => (lista || []).filter(it => !todoMes(it) && (it.frequency || 'mensal') !== 'pontual' && (!f || f(it))).map(it => eventual(it, lado));
+    const evs = doAno(plan.incomes, 'entrada').concat(doAno(despesas, 'fixa', e => e.group === 'fix'), doAno(despesas, 'ajustavel', e => e.group !== 'fix'));
+    const noAno = l => evs.filter(x => x.lado === l).reduce((a, x) => a + x.noAno, 0);
+    const eventuais = { itens: evs, entradas: noAno('entrada'), fixas: noAno('fixa'), ajustaveis: noAno('ajustavel') };
+    return { eventuais, mes: { renda, custo, futuro }, pico, ano: { renda: renda * 12, custo: custo * 12, futuro: futuro * 12 }, pctFuturo: renda > 0 ? futuro / renda : null,
       grupos: { fixas: tot(fixas), ajustaveis: tot(ajustaveis), futuro }, itens: { fixas, ajustaveis },
       ideal: { fixas: renda * ORCAMENTO_IDEAL.fixas, ajustaveis: renda * ORCAMENTO_IDEAL.ajustaveis, futuro: renda * ORCAMENTO_IDEAL.futuro },
       combinado: combinado.fixas || combinado.ajustaveis ? combinado : null, vezesPoupou: VEZES_POUPOU.some(v => v[0] === O.vezesPoupou) ? O.vezesPoupou : null };
@@ -3466,6 +3557,100 @@ const ENGINE = (() => {
     const pessoas = pessoasDaFamilia(plan).map(q => Object.assign({ quem: q }, conta(nm[q], horasDe(plan, q), rendaDoTrabalho(plan, q))));
     const com = pessoas.filter(p => p.horas), familia = com.length > 1 ? conta('Família', com.reduce((a, p) => a + p.horas, 0), com.reduce((a, p) => a + p.renda, 0)) : null;
     return { pessoas, familia, referenciaFuturo: ORCAMENTO_IDEAL.futuro, patrimonio };
+  }
+  // ---- Semanadas: o teto da fatura do cartão, semana a semana (SEMANADAS.md) ----
+  // A família confere um número só, quanto está a fatura do cartão, contra o marco da semana. Cada despesa do Fluxo é paga
+  // pela conta ou pelo cartão de uma pessoa (expenses[].cartao: 'titular' ou 'conjuge'; um cartão por pessoa). O ciclo do
+  // cartão começa no dia informado (plan.semanadas.cartoes.<quem>.dia) e vai até a véspera do mesmo dia no mês seguinte,
+  // em quatro semanas (diasDasSemanadas). A base de cada semana são as despesas fixas do cartão, na semana em que cada uma
+  // é cobrada, mais as outras despesas no cartão (a linha com `outras`: o total já contratado da fatura, programado mês a
+  // mês no Fluxo de 24 meses; o valor do mês M é o do ciclo que começa em M e entra inteiro na semana 1). Por cima da base
+  // vai o ajustável: o alvo da família (plan.semanadas.alvo, por mês; a conta é a do mês comum, gestaoFinanceira().pico: a renda
+  // de todo mês menos as fixas de todo mês menos o que vai para o futuro; o 13º, os bônus e o IPTU ficam fora) se reparte entre o cartão de cada pessoa (.parte) e
+  // o que é pago fora do cartão, e a parte se distribui nas quatro semanas (.semanas, o padrão; .ciclos['AAAA-MM'], um
+  // ciclo com a sua). O marco é o acumulado: o que a fatura não deve passar no último dia da semana.
+  const DIAS_SEMANADA = { 28: [7, 7, 7, 7], 29: [7, 8, 7, 7], 30: [7, 8, 7, 8], 31: [7, 8, 8, 8] };
+  const diasDasSemanadas = dias => DIAS_SEMANADA[Math.min(31, Math.max(28, Math.round(+dias) || 30))].slice();
+  // em reais inteiros, com a última semana levando o arredondamento
+  const fechaSemanas = (v, total) => { const r = v.map(x => Math.max(0, Math.round(x))); r[r.length - 1] = Math.max(0, Math.round(total) - r.slice(0, -1).reduce((a, x) => a + x, 0)); return r; };
+  // a distribuição gravada, levada ao total de hoje na mesma proporção; sem ela, as quatro semanas iguais
+  const semanasDe = (v, total) => { const l = Array.isArray(v) && v.length === 4 ? v.map(x => Math.max(0, +x || 0)) : null, t = l ? l.reduce((a, x) => a + x, 0) : 0;
+    return fechaSemanas(t > 0 ? l.map(x => x * total / t) : [1, 1, 1, 1].map(x => x * total / 4), total); };
+  // Os controles das semanas: mudar a semana j (0 a 2) dilui a diferença, por igual, nas seguintes; nenhuma fica negativa,
+  // e as anteriores não mudam. A última é sempre o que sobra.
+  function semanasComMudanca(valores, j, novo) {
+    const v = valores.map(x => Math.max(0, +x || 0)), total = v.reduce((a, x) => a + x, 0), soma = l => l.reduce((a, x) => a + x, 0);
+    if (!(j >= 0 && j < v.length - 1)) return fechaSemanas(v, total);
+    const resto = total - soma(v.slice(0, j)); v[j] = Math.min(Math.max(0, +novo || 0), resto);
+    let falta = resto - v[j] - soma(v.slice(j + 1)), livres = v.map((x, k) => k).filter(k => k > j);
+    while (Math.abs(falta) > 0.005 && livres.length) { const q = falta / livres.length; falta = 0;
+      livres = livres.filter(k => { const n = v[k] + q; if (n < 0) { falta += n; v[k] = 0; return false; } v[k] = n; return true; }); }
+    return fechaSemanas(v, total);
+  }
+  // as cobranças de uma despesa entre duas datas (a segunda fica fora): a data de cada ocorrência e o valor. A data sai do
+  // dia da linha; sem dia (o formato antigo), da semana do mês do motor. Antes do mês 0, vale o desenho do mês 0.
+  const cobrancasEntre = (it, de, ate) => {
+    const out = [], fq = it.frequency || 'mensal', usados = [];
+    for (let mm = cmDaData(de) - CM0 - 1; mm <= cmDaData(ate) - CM0 + 1; mm++) {
+      const { y, m } = calDoCiclo(mm), noMes = d => d >= 5 ? new Date(y, m, Math.min(d, new Date(y, m + 1, 0).getDate()), 12) : new Date(y, m + 1, d, 12);
+      const dias = fq === 'anual' && Array.isArray(it.dates) ? it.dates.filter(dt => cicloDaData(dt.m, dt.d) === mesDoCiclo(mm)).map(dt => +dt.d) : it.days && it.days.length ? it.days.map(Number) : [];
+      usados.length = 0;
+      ocorrencias(it, mm < 0 && (fq === 'mensal' || fq === 'semanal') ? 0 : mm, true).forEach(o => {
+        const i = dias.findIndex((d, k) => !usados.includes(k) && semanaDoCiclo(mm, d) === o.k); if (i >= 0) usados.push(i);
+        const data = i >= 0 ? noMes(dias[i]) : new Date(y, m, 5 + 7 * (o.k - 1), 12);
+        if (data >= de && data < ate && o.v) out.push({ data, v: o.v });
+      });
+    }
+    return out;
+  };
+  function semanadasDoPlano(plan, n = 12) {
+    const S = plan.semanadas || {}, g = gestaoFinanceira(plan), nm = nomesDaFamilia(plan), despesas = plan.expenses || [];
+    const metaAj = g.combinado && g.combinado.ajustaveis ? g.combinado.ajustaveis.meta : 0;
+    const M = g.pico, alvo = num(S.alvo) != null ? Math.max(0, +S.alvo) : Math.max(0, Math.round(M.grupos.ajustaveis - metaAj));
+    const noMes = (q, k) => { const ids = new Set(despesas.filter(e => e.cartao === q).map(e => String(e.id))); return M.itens[k].reduce((a, x) => a + (ids.has(x.id) ? x.valor : 0), 0); };
+    const noCartao = (q, f) => despesas.filter(e => e.cartao === q && f(e));
+    const comeco = (y, m, dia) => new Date(y, m, Math.min(dia, new Date(y, m + 1, 0).getDate()), 12);
+    const dias = (a, b) => Math.round((b - a) / 864e5), mais = (d, k) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + k, 12);
+    const pessoas = pessoasDaFamilia(plan).map(q => {
+      const C = (S.cartoes || {})[q] || {}, ativo = num(C.dia) != null && +C.dia >= 1, dia = ativo ? Math.min(31, Math.round(+C.dia)) : null;
+      const ajNoCartao = noMes(q, 'ajustaveis'), fixNoCartao = noMes(q, 'fixas');
+      const sugestao = M.grupos.ajustaveis > 0 ? Math.round(alvo * ajNoCartao / M.grupos.ajustaveis) : 0;
+      const parte = !ativo ? 0 : num(C.parte) != null ? Math.max(0, +C.parte) : sugestao, padrao = semanasDe(C.semanas, parte);
+      const base = { quem: q, nome: nm[q], ativo, dia, parte, sugestao, digitada: ativo && num(C.parte) != null, padrao, ajNoCartao, fixNoCartao, ciclos: [] };
+      if (!ativo) return base;
+      const fixas = noCartao(q, e => e.group === 'fix' && !e.outras), outras = noCartao(q, e => e.outras);
+      let y = TODAY.getFullYear(), m = TODAY.getMonth(); if (comeco(y, m, dia) > TODAY) m--;
+      for (let k = 0; k < n; k++) {
+        const de = comeco(y, m + k, dia), ate = comeco(y, m + k + 1, dia), chave = de.getFullYear() + '-' + String(de.getMonth() + 1).padStart(2, '0');
+        const mi = de.getFullYear() * 12 + de.getMonth() - CM0, proprio = Array.isArray((C.ciclos || {})[chave]) && C.ciclos[chave].length === 4;
+        const aj = proprio ? semanasDe(C.ciclos[chave], parte) : padrao, cob = fixas.map(e => ({ e, l: cobrancasEntre(e, de, ate) }));
+        const vOutras = outras.reduce((a, e) => a + valorEm(e, Math.max(0, mi), true), 0);
+        let d0 = de, marco = 0;
+        const semanas = diasDasSemanadas(dias(de, ate)).map((nd, j) => {
+          const d1 = j === 3 ? ate : mais(d0, nd), fx = cob.map(c => ({ id: String(c.e.id), nome: c.e.label || 'Despesa sem nome', valor: c.l.reduce((a, o) => a + (o.data >= d0 && o.data < d1 ? o.v : 0), 0) })).filter(x => x.valor > 0.005);
+          const out = j === 0 ? vOutras : 0, bs = out + fx.reduce((a, x) => a + x.valor, 0), teto = bs + aj[j]; marco += teto;
+          const s = { n: j + 1, de: isoDe(d0), ate: isoDe(mais(d1, -1)), dias: dias(d0, d1), fixas: fx, outras: out, base: bs, ajustavel: aj[j], teto, marco };
+          d0 = d1; return s; });
+        base.ciclos.push({ chave, mi, de: isoDe(de), ate: isoDe(mais(ate, -1)), dias: dias(de, ate), proprio, semanas, base: semanas.reduce((a, s) => a + s.base, 0), outras: vOutras, ajustavel: parte, total: marco });
+      }
+      return base;
+    });
+    const nosCartoes = pessoas.reduce((a, p) => a + p.parte, 0);
+    return { alvo, digitado: num(S.alvo) != null, conta: { renda: M.renda, fixas: M.grupos.fixas, futuro: M.renda - M.grupos.fixas - alvo, alvo }, ajustaveisHoje: M.grupos.ajustaveis, eventuais: g.eventuais,
+      nosCartoes, fora: alvo - nosCartoes, pessoas, cartoes: pessoas.filter(p => p.ativo) };
+  }
+  // O novo alvo depois de um realizado. realizados: quanto estava a fatura no fim de cada semana (vazio = não informado);
+  // vale a última semana informada. Acima do marco, o teto final do ciclo fica e o excesso sai do ajustável das semanas
+  // seguintes, na proporção do ajustável de cada uma; se passa de todo o ajustável que resta, o ciclo fecha acima.
+  // Abaixo do marco, os marcos ficam como estavam, e sobra a folga.
+  function novoAlvoDaSemanada(ciclo, realizados) {
+    const R = (realizados || []).map(num); let j = -1; R.forEach((v, k) => { if (v != null && k < ciclo.semanas.length) j = k; });
+    if (j < 0) return null;
+    const s = ciclo.semanas[j], fatura = R[j], dif = fatura - s.marco, resto = ciclo.semanas.slice(j + 1), ajResto = resto.reduce((a, x) => a + x.ajustavel, 0), acima = dif > 0.5;
+    const novos = acima && resto.length ? fechaSemanas(resto.map(x => ajResto > 0 ? x.ajustavel * Math.max(0, 1 - dif / ajResto) : 0), Math.max(0, ajResto - dif)) : resto.map(x => x.ajustavel);
+    let acc = acima ? fatura : s.marco;
+    const semanas = resto.map((x, k) => { acc += x.base + novos[k]; return { n: x.n, de: x.de, ate: x.ate, base: x.base, ajustavel: novos[k], antes: x.ajustavel, teto: x.base + novos[k], marco: acc, marcoAntes: x.marco }; });
+    return { semana: s.n, fatura, marco: s.marco, diferenca: dif, estado: acima ? 'acima' : 'dentro', folga: acima ? 0 : Math.max(0, -dif), semanas, fecha: acc, total: ciclo.total, fechaAcima: Math.max(0, acc - ciclo.total) };
   }
   // ---- Capítulo 2: o diagnóstico, a família hoje e depois do planejamento ----
   // Oito linhas (os objetivos em duas), cada uma com o presente e o futuro. O presente é calculado onde há conta (o orçamento, pelo Fluxo de
@@ -3965,7 +4150,7 @@ const ENGINE = (() => {
     return mis.map(mi => ({ mi, mes: M[mi].mes, saldo: M[mi].saldo, aportado: M.slice(0, mi + 1).reduce((a, m) => a + m.aporte, 0), extra: M.slice(0, mi + 1).reduce((a, m) => a + m.extra, 0), data: mi === n }));
   }
   OBJ.forEach(derive);   // os objetivos do exemplo (aqui, depois dos bens: derive lê as vendas)
-  return { fatiaDaFamilia, CARTEIRAS_BASE, caixaNegativoEm, rendasDaLiberdade, alternativasDaLiberdade, avisosDoPlano, temValor, compraDoObjetivo, parcelaDaCompra, nomeDaCompra, MESES_CONSERVADOR, taxaDoObjetivo, taxaNoMes, mesDoConservador, trecho, cresceAte, alocacaoSugerida, alocacaoDaCaixinha, alocacaoDasCaixinhas, folgaDosAportes, extraDoMes, get TODAY() { return TODAY; }, get M0() { return calDoCiclo(0); }, get INICIO() { return isoDe(TODAY); }, INICIO_PADRAO, mudaInicio, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, ligado, objetivosLigados, inicioDoAporte, inicioDoDedicado, saldoNoMes, necessarioDe, MESES_POLITICA, orcamentoMesAMes, MESES_PROGRAMA, prioridadeDosObjetivos, linhasDosMeses, PASSIVE, PROFILES, STATUS, trajetoriaDoBem, trajetoriaDaParticipacao, vendasDoObjetivo, partilhaDaVenda, HORIZONTES, horizonteDe, politicaDeInvestimentos, TIPOS_FINANCEIRO, SEM_LIQUIDEZ, DA_CARTEIRA, saiComACarteira, CAIXA_PREV, RENTAB_FGTS, FORMAS_PREV, BR_EMS, termosDaAnuidade, ETTJ_PREVIC, get CAIXAS_PREV() { return CAIXAS_PREV; }, saldoPrevEm, netEm, contratoDoConsorcio, caixaDoConsorcio, REAJUSTE_APOS, get COMPROMISSOS() { return COMPROMISSOS; }, saldoDasVendas, precoDoObjetivo, mesISO, orcadoDoObjetivo, cortesDoObjetivo, saldoDevedorEm, contratoDaDivida, restantesDaDivida, mesDe, get BENS() { return bensDoPlano(); }, get PARTS() { return partsDoPlano(); }, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, serieCusto, desiredAt, aplicaAlteracoes, fraseDaLinha, descreveAlteracao, valorAtual, mesDoPlano, desejoDoPlano, frequenciaDasLinhas, RISCOS, NATUREZAS, ITENS_RUINA, RISCOS_EXEMPLO, avaliaRiscos, custoDeVida, mediaDe12Meses, SEGURO, RELACOES, idadeLimiteDe, calculaSeguros, mesesAteIdade, FASES_VIDA, faseDaVida, sincronizaPatrimonio, PATRIMONIO_EXEMPLO, padraoDeVida, lerCaminho, gravaCaminho, IR, calculaIR, irDaFamilia, REGIMES, calculaRetirada, retiradaDosSocios, PREVIDENCIA, sucessao, simulaPrevidencia, aliqRegressiva, TRIBUTARIO_EXEMPLO, FAMILIA_EXEMPLO, casalDe, nomesDaFamilia, pessoasDaFamilia, rendaDaPessoa, bensDoRisco, titularidadeDoBem, setRetireAge: a => { RETIRE_AGE = a == null ? null : Math.max(CURRENT_AGE, +a); }, paradaMi, trabalhaEm, idadeDaLiberdade, dataNasc, idadeExata, sincronizaIdades, fraseDoProposito, ordemDoProposito, objetivosDoProposito, rendasAtivasDe, naturezaDe, naturezaDaReserva, CLASSES_ATIVOS, ORCAMENTO_IDEAL, VEZES_POUPOU, gestaoFinanceira, horasDoTrabalho, familiaDoPlano, ESTADOS_DIAGNOSTICO, orcamentoDoFluxo, CLASSES_CARTEIRA, CARTEIRAS_MODELO, ACOES_ATIVO, carteiraDoPlano, concentracaoDoPatrimonio, diagnosticoDaFamilia, financiamentoValido, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get JUROS_DIVIDA_M() { return JUROS_DIVIDA_M; }, rotulosDoDetalhe, JUROS_DIVIDA_PADRAO, TETO_DIVIDA_VEZES, contratoDoCredito, get CREDITOS() { return CREDITOS; }, saldoDoCredito, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
+  return { semanadasDoPlano, diasDasSemanadas, semanasComMudanca, novoAlvoDaSemanada, fatiaDaFamilia, CARTEIRAS_BASE, caixaNegativoEm, rendasDaLiberdade, alternativasDaLiberdade, avisosDoPlano, temValor, compraDoObjetivo, parcelaDaCompra, nomeDaCompra, MESES_CONSERVADOR, taxaDoObjetivo, taxaNoMes, mesDoConservador, trecho, cresceAte, alocacaoSugerida, alocacaoDaCaixinha, alocacaoDasCaixinhas, folgaDosAportes, extraDoMes, get TODAY() { return TODAY; }, get M0() { return calDoCiclo(0); }, get INICIO() { return isoDe(TODAY); }, INICIO_PADRAO, mudaInicio, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, ligado, objetivosLigados, inicioDoAporte, inicioDoDedicado, saldoNoMes, necessarioDe, MESES_POLITICA, orcamentoMesAMes, MESES_PROGRAMA, prioridadeDosObjetivos, linhasDosMeses, PASSIVE, PROFILES, STATUS, trajetoriaDoBem, trajetoriaDaParticipacao, vendasDoObjetivo, partilhaDaVenda, HORIZONTES, horizonteDe, politicaDeInvestimentos, TIPOS_FINANCEIRO, SEM_LIQUIDEZ, DA_CARTEIRA, saiComACarteira, CAIXA_PREV, RENTAB_FGTS, FORMAS_PREV, BR_EMS, termosDaAnuidade, ETTJ_PREVIC, get CAIXAS_PREV() { return CAIXAS_PREV; }, saldoPrevEm, netEm, contratoDoConsorcio, caixaDoConsorcio, REAJUSTE_APOS, get COMPROMISSOS() { return COMPROMISSOS; }, saldoDasVendas, precoDoObjetivo, mesISO, orcadoDoObjetivo, cortesDoObjetivo, saldoDevedorEm, contratoDaDivida, restantesDaDivida, mesDe, get BENS() { return bensDoPlano(); }, get PARTS() { return partsDoPlano(); }, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, serieCusto, desiredAt, aplicaAlteracoes, fraseDaLinha, descreveAlteracao, valorAtual, mesDoPlano, desejoDoPlano, frequenciaDasLinhas, RISCOS, NATUREZAS, ITENS_RUINA, RISCOS_EXEMPLO, avaliaRiscos, custoDeVida, mediaDe12Meses, SEGURO, RELACOES, idadeLimiteDe, calculaSeguros, mesesAteIdade, FASES_VIDA, faseDaVida, sincronizaPatrimonio, PATRIMONIO_EXEMPLO, padraoDeVida, lerCaminho, gravaCaminho, IR, calculaIR, irDaFamilia, REGIMES, calculaRetirada, retiradaDosSocios, PREVIDENCIA, sucessao, simulaPrevidencia, aliqRegressiva, TRIBUTARIO_EXEMPLO, FAMILIA_EXEMPLO, casalDe, nomesDaFamilia, pessoasDaFamilia, rendaDaPessoa, bensDoRisco, titularidadeDoBem, setRetireAge: a => { RETIRE_AGE = a == null ? null : Math.max(CURRENT_AGE, +a); }, paradaMi, trabalhaEm, idadeDaLiberdade, dataNasc, idadeExata, sincronizaIdades, fraseDoProposito, ordemDoProposito, objetivosDoProposito, rendasAtivasDe, naturezaDe, naturezaDaReserva, CLASSES_ATIVOS, ORCAMENTO_IDEAL, VEZES_POUPOU, gestaoFinanceira, horasDoTrabalho, familiaDoPlano, ESTADOS_DIAGNOSTICO, orcamentoDoFluxo, CLASSES_CARTEIRA, CARTEIRAS_MODELO, ACOES_ATIVO, carteiraDoPlano, concentracaoDoPatrimonio, diagnosticoDaFamilia, financiamentoValido, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get JUROS_DIVIDA_M() { return JUROS_DIVIDA_M; }, rotulosDoDetalhe, JUROS_DIVIDA_PADRAO, TETO_DIVIDA_VEZES, contratoDoCredito, get CREDITOS() { return CREDITOS; }, saldoDoCredito, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
 })();
 if (typeof module !== 'undefined') module.exports = ENGINE;
 </script>
@@ -7049,10 +7234,10 @@ function rendaCartao(it, nm, casal) {
         <button class="btn btn-secondary btn-small" data-orc-fecha="${it.id}">OK</button></div>
     </div></div>`;
 }
-function rendasBloco(g, nm, casal) {
+function rendasBloco(g, nm, casal, cab) {
   const lista = plano.incomes.filter(it => !ehExtra(it));
-  return `<div class="bloco"><h3>Rendas<span class="dir">${fmt(g.mes.renda)} por mês, na média dos próximos 12 meses</span></h3>
-    ${lista.length ? `<div class="orc-rendas">${lista.map(it => rendaCartao(it, nm, casal)).join('')}</div>` : '<div class="sub">Nenhuma renda ainda. Elas vão chegar da coleta; aqui você corrige ou acrescenta o que faltou.</div>'}
+  return `${cab('Rendas', `${fmt(g.pico.renda)} todo mês`, 'O que cai na conta todo mês, já líquido. Clique numa renda para abrir: o bruto, quem a gera e o que vem junto (o 13º e os bônus, que aparecem no passo 4).')}
+    ${lista.length ? `<div class="orc-rendas">${lista.map(it => rendaCartao(it, nm, casal)).join('')}</div>` : ''}
     <div class="orc-adds"><button class="btn btn-step" data-orc-nova="ativa">+ renda ativa</button><button class="btn btn-step" data-orc-nova="passiva">+ renda passiva</button></div></div>`;
 }
 document.addEventListener('click', e => {
@@ -7103,37 +7288,189 @@ document.addEventListener('change', e => {
   if (d.orcBfq) { const b = acha(d.orcBfq); if (!b) return; const m = mesDoBonus(b); b.frequency = t.value; poeMesNoBonus(b, m); renderAll(); return; }
   if (d.orcBmes) { const b = acha(d.orcBmes); if (!b) return; poeMesNoBonus(b, +t.value); renderAll(); }
 });
+// O Orçamento mostra o mês comum, sem médias: as rendas e as despesas de todo mês (ENGINE.gestaoFinanceira: pico), com os
+// totais do alto e de cada bloco. O que não é de todo mês (o 13º, um bônus, o IPTU, uma linha pontual) fica num bloco à
+// parte, "Ao longo do ano", com quando acontece e quanto soma no ano; embaixo dele, a média dos próximos 12 meses (a conta
+// que o plano usa), com o que o ano acrescenta ao mês.
+const todoMes = it => ['mensal', 'semanal'].includes(it.frequency || 'mensal');
+const pgRotulo = (q, nm, casal) => !q ? 'conta' : casal ? 'cartão · ' + nm[q] : 'cartão';
+// com o que a despesa é paga: uma etiqueta que troca a cada clique (a conta, o cartão de cada pessoa)
+const pgEtiqueta = (it, i, nm, casal) => `<button type="button" class="orc-pg${it.cartao ? ' on' + (it.cartao === 'conjuge' ? ' cj' : '') : ''}"${it.outras ? ' disabled' : ` data-pg="${i}" title="Clique para trocar: conta (boleto, Pix ou débito) ou cartão"`} aria-label="Pago com: ${esc(pgRotulo(it.cartao, nm, casal))}">${esc(pgRotulo(it.cartao, nm, casal))}</button>`;
+// A página é um passo a passo: no alto, a conta do mês (rendas − fixas − ajustáveis = o que sobra), em que cada parte leva
+// ao seu bloco, e a linha do que o ano acrescenta; depois, um bloco numerado por passo. Nas tabelas, o nome não tem borda até
+// o mouse passar (o que se preenche é o valor), e as colunas têm largura fixa, para os campos não passarem da borda.
 function renderOrcamentoC() {
   const el = document.getElementById('orcC'); if (!el) return;
-  const g = ENGINE.gestaoFinanceira(plano), nm = ENGINE.nomesDaFamilia(plano), casal = ENGINE.pessoasDaFamilia(plano).length > 1;
-  const pct = v => g.mes.renda > 0 ? Math.round(v / g.mes.renda * 100) + '% da renda' : '';
-  const tile = (n, v, sub) => `<div class="pc-tile"><span>${n}</span><b>${fmt(v)}</b><span>${sub}</span></div>`;
-  const linha = (lista, it, i, quem) => {
-    const lig = ligadaA(it), media = ENGINE.mediaDe12Meses([it]);
-    const valor = lig ? `<div class="orc-fx">${fmt(media)}<small>da página ${lig[0]} · <button class="link" data-ir="${lig[1]}">mudar</button></small></div>`
-      : linhaSimples(it) ? campoR(`${lista}.${i}.steps.0.value`, 'reais0', ' placeholder="R$ por mês"')
-      : `<div class="orc-fx">${fmt(media)}<small>média · detalhada no <button class="link" data-ir="fluxo">Fluxo vida toda</button></small></div>`;
-    return `<tr><td>${lig ? esc(it.label || '') : campoR(`${lista}.${i}.label`, 'texto', ' placeholder="nome"')}</td>${quem ? `<td class="q">${selR(`${lista}.${i}.pessoa`, [['titular', nm.titular], ['conjuge', nm.conjuge]])}</td>` : ''}<td class="v">${valor}</td>${MODO_COLETA ? `<td>${campoR(`${lista}.${i}.description`, 'texto', ' placeholder="observação"')}</td>` : ''}<td class="x">${lig ? '' : `<button class="btn btn-icon" data-rrm="${lista}.${i}" title="Remover">×</button>`}</td></tr>`;
+  const g = ENGINE.gestaoFinanceira(plano), M = g.pico, E = g.eventuais, nm = ENGINE.nomesDaFamilia(plano), casal = ENGINE.pessoasDaFamilia(plano).length > 1;
+  const pctDe = (v, r) => r > 0 ? Math.round(v / r * 100) + '%' : '', pct = v => pctDe(v, M.renda);
+  let passo = 0; const cab = (titulo, dir, sub) => { passo++; return `<div class="bloco" id="orc-${passo}"><h3><i class="orc-n">${passo}</i>${titulo}${dir ? `<span class="dir">${dir}</span>` : ''}</h3>${sub ? `<div class="sub">${sub}</div>` : ''}`; };
+  const noMes = Object.fromEntries(M.itens.fixas.concat(M.itens.ajustaveis).map(x => [x.id, x.valor]));
+  const thPago = `<th>Pago com ${tip('Clique na etiqueta para trocar. Conta: boleto, Pix ou débito. Cartão: a despesa entra na fatura e conta na régua das Semanadas. A fixa entra na semana em que é cobrada; a ajustável, no teto de cada semana.')}</th>`;
+  const nome = (c, ph) => campoR(c, 'texto', ` class="car-sb" placeholder="${ph || 'nome'}"`);
+  const linha = (it, i) => {
+    const lig = ligadaA(it);
+    const valor = lig ? `<div class="orc-fx">${fmt(noMes[it.id] || 0)}<small>da página ${lig[0]} · <button class="link" data-ir="${lig[1]}">mudar</button></small></div>`
+      : it.outras || linhaSimples(it) ? campoR(`expenses.${i}.steps.0.value`, 'reais0', ' placeholder="R$ por mês"')
+      : `<div class="orc-fx">${fmt(noMes[it.id] || 0)}<small>muda com o tempo · <button class="link" data-ir="fluxo">ver no Fluxo</button></small></div>`;
+    const rot = lig ? `<div class="orc-fx fixo">${esc(it.label || '')}</div>`
+      : it.outras ? `<div class="orc-fx fixo">${esc(it.label || 'Outras despesas no cartão')}<small>parcelas já contratadas · cada fatura no <button class="link" data-ir="ajuste">Fluxo de 24 meses</button></small></div>` : nome(`expenses.${i}.label`);
+    return `<tr><td>${rot}</td><td class="pg">${pgEtiqueta(it, i, nm, casal)}</td><td class="v">${valor}</td>${MODO_COLETA ? `<td>${campoR(`expenses.${i}.description`, 'texto', ' class="car-sb" placeholder="observação"')}</td>` : ''}<td class="x">${lig ? '' : `<button class="btn btn-icon" data-rrm="expenses.${i}" title="Remover">×</button>`}</td></tr>`;
   };
-  const bloco = (titulo, lista, filtro, add, rotulo, total, ref) => {
-    const quem = lista === 'incomes' && casal, rows = plano[lista].map((it, i) => [it, i]).filter(([it]) => filtro(it));
-    return `<div class="bloco"><h3>${titulo}<span class="dir">${fmt(total)} por mês${ref ? ' · ' + pct(total) + ' (referência ' + ref + ')' : ''}</span></h3>
-      ${rows.length ? `<table class="orc-tab"><thead><tr><th>Nome</th>${quem ? '<th>De quem</th>' : ''}<th class="v">Por mês</th>${MODO_COLETA ? '<th>Observação</th>' : ''}<th></th></tr></thead><tbody>${rows.map(([it, i]) => linha(lista, it, i, quem)).join('')}</tbody></table>` : '<div class="sub">Nenhuma linha ainda.</div>'}
+  const tabela = (filtro, add, rotulo) => {
+    const rows = plano.expenses.map((it, i) => [it, i]).filter(([it]) => todoMes(it) && filtro(it));
+    return `${rows.length ? `<div class="orc-rola"><table class="orc-tab orc-mes"><colgroup><col><col class="c-pg"><col class="c-v">${MODO_COLETA ? '<col class="c-obs">' : ''}<col class="c-x"></colgroup><thead><tr><th>Nome</th>${thPago}<th>Por mês</th>${MODO_COLETA ? '<th>Observação</th>' : ''}<th></th></tr></thead><tbody>${rows.map(([it, i]) => linha(it, i)).join('')}</tbody></table></div>` : ''}
       <button class="btn btn-step" data-orcadd="${add}">+ ${rotulo}</button></div>`;
   };
-  el.innerHTML = `<div class="orc-res">${tile('Renda', g.mes.renda, 'média dos próximos 12 meses')}${tile('Despesas fixas', g.grupos.fixas, pct(g.grupos.fixas) + ' · referência 50%')}${tile('Despesas ajustáveis', g.grupos.ajustaveis, pct(g.grupos.ajustaveis) + ' · referência 30%')}${tile('Para o futuro', g.mes.futuro, pct(g.mes.futuro) + ' · mínimo 20%')}</div>
-    ${rendasBloco(g, nm, casal)}
-    ${bloco('Despesas fixas', 'expenses', it => it.group === 'fix', 'fix', 'despesa fixa', g.grupos.fixas, '50%')}
-    ${bloco('Despesas ajustáveis', 'expenses', it => it.group !== 'fix', 'adj', 'despesa ajustável', g.grupos.ajustaveis, '30%')}
-    <div class="bloco"><h3>Poupança</h3><div class="grid g3"><div class="field"><label>Quantas vezes poupou nos últimos 12 meses ${tip('A pergunta do exame. Aparece no capítulo Gestão financeira, ao lado de quanto sobra para o futuro.')}</label>${selR('orcamento.vezesPoupou', [['', 'não informado']].concat(ENGINE.VEZES_POUPOU))}</div></div></div>${orcColetaC()}`;
+  // ao longo do ano: o que não é de todo mês, em três grupos
+  const ev = Object.fromEntries(E.itens.map(x => [x.id, x])), mesCurto = mi => MESES[((MES0.m + mi) % 12 + 12) % 12];
+  const quando = (it, x) => (it.frequency || 'mensal') === 'pontual' ? 'uma vez, em ' + monthsLabel(((it.steps || [])[0] || { from: 0 }).from) : x && x.meses.length ? 'em ' + x.meses.map(mesCurto).join(', ') : 'fora dos próximos 12 meses';
+  const umaData = it => it.frequency === 'anual' && Array.isArray(it.dates) && it.dates.length === 1;
+  const linhaAno = (lista, it, i) => {
+    const x = ev[it.id], ent = lista === 'incomes', pont = (it.frequency || 'mensal') === 'pontual', lig = ligadaA(it), simples = (it.steps || []).length === 1 && !(it.exc && Object.keys(it.exc).length) && !it.segue && !lig;
+    const qd = !ent && umaData(it) && !lig ? `<select class="car-sb" data-ev-mes="${i}" aria-label="Mês em que acontece">${MESES.map((m, k) => `<option value="${k}"${it.dates[0].m === k ? ' selected' : ''}>em ${m}</option>`).join('')}</select>` : `<span class="orc-fx">${quando(it, x)}</span>`;
+    return `<tr><td>${ent || lig ? `<div class="orc-fx fixo">${esc(it.label || 'sem nome')}<small>${ent ? (ehExtra(it) ? 'vem com a renda · muda nela, no passo 1' : '<button class="link" data-ir="fluxo">ver no Fluxo</button>') : 'da página ' + lig[0]}</small></div>` : nome(`expenses.${i}.label`)}</td>
+      <td>${qd}</td><td class="pg">${ent ? '' : pgEtiqueta(it, i, nm, casal)}</td>
+      <td class="v">${!ent && simples ? campoR(`expenses.${i}.steps.0.value`, 'reais0', ' placeholder="R$ cada vez"') : `<span class="orc-fx">${fmt(valorDoPagamento(it))}</span>`}</td>
+      <td class="n">${pont ? '<span class="orc-fx"><small>fora da média</small></span>' : `<span class="orc-fx">${fmt(x ? x.noAno : 0)}</span>`}</td>
+      <td class="x">${ent || lig ? '' : `<button class="btn btn-icon" data-rrm="expenses.${i}" title="Remover">×</button>`}</td></tr>`;
+  };
+  const grupoAno = (titulo, total, linhas) => linhas.length ? `<tr class="grp"><td colspan="4">${titulo}</td><td class="n">${fmt(total)}</td><td></td></tr>${linhas.map(a => linhaAno(...a)).join('')}` : '';
+  const doAno = (lista, f) => plano[lista].map((it, i) => [lista, it, i]).filter(([, it]) => !todoMes(it) && f(it));
+  const gEnt = doAno('incomes', () => true), gFix = doAno('expenses', it => it.group === 'fix'), gAdj = doAno('expenses', it => it.group !== 'fix');
+  const temAno = gEnt.length + gFix.length + gAdj.length > 0, comAno = v => v > 0.5 ? `${fmt(v / 12)} por mês vêm do ano` : 'igual ao mês comum';
+  const media = (n, v, sub) => `<div><span>${n}</span><b>${fmt(v)}</b><small>${sub}</small></div>`;
+  const junta = l => l.filter(Boolean).join(' · ');
+  const vai = (n, rot, v, sub) => `<button type="button" class="orc-eq-p" data-orc-vai="orc-${n}"><span><i class="orc-n">${n}</i>${rot}</span><b>${fmt(v)}</b><small>${sub}</small></button>`;
+  const anoTxt = E.entradas + E.fixas + E.ajustaveis > 0.5 ? `entram ${fmt(E.entradas)} e saem ${fmt(E.fixas + E.ajustaveis)} nos próximos 12 meses` : 'nada lançado ainda';
+  const topo = `<div class="orc-eq">${vai(1, 'Rendas', M.renda, 'todo mês')}<em>−</em>${vai(2, 'Despesas fixas', M.grupos.fixas, junta([pct(M.grupos.fixas) + ' da renda', 'referência 50%']))}<em>−</em>${vai(3, 'Despesas ajustáveis', M.grupos.ajustaveis, junta([pct(M.grupos.ajustaveis) + ' da renda', 'referência 30%']))}<em>=</em>
+      <div class="orc-eq-p res${M.futuro < -0.5 ? ' neg' : ''}"><span>Sobra num mês comum</span><b>${fmt(M.futuro)}</b><small>${junta([pct(M.futuro) + ' da renda', 'mínimo 20%'])}</small></div></div>
+    <div class="orc-eq2"><button type="button" class="link" data-orc-vai="orc-4"><i class="orc-n">4</i>Ao longo do ano</button><span>${anoTxt}. Na média dos 12 meses, sobram <b>${fmt(g.mes.futuro)}</b> por mês${g.mes.renda > 0 ? ' (' + pctDe(g.mes.futuro, g.mes.renda) + ' da renda)' : ''}.</span></div>`;
+  const blocoAno = () => `${cab('Ao longo do ano', anoTxt, 'O que não é de todo mês: o 13º e os bônus (informados na renda, no passo 1), o IPTU, o IPVA, a matrícula da escola. Cada linha diz quando acontece e quanto soma no ano.')}
+    ${temAno ? `<div class="orc-rola"><table class="orc-tab orc-ano"><colgroup><col><col class="c-qd"><col class="c-pg"><col class="c-v2"><col class="c-n"><col class="c-x"></colgroup><thead><tr><th>Nome</th><th>Quando</th>${thPago}<th>Cada vez</th><th class="n">No ano</th><th></th></tr></thead>
+      <tbody>${grupoAno('Entradas', E.entradas, gEnt)}${grupoAno('Despesas fixas', E.fixas, gFix)}${grupoAno('Despesas ajustáveis', E.ajustaveis, gAdj)}</tbody></table></div>` : ''}
+    <div class="orc-adds"><button class="btn btn-step" data-orcadd="fix-ano">+ despesa fixa do ano</button><button class="btn btn-step" data-orcadd="adj-ano">+ despesa ajustável do ano</button></div>
+    <div class="orc-media"><h4>Na média dos próximos 12 meses</h4>
+      <div class="orc-media-l">${media('Renda', g.mes.renda, comAno(E.entradas))}${media('Despesas fixas', g.grupos.fixas, junta([pctDe(g.grupos.fixas, g.mes.renda) + ' da renda', comAno(E.fixas)]))}${media('Despesas ajustáveis', g.grupos.ajustaveis, junta([pctDe(g.grupos.ajustaveis, g.mes.renda) + ' da renda', comAno(E.ajustaveis)]))}${media('Para o futuro', g.mes.futuro, junta([pctDe(g.mes.futuro, g.mes.renda) + ' da renda', 'mínimo 20%']))}</div>
+      <p>O mês comum mais o que acontece no ano, dividido por 12. É a conta que o plano usa para a capacidade de poupança; a linha pontual, que acontece uma vez só, fica fora dela.</p></div></div>`;
+  el.innerHTML = `${topo}
+    ${rendasBloco(g, nm, casal, cab)}
+    ${cab('Despesas fixas', `${fmt(M.grupos.fixas)} todo mês`, 'Os compromissos de todo mês, que não dá para cortar sem mudar de vida: moradia, escola, plano de saúde. Em cada um, o valor e com o que é pago.')}${tabela(it => it.group === 'fix', 'fix', 'despesa fixa')}
+    ${cab('Despesas ajustáveis', `${fmt(M.grupos.ajustaveis)} todo mês`, 'O que varia de um mês para o outro e pode ser reduzido: mercado, lazer, compras. Marque o que passa pelo cartão: é o que a semanada controla.')}${tabela(it => it.group !== 'fix', 'adj', 'despesa ajustável')}
+    ${blocoAno()}
+    ${MODO_COLETA ? '' : semanadasBloco(cab)}
+    ${cab('Poupança', '', '')}<div class="grid g3"><div class="field"><label>Quantas vezes poupou algum valor nos últimos 12 meses ${tip('A pergunta do exame. Aparece no capítulo Gestão financeira, ao lado de quanto sobra para o futuro.')}</label>${selR('orcamento.vezesPoupou', [['', 'não informado']].concat(ENGINE.VEZES_POUPOU))}</div></div></div>${orcColetaC()}`;
 }
+document.addEventListener('click', e => { const t = e.target.closest('[data-orc-vai]'); if (!t) return; const n = document.getElementById(t.dataset.orcVai); if (n) n.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-pg]'); if (!t) return;
+  const it = plano.expenses[+t.dataset.pg]; if (!it) return;
+  const ordem = [''].concat(ENGINE.pessoasDaFamilia(plano)), q = ordem[(ordem.indexOf(it.cartao || '') + 1) % ordem.length];
+  if (q) it.cartao = q; else delete it.cartao;
+  renderAll(); const n = document.querySelector(`[data-pg="${t.dataset.pg}"]`); if (n) n.focus();
+});
+document.addEventListener('change', e => { const t = e.target; if (!t.dataset || t.dataset.evMes == null) return;
+  const it = plano.expenses[+t.dataset.evMes]; if (!it || !Array.isArray(it.dates) || !it.dates.length) return; it.dates = [{ m: +t.value, d: it.dates[0].d }]; renderAll(); });
 document.addEventListener('click', e => {
   const b = e.target.closest('[data-orcadd]'); if (!b) return;
   const t = b.dataset.orcadd, lista = t === 'inc' ? plano.incomes : plano.expenses;
   lista.push(t === 'inc' ? { id: novoId('ent'), label: '', kind: 'ativa', origin: ENGINE.ORIGENS[0], gross: 0, taxable: true, frequency: 'mensal', days: [5], description: '', steps: [{ from: 0, value: 0 }] }
+    : t.endsWith('-ano') ? { id: novoId('cat'), label: '', group: t.slice(0, 3), frequency: 'anual', dates: [{ m: 0, d: 10 }], description: '', steps: [{ from: 0, value: 0 }] }
     : { id: novoId('cat'), label: '', group: t, frequency: 'mensal', days: [10], description: '', steps: [{ from: 0, value: 0 }] });
   renderAll();
   const n = document.querySelector(`#orcC [data-r="${t === 'inc' ? 'incomes' : 'expenses'}.${lista.length - 1}.label"]`); if (n) n.focus();
+});
+
+// ===================== SEMANADAS =====================
+// O teto da fatura do cartão, semana a semana (SEMANADAS.md; a conta é do motor, ENGINE.semanadasDoPlano). Cada despesa do
+// Orçamento diz com o que é paga (a etiqueta "Pago com": a conta ou o cartão de uma pessoa). Aqui o consultor define o alvo de ajustáveis da
+// família (a renda de todo mês menos as fixas menos o que vai para o futuro; grava-se o alvo, plano.semanadas.alvo), quanto
+// dele passa pelo cartão de cada pessoa (o resto é o fora do cartão) e, por cartão, o dia em que a fatura vira e como a
+// parte dele se distribui nas quatro semanas: mudar uma semana dilui a
+// diferença nas seguintes, e a última é o que sobra. A distribuição vale para todos os ciclos, ou só para um
+// (plano.semanadas.cartoes.<quem>.ciclos['AAAA-MM']). Informar o dia cria a linha "Outras despesas no cartão" (o total já
+// contratado de cada fatura), que se programa mês a mês no Fluxo de 24 meses. Embaixo, a régua dos 12 ciclos: o marco de
+// cada semana é o que a fatura não deve passar no último dia dela.
+let smAba = null, smTodos = false;   // o cartão à vista (num casal) e a régua inteira ou só os três primeiros ciclos
+const smCiclo = {};   // por pessoa: o que os controles das semanas mexem ('' = todos os ciclos; 'AAAA-MM' = só aquele)
+const smDia = iso => +iso.slice(8) + '/' + MESES[+iso.slice(5, 7) - 1];
+const smCartao = q => { const S = plano.semanadas = plano.semanadas || {}; S.cartoes = S.cartoes || {}; return S.cartoes[q] = S.cartoes[q] || {}; };
+const smOutras = q => plano.expenses.find(e => e.outras && e.cartao === q);
+// o ciclo que os controles mexem (null: o padrão, todos os ciclos)
+const smEscolhido = p => p.ciclos.find(c => c.chave === smCiclo[p.quem]) || null;
+const smValores = p => { const c = smEscolhido(p); return c ? c.semanas.map(s => s.ajustavel) : p.padrao; };
+function smRegua(p) {
+  const semana = s => `<td title="${esc(s.fixas.map(f => f.nome + ': ' + fmt(f.valor)).concat(s.outras ? ['Outras despesas no cartão: ' + fmt(s.outras)] : []).join(' · '))}"><small>até ${smDia(s.ate)}</small><b>${fmt(s.marco)}</b><small>${s.base > 0.5 ? fmt(s.base).slice(3) + ' + ' : ''}${fmt(s.ajustavel).slice(3)}</small></td>`;
+  return `<table class="sm-tab"><thead><tr><th>Ciclo</th><th>Já contratado</th>${[1, 2, 3, 4].map(n => `<th>Semana ${n}</th>`).join('')}</tr></thead><tbody>${(smTodos || smEscolhido(p) ? p.ciclos : p.ciclos.slice(0, 3)).map((c, k) =>
+    `<tr class="${c.proprio ? 'pr' : ''}${k === 0 ? ' hoje' : ''}"><td class="c"><b>${smDia(c.de)} a ${smDia(c.ate)}</b><small>${c.proprio ? 'distribuição própria' : k === 0 ? 'o ciclo de hoje' : c.dias + ' dias'}</small></td><td><b>${fmt(c.outras)}</b><small>outras despesas</small></td>${c.semanas.map(semana).join('')}</tr>`).join('')}</tbody></table>`;
+}
+function smSemanas(p) {
+  const v = smValores(p), c = smEscolhido(p), passo = p.parte >= 2000 ? 50 : 10; let antes = 0;
+  const sl = v.map((x, j) => { const max = Math.max(0, p.parte - antes); antes += x;
+    return `<div class="sm-sl"><span>Semana ${j + 1}${c ? ' · até ' + smDia(c.semanas[j].ate) : ''}</span><b data-sm-v="${p.quem}:${j}">${fmt(x)}</b>${j < 3 ? `<input type="range" data-sm-sl="${p.quem}:${j}" min="0" max="${max}" step="${passo}" value="${x}" aria-label="Ajustável da semana ${j + 1}">` : '<small>o que sobra da parte do cartão</small>'}</div>`; }).join('');
+  return `<div class="sm-sem"><div class="sm-sem-cab">O ajustável de cada semana<select data-sm-ciclo="${p.quem}" aria-label="Onde vale a distribuição"><option value="">em todos os ciclos</option>${p.ciclos.map(x => `<option value="${x.chave}"${c && c.chave === x.chave ? ' selected' : ''}>só no ciclo de ${smDia(x.de)} a ${smDia(x.ate)}${x.proprio ? ' (própria)' : ''}</option>`).join('')}</select>${c && c.proprio ? `<button class="link" data-sm-padrao="${p.quem}">voltar ao padrão</button>` : ''}</div><div class="sm-sls">${sl}</div></div>`;
+}
+function semanadasBloco(cab) {
+  const r = ENGINE.semanadasDoPlano(plano), casal = r.pessoas.length > 1, E = r.eventuais;
+  const de = p => casal ? ' de ' + esc(p.nome) : '';
+  const passo = (l, titulo, sub) => `<div class="sm-passo"><h4><i>${l}</i>${titulo}</h4>${sub ? `<p class="sm-nota">${sub}</p>` : ''}`;
+  // b: uma linha por pessoa (o dia e a parte) e, no fim, o que fica fora do cartão
+  const linhaCartao = p => `<div class="sm-linha"><b>Cartão${de(p)}</b>
+      <label>A fatura vira no dia ${campoR(`semanadas.cartoes.${p.quem}.dia`, 'num', ' min="1" max="31" placeholder="dia"')}</label>
+      ${p.ativo ? `<label class="v">Ajustáveis neste cartão, por mês ${tip('Vazio, vale a sugestão: as ajustáveis na proporção das que estão marcadas neste cartão no passo 3 (hoje ' + fmt(p.ajNoCartao) + ' por mês).')}${campoR(`semanadas.cartoes.${p.quem}.parte`, 'reais0', ` placeholder="${fmt(p.sugestao)}"`)}</label>` : '<span class="sm-nota">Informe o dia para montar a régua deste cartão.</span>'}</div>`;
+  const fora = `<div class="sm-linha fora${r.fora < -0.5 ? ' passa' : ''}"><b>Fora do cartão</b><span class="sm-nota">${r.fora < -0.5 ? 'Os cartões passam das ajustáveis da família.' : 'Pix, débito e dinheiro: o que sobra das ajustáveis. Não tem semanas; confere-se no fechamento do mês.'}</span><strong>${fmt(r.fora)}</strong></div>`;
+  // c: um cartão por vez
+  const vista = r.cartoes.find(p => p.quem === smAba) || r.cartoes[0];
+  const abas = r.cartoes.length > 1 ? `<div class="seg sm-abas">${r.cartoes.map(p => `<button type="button" data-sm-aba="${p.quem}" class="${p === vista ? 'on' : ''}">Cartão${de(p)}</button>`).join('')}</div>` : '';
+  const cartao = p => { const c = p.ciclos[0], inteira = smTodos || smEscolhido(p);
+    return `<div class="sm-teto"><div><span>Teto da fatura no ciclo de hoje</span><b>${fmt(c.total)}</b></div><em>=</em><div><span>Fixas e já contratado</span><b>${fmt(c.base)}</b></div><em>+</em><div><span>Ajustáveis</span><b>${fmt(c.ajustavel)}</b></div></div>
+      ${p.parte > 0.5 ? smSemanas(p) : '<p class="sm-nota">Diga, no passo b, quanto das ajustáveis passa por este cartão.</p>'}
+      <div class="sm-regua" id="smRegua-${p.quem}">${smRegua(p)}</div>
+      ${smEscolhido(p) ? '' : `<button type="button" class="link sm-mais" data-sm-todos>${inteira ? 'ver só os três primeiros ciclos' : 'ver os 12 ciclos'}</button>`}`; };
+  return `${cab('Semanadas', 'o teto da fatura do cartão, semana a semana', 'O combinado com a família: quanto cabe em despesas ajustáveis, quanto disso passa pelo cartão e quanto a fatura pode ter ao fim de cada semana.')}
+    ${passo('a', 'Quanto cabe em despesas ajustáveis', '')}
+      <div class="sm-conta"><div><span>Renda de todo mês</span><b>${fmt(r.conta.renda)}</b></div><i>−</i><div><span>Despesas fixas</span><b>${fmt(r.conta.fixas)}</b></div><i>−</i>
+        <div><span>Para o futuro, por mês</span><input data-sm-futuro data-money-opt inputmode="decimal" value="${money(Math.round(r.conta.futuro))}"></div><i>=</i>
+        <div class="alvo"><span>Despesas ajustáveis, por mês</span>${campoR('semanadas.alvo', 'reais0', ` placeholder="${fmt(r.alvo)}"`)}</div></div>
+      <p class="sm-nota">Hoje as ajustáveis somam <b>${fmt(r.ajustaveisHoje)}</b> por mês.${E.entradas + E.fixas + E.ajustaveis > 0.5 ? ` Fora desta conta, ao longo do ano: entradas de <b>${fmt(E.entradas)}</b> e despesas de <b>${fmt(E.fixas + E.ajustaveis)}</b>.` : ''}</p></div>
+    ${passo('b', 'Quanto passa por cada cartão', 'Nem toda despesa ajustável vai para a fatura. Informar o dia cria, nas despesas fixas, a linha "Outras despesas no cartão".')}
+      <div class="sm-linhas">${r.pessoas.map(linhaCartao).join('')}${r.cartoes.length ? fora : ''}</div></div>
+    ${vista ? `${passo('c', 'O teto de cada semana', 'A régua: quanto a fatura pode ter no último dia de cada semana do ciclo.')}${abas}${cartao(vista)}</div>` : ''}</div>`;
+}
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-sm-aba],[data-sm-todos]'); if (!t) return;
+  if (t.dataset.smAba) smAba = t.dataset.smAba; else smTodos = !smTodos;
+  renderOrcamentoC(); pintaSliders();
+});
+// enquanto o controle anda, só os números mudam (redesenhar soltaria o controle)
+function smPinta(q) {
+  const p = ENGINE.semanadasDoPlano(plano).pessoas.find(x => x.quem === q); if (!p) return;
+  const v = smValores(p); let antes = 0;
+  v.forEach((x, j) => { const b = document.querySelector(`[data-sm-v="${q}:${j}"]`), sl = document.querySelector(`[data-sm-sl="${q}:${j}"]`);
+    if (b) b.textContent = fmt(x); if (sl) { sl.max = Math.max(0, p.parte - antes); if (sl !== document.activeElement) sl.value = x; } antes += x; });
+  const rg = document.getElementById('smRegua-' + q); if (rg) rg.innerHTML = smRegua(p);
+  pintaSliders();
+}
+document.addEventListener('input', e => {
+  const t = e.target; if (!t.dataset || t.dataset.smSl == null) return;
+  const [q, j] = t.dataset.smSl.split(':'), p = ENGINE.semanadasDoPlano(plano).pessoas.find(x => x.quem === q); if (!p) return;
+  const novo = ENGINE.semanasComMudanca(smValores(p), +j, +t.value), c = smEscolhido(p), C = smCartao(q);
+  if (c) { C.ciclos = C.ciclos || {}; C.ciclos[c.chave] = novo; } else C.semanas = novo;
+  save(); smPinta(q);
+});
+document.addEventListener('change', e => {
+  const t = e.target, d = t.dataset || {};
+  if (d.smSl != null) { renderAll(); return; }
+  if (d.smCiclo != null) { smCiclo[d.smCiclo] = t.value; renderOrcamentoC(); pintaSliders(); return; }
+  if (d.smFuturo != null) { const r = ENGINE.semanadasDoPlano(plano); (plano.semanadas = plano.semanadas || {}).alvo = Math.max(0, Math.round(r.conta.renda - r.conta.fixas - unmoney(t.value))); renderAll(); return; }
+  // o dia do cartão: a primeira vez cria a linha das outras despesas no cartão, nas fixas
+  const m = /^semanadas\.cartoes\.(titular|conjuge)\.dia$/.exec(d.r || '');
+  if (m && +t.value >= 1 && !smOutras(m[1])) { const nm = ENGINE.nomesDaFamilia(plano), casal = ENGINE.pessoasDaFamilia(plano).length > 1;
+    plano.expenses.push({ id: novoId('cat'), label: 'Outras despesas no cartão' + (casal ? ' · ' + nm[m[1]] : ''), group: 'fix', cartao: m[1], outras: true, frequency: 'mensal', days: [Math.min(28, Math.round(+t.value))],
+      description: 'O total já contratado de cada fatura: parcelas de compras anteriores, sem discriminar. O valor de cada mês se programa no Fluxo de 24 meses.', steps: [{ from: 0, value: 0 }] }); }
+});
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-sm-padrao]'); if (!t) return;
+  const q = t.dataset.smPadrao, C = smCartao(q); if (C.ciclos) delete C.ciclos[smCiclo[q]]; renderAll();
 });
 
 // ===================== CLIENTE: DEPENDENTES FINANCEIROS =====================
@@ -8816,8 +9153,9 @@ function renderAjusteC() {
   const soma = (l, mi) => l.reduce((a, x) => a + x.v[mi], 0);
   // uma linha de renda ou despesa: o valor do mês é editável onde a linha acontece
   const linhaFluxo = (x, saida) => `<tr class="aj-l"><th>${esc(x.label || 'sem nome')}</th>${cols.map(mi => {
-    const pode = x.it && ENGINE.ocorrencias(x.it, mi, saida).length > 0;
-    return `<td>${pode ? `<input data-aj-linha="${saida ? 'e' : 'i'}:${esc(x.it.id)}:${mi}" inputmode="decimal" value="${x.v[mi] > 0.005 ? n0(x.v[mi]) : ''}" title="${esc(x.label)} em ${monthsLabel(mi)}: muda só neste mês">` : v0(x.v[mi])}</td>`; }).join('')}</tr>`;
+    // também no mês zerado (a ocorrência de valor zero some do motor): senão, o que foi zerado não se digitava de novo
+    const pode = x.it && mi >= ((x.it.steps || [])[0] || { from: 0 }).from && pesoNaColuna(x.it, mi, null, saida).n > 0;
+    return `<td>${pode ? `<input data-aj-linha="${saida ? 'e' : 'i'}:${esc(x.it.id)}:${mi}" inputmode="decimal" value="${x.v[mi] > 0.005 ? n0(x.v[mi]) : ''}" title="${esc(x.label)} em ${monthsLabel(mi)}: ${x.it.segue ? 'muda só neste mês' : 'vale deste mês em diante'}">` : v0(x.v[mi])}</td>`; }).join('')}</tr>`;
   const grupo = (id, nome, linhas, saida, sinal) => {
     const aberto = ajAberto.has(id), tot = cols.map(mi => soma(linhas, mi));
     return `<tr class="aj-g" data-aj-abre="${id}"><th><button class="link">${aberto ? '▾' : '▸'} ${nome}</button></th>${tot.map(v => `<td>${v > 0.5 ? sinal + v0(v) : v0(0)}</td>`).join('')}</tr>` + (aberto ? linhas.filter(x => x.v.some(v => v > 0.5) || x.it).map(x => linhaFluxo(x, saida)).join('') : '');
@@ -8844,15 +9182,15 @@ function renderAjusteC() {
       // abaixo da parte por dois motivos: a falta (o corte, em laranja) ou o objetivo que já tem quase tudo e recebe só o que
       // falta (em verde; o resto vai para a liberdade)
       const m = P.meses[mi], v = m.aportes[o.id] || 0, d = m.digitado[o.id], corte = (m.cortado || {})[o.id] || 0, quase = !d && !(corte > 0.5) && v < (+o.planned || 0) - 0.5;
-      return `<td class="${d ? 'dig' : corte > 0.5 ? 'baixo' : quase ? 'quase' : ''}"><input data-aj-obj="${o.id}:${mi}" inputmode="decimal" value="${v > 0.005 ? n0(v) : ''}" placeholder="0" title="${esc(o.name)} em ${monthsLabel(mi)}${d ? ': digitado' : ': a parte do objetivo'}${corte > 0.5 ? ` (falta: ${fmt(corte)} a menos, porque a Caixa de curto prazo não volta a zero em 12 meses)` : quase ? ' (já tem quase o que precisa: recebe só o que falta, e o resto vai para a liberdade)' : ''}"></td>`; }).join('')}</tr>${linhaExtras(o)}${linhaCaixinha(o)}`;
+      return `<td class="${d ? 'dig' : corte > 0.5 ? 'baixo' : quase ? 'quase' : ''}"><input data-aj-obj="${o.id}:${mi}" inputmode="decimal" value="${v > 0.005 ? n0(v) : ''}" placeholder="0" title="${esc(o.name)} em ${monthsLabel(mi)}${d ? ': digitado' : ': a parte do objetivo'} · o valor digitado vale deste mês em diante${corte > 0.5 ? ` (falta: ${fmt(corte)} a menos, porque a Caixa de curto prazo não volta a zero em 12 meses)` : quase ? ' (já tem quase o que precisa: recebe só o que falta, e o resto vai para a liberdade)' : ''}"></td>`; }).join('')}</tr>${linhaExtras(o)}${linhaCaixinha(o)}`;
   };
   const objs = ENGINE.prioridadeDosObjetivos(plano).filter(o => P.por[o.id]);
-  const neg = P.meses.filter(m => m.negativo), F1 = faltasDaPoupanca()[0];
+  const neg = P.meses.filter(m => m.negativo), F1 = faltasDaPoupanca()[0], libDig = P.meses.some(m => m.libDigitada);
   const vo = ajusteDoObjetivo && plano.objectives.find(x => x.id === ajusteDoObjetivo);
   const volta = vo ? `<div class="aj-volta${F1 ? '' : ' ok'}"><span>${F1 ? `Ajustando o fluxo para o aporte de <b>${esc(vo.name || 'objetivo')}</b>: para resolver ${monthsLabel(F1.de)}, faltam <b>${fmt(F1.precisa || F1.max)}</b>${F1.precisaAte > F1.de ? `, somando os meses de ${monthsLabel(F1.de)} a ${monthsLabel(F1.precisaAte)}. Reduza despesas ou aumente rendas em qualquer desses meses, só no mês;` : ` em ${monthsLabel(F1.de)}. Reduza despesas ou aumente rendas nesse mês;`} depois, veja se sobra outro mês em laranja.` : `Fluxo resolvido para o aporte de <b>${esc(vo.name || 'objetivo')}</b>: nenhum mês com falta.`}</span>
     <button class="btn ${F1 ? 'btn-secondary' : 'btn-primary'} btn-small" data-aj-volta="${vo.id}">Voltar para ${esc(vo.name || 'o objetivo')}</button><button class="link" data-aj-volta-x>fechar</button></div>` : '';
   el.innerHTML = `${volta}<div class="aj-resumo"><span class="pol-estado${F1 ? ' at' : ''}"><i></i>${F1 ? `faltam até ${fmt(F1.max)}/mês para os objetivos a partir de ${monthsLabel(F1.de)}` : P.meses.some(m => m.doPatrimonio > 0.5) ? `caixa negativo de propósito: ${fmt(P.meses.reduce((a, m) => a + m.doPatrimonio, 0))} saem do patrimônio nos 24 meses` : neg.length ? `a Caixa de curto prazo fica negativa em ${neg.length > 1 ? neg.length + ' meses' : '1 mês'} e volta a zero` : 'o caixa fecha em todos os 24 meses'}</span>
-      <span class="muted">Todo mês, a reserva e cada objetivo recebem a sua parte (o aporte definido, na página <button class="link" data-ir="objetivos">Objetivos</button>), em cinza. Os meses irregulares passam pela Caixa de curto prazo, que pode ficar negativa enquanto volta a zero em até 12 meses. Quando ela não volta, é falta: o aporte cai a partir do objetivo de menor prioridade (no Propósito), e o mês e a célula ficam em laranja. Em verde, o objetivo que já tem quase tudo e recebe só o que falta. O que passa do que os meses seguintes vão precisar vai para a liberdade financeira. O que você digita fica em negrito.${caixaNeg() ? '' : ` Se a família gasta mais do que ganha de propósito, porque tem investimentos, <button class="link" data-cxneg="0:11">deixe o caixa negativo por um período</button>: os aportes não caem e o que falta sai do patrimônio.`}</span></div>
+      <span class="muted">A conta de cada mês: o resultado (entradas menos despesas) vai para os destinos, que são a reserva, cada objetivo e a liberdade financeira. O que fica sem destino entra na Caixa de curto prazo; quando os destinos passam do resultado, a diferença sai dela. Em cinza, a sugestão: cada objetivo recebe a sua parte (o aporte definido, na página <button class="link" data-ir="objetivos">Objetivos</button>) e a liberdade leva o que passa do que os 12 meses seguintes vão precisar. O que você digita fica em negrito e vale daquele mês em diante; zerar a liberdade deixa o dinheiro na caixa. A caixa pode ficar negativa enquanto volta a zero em até 12 meses. Quando ela não volta, é falta: o aporte cai a partir do objetivo de menor prioridade (no Propósito), e o mês e a célula ficam em laranja. Em verde, o objetivo que já tem quase tudo e recebe só o que falta.${caixaNeg() ? '' : ` Se a família gasta mais do que ganha de propósito, porque tem investimentos, <button class="link" data-cxneg="0:11">deixe o caixa negativo por um período</button>: os aportes não caem e o que falta sai do patrimônio.`}</span></div>
     ${(E => E.length ? `<div class="obj-fontes"><p><b>Entradas pontuais nos 24 meses:</b> ${textoPontuais(E)}. Elas não entram no "cabe a mais, todo mês" do topo, que é a regra constante. Para levar uma delas a um objetivo, digite o aporte no mês dela, na linha do objetivo; sem isso, ela vai para a liberdade financeira.</p></div>` : '')(entradasPontuais())}
     ${htmlCaixaNeg()}${avisoDasFaltas()}
     <div class="pol-mesa pol-meses">${polMeses(ENGINE.politicaDeInvestimentos(plano, SIM))}</div>
@@ -8863,14 +9201,28 @@ function renderAjusteC() {
         <tr class="aj-sep"><th colspan="${H + 1}">Para onde vai</th></tr>
         ${P.meses.some(m => m.reserva > 0.5) ? `<tr class="aj-l"><th>Reserva de emergência</th>${P.meses.map(m => `<td>${v0(m.reserva)}</td>`).join('')}</tr>` : ''}
         ${objs.map(linhaObj).join('')}
-        <tr class="aj-l aj-guarda"><th title="O saldo acumulado: o que veio dos meses anteriores mais o que este mês deixou">Caixa de curto prazo</th>${P.meses.map((m, i) => {
-          // o saldo acumulado, não o movimento do mês: a dica mostra a conta
-          const ant = i ? P.meses[i - 1].guardado : 0, dif = m.guardado - ant;
-          return `<td class="${m.negativo ? 'neg' : ''}" title="Caixa de curto prazo no fim de ${monthsLabel(m.mi)}: ${fmt(ant)} do mês anterior ${dif < 0 ? '−' : '+'} ${fmt(Math.abs(dif))} deste mês (a sobra de ${fmt(m.sobra)} menos o que foi para a reserva, os objetivos e a liberdade) = ${fmt(m.guardado)}${m.doPatrimonio > 0.5 ? `. Caixa negativo de propósito: ${fmt(m.doPatrimonio)} saem do patrimônio financeiro` : ''}${m.negativo ? '. Negativo: falta dinheiro, que sai do patrimônio até as sobras seguintes cobrirem' : ''}">${v0(m.guardado)}</td>`; }).join('')}</tr>
-        <tr class="aj-l"><th>Liberdade financeira</th>${P.meses.map(m => `<td>${v0(m.liberdade)}</td>`).join('')}</tr>
+<tr class="aj-o aj-lib"><th><div class="aj-on"><i style="background:#20344C"></i><div><b>Liberdade financeira</b>
+          <small>o que passa do que os meses seguintes vão precisar${libDig ? ' · <button class="link" data-aj-lib-sugestao>voltar à sugestão</button>' : ''}</small></div></div></th>${P.meses.map(m =>
+          `<td class="${m.libDigitada ? 'dig' : ''}"><input data-aj-lib="${m.mi}" inputmode="decimal" value="${m.liberdade > 0.005 ? n0(m.liberdade) : ''}" placeholder="0" title="Liberdade financeira em ${monthsLabel(m.mi)}${m.libDigitada ? ': digitado' : ': a sugestão'} · o valor digitado vale deste mês em diante; o que ela deixa de levar fica na Caixa de curto prazo"></td>`).join('')}</tr>
+        <tr class="aj-sep"><th colspan="${H + 1}">O que fica na Caixa de curto prazo</th></tr>
+        <tr class="aj-l aj-mov"><th title="O resultado do mês menos tudo o que foi destinado (reserva, objetivos e liberdade). Positivo: o que ficou sem destino entra na caixa. Negativo: os destinos passaram do resultado, e a diferença sai da caixa">Entra ou sai no mês</th>${P.meses.map(m =>
+          `<td class="${m.movimento < -0.5 ? 'neg' : ''}" title="${monthsLabel(m.mi)}: resultado de ${fmt(m.sobra)} − destinos de ${fmt(m.sobra - m.movimento)} = ${m.movimento < -0.5 ? 'saem ' + fmt(-m.movimento) + ' da caixa' : m.movimento > 0.5 ? 'entram ' + fmt(m.movimento) + ' na caixa' : 'nada entra nem sai'}">${Math.abs(m.movimento) < 0.5 ? '<span class="aj-z">—</span>' : (m.movimento > 0 ? '+' : '−') + n0(Math.abs(m.movimento))}</td>`).join('')}</tr>
+        ${P.meses.some(m => m.doPatrimonio > 0.5) ? `<tr class="aj-l aj-mov"><th title="No período do caixa negativo de propósito, a caixa não fica abaixo de zero: o que falta sai do patrimônio financeiro, e o negativo acumulado até ali também">Coberto pelo patrimônio</th>${P.meses.map(m => `<td>${m.doPatrimonio > 0.5 ? '+' + n0(m.doPatrimonio) : '<span class="aj-z">—</span>'}</td>`).join('')}</tr>` : ''}
+        <tr class="aj-l aj-guarda"><th title="O saldo acumulado: o do mês anterior mais o que entrou ou saiu neste mês">Caixa de curto prazo<small>saldo no fim do mês</small></th>${P.meses.map((m, i) => {
+          const ant = i ? P.meses[i - 1].guardado : 0;
+          return `<td class="${m.negativo ? 'neg' : ''}" title="Caixa de curto prazo no fim de ${monthsLabel(m.mi)}: ${fmt(ant)} do mês anterior ${m.movimento < 0 ? '−' : '+'} ${fmt(Math.abs(m.movimento))} deste mês${m.doPatrimonio > 0.5 ? ` + ${fmt(m.doPatrimonio)} do patrimônio (caixa negativo de propósito)` : ''} = ${fmt(m.guardado)}${m.negativo ? '. Negativo: falta dinheiro, que sai do patrimônio até as sobras seguintes cobrirem' : ''}">${v0(m.guardado)}</td>`; }).join('')}</tr>
       </tbody></table></div></div>`;
 }
 document.addEventListener('focusin', e => { if (e.target.matches && e.target.matches('.aj-tab input')) try { e.target.select(); } catch (err) { } });
+// a liberdade digitada (plano.liberdadePrograma): vale daquele mês até o fim da tabela; vazio volta à sugestão dali em diante
+document.addEventListener('change', e => {
+  const t = e.target; if (!t.dataset || t.dataset.ajLib == null) return;
+  const mi = +t.dataset.ajLib, vazio = t.value.replace(/\D/g, '') === '', v = vazio ? 0 : unmoney(t.value), L = plano.liberdadePrograma = Object.assign({}, plano.liberdadePrograma);
+  for (let m = mi; m < SIM.programa.H; m++) { if (vazio) delete L[m]; else L[m] = Math.round(v * 100) / 100; }
+  if (!Object.keys(L).length) delete plano.liberdadePrograma;
+  renderAll(); const n = document.querySelector(`[data-aj-lib="${mi}"]`); if (n) n.focus();
+});
+document.addEventListener('click', e => { if (!e.target.closest('[data-aj-lib-sugestao]')) return; delete plano.liberdadePrograma; renderAll(); });
 // voltar para o objetivo que pediu o ajuste: o cartão dele, aberto
 document.addEventListener('click', e => {
   if (e.target.closest('[data-aj-volta-x]')) { ajusteDoObjetivo = null; renderAjusteC(); return; }
@@ -8881,18 +9233,30 @@ document.addEventListener('click', e => {
   const g = e.target.closest('[data-aj-abre]'); if (g) { const id = g.dataset.ajAbre; ajAberto.has(id) ? ajAberto.delete(id) : ajAberto.add(id); renderAjusteC(); return; }
   const s = e.target.closest('[data-aj-sugestao]'); if (s) { const o = plano.objectives.find(x => x.id === s.dataset.ajSugestao); if (o) { delete o.programa; renderAll(); } }
 });
-// digitar um aporte: vale como está naquele mês; vazio volta à sugestão. Digitar uma renda ou despesa muda só naquele mês
-// (it.exc, como o ajuste de uma ocorrência no Fluxo vida toda); para mudar dali em diante, é no Fluxo vida toda
+// digitar um aporte: vale como está daquele mês em diante, até o fim da tabela ou a data do objetivo (o.programa, mês a
+// mês); vazio volta à sugestão dali em diante. Digitar uma renda ou despesa também vale daquele mês em
+// diante (pedido do usuário, 10/11/2026: zerar no 4º mês pedia digitar zero nos outros 20): vira um degrau no mês, e o que
+// estava programado depois dele dentro dos meses da tabela (degraus e ajustes de uma ocorrência) sai; o que muda depois da
+// tabela (o plano de saúde que sobe aos 60) fica. A linha que segue outra (o 13º, que segue o salário) não tem degraus
+// próprios: nela, o valor digitado continua valendo só naquele mês (it.exc)
 document.addEventListener('change', e => {
   const t = e.target, foco = t.dataset && (t.dataset.ajObj || t.dataset.ajLinha); if (!foco) return;
   const vazio = t.value.replace(/\D/g, '') === '', v = vazio ? 0 : unmoney(t.value);
   if (t.dataset.ajObj) {
     const [id, mi] = t.dataset.ajObj.split(':'), o = plano.objectives.find(x => x.id === id); if (!o) return;
-    o.programa = Object.assign({}, o.programa); if (vazio) delete o.programa[mi]; else o.programa[mi] = Math.round(v * 100) / 100;
+    // vale daquele mês em diante, até o fim da tabela ou a data do objetivo (vazio: volta à sugestão dali em diante)
+    o.programa = Object.assign({}, o.programa);
+    for (let m = +mi, fim = Math.min(SIM.programa.H, Math.round(+o.months || 0)); m < Math.max(fim, +mi + 1); m++) { if (vazio) delete o.programa[m]; else o.programa[m] = Math.round(v * 100) / 100; }
     if (!Object.keys(o.programa).length) delete o.programa;
   } else {
     const [tipo, id, mi] = t.dataset.ajLinha.split(':'), it = (tipo === 'e' ? plano.expenses : plano.incomes).find(x => x.id === id); if (!it) return;
-    it.exc = Object.assign({}, it.exc); it.exc[+mi] = excDaColuna(v, pesoNaColuna(it, +mi, null, tipo === 'e'));   // só naquele mês (um ajuste de uma ocorrência)
+    const m = +mi, val = excDaColuna(v, pesoNaColuna(it, m, null, tipo === 'e')), H = SIM.programa.H;
+    if (it.segue) { it.exc = Object.assign({}, it.exc); it.exc[m] = val; }
+    else {
+      it.steps = it.steps.filter(st => st.from <= m || st.from >= H);
+      if (it.exc) { Object.keys(it.exc).forEach(k => { const mm = parseInt(k, 10); if (mm >= m && mm < H) delete it.exc[k]; }); if (!Object.keys(it.exc).length) delete it.exc; }
+      setStep(it, m, val);
+    }
   }
   renderAll();
   const n = document.querySelector(`[data-aj-obj="${foco}"], [data-aj-linha="${foco}"]`); if (n) n.focus();
