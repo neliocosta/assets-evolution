@@ -490,7 +490,7 @@ canvas#main.grab-obj{cursor:ew-resize}
 @media (prefers-reduced-motion:reduce){.lf-col{animation:none}.lf-barra i{transition:none}}
 @media (max-width:860px){.gf-rosca{grid-template-columns:1fr;justify-items:center}.gf-cards,.gf-pessoas{grid-template-columns:1fr}.gf-cards.q4{grid-template-columns:repeat(2,minmax(0,1fr))}.gf-rel,.gf-pessoas .gf-rel{grid-template-columns:1fr;justify-items:center;gap:20px}.gf-rel>div{justify-self:stretch}.gf-rel .gf-leg b{font-size:20px}.gf-rel .gf-pat b{font-size:24px}.gf-vz{grid-template-columns:repeat(2,minmax(0,1fr))}}
 /* página 3: o orçamento combinado (a bancada). Tons do meio para os grupos; o laranja forte fica para traços e foco */
-.ob{--ob-fix:#4B6584;--ob-adj:#9FB0C4;--ob-fut:#F6A06B;--ob-lib:#FCD9C2;--ob-trilho:#EEF1F5;--ob-borda:#E4E0D8;--ob-hover:#FAF8F4}
+.ob,.oh{--ob-fix:#4B6584;--ob-adj:#9FB0C4;--ob-fut:#F6A06B;--ob-lib:#FCD9C2;--ob-trilho:#EEF1F5;--ob-borda:#E4E0D8;--ob-hover:#FAF8F4}
 .ob-ctl{display:flex;justify-content:flex-end;margin:18px 8px 0}
 .ob-card{background:#fff;border-radius:16px;box-shadow:var(--shadow-card);padding:20px 22px;margin:16px 8px 0}
 .ob-h{font:600 17px Sora,sans-serif;color:var(--nl-navy-900);margin:0;display:flex;align-items:center;gap:10px}
@@ -549,6 +549,99 @@ canvas#main.grab-obj{cursor:ew-resize}
 .ob-corte{position:absolute;top:0;bottom:0;right:0;width:0;background:var(--ob-lib);box-shadow:inset 1px 0 0 #fff;transition:width .2s ease-out}
 .ob-parte{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--ob-lib);border-radius:4px;transition:width .2s ease-out}
 .ob-tr input[type=range]{position:absolute;left:-7px;top:0;height:20px;margin:0;-webkit-appearance:none;appearance:none;background:none;cursor:pointer}
+/* o orçamento de hoje: a fotografia do mês comum (a conta, a barra com as referências discretas e as linhas de cada grupo) */
+.oh-conta{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.oh-conta .gf-c b{font-size:26px} .oh-conta .gf-c.fut b{color:var(--nl-orange-600)}
+.oh-conta .gf-c small{display:block;margin-top:4px}
+.oh-barra{background:#fff;border-radius:16px;box-shadow:var(--shadow-card);padding:16px 20px 14px;margin-top:14px}
+.oh-barra .ob-barras{grid-template-columns:1fr}
+.oh-barra .ob-refs{left:0} .oh-barra .ob-leg{margin-left:0}
+.oh-grupos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:start}
+.oh-g h3{display:flex;align-items:center;gap:8px;font:600 15px Sora,sans-serif;color:var(--nl-navy-900);margin:0 0 8px}
+.oh-g h3 i{width:8px;height:8px;border-radius:2px}
+.oh-g ul{list-style:none;margin:0;padding:0}
+.oh-g li{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-top:1px solid #F1EEE8;font:500 14px 'DM Sans',sans-serif;color:var(--nl-gray-700)}
+.oh-g li span{min-width:0} .oh-g li b{font:600 13.5px Sora,sans-serif;color:var(--nl-navy-900);white-space:nowrap;font-variant-numeric:tabular-nums}
+.oh-g li.tot{border-top:1.5px solid var(--nl-navy-900);font-weight:600;color:var(--nl-navy-900)}
+.oh-ano li small{display:block;font-size:12px;color:#6b6a66}
+@media (max-width:900px){.oh-conta{grid-template-columns:repeat(2,minmax(0,1fr))} .oh-grupos{grid-template-columns:1fr}}
+@media (max-width:560px){.oh-conta{gap:8px} .oh-conta .gf-c{padding:14px} .oh-conta .gf-c b{font-size:19px;white-space:nowrap} .oh-conta .gf-c>span{font-size:10px;letter-spacing:.06em}}
+/* os próximos 24 meses: o Fluxo de 24 meses do portal, só para ler. O gráfico é a primeira linha da tabela (as colunas
+   são as mesmas, e o zoom vale para os dois); a primeira coluna fica parada e os meses rolam. Os títulos têm faixa de cor */
+.f24-ctl{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin-bottom:12px}
+.f24-ctl .lp-rot{margin:0 auto 0 0}
+.f24-zoom{display:flex;align-items:center;gap:4px}
+.f24-zoom button{min-width:32px;height:32px;padding:0 10px;border:1px solid #E4E0D8;border-radius:8px;background:#fff;font:600 13px 'DM Sans',sans-serif;color:var(--nl-navy-900);cursor:pointer}
+.f24-zoom button:hover:not(:disabled){background:#FAF8F4} .f24-zoom button:disabled{opacity:.35;cursor:default}
+.f24 thead tr.m th small{display:block;font-size:9.5px;color:inherit;opacity:.75;letter-spacing:0}
+.f24-dica{font:500 12px 'DM Sans',sans-serif;color:#6b6a66}
+.f24-leg{display:flex;flex-wrap:wrap;gap:6px 16px;margin:0 0 12px;font:500 12.5px 'DM Sans',sans-serif;color:var(--nl-gray-700)}
+.f24-leg i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+.f24-leg i.s{border:1.5px dashed #9FB0C4;background:none;width:10px;height:10px} .f24-leg i.n{background:repeating-linear-gradient(135deg,#C9D1DB 0 2px,#fff 2px 4px)}
+.f24-wrap{overflow-x:auto;overscroll-behavior-x:contain;background:#fff;border-radius:16px;box-shadow:var(--shadow-card)}
+.f24{border-collapse:separate;border-spacing:0;table-layout:fixed;font-variant-numeric:tabular-nums;--fs:13px}
+.f24.compacto{--fs:10.5px}
+.f24 th,.f24 td{padding:7px 8px;white-space:nowrap;overflow:hidden;text-overflow:clip;text-align:right;font:500 var(--fs) 'DM Sans',sans-serif;color:var(--nl-gray-700);background:#fff}
+.f24.compacto th,.f24.compacto td{padding:6px 2px}
+.f24 th:first-child{position:sticky;left:0;z-index:2;text-align:left;white-space:normal;padding-left:16px;box-shadow:1px 0 0 #E8E4DC;font-size:13.5px}
+.f24 thead tr.m th{background:#EEF1F5;font:600 11px 'DM Sans',sans-serif;letter-spacing:.05em;text-transform:uppercase;color:var(--nl-navy-900);padding-top:9px;padding-bottom:9px}
+.f24.compacto thead tr.m th{font-size:10px;letter-spacing:0}
+.f24 thead tr.m th.hoje{background:var(--nl-navy-900);color:#fff}
+.f24 td.hoje{background-image:linear-gradient(rgba(32,52,76,.07),rgba(32,52,76,.07))}
+.f24 tr.graf th,.f24 tr.graf td{padding-top:16px;padding-bottom:6px;vertical-align:bottom}
+.f24 tr.graf th{font:500 12px/1.45 'DM Sans',sans-serif;color:#6b6a66;vertical-align:top}
+.f24 tr.graf th b{display:block;font:600 11px 'DM Sans',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--nl-navy-900);margin-bottom:4px}
+.f24-b{position:relative;margin:0 auto;max-width:44px;cursor:zoom-in}
+.f24-b>*{position:absolute;left:0;right:0}
+.f24-b .s{border:1.5px dashed #9FB0C4;border-radius:4px}
+.f24-b .a{display:flex;flex-direction:column-reverse;padding:0 3px}
+.f24-b .a i{display:block;border-radius:2px;margin-top:1px}
+.f24-b .n{background:repeating-linear-gradient(135deg,#C9D1DB 0 2px,#fff 2px 4px);border-radius:0 0 3px 3px}
+.f24-b .z0{height:1px;background:#C9D1DB}
+.f24 tr.g th,.f24 tr.g td{background-color:#F7F5F1;border-top:1px solid #fff}
+.f24 tr.g th button{border:0;background:none;padding:0;font:600 13.5px 'DM Sans',sans-serif;color:var(--nl-navy-900);cursor:pointer;text-align:left}
+.f24 tr.g td{font-weight:600;color:var(--nl-navy-900)}
+.f24 tr.l th{padding-left:30px;font-size:13px;color:#6b6a66} .f24 tr.l td{color:#6b6a66}
+.f24 tr.l+tr.l th,.f24 tr.l+tr.l td{border-top:1px solid #F4F1EC}
+.f24 tr.res th,.f24 tr.res td{background-color:#FFF3EB;font-family:Sora,sans-serif;font-weight:600;color:var(--nl-navy-900)}
+.f24 tr.sep th{background:#EEF1F5;font:600 11px 'DM Sans',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--nl-navy-900);padding-top:8px;padding-bottom:8px}
+.f24 tr.sep td{background-color:#EEF1F5}
+.f24 tr.cx th,.f24 tr.cx td{background-color:#F7F5F1;font-weight:600;color:var(--nl-navy-900)}
+.f24 th small{display:block;font:500 11.5px 'DM Sans',sans-serif;color:#8a867e}
+.f24 i.o{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:7px}
+.f24 .z{color:#cdc8bf}
+.f24-pe{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:12px;font:500 13px/1.6 'DM Sans',sans-serif;color:var(--nl-gray-700)}
+.f24-pe b{font:600 13.5px Sora,sans-serif;color:var(--nl-navy-900)}
+@media (max-width:720px){.f24 th:first-child{padding-left:10px;font-size:12.5px} .f24 tr.l th{padding-left:16px} .f24-dica{display:none}}
+/* a semanada: a régua programada da fatura de cada cartão (só o planejado; a semana de hoje em ardósia, o presente) */
+.sr-intro{font:500 14px/1.6 'DM Sans',sans-serif;color:var(--nl-gray-700);margin:8px 0 0;max-width:720px}
+.sr-cartao{background:#fff;border-radius:16px;box-shadow:var(--shadow-card);padding:20px 22px;margin-top:16px}
+.sr-cab{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 18px}
+.sr-cab h3{font:600 15px Sora,sans-serif;color:var(--nl-navy-900);margin:0}
+.sr-cab h3 small{display:block;font:500 12.5px 'DM Sans',sans-serif;color:#6b6a66;margin-top:2px}
+.sr-ciclo{display:flex;align-items:center;gap:4px}
+.sr-ciclo button{width:32px;height:32px;border:1px solid #E4E0D8;border-radius:8px;background:#fff;font:600 16px/1 Sora,sans-serif;color:var(--nl-navy-900);cursor:pointer}
+.sr-ciclo button:hover:not(:disabled){background:#FAF8F4} .sr-ciclo button:disabled{opacity:.35;cursor:default}
+.sr-ciclo>span{min-width:150px;text-align:center;display:flex;flex-direction:column}
+.sr-ciclo>span b{font:600 13.5px Sora,sans-serif;color:var(--nl-navy-900);font-variant-numeric:tabular-nums}
+.sr-ciclo>span small{font:500 11.5px 'DM Sans',sans-serif;color:#6b6a66}
+.sr-regua{list-style:none;margin:16px 0 0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.sr-s{border-top:3px solid #EEF1F5;padding:12px 12px 10px;border-radius:0 0 10px 10px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.sr-s.passou{border-top-color:#9FB0C4} .sr-s.hoje{border-top-color:var(--nl-navy-900);background:#DCE3EC}
+.sr-q{font:600 11px 'DM Sans',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#6b6a66}
+.sr-s.hoje .sr-q{color:var(--nl-navy-900)}
+.sr-ate{font:500 13px 'DM Sans',sans-serif;color:var(--nl-gray-700);margin-top:4px}
+.sr-s b{font:600 22px Sora,sans-serif;color:var(--nl-navy-900);font-variant-numeric:tabular-nums}
+.sr-s small{font:500 12px/1.45 'DM Sans',sans-serif;color:#6b6a66;font-variant-numeric:tabular-nums}
+.sr-pe{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 16px;margin-top:12px;font:500 13px 'DM Sans',sans-serif;color:var(--nl-gray-700)}
+.sr-pe strong{font:600 14px Sora,sans-serif;color:var(--nl-navy-900);font-variant-numeric:tabular-nums}
+.sr-fora{margin-top:18px;padding:10px 14px;background:#FAF8F4;border-radius:12px;font:500 13px/1.55 'DM Sans',sans-serif;color:var(--nl-gray-700)}
+.sr-fora strong{font:600 13.5px Sora,sans-serif;color:var(--nl-navy-900)}
+@media (max-width:720px){.sr-regua{grid-template-columns:1fr;gap:0}
+  .sr-s{border-top:0;border-left:3px solid #EEF1F5;border-radius:0 10px 10px 0;display:grid;grid-template-columns:1fr auto;column-gap:12px;padding:10px 12px}
+  .sr-s.passou{border-left-color:#9FB0C4} .sr-s.hoje{border-left-color:var(--nl-navy-900)}
+  .sr-q,.sr-ate,.sr-s small{grid-column:1} .sr-s b{grid-column:2;grid-row:1/4;align-self:center;font-size:19px}
+  .sr-ciclo{width:100%;justify-content:space-between} .sr-ciclo>span{flex:1;min-width:0}}
 .ob-tr input[type=range]::-webkit-slider-runnable-track{height:20px;background:none}
 .ob-tr input[type=range]::-moz-range-track{height:20px;background:none}
 .ob-tr input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;margin-top:3px;border-radius:50%;background:#fff;border:1.5px solid var(--ob-fix);box-shadow:0 1px 2px rgba(32,52,76,.18);transition:box-shadow .15s ease-out,transform .15s ease-out}
@@ -3241,7 +3334,8 @@ const ENGINE = (() => {
     const itensP = g => despesas.filter(e => g === 'fixas' ? e.group === 'fix' : e.group !== 'fix').map(e => ({ id: String(e.id), nome: e.label || 'Despesa sem nome', valor: noMes(e, mmP) }))
       .filter(x => x.valor > 0.5).sort((a, b) => b.valor - a.valor);
     const fixasP = itensP('fixas'), ajustaveisP = itensP('ajustaveis'), rendaP = somaNoMes(plan.incomes, mmP), custoP = tot(fixasP) + tot(ajustaveisP);
-    const pico = { mm: mmP, renda: rendaP, custo: custoP, futuro: rendaP - custoP, itens: { fixas: fixasP, ajustaveis: ajustaveisP },
+    const rendasP = (plan.incomes || []).map(e => ({ id: String(e.id), nome: e.label || 'Entrada sem nome', valor: noMes(e, mmP) })).filter(x => x.valor > 0.5).sort((a, b) => b.valor - a.valor);
+    const pico = { mm: mmP, renda: rendaP, custo: custoP, futuro: rendaP - custoP, itens: { rendas: rendasP, fixas: fixasP, ajustaveis: ajustaveisP },
       grupos: { fixas: tot(fixasP), ajustaveis: tot(ajustaveisP), futuro: rendaP - custoP },
       ideal: { fixas: rendaP * ORCAMENTO_IDEAL.fixas, ajustaveis: rendaP * ORCAMENTO_IDEAL.ajustaveis, futuro: rendaP * ORCAMENTO_IDEAL.futuro } };
     // O que não é de todo mês e se repete (o 13º, um bônus, o IPTU: anual, semestral, trimestral), à parte: quanto cada linha
@@ -3364,6 +3458,23 @@ const ENGINE = (() => {
     let acc = acima ? fatura : s.marco;
     const semanas = resto.map((x, k) => { acc += x.base + novos[k]; return { n: x.n, de: x.de, ate: x.ate, base: x.base, ajustavel: novos[k], antes: x.ajustavel, teto: x.base + novos[k], marco: acc, marcoAntes: x.marco }; });
     return { semana: s.n, fatura, marco: s.marco, diferenca: dif, estado: acima ? 'acima' : 'dentro', folga: acima ? 0 : Math.max(0, -dif), semanas, fecha: acc, total: ciclo.total, fechaAcima: Math.max(0, acc - ciclo.total) };
+  }
+  // O acompanhamento do ciclo, semana a semana (a página Acompanhamento - Semanadas). Cada fatura informada se compara com
+  // o marco em vigor naquela semana: o do plano ou, depois de uma semana acima, o novo (novoAlvoDaSemanada). O novo alvo da
+  // última semana informada vale para as seguintes. Cada semana: o marco e o ajustável do plano, os de agora e, se informada,
+  // a fatura, a diferença e o estado; e o novo alvo da última informada (null sem nenhuma).
+  function acompanhaSemanada(ciclo, realizados) {
+    const R = (realizados || []).map(num); let cur = ciclo, novo = null;
+    const semanas = ciclo.semanas.map(s => ({ n: s.n, de: s.de, ate: s.ate, base: s.base, marcoPlano: s.marco, ajustavelPlano: s.ajustavel, fatura: null }));
+    ciclo.semanas.forEach((s, j) => {
+      if (R[j] == null) return;
+      const r = novoAlvoDaSemanada(cur, ciclo.semanas.map((_, k) => k === j ? R[j] : null));
+      Object.assign(semanas[j], { fatura: R[j], marco: cur.semanas[j].marco, ajustavel: cur.semanas[j].ajustavel, diferenca: r.diferenca, estado: r.estado, folga: r.folga });
+      cur = Object.assign({}, cur, { semanas: cur.semanas.map((x, k) => k <= j ? x : Object.assign({}, x, { ajustavel: r.semanas[k - j - 1].ajustavel, teto: r.semanas[k - j - 1].teto, marco: r.semanas[k - j - 1].marco })) });
+      novo = r;
+    });
+    semanas.forEach((s, k) => { if (s.fatura == null) Object.assign(s, { marco: cur.semanas[k].marco, ajustavel: cur.semanas[k].ajustavel }); s.mudou = Math.abs(s.marco - s.marcoPlano) > 0.5; });
+    return { semanas, novo, total: ciclo.total, fecha: novo ? novo.fecha : ciclo.total, fechaAcima: novo ? novo.fechaAcima : 0 };
   }
   // ---- Capítulo 2: o diagnóstico, a família hoje e depois do planejamento ----
   // Oito linhas (os objetivos em duas), cada uma com o presente e o futuro. O presente é calculado onde há conta (o orçamento, pelo Fluxo de
@@ -3863,7 +3974,7 @@ const ENGINE = (() => {
     return mis.map(mi => ({ mi, mes: M[mi].mes, saldo: M[mi].saldo, aportado: M.slice(0, mi + 1).reduce((a, m) => a + m.aporte, 0), extra: M.slice(0, mi + 1).reduce((a, m) => a + m.extra, 0), data: mi === n }));
   }
   OBJ.forEach(derive);   // os objetivos do exemplo (aqui, depois dos bens: derive lê as vendas)
-  return { semanadasDoPlano, diasDasSemanadas, semanasComMudanca, novoAlvoDaSemanada, fatiaDaFamilia, CARTEIRAS_BASE, caixaNegativoEm, rendasDaLiberdade, alternativasDaLiberdade, avisosDoPlano, temValor, compraDoObjetivo, parcelaDaCompra, nomeDaCompra, MESES_CONSERVADOR, taxaDoObjetivo, taxaNoMes, mesDoConservador, trecho, cresceAte, alocacaoSugerida, alocacaoDaCaixinha, alocacaoDasCaixinhas, folgaDosAportes, extraDoMes, get TODAY() { return TODAY; }, get M0() { return calDoCiclo(0); }, get INICIO() { return isoDe(TODAY); }, INICIO_PADRAO, mudaInicio, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, ligado, objetivosLigados, inicioDoAporte, inicioDoDedicado, saldoNoMes, necessarioDe, MESES_POLITICA, orcamentoMesAMes, MESES_PROGRAMA, prioridadeDosObjetivos, linhasDosMeses, PASSIVE, PROFILES, STATUS, trajetoriaDoBem, trajetoriaDaParticipacao, vendasDoObjetivo, partilhaDaVenda, HORIZONTES, horizonteDe, politicaDeInvestimentos, TIPOS_FINANCEIRO, SEM_LIQUIDEZ, DA_CARTEIRA, saiComACarteira, CAIXA_PREV, RENTAB_FGTS, FORMAS_PREV, BR_EMS, termosDaAnuidade, ETTJ_PREVIC, get CAIXAS_PREV() { return CAIXAS_PREV; }, saldoPrevEm, netEm, contratoDoConsorcio, caixaDoConsorcio, REAJUSTE_APOS, get COMPROMISSOS() { return COMPROMISSOS; }, saldoDasVendas, precoDoObjetivo, mesISO, orcadoDoObjetivo, cortesDoObjetivo, saldoDevedorEm, contratoDaDivida, restantesDaDivida, mesDe, get BENS() { return bensDoPlano(); }, get PARTS() { return partsDoPlano(); }, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, serieCusto, desiredAt, aplicaAlteracoes, fraseDaLinha, descreveAlteracao, valorAtual, mesDoPlano, desejoDoPlano, frequenciaDasLinhas, RISCOS, NATUREZAS, ITENS_RUINA, RISCOS_EXEMPLO, avaliaRiscos, custoDeVida, mediaDe12Meses, SEGURO, RELACOES, idadeLimiteDe, calculaSeguros, mesesAteIdade, FASES_VIDA, faseDaVida, sincronizaPatrimonio, PATRIMONIO_EXEMPLO, padraoDeVida, lerCaminho, gravaCaminho, IR, calculaIR, irDaFamilia, REGIMES, calculaRetirada, retiradaDosSocios, PREVIDENCIA, sucessao, simulaPrevidencia, aliqRegressiva, TRIBUTARIO_EXEMPLO, FAMILIA_EXEMPLO, casalDe, nomesDaFamilia, pessoasDaFamilia, rendaDaPessoa, bensDoRisco, titularidadeDoBem, setRetireAge: a => { RETIRE_AGE = a == null ? null : Math.max(CURRENT_AGE, +a); }, paradaMi, trabalhaEm, idadeDaLiberdade, dataNasc, idadeExata, sincronizaIdades, fraseDoProposito, ordemDoProposito, objetivosDoProposito, rendasAtivasDe, naturezaDe, naturezaDaReserva, CLASSES_ATIVOS, ORCAMENTO_IDEAL, VEZES_POUPOU, gestaoFinanceira, horasDoTrabalho, familiaDoPlano, ESTADOS_DIAGNOSTICO, orcamentoDoFluxo, CLASSES_CARTEIRA, CARTEIRAS_MODELO, ACOES_ATIVO, carteiraDoPlano, concentracaoDoPatrimonio, diagnosticoDaFamilia, financiamentoValido, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get JUROS_DIVIDA_M() { return JUROS_DIVIDA_M; }, rotulosDoDetalhe, JUROS_DIVIDA_PADRAO, TETO_DIVIDA_VEZES, contratoDoCredito, get CREDITOS() { return CREDITOS; }, saldoDoCredito, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
+  return { semanadasDoPlano, diasDasSemanadas, semanasComMudanca, novoAlvoDaSemanada, acompanhaSemanada, fatiaDaFamilia, CARTEIRAS_BASE, caixaNegativoEm, rendasDaLiberdade, alternativasDaLiberdade, avisosDoPlano, temValor, compraDoObjetivo, parcelaDaCompra, nomeDaCompra, MESES_CONSERVADOR, taxaDoObjetivo, taxaNoMes, mesDoConservador, trecho, cresceAte, alocacaoSugerida, alocacaoDaCaixinha, alocacaoDasCaixinhas, folgaDosAportes, extraDoMes, get TODAY() { return TODAY; }, get M0() { return calDoCiclo(0); }, get INICIO() { return isoDe(TODAY); }, INICIO_PADRAO, mudaInicio, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, ligado, objetivosLigados, inicioDoAporte, inicioDoDedicado, saldoNoMes, necessarioDe, MESES_POLITICA, orcamentoMesAMes, MESES_PROGRAMA, prioridadeDosObjetivos, linhasDosMeses, PASSIVE, PROFILES, STATUS, trajetoriaDoBem, trajetoriaDaParticipacao, vendasDoObjetivo, partilhaDaVenda, HORIZONTES, horizonteDe, politicaDeInvestimentos, TIPOS_FINANCEIRO, SEM_LIQUIDEZ, DA_CARTEIRA, saiComACarteira, CAIXA_PREV, RENTAB_FGTS, FORMAS_PREV, BR_EMS, termosDaAnuidade, ETTJ_PREVIC, get CAIXAS_PREV() { return CAIXAS_PREV; }, saldoPrevEm, netEm, contratoDoConsorcio, caixaDoConsorcio, REAJUSTE_APOS, get COMPROMISSOS() { return COMPROMISSOS; }, saldoDasVendas, precoDoObjetivo, mesISO, orcadoDoObjetivo, cortesDoObjetivo, saldoDevedorEm, contratoDaDivida, restantesDaDivida, mesDe, get BENS() { return bensDoPlano(); }, get PARTS() { return partsDoPlano(); }, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, serieCusto, desiredAt, aplicaAlteracoes, fraseDaLinha, descreveAlteracao, valorAtual, mesDoPlano, desejoDoPlano, frequenciaDasLinhas, RISCOS, NATUREZAS, ITENS_RUINA, RISCOS_EXEMPLO, avaliaRiscos, custoDeVida, mediaDe12Meses, SEGURO, RELACOES, idadeLimiteDe, calculaSeguros, mesesAteIdade, FASES_VIDA, faseDaVida, sincronizaPatrimonio, PATRIMONIO_EXEMPLO, padraoDeVida, lerCaminho, gravaCaminho, IR, calculaIR, irDaFamilia, REGIMES, calculaRetirada, retiradaDosSocios, PREVIDENCIA, sucessao, simulaPrevidencia, aliqRegressiva, TRIBUTARIO_EXEMPLO, FAMILIA_EXEMPLO, casalDe, nomesDaFamilia, pessoasDaFamilia, rendaDaPessoa, bensDoRisco, titularidadeDoBem, setRetireAge: a => { RETIRE_AGE = a == null ? null : Math.max(CURRENT_AGE, +a); }, paradaMi, trabalhaEm, idadeDaLiberdade, dataNasc, idadeExata, sincronizaIdades, fraseDoProposito, ordemDoProposito, objetivosDoProposito, rendasAtivasDe, naturezaDe, naturezaDaReserva, CLASSES_ATIVOS, ORCAMENTO_IDEAL, VEZES_POUPOU, gestaoFinanceira, horasDoTrabalho, familiaDoPlano, ESTADOS_DIAGNOSTICO, orcamentoDoFluxo, CLASSES_CARTEIRA, CARTEIRAS_MODELO, ACOES_ATIVO, carteiraDoPlano, concentracaoDoPatrimonio, diagnosticoDaFamilia, financiamentoValido, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get JUROS_DIVIDA_M() { return JUROS_DIVIDA_M; }, rotulosDoDetalhe, JUROS_DIVIDA_PADRAO, TETO_DIVIDA_VEZES, contratoDoCredito, get CREDITOS() { return CREDITOS; }, saldoDoCredito, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
 })();
 if (typeof module !== 'undefined') module.exports = ENGINE;
 </script>
@@ -3882,15 +3993,17 @@ if (typeof module !== 'undefined') module.exports = ENGINE;
 const ARMAZEM = (() => {
   const CLIENTE = typeof location !== 'undefined' ? new URLSearchParams(location.search).get('cliente') : 'teste';
   if (!CLIENTE) { location.replace('index.html'); }
-  const CHAVE = { plano: 'nl-plano', proposta: 'nl-proposta', versoes: 'nl-versoes' }, DOC = { plano: 'planos/' + CLIENTE, proposta: 'propostas/' + CLIENTE, versoes: 'versoes/' + CLIENTE };
-  const ouvintes = { plano: [], proposta: [], versoes: [] }, ultimo = {}, visto = {};
+  // o realizado (o que a família lança no acompanhamento: hoje, quanto está a fatura de cada semana) fica à parte do plano,
+  // em realizados/<id>, com a origem de cada lançamento (manual ou, depois, open banking): o plano nunca muda com ele
+  const CHAVE = { plano: 'nl-plano', proposta: 'nl-proposta', versoes: 'nl-versoes', realizado: 'nl-realizado' }, DOC = { plano: 'planos/' + CLIENTE, proposta: 'propostas/' + CLIENTE, versoes: 'versoes/' + CLIENTE, realizado: 'realizados/' + CLIENTE };
+  const ouvintes = { plano: [], proposta: [], versoes: [], realizado: [] }, ultimo = {}, visto = {};
   let db = null, info = null;
   // a cópia de trabalho deste navegador (nl-plano, nl-proposta, cenários, páginas vistas) é de um cliente só: outro
   // cliente começa dela limpa. Sem a nuvem (localhost), cada cliente guarda o seu plano em nl-db:<documento>.
   const DB_LOCAL = k => 'nl-db:' + DOC[k];
   try {
     if (CLIENTE && localStorage.getItem('nl-cliente') !== CLIENTE) {
-      ['nl-plano', 'nl-proposta', 'nl-versoes', 'nl-cenarios', 'nl-vistas', 'nl-fase'].forEach(k => localStorage.removeItem(k));
+      ['nl-plano', 'nl-proposta', 'nl-versoes', 'nl-realizado', 'nl-cenarios', 'nl-vistas', 'nl-fase'].forEach(k => localStorage.removeItem(k));
       for (const k in CHAVE) { const d = JSON.parse(localStorage.getItem(DB_LOCAL(k)) || 'null'); if (d && d.dados) localStorage.setItem(CHAVE[k], JSON.stringify(d.dados)); }
       localStorage.setItem('nl-cliente', CLIENTE);
     }
@@ -3940,7 +4053,7 @@ const ARMAZEM = (() => {
         try { db = await espera(c.use('db'), 8000); } catch (e) { db = null; }
         let dono = true; try { const u = await espera(c.use('user'), 4000); if (u) dono = await u.isOwner(); } catch (e) { }
         if (db) {
-          for (const k of ['plano', 'proposta', 'versoes']) {
+          for (const k of ['plano', 'proposta', 'versoes', 'realizado']) {
             ultimo[k] = JSON.stringify(lerLocal(k));
             await new Promise(pronto => {
               let primeiro = true;
@@ -5677,7 +5790,7 @@ ARMAZEM.iniciar().then(info => {
 });
 // página do portal que corresponde à página à vista: o cadastro do que ela mostra
 const PAG_PORTAL = { proposito: 'cliente', 'proposito-nos': 'cliente', diagnostico: 'cliente', 'hoje-depois': 'cliente',
-  'capa-gestao': 'fluxo', 'renda-custo': 'fluxo', tempo: 'fluxo', orcamento: 'fluxo',
+  'capa-gestao': 'fluxo', 'renda-custo': 'fluxo', tempo: 'fluxo', 'orcamento-hoje': 'orcamento', 'fluxo-24': 'ajuste', semanadas: 'orcamento', orcamento: 'fluxo',
   'capa-tributario': 'tributario', 'resumo-tributario': 'tributario', ir: 'tributario', prolabore: 'tributario', sucessao: 'tributario', previdencia: 'tributario',
   'capa-patrimonio': 'patrimonio', 'resumo-patrimonio': 'patrimonio', patrimonio: 'patrimonio', 'capa-riscos': 'riscos', 'resumo-riscos': 'riscos', riscos: 'riscos',
   'capa-carteira': 'carteira', 'resumo-carteira': 'macro', 'carteira-hoje': 'carteira', 'carteira-recomendada': 'macro', 'carteira-decisoes': 'micro',
@@ -5699,7 +5812,8 @@ document.getElementById('btnEditar').onclick = () => {
 const CAPITULOS = [{ id: 'proposito', titulo: 'Propósito', semAbertura: true, paginas: [{ id: 'proposito', titulo: 'O propósito do seu planejamento' }, { id: 'proposito-nos', titulo: 'Quem caminha ao seu lado' }] },
   { id: 'diagnostico', titulo: 'Diagnóstico', semAbertura: true, paginas: [{ id: 'diagnostico', titulo: 'Quem é a família' }, { id: 'hoje-depois', titulo: 'Hoje e depois do planejamento' }] },
   { id: 'gestao', titulo: 'Gestão financeira', semResumo: true, sub: 'Quanto entra, quanto custa a vida da família, quanto vai para o futuro e como dividir o orçamento.',
-    paginas: [{ id: 'renda-custo', titulo: 'Renda e custo de vida' }, { id: 'tempo', titulo: 'Tempo: uma moeda universal' }, { id: 'orcamento', titulo: 'O orçamento da família' }] },
+    paginas: [{ id: 'renda-custo', titulo: 'Renda e custo de vida' }, { id: 'tempo', titulo: 'Tempo: uma moeda universal' }, { id: 'orcamento-hoje', titulo: 'O orçamento de hoje' }, { id: 'fluxo-24', titulo: 'Os próximos 24 meses' },
+      { id: 'semanadas', titulo: 'As semanadas' }, { id: 'orcamento', titulo: 'Um orçamento alternativo' }] },
   { id: 'conceitos', titulo: 'Padrão de vida e renda passiva', semResumo: true, sub: 'Como o dinheiro pode trabalhar por você, o que é o padrão de vida e quanto patrimônio a liberdade financeira pede.',
     paginas: [{ id: 'renda-passiva', titulo: 'Renda ativa e renda passiva' }, { id: 'padrao-de-vida', titulo: 'O seu padrão de vida' }, { id: 'valor-liberdade', titulo: 'O valor da liberdade financeira' }] }]
   .concat({ id: 'tributario', titulo: 'Otimização tributária', sub: 'Onde a sua família pode pagar menos imposto: no imposto de renda, na retirada da empresa, na sucessão e no investimento de longo prazo.',
@@ -5715,6 +5829,8 @@ const CAPITULOS = [{ id: 'proposito', titulo: 'Propósito', semAbertura: true, p
     { id: 'evolucao', titulo: 'Evolução patrimonial', sub: 'A trajetória do seu patrimônio ao longo da vida, com os seus objetivos e a liberdade financeira.', paginas: [{ id: 'evolucao', titulo: 'A trajetória do patrimônio' }, { id: 'caminho', titulo: 'O caminho daqui para frente' }] });
 // os capítulos que o consultor tirou da apresentação (plano.capitulosOcultos, na página Apresentação do portal) não entram
 // no livro: nem a capa, nem o resumo, nem as páginas, e o sumário, os "Próximo" e a numeração seguem sem eles
+// sem cartão com o dia em que a fatura vira (plano.semanadas.cartoes.<quem>.dia), a página das semanadas não entra
+if (!Object.values(((PLANO || {}).semanadas || {}).cartoes || {}).some(c => c && +c.dia >= 1)) CAPITULOS.forEach(c => { c.paginas = c.paginas.filter(p => p.id !== 'semanadas'); });
 ((PLANO && PLANO.capitulosOcultos) || []).forEach(id => { const k = CAPITULOS.findIndex(c => c.id === id); if (k >= 0 && CAPITULOS.length > 1) CAPITULOS.splice(k, 1); });
 var PAGINAS_TRIB = ['ir', 'prolabore', 'sucessao', 'previdencia'];   // as páginas do capítulo 3, que dividem o mesmo painel
 const PAGINAS = CAPITULOS.flatMap((c, ci) => c.mock ? [] : (c.semAbertura ? [] : [{ id: 'capa-' + c.id, titulo: c.titulo, capa: true }].concat(c.semResumo ? [] : [{ id: 'resumo-' + c.id, titulo: 'Resumo do seu caso', resumo: true }])).concat(c.paginas).map(p => Object.assign({ cap: ci + 1, capTitulo: c.titulo, capId: c.id }, p)));
@@ -5750,7 +5866,7 @@ function mostraFase(f) {
   document.getElementById('sumario').hidden = true;
   const el = document.getElementById(f === 'riscos' || f === 'patrimonio' ? f : noPainel(pg) ? 'pagina' : PAGINAS_TRIB.includes(f) ? 'tributos' : 'wrap'), mudou = f !== FASE_ANT;
   FASE_ANT = f; if (mudou && el.id !== 'wrap') el.scrollTop = 0;
-  if (f === 'riscos') renderRiscos(); else if (f === 'patrimonio') renderPatrimonio(); else if (PAGINAS_TRIB.includes(f)) renderTributos(); else if (pg.capId === 'proposito') (f === 'proposito' ? renderProposito : renderPropositoNos)(pg); else if (pg.capId === 'diagnostico') (f === 'diagnostico' ? renderFamilia : renderHojeDepois)(pg); else if (pg.capId === 'gestao' && !pg.capa) ({ 'renda-custo': renderRendaCusto, tempo: renderTempo, orcamento: renderOrcamento })[f](pg); else if (pg.capId === 'conceitos' && !pg.capa) ({ 'renda-passiva': renderRendaPassiva, 'padrao-de-vida': renderPadraoDeVida, 'valor-liberdade': renderValorLiberdade })[f](pg); else if (f === 'caminho') renderCaminho(pg); else if (f === 'realizacao') renderRealizacao(pg); else if (f === 'objetivos-juntos') renderObjetivosJuntos(pg); else if (f === 'politica') renderPolitica(pg); else if (pg.capId === 'liberdade' && !pg.capa && !pg.resumo) (f === 'liberdade' ? renderLibRenda : renderLibEscolhas)(pg); else if (pg.capId === 'carteira' && !pg.capa && !pg.resumo) renderCarteiraCli(pg); else if (pg.capa) renderCapa(pg); else if (pg.resumo) renderResumo(pg); else requestAnimationFrame(resize);
+  if (f === 'riscos') renderRiscos(); else if (f === 'patrimonio') renderPatrimonio(); else if (PAGINAS_TRIB.includes(f)) renderTributos(); else if (pg.capId === 'proposito') (f === 'proposito' ? renderProposito : renderPropositoNos)(pg); else if (pg.capId === 'diagnostico') (f === 'diagnostico' ? renderFamilia : renderHojeDepois)(pg); else if (pg.capId === 'gestao' && !pg.capa) ({ 'renda-custo': renderRendaCusto, tempo: renderTempo, 'orcamento-hoje': renderOrcHoje, 'fluxo-24': renderFluxo24, semanadas: renderSemanadas, orcamento: renderOrcamento })[f](pg); else if (pg.capId === 'conceitos' && !pg.capa) ({ 'renda-passiva': renderRendaPassiva, 'padrao-de-vida': renderPadraoDeVida, 'valor-liberdade': renderValorLiberdade })[f](pg); else if (f === 'caminho') renderCaminho(pg); else if (f === 'realizacao') renderRealizacao(pg); else if (f === 'objetivos-juntos') renderObjetivosJuntos(pg); else if (f === 'politica') renderPolitica(pg); else if (pg.capId === 'liberdade' && !pg.capa && !pg.resumo) (f === 'liberdade' ? renderLibRenda : renderLibEscolhas)(pg); else if (pg.capId === 'carteira' && !pg.capa && !pg.resumo) renderCarteiraCli(pg); else if (pg.capa) renderCapa(pg); else if (pg.resumo) renderResumo(pg); else requestAnimationFrame(resize);
   if (mudou && el.id !== 'wrap') { el.classList.add('entra'); setTimeout(() => el.classList.remove('entra'), 300); }
 }
 const passaPagina = d => { const k = PAGINAS.findIndex(p => p.id === FASE) + d; if (PAGINAS[k]) mostraFase(PAGINAS[k].id); };
@@ -6984,7 +7100,7 @@ function renderOrcamento(pg) {
   if (!(g.mes.renda > 0)) { document.getElementById('pagina').innerHTML = `<div class="rc lp">${cabPagina(pg, '')}<div class="gf-sec"><div class="pf-nao">O seu consultor ainda está preparando o fluxo de caixa.</div></div>${rodapeNav(pg)}</div>`; return; }
   const bt = PAPEL === 'apresentar' ? '<button class="btn btn-primary" data-ob="gravar">Gravar este orçamento</button>' : podeProp() ? '<button class="btn btn-primary" data-ob="gravar">Propor este orçamento ao consultor</button>' : '';
   const tog = `<div class="gf-tog" role="group" aria-label="Período">${[['mes', 'Mês'], ['ano', 'Ano']].map(([k, n]) => `<button data-ob-per="${k}" class="${GF_PER === k ? 'on' : ''}" aria-pressed="${GF_PER === k}">${n}</button>`).join('')}</div>`;
-  document.getElementById('pagina').innerHTML = `<div class="rc lp ob">${cabPagina(pg, `Como a renda da família se divide hoje entre as despesas fixas, as ajustáveis e o que vai para o futuro, pela média dos próximos 12 meses (com o 13º, os bônus e as despesas do ano). A referência é até 50% da renda em despesas fixas, até 30% em ajustáveis e pelo menos 20% para o futuro. Se quiser, reduza alguma despesa nos grupos abaixo: aparece o orçamento alternativo${PAPEL === 'apresentar' ? '' : ', que pode ser proposto ao consultor'}.`)}
+  document.getElementById('pagina').innerHTML = `<div class="rc lp ob">${cabPagina(pg, `E se alguma despesa diminuísse? Reduza nos grupos abaixo para ver como ficaria o orçamento e de onde sairia a diferença${PAPEL === 'apresentar' ? '' : '; o orçamento alternativo pode ser proposto ao consultor'}. Aqui os valores são a média dos próximos 12 meses (com o 13º, os bônus e as despesas do ano). A referência é até 50% da renda em despesas fixas, até 30% em ajustáveis e pelo menos 20% para o futuro.`)}
     <div class="ob-ctl">${tog}</div><div id="obSentinela"></div>
     <section class="ob-card ob-resumo" aria-label="Resumo do orçamento"><div class="ob-res"><div><div class="ob-barras" id="obBarras"></div>
       <div class="ob-leg" aria-hidden="true"><span><i style="background:var(--ob-fix)"></i>Fixas</span><span><i style="background:var(--ob-adj)"></i>Ajustáveis</span><span><i style="background:var(--ob-fut)"></i>Futuro</span></div></div>
@@ -6998,6 +7114,193 @@ function renderOrcamento(pg) {
   if (OB_OBS) OB_OBS.disconnect();
   OB_OBS = new IntersectionObserver(([e]) => { const r = document.querySelector('.ob-resumo'); if (r) r.classList.toggle('grudado', !e.isIntersecting); }, { root: document.getElementById('pagina') }).observe(document.getElementById('obSentinela'));
 }
+// A semanada (SEMANADAS.md): a régua programada da fatura de cada cartão, do motor (ENGINE.semanadasDoPlano). Por
+// cartão, as quatro semanas do ciclo: até o último dia de cada uma, a fatura em até o marco. Só o planejado: o realizado
+// fica na página de acompanhamento. Hoje é a data do calendário (o ciclo aberto é o que a contém), não o início do plano;
+// as setas andam pelos 12 ciclos. Sem cartão com o dia informado, o bloco não aparece.
+const SR_CICLO = {};   // por pessoa: o ciclo à vista (o índice; vazio = o de hoje)
+const srIso = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+const srDia = iso => +iso.slice(8) + '/' + MONTHS[+iso.slice(5, 7) - 1];
+const srDados = () => ENGINE.semanadasDoPlano(planoVista());
+// o ciclo que contém hoje (antes do primeiro, o primeiro; depois do último, o último) e se hoje está nele
+function srHoje(p) {
+  const h = srIso(new Date()), i = p.ciclos.findIndex(c => c.de <= h && h <= c.ate);
+  return i >= 0 ? i : p.ciclos.length && h > p.ciclos[p.ciclos.length - 1].ate ? p.ciclos.length - 1 : 0;
+}
+function srCartao(p, casal) {
+  const h = srIso(new Date()), iHoje = srHoje(p), i = SR_CICLO[p.quem] != null ? SR_CICLO[p.quem] : iHoje, c = p.ciclos[i], ehHoje = c.de <= h && h <= c.ate;
+  const semana = s => { const agora = s.de <= h && h <= s.ate, passou = s.ate < h;
+    return `<li class="sr-s${agora ? ' hoje' : passou ? ' passou' : ''}"${agora ? ' aria-current="date"' : ''}><span class="sr-q">Semana ${s.n}${agora ? ' · esta semana' : ''}</span>
+      <span class="sr-ate">até ${srDia(s.ate)}, a fatura em até</span><b>${fmt(s.marco)}</b>
+      <small>${s.base > 0.5 ? fmt(s.base) + ' já contratados + ' : ''}${fmt(s.ajustavel)} de ajustáveis</small></li>`; };
+  const rot = ehHoje ? 'o ciclo de hoje' : i < iHoje || h > c.ate ? 'um ciclo que já passou' : i === iHoje + 1 ? 'o próximo ciclo' : 'daqui a ' + (i - iHoje) + ' ciclos';
+  return `<div class="sr-cartao" data-sr="${p.quem}">
+    <div class="sr-cab"><h3>Cartão${casal ? ' de ' + escH(p.nome) : ''}<small>a fatura vira no dia ${p.dia}</small></h3>
+      <div class="sr-ciclo" role="group" aria-label="Ciclo da fatura"><button type="button" data-sr-mv="-1" aria-label="Ciclo anterior"${i === 0 ? ' disabled' : ''}>‹</button>
+        <span aria-live="polite"><b>${srDia(c.de)} a ${srDia(c.ate)}</b><small>${rot}</small></span>
+        <button type="button" data-sr-mv="1" aria-label="Próximo ciclo"${i === p.ciclos.length - 1 ? ' disabled' : ''}>›</button></div></div>
+    <ol class="sr-regua" aria-label="A fatura no fim de cada semana">${c.semanas.map(semana).join('')}</ol>
+    <div class="sr-pe"><span>Teto da fatura no ciclo <strong>${fmt(c.total)}</strong></span>${c.base > 0.5 ? `<span>${fmt(c.base)} já contratados (despesas fixas no cartão e parcelas de compras anteriores) e ${fmt(c.ajustavel)} de ajustáveis</span>` : ''}
+      ${i !== iHoje ? '<button type="button" class="ob-txt" data-sr-hoje>Voltar ao ciclo de hoje</button>' : ''}</div></div>`;
+}
+// a página: o combinado (as ajustáveis da família, divididas entre os cartões e o fora do cartão) e a régua de cada cartão
+function renderSemanadas(pg) {
+  const r = srDados(), casal = r.cartoes.length > 1 || r.pessoas.length > 1, de = p => casal ? ' de ' + escH(p.nome) : '';
+  const corpo = !r.cartoes.length ? '<div class="gf-sec"><div class="pf-nao">O seu consultor ainda vai combinar as semanadas com a família.</div></div>'
+    : `<section class="gf-sec rev"><div class="lp-rot">O combinado, por mês</div>
+        <div class="gf-cards${r.cartoes.length + (r.fora > 0.5 ? 1 : 0) > 2 ? ' q4' : ''}"><div class="gf-c"><span>Despesas ajustáveis</span><b>${fmt(r.alvo)}</b><small>o que cabe num mês comum</small></div>
+          ${r.cartoes.map(p => `<div class="gf-c"><span>No cartão${de(p)}</span><b>${fmt(p.parte)}</b><small>a fatura vira no dia ${p.dia}</small></div>`).join('')}
+          ${r.fora > 0.5 ? `<div class="gf-c"><span>Fora do cartão</span><b>${fmt(r.fora)}</b><small>Pix, débito e dinheiro</small></div>` : ''}</div></section>
+      <section class="gf-sec rev"><div class="lp-rot">A régua de cada semana</div>${r.cartoes.map(p => srCartao(p, casal)).join('')}
+        ${r.fora > 0.5 ? `<div class="sr-fora">O fora do cartão não entra na régua: confere-se no fechamento do mês.</div>` : ''}</section>`;
+  document.getElementById('pagina').innerHTML = `<div class="rc lp">${cabPagina(pg, 'Em vez de anotar cada gasto, confira quanto está a fatura do cartão: até o último dia de cada semana, ela não deve passar do valor da régua. A régua já conta o que entra na fatura de qualquer jeito, como as despesas fixas pagas no cartão e as parcelas de compras anteriores.')}${corpo}${rodapeNav(pg)}</div>`;
+  revelar();
+}
+// O orçamento de hoje: a fotografia do mês comum (ENGINE.gestaoFinanceira().pico, só o que se repete todo mês), sem
+// controles. A conta (renda − fixas − ajustáveis = o que vai para o futuro), a barra com as referências de 50% e 80% da
+// renda, discretas, e as linhas de cada grupo. O que não é de todo mês (o 13º, os bônus, o IPTU) fica à parte, embaixo.
+function renderOrcHoje(pg) {
+  const P = planoVista(), g = ENGINE.gestaoFinanceira(P), M = g.pico, E = g.eventuais, R = M.renda, casal = ENGINE.casalDe(P);
+  const el = document.getElementById('pagina'), intro = `Uma fotografia do orçamento de ${casal ? 'vocês' : 'você'} num mês comum: o que entra todo mês, as despesas fixas, as ajustáveis e o que sobra para o futuro. O que não acontece todo mês, como o 13º e o IPTU, aparece à parte, embaixo.`;
+  if (!(R > 0)) { el.innerHTML = `<div class="rc lp">${cabPagina(pg, intro)}<div class="gf-sec"><div class="pf-nao">O seu consultor ainda está preparando o fluxo de caixa.</div></div>${rodapeNav(pg)}</div>`; return; }
+  const sinal = v => v < -0.5 ? '− ' + fmt(-v) : fmt(v), da = v => pctInt(Math.max(0, v) / R) + ' da renda';
+  const fx = M.grupos.fixas, aj = M.grupos.ajustaveis, fu = M.grupos.futuro, base = Math.max(R, fx + aj + Math.max(0, fu));
+  const seg = (cls, v) => { const w = Math.max(0, v) / base * 100; return w > 0.05 ? `<i class="${cls}" style="width:${w}%">${w > 13 ? fmt(v) : ''}</i>` : ''; };
+  const lista = (nome, cor, itens, total) => `<div class="gf-c oh-g"><h3>${cor ? `<i style="background:${cor}"></i>` : ''}${nome}</h3><ul>${itens.map(x => `<li><span>${escH(x.nome)}</span><b>${fmt(x.valor)}</b></li>`).join('')}
+    <li class="tot"><span>Total</span><b>${fmt(total)}</b></li></ul></div>`;
+  const mes = mm => MONTHS[new Date(ENGINE.M0.y, ENGINE.M0.m + mm, 1).getMonth()];
+  const doAno = (lado, nome) => { const l = E.itens.filter(x => lado === 'entrada' ? x.lado === 'entrada' : x.lado !== 'entrada'); return l.length ? `<div class="gf-c oh-g oh-ano"><h3>${nome}</h3><ul>${l.map(x =>
+    `<li><span>${escH(x.nome)}<small>${x.meses.map(mes).join(', ')}</small></span><b>${fmt(x.noAno)}</b></li>`).join('')}<li class="tot"><span>No ano</span><b>${fmt(l.reduce((a, x) => a + x.noAno, 0))}</b></li></ul></div>` : ''; };
+  el.innerHTML = `<div class="rc lp oh">${cabPagina(pg, intro)}
+    <section class="gf-sec rev"><div class="lp-rot">Num mês comum</div>
+      <div class="oh-conta"><div class="gf-c"><span>Renda de todo mês</span><b>${fmt(R)}</b><small>líquida, por mês</small></div>
+        <div class="gf-c"><span>Despesas fixas</span><b>${fmt(fx)}</b><small>${da(fx)}</small></div>
+        <div class="gf-c"><span>Despesas ajustáveis</span><b>${fmt(aj)}</b><small>${da(aj)}</small></div>
+        <div class="gf-c fut"><span>Para o futuro</span><b>${sinal(fu)}</b><small>${fu < -0.5 ? 'as despesas passam da renda' : da(fu)}</small></div></div>
+      <div class="oh-barra"><div class="ob-barras"><div class="ob-bar" role="img" aria-label="Fixas ${fmt(fx)}, ajustáveis ${fmt(aj)}, futuro ${sinal(fu)}">${seg('ob-s-fix', fx)}${seg('ob-s-adj', aj)}${seg('ob-s-fut', fu)}</div>
+        <div class="ob-refs" aria-hidden="true">${[0.5, 0.8].map(p => `<b style="left:${R * p / base * 100}%"></b><span style="left:${R * p / base * 100}%">${pctInt(p)}</span>`).join('')}</div></div>
+        <div class="ob-leg"><span><i style="background:var(--ob-fix)"></i>Fixas</span><span><i style="background:var(--ob-adj)"></i>Ajustáveis</span><span><i style="background:var(--ob-fut)"></i>Futuro</span></div>
+        <div class="gf-nota">A referência: até 50% da renda em despesas fixas, até 30% em ajustáveis (as marcas de 50% e 80%) e pelo menos 20% para o futuro.</div></div></section>
+    <section class="gf-sec rev"><div class="lp-rot">Linha a linha</div><div class="oh-grupos">${lista('Rendas', '', M.itens.rendas, R)}${lista('Despesas fixas', 'var(--ob-fix)', M.itens.fixas, fx)}${lista('Despesas ajustáveis', 'var(--ob-adj)', M.itens.ajustaveis, aj)}</div></section>
+    ${E.itens.length ? `<section class="gf-sec rev"><div class="lp-rot">Fora do mês comum, nos próximos 12 meses</div><div class="oh-grupos">${doAno('entrada', 'Entradas')}${doAno('despesa', 'Despesas')}</div>
+      <div class="gf-nota">Elas não entram na conta do mês comum: cada uma acontece nos meses indicados. A próxima página mostra os 24 meses, mês a mês.</div></section>` : ''}
+    ${rodapeNav(pg)}</div>`;
+  revelar();
+}
+// Os próximos 24 meses: o Fluxo de 24 meses do portal (sim().programa), só para ler. No alto, o gráfico de cada mês, na
+// primeira linha da tabela (as colunas são as mesmas): o contorno tracejado é o resultado do mês (mais alto no mês de uma
+// entrada pontual, como um bônus), as cores são o que foi destinado (a reserva, cada objetivo, a liberdade) e o que fica sem
+// cor dentro do contorno vai para a Caixa de curto prazo; o resultado negativo desce, listrado. Embaixo, as entradas e as
+// despesas (cada grupo abre linha a linha), o resultado, para onde vai e o saldo da caixa. O mês de hoje (a data do
+// calendário, no mês do motor) fica marcado. A roda do mouse sobre o gráfico (ou Ctrl + roda em qualquer ponto da tabela)
+// aproxima e afasta, até a coluna mais estreita em que o valor ainda cabe inteiro. Os valores vão sempre inteiros e com o
+// R$ ("R$ 7.100": a escolha do usuário, 10/11/2026, depois de ver o "7,1" em mil reais); afastado, a letra fica menor.
+const F24_ABERTO = new Set();   // os grupos abertos (entradas, despesas, gastos dos objetivos): estado da tela
+const F24 = { z: 1 };   // o zoom: a largura da coluna de um mês é F24_COL × z
+// a primeira coluna (os nomes) estreita no modo compacto, para caberem mais meses
+const F24_COL = 100, F24_PRIMEIRA = (z = F24.z) => innerWidth <= 720 ? 120 : z < 0.85 ? 150 : 188, F24_ZMIN = 0.7, F24_ZMAX = 1.4;
+const f24Compacto = () => F24.z < 0.85;
+// o zoom em que os 24 meses cabem na largura do quadro
+const f24Cabe = () => { const w = document.getElementById('f24'); if (!w) return 1; const cabe = c1 => (w.clientWidth - c1) / (sim().programa.H * F24_COL);
+  return Math.max(F24_ZMIN, Math.min(1, cabe(F24_PRIMEIRA(1)) >= 0.85 ? cabe(F24_PRIMEIRA(1)) : cabe(F24_PRIMEIRA(0.5)))); };
+function f24Tabela() {
+  const Pl = planoVista(), Pg = sim().programa, H = Pg.H, L = ENGINE.linhasDosMeses(H), cols = Array.from({ length: H }, (_, mi) => mi);
+  const comp = f24Compacto(), cw = Math.round(F24_COL * F24.z), c1 = F24_PRIMEIRA();
+  const n0 = v => Math.abs(v) < 0.5 ? '<span class="z">—</span>' : (v < 0 ? '−' : '') + 'R$ ' + Math.round(Math.abs(v)).toLocaleString('pt-BR');
+  const a = new Date(), mHoje = a.getFullYear() * 12 + a.getMonth() - (a.getDate() < 5 ? 1 : 0) - (ENGINE.M0.y * 12 + ENGINE.M0.m), hc = mi => mi === mHoje ? ' class="hoje"' : '';
+  const mes = mi => { const d = new Date(ENGINE.M0.y, ENGINE.M0.m + mi, 1); return MONTHS[d.getMonth()] + '/' + String(d.getFullYear()).slice(2); };
+  const linha = (nome, vals, cls, extra) => `<tr class="${cls}"><th>${nome}</th>${vals.map((v, mi) => `<td${hc(mi)}>${n0(v)}${extra ? extra(mi) : ''}</td>`).join('')}</tr>`;
+  const grupo = (id, nome, linhas, sinal) => { const ab = F24_ABERTO.has(id), tot = cols.map(mi => sinal * linhas.reduce((s, x) => s + x.v[mi], 0));
+    return `<tr class="g"><th><button type="button" data-f24="${id}" aria-expanded="${ab}">${ab ? '▾' : '▸'} ${nome}</button></th>${tot.map((v, mi) => `<td${hc(mi)}>${n0(v)}</td>`).join('')}</tr>`
+      + (ab ? linhas.filter(x => x.v.some(v => v > 0.5)).map(x => linha(escH(x.label || 'Sem nome'), x.v.map(v => sinal * v), 'l')).join('') : ''); };
+  const cx = f24Cores(Pl);
+  // os objetivos que recebem algo nos 24 meses (os outros começam depois e ficam numa nota embaixo da tabela)
+  const doObj = o => Pg.meses.map(m => (m.aportes[o.id] || 0) + ((m.extras || {})[o.id] || 0));
+  const objs = ENGINE.prioridadeDosObjetivos(Pl).filter(o => Pg.por[o.id] && doObj(o).some(v => v > 0.5));
+  const linhaObj = o => { const n = Math.round(+o.months || 0);
+    return linha(`<i class="o" style="background:${cx(o.id)}"></i>${escH(o.name || 'Objetivo sem nome')}${n < H ? `<small>★ a data: ${mes(n)}</small>` : ''}`, doObj(o), 'l', mi => mi === n ? ' ★' : ''); };
+  // o gráfico: cada mês na mesma escala (o maior entre o resultado e o destinado; embaixo do zero, o maior negativo)
+  const dest = m => [['reserva', m.reserva]].concat(objs.map(o => [o.id, (m.aportes[o.id] || 0) + ((m.extras || {})[o.id] || 0)]), [['liberdade', m.liberdade]]).filter(x => x[1] > 0.5);
+  const tot = m => dest(m).reduce((s, x) => s + x[1], 0), alto = Math.max(1, ...Pg.meses.map(m => Math.max(m.sobra, tot(m)))), baixo = Math.max(0, ...Pg.meses.map(m => -m.sobra));
+  const AH = 150, px = v => v / (alto + baixo) * AH, zero = px(baixo), nome = id => id === 'reserva' ? 'Reserva' : id === 'liberdade' ? 'Liberdade' : escH((objs.find(o => o.id === id) || {}).name || 'objetivo');
+  const barra = m => { const d = dest(m), t = tot(m), fica = m.sobra - t;
+    const dica = `${mes(m.mi)}: resultado de ${fmt(m.sobra)}${d.length ? '; destinado ' + fmt(t) + ' (' + d.map(([id, v]) => nome(id) + ' ' + fmt(v)).join(', ') + ')' : ''}${fica > 0.5 ? '; ' + fmt(fica) + ' ficam na Caixa de curto prazo' : fica < -0.5 ? '; ' + fmt(-fica) + ' saem da Caixa de curto prazo' : ''}`;
+    return `<td${hc(m.mi)}><div class="f24-b" style="height:${AH}px" title="${dica}" role="img" aria-label="${dica}">
+      ${m.sobra > 0.5 ? `<span class="s" style="bottom:${zero}px;height:${px(m.sobra)}px"></span>` : ''}
+      <span class="a" style="bottom:${zero}px;height:${px(t)}px">${d.map(([id, v]) => `<i style="height:${Math.max(1, px(v) - 1)}px;background:${cx(id)}"></i>`).join('')}</span>
+      ${m.sobra < -0.5 ? `<span class="n" style="top:${AH - zero}px;height:${px(-m.sobra)}px"></span>` : ''}<span class="z0" style="bottom:${zero}px"></span></div></td>`; };
+  return `<table class="f24${comp ? ' compacto' : ''}" style="width:${c1 + H * cw}px"><colgroup><col style="width:${c1}px">${cols.map(() => `<col style="width:${cw}px">`).join('')}</colgroup>
+    <thead><tr class="graf"><th><b>Cada mês</b>o resultado e para onde ele vai</th>${Pg.meses.map(barra).join('')}</tr>
+      <tr class="m"><th>Mês</th>${cols.map(mi => `<th${hc(mi)}>${comp ? mes(mi).replace('/', '<small>') + '</small>' : mes(mi)}</th>`).join('')}</tr></thead><tbody>
+    ${grupo('ent', 'Entradas', L.entradas, 1)}${grupo('sai', 'Despesas', L.saidas, -1)}${L.custos.length ? grupo('cus', 'Gastos dos objetivos', L.custos, -1) : ''}
+    ${linha('Resultado do mês', Pg.meses.map(m => m.sobra), 'res')}
+    <tr class="sep"><th>Para onde vai</th><td colspan="${H}"></td></tr>
+    ${Pg.meses.some(m => m.reserva > 0.5) ? linha(`<i class="o" style="background:${cx('reserva')}"></i>Reserva de emergência`, Pg.meses.map(m => m.reserva), 'l') : ''}
+    ${objs.map(linhaObj).join('')}
+    ${linha(`<i class="o" style="background:${cx('liberdade')}"></i>Liberdade financeira`, Pg.meses.map(m => m.liberdade), 'l')}
+    <tr class="sep"><th>Caixa de curto prazo</th><td colspan="${H}"></td></tr>
+    ${Pg.meses.some(m => m.doPatrimonio > 0.5) ? linha('Coberto pelo patrimônio', Pg.meses.map(m => m.doPatrimonio), 'l') : ''}
+    ${linha('Saldo no fim do mês<small>o que ficou sem destino, para os meses mais pesados</small>', Pg.meses.map(m => m.guardado), 'cx')}</tbody></table>`;
+}
+// a cor de cada destino: a da caixinha na Política de investimentos
+function f24Cores(Pl) {
+  const C = ENGINE.politicaDeInvestimentos(Pl, sim()).caixinhas, de = id => C.find(c => c.id === id || (id === 'liberdade' && c.tipo === 'liberdade'));
+  return id => (de(id) || {}).cor || (id === 'liberdade' ? '#F6A06B' : '#C9D4E2');
+}
+// redesenha a tabela num zoom novo, com o mês que estava sob o mouse (ou o do meio) no mesmo lugar
+function f24Zoom(z, x) {
+  const w = document.getElementById('f24'); if (!w) return;
+  const c1 = F24_PRIMEIRA(), cw0 = F24_COL * F24.z, px = x == null ? (w.clientWidth + c1) / 2 : x, mi = (w.scrollLeft + px - c1) / cw0;
+  F24.z = Math.max(F24_ZMIN, Math.min(F24_ZMAX, z));
+  w.innerHTML = f24Tabela(); w.scrollLeft = Math.max(0, F24_PRIMEIRA() + mi * F24_COL * F24.z - px); f24Botoes();
+}
+function f24Botoes() {
+  const cabe = f24Cabe(), q = s => document.querySelector(s); if (!q('[data-f24-z]')) return;
+  q('[data-f24-z="-"]').disabled = F24.z <= cabe + 0.001; q('[data-f24-z="+"]').disabled = F24.z >= F24_ZMAX - 0.001;
+  const todos = q('[data-f24-z="todos"]'), naTela = Math.abs(F24.z - cabe) < 0.01; const w = document.getElementById('f24'), cabeTudo = (w.clientWidth - F24_PRIMEIRA(cabe)) >= sim().programa.H * Math.round(F24_COL * cabe) - 1;
+  todos.textContent = naTela ? 'Voltar ao tamanho normal' : cabeTudo ? 'Ver os 24 meses' : 'Afastar ao máximo';
+}
+function renderFluxo24(pg) {
+  const P = planoVista(), s = sim(), el = document.getElementById('pagina');
+  const intro = 'Mês a mês, o que entra, o que sai e para onde vai o resultado: a reserva de emergência, cada objetivo e a liberdade financeira. O que fica sem destino vai para a Caixa de curto prazo, que cobre os meses mais pesados.';
+  if (!s || !s.programa || !(ENGINE.gestaoFinanceira(P).mes.renda > 0)) { el.innerHTML = `<div class="rc lp">${cabPagina(pg, intro)}<div class="gf-sec"><div class="pf-nao">O seu consultor ainda está preparando o fluxo de caixa.</div></div>${rodapeNav(pg)}</div>`; return; }
+  const M = s.programa.meses, ent = M.reduce((a, m) => a + m.sobra, 0), cx = f24Cores(P);
+  const depois = ENGINE.prioridadeDosObjetivos(P).filter(o => s.programa.por[o.id] && !M.some(m => (m.aportes[o.id] || 0) + ((m.extras || {})[o.id] || 0) > 0.5));
+  const comAporte = ENGINE.prioridadeDosObjetivos(P).filter(o => s.programa.por[o.id] && !depois.includes(o));
+  const leg = [M.some(m => m.reserva > 0.5) ? ['reserva', 'Reserva de emergência'] : null].concat(comAporte.map(o => [o.id, escH(o.name || 'Objetivo sem nome')]), [['liberdade', 'Liberdade financeira']]).filter(Boolean);
+  el.innerHTML = `<div class="rc lp">${cabPagina(pg, intro)}
+    <section class="gf-sec rev"><div class="f24-ctl"><div class="lp-rot">Mês a mês</div><span class="f24-dica">A roda do mouse sobre o gráfico aproxima e afasta</span>
+        <div class="f24-zoom" role="group" aria-label="Zoom"><button type="button" data-f24-z="-" aria-label="Afastar">−</button><button type="button" data-f24-z="+" aria-label="Aproximar">+</button><button type="button" data-f24-z="todos">Ver os 24 meses</button></div></div>
+      <div class="f24-leg"><span><i class="s"></i>Resultado do mês</span>${leg.map(([id, n]) => `<span><i style="background:${cx(id)}"></i>${n}</span>`).join('')}${M.some(m => m.sobra < -0.5) ? '<span><i class="n"></i>Mês negativo</span>' : ''}</div>
+      <div class="f24-wrap" id="f24">${f24Tabela()}</div>
+      <div class="f24-pe"><span>Nos 24 meses, o resultado soma <b>${ent < 0 ? '− ' + fmt(-ent) : fmt(ent)}</b></span><span>O que está dentro do contorno e sem cor fica na Caixa de curto prazo. Clique em Entradas ou Despesas para ver cada linha; ★ é a data de cada objetivo.</span>
+        ${depois.length ? `<span>Não recebem aportes nestes 24 meses: ${depois.map(o => escH(o.name || 'objetivo sem nome')).join(', ').replace(/, ([^,]*)$/, ' e $1')}.</span>` : ''}</div></section>
+    ${rodapeNav(pg)}</div>`;
+  const w = document.getElementById('f24');
+  // a roda do mouse: sobre o gráfico, ou com Ctrl (o gesto de pinça do trackpad), aproxima e afasta; no resto, a página rola
+  let pend = 0, quadro = 0;
+  w.addEventListener('wheel', e => {
+    if (!(e.ctrlKey || e.target.closest('tr.graf')) || Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+    e.preventDefault(); pend += e.deltaY; const x = e.clientX - w.getBoundingClientRect().left;
+    if (!quadro) quadro = requestAnimationFrame(() => { quadro = 0; const d = pend; pend = 0; f24Zoom(Math.max(f24Cabe(), F24.z * Math.exp(-d * 0.0018)), x); });
+  }, { passive: false });
+  f24Botoes(); revelar();
+}
+document.addEventListener('click', e => {
+  const z = e.target.closest && e.target.closest('[data-f24-z]');
+  if (z) { const k = z.dataset.f24Z, cabe = f24Cabe(); f24Zoom(k === 'todos' ? (Math.abs(F24.z - cabe) < 0.01 ? 1 : cabe) : Math.max(cabe, F24.z * (k === '+' ? 1.25 : 0.8))); return; }
+  const b = e.target.closest && e.target.closest('[data-f24]'), w = document.getElementById('f24'); if (!b || !w) return;
+  const id = b.dataset.f24, x = w.scrollLeft; if (F24_ABERTO.has(id)) F24_ABERTO.delete(id); else F24_ABERTO.add(id);
+  w.innerHTML = f24Tabela(); w.scrollLeft = x; const nb = w.querySelector(`[data-f24="${id}"]`); if (nb) nb.focus();
+});
+document.addEventListener('click', e => {
+  const t = e.target.closest && e.target.closest('[data-sr-mv],[data-sr-hoje]'), el = t && t.closest('[data-sr]'); if (!el) return;
+  const q = el.dataset.sr, r = srDados(), p = r.cartoes.find(x => x.quem === q); if (!p) return;
+  const i = SR_CICLO[q] != null ? SR_CICLO[q] : srHoje(p);
+  SR_CICLO[q] = t.dataset.srHoje != null ? null : Math.max(0, Math.min(p.ciclos.length - 1, i + +t.dataset.srMv));
+  el.outerHTML = srCartao(p, r.cartoes.length > 1 || r.pessoas.length > 1);
+  const novo = document.querySelector(`[data-sr="${q}"] ${t.dataset.srHoje != null ? '.sr-ciclo button' : `[data-sr-mv="${t.dataset.srMv}"]`}`); if (novo) (novo.disabled ? document.querySelector(`[data-sr="${q}"] .sr-ciclo button:not(:disabled)`) : novo).focus();
+});
 function obMonta(k) {
   const G = OB.grupos[k], C = OB_G[k], el = document.getElementById('obG-' + k); if (!el) return;
   const ln = i => G.macro ? `<div class="ob-ln m sel" data-k="${k}" data-id="${escH(i.id)}">

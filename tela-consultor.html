@@ -3528,7 +3528,8 @@ const ENGINE = (() => {
     const itensP = g => despesas.filter(e => g === 'fixas' ? e.group === 'fix' : e.group !== 'fix').map(e => ({ id: String(e.id), nome: e.label || 'Despesa sem nome', valor: noMes(e, mmP) }))
       .filter(x => x.valor > 0.5).sort((a, b) => b.valor - a.valor);
     const fixasP = itensP('fixas'), ajustaveisP = itensP('ajustaveis'), rendaP = somaNoMes(plan.incomes, mmP), custoP = tot(fixasP) + tot(ajustaveisP);
-    const pico = { mm: mmP, renda: rendaP, custo: custoP, futuro: rendaP - custoP, itens: { fixas: fixasP, ajustaveis: ajustaveisP },
+    const rendasP = (plan.incomes || []).map(e => ({ id: String(e.id), nome: e.label || 'Entrada sem nome', valor: noMes(e, mmP) })).filter(x => x.valor > 0.5).sort((a, b) => b.valor - a.valor);
+    const pico = { mm: mmP, renda: rendaP, custo: custoP, futuro: rendaP - custoP, itens: { rendas: rendasP, fixas: fixasP, ajustaveis: ajustaveisP },
       grupos: { fixas: tot(fixasP), ajustaveis: tot(ajustaveisP), futuro: rendaP - custoP },
       ideal: { fixas: rendaP * ORCAMENTO_IDEAL.fixas, ajustaveis: rendaP * ORCAMENTO_IDEAL.ajustaveis, futuro: rendaP * ORCAMENTO_IDEAL.futuro } };
     // O que não é de todo mês e se repete (o 13º, um bônus, o IPTU: anual, semestral, trimestral), à parte: quanto cada linha
@@ -3651,6 +3652,23 @@ const ENGINE = (() => {
     let acc = acima ? fatura : s.marco;
     const semanas = resto.map((x, k) => { acc += x.base + novos[k]; return { n: x.n, de: x.de, ate: x.ate, base: x.base, ajustavel: novos[k], antes: x.ajustavel, teto: x.base + novos[k], marco: acc, marcoAntes: x.marco }; });
     return { semana: s.n, fatura, marco: s.marco, diferenca: dif, estado: acima ? 'acima' : 'dentro', folga: acima ? 0 : Math.max(0, -dif), semanas, fecha: acc, total: ciclo.total, fechaAcima: Math.max(0, acc - ciclo.total) };
+  }
+  // O acompanhamento do ciclo, semana a semana (a página Acompanhamento - Semanadas). Cada fatura informada se compara com
+  // o marco em vigor naquela semana: o do plano ou, depois de uma semana acima, o novo (novoAlvoDaSemanada). O novo alvo da
+  // última semana informada vale para as seguintes. Cada semana: o marco e o ajustável do plano, os de agora e, se informada,
+  // a fatura, a diferença e o estado; e o novo alvo da última informada (null sem nenhuma).
+  function acompanhaSemanada(ciclo, realizados) {
+    const R = (realizados || []).map(num); let cur = ciclo, novo = null;
+    const semanas = ciclo.semanas.map(s => ({ n: s.n, de: s.de, ate: s.ate, base: s.base, marcoPlano: s.marco, ajustavelPlano: s.ajustavel, fatura: null }));
+    ciclo.semanas.forEach((s, j) => {
+      if (R[j] == null) return;
+      const r = novoAlvoDaSemanada(cur, ciclo.semanas.map((_, k) => k === j ? R[j] : null));
+      Object.assign(semanas[j], { fatura: R[j], marco: cur.semanas[j].marco, ajustavel: cur.semanas[j].ajustavel, diferenca: r.diferenca, estado: r.estado, folga: r.folga });
+      cur = Object.assign({}, cur, { semanas: cur.semanas.map((x, k) => k <= j ? x : Object.assign({}, x, { ajustavel: r.semanas[k - j - 1].ajustavel, teto: r.semanas[k - j - 1].teto, marco: r.semanas[k - j - 1].marco })) });
+      novo = r;
+    });
+    semanas.forEach((s, k) => { if (s.fatura == null) Object.assign(s, { marco: cur.semanas[k].marco, ajustavel: cur.semanas[k].ajustavel }); s.mudou = Math.abs(s.marco - s.marcoPlano) > 0.5; });
+    return { semanas, novo, total: ciclo.total, fecha: novo ? novo.fecha : ciclo.total, fechaAcima: novo ? novo.fechaAcima : 0 };
   }
   // ---- Capítulo 2: o diagnóstico, a família hoje e depois do planejamento ----
   // Oito linhas (os objetivos em duas), cada uma com o presente e o futuro. O presente é calculado onde há conta (o orçamento, pelo Fluxo de
@@ -4150,7 +4168,7 @@ const ENGINE = (() => {
     return mis.map(mi => ({ mi, mes: M[mi].mes, saldo: M[mi].saldo, aportado: M.slice(0, mi + 1).reduce((a, m) => a + m.aporte, 0), extra: M.slice(0, mi + 1).reduce((a, m) => a + m.extra, 0), data: mi === n }));
   }
   OBJ.forEach(derive);   // os objetivos do exemplo (aqui, depois dos bens: derive lê as vendas)
-  return { semanadasDoPlano, diasDasSemanadas, semanasComMudanca, novoAlvoDaSemanada, fatiaDaFamilia, CARTEIRAS_BASE, caixaNegativoEm, rendasDaLiberdade, alternativasDaLiberdade, avisosDoPlano, temValor, compraDoObjetivo, parcelaDaCompra, nomeDaCompra, MESES_CONSERVADOR, taxaDoObjetivo, taxaNoMes, mesDoConservador, trecho, cresceAte, alocacaoSugerida, alocacaoDaCaixinha, alocacaoDasCaixinhas, folgaDosAportes, extraDoMes, get TODAY() { return TODAY; }, get M0() { return calDoCiclo(0); }, get INICIO() { return isoDe(TODAY); }, INICIO_PADRAO, mudaInicio, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, ligado, objetivosLigados, inicioDoAporte, inicioDoDedicado, saldoNoMes, necessarioDe, MESES_POLITICA, orcamentoMesAMes, MESES_PROGRAMA, prioridadeDosObjetivos, linhasDosMeses, PASSIVE, PROFILES, STATUS, trajetoriaDoBem, trajetoriaDaParticipacao, vendasDoObjetivo, partilhaDaVenda, HORIZONTES, horizonteDe, politicaDeInvestimentos, TIPOS_FINANCEIRO, SEM_LIQUIDEZ, DA_CARTEIRA, saiComACarteira, CAIXA_PREV, RENTAB_FGTS, FORMAS_PREV, BR_EMS, termosDaAnuidade, ETTJ_PREVIC, get CAIXAS_PREV() { return CAIXAS_PREV; }, saldoPrevEm, netEm, contratoDoConsorcio, caixaDoConsorcio, REAJUSTE_APOS, get COMPROMISSOS() { return COMPROMISSOS; }, saldoDasVendas, precoDoObjetivo, mesISO, orcadoDoObjetivo, cortesDoObjetivo, saldoDevedorEm, contratoDaDivida, restantesDaDivida, mesDe, get BENS() { return bensDoPlano(); }, get PARTS() { return partsDoPlano(); }, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, serieCusto, desiredAt, aplicaAlteracoes, fraseDaLinha, descreveAlteracao, valorAtual, mesDoPlano, desejoDoPlano, frequenciaDasLinhas, RISCOS, NATUREZAS, ITENS_RUINA, RISCOS_EXEMPLO, avaliaRiscos, custoDeVida, mediaDe12Meses, SEGURO, RELACOES, idadeLimiteDe, calculaSeguros, mesesAteIdade, FASES_VIDA, faseDaVida, sincronizaPatrimonio, PATRIMONIO_EXEMPLO, padraoDeVida, lerCaminho, gravaCaminho, IR, calculaIR, irDaFamilia, REGIMES, calculaRetirada, retiradaDosSocios, PREVIDENCIA, sucessao, simulaPrevidencia, aliqRegressiva, TRIBUTARIO_EXEMPLO, FAMILIA_EXEMPLO, casalDe, nomesDaFamilia, pessoasDaFamilia, rendaDaPessoa, bensDoRisco, titularidadeDoBem, setRetireAge: a => { RETIRE_AGE = a == null ? null : Math.max(CURRENT_AGE, +a); }, paradaMi, trabalhaEm, idadeDaLiberdade, dataNasc, idadeExata, sincronizaIdades, fraseDoProposito, ordemDoProposito, objetivosDoProposito, rendasAtivasDe, naturezaDe, naturezaDaReserva, CLASSES_ATIVOS, ORCAMENTO_IDEAL, VEZES_POUPOU, gestaoFinanceira, horasDoTrabalho, familiaDoPlano, ESTADOS_DIAGNOSTICO, orcamentoDoFluxo, CLASSES_CARTEIRA, CARTEIRAS_MODELO, ACOES_ATIVO, carteiraDoPlano, concentracaoDoPatrimonio, diagnosticoDaFamilia, financiamentoValido, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get JUROS_DIVIDA_M() { return JUROS_DIVIDA_M; }, rotulosDoDetalhe, JUROS_DIVIDA_PADRAO, TETO_DIVIDA_VEZES, contratoDoCredito, get CREDITOS() { return CREDITOS; }, saldoDoCredito, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
+  return { semanadasDoPlano, diasDasSemanadas, semanasComMudanca, novoAlvoDaSemanada, acompanhaSemanada, fatiaDaFamilia, CARTEIRAS_BASE, caixaNegativoEm, rendasDaLiberdade, alternativasDaLiberdade, avisosDoPlano, temValor, compraDoObjetivo, parcelaDaCompra, nomeDaCompra, MESES_CONSERVADOR, taxaDoObjetivo, taxaNoMes, mesDoConservador, trecho, cresceAte, alocacaoSugerida, alocacaoDaCaixinha, alocacaoDasCaixinhas, folgaDosAportes, extraDoMes, get TODAY() { return TODAY; }, get M0() { return calDoCiclo(0); }, get INICIO() { return isoDe(TODAY); }, INICIO_PADRAO, mudaInicio, WPY, NW, get BIRTH() { return BIRTH; }, get W0() { return W0; }, get CURRENT_AGE() { return CURRENT_AGE; }, weekDate, tOf, ageOf, OBJ, ligado, objetivosLigados, inicioDoAporte, inicioDoDedicado, saldoNoMes, necessarioDe, MESES_POLITICA, orcamentoMesAMes, MESES_PROGRAMA, prioridadeDosObjetivos, linhasDosMeses, PASSIVE, PROFILES, STATUS, trajetoriaDoBem, trajetoriaDaParticipacao, vendasDoObjetivo, partilhaDaVenda, HORIZONTES, horizonteDe, politicaDeInvestimentos, TIPOS_FINANCEIRO, SEM_LIQUIDEZ, DA_CARTEIRA, saiComACarteira, CAIXA_PREV, RENTAB_FGTS, FORMAS_PREV, BR_EMS, termosDaAnuidade, ETTJ_PREVIC, get CAIXAS_PREV() { return CAIXAS_PREV; }, saldoPrevEm, netEm, contratoDoConsorcio, caixaDoConsorcio, REAJUSTE_APOS, get COMPROMISSOS() { return COMPROMISSOS; }, saldoDasVendas, precoDoObjetivo, mesISO, orcadoDoObjetivo, cortesDoObjetivo, saldoDevedorEm, contratoDaDivida, restantesDaDivida, mesDe, get BENS() { return bensDoPlano(); }, get PARTS() { return partsDoPlano(); }, derive, run, configure, config, normaliza, stepAt, valorEm, mensalizado, aconteceEm, ocorrencias, semanaDoCiclo, semanasNoCiclo, cicloDaData, mesDoCiclo, ativo, inicioRenda, rendaAtiva, primeiraParcela, cronogramaFin, serieCusto, desiredAt, aplicaAlteracoes, fraseDaLinha, descreveAlteracao, valorAtual, mesDoPlano, desejoDoPlano, frequenciaDasLinhas, RISCOS, NATUREZAS, ITENS_RUINA, RISCOS_EXEMPLO, avaliaRiscos, custoDeVida, mediaDe12Meses, SEGURO, RELACOES, idadeLimiteDe, calculaSeguros, mesesAteIdade, FASES_VIDA, faseDaVida, sincronizaPatrimonio, PATRIMONIO_EXEMPLO, padraoDeVida, lerCaminho, gravaCaminho, IR, calculaIR, irDaFamilia, REGIMES, calculaRetirada, retiradaDosSocios, PREVIDENCIA, sucessao, simulaPrevidencia, aliqRegressiva, TRIBUTARIO_EXEMPLO, FAMILIA_EXEMPLO, casalDe, nomesDaFamilia, pessoasDaFamilia, rendaDaPessoa, bensDoRisco, titularidadeDoBem, setRetireAge: a => { RETIRE_AGE = a == null ? null : Math.max(CURRENT_AGE, +a); }, paradaMi, trabalhaEm, idadeDaLiberdade, dataNasc, idadeExata, sincronizaIdades, fraseDoProposito, ordemDoProposito, objetivosDoProposito, rendasAtivasDe, naturezaDe, naturezaDaReserva, CLASSES_ATIVOS, ORCAMENTO_IDEAL, VEZES_POUPOU, gestaoFinanceira, horasDoTrabalho, familiaDoPlano, ESTADOS_DIAGNOSTICO, orcamentoDoFluxo, CLASSES_CARTEIRA, CARTEIRAS_MODELO, ACOES_ATIVO, carteiraDoPlano, concentracaoDoPatrimonio, diagnosticoDaFamilia, financiamentoValido, classeFA, get MODE() { return PLAN_MODE; }, ORIGENS: ORIGENS_OUT, FREQ, get JUROS_DIVIDA_M() { return JUROS_DIVIDA_M; }, rotulosDoDetalhe, JUROS_DIVIDA_PADRAO, TETO_DIVIDA_VEZES, contratoDoCredito, get CREDITOS() { return CREDITOS; }, saldoDoCredito, get INCOMES() { return INCOMES; }, get EXPENSES() { return EXPENSES; }, DESIRED, LIFE_EXP, R_M, pmt };
 })();
 if (typeof module !== 'undefined') module.exports = ENGINE;
 </script>
@@ -4261,15 +4279,17 @@ const SUNBURST = (() => {
 const ARMAZEM = (() => {
   const CLIENTE = typeof location !== 'undefined' ? new URLSearchParams(location.search).get('cliente') : 'teste';
   if (!CLIENTE) { location.replace('index.html'); }
-  const CHAVE = { plano: 'nl-plano', proposta: 'nl-proposta', versoes: 'nl-versoes' }, DOC = { plano: 'planos/' + CLIENTE, proposta: 'propostas/' + CLIENTE, versoes: 'versoes/' + CLIENTE };
-  const ouvintes = { plano: [], proposta: [], versoes: [] }, ultimo = {}, visto = {};
+  // o realizado (o que a família lança no acompanhamento: hoje, quanto está a fatura de cada semana) fica à parte do plano,
+  // em realizados/<id>, com a origem de cada lançamento (manual ou, depois, open banking): o plano nunca muda com ele
+  const CHAVE = { plano: 'nl-plano', proposta: 'nl-proposta', versoes: 'nl-versoes', realizado: 'nl-realizado' }, DOC = { plano: 'planos/' + CLIENTE, proposta: 'propostas/' + CLIENTE, versoes: 'versoes/' + CLIENTE, realizado: 'realizados/' + CLIENTE };
+  const ouvintes = { plano: [], proposta: [], versoes: [], realizado: [] }, ultimo = {}, visto = {};
   let db = null, info = null;
   // a cópia de trabalho deste navegador (nl-plano, nl-proposta, cenários, páginas vistas) é de um cliente só: outro
   // cliente começa dela limpa. Sem a nuvem (localhost), cada cliente guarda o seu plano em nl-db:<documento>.
   const DB_LOCAL = k => 'nl-db:' + DOC[k];
   try {
     if (CLIENTE && localStorage.getItem('nl-cliente') !== CLIENTE) {
-      ['nl-plano', 'nl-proposta', 'nl-versoes', 'nl-cenarios', 'nl-vistas', 'nl-fase'].forEach(k => localStorage.removeItem(k));
+      ['nl-plano', 'nl-proposta', 'nl-versoes', 'nl-realizado', 'nl-cenarios', 'nl-vistas', 'nl-fase'].forEach(k => localStorage.removeItem(k));
       for (const k in CHAVE) { const d = JSON.parse(localStorage.getItem(DB_LOCAL(k)) || 'null'); if (d && d.dados) localStorage.setItem(CHAVE[k], JSON.stringify(d.dados)); }
       localStorage.setItem('nl-cliente', CLIENTE);
     }
@@ -4319,7 +4339,7 @@ const ARMAZEM = (() => {
         try { db = await espera(c.use('db'), 8000); } catch (e) { db = null; }
         let dono = true; try { const u = await espera(c.use('user'), 4000); if (u) dono = await u.isOwner(); } catch (e) { }
         if (db) {
-          for (const k of ['plano', 'proposta', 'versoes']) {
+          for (const k of ['plano', 'proposta', 'versoes', 'realizado']) {
             ultimo[k] = JSON.stringify(lerLocal(k));
             await new Promise(pronto => {
               let primeiro = true;

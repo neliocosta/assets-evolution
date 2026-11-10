@@ -8,6 +8,7 @@ além das fontes do Google, e abrem direto no navegador.
 | `index.html` | Consultor | Clientes: a porta de entrada. Lista os planos guardados e abre, para cada cliente, "Ver relatório" ou "Editar relatório". Na plataforma, é o `/internal`. |
 | `tela-consultor.html` | Consultor | Configura o plano em 15 passos, na ordem em que se monta um planejamento: dados do cliente (Cliente, Orçamento, Patrimônio, Carteira atual), planejamento (Objetivos, Política de investimentos, Fluxo de 24 meses, Fluxo vida toda, Gestão de riscos, Liberdade financeira, Otimização tributária, Macro e Microalocação, Premissas) e com o cliente (Cenários, Apresentação, Propostas). |
 | `evolucao-patrimonial.html` | Cliente | Mostra a trajetória do patrimônio ao longo da vida, apresentada ao vivo pelo consultor. |
+| `acompanhamento.html` | Cliente | O acompanhamento, à parte do relatório: o planejado ao lado do realizado. Hoje, as Semanadas (`?cliente=<id>&pagina=semanadas`); o Orçamento mensal vem depois. Veja "O acompanhamento". |
 | `tela-consultor.html?coleta` | Consultor | A reunião de coleta de dados: o próprio portal num modo só com as páginas de dados do cliente, na ordem da reunião (Cliente, Objetivos, Perfil e comportamento, Orçamento, Patrimônio, Carteira atual, Aposentadoria, Proteção, Documentos e tarefas). Grava no mesmo plano; "Finalizar a coleta" marca a data e abre a montagem. O que fica em cada uma e qual ferramenta apresenta melhor cada informação: `coleta/COLETA-E-MONTAGEM.md`; as variáveis e o banco: `coleta/VARIAVEIS-BANCO.md`. |
 
 ## Por onde começar
@@ -138,6 +139,31 @@ contratado de cada fatura, que se programa mês a mês no Fluxo de 24 meses. Emb
 (`ENGINE.semanadasDoPlano`): as semanas têm 7 ou 8 dias pelo tamanho do ciclo (`ENGINE.diasDasSemanadas`), a base de cada
 uma são as fixas do cartão cobradas nela (mais as outras despesas, na primeira) e o marco é o acumulado. O realizado e o
 novo alvo (`ENGINE.novoAlvoDaSemanada`) ficam para a página de acompanhamento, fora do relatório.
+
+No relatório do cliente, a página "As semanadas" (`?fase=semanadas`, na Gestão financeira, entre os 24 meses e o orçamento
+alternativo) traz o combinado e a régua programada: por cartão, "até dia X, a fatura em até R$ Y" em cada semana do
+ciclo, com o já contratado e o ajustável de cada uma. Abre no ciclo de hoje (a data do calendário), com a semana de hoje
+em destaque, e as setas andam pelos 12 ciclos. Só o planejado; sem cartão com o dia informado, a página não entra no livro.
+
+## O acompanhamento (`acompanhamento.html`)
+
+O começo do orçado x realizado da área logada, numa página à parte do relatório e do portal. É uma casca com as páginas de
+acompanhamento numa barra (`PAGINAS_AC`: o id, o título e a função que desenha; a próxima é o Orçamento mensal, "em breve")
+e o topo com a família e a volta para o planejamento. Leva o motor e o armazém, copiados pelo `sync-motor.js`. O plano é a
+última versão publicada (o que a família vê no relatório) ou, sem ela, o plano do consultor.
+
+**O realizado fica à parte do plano**: no armazém, na chave `realizado` (`realizados/<id>` no banco, `nl-realizado` no
+navegador), nunca dentro do plano. É uma lista de lançamentos, cada um com a origem (`'manual'` hoje, `'openbanking'`
+depois) e a hora; o que vale para uma semana é o último lançamento dela, e apagar é lançar vazio. A automação só vai
+acrescentar lançamentos, e a tela lê o mesmo (o lançamento do open banking aparece só para ler).
+
+**Semanadas** (`?pagina=semanadas`): por pessoa, o ciclo da fatura de hoje (as setas andam pelos 12) e as quatro semanas: o
+marco ("até 16/nov, a fatura em até R$ 3.753"), o campo "Quanto está a fatura" (Enter passa para a semana seguinte) e a
+situação. A conta é do motor, `ENGINE.acompanhaSemanada`: cada fatura se compara com o marco em vigor naquela semana (o do
+plano ou, depois de uma semana acima, o novo, de `ENGINE.novoAlvoDaSemanada`). Abaixo do marco, a folga, e os marcos ficam.
+Acima, o teto do ciclo fica e o excesso sai do que resta para gastar nas semanas seguintes, na proporção de cada uma: as
+linhas mostram o novo marco e o novo valor para gastar (o do plano riscado ao lado), e o quadro "O novo alvo" diz tudo por
+extenso; se o excesso passa de tudo o que resta, diz em quanto o ciclo fecha acima do teto.
 
 ## O mês comum e o que acontece ao longo do ano (Orçamento do portal)
 
@@ -515,7 +541,7 @@ família"; os capítulos têm só o título, sem número, porque nem todo client
 as páginas já vistas. Hoje existem, nesta ordem, **Propósito**, **Diagnóstico**, **Gestão financeira** (capa e três páginas), **Padrão de vida e renda passiva** (capa e três páginas), **Otimização tributária** (quatro páginas), **Patrimônio**
 (página "Fase da vida e patrimônio"), **Gestão de riscos**, **Política de investimentos**, **Objetivos** (capa, resumo e "Como realizar cada objetivo"), **Liberdade financeira** (capa, resumo e duas páginas), **Carteira** e **Evolução patrimonial** (a trajetória do patrimônio e, por último, "O caminho daqui para frente");
 um capítulo ainda por construir (`mock`) aparece só no sumário, como "em breve", fora da sequência. A página pode
-vir no endereço (`?fase=proposito`, `?fase=diagnostico`, `?fase=hoje-depois`, `?fase=capa-gestao`, `?fase=renda-custo`, `?fase=tempo`, `?fase=orcamento`, `?fase=capa-conceitos`, `?fase=renda-passiva`, `?fase=padrao-de-vida`, `?fase=valor-liberdade`, `?fase=capa-tributario`, `?fase=resumo-tributario`, `?fase=ir`, `?fase=patrimonio`, `?fase=riscos`, `?fase=realizacao`, `?fase=liberdade`, `?fase=liberdade-escolhas`, `?fase=evolucao`, `?fase=caminho`); senão, a tela abre na
+vir no endereço (`?fase=proposito`, `?fase=diagnostico`, `?fase=hoje-depois`, `?fase=capa-gestao`, `?fase=renda-custo`, `?fase=tempo`, `?fase=orcamento-hoje`, `?fase=fluxo-24`, `?fase=semanadas`, `?fase=orcamento`, `?fase=capa-conceitos`, `?fase=renda-passiva`, `?fase=padrao-de-vida`, `?fase=valor-liberdade`, `?fase=capa-tributario`, `?fase=resumo-tributario`, `?fase=ir`, `?fase=patrimonio`, `?fase=riscos`, `?fase=realizacao`, `?fase=liberdade`, `?fase=liberdade-escolhas`, `?fase=evolucao`, `?fase=caminho`); senão, a tela abre na
 última vista, ou no Propósito na primeira vez.
 
 **Propósito**, o primeiro capítulo, abre a reunião com duas páginas, sem capa nem resumo, desenhadas como uma landing page que o
@@ -584,7 +610,8 @@ e o placar do depois aparece no fim. Com menos
 movimento no sistema, as linhas do futuro só aparecem pela opacidade, sem a luz.
 
 **Gestão financeira** abre com a capa (só o vídeo teórico, `videos['cap-gestao-teoria']`; o capítulo não tem resumo, `semResumo`)
-e tem três páginas, tudo a partir do Fluxo de caixa, pela média dos próximos 12 meses (`ENGINE.gestaoFinanceira`):
+e tem seis páginas, tudo a partir do Fluxo de caixa (`ENGINE.gestaoFinanceira`). Desde 10/11/2026 o orçamento conta uma
+história em quatro passos: a fotografia de hoje, os 24 meses, as semanadas e, por último, o orçamento alternativo:
 
 - **Renda e custo de vida** (`?fase=renda-custo`): a renda líquida, o custo de vida e o que vai para o futuro (o que sobra),
   por mês ou por ano (uma alternância Mês | Ano); um gráfico de rosca do padrão de vida e do futuro, com a marca da
@@ -598,7 +625,31 @@ e tem três páginas, tudo a partir do Fluxo de caixa, pela média dos próximos
   uma marquinha por hora trabalhada. Quando o cartão aparece inteiro na tela (o da família primeiro; rolando, o de cada um),
   o ponteiro sai do 12 e anda até o fim das horas do futuro, acendendo cada marquinha em laranja, e o número "Para o
   futuro" conta junto (`animaRelogio`, `observaRelogios`). Quem pede menos movimento vê o fim direto.
-- **O orçamento da família** (`?fase=orcamento`): como a renda se divide hoje, pela média dos próximos 12 meses do Fluxo
+- **O orçamento de hoje** (`?fase=orcamento-hoje`, `renderOrcHoje`): a fotografia do mês comum, só para ler
+  (`gestaoFinanceira().pico`: só o que se repete todo mês). A conta em quatro cartões (renda de todo mês, despesas fixas,
+  despesas ajustáveis e o que vai para o futuro, cada uma com a fração da renda), a barra na escala da renda com as marcas
+  discretas de 50% e 80% (a referência), as linhas de cada grupo (as rendas, `pico.itens.rendas`, as fixas e as ajustáveis,
+  com o total) e, à parte, o que não é de todo mês nos próximos 12 meses (`gestaoFinanceira().eventuais`: o 13º, os bônus, o
+  IPTU, com os meses e o total do ano).
+- **Os próximos 24 meses** (`?fase=fluxo-24`, `renderFluxo24`): o Fluxo de 24 meses do portal (`sim().programa`), só para
+  ler. No alto, o gráfico de cada mês, como o do portal, na primeira linha da tabela (as colunas são as mesmas): o contorno
+  tracejado é o resultado do mês (mais alto no mês de uma entrada pontual, como um bônus), as cores empilhadas são o que
+  foi destinado (a reserva, cada objetivo e a liberdade, nas cores das caixinhas da Política) e o que fica sem cor dentro
+  do contorno vai para a Caixa de curto prazo; o mês negativo desce, listrado. Embaixo, as entradas, as despesas e os
+  gastos dos objetivos (cada grupo abre linha a linha com um clique, `F24_ABERTO`), o resultado do mês, para onde vai (com
+  os extras somados e uma estrela na data de cada objetivo) e o saldo da caixa no fim do mês. **Zoom** (`F24.z`): a roda
+  do mouse sobre o gráfico (ou Ctrl + roda, a pinça do trackpad, em qualquer ponto da tabela) aproxima e afasta, mantendo o
+  mês sob o mouse no lugar; os botões − e + fazem o mesmo, e "Ver os 24 meses" afasta até o horizonte todo caber
+  (`f24Cabe`), até a coluna mais estreita em que o valor ainda cabe inteiro (`F24_ZMIN`; numa tela larga cabem os 24, numa
+  de 1280px cabem uns 15, e o botão vira "Afastar ao máximo"). Os valores vão sempre inteiros e com o R$ ("R$ 7.100": o
+  usuário preferiu assim a "7,1" em mil reais, 10/11/2026); afastado (modo compacto), a letra fica menor, a primeira coluna
+  estreita e o mês vai em duas linhas. Visual: os títulos têm faixa de cor (os meses e as seções "Para onde vai" e "Caixa de
+  curto prazo" em trilho azulado, os grupos e o saldo em areia, o resultado em pêssego), o mês de hoje tem o cabeçalho em
+  marinho e a coluna levemente sombreada. A primeira coluna fica parada. O objetivo que não recebe nada nos 24 meses sai da
+  tabela e é citado embaixo. Sem vermelho: o negativo leva só o sinal.
+- **As semanadas** (`?fase=semanadas`, `renderSemanadas`): o combinado (as ajustáveis da família, a parte de cada cartão e o
+  fora do cartão) e a régua de cada cartão (veja "As semanadas"). Só existe com um cartão com o dia informado.
+- **Um orçamento alternativo** (`?fase=orcamento`; até 10/11/2026, "O orçamento da família"): como a renda se divide hoje, pela média dos próximos 12 meses do Fluxo
   de caixa (com o 13º, os bônus e as despesas do ano; os mesmos números do placar do topo; até 29/10/2026, o mês de maior
   gasto), e, se a família quiser, um orçamento alternativo para propor. A referência é até 50% da renda em despesas fixas, até 30% em ajustáveis e pelo menos 20% para o futuro. No alto, fixo ao rolar, as
   barras na escala da renda (hoje e, só quando alguma despesa é reduzida, o alternativo; as marcas de 50% e 80% são a referência), em que o futuro cresce com o que

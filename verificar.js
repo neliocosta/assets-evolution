@@ -29,6 +29,10 @@ ok('o bloco do motor é idêntico nos dois arquivos', srcCliente === srcPortal,
   srcCliente === srcPortal ? '' : '→ rode: node sync-motor.js');
 const graficos = arq => (fs.readFileSync(arq, 'utf8').match(/<script id="graficos">([\s\S]*?)<\/script>/) || [])[1];
 ok('os gráficos compartilhados (o sunburst) são idênticos nos dois arquivos', !!graficos(CLIENTE) && graficos(CLIENTE) === graficos(PORTAL), '');
+// a página de acompanhamento leva o motor e o armazém (o realizado fica no armazém, à parte do plano)
+const ACOMP = 'acompanhamento.html', armazem = arq => (fs.readFileSync(arq, 'utf8').match(/<script id="armazem">([\s\S]*?)<\/script>/) || [])[1];
+ok('o motor do acompanhamento é idêntico ao da tela do cliente', bloco(ACOMP) === srcCliente, bloco(ACOMP) === srcCliente ? '' : '→ rode: node sync-motor.js');
+ok('o armazém é idêntico nas três telas e guarda o realizado à parte (realizados/<id>)', !!armazem(CLIENTE) && armazem(CLIENTE) === armazem(PORTAL) && armazem(CLIENTE) === armazem(ACOMP) && /realizado: 'realizados\/'/.test(armazem(CLIENTE)), '');
 
 const E = carregar(srcCliente);
 
@@ -1212,6 +1216,7 @@ console.log('\nSemanadas: o teto da fatura do cartão, semana a semana');
   P5.expenses.push({ id: 'iptu', label: 'IPTU', group: 'fix', frequency: 'anual', dates: [{ m: 0, d: 10 }], steps: [{ from: 0, value: 3600 }] }); Es.configure(P5);
   const r5 = Es.semanadasDoPlano(P5), g5 = Es.gestaoFinanceira(P5), ev = g5.eventuais;
   ok('o 13º e o IPTU ficam fora da conta do mês (16.000 e 9.000) e aparecem à parte, com o total do ano', Math.round(r5.conta.renda) === 16000 && Math.round(r5.conta.fixas) === 9000 && ev.itens.length === 2 && Math.round(ev.entradas) === 16000 && Math.round(ev.fixas) === 3600, ev.itens.map(x => x.nome + ' ' + Math.round(x.noAno) + ' (' + x.meses.length + ' mês)').join(' · '));
+  ok('a fotografia do mês comum lista as rendas de todo mês (o salário, sem o 13º), e elas somam a renda do mês', g5.pico.itens.rendas.length === 1 && g5.pico.itens.rendas[0].nome === 'Salário' && Math.round(g5.pico.itens.rendas.reduce((a, x) => a + x.valor, 0)) === Math.round(g5.pico.renda), g5.pico.itens.rendas.map(x => x.nome).join(', '));
   ok('a média dos 12 meses continua contando os dois (renda 17.333, fixas 9.300)', Math.round(g5.mes.renda) === 17333 && Math.round(g5.grupos.fixas) === 9300, Math.round(g5.mes.renda) + ' · ' + Math.round(g5.grupos.fixas));
   const M = (j, v) => Es.semanasComMudanca([1250, 1250, 1250, 1250], j, v).join(' ');
   ok('mudar a semana 1 dilui a diferença nas três seguintes', M(0, 2000) === '2000 1000 1000 1000', M(0, 2000));
@@ -1224,6 +1229,13 @@ console.log('\nSemanadas: o teto da fatura do cartão, semana a semana');
   ok('fatura abaixo do marco: os marcos ficam como estavam, com a folga', dentro.estado === 'dentro' && dentro.folga === 200 && dentro.semanas.map(s => s.marco).join(' ') === '6500 8000 9500', dentro.folga);
   ok('excesso maior que o ajustável que resta: o ciclo fecha acima do teto', demais.semana === 3 && demais.semanas[0].ajustavel === 0 && demais.fecha === 9800 && demais.fechaAcima === 300, demais.fecha + ' · ' + demais.fechaAcima);
   ok('sem realizado, não há novo alvo', Es.novoAlvoDaSemanada(c0, [null, '']) === null, '');
+  // o acompanhamento encadeia as semanas: cada fatura se compara com o marco em vigor naquela semana
+  const A1 = Es.acompanhaSemanada(c0, [4700]), A2 = Es.acompanhaSemanada(c0, [4700, 7000]), A3 = Es.acompanhaSemanada(c0, [3900, 6000]), A0 = Es.acompanhaSemanada(c0, []);
+  ok('acompanhamento: semana 1 acima (600), e a semana 2 passa a ter o novo marco (6.860, era 6.500)', A1.semanas[0].estado === 'acima' && A1.semanas[0].diferenca === 600 && A1.semanas[1].marco === 6860 && A1.semanas[1].mudou && A1.semanas[1].marcoPlano === 6500, A1.semanas[1].marco);
+  ok('acompanhamento: a semana 2 se compara com o novo marco (7.000 contra 6.860: 140 acima), e o ciclo ainda fecha no teto', A2.semanas[1].estado === 'acima' && Math.round(A2.semanas[1].diferenca) === 140 && A2.semanas[3].marco === 9500 && A2.fechaAcima === 0, Math.round(A2.semanas[1].diferenca) + ' · ' + A2.semanas[3].marco);
+  ok('acompanhamento: o excesso da semana 2 sai das semanas 3 e 4 na proporção (1.250 e 1.250)', A2.semanas[2].ajustavel === 1250 && A2.semanas[3].ajustavel === 1250, A2.semanas.slice(2).map(s => s.ajustavel).join(' '));
+  ok('acompanhamento: abaixo do marco, os marcos ficam e cada semana mostra a sua folga (200 e 500)', A3.semanas[0].folga === 200 && A3.semanas[1].folga === 500 && A3.semanas[3].marco === 9500 && !A3.semanas.some(s => s.mudou), A3.semanas.map(s => s.folga).join(' '));
+  ok('acompanhamento: sem nada informado, as semanas ficam com os marcos do plano e não há novo alvo', A0.novo === null && A0.semanas.map(s => s.marco).join(' ') === '4100 6500 8000 9500' && A0.fecha === 9500, '');
 }
 console.log('\n' + (falhas ? falhas + ' verificação(ões) falharam.' : 'Tudo certo.') + '\n');
 process.exit(falhas ? 1 : 0);
