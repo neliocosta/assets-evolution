@@ -1128,7 +1128,30 @@ console.log('\nBem com outros donos: só a parte da família');
   ok('na venda, a quitação e o preço são 55%: o líquido também', Math.abs(tr3.venda.preco - 550000) < 1 && Math.abs(tr3.venda.liquido - (550000 - tr3.venda.quitacao)) < 1 && tr3.venda.quitacao < 110000, Math.round(tr3.venda.quitacao) + ' / ' + Math.round(tr3.venda.liquido));
   const emp = { nome: 'Empresa', valor: 300000, pctEmpresa: 30, titularidade: 'casal', titularPct: 60 };
   const pl4 = Object.assign({}, pl3, { patrimonio: { financeiro: [], bens: [], dividas: [], participacoes: [emp] } }); Ef.sincronizaPatrimonio(pl4);
-  ok('participação em partes (60% Ana, 40% Marcos): o valor já é da família e conta inteiro', Ef.fatiaDaFamilia(pl4, emp) === 1 && Math.round(pl4.partValue) === 300000, Math.round(pl4.partValue));
+  ok('participação em partes (60% Ana, 40% Marcos): o valor já é da família e conta inteiro', Ef.fatiaDaFamilia(pl4, emp) === 1 && Math.round(pl4.partValue) === 300000, Math.round(pl4.partValue))
+}
+console.log('\nFluxo de 24 meses: o 13º passa da capacidade e o aporte digitado não mexe nos outros meses');
+{
+  const Ep = carregar(srcCliente);
+  // capacidade de 1.500 por mês, salário de 20 mil, custo de vida de 10 mil e um 13º de 20 mil em dezembro; o objetivo pede
+  // 2 mil por mês, mais do que precisa, e chega à meta antes da data
+  const base = () => ({ name: 'Ana', tipo: 'individual', age: 40, nascimento: '1986-03-10', retireAge: 60, lifeExp: 90, desired: 10000, mode: 'desej', rate: 0.004,
+    initialWealth: 100000, inicio: '2026-10-01', regraDoInicio: 'semana', capacityOverride: 1500,
+    incomes: [{ id: 'sal', label: 'Salário', kind: 'ativa', frequency: 'mensal', days: [5], steps: [{ from: -1, value: 20000 }] },
+      { id: 'd13', label: '13º', kind: 'ativa', frequency: 'anual', dates: [{ m: 11, d: 20 }], steps: [{ from: -1, value: 20000 }] }],
+    expenses: [{ id: 'cv', label: 'Custo de vida', group: 'fix', frequency: 'mensal', days: [10], steps: [{ from: -1, value: 10000 }] }],
+    objectives: [{ id: 'a', name: 'Objetivo', kind: 'consumo', months: 20, amount: 25000, dedicated: 0, planned: 2000, profile: 'moderado', rate: 0.005, costs: [], ligado: true }],
+    passive: [], patrimonio: { financeiro: [], bens: [], participacoes: [], dividas: [] } });
+  Ep.configure(base()); const M = Ep.run('desej').programa.meses;
+  const com13 = M.filter(m => m.sobra > 1501), sem13 = M.filter(m => m.sobra <= 1501);
+  ok('o programa cobre 24 meses', M.length === 24, M.length);
+  ok('nos meses do 13º, a sobra é a capacidade mais o 13º inteiro (21.500)', com13.length === 2 && com13.every(m => Math.abs(m.sobra - 21500) < 1), com13.map(m => m.mi + ': ' + Math.round(m.sobra)).join(' · '));
+  ok('nos outros meses, a sobra fica na capacidade (1.500)', sem13.every(m => Math.abs(m.sobra - 1500) < 1), [...new Set(sem13.map(m => Math.round(m.sobra)))].join(', '));
+  const aportes = P => { Ep.configure(P); return Ep.run('desej').programa.meses.map(m => Math.round(m.aportes.a || 0)); };
+  const P2 = base(); P2.objectives[0].programa = { 3: 0 };
+  const sem = aportes(base()), com = aportes(P2), mudou = com.map((v, k) => k).filter(k => k !== 3 && com[k] !== sem[k]);
+  ok('o aporte digitado (0 no mês 3) vale como está', com[3] === 0, com[3]);
+  ok('os outros meses do objetivo não mudam: o que se tirou não é empurrado para depois', !mudou.length, mudou.length ? 'mudaram: ' + mudou.map(k => k + ' (' + sem[k] + ' → ' + com[k] + ')').join(', ') : '');;
 }
 console.log('\n' + (falhas ? falhas + ' verificação(ões) falharam.' : 'Tudo certo.') + '\n');
 process.exit(falhas ? 1 : 0);
