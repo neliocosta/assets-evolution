@@ -2567,7 +2567,13 @@ const ENGINE = (() => {
           }
           // os objetivos que vencem depois da liberdade seguem recebendo o aporte, do financeiro
           m.invest = OBJ.reduce((a, o, k2) => a + (!done[k2] && m.mIdx >= inicioDoAporte(o) && m.mIdx < Math.round(+o.months || 0) && !o.aporteSobra ? Math.max(0, +o.planned || 0) : 0), 0);
-          m.salary = 0; m.scale = Math.max(0, (mode === 'desej' ? Math.min(disponivel, desejado) : disponivel) - recurTotal() - fixoAt(m.mIdx)) / custoVida; m.pas = pas + passiveIncomeAt(m.mIdx) + trab; m.saque = w;
+          m.salary = 0; m.scale = Math.max(0, (mode === 'desej' ? Math.min(disponivel, desejado) : disponivel) - recurTotal() - fixoAt(m.mIdx)) / custoVida; m.saque = w;
+          // a renda do trabalho de quem ainda não parou fica à parte da passiva; as linhas que vêm menos de uma vez por mês
+          // (anual, semestral, trimestral) entram pela média do ano, e o tooltip avisa
+          const entram = INCOMES.filter(c => mensalizado(c, m.mIdx) > 0 && (!ativo(c) || trabalhaEm(c, m.mIdx, ff.mi)));
+          m.pas = pas + passiveIncomeAt(m.mIdx); m.trab = trab;
+          m.quem = ['titular', 'conjuge'].filter(q => entram.some(c => ativo(c) && (c.pessoa === 'conjuge' ? 'conjuge' : 'titular') === q));
+          m.media = entram.filter(c => (FREQ[c.frequency || 'mensal'] || 1) > 1).map(c => ({ label: c.label || c.name || 'Renda', ativa: ativo(c), v: mensalizado(c, m.mIdx) }));
         } else {
           m.scale = 1;                                // os valores já vêm da linha do tempo
           m.salary = incomeAt(m.mIdx);                // equivalente mensal, para dimensionar o aporte
@@ -2596,7 +2602,7 @@ const ENGINE = (() => {
       const fechaMes = i + 1 < NW && !!dia5Da(i + 1);
       if (fechaMes && i >= W0 && cofre < -TETO) { const x = -TETO - cofre; addN(f, 'in_teto', x, 'a dívida passou do teto (100 vezes a renda mensal): o que passa não acumula'); add(f, 'mov_cofre', x); nota('mov_cofre', x, 'a dívida passou do teto: o que passa não acumula'); cofre = -TETO;
         if (tetoEm == null) { tetoEm = i; events.push({ week: i, type: 'note', label: 'A dívida chega ao teto', detail: reais(TETO) + ', 100 vezes a renda mensal da família: daqui em diante ela fica travada' }); } }
-      weeks[i] = { fin: fin(), cofre, obj: obj.slice(), bens, part, prev: i < W0 ? 0 : saldoPrevEm(m ? m.mIdx : 0), div: dividaEm(Math.max(0, m ? m.mIdx : 0)), cheque: Math.max(0, -cofre), pas: m ? (m.pas || 0) : 0, saque: m ? (m.saque || 0) : 0, mi: m ? m.mIdx : -1, ks, f: i < W0 ? {} : f, notas: i < W0 || !notas.length ? null : notas, det: i < W0 ? null : i === W0 || incomeWeek || !weeks[i - 1].det ? detalhe() : weeks[i - 1].det };   // o detalhe muda quando o mês vira   // o que aconteceu antes de hoje já está no patrimônio
+      weeks[i] = { fin: fin(), cofre, obj: obj.slice(), bens, part, prev: i < W0 ? 0 : saldoPrevEm(m ? m.mIdx : 0), div: dividaEm(Math.max(0, m ? m.mIdx : 0)), cheque: Math.max(0, -cofre), pas: m ? (m.pas || 0) : 0, trab: m ? (m.trab || 0) : 0, quem: m && m.quem, media: m && m.media, saque: m ? (m.saque || 0) : 0, mi: m ? m.mIdx : -1, ks, f: i < W0 ? {} : f, notas: i < W0 || !notas.length ? null : notas, det: i < W0 ? null : i === W0 || incomeWeek || !weeks[i - 1].det ? detalhe() : weeks[i - 1].det };   // o detalhe muda quando o mês vira   // o que aconteceu antes de hoje já está no patrimônio
     }
     // agregações
     const bucketize = keyFn => { const out = []; let cur = null; for (let i = 0; i < NW; i++) { const k = weeks[i].mi < 0 ? 'antes de hoje' : keyFn(i); if (!cur || cur.key !== k) { cur = { key: k, w0: i, w1: i + 1, mi: weeks[i].mi, f: {} }; out.push(cur); } cur.w1 = i + 1; const f = weeks[i].f; for (const key in f) cur.f[key] = (cur.f[key] || 0) + f[key]; } return out; };
@@ -3102,10 +3108,11 @@ const ENGINE = (() => {
     { const r = R.reserva || {}, custo = padraoDeVida(plan);
       const temDep = Array.isArray(R.dependentes) ? R.dependentes.length > 0 : !!r.dependentes;   // a lista de dependentes, quando existe, decide
       const nr = naturezaDaReserva(plan), nat = NATUREZAS.find(n => n[0] === (nr && nr.natureza)), d = temDep ? 3 : 0, t = nat ? nat[1] : null;
-      const calculado = t != null ? custo * (d + t) : null, ideal = num(r.alvo) != null ? +r.alvo : calculado;
+      // o alvo zerado (um campo apagado, a coleta sem resposta) vale como vazio: fica o ideal calculado
+      const alvo = +r.alvo > 0 ? +r.alvo : null, calculado = t != null ? custo * (d + t) : null, ideal = alvo != null ? alvo : calculado;
       const atual = num(r.atual) != null ? +r.atual : num((R.liquidez || {}).d0);
       const status = ideal == null || !(ideal > 0) || atual == null ? 'pendente' : atual >= ideal ? 'ok' : atual >= ideal * 0.4 ? 'atencao' : 'critico';
-      out.reserva = { status, custo, dependentes: temDep, natureza: nat ? nat[0] : null, naturezaDe: nat ? nr.quem : null, d, t, meses: t != null ? d + t : null, calculado, ideal, minima: ideal != null ? ideal * 0.4 : null, aceitavel: ideal != null ? ideal * 0.7 : null, atual, alvoProprio: num(r.alvo) != null }; }
+      out.reserva = { status, custo, dependentes: temDep, natureza: nat ? nat[0] : null, naturezaDe: nat ? nr.quem : null, d, t, meses: t != null ? d + t : null, calculado, ideal, minima: ideal != null ? ideal * 0.4 : null, aceitavel: ideal != null ? ideal * 0.7 : null, atual, alvoProprio: alvo != null }; }
     // Saúde: a avaliação do consultor decide. O custo é a soma dos prêmios de cada vida; o que a empresa ou outra pessoa
     // paga (vida.pagador = 'terceiros') não sai do bolso da família e não entra no Fluxo de caixa (doBolso).
     { const r = R.saude || {}, vidas = r.vidas || [], total = vidas.reduce((a, v) => a + (+v.premio || 0), 0), alt = r.alternativa || {};
@@ -9355,8 +9362,8 @@ function renderRiscosC() {
     <div class="field"><label>Natureza do trabalho</label>${ligadoC(r.natureza ? esc(r.natureza) + ' (' + esc(ENGINE.nomesDaFamilia(plano)[r.naturezaDe]) + ') · ' + r.t + ' meses na reserva' : 'não informada', 'Cliente', 'cliente')}</div>
     <div class="field"><label>Custo de vida mensal</label>${campoR('riscos.reserva.custoVida', 'reais', ` placeholder="automático: ${f(ENGINE.custoDeVida(plano))} do fluxo"`)}</div>
     <div class="field"><label>Reserva atual</label>${campoR('riscos.reserva.atual', 'reais', ` placeholder="automático: o disponível em D+0 (item 5)"`)}</div>
-    <div class="field"><label>Alvo de reserva (opcional)</label>${campoR('riscos.reserva.alvo', 'reais', ' placeholder="automático: o ideal calculado"')}</div></div>
-    <div class="rkc-calc">${r.ideal != null ? `<b>Reserva ideal ${f(r.ideal)}</b>${r.alvoProprio ? ' (alvo definido por você)' : ` = custo de vida ${f(r.custo)} × ${r.d + r.t} meses (${r.d ? r.d + ' por ter dependentes + ' : ''}${r.t} pela natureza do trabalho)`}.<br>Hoje há ${r.atual != null ? f(r.atual) : '—'}: em dia a partir de ${f(r.ideal)}, atenção a partir de ${f(r.minima)} (aceitável ${f(r.aceitavel)}), crítico abaixo disso.` : 'Informe a natureza do trabalho na página Cliente para calcular a reserva ideal.'}</div></div>`);
+    <div class="field"><label>Alvo de reserva (opcional)</label>${campoR('riscos.reserva.alvo', 'reais0', ` placeholder="automático: ${r.calculado != null ? f(r.calculado) : 'o ideal calculado'}"`)}</div></div>
+    <div class="rkc-calc">${r.ideal != null ? `<b>Reserva ideal ${f(r.ideal)}</b>${r.alvoProprio ? ` (alvo definido por você${r.calculado != null ? '; o calculado seria ' + f(r.calculado) : ''})` : ` = custo de vida ${f(r.custo)} × ${r.d + r.t} meses (${r.d ? r.d + ' por ter dependentes + ' : ''}${r.t} pela natureza do trabalho)`}.<br>Mínima ${f(r.minima)} (40%) · aceitável ${f(r.aceitavel)} (70%) · ideal ${f(r.ideal)}. Hoje há ${r.atual != null ? f(r.atual) : '—'}: em dia a partir da ideal, atenção a partir da mínima, crítico abaixo dela.` : 'Informe a natureza do trabalho na página Cliente para calcular a reserva ideal.'}</div></div>`);
   const S = R.saude || {};
   blocos.push(`<div class="bloco" id="rkc-saude"><h3>2. Problema de saúde${stC(it.saude.status)}</h3><div class="grid g3">
     <div class="field"><label>Avaliação</label>${selR('riscos.saude.avaliacao', [['', 'não avaliado'], ['adequado', 'Plano adequado (em dia)'], ['otimizavel', 'Pode ser otimizado (atenção)'], ['sem_plano', 'Sem plano de saúde (crítico)']])}</div>
@@ -9875,7 +9882,7 @@ function reservaColetaC() {
   const r = ENGINE.avaliaRiscos(plano).itens.reserva;
   return `<div class="grid g3 so-coleta" style="margin-top:14px">${cpC('Quanto disso é a reserva de emergência', campoR('riscos.reserva.atual', 'reais', ' placeholder="automático: o disponível em D+0"'), 'O mesmo campo da reserva atual, na Gestão de riscos.')}
     ${cpC('Guarda todo mês para aumentar a reserva?', selR('coleta.diagnostico.aumentaReserva', SN_C, 'bool'))}
-    ${cpC('Reserva ideal para o perfil do cliente', campoR('riscos.reserva.alvo', 'reais', ` placeholder="${r.ideal != null ? 'automático: ' + fmt(r.ideal) : 'automático: o ideal calculado'}"`), 'O alvo de reserva da Gestão de riscos. Vazio, vale o ideal calculado: o custo de vida vezes os meses pela natureza do trabalho e pelos dependentes.')}</div>`;
+    ${cpC('Reserva ideal para o perfil do cliente', campoR('riscos.reserva.alvo', 'reais0', ` placeholder="${r.calculado != null ? 'automático: ' + fmt(r.calculado) : 'automático: o ideal calculado'}"`), 'O alvo de reserva da Gestão de riscos. Vazio, vale o ideal calculado: o custo de vida vezes os meses pela natureza do trabalho e pelos dependentes.')}</div>`;
 }
 // onde a família mora: o imóvel próprio é um bem da lista; o aluguel, uma despesa fixa (a linha marcada coleta: 'aluguel')
 const linhaAluguel = () => plano.expenses.find(x => x.coleta === 'aluguel');

@@ -84,6 +84,7 @@ canvas#main.grab-obj{cursor:ew-resize}
 #tip .vida>span{display:block;font-size:11px;color:#2b6e45}
 #tip .vida>b{display:block;font:600 17px Sora,sans-serif;color:#1f5a37;margin:1px 0 4px}
 #tip .vida-d{display:flex;flex-direction:column;gap:2px;font-size:11.5px;color:#3f4a45}
+#tip .vida-n{margin-top:5px;font-size:10.5px;line-height:1.35;color:#5b6b63}
 .ajuda{width:26px;height:26px;border-radius:50%;background:#F0EEE9;color:#6b6a66;font:700 12px 'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center;cursor:help;flex:0 0 auto}
 /* jornada do cliente: capítulos e páginas. O cabeçalho mostra a página atual (anterior, próxima e o sumário) */
 #fases{position:relative;display:flex;align-items:center;gap:2px;background:#F7F5F1;border-radius:12px;padding:3px}
@@ -2354,7 +2355,13 @@ const ENGINE = (() => {
           }
           // os objetivos que vencem depois da liberdade seguem recebendo o aporte, do financeiro
           m.invest = OBJ.reduce((a, o, k2) => a + (!done[k2] && m.mIdx >= inicioDoAporte(o) && m.mIdx < Math.round(+o.months || 0) && !o.aporteSobra ? Math.max(0, +o.planned || 0) : 0), 0);
-          m.salary = 0; m.scale = Math.max(0, (mode === 'desej' ? Math.min(disponivel, desejado) : disponivel) - recurTotal() - fixoAt(m.mIdx)) / custoVida; m.pas = pas + passiveIncomeAt(m.mIdx) + trab; m.saque = w;
+          m.salary = 0; m.scale = Math.max(0, (mode === 'desej' ? Math.min(disponivel, desejado) : disponivel) - recurTotal() - fixoAt(m.mIdx)) / custoVida; m.saque = w;
+          // a renda do trabalho de quem ainda não parou fica à parte da passiva; as linhas que vêm menos de uma vez por mês
+          // (anual, semestral, trimestral) entram pela média do ano, e o tooltip avisa
+          const entram = INCOMES.filter(c => mensalizado(c, m.mIdx) > 0 && (!ativo(c) || trabalhaEm(c, m.mIdx, ff.mi)));
+          m.pas = pas + passiveIncomeAt(m.mIdx); m.trab = trab;
+          m.quem = ['titular', 'conjuge'].filter(q => entram.some(c => ativo(c) && (c.pessoa === 'conjuge' ? 'conjuge' : 'titular') === q));
+          m.media = entram.filter(c => (FREQ[c.frequency || 'mensal'] || 1) > 1).map(c => ({ label: c.label || c.name || 'Renda', ativa: ativo(c), v: mensalizado(c, m.mIdx) }));
         } else {
           m.scale = 1;                                // os valores já vêm da linha do tempo
           m.salary = incomeAt(m.mIdx);                // equivalente mensal, para dimensionar o aporte
@@ -2383,7 +2390,7 @@ const ENGINE = (() => {
       const fechaMes = i + 1 < NW && !!dia5Da(i + 1);
       if (fechaMes && i >= W0 && cofre < -TETO) { const x = -TETO - cofre; addN(f, 'in_teto', x, 'a dívida passou do teto (100 vezes a renda mensal): o que passa não acumula'); add(f, 'mov_cofre', x); nota('mov_cofre', x, 'a dívida passou do teto: o que passa não acumula'); cofre = -TETO;
         if (tetoEm == null) { tetoEm = i; events.push({ week: i, type: 'note', label: 'A dívida chega ao teto', detail: reais(TETO) + ', 100 vezes a renda mensal da família: daqui em diante ela fica travada' }); } }
-      weeks[i] = { fin: fin(), cofre, obj: obj.slice(), bens, part, prev: i < W0 ? 0 : saldoPrevEm(m ? m.mIdx : 0), div: dividaEm(Math.max(0, m ? m.mIdx : 0)), cheque: Math.max(0, -cofre), pas: m ? (m.pas || 0) : 0, saque: m ? (m.saque || 0) : 0, mi: m ? m.mIdx : -1, ks, f: i < W0 ? {} : f, notas: i < W0 || !notas.length ? null : notas, det: i < W0 ? null : i === W0 || incomeWeek || !weeks[i - 1].det ? detalhe() : weeks[i - 1].det };   // o detalhe muda quando o mês vira   // o que aconteceu antes de hoje já está no patrimônio
+      weeks[i] = { fin: fin(), cofre, obj: obj.slice(), bens, part, prev: i < W0 ? 0 : saldoPrevEm(m ? m.mIdx : 0), div: dividaEm(Math.max(0, m ? m.mIdx : 0)), cheque: Math.max(0, -cofre), pas: m ? (m.pas || 0) : 0, trab: m ? (m.trab || 0) : 0, quem: m && m.quem, media: m && m.media, saque: m ? (m.saque || 0) : 0, mi: m ? m.mIdx : -1, ks, f: i < W0 ? {} : f, notas: i < W0 || !notas.length ? null : notas, det: i < W0 ? null : i === W0 || incomeWeek || !weeks[i - 1].det ? detalhe() : weeks[i - 1].det };   // o detalhe muda quando o mês vira   // o que aconteceu antes de hoje já está no patrimônio
     }
     // agregações
     const bucketize = keyFn => { const out = []; let cur = null; for (let i = 0; i < NW; i++) { const k = weeks[i].mi < 0 ? 'antes de hoje' : keyFn(i); if (!cur || cur.key !== k) { cur = { key: k, w0: i, w1: i + 1, mi: weeks[i].mi, f: {} }; out.push(cur); } cur.w1 = i + 1; const f = weeks[i].f; for (const key in f) cur.f[key] = (cur.f[key] || 0) + f[key]; } return out; };
@@ -2427,8 +2434,9 @@ const ENGINE = (() => {
     const encerra = c => { if (!c.endObj) return null; const o = OBJ.find(x => x.id === c.endObj); return o && !o.naoComprado ? Math.round(+o.months || 0) : null; };
     const meses = f => Array.from({ length: H }, (_, mi) => f(mi));
     // pontual: a entrada de uma vez só (a linha pontual; a renda de um mês, como a carta do consórcio contemplado)
-    const entradas = INCOMES.map(c => ({ id: c.id, label: c.label, it: c, pontual: c.frequency === 'pontual', v: meses(mi => valorEm(c, mi, false)) }))
-      .concat(PASSIVE.filter(p => p.startMi != null).map((p, k) => ({ id: 'pas' + k, label: p.name, pontual: +p.dur === 1, v: meses(mi => rendaAtiva(p, mi, 0) ? netEm(p, mi) : 0) })));
+    // extra: a entrada que não é mensal (o 13º, um bônus, uma pontual), que no Fluxo de 24 meses passa da capacidade informada
+    const entradas = INCOMES.map(c => ({ id: c.id, label: c.label, it: c, pontual: c.frequency === 'pontual', extra: (c.frequency || 'mensal') !== 'mensal', v: meses(mi => valorEm(c, mi, false)) }))
+      .concat(PASSIVE.filter(p => p.startMi != null).map((p, k) => ({ id: 'pas' + k, label: p.name, pontual: +p.dur === 1, extra: +p.dur === 1, v: meses(mi => rendaAtiva(p, mi, 0) ? netEm(p, mi) : 0) })));
     const saidas = EXPENSES.map(c => { const e = encerra(c); return { id: c.id, label: c.label, grupo: c.group, it: c, v: meses(mi => e != null && mi >= e ? 0 : valorEm(c, mi, true)) }; });
     const custos = OBJ.filter(o => !o.naoComprado).flatMap(o => (o.costs || []).map(c => { const mi0 = Math.round(+o.months || 0), sr = serieCusto(c, H);
       return { id: o.id + '_' + c.id, label: c.label || o.name, obj: o.id, v: meses(mi => mi >= mi0 ? sr[mi - mi0] || 0 : 0) }; }))
@@ -2436,12 +2444,17 @@ const ENGINE = (() => {
     return { entradas, saidas, custos };
   }
   // a sobra de cada mês: o que entra menos o que sai; na liberdade financeira, nada (não há aportes). semPontuais: sem as
-  // entradas de uma vez só (a regra constante, folgaDosAportes)
+  // entradas de uma vez só (a regra constante, folgaDosAportes). A capacidade informada pelo cliente limita a sobra; nos
+  // meses do Fluxo de 24 meses ela limita só a parte recorrente, e as entradas extras (o 13º, os bônus) passam dela inteiras.
+  // A regra constante segue toda abaixo da capacidade: o extra se destina no mês dele, não vira aporte de todo mês
   function sobraDosMeses(s, H, semPontuais) {
-    const L = linhasDosMeses(H), soma = (l, mi) => l.reduce((a, x) => a + (semPontuais && x.pontual ? 0 : x.v[mi]), 0);
+    const L = linhasDosMeses(H), soma = (l, mi, f) => l.reduce((a, x) => a + (semPontuais && x.pontual || f && !f(x) ? 0 : x.v[mi]), 0);
     return Array.from({ length: H }, (_, mi) => {
       if (s.ff && mi >= s.ff.mi) return 0;
-      const v = soma(L.entradas, mi) - soma(L.saidas, mi) - soma(L.custos, mi); return CAP_OVERRIDE != null ? Math.min(v, CAP_OVERRIDE) : v;
+      const v = soma(L.entradas, mi) - soma(L.saidas, mi) - soma(L.custos, mi);
+      if (CAP_OVERRIDE == null) return v;
+      if (mi >= MESES_PROGRAMA || semPontuais) return Math.min(v, CAP_OVERRIDE);
+      const extra = soma(L.entradas, mi, x => x.extra); return Math.min(v - extra, CAP_OVERRIDE) + extra;
     });
   }
   // Os extras destinados a um objetivo: uma entrada com destino (incomes[].destino, o id do objetivo; o 13º, um bônus) vai
@@ -2480,23 +2493,27 @@ const ENGINE = (() => {
     // a caixinha de cada objetivo, mês a mês, para saber quando ela já basta: o que está nela (e o que ainda vai entrar de
     // uma vez, o patrimônio separado mais adiante e as vendas), rendendo até a data, cobre o valor. Daí em diante a sugestão
     // é zero, e o último aporte é só o que falta; o que sobra vai para os outros objetivos e para a liberdade
-    const saldo = {}, vendas = {}; ordem.forEach(o => { saldo[o.id] = 0; vendas[o.id] = vendasDoObjetivo(o).filter(v => !v.depois); });
+    // saldoS: a caixinha como se cada mês digitado tivesse recebido a sugestão. O aporte digitado não mexe nos outros meses: o
+    // que se tira num mês não volta depois (o objetivo fica abaixo da meta, e o consultor decide onde repor); a sugestão só
+    // cai quando a caixinha de verdade já basta
+    const saldo = {}, saldoS = {}, vendas = {}; ordem.forEach(o => { saldo[o.id] = saldoS[o.id] = 0; vendas[o.id] = vendasDoObjetivo(o).filter(v => !v.depois); });
     // a taxa de cada objetivo, mês a mês, e o crescimento acumulado até a data
     const TXP = {}, FXP = {}; ordem.forEach(o => { TXP[o.id] = taxaDoObjetivo(o); FXP[o.id] = cresceAte(o, Math.max(0, Math.round(+o.months || 0))); });
     const ateData = (o, k) => { const F = FXP[o.id], n = F.length - 1; return F[n] / F[Math.max(0, Math.min(n, k))]; };
-    const naData = (o, mi) => { const g = k => ateData(o, k), d = inicioDoDedicado(o);
-      return saldo[o.id] * g(mi) + (d > mi ? (+o.dedicated || 0) * g(d) : 0) + vendas[o.id].filter(v => v.mi > mi).reduce((a, v) => a + v.usado * g(v.mi), 0); };
+    const naData = (o, mi, sd = saldo) => { const g = k => ateData(o, k), d = inicioDoDedicado(o);
+      return sd[o.id] * g(mi) + (d > mi ? (+o.dedicated || 0) * g(d) : 0) + vendas[o.id].filter(v => v.mi > mi).reduce((a, v) => a + v.usado * g(v.mi), 0); };
     // com 1% de folga: a conta aqui é mês a mês, e a simulação rende semana a semana
-    const falta = (o, mi) => +o.amount > 0 ? Math.max(0, (+o.amount * 1.01 - naData(o, mi)) / ateData(o, mi)) : Infinity;
+    const falta = (o, mi, sd) => +o.amount > 0 ? Math.max(0, (+o.amount * 1.01 - naData(o, mi, sd)) / ateData(o, mi)) : Infinity;
     let caixa = 0;
     for (let mi = 0; mi < n; mi++) {
-      ordem.forEach(o => { saldo[o.id] *= 1 + taxaNoMes(TXP[o.id], mi); if (mi === inicioDoDedicado(o)) saldo[o.id] += +o.dedicated || 0; vendas[o.id].forEach(v => { if (v.mi === mi) saldo[o.id] += v.usado; }); });
+      ordem.forEach(o => { [saldo, saldoS].forEach(sd => { sd[o.id] *= 1 + taxaNoMes(TXP[o.id], mi); if (mi === inicioDoDedicado(o)) sd[o.id] += +o.dedicated || 0; vendas[o.id].forEach(v => { if (v.mi === mi) sd[o.id] += v.usado; }); }); });
       let livre = geral[mi];
       // os extras vão antes para o objetivo que é dono deles; o que ele não precisa volta para o mês
-      const ext = {}; ordem.forEach(o => { const x = extras[o.id][mi]; if (!(x > 0.005)) return; const e = Math.min(x, falta(o, mi)); if (e > 0.005) { ext[o.id] = e; saldo[o.id] += e; } livre += x - e; });
+      const ext = {}; ordem.forEach(o => { const x = extras[o.id][mi]; if (!(x > 0.005)) return; const e = Math.min(x, falta(o, mi)); if (e > 0.005) { ext[o.id] = e; saldo[o.id] += e; saldoS[o.id] += e; } livre += x - e; });
       // a parte de cada objetivo, até o que ele ainda precisa (o digitado vale como está)
-      const ativos = ordem.filter(o => ativo(o, mi)), ap = {}, digitado = {}, cortado = {};
-      ativos.forEach(o => { const d = digitadoEm(o, mi); if (d != null) { ap[o.id] = d; digitado[o.id] = true; } else ap[o.id] = o.aporteSobra ? 0 : Math.min(Math.max(0, +o.planned || 0), falta(o, mi)); });
+      const ativos = ordem.filter(o => ativo(o, mi)), ap = {}, digitado = {}, cortado = {}, sug = {};
+      ativos.forEach(o => { const d = digitadoEm(o, mi); sug[o.id] = o.aporteSobra ? 0 : Math.min(Math.max(0, +o.planned || 0), falta(o, mi, saldoS));
+        if (d != null) { ap[o.id] = d; digitado[o.id] = true; } else ap[o.id] = Math.min(sug[o.id], falta(o, mi)); });
       let reserva = lib(mi) ? 0 : RESERVA_M;
       // a caixa não volta a zero nos próximos 12 meses: o corte é o mínimo, igual em cada um deles, que a faz voltar
       // precisa: o menor dinheiro a mais, somando os meses de mi até precisaAte, que faz a caixa voltar a zero (o alvo do ajuste
@@ -2516,7 +2533,7 @@ const ENGINE = (() => {
       let acima = Math.max(0, fim - guardar[mi]);
       ativos.filter(o => o.aporteSobra && !digitado[o.id]).forEach(o => { const v = Math.min(acima, falta(o, mi)); ap[o.id] += v; acima -= v; fim -= v; });
       const liberdade = acima; fim -= liberdade;
-      ativos.forEach(o => { por[o.id][mi] = ap[o.id]; saldo[o.id] += ap[o.id]; });
+      ativos.forEach(o => { por[o.id][mi] = ap[o.id]; saldo[o.id] += ap[o.id]; saldoS[o.id] += digitado[o.id] ? sug[o.id] : ap[o.id]; });
       Object.keys(ext).forEach(id => { por[id][mi] += ext[id]; });   // na simulação, o extra é um aporte do mês como os outros
       const total = Object.values(ap).reduce((a, v) => a + v, 0) + Object.values(ext).reduce((a, v) => a + v, 0);
       caixa = fim;
@@ -2879,10 +2896,11 @@ const ENGINE = (() => {
     { const r = R.reserva || {}, custo = padraoDeVida(plan);
       const temDep = Array.isArray(R.dependentes) ? R.dependentes.length > 0 : !!r.dependentes;   // a lista de dependentes, quando existe, decide
       const nr = naturezaDaReserva(plan), nat = NATUREZAS.find(n => n[0] === (nr && nr.natureza)), d = temDep ? 3 : 0, t = nat ? nat[1] : null;
-      const calculado = t != null ? custo * (d + t) : null, ideal = num(r.alvo) != null ? +r.alvo : calculado;
+      // o alvo zerado (um campo apagado, a coleta sem resposta) vale como vazio: fica o ideal calculado
+      const alvo = +r.alvo > 0 ? +r.alvo : null, calculado = t != null ? custo * (d + t) : null, ideal = alvo != null ? alvo : calculado;
       const atual = num(r.atual) != null ? +r.atual : num((R.liquidez || {}).d0);
       const status = ideal == null || !(ideal > 0) || atual == null ? 'pendente' : atual >= ideal ? 'ok' : atual >= ideal * 0.4 ? 'atencao' : 'critico';
-      out.reserva = { status, custo, dependentes: temDep, natureza: nat ? nat[0] : null, naturezaDe: nat ? nr.quem : null, d, t, meses: t != null ? d + t : null, calculado, ideal, minima: ideal != null ? ideal * 0.4 : null, aceitavel: ideal != null ? ideal * 0.7 : null, atual, alvoProprio: num(r.alvo) != null }; }
+      out.reserva = { status, custo, dependentes: temDep, natureza: nat ? nat[0] : null, naturezaDe: nat ? nr.quem : null, d, t, meses: t != null ? d + t : null, calculado, ideal, minima: ideal != null ? ideal * 0.4 : null, aceitavel: ideal != null ? ideal * 0.7 : null, atual, alvoProprio: alvo != null }; }
     // Saúde: a avaliação do consultor decide. O custo é a soma dos prêmios de cada vida; o que a empresa ou outra pessoa
     // paga (vida.pagador = 'terceiros') não sai do bolso da família e não entra no Fluxo de caixa (doBolso).
     { const r = R.saude || {}, vidas = r.vidas || [], total = vidas.reduce((a, v) => a + (+v.premio || 0), 0), alt = r.alternativa || {};
@@ -4702,8 +4720,14 @@ function chartTip(i) {
   const done = id => s.events.find(e => e.type === 'obj' && e.obj.id === id && e.week <= i);
   let h = `<h4>${fmtDate(d)} · ${Math.floor(age)} anos</h4>`;
   if (s.ff && i >= s.ff.week) {   // valores do mês (de salário a salário), não da média da curva
-    const pas = w.pas || 0, saque = w.saque || 0;
-    h += `<div class="vida"><span>Seu padrão de vida</span><b>${fmt(pas + saque)}/mês</b><div class="vida-d"><span><i class="sw" style="background:#7C5CBF"></i>${fmt(pas)} de renda passiva</span><span><i class="sw" style="background:${C.fin}"></i>${fmt(saque)} retirados do patrimônio</span></div></div>`;
+    const pas = w.pas || 0, trab = w.trab || 0, saque = w.saque || 0, nm = ENGINE.nomesDaFamilia(planoVista());
+    const quem = (w.quem || []).map(q => nm[q]).join(' e ') || 'quem ainda trabalha';
+    // a renda do trabalho só aparece enquanto alguém do casal ainda não parou; o que vem por ano entra pela média de 12 meses
+    const media = (w.media || []).map(c => `${c.label}: ${fmt(c.v * 12)} no ano, ${fmt(c.v)} por mês na média`).join('; ');
+    h += `<div class="vida"><span>Seu padrão de vida</span><b>${fmt(pas + trab + saque)}/mês</b><div class="vida-d">`
+      + (trab > 0.5 ? `<span><i class="sw" style="background:${C.navy}"></i>${fmt(trab)} da renda do trabalho de ${quem}</span>` : '')
+      + `<span><i class="sw" style="background:#7C5CBF"></i>${fmt(pas)} de renda passiva</span><span><i class="sw" style="background:${C.fin}"></i>${fmt(saque)} retirados do patrimônio</span></div>`
+      + (media ? `<div class="vida-n">Entradas que não vêm todo mês contam pela média do ano (o total dividido por 12). ${media}.</div>` : '') + `</div>`;
   }
   // eventos próximos ao ponto (marcos e sub-eventos) entram no tooltip
   s.events.filter(e => Math.abs(xOfW(e.week) - xOfW(i)) <= 10).forEach(e => { h += `<div class="row" style="color:#20344C"><span>◆ ${e.label}</span></div>`; if (e.detail) h += `<div class="row muted"><span>${e.detail}</span></div>`; });
