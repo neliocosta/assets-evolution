@@ -1237,5 +1237,42 @@ console.log('\nSemanadas: o teto da fatura do cartão, semana a semana');
   ok('acompanhamento: abaixo do marco, os marcos ficam e cada semana mostra a sua folga (200 e 500)', A3.semanas[0].folga === 200 && A3.semanas[1].folga === 500 && A3.semanas[3].marco === 9500 && !A3.semanas.some(s => s.mudou), A3.semanas.map(s => s.folga).join(' '));
   ok('acompanhamento: sem nada informado, as semanas ficam com os marcos do plano e não há novo alvo', A0.novo === null && A0.semanas.map(s => s.marco).join(' ') === '4100 6500 8000 9500' && A0.fecha === 9500, '');
 }
+// ESPEC-LIBERDADE-CAIXINHAS.md, etapa 1: o cofre em três partes (caixa de curto prazo, reserva e liberdade)
+if (fs.existsSync('ux/auditoria/planos/plano-09.json')) {
+  console.log('\nCofre em três partes: caixa, reserva e liberdade');
+  const ler = f => { const j = JSON.parse(fs.readFileSync(f, 'utf8')); return j.dados || j; };
+  const arqs = fs.readdirSync('ux/auditoria/planos').filter(f => f.endsWith('.json')).map(f => 'ux/auditoria/planos/' + f);
+  let soma = 0, neg = 0, w0 = [];
+  arqs.forEach(f => { const Ec = carregar(srcCliente), P = ler(f); Ec.configure(P); const s = Ec.run('desej'), W = s.weeks, G = Math.pow(1 + Ec.R_M, 7 / 30.4375);
+    for (let i = Ec.W0; i < W.length; i++) { const w = W[i]; soma = Math.max(soma, Math.abs(w.caixa + w.res + w.lib - w.cofre)); if (w.res < -0.01 || w.lib < -0.01) neg++; }
+    // T2: a reserva em W0 é a da política (até o que o cofre tem), rendendo uma semana
+    const pz = Ec.politicaDeInvestimentos(P, s).caixinhas.find(c => c.id === 'reserva');
+    if (Math.abs(W[Ec.W0].res / G - Math.min(pz.patrimonio, W[Ec.W0].cofre / G)) > 1) w0.push(f.split('/').pop() + ': ' + Math.round(W[Ec.W0].res / G) + ' ≠ ' + Math.round(pz.patrimonio)); });
+  ok('T1: caixa + reserva + liberdade = cofre em toda semana, em todos os planos da auditoria', soma < 0.01, 'maior diferença ' + soma.toExponential(1));
+  ok('T1: a reserva e a liberdade nunca ficam negativas (a falta do caixa sai da liberdade e depois da reserva)', neg === 0, neg ? neg + ' semanas' : '');
+  ok('T2: a reserva em W0 é a da Política de investimentos', w0.length === 0, w0.join('; '));
+
+  // etapas 2 e 3: a estratégia da liberdade muda só a liberdade; a sobra chega à liberdade
+  const P1 = ler('ux/auditoria/planos/plano-01.json');
+  const rodaCom = (perfil) => { const Ec = carregar(srcCliente), P = JSON.parse(JSON.stringify(P1)); P.profiles = Object.assign({ conservador: 0.004, moderado: 0.005, agressivo: 0.006 }, P.profiles);
+    if (perfil) { P.liberdadePerfil = perfil; P.rate = P.profiles[perfil]; } Ec.configure(P); return { Ec, s: Ec.run('desej'), P }; };
+  const cons = rodaCom('conservador'), agr = rodaCom('agressivo'), W = cons.Ec.W0, ate = W + 520;   // dez anos
+  let difRes = 0, difObj = 0, libMaior = true;
+  for (let i = W; i < Math.min(ate, cons.s.weeks.length); i++) { const a = cons.s.weeks[i], b = agr.s.weeks[i];
+    difRes = Math.max(difRes, Math.abs(a.res - b.res)); difObj = Math.max(difObj, ...a.obj.map((v, k) => Math.abs(v - b.obj[k]))); if (i > W + 4 && !(b.lib > a.lib)) libMaior = false; }
+  ok('T3: liberdade agressiva rende mais que a conservadora, sem mexer nas caixinhas dos objetivos', libMaior && difObj < 0.01, 'objetivos: diferença ' + difObj.toFixed(2));
+  ok('T4: a reserva é a mesma com a liberdade conservadora ou agressiva', difRes < 0.01, 'diferença ' + difRes.toFixed(2));
+  // T5/T6: depois de cada fechamento de mês, o caixa não passa do que guarda (o programa ou a janela de 12 meses)
+  { const s = cons.s, pr = s.programa; let passa = 0;
+    for (let i = W; i < s.weeks.length - 1; i++) { const w = s.weeks[i], prox = s.weeks[i + 1]; if (prox.mi === w.mi || w.mi < 0 || (s.ff && w.mi >= s.ff.mi)) continue;
+      const pm = pr && pr.meses[w.mi]; if (pm && w.caixa > Math.max(0, pm.guardado) + 1) passa++; }
+    ok('T5: no fim de cada mês do Fluxo de 24 meses, o caixa fica com o que o fluxo guarda; o resto foi para a liberdade', passa === 0, passa + ' meses acima'); }
+  // T8: a sobra da caixinha na data vai para a liberdade
+  { const Ec = carregar(srcCliente), P = JSON.parse(JSON.stringify(P1)), o = (P.objectives || []).find(x => x.kind !== 'bem' && +x.months > 2);
+    if (o) { o.dedicated = +o.amount * 2; Ec.configure(P); const s = Ec.run('desej'), k = Ec.OBJ.findIndex(x => x.id === o.id), mi = Math.round(+o.months);
+      const antes = s.weeks.filter((w, i) => i >= Ec.W0 && w.mi === mi - 1).pop(), depois = s.weeks.filter((w, i) => i >= Ec.W0 && w.mi === mi).pop();
+      const sobra = antes.obj[k] - +o.amount;
+      ok('T8: o que sobra na caixinha do objetivo, na data, vai para a liberdade', k >= 0 && depois.lib - antes.lib > sobra * 0.9, 'sobra ' + Math.round(sobra) + ', a liberdade subiu ' + Math.round(depois.lib - antes.lib)); } }
+}
 console.log('\n' + (falhas ? falhas + ' verificação(ões) falharam.' : 'Tudo certo.') + '\n');
 process.exit(falhas ? 1 : 0);
